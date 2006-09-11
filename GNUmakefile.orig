@@ -1,0 +1,133 @@
+UNAME := $(shell uname | perl -pe 's/(sn\d\d\d\d|jsimpson)/UNICOS\/mk/')
+# for host specific options
+HOST := $(shell hostname)
+
+# for processor-specific options
+ifeq ($(UNAME), Linux)
+PROC := $(shell uname -p)
+endif
+
+CXX = c++
+CC = cc
+H5HOME = /usr/local/hdf5
+CFLAGS = -g -I$(H5HOME)/include
+LDFLAGS = -L$(H5HOME)/lib -lhdf5 -lz -lm
+
+# MacOS-X Serial
+ifeq ($(UNAME), Darwin)
+ifeq ($(PARALLEL), yes)
+CXX = g++
+CC = mpicc
+H5HOME = /usr/local
+CFLAGS = -O -g -I$(H5HOME)/include -DPARALLEL_IO
+LDFLAGS = -L$(H5HOME)/lib -lmpich -lpmpich -lhdf5 -lz -lm
+else
+CXX = c++
+CC = cc
+F90 = xlf
+H5HOME = /usr/local
+CFLAGS = -O -g -I$(H5HOME)/include
+LDFLAGS = -L$(H5HOME)/lib -lhdf5 -lz -lm
+endif
+endif
+
+# SGI MIPS/Irix
+ifeq ($(UNAME), IRIX64)
+CXX = CC
+CC = cc
+F90 = f90
+ifeq ($(PARALLEL), yes)
+H5HOME = $(HDF5_DIR)
+CFLAGS = -64 -O3 -I$(H5HOME)/include -DPARALLEL_IO
+LDFLAGS = -64 -O3 -L$(H5HOME)/lib -lhdf5 -lz -lmpi -lm
+else
+H5HOME = /usr/local
+CFLAGS = -O3 -I$(H5HOME)/include
+LDFLAGS = -L$(H5HOME)/lib -lhdf5 -lz -lm
+endif
+endif
+
+# AIX/SP-2 Parallel/serial : Seaborg
+ifeq ($(UNAME), AIX)
+ifeq ($(PARALLEL), yes) # parallel
+CXX = mpCC_r
+CC = mpxlc_r
+# H5HOME = /usr/common/usg/hdf5_64/1.4.5-post2/parallel
+H5HOME = /usr/common/usg/hdf5_64/1.6.1/parallel
+# /usr/common/usg/hdf5/1.4.4/parallel
+H4HOME = /usr/common/usg/hdf/default
+OPT = -qarch=auto -qtune=auto-qcache=auto -O3 -qhot
+CFLAGS = -q64 -I$(H5HOME)/include
+LDFLAGS = -L$(H5HOME)/lib -lhdf5 -L$(H4HOME)/lib -lz -lsz -lm
+else # serial
+CXX = xlC
+CC = xlc
+H5HOME = /usr/common/usg/hdf5/1.4.4/serial
+H4HOME = /usr/common/usg/hdf/default
+OPT = -qarch=auto -qtune=auto-qcache=auto -O3 -qhot
+CFLAGS = -g -bmaxdata:800000000  -bmaxstack:256000000 -I$(H5HOME)/include
+LDFLAGS = -L$(H5HOME)/lib -lhdf5 -L$(H4HOME)/lib -lz -lm
+endif
+endif
+
+# Linux
+ifeq ($(UNAME), Linux)
+# if this machine is NERSC/Davinci Altix system
+ifeq ($(PROC), ia64)
+CC = icc 
+CXX = icc
+
+ifeq ($(PARALLEL), yes)
+# IA64 Linux Parallel
+ifeq ($(HOST), davinci)
+H5HOME = $(HDF5_PAR)
+MPILIB = -lmpi
+else
+H5HOME = /usr/local
+HDF5_PAR_LIB = -L$(H5HOME)/lib -lhdf5 -lz -lm
+HDF5_PAR_INCLUDE = -I$(H5HOME)/include
+MPIHOME = /usr/local
+MPILIB = -lmpich
+endif # HOST
+CFLAGS = -O3 -DPARALLEL_IO -DH5_HAVE_PARALLEL $(HDF5_PAR_INCLUDE) 
+LDFLAGS = $(HDF5_PAR_LIB) $(MPILIB)
+else # IA64 Linux Serial
+CFLAGS = -O3 $(HDF5_INCLUDE)
+LDFLAGS = $(HDF5_LIB) -lm
+endif # PARALLEL
+
+# else this is standard IA32 linux
+else
+ifeq ($(PARALLEL), yes)
+# Linux Parallel
+CC = gcc
+CXX = g++
+H5HOME = /usr/local
+MPIHOME = /usr/local
+CFLAGS = -O -g -DPARALLEL_IO -DH5_HAVE_PARALLEL -I$(H5HOME)/include 
+LDFLAGS = -L$(H5HOME)/lib -lhdf5 -lmpich -lrt -lz -lm
+else # Linux Serial
+CXX = g++
+CC = gcc
+CFLAGS = -O -g -I$(H5HOME)/include
+LDFLAGS = -L$(H5HOME)/lib -lhdf5 -lz -lm
+endif # !PARALLEL
+endif # PROC!ia64
+
+endif # !Linux
+
+ifeq ($(PARALLEL), yes) #parallel
+ifdef F90
+all: H5PartTest H5PartTest.o H5Part.o H5PartTestParallel H5PartAndreasTest H5PartF.o
+else
+all: H5PartTest H5PartTest.o H5Part.o H5PartTestParallel H5PartAndreasTest
+endif
+else
+ifdef F90
+all: H5PartTest H5PartTest.o H5Part.o H5PartF.o
+else
+all: H5PartTest H5PartTest.o H5Part.o
+endif
+endif
+
+include rules.make

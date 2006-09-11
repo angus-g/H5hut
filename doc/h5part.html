@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>H5Part: a Portable High Performance Parallel Data Interface to HDF5</title>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="keywords" content="scientific visualization">
+<meta name="sitemap" content="put a brief descriptive phrase here that will show up in the site map:foo">
+
+
+<div id="maincenter">
+<font face="arial,helvetica"><h1>H5Part: a Portable High Performance Parallel Data Interface to HDF5</h1></font>
+<h2><font color="red"> THESE PAGES ARE UNDER CONSTRUCTION, July 2006</h2></font>
+<font face="arial,helvetica" color="#555588"><h2>Motivation</h2></font>
+<P>
+<TABLE>
+<TR>
+<TD>
+<a href="collision_6.png"><img src="collision_6.s.png" width=300 height=300></a>
+</TD
+></TR>
+<TR>
+<TD>
+Beam-beam collision simulation.
+</TD>
+</TR>
+</TABLE>
+</P>
+<P>
+Particle based simulations of accelerator beam-lines, especially in
+six dimensional phase space, generate vast amounts of data. Even
+though a subset of statistical information regarding phase space
+or analysis needs to be preserved, reading and writing such
+enormous restart files on massively parallel supercomputing
+systems remains challenging.<p>
+</P>
+
+<P>
+H5Part is a very simple data storage schema and provides an
+API that simplifies the reading/writing of the data to the HDF5
+file format. An important foundation for a stable visualization and data
+analysis environment is a stable and portable file storage format and
+its associated APIs. The presence of a "common file storage format,"
+including associated APIs, will help foster a fundamental level of
+interoperability across the project's software infrastructure. It will
+also help ensure that key data analysis capabilities are present
+during the earliest phases of the software development effort.
+</P>
+<P>
+H5Part is built on top of the <a href="http://hdf.ncsa.uiuc.edu/HDF5">HDF5 (Hierarchical Data Format).</a>
+HDF5 offers a self-describing machine-independent
+binary file format that supports scalable parallel I/O
+performance for MPI codes on a variety of supercomputing
+systems, and works equally well on laptop computers. The API is
+available for C, C++, and Fortran codes. The H5Part file format and APIs
+enable disparate research groups with different simulation
+implementations to transparently share datasets and data
+analysis tools. For instance, the common file format will enable
+groups that depend on completely different simulation
+implementations to share data analysis tools.
+</P>
+<font face="arial,helvetica" color="#555588"><h2>H5Part file organization and API</h2></font>
+<P>
+The proposed file storage format uses HDF5 for the lowlevel
+file storage and a simple API to provide a high-level
+interface to that file format. A programmer can either use
+the H5Part API to access the data files or write directly to
+the file format using some simple conventions for organizing
+and naming the objects stored in the file.
+</P>
+<P>
+In order to store Particle Data in the HDF5 file format,
+we have formalized the hierarchical arrangement of the
+datasets and naming conventions for the groups and associated
+datasets. The sample H5Part API formally encodes
+these conventions in order to provide a simple and uniform
+way to access these files from C, C++, and Fortran codes.
+The API makes it easier to write very portable data adaptors
+for visualization tools in order to expand the number of
+tools available to access the data. Even so, anyone can use
+the HDF5 h5ls utility to examine the organization of the
+H5Part files and even write their own HDF5-based interface
+for reading and writing the file format. The standards
+offered by the sample API are completely independent of
+the standard for organizing data within the file.The file
+format supports the storage of multiple timesteps
+of datasets that contain multiple fields.
+</P>
+<!-- 
+<font face="arial,helvetica" color="#555588"><h2>Requirements Specification</h2></font>
+<UL>
+<LI><a href="H5PartSpecs.html">H5Part API specifications
+</UL>
+</a>
+-->
+
+<font face="arial,helvetica" color="#555588"><h2>Downloading and Installing H5Part</h2></font>
+<UL>
+<LI><a href="Downloading.html">Downloading HDF5 and H5Part
+<LI><a href="BuildingHDF5.html">Building the HDF5 Library</a>
+<LI><a href="Building.html">Building the H5Part Library</a>
+</UL>
+<font face="arial,helvetica" color="#555588"><h2>Bindings</h2></font>
+<UL>
+<LI><a href="UsingC.html">Using the C/C++ interface</a>
+<LI><a href="UsingF.html">Using the F77/F90 interface</a>
+<LI><a href="InternalLayout.html">Logical Internal HDF5 File</a>
+<LI><a href="H5PartTools.html">H5Part Utility Tools</a>
+<LI><a href="ReferencePages/index.html">Reference Manual</a>
+</UL>
+
+<font face="arial,helvetica" color="#555588"><h2>H5Part Visualization Tools</h2></font>
+<UL>
+<LI><a href="H5PartExpress.html">H5Part Express Reader</a>
+<LI><a href="H5PartVisIt.html">H5Part VisIt Reader</a>
+<LI><a href="H5PartIDL.html">H5Part IDL Reader</a>
+<LI><a href="http://www.cscs.ch/a-display.php?id=170">H5Part sparticles Reader: developed at CSCS, Switzerland</a>
+
+<LI><a href="H5PartPartView.html">PartView Visualization Application</a>
+</UL>
+</div>
+

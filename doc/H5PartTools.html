@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Put your title here!!</title>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="keywords" content="scientific visualization">
+<meta name="sitemap" content="put a brief descriptive phrase here that will show up in the site map:foo">
+
+<!--#include virtual="/include/topIncludes.html"-->
+
+<div id="maincenter">
+
+
+<head>
+	<title>H5Part Utility Tools</title>
+</head>
+
+  <body bgcolor="#F0F0F0">
+    <font face="arial,helvetica" size="+2" color="#555588"><h2>H5Part Utility Tools</h2></font>
+    <UL>
+      <LI><a href="h5pAttrib">h5pAttrib</a>
+      <LI><a href="h5pToGNUplot">h5pToGNUplot</a>
+    </UL>
+
+<hr>
+
+<a name="h5pAttrib">
+<h2>h5pAttrib</h2>
+</a>
+
+<b>h5pAttrib</b> is an inspection tool that prints to stdout the number of timesteps in a file
+        the file attributes, the step attributes, the dataset names and their values. It's simpler to use than h5dump.
+	Usage options are given by typing:
+<br><br>
+<PRE>
+% ./h5pAttrib -h
+usage: h5pAttrib [OPTIONS] file
+
+  OPTIONS
+   -h, --help           Print help page
+   -n, --nstep          Print number of steps
+   -A, --fileA          Print file attributes
+   -a, --stepA          Print step attributes & values for time step n
+   -d, --dataset        Print data sets names & values for time step n
+   -H, --header         Print shorter version without the values
+</PRE>
+
+<h3>Examples</h3>
+<OL>
+  <LI>
+  Show file attribute names & values of sample.h5part
+  </LI>
+        h5pAttrib -A sample.h5part
+  <LI>
+  Show step attribute names for time step 5 of sample.h5part
+  </LI>
+        h5pAttrib -a 5 -H sample.h5part
+</OL>
+
+<a name="h5pToGNUplot">
+<h2>h5pToGNUplot</h2>
+</a>
+
+<b>h5pToGNUplot</b> is a converter from H5Part to two column ASCII text format for loading into GNUplot. Usage options are given by typing:
+<br><br>
+<PRE>
+% ./h5pToGNUplot -h
+
+usage: h5pToGNUplot -t TIMESTEP -1 VARIABLE#1 -2 VARIABLE#2 -i INPUTFILE [OPTIONAL_FLAGS]
+
+  FLAGS
+   -h, --help           Print help page
+   -1, --1var           (REQUIRED) Takes first variable parameter
+   -2, --2var           (REQUIRED) Takes second variable parameter
+   -i, --input          (REQUIRED) Takes input file name
+   -t, --timestep       (REQUIRED) Sets the timestep (Value -1 will result in dumping values of all timesteps.)
+   -o, --output         (OPTIONAL) Takes output file name (without this flag, the program will print to stdout)
+   -n, --number         (OPTIONAL) Sets number of output points
+   -s, --start          (OPTIONAL) Sets the starting particle index
+</PRE>
+
+<h3>Examples</h3>
+<OL>
+	<LI>	
+  Create a GNU plot file output.txt from sample.h5part by ploting x vs px for timestep 54
+	</LI>
+        h5pToGNUplot -t 54 -1 x -2 px -i sample.h5part -o output.txt
+	<LI>	
+  Create a GNU plot file output.txt from sample.h5part by ploting x vs px for timestep 54
+     using 1200 points from particle index 76
+	</LI>	
+        h5pToGNUplot -t 54 -1 x -2 px -i sample.h5part -o output.txt -s 76 -n 1200
+</OL>
+
+</div>
+
+<!--#include virtual="/include/dateFooter.html"-->
+
+

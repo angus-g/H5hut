@@ -1,0 +1,606 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>H5Part, the C/C++ API</title>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="keywords" content="scientific visualization">
+<meta name="sitemap" content="put a brief descriptive phrase here that will show up in the site map:foo">
+
+<!--#include virtual="/include/topIncludes.html"-->
+
+<div id="maincenter">
+
+<h1>The C/C++ Application Programming Interface (API)</h1>
+<UL>
+<LI><a href="#Opening">Opening, Closing, and Validating Datafiles</a>
+<LI><a href="#SetStep">Setting the Simulation Timestep</a>
+<LI><a href="#SetNumParticles">Setting the Number of Particles</a>
+<LI><a href="#Writing">Writing Datasets</a>
+<LI><a href="#ReadingNumTimeSteps">Reading the Number of Time Steps</a>
+<LI><a href="#ReadingNumParticles">Reading the Number of Particles</a>
+<LI><a href="#Reading">Reading Datasets</a>
+<LI><a href="#DatasetsInfo">Reading the Number and the Names of Datasets</a>
+<LI><a href="#AttributesInfo">Attributes Interface</a>
+<LI><a href="#WriteAttribs">Writing Additional Attributes</a>
+<LI><a href="#ReadAttribs">Reading Attributes</a>
+</UL>
+<br>
+<a href="ReferencePages/index.html">Reference Manual (Doxygen)</a>
+<br>
+<hr>
+<a name="Opening"><h2>Opening Datafiles</h2></a>
+<P>
+Just like the familiar <code>FILE*</code> type for C stdio operations, all
+H5Part file operations require a file handle.  The type of this handle is
+<code>(H5PartFile*)</code>.
+<br>
+<code>H5PartOpenFile()</code> is
+used to open a serial file and
+<code>HDFPartOpenFileParallel()</code> is used to open a file for
+Parallel I/O (in an MPI program).
+After you open the file handle you can use the same set of 
+subroutines for operations on the file regardless of whether the
+file is a parallel or serial I/O file.  
+The libraries manage all of this internally.<p>
+</P>
+<b>C Prototypes</b><br>
+<P>
+<b>Serial File</b><br>
+<code>H5PartFile *H5PartOpenFile(const char *filename, unsigned
+accessmode);</code><br>
+<b>Parallel File</b><br>
+<code>H5PartFile *H5PartOpenFileParallel(char *filename,int
+accessmode,MPI_Comm communicator);</code><br>
+<DT><i>filename</i>: </DT><DD>The name of the IEEEIO data file to
+open.  The typical extension for these files is <i>.h5</i></DD>
+<DT><i>accessmode</i>: </DT><DD>The accessmode for the file.  This is
+one of 2 different access modes<br>
+<code>H5PART_READ</code> : Opens a file in read-only mode.</DT><br>
+<code>H5PART_WRITE</code> : Opens a file in write-only mode.
+If the
+file does not exist, it will be created.  If it does
+exist, it will be
+truncated. 
+<DT><i>communicator</i>: </DT>
+<DD>This argument is only available if the program has been
+compiled with the <code>PARALLEL_IO</code> C-preprocessor flag
+defined. It is used to pass in the communicator that will be
+used for all collective I/O operations that target the same
+file on disk.</DD>
+<DT><i>Returns</i>:</DT><DD>A new filehandle with an open file or NULL if error.</DD>	
+</DL>
+</P>
+<br><b>Example Use</b><br>
+<pre>
+#include &lt H5Part.h &gt
+. . . code . . .
+    /* Open an HDF5 file for writing */
+    H5PartFile *writer = H5PartOpenFile("datafileout.h5",H5PART_WRITE);
+    /* Open an HDF5 file for Parallel I/O */
+    H5PartFile *writer = H5PartOpenFileParallel("datafileout.h5",H5PART_WRITE,MPI_COMM_WORLD);
+    /* open HDF5 file for reading */ 
+    H5PartFile *reader = H5PartOpenFile("datafilein.h5",H5PART_READ); 
+    /* open HDF5 file for parallel reads */ 
+    H5PartFile *reader = H5PartOpenFileParallel("datafilein.h5",H5PART_READ,MPI_COMM_WORLD);
+. . . more code . . .
+</pre> <br>
+
+
+<hr>
+
+
+<h2>Closing Datafiles</h2>
+<P>
+To close the file, you simply use H5PartCloseFile() for both
+parallel and serial files. You must call H5PartCloseFile() on any
+file descriptor created by H5PartFileOpen() regardless of
+whether the file turns out to be valid or not.
+</P>
+<b>C Prototypes</b><br>
+<P>
+<code>void H5PartCloseFile(H5PartFile *fileID);</code>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+H5PartOpenFile() or H5PartOpenFileParallel().</DD>
+<DT><i>Returns</i>:</DT><DD>void.</DD>	
+</DL>
+</P>
+<br><b>Example Use</b><br>
+<pre>
+#include &lt H5Part.h &gt
+H5PartFile *file;
+... code ...
+file=H5PartOpenFileParallel("parttest.h5",H5PART_WRITE,comm);
+... more code ...
+H5PartCloseFile(file);
+</pre>
+<br>
+<hr>
+
+
+<h2>Validating Datafiles</h2>
+<P>
+You can test if the file was opened successfully using the
+H5PartFileIsValid() function. It returns 1 if valid, 0 if invalid.<p>
+</P>
+<b>C Prototype</b><br>
+<P>
+<code>int H5PartFileIsValid(H5PartFile *fileID);</code>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+H5PartOpenFile() or H5PartOpenFileParallel().</DD>
+<DT><i>Returns</i>:</DT><DD>1 if valid, 0 if invalid.</DD>	
+</DL>
+</P>
+<br><b>Example Use</b><br>
+<P>
+Here is an example of validating a newly opened file.  Even if
+the file is invalid, you must use H5PartCloseFile() to reclaim
+the file handle.
+</P>
+<pre>
+#include &lt H5Part.h &gt
+. . . code . . .
+    H5PartFile *fileID = H5PartOpenFile("datafileout.h5",H5PART_WRITE);
+    if(!H5PartFileIsValid(fileID)){ 
+       puts("The file you specified does not exist or is not in a
+readable format");
+       H5PartClose(fileID); /* must reclaim fileID even if file is invalid */
+       . . . do other cleanup . . .
+    }
+. . . more code . . .
+</pre><br>
+
+<hr>
+
+<a name="SetStep">
+<h2>Setting the Timestep</h2>
+</a>
+<P>
+When writing data to a file the current time step must be set (even if there is only one). In a file with N time steps, the steps are numbered from 0 to N-1.
+</P>
+<b>C Prototype</b><br>
+<P>
+<code>void H5PartSetStep((H5PartFile *fileID,int step);</code>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+H5PartOpenFile() or H5PartOpenFileParallel().</DD>
+<DT><i>step</i>: </DT><DD>An integer time step.
+</DD>
+<DT><i>Returns</i>: </DT><DD>void.</DD>
+</DL>
+<br><b>Example Use</b><br>
+</P>
+<pre>
+#include &lt H5Part.h &gt
+H5PartFile *fileID;
+int timeStep;
+....
+H5PartSetStep(fileID,timeStep);
+....
+</pre>
+
+<hr>
+	
+
+<a name="SetNumParticles">
+</a>
+<h2>Setting the Number of Particles</h2>
+<P>
+H5PartSetNumParticles:  This function's sole purpose is to 
+prevent needless creation of new HDF5 DataSpace handles if
+the number of particles is invariant throughout the sim.
+That's its only reason for existence.  After you call this
+subroutine, all subsequent operations will assume this 
+number of particles will be written.
+</P>
+<b>C Prototype</b><br>
+<P>
+<code>void H5PartSetNumParticles(H5PartFile *fileID,long long nparticles);</code>
+
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+H5PartOpenFile() or H5PartOpenFileParallel().</DD>
+<DT><i>nparticles</i>: </DT><DD>A long long integer specifying  the number of particles.
+</DD>
+<DT><i>Returns</i>: </DT><DD>void.</DD>
+</DL>
+</P>
+<br><b>Example Use</b><br>
+<pre>
+#include &lt H5Part.h &gt
+H5PartFile *fileID;
+long long nparticles;
+....
+H5PartSetStep(fileID,nparticles);
+....
+</pre>
+
+<hr>
+
+<a name="Writing">
+<h2>Writing Datasets</h2>
+</a>
+<P>
+After setting the number of particles with 
+<a  href="#SetNumParticles">H5PartSetNumParticles()</a>
+and the current timestep using 
+<a href="#SetStep">H5PartSetStep()</a>, you can start
+writing datasets into the file.  Each dataset has a name
+associated with it (chosen by the user) in order to facilitate
+later retrieval.  The writing routines also implicitly store
+the datatype of the array so that the array can be
+reconstructed properly on other systems with incompatible type
+representations. The data is committed to disk before the
+routine returns. All data that is written after setting the
+timestep is associated with that timestep. While the number of
+particles can change for each timestep, you cannot change the
+number of particles in the middle of a given timestep.
+</P>
+<b>C Prototypes</b><br>
+<P>
+<code>int H5PartWriteDataFloat64(H5PartFile *fileID,char
+  *name,double *array);</code></br>
+<code>int H5PartWriteDataInt64(H5PartFile *fileID,char
+  *name,double *array);</code>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or 
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>name</i>: </DT><DD>A null-terminated string for the
+name of the array.  When retrieving datasets from disk,
+you ask for them by name.  There are no restrictions on
+naming of arrays, but it is useful to arrive at some common
+naming convention when sharing data with other groups.</DD>
+<DT><i>array</i>: </DT><DD>A buffer containing an array of
+particle data to commit to disk.  The datatype for
+elements in the buffer is implicit in the name of the
+subroutine call.</DD>
+<DT><i>Returns</i>: </DT><DD>1 on success, 0 on failure.</DD>
+</DL>
+</P>
+<br><b>Example Use</b><br>
+<pre>
+#include &lt H5Part.h &gt
+H5PartFile *fileID;
+double *x,*y,*z;
+int timeStep;
+long long nparticles;
+
+...
+
+H5PartSetStep(fileID,timeStep); /* must set the current timestep in file */
+H5PartSetNumParticles(fileID,nparticles); /* then set number of particles to store */
+
+/* now write different tuples of data into this timestep of the file */
+H5PartWriteDataFloat64(fileID,"x",x);
+H5PartWriteDataFloat64(fileID,"y",y);
+H5PartWriteDataFloat64(file,"z",z);
+..
+</pre>
+
+<hr>
+<a name="ReadingNumTimeSteps">
+<h2>Reading the Number of Time Steps</h2>
+</a>
+<P>
+This reads the number of datasteps that are 
+  currently stored in the datafile.
+  It works for both reading and writing of files, but is probably
+  only typically used when you are reading.
+
+</P>
+<b>C Prototype</b><br>
+<P>
+<code>int H5PartGetNumSteps  	(H5PartFile *fileID);</code><br>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by <a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD> 
+<DT><i>Returns</i>: </DT><DD>The number of timesteps currently stored in the file.
+</DL>
+</P>
+<hr>
+
+<a name="ReadingNumParticles">
+<h2>Reading the Number of Particles</h2>
+</a>
+<P>
+This reads the number of particles that are
+currently stored in the current time step.
+It will arbitrarily select a timestep if you haven't 
+already set the timestep with H5PartSetStep().
+
+</P>
+<b>C Prototype</b><br>
+<P>
+<code>long long H5PartGetNumParticles     (H5PartFile *fileID);</code><br>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by <a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>Returns</i>: </DT><DD>The number of particles in current timestep.
+</DL>
+</P>
+<br><b>Example Use</b><br>
+<pre>
+#include &lt H5Part.h &gt
+H5PartFile *fileID;
+int timeStep;
+long long nparticles;
+
+H5PartSetStep(fileID,0);
+nparticles=H5PartGetNumParticles(fileID);
+...
+</pre>
+
+<hr>
+
+
+
+<a name="Reading">
+<h2>Reading Datasets</h2>
+</a>
+<P>
+After setting the time step and getting the number of particles to allocate the data arrays, you can start to read the data.
+</P>
+<b>C Prototypes</b><br>
+<P>
+<code>int H5PartReadDataFloat64(H5PartFile *fileID,char *name,double *array);</code><br>
+<code>int H5PartReadDataInt64(H5PartFile *fileID,char *name,long long *array);</code><br>
+
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>name</i>: </DT><DD>A null-terminated string for the
+name of the array.  When retrieving datasets from disk,
+you ask for them by name.  There are no restrictions on
+naming of arrays, but it is useful to arrive at some common
+naming convention when sharing data with other groups.</DD>
+<DT><i>array</i>: </DT><DD>A buffer to which the particle data will be read.i
+The datatype for
+elements in the buffer is implicit in the name of the
+subroutine call.</DD>
+<DT><i>Returns</i>: </DT><DD>1 on success, 0 on failure.</DD>
+</DL>
+</P>
+<br><b>Example Use</b><br>
+<pre>
+#include &lt H5Part.h &gt
+H5PartFile *fileID;
+double *x,*y,*z;
+int timeStep;
+long long nparticles;
+
+H5PartSetStep(fileID,0);
+nparticles=H5PartGetNumParticles(fileID);
+... 
+
+H5PartReadDataFloat64(file,"x",x);
+H5PartReadDataFloat64(file,"y",y);
+H5PartReadDataFloat64(file,"z",z);
+...
+</pre>
+<hr>
+<a name="DatasetsInfo"><h2>Reading the Number and Names of Datasets</h2></a>
+<P>
+H5Part provides funtions to find out how many datasets are stored at a particular timestep
+and what their names are if you don't know what they are a-priori.
+</P>
+<b>C Prototypes</b><br>
+<P>
+<code>int H5PartGetNumDatasets(H5PartFile *fileID);</code><br>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>Returns</i>: </DT><DD>The number of datasets.</DD>
+</DL>
+</P>
+<P>
+<code>int H5PartGetDatasetName(H5PartFile *fileID,int index,char *name,int maxlen);</code><br>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>index</i>:</DT><DD> integer specifying the index of the dataset. If the number of datasets is
+nds, the range of index is  0 to nds-1.</DD>
+<DT><i>name</i>:</DT><DD> A null-terminated string for the name of the dataset.</DD>
+<DT><i>maxlen</i>:</DT><DD> An integer specifying the maximum length of the name array.</DD>
+<DT><i>Returns</i>: </DT><DD>1 on success, 0 on failure.</DD>
+</DL>
+</P>
+<br><b>Example Use</b><br>
+<pre>
+#include &lt H5Part.h &gt
+H5PartFile *fileID;
+char name[64];
+int index, nds;
+
+...
+nds=H5PartGetNumDatasets(fileID);
+  for(index=0;index&lt nds;index++){
+    H5PartGetDatasetName(fileID,index,name,64);
+    printf("\tDataset[%u] name=[%s]\n", index,name);
+  }
+...
+</pre>
+
+<hr>
+
+<a name="AttributesInfo">
+<h2>Attributes Interface</h2></a>
+<P>
+In the current H5Part implemtation there are two types of attributes: file attributes which are bound to the file
+   and step attributes which are bound to the current timestep.  You 
+   must set the timestep explicitly before writing the attributes (just
+   as you must do when you write a new dataset.  Currently there are no
+   attributes that are bound to a particular data array, but this could
+   easily be done if required.
+</P>
+<P>H5PartGetNumStepAttribs and H5PartGetNumFileAttribs return the number of attributes bound to a step and to a file respectively. H5PartGetStepAttribInfo and H5PartGetFileAttribInfo return the name, type and number of elements of type "type" bound to a step and a file respectively.
+</P>
+<b>C Prototypes:</b><br>
+<code>int H5PartGetNumStepAttribs(H5PartFile *fileID);
+</code><br>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>Returns</i> </DT><DD> The number of step attributes for the current step.</DD>
+</DL>
+<code>int H5PartGetNumFileAttribs(H5PartFile *fileID);
+</code><br>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>Returns</i> </DT><DD> The number of file attributes.</DD>
+</DL>
+<code>void H5PartGetStepAttribInfo(H5PartFile *fileID,int idx, char *name,size_t maxnamelen,hid_t *type,int *nelem);
+</code><br>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>idx</i>: </DT><DD>Index of the attribute.</DD>
+<DT><i>name</i>: </DT><DD>A null-terminated string with the name of the attribute.</DD>
+<DT><i>maxnamelen</i></DT><DD>the length of the name of the attribute.</DD>
+<DT><i>type</i>: </DT><DD>One of the following: H5T_NATIVE_DOUBLE H5T_NATIVE_INT64 H5T_NATIVE_CHAR.</DD>
+<DT><i>nelem</i>: </DT><DD>Number of elements of type "type".</DD>
+<DT><i>Returns</i> </DT><DD> void.</DD>
+</DL>
+
+<code>void H5PartGetFileAttribInfo(H5PartFile *fileID,int idx, char *name,size_t maxnamelen, hid_t *type,int *nelem);
+</code><br>
+
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>idx</i>: </DT><DD>Index of the attribute.</DD>
+<DT><i>name</i>: </DT><DD>A null-terminated string with the name of the attribute.</DD>
+<DT><i>maxnamelen</i></DT><DD>the length of the name of the attribute.</DD>
+<DT><i>type</i>: </DT><DD>One of the following: H5T_NATIVE_DOUBLE H5T_NATIVE_INT64 H5T_NATIVE_CHAR.</DD>
+<DT><i>nelem</i>: </DT><DD>Number of elements of type "type".</DD>
+<DT><i>Returns</i> </DT><DD> void.</DD>
+</DL>
+
+
+<a name="WriteAttribs">
+<h2>Writing Attributes</h2>
+</a>
+<P>
+An attribute can be bound to the file or after setting the time step to this time step.
+</P>
+
+<b>C Prototypes: Generic Attributes</b><br>
+<P>
+<code>int H5PartWriteFileAttrib(H5PartFile *fileID,char *name,  hid_t type,void *value,int nelem);</code><br>
+<code>int H5PartWriteStepAttrib(H5PartFile *fileID,char *name,  hid_t type,void *value,int nelem);</code><br>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>name</i>: </DT><DD>A null-terminated string for the
+name of the array.  When retrieving datasets from disk,
+you ask for them by name.  There are no restrictions on
+naming of arrays, but it is useful to arrive at some common
+naming convention when sharing data with other groups.</DD>
+<DT><i>type</i>: One of H5T_NATIVE_DOUBLE, H5T_NATIVE_INT64, H5T_NATIVE_CHAR.</DD>
+<DT><i>value</i>: value of the attribute.</DD>
+<DT><i>nelem</i>: number of elements of type "type".</DD>
+<DT><i>Returns</i>: </DT><DD>1 on success, 0 on failure.</DD>
+</DL>
+</P>
+<br><b>Example Use</b><br>
+<pre>
+#include &lt H5Part.h &gt
+H5PartFile *fileID;
+double actPos;
+
+...
+H5PartWriteStepAttrib(file_m,"Spos",H5T_NATIVE_DOUBLE,&actPos,1);
+...
+</pre>
+
+
+<b>C Prototypes: String Attributes</b><br>
+<P>
+<code>int H5PartWriteStepAttribString(H5PartFile *fileID,char *name, char *attrib);</code><br>
+<code>int H5PartWriteFileAttribString(H5PartFile *fileID,char *name, char *attrib);</code><br>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>name</i>: </DT><DD>A null-terminated string for the
+name of the array.  When retrieving datasets from disk,
+you ask for them by name.  There are no restrictions on
+naming of arrays, but it is useful to arrive at some common
+naming convention when sharing data with other groups.</DD>
+<DT><i>attrib</i>: the attribute character string.</DD>
+<DT><i>Returns</i>: </DT><DD>1 on success, 0 on failure.</DD>
+</DL>
+</P>
+<br><b>Example Use</b><br>
+<pre>
+#include &lt H5Part.h &gt
+H5PartFile *fileID;
+char *newattrib;
+char *newname;
+
+...
+H5PartWriteFileAttribString(fileID, newname,newattrib);
+...
+</pre>
+<hr>
+
+<a name="ReadAttribs">
+<h2>Reading Attributes</h2>
+</a>
+<P>
+<P>
+As with the writing of attributes, there are two basic reading interfaces one that reads file bound attributes and one that reads
+step bound attributes. If the step is not set the current one will be used.
+</P>
+</P>
+<b>C Prototypes</b><br>
+<P>
+<code>void H5PartReadStepAttrib(H5PartFile *fileID,char *name,void *value);</code><br>
+<code>void H5PartReadAttrib(H5PartFile *fileID,char *name,void *value);</code><br>
+<code>int H5PartReadFileAttrib(H5PartFile *fileID,char *name,void *value);</code><br>
+<DL>
+<DT><i>fileID</i>: </DT><DD>A FileHandle opened by
+<a href="#Opening">H5PartOpenFile()</a> or
+<a href="#Opening">H5PartOpenFileParallel()</a>.</DD>
+<DT><i>name</i>: </DT><DD>A null-terminated string for the
+name of the array.  When retrieving datasets from disk,
+you ask for them by name.  There are no restrictions on
+naming of arrays, but it is useful to arrive at some common
+naming convention when sharing data with other groups.</DD>
+<DT><i>value</i>: value of the attribute.</DD>
+<DT><i>Returns</i>: </DT><DD>1 on success, 0 on failure.</DD>
+</DL>
+</P>
+<br>
+NOTE: H5PartReadAttrib has been superseeded by H5PartSetStep.
+<br>
+<br><b>Example Use</b><br>
+<pre>
+#include &lt H5Part.h &gt
+H5PartFile *fileID;
+int step;
+char name[MAXNAME];
+
+...
+
+H5PartSetStep(fileID, step);
+if (H5PartReadStepAttrib(file, "filename", &name[0]) == 1){
+	printf("Read step from file: %s\n", name);
+}
+
+...
+</pre>
+
+</div>
+
+<!--#include virtual="/include/dateFooter.html"-->
