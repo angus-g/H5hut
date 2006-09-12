@@ -94,6 +94,7 @@ src/TestUnderscore.f -text
 src/TestUnderscoreC.c -text
 src/addToDoxygenMainPage.h -text
 test/Bench.c -text
+test/BlockTestSpecs.txt -text
 test/H5BlockParallelTest1.c -text
 test/H5BlockReadParallel1.c -text
 test/H5BlockTest1.c -text
