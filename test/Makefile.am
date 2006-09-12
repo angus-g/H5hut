@@ -122,10 +122,10 @@ H5testF.o: H5testF.f
 #####################################################################################################################
 
 H5testFpar: H5testFpar.o
-	$(MPIFC)  -o H5testFpar H5testFpar.o $(H5PLIB) -lpH5PartF -lpH5Part $(PLIBS)
+	$(MPIFC)  -o $@ $< $(H5PLIB) -lpH5PartF -lpH5Part $(PLIBS)
 
-H5testFpar.o: H5testFpar.f
-	$(MPIFC) $(PFFLAGS) -c $(H5PINC) H5testFpar.f
+H5testFpar.o: H5testFpar.f90
+	$(MPIFC) $(PFFLAGS) -c $(H5PINC) $<
 
 #####################################################################################################################
 
@@ -154,6 +154,13 @@ H5BlockReadParallel1:	H5BlockReadParallel1.o
 
 H5BlockReadParallel1.o: H5BlockReadParallel1.c
 	$(CC) $(CFLAGS) -DPARALLEL_IO $(INC) -g -c $<
+
+H5BlockWriteScalarField1Proc:	H5BlockWriteScalarField1Proc.o
+	$(CC) -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
+
+H5BlockWriteScalarField1Proc.o: H5BlockWriteScalarField1Proc.c
+	$(CC) $(CFLAGS) -DPARALLEL_IO $(INC) -g -c $<
+
 
 #####################################################################################################################
 
