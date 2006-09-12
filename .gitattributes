@@ -107,6 +107,7 @@ test/H5ecloudExample.cc -text
 test/H5test.cc -text
 test/H5testF.f -text
 test/H5testFpar.f -text
+test/H5testFpar.f90 -text
 test/Makefile.am -text
 tools/Makefile.am -text
 tools/README -text
