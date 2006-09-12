@@ -334,6 +334,11 @@ if test "X$USE_PARALLEL" = "Xyes"; then
         fi
     fi
 
+    MTARGET="libpH5Part.a"
+    TTARGET="H5PartTestP H5PartAndreasTest Bench"
+    TTARGET="${TTARGET} H5BlockWriteScalarField1Proc"
+    TTARGET="${TTARGET} H5BlockReadScalarField1Proc"
+
     # parallel + fortran
     if test "X$USE_FORTRAN" = "Xyes"; then
         echo "PARALLEL ENABLED WITH FORTRAN"
@@ -347,28 +352,25 @@ if test "X$USE_PARALLEL" = "Xyes"; then
             echo "MPIFC =  $MPIFC ..."
         fi 
  
-        MTARGET="libpH5Part.a libpH5PartF.a"
-        TTARGET="H5PartTestP H5PartAndreasTest H5testFpar Bench"
+        MTARGET="${MTARGET} libpH5PartF.a"
+        TTARGET="${TTARGET} H5testFpar"
     else
         echo "PARALLEL ENABLED WITHOUT FORTRAN"
-
-        MTARGET="libpH5Part.a"
-        TTARGET="H5PartTestP H5PartAndreasTest Bench"
     fi
 
 else
     echo "NO, PARALLEL NOT ENABLED"
 
+    MTARGET="libH5Part.a"
+    TTARGET="H5PartTest H5test H5BlockTest1"
+
     if test "X$USE_FORTRAN" = "Xyes"; then
         echo "PARALLEL NOT ENABLED WITH FORTRAN ENABLED"
 
-        MTARGET="libH5Part.a libH5PartF.a"
-        TTARGET="H5PartTest H5testF H5test"
+        MTARGET="${MTARGET} libH5PartF.a"
+        TTARGET="${TTARGET} H5testF"
    else
         echo "BOTH PARALLEL & FORTRAN NOT ENABLED"
-
-        MTARGET="libH5Part.a"
-        TTARGET="H5PartTest H5test H5BlockTest1"
    fi
 fi
 
