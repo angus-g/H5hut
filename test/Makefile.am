@@ -79,7 +79,7 @@ H5BlockTest1_SOURCES = H5BlockTest1.c
 Bench: Bench.c
 	$(MPICC) $(PCFLAGS) $(PINC) -o Bench Bench.c $(H5PLIB) -lpH5Part $(PLIBS)
 
-#####################################################################################################################
+###################################################################################################
 
 H5PartTest: H5PartTest.o
 	$(CXX) -o H5PartTest H5PartTest.o $(H5PLIB) -lH5Part $(LIBS)
@@ -87,7 +87,7 @@ H5PartTest: H5PartTest.o
 H5PartTest.o: H5PartTest.cc
 	$(CXX) $(CFLAGS) $(INC) -DREGRESSIONTEST -g -c H5PartTest.cc
 
-#####################################################################################################################
+###################################################################################################
 
 H5PartTestP: H5PartTestP.o
 	$(MPICXX) $(PINC) -o H5PartTestP H5PartTestP.o $(H5PLIB) -lpH5Part $(PLIBS)
@@ -95,7 +95,7 @@ H5PartTestP: H5PartTestP.o
 H5PartTestP.o: H5PartTest.cc
 	$(MPICXX) $(PCFLAGS) $(PINC) -DREGRESSIONTEST  -c H5PartTest.cc -o H5PartTestP.o
 
-#####################################################################################################################
+###################################################################################################
 
 H5PartTestParallel: H5PartTestParallel.o
 	$(MPICXX) -o H5PartTestParallel H5PartTestParallel.o $(H5PLIB) -lpH5Part $(PLIBS)
@@ -103,7 +103,7 @@ H5PartTestParallel: H5PartTestParallel.o
 H5PartTestParallel.o: H5PartTestParallel.cc
 	$(MPICXX) $(PCFLAGS) $(PINC) -c H5PartTestParallel.cc
 
-#####################################################################################################################
+###################################################################################################
 
 H5PartAndreasTest: H5PartAndreasTest.o
 	$(MPICXX)  -o H5PartAndreasTest H5PartAndreasTest.o $(H5PLIB) -lpH5Part $(PLIBS)
@@ -111,7 +111,7 @@ H5PartAndreasTest: H5PartAndreasTest.o
 H5PartAndreasTest.o: H5PartAndreasTest.cc
 	$(MPICXX) $(PCFLAGS) $(PINC) -c H5PartAndreasTest.cc
 
-#####################################################################################################################
+###################################################################################################
 
 H5testF: H5testF.o
 	$(FC)  -o H5testF H5testF.o $(H5PLIB) -lH5PartF -lH5Part $(LIBS)
@@ -119,7 +119,7 @@ H5testF: H5testF.o
 H5testF.o: H5testF.f
 	$(FC) $(FFLAGS) -c $(H5PINC) H5testF.f
 
-#####################################################################################################################
+###################################################################################################
 
 H5testFpar: H5testFpar.o
 	$(MPIFC)  -o $@ $< $(H5PLIB) -lpH5PartF -lpH5Part $(PLIBS)
@@ -127,7 +127,7 @@ H5testFpar: H5testFpar.o
 H5testFpar.o: H5testFpar.f90
 	$(MPIFC) $(PFFLAGS) -c $(H5PINC) $<
 
-#####################################################################################################################
+###################################################################################################
 
 H5test: H5test.o
 	$(CXX) -o H5test H5test.o $(H5PLIB) -lH5Part $(LIBS)
@@ -135,7 +135,7 @@ H5test: H5test.o
 H5test.o: H5test.cc
 	$(CXX) $(CFLAGS) $(INC) -DREGRESSIONTEST -g -c H5test.cc
 
-#####################################################################################################################
+###################################################################################################
 
 H5BlockTest1:	H5BlockTest1.o
 	$(CC) -o $@ $< $(H5PLIB) -lH5Part $(LIBS)
@@ -161,8 +161,13 @@ H5BlockWriteScalarField1Proc:	H5BlockWriteScalarField1Proc.o
 H5BlockWriteScalarField1Proc.o: H5BlockWriteScalarField1Proc.c
 	$(CC) $(CFLAGS) -DPARALLEL_IO $(INC) -g -c $<
 
+H5BlockReadScalarField1Proc:	H5BlockReadScalarField1Proc.o
+	$(CC) -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
 
-#####################################################################################################################
+H5BlockReadScalarField1Proc.o: H5BlockReadScalarField1Proc.c
+	$(CC) $(CFLAGS) -DPARALLEL_IO $(INC) -g -c $<
+
+###################################################################################################
 
 H5BlockParallelTest1: H5BlockParallelTest1.o
 	$(MPICC)  -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
@@ -170,7 +175,7 @@ H5BlockParallelTest1: H5BlockParallelTest1.o
 H5BlockParallelTest1.o: H5BlockParallelTest1.c
 	$(MPICC) $(PCFLAGS) $(PINC) -c $<
 
-#####################################################################################################################
+###################################################################################################
 clean:
 	rm -f *~ *.o *.o H5testF H5PartTest H5PartTestP H5PartAndreasTest H5PartTestParallel H5testFpar Bench
 
@@ -182,4 +187,4 @@ distclean: clean
 	rm -rf config.status config.log config.h Makefile
 
 
-#####################################################################################################################
+###################################################################################################
