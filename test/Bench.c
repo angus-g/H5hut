@@ -30,7 +30,6 @@
 
 int main(int argc,char *argv[]){
   MPI_Info info;
-  int npdims=1;
   int nprocs,rank;
   int trial;
   int i,j,n; /* iteration variables */
@@ -41,11 +40,9 @@ int main(int argc,char *argv[]){
   double *x,*y,*z,*px,*py,*pz;
   typedef double *ddouble;
   ddouble data[6];
-  int64_t *id;
   MPI_Datatype chunktype;
   int offset;
   int localnp;
-  int err1,err2;
   char filename[128]; /*= FILENAME; */
 #ifndef DISABLE_H5PART
   H5PartFile *f;
@@ -53,10 +50,9 @@ int main(int argc,char *argv[]){
   char newfilename[128];
   FILE *fd;
   MPI_File file;
-  MPI_Info bogusinfo;
   MPI_Offset foffset;
 
-  MPI_Comm comm,dcomm = MPI_COMM_WORLD;
+  MPI_Comm dcomm = MPI_COMM_WORLD;
   
   MPI_Init(&argc,&argv);
   MPI_Comm_rank(dcomm,&rank);
@@ -232,4 +228,6 @@ int main(int argc,char *argv[]){
 #endif
   } /* trials */
   MPI_Finalize();
+
+  return 0;
 }
