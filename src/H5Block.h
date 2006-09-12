@@ -131,7 +131,7 @@ H5BlockGetFieldAttribInfo (
 	);
 
 h5part_int64_t
-H5PartReadFieldAttrib (
+H5BlockReadFieldAttrib (
 	H5PartFile *f,
 	const char *field_name,
 	const char *attrib_name,
