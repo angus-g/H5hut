@@ -97,8 +97,10 @@ test/Bench.c -text
 test/BlockTestSpecs.txt -text
 test/H5BlockParallelTest1.c -text
 test/H5BlockReadParallel1.c -text
+test/H5BlockReadScalarField1Proc.c -text
 test/H5BlockTest1.c -text
 test/H5BlockWrite1.c -text
+test/H5BlockWriteScalarField1Proc.c -text
 test/H5ParallelTest.cc -text
 test/H5PartAndreasTest.cc -text
 test/H5PartTest.cc -text
