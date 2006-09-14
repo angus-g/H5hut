@@ -180,11 +180,12 @@ H5PartOpenFileParallel (
 		goto error_cleanup;
 	}
 #ifdef PARALLEL_IO
-	print_info ( "H5PartOpenFileParallel: "
-		     "Proc[%d]: Opened file \"%s\" val=%d",
-		     f->myproc,
-		     filename,
-		     f->file );
+	_H5Part_print_info (
+		"H5PartOpenFileParallel: "
+		"Proc[%d]: Opened file \"%s\" val=%d",
+		f->myproc,
+		filename,
+		f->file );
 #endif
 	f->mode = flags;
 	f->timegroup = 0;
@@ -485,9 +486,10 @@ H5PartSetNumParticles (
 		return HANDLE_MPI_ALLGATHER_ERR;
 	}
 	if ( f->myproc == 0 ) {
-		print_debug ( "%s: Particle offsets:", %s );
+		_H5Part_print_debug ( "%s: Particle offsets:", __funcname );
 		for(i=0;i<f->nprocs;i++) 
-			print_debug ( "\tnp=%d",(int) f->pnparticles[i] );
+			_H5Part_print_debug ( "\tnp=%lld",
+					      (long long) f->pnparticles[i] );
 	}
 	/* should I create a selection here? */
 
