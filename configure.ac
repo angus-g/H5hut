@@ -336,8 +336,7 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 
     MTARGET="libpH5Part.a"
     TTARGET="H5PartTestP H5PartAndreasTest Bench"
-    TTARGET="${TTARGET} H5BlockWriteScalarField1Proc"
-    TTARGET="${TTARGET} H5BlockReadScalarField1Proc"
+    TTARGET="${TTARGET} H5BlockParTestScalarField"
 
     # parallel + fortran
     if test "X$USE_FORTRAN" = "Xyes"; then
