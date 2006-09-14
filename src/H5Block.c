@@ -241,11 +241,11 @@ _get_dimension_sizes (
 
 
 static int
-_do_not_have_ghostzone (
+_have_ghostzone (
 	const struct H5BlockPartition *p,
 	const struct H5BlockPartition *q
 	) {
-	return ( _NO_GHOSTZONE ( p, q ) || _NO_GHOSTZONE ( q, p ) );
+	return ( ! ( _NO_GHOSTZONE ( p, q ) || _NO_GHOSTZONE ( q, p ) ) );
 }
 
 static h5part_int64_t
@@ -364,7 +364,7 @@ _dissolve_ghostzone (
 }
 
 static h5part_int64_t
-_dissolve_ghostzones (
+_dissolve_myghostzones (
 	H5PartFile *f
 	) {
 
@@ -381,16 +381,94 @@ _dissolve_ghostzones (
 		if ( proc == f->myproc ) continue;
 
 		otherpartition = &b->write_layout[proc];
-		if ( _do_not_have_ghostzone ( mypartition, otherpartition ) )
+		if ( ! _have_ghostzone ( mypartition, otherpartition ) )
 			continue;
 
 		herr = _dissolve_ghostzone ( mypartition, otherpartition );
 		if ( herr < 0 ) return herr;
 	}
 
+	_H5Part_print_debug ("PROC[%d]: Layout after dissolving ghost-zones:",
+			     f->myproc );
+	for ( proc = 0, otherpartition = b->write_layout;
+	      proc < f->nprocs;
+	      proc++, otherpartition++ ) {
+		_H5Part_print_debug (
+			"PROC[%d]: Layout proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
+			f->myproc, proc,
+			(long long)otherpartition->i_start,
+			(long long)otherpartition->i_end,
+			(long long)otherpartition->j_start,
+			(long long)otherpartition->j_end,
+			(long long)otherpartition->k_start,
+			(long long)otherpartition->k_end );
+	}
 	return H5PART_SUCCESS;
 }
 
+static h5part_int64_t
+_dissolve_ghostzones (
+	H5PartFile *f
+	) {
+
+	h5part_int64_t herr;
+	struct H5BlockStruct *b = f->block;
+	struct H5BlockPartition *part1;
+	struct H5BlockPartition *part2;
+	int proc1, proc2;
+
+	memcpy ( b->write_layout, b->user_layout,
+		 f->nprocs * sizeof (*f->block->user_layout) );
+
+	_H5Part_print_debug ( "%s: PROC[%d]: nprocs = %d", 
+			      _H5Part_get_funcname(), f->myproc, f->nprocs );
+	for ( proc1 = 0, part1 = b->write_layout;
+	      proc1 < f->nprocs-1;
+	      proc1++, part1++ ) {
+		for ( proc2 = proc1+1, part2 = &b->write_layout[proc2];
+		      proc2 < f->nprocs;
+		      proc2++, part2++ ) {
+
+			if ( ! _have_ghostzone ( part1, part2 ) )
+				continue;
+
+			_H5Part_print_debug (
+				"%s: "
+				"proc[%d]: (%lld:%lld, %lld:%lld, %lld:%lld) "
+				"proc[%d]: (%lld:%lld, %lld:%lld, %lld:%lld) ",
+				_H5Part_get_funcname(),
+				proc1,
+				(long long)part1->i_start, (long long)part1->i_end,
+				(long long)part1->j_start, (long long)part1->j_end,
+				(long long)part1->k_start, (long long)part1->k_end,
+				proc2,
+				(long long)part2->i_start, (long long)part2->i_end,
+				(long long)part2->j_start, (long long)part2->j_end,
+				(long long)part2->k_start, (long long)part2->k_end );
+			
+
+			herr = _dissolve_ghostzone ( part1, part2 );
+			if ( herr < 0 ) return herr;
+		}
+	}
+	if ( f->myproc == 0 ) {
+		_H5Part_print_debug ("Layout after dissolving ghost-zones:");
+		for ( proc1 = 0, part1 = b->write_layout;
+		      proc1 < f->nprocs;
+		      proc1++, part1++ ) {
+			_H5Part_print_debug (
+				"PROC[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
+				proc1,
+				(long long)part1->i_start,
+				(long long)part1->i_end,
+				(long long)part1->j_start,
+				(long long)part1->j_end,
+				(long long)part1->k_start,
+				(long long)part1->k_end );
+		}
+	}
+	return H5PART_SUCCESS;
+}
 
 h5part_int64_t
 _release_hyperslab (
