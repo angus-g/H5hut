@@ -991,7 +991,7 @@ H5PartWriteFileAttrib (
 	group_id = H5Gopen(f->file,"/");
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR( "/" );
 
-	_H5Part_write_attrib (
+	herr = _H5Part_write_attrib (
 		group_id,
 		attrib_name,
 		attrib_type,
@@ -1690,6 +1690,7 @@ H5PartSetView (
 
 	SET_FNAME ( "H5PartSetView" );
 
+	h5part_int64_t herr = 0;
 	hsize_t total;
 	hsize_t stride;
 	hsize_t dmax=H5S_UNLIMITED;
@@ -1699,7 +1700,6 @@ H5PartSetView (
 #else
 	hsize_t range[2];
 #endif
-	int r;
 
 	CHECK_FILEHANDLE( f );
 
@@ -1713,19 +1713,19 @@ H5PartSetView (
 	f->viewstart = -1;
 	f->viewend = -1;
 	if ( f->shape != 0 ){
-		r = H5Sclose(f->shape);
-		if ( r < 0 ) return HANDLE_H5S_CLOSE_ERR;
+		herr = H5Sclose(f->shape);
+		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
 		f->shape=0;
 	}
 	if(f->diskshape!=0 && f->diskshape!=H5S_ALL){
-		r = H5Sclose(f->diskshape);
-		if ( r < 0 ) return HANDLE_H5S_CLOSE_ERR;
+		herr = H5Sclose(f->diskshape);
+		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
 		f->diskshape=H5S_ALL;
 	}
 	f->diskshape = H5S_ALL;
 	if(f->memshape!=0 && f->memshape!=H5S_ALL){
-		H5Sclose(f->memshape);
-		if ( r < 0 ) return HANDLE_H5S_CLOSE_ERR;
+		herr = H5Sclose ( f->memshape );
+		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
 		f->memshape=H5S_ALL;
 	}
 	if(start==-1 && end==-1) {
@@ -1782,14 +1782,14 @@ H5PartSetView (
 		return HANDLE_H5S_CREATE_SIMPLE_ERR ( f->nparticles );;
 
 	stride=1;
-	r = H5Sselect_hyperslab ( 
+	herr = H5Sselect_hyperslab ( 
 		f->diskshape,
 		H5S_SELECT_SET,
 		range,
 		&stride,
 		&total,
 		NULL );
-	if ( r < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
+	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
 
 	return H5PART_SUCCESS;
