@@ -300,14 +300,37 @@ _read_data (
 				rj -= j_start;
 				rk -= k_start;
 				h5part_float64_t value = rk
-					+ 1000*j
-					+ 100000*i
-					+ 10000000*myproc;
+					+ 1000*rj
+					+ 100000*ri
+					+ 10000000*proc;
 				if ( *(data + idx) != value ) {
-					printf ( "value missmatch for (%lld,%lld,%lld); is: %f;"
-						 " should be: %f",
-						 (long long)i, (long long)j, (long long)k,
-						 *( data + idx ), value );
+					printf (
+						"PROC[%d]: "
+						"value missmatch for (%lld,%lld,%lld); is: %f;"
+						" should be: %f\n",
+						myproc,
+						(long long)i, (long long)j, (long long)k,
+						*( data + idx ), value );
+					printf (
+						"PROC[%d]: "
+						"My partition is: "
+						"%lld:%lld, %lld:%lld, %lld:%lld\n",
+						myproc,
+						layout->i_start, layout->i_end,
+						layout->j_start, layout->j_end,
+						layout->k_start, layout->k_end );
+					printf (
+						"PROC[%d]: "
+						"Value has been written by proc %d\n",
+						myproc, proc );
+					printf (
+						"PROC[%d]: "
+						"The partition for this proc was: "
+						"%lld:%lld, %lld:%lld, %lld:%lld\n",
+						myproc,
+						i_start, i_end,
+						j_start, j_end,
+						k_start, k_end );
 					return -1;
 				}
 			}
@@ -421,7 +444,7 @@ main (
 		return 1;
 	}
 
-	H5PartSetVerbosityLevel ( 40 );
+	H5PartSetVerbosityLevel ( 4 );
 
 	if ( opt_write ) {
 		if ( _write_file ( fname, myproc, comm, layout ) < 0 ) {
