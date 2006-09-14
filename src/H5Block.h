@@ -36,6 +36,27 @@ H5BlockDefine3DFieldLayout (
 	);
 
 h5part_int64_t
+H5Block3dGetPartitionOfProc (
+	H5PartFile *f,			/*!< file handle */
+	const h5part_int64_t proc,
+	h5part_int64_t *i_start,	/*!< start index of i */
+	h5part_int64_t *i_end,		/*!< end index of i */
+	h5part_int64_t *j_start,	/*!< start index of j */
+	h5part_int64_t *j_end,		/*!< end index of j */
+	h5part_int64_t *k_start,	/*!< start index of k */
+	h5part_int64_t *k_end		/*!< end index of k */
+	);
+
+
+h5part_int64_t
+H5Block3dGetProcOf (
+	const H5PartFile *f,
+	h5part_int64_t i,
+	h5part_int64_t j,
+	h5part_int64_t k
+	);
+
+h5part_int64_t
 H5Block3dWriteScalarField (
 	H5PartFile *f,
 	const char *name,
