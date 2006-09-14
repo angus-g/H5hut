@@ -96,6 +96,7 @@ src/addToDoxygenMainPage.h -text
 test/Bench.c -text
 test/BlockTestSpecs.txt -text
 test/H5BlockParTestScalarField.c -text
+test/H5BlockParTestScalarField.pbs -text
 test/H5BlockParallelTest1.c -text
 test/H5BlockReadParallel1.c -text
 test/H5BlockReadScalarField1Proc.c -text
