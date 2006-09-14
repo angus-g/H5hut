@@ -24,7 +24,7 @@ HDFLIB = -L$(HDF5ROOT)/lib -lhdf5 -lz $(SZLIB) @LDFLAGS@
 PHDFLIB = -L$(PHDF5ROOT)/lib -lhdf5 -lz $(SZLIB) @LDFLAGS@
 MPILIB = @MPILIB@
 LIBS = $(HDFLIB) -lm @STDCXX@
-PLIBS = $(PHDFLIB) $(MPILIB) -lm @STDCXX@
+PLIBS = -lpH5Part $(PHDFLIB) $(MPILIB) -lm @STDCXX@
 
 # H5Part compiled library location
 # H5PLIB = -L@prefix@/lib
@@ -49,10 +49,10 @@ bin_SCRIPTS =
 #bin_SCRIPTS = JAC_H5PartTestP_script.scr JAC_H5testFpar_script.scr JAC_RUN_ALL_script.scr
 
 # Listing of all programs that maybe built. (Has to know statically...)
-EXTRA_PROGRAMS = Bench H5PartTest H5testF H5PartTestP H5PartAndreasTest H5testFpar H5PartTestParallel H5test H5BlockTest1
+EXTRA_PROGRAMS =
 
 # Extra files that I wish to include in the dist tar ball.
-EXTRA_DIST = Bench.c H5ecloudExample.cc H5ParallelTest.cc H5test.cc $(bin_SCRIPTS)## TO BE TAILORED LATER...
+EXTRA_DIST = Bench.c H5ecloudExample.cc H5ParallelTest.cc H5test.cc $(bin_SCRIPTS)
 
 # Listing of sources
 Bench_SOURCES = Bench.c
@@ -77,49 +77,49 @@ H5BlockTest1_SOURCES = H5BlockTest1.c
 # ------------ Build Tests ------------
 
 Bench: Bench.c
-	$(MPICC) $(PCFLAGS) $(PINC) -o Bench Bench.c $(H5PLIB) -lpH5Part $(PLIBS)
+	$(MPICC) $(PCFLAGS) $(PINC) -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
 
-###################################################################################################
+###############################################################################
 
 H5PartTest: H5PartTest.o
-	$(CXX) -o H5PartTest H5PartTest.o $(H5PLIB) -lH5Part $(LIBS)
+	$(CXX) -o $@ $< $(H5PLIB) -lH5Part $(LIBS)
 
 H5PartTest.o: H5PartTest.cc
-	$(CXX) $(CFLAGS) $(INC) -DREGRESSIONTEST -g -c H5PartTest.cc
+	$(CXX) $(CFLAGS) $(INC) -DREGRESSIONTEST -g -c $<
 
-###################################################################################################
+###############################################################################
 
 H5PartTestP: H5PartTestP.o
-	$(MPICXX) $(PINC) -o H5PartTestP H5PartTestP.o $(H5PLIB) -lpH5Part $(PLIBS)
+	$(MPICXX) $(PINC) -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
 
 H5PartTestP.o: H5PartTest.cc
-	$(MPICXX) $(PCFLAGS) $(PINC) -DREGRESSIONTEST  -c H5PartTest.cc -o H5PartTestP.o
+	$(MPICXX) $(PCFLAGS) $(PINC) -DREGRESSIONTEST  -c $< -o $@
 
-###################################################################################################
+###############################################################################
 
 H5PartTestParallel: H5PartTestParallel.o
-	$(MPICXX) -o H5PartTestParallel H5PartTestParallel.o $(H5PLIB) -lpH5Part $(PLIBS)
+	$(MPICXX) -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
 
 H5PartTestParallel.o: H5PartTestParallel.cc
-	$(MPICXX) $(PCFLAGS) $(PINC) -c H5PartTestParallel.cc
+	$(MPICXX) $(PCFLAGS) $(PINC) -c $<
 
-###################################################################################################
+###############################################################################
 
 H5PartAndreasTest: H5PartAndreasTest.o
-	$(MPICXX)  -o H5PartAndreasTest H5PartAndreasTest.o $(H5PLIB) -lpH5Part $(PLIBS)
+	$(MPICXX)  -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
 
 H5PartAndreasTest.o: H5PartAndreasTest.cc
-	$(MPICXX) $(PCFLAGS) $(PINC) -c H5PartAndreasTest.cc
+	$(MPICXX) $(PCFLAGS) $(PINC) -c $<
 
-###################################################################################################
+###############################################################################
 
 H5testF: H5testF.o
-	$(FC)  -o H5testF H5testF.o $(H5PLIB) -lH5PartF -lH5Part $(LIBS)
+	$(FC)  -o $@ $< $(H5PLIB) -lH5PartF -lH5Part $(LIBS)
 
 H5testF.o: H5testF.f
-	$(FC) $(FFLAGS) -c $(H5PINC) H5testF.f
+	$(FC) $(FFLAGS) -c $(H5PINC) $<
 
-###################################################################################################
+###############################################################################
 
 H5testFpar: H5testFpar.o
 	$(MPIFC)  -o $@ $< $(H5PLIB) -lpH5PartF -lpH5Part $(PLIBS)
@@ -127,64 +127,38 @@ H5testFpar: H5testFpar.o
 H5testFpar.o: H5testFpar.f90
 	$(MPIFC) $(PFFLAGS) -c $(H5PINC) $<
 
-###################################################################################################
+###############################################################################
 
 H5test: H5test.o
-	$(CXX) -o H5test H5test.o $(H5PLIB) -lH5Part $(LIBS)
+	$(CXX) -o $@ -c $< $(H5PLIB) -lH5Part $(LIBS)
 
 H5test.o: H5test.cc
-	$(CXX) $(CFLAGS) $(INC) -DREGRESSIONTEST -g -c H5test.cc
+	$(CXX) $(CFLAGS) $(INC) -DREGRESSIONTEST -g -c $<
 
-###################################################################################################
+###############################################################################
+% : %.o
+	$(MPICC) -o $@ $< $(H5PLIB) $(PLIBS)
 
-H5BlockTest1:	H5BlockTest1.o
-	$(CC) -o $@ $< $(H5PLIB) -lH5Part $(LIBS)
-
-H5BlockTest1.o: H5BlockTest1.c
+H5BlockTestScalarField.o: H5BlockTestScalarField.c
 	$(CC) $(CFLAGS) $(INC) -g -c $<
 
-H5BlockWrite1:	H5BlockWrite1.o
-	$(CC) -o $@ $< $(H5PLIB) -lH5Part $(LIBS)
+H5BlockTestScalarField:	H5BlockTestScalarField.o
+	$(CC) -o $@ $< $(H5PLIB) $(LIBS)
 
-H5BlockWrite1.o: H5BlockWrite1.c
-	$(CC) $(CFLAGS) $(INC) -g -c $<
+H5BlockParTestScalarField.o: H5BlockParTestScalarField.c
+	$(MPICC) $(PCFLAGS) $(INC) -g -c $<
 
-H5BlockReadParallel1:	H5BlockReadParallel1.o
-	$(CC) -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
+H5BlockParTestScalarField: H5BlockParTestScalarField.o
 
-H5BlockReadParallel1.o: H5BlockReadParallel1.c
-	$(CC) $(CFLAGS) -DPARALLEL_IO $(INC) -g -c $<
-
-H5BlockWriteScalarField1Proc:	H5BlockWriteScalarField1Proc.o
-	$(CC) -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
-
-H5BlockWriteScalarField1Proc.o: H5BlockWriteScalarField1Proc.c
-	$(CC) $(CFLAGS) -DPARALLEL_IO $(INC) -g -c $<
-
-H5BlockReadScalarField1Proc:	H5BlockReadScalarField1Proc.o
-	$(CC) -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
-
-H5BlockReadScalarField1Proc.o: H5BlockReadScalarField1Proc.c
-	$(CC) $(CFLAGS) -DPARALLEL_IO $(INC) -g -c $<
-
-###################################################################################################
-
-H5BlockParallelTest1: H5BlockParallelTest1.o
-	$(MPICC)  -o $@ $< $(H5PLIB) -lpH5Part $(PLIBS)
-
-H5BlockParallelTest1.o: H5BlockParallelTest1.c
-	$(MPICC) $(PCFLAGS) $(PINC) -c $<
-
-###################################################################################################
+###############################################################################
 clean:
-	rm -f *~ *.o *.o H5testF H5PartTest H5PartTestP H5PartAndreasTest H5PartTestParallel H5testFpar Bench
+	${RM} -f *~ *.o  ${bin_PROGRAMS}
 
 distclean: clean
-	rm -fr H5testF H5PartTest H5PartTestP H5PartAndreasTest H5PartTestParallel H5test
-	rm -rf .deps
-	rm -rf .libs
-	rm -f parttest.h5
-	rm -rf config.status config.log config.h Makefile
+	${RM} -rf .deps
+	${RM} -rf .libs
+	${RM} -f parttest.h5
+	${RM} -rf config.status config.log config.h Makefile
 
 
-###################################################################################################
+
