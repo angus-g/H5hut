@@ -432,21 +432,6 @@ _dissolve_ghostzones (
 			if ( ! _have_ghostzone ( part1, part2 ) )
 				continue;
 
-			_H5Part_print_debug (
-				"%s: "
-				"proc[%d]: (%lld:%lld, %lld:%lld, %lld:%lld) "
-				"proc[%d]: (%lld:%lld, %lld:%lld, %lld:%lld) ",
-				_H5Part_get_funcname(),
-				proc1,
-				(long long)part1->i_start, (long long)part1->i_end,
-				(long long)part1->j_start, (long long)part1->j_end,
-				(long long)part1->k_start, (long long)part1->k_end,
-				proc2,
-				(long long)part2->i_start, (long long)part2->i_end,
-				(long long)part2->j_start, (long long)part2->j_end,
-				(long long)part2->k_start, (long long)part2->k_end );
-			
-
 			herr = _dissolve_ghostzone ( part1, part2 );
 			if ( herr < 0 ) return herr;
 		}
@@ -457,8 +442,8 @@ _dissolve_ghostzones (
 		      proc1 < f->nprocs;
 		      proc1++, part1++ ) {
 			_H5Part_print_debug (
-				"PROC[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
-				proc1,
+				"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
+				f->myproc, proc1,
 				(long long)part1->i_start,
 				(long long)part1->i_end,
 				(long long)part1->j_start,
