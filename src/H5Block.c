@@ -460,6 +460,64 @@ H5BlockDefine3DFieldLayout(
 	return H5PART_SUCCESS;
 }
 
+h5part_int64_t
+H5Block3dGetPartitionOfProc (
+	H5PartFile *f,
+	h5part_int64_t proc,
+	h5part_int64_t *i_start, 
+	h5part_int64_t *i_end,
+	h5part_int64_t *j_start,
+	h5part_int64_t *j_end,
+	h5part_int64_t *k_start,
+	h5part_int64_t *k_end ) {
+
+	SET_FNAME ( "H5Block3dGetProcOf" );
+
+	CHECK_FILEHANDLE ( f );
+	CHECK_TIMEGROUP ( f );
+
+	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
+		return -1;
+
+	struct H5BlockPartition *p = &f->block->write_layout[(size_t)proc];
+
+	*i_start = p->i_start;
+	*i_end =   p->i_end;
+	*j_start = p->j_start;
+	*j_end =   p->j_end;
+	*k_start = p->k_start;
+	*k_end =   p->k_end;
+
+	return H5PART_SUCCESS;
+}
+
+
+h5part_int64_t
+H5Block3dGetProcOf (
+	const H5PartFile *f,
+	h5part_int64_t i,
+	h5part_int64_t j,
+	h5part_int64_t k
+	) {
+
+	SET_FNAME ( "H5Block3dGetProcOf" );
+
+	CHECK_FILEHANDLE ( f );
+	CHECK_TIMEGROUP ( f );
+
+	struct H5BlockPartition *layout = f->block->write_layout;
+	int proc;
+
+	for ( proc = 0; proc < f->nprocs; proc++, layout++ ) {
+		if ( (layout->i_start <= i) && (i <= layout->i_end) &&
+		     (layout->j_start <= j) && (j <= layout->j_end) &&
+		     (layout->k_start <= k) && (k <= layout->k_end) ) 
+			return (h5part_int64_t)proc;
+	}
+	
+	return -1;
+}
+
 /********************** helper functions for reading and writing *************/
 
 static h5part_int64_t
