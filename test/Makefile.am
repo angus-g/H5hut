@@ -154,7 +154,7 @@ H5BlockDissolveGhosts.o: H5BlockDissolveGhosts.c
 	$(CC) $(CFLAGS) $(INC) -g -c $<
 
 H5BlockDissolveGhosts: H5BlockDissolveGhosts.o
-	$(CC) -o $@ $< $(H5PLIB) $(LIBS)
+	$(CC) -o $@ $< $(H5PLIB) $(PLIBS)
 
 ###############################################################################
 clean:
