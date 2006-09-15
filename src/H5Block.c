@@ -695,6 +695,38 @@ H5Block3dGetPartitionOfProc (
 	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
 		return -1;
 
+	struct H5BlockPartition *p = &f->block->user_layout[(size_t)proc];
+
+	*i_start = p->i_start;
+	*i_end =   p->i_end;
+	*j_start = p->j_start;
+	*j_end =   p->j_end;
+	*k_start = p->k_start;
+	*k_end =   p->k_end;
+
+	return H5PART_SUCCESS;
+}
+
+h5part_int64_t
+H5Block3dGetReducedPartitionOfProc (
+	H5PartFile *f,
+	h5part_int64_t proc,
+	h5part_int64_t *i_start, 
+	h5part_int64_t *i_end,
+	h5part_int64_t *j_start,
+	h5part_int64_t *j_end,
+	h5part_int64_t *k_start,
+	h5part_int64_t *k_end
+	) {
+
+	SET_FNAME ( "H5Block3dGetProcOf" );
+
+	CHECK_FILEHANDLE ( f );
+	CHECK_TIMEGROUP ( f );
+
+	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
+		return -1;
+
 	struct H5BlockPartition *p = &f->block->write_layout[(size_t)proc];
 
 	*i_start = p->i_start;
@@ -966,6 +998,7 @@ _select_hyperslab_for_writing (
 	herr_t herr;
 	struct H5BlockStruct *b = f->block;
 	struct H5BlockPartition *p = &b->write_layout[f->myproc];
+	struct H5BlockPartition *q = &b->user_layout[f->myproc];
 
 	int rank = 3;
 	
@@ -996,12 +1029,40 @@ _select_hyperslab_for_writing (
 	if ( b->diskshape < 0 )
 		return HANDLE_H5S_CREATE_SIMPLE_3D_ERR ( field_dims );
 
-	f->block->memshape = H5Screate_simple ( rank, part_dims, part_dims );
-	if ( b->memshape < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_3D_ERR ( part_dims );
+	_H5Part_print_debug ( "%s: PROC[%d]: Select hyperslab on diskshape: "
+			      "start: (%lld,%lld,%lld); "
+			      "dims:  (%lld,%lld,%lld)",
+			      _H5Part_get_funcname(), f->myproc,
+			      (long long)start[0],
+			      (long long)start[1],
+			      (long long)start[2],
+			      (long long)part_dims[0],
+			      (long long)part_dims[1],
+			      (long long)part_dims[2] );
 
 	herr = H5Sselect_hyperslab (
 		b->diskshape,
+		H5S_SELECT_SET,
+		start,
+		stride,
+		part_dims,
+		NULL );
+	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
+
+	field_dims[0] = q->k_end - q->k_start + 1;
+	field_dims[1] = q->j_end - q->j_start + 1;
+	field_dims[2] = q->i_end - q->i_start + 1;
+
+	f->block->memshape = H5Screate_simple ( rank, field_dims, field_dims );
+	if ( b->memshape < 0 )
+		return HANDLE_H5S_CREATE_SIMPLE_3D_ERR ( part_dims );
+
+	start[0] = p->k_start - q->k_start;
+	start[1] = p->j_start - q->j_start;
+	start[2] = p->i_start - q->i_start;
+
+	herr = H5Sselect_hyperslab (
+		b->memshape,
 		H5S_SELECT_SET,
 		start,
 		stride,
