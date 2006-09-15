@@ -150,6 +150,12 @@ H5BlockParTestScalarField.o: H5BlockParTestScalarField.c
 
 H5BlockParTestScalarField: H5BlockParTestScalarField.o
 
+H5BlockDissolveGhosts.o: H5BlockDissolveGhosts.c
+	$(CC) $(CFLAGS) $(INC) -g -c $<
+
+H5BlockDissolveGhosts: H5BlockDissolveGhosts.o
+	$(CC) -o $@ $< $(H5PLIB) $(LIBS)
+
 ###############################################################################
 clean:
 	${RM} -f *~ *.o  ${bin_PROGRAMS}
