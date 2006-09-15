@@ -47,6 +47,17 @@ H5Block3dGetPartitionOfProc (
 	h5part_int64_t *k_end		/*!< end index of k */
 	);
 
+h5part_int64_t
+H5Block3dGetReducedPartitionOfProc (
+	H5PartFile *f,
+	h5part_int64_t proc,
+	h5part_int64_t *i_start, 
+	h5part_int64_t *i_end,
+	h5part_int64_t *j_start,
+	h5part_int64_t *j_end,
+	h5part_int64_t *k_start,
+	h5part_int64_t *k_end
+	);
 
 h5part_int64_t
 H5Block3dGetProcOf (
