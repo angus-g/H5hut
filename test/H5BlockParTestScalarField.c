@@ -449,12 +449,10 @@ main (
 	if ( opt_write ) {
 		if ( _write_file ( fname, myproc, comm, layout ) < 0 ) {
 			printf ("Failed to write file \"%s\"\n", fname );
-			return 2;
 		}
 	} else if ( opt_read ) {
 		if ( _read_file ( fname, myproc, comm, layout ) < 0 ) {
 			printf ("Failed to read file \"%s\"\n", fname );
-			return 2;
 		}
 	}
 
