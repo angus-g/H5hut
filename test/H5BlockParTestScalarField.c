@@ -316,9 +316,9 @@ _read_data (
 						"My partition is: "
 						"%lld:%lld, %lld:%lld, %lld:%lld\n",
 						myproc,
-						layout->i_start, layout->i_end,
-						layout->j_start, layout->j_end,
-						layout->k_start, layout->k_end );
+						(long long)layout->i_start, (long long)layout->i_end,
+						(long long)layout->j_start, (long long)layout->j_end,
+						(long long)layout->k_start, (long long)layout->k_end );
 					printf (
 						"PROC[%d]: "
 						"Value has been written by proc %d\n",
@@ -328,9 +328,9 @@ _read_data (
 						"The partition for this proc was: "
 						"%lld:%lld, %lld:%lld, %lld:%lld\n",
 						myproc,
-						i_start, i_end,
-						j_start, j_end,
-						k_start, k_end );
+						(long long)i_start, (long long)i_end,
+						(long long)j_start, (long long)j_end,
+						(long long)k_start, (long long)k_end );
 					return -1;
 				}
 			}
