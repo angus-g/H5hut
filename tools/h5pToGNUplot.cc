@@ -9,7 +9,7 @@
 #include <cctype>
 #include <string.h>
 #include <hdf5.h>
-#include "H5Part.hh"
+#include "H5Part.h"
 
 #define MAX_LEN 100
 
@@ -419,12 +419,12 @@ int main(int argc, const char *argv[])
        for(i=start_indx; i<stop; i++)
        {
           if (type_1 == H5T_NATIVE_INT64)
-            fprintf(outFile, "%lld", ((h5part_int64_t*)value_1)[i]);
+            fprintf(outFile, "%lld", ((long long*)value_1)[i]);
           else if (type_1 == H5T_NATIVE_DOUBLE)
             fprintf(outFile, "%lf", ((double*)value_1)[i]);
 
           if (type_2 == H5T_NATIVE_INT64)
-            fprintf(outFile, "\t%lld", ((h5part_int64_t*)value_2)[i]);
+            fprintf(outFile, "\t%lld", ((long long*)value_2)[i]);
           else if (type_2 == H5T_NATIVE_DOUBLE)
             fprintf(outFile, "\t%lf", ((double*)value_2)[i]);
 
@@ -438,12 +438,12 @@ int main(int argc, const char *argv[])
        for(i=start_indx; i<stop; i++)
        {
           if (type_1 == H5T_NATIVE_INT64)
-            fprintf(stdout, "%lld", ((h5part_int64_t*)value_1)[i]);
+            fprintf(stdout, "%lld", ((long long*)value_1)[i]);
           else if (type_1 == H5T_NATIVE_DOUBLE)
             fprintf(stdout, "%lf", ((double*)value_1)[i]);
 
           if (type_2 == H5T_NATIVE_INT64)
-            fprintf(stdout, "\t%lld", ((h5part_int64_t*)value_2)[i]);
+            fprintf(stdout, "\t%lld", ((long long*)value_2)[i]);
           else if (type_2 == H5T_NATIVE_DOUBLE)
             fprintf(stdout, "\t%lf", ((double*)value_2)[i]);
 
