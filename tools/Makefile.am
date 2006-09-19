@@ -23,7 +23,7 @@ H5PLIB = -L@H5P_LIB_LOC@ @TOOLS_H5PART_LIB@
 
 # INCLUDES
 HDFINC = -I$(HDF5ROOT)/include
-INC = $(HDFINC) $(H5PINC)
+INC = $(HDFINC) $(H5PINC) $(MPIINC)
 
 # H5Part header file location
 # H5PINC = -I@prefix@/include
