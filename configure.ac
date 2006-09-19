@@ -15,9 +15,9 @@ AC_INIT([H5Part], [Ver.1.0], [vis@hpcrdm.lbl.gov])
 AC_CONFIG_HEADER(config.h)
 
 
-##################################################################################
-#################### A SIMPLE WORK AROUND TO USE ENV. VARS #######################
-##################################################################################
+###############################################################################
+################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
+###############################################################################
 
 
 SAVE_CC=$CC
@@ -36,9 +36,9 @@ SAVE_HDF5ROOT=$HDF5ROOT
 SAVE_LDFLAGS=$LDFLAGS
 
 
-##################################################################################
-################## PATH SERACH FUNCTION - to be used later... ####################
-##################################################################################
+###############################################################################
+############### PATH SERACH FUNCTION - to be used later... ####################
+###############################################################################
 # /*@@
 #   @routine    CCTK_Search
 #   @date       Wed Jul 21 11:16:35 1999
@@ -77,23 +77,17 @@ PATH_Search()
 
 
 
-##################################################################################
-################ MISC SETTINGS INCLUDING C & C++ COMPILER SETTING ################
-##################################################################################
-# Compute the canonical host-system type variable, host, and its three individual 
-# parts host_cpu, host_vendor, and host_os.
+###############################################################################
+############# MISC SETTINGS INCLUDING C & C++ COMPILER SETTING ################
+###############################################################################
+# Compute the canonical host-system type variable, host, and its three
+# individual parts host_cpu, host_vendor, and host_os.
 AC_CANONICAL_HOST
 
 
 uname=`uname -s`
 if test $uname = "AIX"; then
-  # Notify the user that configure is checking for a particular feature. 
-  # This macro prints a message that starts with `checking ' and ends with `...' and no newline. 
-  # It must be (?) followed by a call to AC_MSG_RESULT to print the result of the check and the newline.
   AC_MSG_CHECKING([if system is AIX])
-
-  # AC_MSG_RESULT (result-description)
-  # Notify the user of the results of a check
   AC_MSG_RESULT([OK])
 
   # If on AIX, define _ALL_SOURCE. Allows the use of some BSD functions. 
@@ -123,12 +117,13 @@ fi
 
 
 # Determine a C compiler to use. 
-# If CC is not already set in the environment, check for gcc and cc, then for other C compilers. 
+# If CC is not already set in the environment, check for gcc and cc, then
+# for other C compilers. 
 # Set output variable CC to the name of the compiler found.
-# Look for mpicc first, then icc, mpcc_r
 AC_PROG_CC(pathcc icc cc_r gcc cc)
 
-# AC_PROG_CC doesn't pick up cc_r in Bassi. The following AC_PATH_PROGS is the fix.
+# AC_PROG_CC doesn't pick up cc_r in Bassi. The following AC_PATH_PROGS
+# is the fix.
 AC_PATH_PROGS([BAS_CC], [cc_r], [], [$PATH])
 
 # if BAS_CC not empty
@@ -143,13 +138,14 @@ fi
 # Check if the environment variable CXX or CCC (in that order) is set; 
 # if so, then set output variable CXX to its value.
 # Otherwise, if the macro is invoked without an argument, 
-# then search for a C++ compiler under the likely names (first g++ and c++ then other names). 
+# then search for a C++ compiler under the likely names (first g++ and c++
+# then other names). 
 # If none of those checks succeed, then as a last resort set CXX to g++.
 AC_PROG_CXX(pathCC icc cc_r g++ gcc cc)
 
 
-# Set output variable INSTALL to the path of a BSD-compatible install program, if one is 
-# found in the current PATH. 
+# Set output variable INSTALL to the path of a BSD-compatible install program,
+# if one is found in the current PATH. 
 # Otherwise, set INSTALL to `dir/install-sh -c`
 AC_PROG_INSTALL
 
@@ -175,20 +171,17 @@ AC_DEFINE_UNQUOTED(MY_UNAME, "$uname", "")
 
 
 
-##################################################################################
-########################### CONFIGURE LINE OPTIONS ###############################
-##################################################################################
+###############################################################################
+######################## CONFIGURE LINE OPTIONS ###############################
+###############################################################################
 
-######################### 64-bit compilation enabled #############################
+###################### 64-bit compilation enabled #############################
 AC_MSG_CHECKING([if 64-bit compilation is enabled])
 
-# AC_ARG_ENABLE (feature, help-string, [action-if-given], [action-if-not-given])
-# If the user gave configure the option `--enable-feature' or `--disable-feature',
-# run shell commands action-if-given. 
-# You should format your help-string with the macro AC_HELP_STRING.
 AC_ARG_ENABLE([64],
-		[AC_HELP_STRING([--enable-64],[Compile using 64-bit flags [default=no]])],
-		[USE_64=$enableval])
+	[AC_HELP_STRING([--enable-64],
+	[Compile using 64-bit flags [default=no]])],
+	[USE_64=$enableval])
 
 
 # If --enable-64 is set in the configure line
@@ -208,11 +201,12 @@ else
 fi
 
 
-############################### fortran enabled ##################################
+############################ fortran enabled ##################################
 AC_MSG_CHECKING([if fortran interface enabled])
 AC_MSG_RESULT([])
 AC_ARG_ENABLE([fortran],
-              [AC_HELP_STRING([--enable-fortran], [Compile the Fortran interface [default=no]])],
+              [AC_HELP_STRING([--enable-fortran],
+	       [Compile the Fortran interface [default=no]])],
               [USE_FORTRAN=$enableval])
 
 
@@ -254,10 +248,11 @@ else
 fi
 
 
-########################### parallel interface enabled ###########################
+######################## parallel interface enabled ###########################
 AC_MSG_CHECKING([if parallel interface enabled])
 AC_ARG_ENABLE([parallel],
-              [AC_HELP_STRING([--enable-parallel], [Compile the MPI/IO interface [default=no]])],
+              [AC_HELP_STRING([--enable-parallel],
+	       [Compile the MPI/IO interface [default=no]])],
               [USE_PARALLEL=$enableval])
 
 if test "X$USE_PARALLEL" = "Xyes"; then
@@ -277,7 +272,8 @@ if test "X$USE_PARALLEL" = "Xyes"; then
         AC_PATH_PROGS([MPICXX], [mpicxx mpcc_r], [], [$PATH])
         if test -z "$MPICC" -o -z "$MPICXX"; then 
             AC_ARG_ENABLE([mpipath],
-                [AC_HELP_STRING([--enable-mpipath], [path to MPI installation [default=""]])],
+                [AC_HELP_STRING([--enable-mpipath],
+		 [path to MPI installation [default=""]])],
                 [MPIROOT=$enableval], [MPIROOT=""])
             if test -z "$MPIROOT"; then 
                 AC_MSG_CHECKING([for MPI root ])
@@ -368,11 +364,7 @@ else
     echo "NO, PARALLEL NOT ENABLED"
 
     MTARGET="libH5Part.a"
-<<<<<<< .mine
     TTARGET="H5PartTest H5test H5BlockDissolveGhosts"
-=======
-    TTARGET="H5PartTest H5test"
->>>>>>> .r2718
 
     if test "X$USE_FORTRAN" = "Xyes"; then
         echo "PARALLEL NOT ENABLED WITH FORTRAN ENABLED"
@@ -395,12 +387,13 @@ if test "X$USE_TOOLS" = "Xyes"; then
     BUILD_TOOLS="h5pAttrib h5pToGNUplot"
 fi
 
-##################################################################################
-############################ PATH CHECKING & SETTING #############################
-##################################################################################
+###############################################################################
+######################### PATH CHECKING & SETTING #############################
+###############################################################################
 
 AC_ARG_ENABLE([hdf5path],
-    [AC_HELP_STRING([--enable-hdf5path], [path to HDF5 installation [default=""]])],
+    [AC_HELP_STRING([--enable-hdf5path],
+     [path to HDF5 installation [default=""]])],
     [XROOT=$enableval], [XROOT=""])
 
 HDF5ROOT=$XROOT
@@ -466,9 +459,9 @@ if test -n "$ZLIBROOT"; then
 fi
 
 
-##################################################################################
-####################### MISC SETTINGS - path, flags, etc #########################
-##################################################################################
+###############################################################################
+#################### MISC SETTINGS - path, flags, etc #########################
+###############################################################################
 
 # if not AIX
 if test ! $uname = "AIX"; then
@@ -480,9 +473,9 @@ fi
 
 H5P_LIB_LOC=`pwd`/src
 
-##################################################################################
-#################### A SIMPLE WORK AROUND TO USE ENV. VARS #######################
-##################################################################################
+###############################################################################
+################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
+###############################################################################
 
 #if there was an external input for the variable...
 if test -n "$SAVE_CC"; then
@@ -547,9 +540,9 @@ TOOLS_H5PART_LIB="-lH5Part"
 TOOLS_HDFLIB="-L$HDF5ROOT/lib -lhdf5"
 fi
 
-##################################################################################
-############################# PRINTING SUMMARY ###################################
-##################################################################################
+###############################################################################
+########################## PRINTING SUMMARY ###################################
+###############################################################################
 echo "+++++++++++++++++++++++++++++++"
 echo "+++++++++ SUMMARY for `(hostname || uname -n) 2>/dev/null | sed 1q` +++++++++"
 echo "CC = $CC"
@@ -577,9 +570,9 @@ echo "BUILD_TOOLS = $BUILD_TOOLS"
 echo "+++++++++++++++++++++++++++++++"
 
 
-##################################################################################
-################# EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
-##################################################################################
+###############################################################################
+############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
+###############################################################################
 # AC_SUBST (variable, [value])
 # Create an output variable from a shell variable. 
 # Make AC_OUTPUT substitute the variable variable into output files (typically one or more `Makefile's). 
