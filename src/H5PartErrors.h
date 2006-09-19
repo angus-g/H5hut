@@ -65,7 +65,8 @@
 		(*_err_handler) ( \
 			_H5Part_get_funcname(), \
 			rc, \
-			"Cannot set view to (%d, %d).", start, end );
+			"Cannot set view to (%lld, %lld).", \
+			(long long)start, (long long)end );
 
 #define HANDLE_H5PART_GET_NUM_PARTICLES_ERR( rc ) \
 		(*_err_handler) ( \
