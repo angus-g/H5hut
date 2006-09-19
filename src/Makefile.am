@@ -43,12 +43,12 @@ EXTRA_LIBRARIES = libH5Part.a libH5PartF.a
 include_HEADERS = H5Part.inc H5Part.h @UNDERSCORE_H@
 
 # Listing of all possible headers that I may include
-EXTRA_HEADERS = H5Part.inc H5Part.h H5Part.hh Underscore.h
+EXTRA_HEADERS = H5Part.inc H5PartF90.inc H5BlockF90.inc H5Part.h Underscore.h
 
 # Listing of sources
 libH5Part_a_SOURCES = H5Part.c H5Block.c
 
-libH5PartF_a_SOURCES = H5Part.c H5PartF.c H5Block.c
+libH5PartF_a_SOURCES = H5Part.c H5PartF.c H5Block.c H5BlockF.c
 
 
 H5Part.inc:	H5PartF90.inc
@@ -59,15 +59,16 @@ H5Part.inc:	H5PartF90.inc
 libH5Part.a: H5Part.o H5Block.o
 	${AR} rucs $@ $^
  
-libH5PartF.a: H5Part.o H5PartF.o H5Block.o
+libH5PartF.a: H5Part.o H5PartF.o H5Block.o H5BlockF.o
 	${AR} rucs $@ $^
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
 
 H5Part.o: H5Part.c H5Part.h H5PartPrivate.h H5PartTypes.h
-H5Block.o: H5Block.c H5Part.h H5PartPrivate.h H5PartTypes.h H5Block.h H5BlockTypes.h
 H5PartF.o: H5PartF.c Underscore.h H5Part.h
+H5Block.o: H5Block.c H5Part.h H5PartPrivate.h H5PartTypes.h H5Block.h H5BlockTypes.h
+H5BlockF.o: H5BlockF.c Underscore.h H5Block.h
 
 
 # ----------- Build Parallel H5Part Stuff ------------
