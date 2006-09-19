@@ -1,6 +1,10 @@
 #ifndef _H5Part_H_
 #define _H5Part_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 #include <stdarg.h>
 #include <hdf5.h>
@@ -293,4 +297,8 @@ H5PartAbortErrorHandler (
 	...
 	);
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
