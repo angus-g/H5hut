@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <hdf5.h>
-#include "H5Part.hh"
+#include "H5Part.h"
 
 #include <fstream>
 #include <iomanip>
