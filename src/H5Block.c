@@ -1461,11 +1461,10 @@ H5BlockReadFieldAttrib (
 
 	SET_FNAME ( "H5PartReadFieldAttrib" );
 
-	struct H5BlockStruct *b;
-
 	CHECK_FILEHANDLE ( f );
 	CHECK_TIMEGROUP( f );
-	b = f->block;
+
+	struct H5BlockStruct *b = f->block;
 
 	herr_t herr = _init ( f );
 	if ( herr < 0 ) return herr;
@@ -1477,6 +1476,7 @@ H5BlockReadFieldAttrib (
 		b->field_group_id,
 		attrib_name,
 		attrib_value );
+	if ( herr < 0 ) return herr;
 
 	herr = _close_field_group ( f );
 	if ( herr < 0 ) return herr;
