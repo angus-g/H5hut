@@ -74,6 +74,7 @@ doc/layout.png -text
 src/H5Block.c -text
 src/H5Block.h -text
 src/H5BlockErrors.h -text
+src/H5BlockF.c -text
 src/H5BlockF90.inc -text
 src/H5BlockPrivate.h -text
 src/H5BlockTypes.h -text
