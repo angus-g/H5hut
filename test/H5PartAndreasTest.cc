@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <hdf5.h>
-#include "H5Part.hh"
+#include "H5Part.h"
 
 
 /*
