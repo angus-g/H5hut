@@ -174,6 +174,11 @@ H5BlockReadFieldAttrib (
 	void *attrib_value
 	);
 
+h5part_int64_t
+H5BlockHasFieldData (
+	H5PartFile *f
+	);
+
 /*!
   Checks if the block of the actual time step is refined i.e. if we
   have a patch
