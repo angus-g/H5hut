@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <hdf5.h>
-#include "H5Part.hh"
+#include "H5Part.h"
 
 /*
   A simple regression test that shows how you use this API
@@ -184,8 +184,9 @@ int main(int argc,char *argv[]){
   H5PartReadDataInt64(file,"id",id);
 
   for(i=0;i<np;i++){
-    fprintf(stdout,"\tp[%3u] x=%lf y=%lf z=%lf id=%lld\n",
-	    i,x[i],y[i],z[i],(h5part_int64_t)(id[i]));
+    fprintf(stdout,
+	    "\tp[%3u] x=%lf y=%lf z=%lf id=%lld\n",
+	    i,x[i],y[i],z[i],(long long)(id[i]));
   }
   /********************************************/
   printf("Set to last step and reload data\n");
@@ -196,7 +197,7 @@ int main(int argc,char *argv[]){
   H5PartReadDataInt64(file,"id",id);
   for(i=0;i<np;i++){
     fprintf(stdout,"\tp[%3u] x=%lf y=%lf z=%lf id=%lld\n",
-	    i,x[i],y[i],z[i],(h5part_int64_t) (id[i]));
+	    i,x[i],y[i],z[i],(long long) (id[i]));
   }
   
   /********************************************/
@@ -217,7 +218,9 @@ int main(int argc,char *argv[]){
   H5PartReadDataInt64(file,"id",id);
 
   for(i=0;i<np;i++){
-    fprintf(stdout,"\tp[%3u] x=%lf y=%lf z=%lf id=%lld\n",i,x[i],y[i],z[i],(h5part_int64_t )id[i]);
+    fprintf(stdout,
+	    "\tp[%3u] x=%lf y=%lf z=%lf id=%lld\n",
+	    i,x[i],y[i],z[i],(long long)id[i]);
   }
 
   /********************************************/
@@ -230,7 +233,7 @@ int main(int argc,char *argv[]){
   H5PartSetView(file,(idEnd>>1),idEnd);
   np=H5PartGetNumParticles(file);
   printf("Now particles in selection are %d\n",np);
-  printf("doubleCheck=%lld\n",H5PartGetView(file,0,0));
+  printf("doubleCheck=%lld\n", (long long)H5PartGetView(file,0,0));
   
   for(i=0;i<10;i++){ x[i]=y[i]=z[i]=0.0; id[i]=0; } /* clear the arrays */
  
@@ -239,7 +242,9 @@ int main(int argc,char *argv[]){
   H5PartReadDataFloat64(file,"z",z);
   H5PartReadDataInt64(file,"id",id);
   for(i=0;i<np;i++){
-    fprintf(stdout,"\tp[%3u] x=%lf y=%lf z=%lf id=%lld\n",i,x[i],y[i],z[i],(h5part_int64_t)id[i]);
+    fprintf(stdout,
+	    "\tp[%3u] x=%lf y=%lf z=%lf id=%lld\n",
+	    i,x[i],y[i],z[i],(long long)id[i]);
   }
   if(x) 
     free(x); 
