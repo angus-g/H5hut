@@ -1,6 +1,10 @@
 #ifndef __H5BLOCK_H
 #define __H5BLOCK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! 
   Interface for block structured field data
 
@@ -314,4 +318,9 @@ H5BlockGetSParams (
 	h5part_float64_t **s	/*!< S-parameters */
 	);
 
-#endif // H5BLOCK_H
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
