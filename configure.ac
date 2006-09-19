@@ -29,10 +29,10 @@ SAVE_MPIFC=$MPIFC
 SAVE_MPILIB=$MPILIB
 SAVE_MPIINC=$MPIINC
 SAVE_CFLAGS=$CFLAGS
+CFLAGS=''
 SAVE_FFLAGS=$FFLAGS
 SAVE_MPIROOT=$MPIROOT
 SAVE_HDF5ROOT=$HDF5ROOT
-SAVE_PHDF5ROOT=$PHDF5ROOT
 SAVE_LDFLAGS=$LDFLAGS
 
 
@@ -263,6 +263,8 @@ AC_ARG_ENABLE([parallel],
 if test "X$USE_PARALLEL" = "Xyes"; then
     AC_MSG_RESULT([YES, PARALLEL ENABLED])
 
+    CFLAGS="${CFLAGS} -DPARALLEL_IO -DH5_HAVE_PARALLEL -DMPICH_IGNORE_CXX_SEEK"
+
     AC_MSG_CHECKING([if we can compile MPI code without setting flags])
     AC_TRY_LINK([#include "mpi.h"], [
         MPI_Comm comm;
@@ -270,15 +272,7 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 	MPI_Comm_size( comm, &n ); ], 
 	[echo 'yes'; r='yes'], [echo "no"; r='no'] )
 
-    if test "X$r" = "Xyes"; then
-	MPICC=$CC
-	set -x
-	if test -z "$MPICXX"; then
-	    # we should add a test whether this C++ wrapper exists or not
-            MPICXX=${MPICC%/*}/mpicxx
-        fi
-        set +x
-    else
+    if test "X$r" = "Xno"; then
         AC_PATH_PROGS([MPICC], [mpicc mpcc_r], [], [$PATH])
         AC_PATH_PROGS([MPICXX], [mpicxx mpcc_r], [], [$PATH])
         if test -z "$MPICC" -o -z "$MPICXX"; then 
@@ -302,19 +296,17 @@ if test "X$USE_PARALLEL" = "Xyes"; then
                 AC_MSG_RESULT([Cannot determine MPIROOT])
                 exit 1
             fi
-            if test ! -n "$MPICC"; then
-                AC_MSG_CHECKING([No MPICC detected. Setting MPICC to CC.])
-                MPICC=$CC
-                echo "MPICC =  $MPICC"
-            fi 
-  
-            # if MPICXX empty
-            if test ! -n "$MPICXX"; then
-                MPICXX=$CXX
-                AC_MSG_CHECKING([No MPICXX detected. Setting MPICXX = CXX = $MPICXX ])
-                echo
-            fi
-  
+
+	    if test -e "${MPIROOT}/bin/mpicc"; then
+	       MPICC=${MPIROOT}/bin/mpicc
+	    fi
+
+	    if test -e "${MPIROOT}/bin/mpicxx"; then
+	       MPICXX=${MPIROOT}/bin/mpicxx
+	    fi
+	fi
+
+        if test -z "$MPICC" -o -z "$MPICXX"; then 
             MPIINC="${MPIINC} -I${MPIROOT}/include"
             FFLAGS="${FFLAGS} -I${MPIROOT}/include"
             AC_MSG_CHECKING([for name of MPI lib ])
@@ -331,6 +323,14 @@ if test "X$USE_PARALLEL" = "Xyes"; then
                 exit 1
             fi
             AC_MSG_RESULT([${MPILIB}])
+	fi
+
+        if test -n "$MPICC"; then
+	    CC=${MPICC}
+        fi 
+  
+        if test -n "$MPICXX"; then
+	    CXX=${MPICXX}
         fi
     fi
 
@@ -344,6 +344,12 @@ if test "X$USE_PARALLEL" = "Xyes"; then
         echo "PARALLEL ENABLED WITH FORTRAN"
  
         AC_PATH_PROGS([MPIFC], [mpxlf_r mpif90], [], [$PATH])
+
+	if test -z "${MPIFC}" ; then
+	    if test -e "${MPIROOT}/bin/mpif90"; then
+	       MPIFC=${MPIROOT}/bin/mpif90
+	    fi
+	fi
  
         # if MPIFC empty
         if test ! -n "$MPIFC"; then
@@ -362,7 +368,11 @@ else
     echo "NO, PARALLEL NOT ENABLED"
 
     MTARGET="libH5Part.a"
+<<<<<<< .mine
+    TTARGET="H5PartTest H5test H5BlockDissolveGhosts"
+=======
     TTARGET="H5PartTest H5test"
+>>>>>>> .r2718
 
     if test "X$USE_FORTRAN" = "Xyes"; then
         echo "PARALLEL NOT ENABLED WITH FORTRAN ENABLED"
@@ -393,9 +403,10 @@ AC_ARG_ENABLE([hdf5path],
     [AC_HELP_STRING([--enable-hdf5path], [path to HDF5 installation [default=""]])],
     [XROOT=$enableval], [XROOT=""])
 
+HDF5ROOT=$XROOT
+
 if test "X$USE_PARALLEL" = "Xyes"; then
-    PHDF5ROOT=$XROOT
-    if test -z "$PHDF5ROOT"; then
+    if test -z "$HDF5ROOT"; then
         AC_MSG_CHECKING([for Parallel HDF5 root ])
         AC_MSG_RESULT([])
         P=''
@@ -412,11 +423,10 @@ if test "X$USE_PARALLEL" = "Xyes"; then
         else
             P="$P /usr/common/usg/hdf5/32/default/parallel"
         fi
-        PATH_Search PHDF5ROOT "$P" include/hdf5.h
+        PATH_Search HDF5ROOT "$P" include/hdf5.h
 	XROOT=$HDF5ROOT
     fi
 else
-    HDF5ROOT=$XROOT
     if test -z "$HDF5ROOT"; then
         AC_MSG_CHECKING([for HDF5 library location ])
         AC_MSG_RESULT([])
@@ -508,7 +518,7 @@ MPIINC=$SAVE_MPIINC
 fi
 
 if test -n "$SAVE_CFLAGS"; then
-CFLAGS=$SAVE_CFLAGS
+CFLAGS="$SAVE_CFLAGS ${CFLAGS}"
 fi
 
 if test -n "$SAVE_FFLAGS"; then
@@ -523,10 +533,6 @@ if test -n "$SAVE_HDF5ROOT"; then
 HDF5ROOT=$SAVE_HDF5ROOT
 fi
 
-if test -n "$SAVE_PHDF5ROOT"; then
-PHDF5ROOT=$SAVE_PHDF5ROOT
-fi
-
 if test -n "$SAVE_LDFLAGS"; then
 LDFLAGS=$SAVE_LDFLAGS
 fi
@@ -534,7 +540,7 @@ fi
 if test -n "$MPICXX"; then
 TOOLS_CXX=$MPICXX
 TOOLS_H5PART_LIB="-lpH5Part"
-TOOLS_HDFLIB="-L$PHDF5ROOT/lib -lhdf5"
+TOOLS_HDFLIB="-L$HDF5ROOT/lib -lhdf5"
 else
 TOOLS_CXX=$CXX
 TOOLS_H5PART_LIB="-lH5Part"
@@ -558,7 +564,6 @@ echo "MPILIB = $MPILIB"
 echo "MPIINC = $MPIINC"
 echo "MPIROOT = $MPIROOT"
 echo "HDF5ROOT = $HDF5ROOT"
-echo "PHDF5ROOT = $PHDF5ROOT"
 echo "LDFLAGS = $LDFLAGS"
 echo "host_os = $host_os"
 echo "host_cpu = $host_cpu"
@@ -584,7 +589,6 @@ echo "+++++++++++++++++++++++++++++++"
 # If value is given, in addition assign it to variable. 
 AC_SUBST(MPIROOT)
 AC_SUBST(HDF5ROOT)
-AC_SUBST(PHDF5ROOT)
 AC_SUBST(MPIINC)
 AC_SUBST(MPILIB)
 AC_SUBST(MPICC)
