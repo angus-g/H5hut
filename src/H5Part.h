@@ -297,8 +297,8 @@ H5PartAbortErrorHandler (
 	...
 	);
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif
