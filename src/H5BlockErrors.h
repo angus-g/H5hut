@@ -3,6 +3,13 @@
 
 #define _err_handler H5PartGetErrorHandler()
 
+#define CHECK_LAYOUT( f ) \
+	if ( ! f->block->have_layout ) \
+		return (*_err_handler) ( \
+			_H5Part_get_funcname(), \
+			H5PART_ERR_LAYOUT, \
+			"No layout defined." )
+
 #define HANDLE_H5PART_LAYOUT_ERR \
 		(*_err_handler) ( \
 			_H5Part_get_funcname(), \
