@@ -263,7 +263,7 @@ H5PartReadFileAttrib (
 
 h5part_int64_t
 H5PartSetVerbosityLevel (
-	unsigned int
+	h5part_int64_t level
 	);
 
 h5part_int64_t
