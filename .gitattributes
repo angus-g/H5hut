@@ -100,6 +100,7 @@ test/H5BlockDissolveGhosts.c -text
 test/H5BlockParTestScalarField.c -text
 test/H5BlockParTestScalarField.pbs -text
 test/H5BlockTestAttributes.c -text
+test/H5BlockTestAttributesF.f90 -text
 test/H5ParallelTest.cc -text
 test/H5PartAndreasTest.cc -text
 test/H5PartTest.cc -text
