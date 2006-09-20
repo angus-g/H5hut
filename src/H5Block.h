@@ -65,7 +65,7 @@ H5Block3dGetReducedPartitionOfProc (
 
 h5part_int64_t
 H5Block3dGetProcOf (
-	const H5PartFile *f,
+	H5PartFile *f,
 	h5part_int64_t i,
 	h5part_int64_t j,
 	h5part_int64_t k
