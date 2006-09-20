@@ -600,7 +600,8 @@ _dissolve_ghostzones (
 		_dissolve_ghostzone ( max_p, max_q );
 	}
 
-	_H5Part_print_debug ("Layout after dissolving ghost-zones:");
+	_H5Part_print_debug ("PROC[%d]: Layout after dissolving ghost-zones:",
+			     f->myproc );
 	for ( proc_p = 0, p = b->write_layout;
 	      proc_p < f->nprocs;
 	      proc_p++, p++ ) {
@@ -786,8 +787,8 @@ _open_block_group (
 	}
 
 	if ( b->blockgroup < 0 ) {
-		herr = H5Gopen ( f->timegroup, "Block" );
-		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( "Block" );
+		herr = H5Gopen ( f->timegroup, H5BLOCK_GROUP_NAME );
+		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( H5BLOCK_GROUP_NAME );
 		b->blockgroup = herr;
 	}
 	b->timestep = f->timestep;
@@ -1026,10 +1027,10 @@ _select_hyperslab_for_writing (
 	if ( b->diskshape < 0 )
 		return HANDLE_H5S_CREATE_SIMPLE_3D_ERR ( field_dims );
 
-	_H5Part_print_debug ( "%s: PROC[%d]: Select hyperslab on diskshape: "
+	_H5Part_print_debug ( "PROC[%d]: Select hyperslab on diskshape: "
 			      "start: (%lld,%lld,%lld); "
 			      "dims:  (%lld,%lld,%lld)",
-			      _H5Part_get_funcname(), f->myproc,
+			      f->myproc,
 			      (long long)start[0],
 			      (long long)start[1],
 			      (long long)start[2],
@@ -1085,8 +1086,8 @@ _create_block_group (
 		f->block->blockgroup = -1;
 	}
 
-	herr = H5Gcreate ( f->timegroup, "Block", 0 );
-	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( "Block" );
+	herr = H5Gcreate ( f->timegroup, H5BLOCK_GROUP_NAME, 0 );
+	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( H5BLOCK_GROUP_NAME );
 
 	f->block->blockgroup = herr;
 	return H5PART_SUCCESS;
@@ -1102,7 +1103,7 @@ _create_field_group (
 	struct H5BlockStruct *b = f->block;
 
 
-	if ( ! _have_object ( f->timegroup, "Block" ) ) {
+	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUP_NAME ) ) {
 		herr = _create_block_group ( f );
 	} else {
 		herr = _open_block_group ( f );
@@ -1223,10 +1224,10 @@ H5BlockGetNumFields (
 	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
-	if ( ! _have_object ( f->timegroup, "Block" ) )
+	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUP_NAME ) )
 		return 0;
 
-	return _H5Part_get_num_objects ( f->timegroup, "Block", H5G_GROUP );
+	return _H5Part_get_num_objects ( f->timegroup, H5BLOCK_GROUP_NAME, H5G_GROUP );
 }
 
 h5part_int64_t
@@ -1249,7 +1250,7 @@ H5BlockGetFieldInfo (
 
 	h5part_int64_t herr = _H5Part_get_object_name (
 		f->timegroup,
-		"Block",
+		H5BLOCK_GROUP_NAME,
 		H5G_GROUP,
 		idx,
 		field_name,
@@ -1464,7 +1465,7 @@ H5BlockHasFieldData (
 	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
-	if ( ! _have_object ( f->timegroup, "Block" ) ) {
+	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUP_NAME ) ) {
 		return H5PART_ERR_NOENTRY;
 	}
 	return H5PART_SUCCESS;
