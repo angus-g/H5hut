@@ -204,5 +204,10 @@
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! name of the attribute to read
           REAL*8, INTENT(OUT) :: attrib_value(:)        ! the attribute data will be read into this array
         END FUNCTION
+
+
+	INTEGER*8 FUNCTION h5pt_set_verbosity_level ( level )
+	  INTEGER*8, INTENT(IN) :: level
+	END FUNCTION
   
       END INTERFACE
