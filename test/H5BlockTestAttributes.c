@@ -405,6 +405,8 @@ main (
 
 	MPI_Comm comm = MPI_COMM_WORLD;
 #ifdef PARALLEL_IO
+	int nprocs;
+
 	MPI_Init( &argc, &argv );
 	MPI_Comm_size ( comm, &nprocs );
 	MPI_Comm_rank( comm, &myproc );
