@@ -64,6 +64,11 @@ _close (
 	);
 
 
+#define INIT( f ) { \
+	h5part_int64_t herr = _init ( f ); \
+	if ( herr < 0 ) return herr; \
+}
+
 static h5part_int64_t
 _init (
 	H5PartFile *f
@@ -101,6 +106,7 @@ _init (
 	b->diskshape = -1;
 	b->memshape = -1;
 	b->field_group_id = -1;
+	b->have_layout = 0;
 
 	f->close_block = _close;
 
@@ -647,11 +653,7 @@ H5BlockDefine3DFieldLayout(
 	) {
 
 	SET_FNAME ( "H5BlockDefine3DFieldLayout" );
-
-	CHECK_FILEHANDLE ( f );
-
-	h5part_int64_t herr = _init ( f );
-	if ( herr < 0 ) return herr;
+	INIT( f );
 
 	struct H5BlockStruct *b = f->block;
 	struct H5BlockPartition *p = &b->user_layout[f->myproc];
@@ -664,7 +666,7 @@ H5BlockDefine3DFieldLayout(
 
 	_normalize_partition( p );
 
-	herr = _allgather ( f );
+	h5part_int64_t herr = _allgather ( f );
 	if ( herr < 0 ) return HANDLE_MPI_ALLGATHER_ERR;
 
 	_get_dimension_sizes ( f );
@@ -674,6 +676,8 @@ H5BlockDefine3DFieldLayout(
 
 	herr = _release_hyperslab ( f );
 	if ( herr < 0 )	return HANDLE_H5S_CLOSE_ERR;
+
+	b->have_layout = 1;
 
 	return H5PART_SUCCESS;
 }
@@ -690,9 +694,8 @@ H5Block3dGetPartitionOfProc (
 	h5part_int64_t *k_end ) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
-
-	CHECK_FILEHANDLE ( f );
-	CHECK_TIMEGROUP ( f );
+	INIT ( f );
+	CHECK_LAYOUT ( f );
 
 	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
 		return -1;
@@ -722,9 +725,8 @@ H5Block3dGetReducedPartitionOfProc (
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
-
-	CHECK_FILEHANDLE ( f );
-	CHECK_TIMEGROUP ( f );
+	INIT ( f );
+	CHECK_LAYOUT ( f );
 
 	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
 		return -1;
@@ -744,16 +746,15 @@ H5Block3dGetReducedPartitionOfProc (
 
 h5part_int64_t
 H5Block3dGetProcOf (
-	const H5PartFile *f,
+	H5PartFile *f,
 	h5part_int64_t i,
 	h5part_int64_t j,
 	h5part_int64_t k
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
-
-	CHECK_FILEHANDLE ( f );
-	CHECK_TIMEGROUP ( f );
+	INIT ( f );
+	CHECK_LAYOUT ( f );
 
 	struct H5BlockPartition *layout = f->block->write_layout;
 	int proc;
@@ -933,9 +934,9 @@ H5Block3dReadScalarField (
 	) {
 
 	SET_FNAME ( "H5Block3dReadScalarField" );
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_TIMEGROUP ( f );
+	CHECK_LAYOUT ( f );
 
 	h5part_int64_t herr = _open_field_group ( f, name );
 	if ( herr < 0 ) return herr;
@@ -959,13 +960,11 @@ H5Block3dRead3dVectorField (
 	) {
 
 	SET_FNAME ( "H5Block3dRead3dVectorField" );
-
-	h5part_int64_t herr;
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_TIMEGROUP ( f );
+	CHECK_LAYOUT ( f );
 
-	herr = _open_field_group ( f, name );
+	h5part_int64_t herr = _open_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
 	herr = _read_data ( f, "x", x_data );
@@ -1165,14 +1164,12 @@ H5Block3dWriteScalarField (
 	) {
 
 	SET_FNAME ( "H5Block3dWriteScalarField" );
-
-	h5part_int64_t herr;
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
+	CHECK_LAYOUT ( f );
 
-	herr = _create_field_group ( f, name );
+	h5part_int64_t herr = _create_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
 	herr = _write_data ( f, "x", data );
@@ -1194,14 +1191,12 @@ H5Block3dWrite3dVectorField (
 	) {
 
 	SET_FNAME ( "H5Block3dWrite3dVectorField" );
-
-	h5part_int64_t herr;
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
+	CHECK_LAYOUT ( f );
 
-	herr = _create_field_group ( f, name );
+	h5part_int64_t herr = _create_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
 	herr = _write_data ( f, "x", x_data );
@@ -1225,12 +1220,8 @@ H5BlockGetNumFields (
 	) {
 
 	SET_FNAME ( "H5BlockGetNumFields" );
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_TIMEGROUP( f );
-
-	h5part_int64_t herr = _init ( f );
-	if ( herr < 0 ) return herr;
 
 	if ( ! _have_object ( f->timegroup, "Block" ) )
 		return 0;
@@ -1250,19 +1241,13 @@ H5BlockGetFieldInfo (
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_TIMEGROUP( f );
-
-	h5part_int64_t herr = _init ( f );
-	if ( herr < 0 ) return herr;
 
 	hsize_t dims[16];
 	h5part_int64_t i, j;
 
-	CHECK_TIMEGROUP ( f );
-
-	herr = _H5Part_get_object_name (
+	h5part_int64_t herr = _H5Part_get_object_name (
 		f->timegroup,
 		"Block",
 		H5G_GROUP,
@@ -1319,10 +1304,7 @@ _write_field_attrib (
 	const h5part_int64_t attrib_nelem
 	) {
 
-	herr_t herr = _init ( f );
-	if ( herr < 0 ) return herr;
-
-	herr = _open_field_group ( f, field_name );
+	h5part_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	_H5Part_write_attrib (
@@ -1350,8 +1332,7 @@ H5BlockWriteFieldAttrib (
 	) {
 
 	SET_FNAME ( "H5BlockWriteFieldAttrib" );
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
 
@@ -1371,8 +1352,7 @@ H5BlockWriteFieldAttribString (
 	) {
 
 	SET_FNAME ( "H5BlockWriteFieldAttribString" );
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
 
@@ -1390,14 +1370,10 @@ H5BlockGetNumFieldAttribs (
 	) {
 
 	SET_FNAME ( "H5BlockGetNumFieldAttribs" );
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
-	herr_t herr = _init ( f );
-	if ( herr < 0 ) return herr;
-
-	herr = _open_field_group ( f, field_name );
+	h5part_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	h5part_int64_t nattribs = H5Aget_num_attrs (
@@ -1423,14 +1399,10 @@ H5BlockGetFieldAttribInfo (
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldAttribInfo" );
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
-	herr_t herr = _init ( f );
-	if ( herr < 0 ) return herr;
-
-	herr = _open_field_group ( f, field_name );
+	h5part_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	herr = _H5Part_get_attrib_info (
@@ -1458,16 +1430,12 @@ H5BlockReadFieldAttrib (
 	) {
 
 	SET_FNAME ( "H5PartReadFieldAttrib" );
-
-	herr_t herr = _init ( f );
-	if ( herr < 0 ) return herr;
-
-	CHECK_FILEHANDLE ( f );
+	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
 	struct H5BlockStruct *b = f->block;
 
-	herr = _open_field_group ( f, field_name );
+	h5part_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	herr = _H5Part_read_attrib (
@@ -1492,7 +1460,8 @@ H5BlockHasFieldData (
 	H5PartFile *f
 	) {
 
-	CHECK_FILEHANDLE ( f );
+	SET_FNAME ( "H5BlockHasFieldData" );
+	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
 	if ( ! _have_object ( f->timegroup, "Block" ) ) {
