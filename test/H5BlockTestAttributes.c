@@ -7,8 +7,10 @@
 #ifdef PARALLEL_IO
 #include <mpi.h>
 #else
-typedef MPI_Comm int;
+typedef int MPI_Comm;
+#ifndef MPI_COMM_WORLD
 #define MPI_COMM_WORLD 0
+#endif
 #endif
 
 struct H5BlockPartition Layout1[1] = {
@@ -78,14 +80,20 @@ _write_file (
 
 	printf ("PROC[%d]: Open file \"%s\" for writing ...\n",
 		myproc, fname );
-  
+
+#ifdef PARALLEL_IO
 	f = H5PartOpenFileParallel (
 		fname,
-		H5PART_WRITE
-#ifdef PARALLEL_IO
-		, comm
-#endif
+		H5PART_WRITE,
+		comm
 		);
+#else
+	f = H5PartOpenFile (
+		fname,
+		H5PART_WRITE
+		);
+
+#endif
 	if ( f == NULL ) return -1;
 	
 	herr = H5PartSetStep ( f, timestep );
@@ -114,13 +122,19 @@ _write_attributes (
 	printf ("PROC[%d]: Open file \"%s\" for writing ...\n",
 		myproc, fname );
   
+#ifdef PARALLEL_IO
 	H5PartFile *f = H5PartOpenFileParallel (
 		fname,
-		H5PART_WRITE
-#ifdef PARALLEL_IO
-		, comm
-#endif
+		H5PART_APPEND,
+		comm
 		);
+#else
+	H5PartFile *f = H5PartOpenFile (
+		fname,
+		H5PART_APPEND
+		);
+
+#endif
 	if ( f == NULL ) return -1;
 	
 	h5part_int64_t herr = H5PartSetStep ( f, timestep );
@@ -275,14 +289,18 @@ _read_file (
 
 	printf ("PROC[%d]: Open file \"%s\" for reading ...\n",
 		myproc, fname );
-  
+#ifdef PARALLEL_IO
 	f = H5PartOpenFileParallel (
 		fname,
-		H5PART_READ
-#ifdef PARALLEL_IO
-		, comm
-#endif
+		H5PART_READ,
+		comm
 		);
+#else
+	f = H5PartOpenFile (
+		fname,
+		H5PART_READ
+		);
+#endif
 	if ( f == NULL ) return -1;
 	
 	herr = H5PartSetStep ( f, timestep );
@@ -311,18 +329,22 @@ _read_attributes (
 	printf ("PROC[%d]: Open file \"%s\" for writing ...\n",
 		myproc, fname );
   
+#ifdef PARALLEL_IO
 	H5PartFile *f = H5PartOpenFileParallel (
 		fname,
-		H5PART_WRITE
-#ifdef PARALLEL_IO
-		, comm
-#endif
+		H5PART_WRITE,
+		comm
 		);
+#else
+	H5PartFile *f = H5PartOpenFile (
+		fname,
+		H5PART_WRITE
+		);
+#endif
 	if ( f == NULL ) return -1;
 	
 	h5part_int64_t herr = H5PartSetStep ( f, timestep );
 	if ( herr < 0 ) return herr;
-
 
 	char sval[16];
 	herr = H5BlockReadFieldAttrib (
@@ -376,7 +398,6 @@ main (
 	) {
 	char *fname = "blockfile0.h5";
 	int myproc =0;
-	int nprocs = 1;
 	int opt_read = 0;
 	int opt_write = 0;
 	      
@@ -435,4 +456,3 @@ cleanup:
 #endif
 	return ex;
 }
-
