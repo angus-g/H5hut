@@ -17,6 +17,7 @@ struct H5BlockStruct {
 	h5part_int64_t k_max;
 	struct H5BlockPartition *user_layout;
 	struct H5BlockPartition *write_layout;
+	int have_layout;
 
 	hid_t shape;
 	hid_t memshape;
