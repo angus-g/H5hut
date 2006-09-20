@@ -26,19 +26,6 @@ In fortran, these pointers (handles) are carried as INTEGER*8
 #error Error, no way to determine how to construct fortran bindings
 #endif
 
-#if 0
-#define f_h5pt_openr F77NAME(h5prt_openr_,h5prt_openr,H5PRT_OPENR)
-#define f_h5pt_openw F77NAME(h5prt_openw_,h5prt_openw,H5PRT_OPENW)
-#define f_h5pt_close F77NAME(h5prt_close_,h5prt_close,H5PRT_CLOSE)
-#define f_h5pt_npoints F77NAME(h5prt_npoints_,h5prt_npoints,H5PRT_NPOINTS)
-#define f_h5pt_ndata F77NAME(h5prt_ndata_,h5prt_ndata,H5PRT_NDATA)
-#define f_h5pt_nstep F77NAME(h5prt_nstep_,h5prt_nstep,H5PRT_NSTEP)
-#define f_h5pt_readstep F77NAME(h5prt_readstep_,h5prt_readstep,H5PRT_READSTEP)
-#define f_h5pt_step F77NAME(h5prt_step_,h5prt_step,H5PRT_STEP)
-#define f_h5pt_wreal8 F77NAME(h5prt_wreal8_,h5prt_wreal8,H5PRT_WREAL8)
-#define f_h5pt_wint8 F77NAME(h5prt_wint8_,h5prt_wint8,H5PRT_WINT8)
-#endif
-
 /* open/close interface */
 #define f_h5pt_openr F77NAME(h5pt_openr_,h5pt_openr,H5PT_OPENR) /* func returns INT8 */
 #define f_h5pt_openw F77NAME(h5pt_openw_,h5pt_openw,H5PT_OPENW) /* func returns INT8 */
@@ -87,6 +74,8 @@ In fortran, these pointers (handles) are carried as INTEGER*8
 #define f_h5pt_readstepattrib F77NAME(h5pt_readstepattrib_,h5pt_readstepattrib,H5PT_READSTEPATTRIB)
 #define f_h5pt_readfileattrib F77NAME(h5pt_readfileattrib_,h5pt_readfileattrib,H5PT_READFILEATTRIB)
 
+/* error handling */
+#define f_h5pt_set_verbosity_level F77NAME(h5pt_set_verbosity_level_,h5pt_set_verbosity_level,H5PT_SET_VERBOSITY_LEVEL)
 
 /* open/close interface */
 haddr_t
@@ -510,7 +499,7 @@ f_h5pt_getstepattribinfo (
 	int maxnamelen
 	) {
 
-	hid_t type;
+	h5part_int64_t type;
 	return H5PartGetStepAttribInfo((H5PartFile*)*f,*idx,name,maxnamelen,&type,nelem);
 }
 
@@ -522,7 +511,7 @@ f_h5pt_getfileattribinfo (
 	h5part_int64_t *nelem,
 	int maxnamelen ) {
 
-	hid_t type;
+	h5part_int64_t type;
 	return H5PartGetFileAttribInfo((H5PartFile*)*f,*idx,name,maxnamelen,&type,nelem);
 }
 
@@ -558,4 +547,11 @@ f_h5pt_readfileattrib (
 	rc = H5PartReadFileAttrib((H5PartFile*)*f,newname,data);
 	free( newname );
 	return rc;
+}
+
+h5part_int64_t
+f_h5pt_set_verbosity_level (
+	h5part_int64_t level
+	) {
+	return H5PartSetVerbosityLevel ( level );
 }
