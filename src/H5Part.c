@@ -166,7 +166,7 @@ H5PartOpenFileParallel (
 			  if f->file < 0. But we can safely ignore this.
 			*/
 			f->timestep = _H5Part_get_num_objects_matching_pattern(
-				f->file, "/", H5G_GROUP, "Particles" );
+				f->file, "/", H5G_GROUP, H5PART_PARTICLES_GROUP );
 			if ( f->timestep < 0 ) goto error_cleanup;
 		}
 	}
@@ -181,7 +181,6 @@ H5PartOpenFileParallel (
 	}
 #ifdef PARALLEL_IO
 	_H5Part_print_info (
-		"H5PartOpenFileParallel: "
 		"Proc[%d]: Opened file \"%s\" val=%d",
 		f->myproc,
 		filename,
@@ -277,7 +276,7 @@ H5PartOpenFile (
 			  if f->file < 0. But we can safely ignore it
 			*/
 			f->timestep = _H5Part_get_num_objects_matching_pattern(
-				f->file, "/", H5G_GROUP, "Particles" );
+				f->file, "/", H5G_GROUP, H5PART_PARTICLES_GROUP );
 			if ( f->timestep < 0 ) goto error_cleanup;
 		}
 	}
@@ -486,7 +485,7 @@ H5PartSetNumParticles (
 		return HANDLE_MPI_ALLGATHER_ERR;
 	}
 	if ( f->myproc == 0 ) {
-		_H5Part_print_debug ( "%s: Particle offsets:", __funcname );
+		_H5Part_print_debug ( "Particle offsets:" );
 		for(i=0;i<f->nprocs;i++) 
 			_H5Part_print_debug ( "\tnp=%lld",
 					      (long long) f->pnparticles[i] );
@@ -550,9 +549,9 @@ _write_data (
 	herr_t herr;
 	hid_t dataset_id;
 
-	_H5Part_print_debug ( "%s: Create a dataset[%s] mounted on the "
+	_H5Part_print_debug ( "Create a dataset[%s] mounted on the "
 			      "timestep %lld",
-			      __funcname, name, (long long)f->timestep );
+			      name, (long long)f->timestep );
 
 	dataset_id = H5Dcreate ( 
 		f->timegroup,
@@ -694,7 +693,7 @@ _H5Part_normalize_h5_type (
 	default:
 		; /* NOP */
 	}
-	_H5Part_print_warn ( "%s: Unknown type %d", __funcname, (int)type );
+	_H5Part_print_warn ( "Unknown type %d", (int)type );
 
 	return -1;
 }
@@ -1243,9 +1242,9 @@ H5PartSetStep (
 
 	CHECK_FILEHANDLE ( f );
 
-	_H5Part_print_info ( "%s: Proc[%d]: Set step to #%lld for file %d",
-			__funcname, f->myproc, (long long)step, (int) f->file );
-	sprintf ( name, "Particles#%lld", (long long) step );
+	_H5Part_print_info ( "Proc[%d]: Set step to #%lld for file %d",
+			     f->myproc, (long long)step, (int) f->file );
+	sprintf ( name, "%s#%lld", H5PART_PARTICLES_GROUP, (long long) step );
 	r = H5Gget_objinfo( f->file, name, 1, NULL );
 	if ( ( (f->mode == H5PART_APPEND) || (f->mode == H5PART_WRITE) )
 	     && ( r >= 0 ) ) {
@@ -1263,8 +1262,8 @@ H5PartSetStep (
 		if ( f->timegroup < 0 ) return HANDLE_H5G_OPEN_ERR( name );
 	}
 	else {
-		_H5Part_print_debug ( "%s: Proc[%d]: create step #%lld", 
-				      __funcname, f->myproc, (long long)step );
+		_H5Part_print_debug ( "Proc[%d]: create step #%lld", 
+				      f->myproc, (long long)step );
 
 		f->timegroup = H5Gcreate(f->file,name,0);
 		if ( f->timegroup < 0 ) return HANDLE_H5G_CREATE_ERR ( name );
@@ -1400,7 +1399,7 @@ H5PartGetNumSteps (
 		f->file,
 		"/",
 		H5G_GROUP,
-		"Particles" );
+		H5PART_PARTICLES_GROUP );
 }
 
 /*!
@@ -1420,7 +1419,8 @@ H5PartGetNumDatasets (
 
 	CHECK_FILEHANDLE( f );
 
-	sprintf ( stepname, "Particles#%lld", (long long) f->timestep );
+	sprintf ( stepname, "%s#%lld",
+		  H5PART_PARTICLES_GROUP, (long long) f->timestep );
 
 	return _H5Part_get_num_objects ( f->file, stepname, H5G_DATASET );
 }
@@ -1448,7 +1448,8 @@ H5PartGetDatasetName (
 	CHECK_FILEHANDLE ( f );
 	CHECK_TIMEGROUP ( f );
 
-	sprintf ( stepname, "Particles#%lld", (long long)f->timestep);
+	sprintf ( stepname, "%s#%lld",
+		  H5PART_PARTICLES_GROUP, (long long)f->timestep);
 
 	return _H5Part_get_object_name (
 		f->file,
@@ -1488,7 +1489,8 @@ H5PartGetDatasetInfo (
 	CHECK_FILEHANDLE ( f );
 	CHECK_TIMEGROUP ( f );
 
-	sprintf ( step_name, "Particles#%lld", (long long)f->timestep);
+	sprintf ( step_name, "%s#%lld",
+		  H5PART_PARTICLES_GROUP, (long long)f->timestep);
 
 	herr = _H5Part_get_object_name (
 		f->timegroup,
@@ -1545,8 +1547,7 @@ _get_diskshape_for_reading (
 #else
 		hsize_t start;
 #endif
-		_H5Part_print_debug ( "%s: Selection is available",
-				      __funcname );
+		_H5Part_print_debug ( "Selection is available" );
 
 		/* so, is this selection inclusive or exclusive? */
 		start = f->viewstart;
@@ -1567,13 +1568,12 @@ _get_diskshape_for_reading (
 		if ( r < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
 		_H5Part_print_debug (
-			"%s: Selection: range=%d:%d, npoints=%d s=%d",
-			__funcname,
+			"Selection: range=%d:%d, npoints=%d s=%d",
 			(int)f->viewstart,(int)f->viewend,
 			(int)H5Sget_simple_extent_npoints(space),
 			(int)H5Sget_select_npoints(space) );
 	} else {
-		_H5Part_print_debug ( "%s: Selection", __funcname );
+		_H5Part_print_debug ( "Selection" );
 	}
 	return space;
 }
@@ -1588,8 +1588,6 @@ _get_memshape_for_reading (
 
 	CHECK_FILEHANDLE( f );
  
-	_H5Part_print_debug ( "%s: ", __funcname );
-
 	if(H5PartHasView(f)) {
 		hsize_t dmax=H5S_UNLIMITED;
 		hsize_t len = f->viewend - f->viewstart;
@@ -1634,7 +1632,8 @@ H5PartGetNumParticles (
 	}
 
 	/* Get first dataset in current time-step */
-	sprintf ( step_name, "Particles#%lld", (long long) f->timestep );
+	sprintf ( step_name, "%s#%lld",
+		  H5PART_PARTICLES_GROUP, (long long) f->timestep );
 	herr = _H5Part_get_object_name ( f->file, step_name, H5G_DATASET, 0,
 					 dataset_name, sizeof (dataset_name) );
 	if ( herr < 0 ) return herr;
@@ -1708,8 +1707,8 @@ H5PartSetView (
 	if(f->mode==H5PART_WRITE || f->mode==H5PART_APPEND)
 		return HANDLE_H5PART_FILE_ACCESS_TYPE_ERR ( f->mode );
 
-	_H5Part_print_debug ( "%s: Set view (%lld,%lld).",
-			      __funcname, (long long)start,(long long)end);
+	_H5Part_print_debug ( "Set view (%lld,%lld).",
+			      (long long)start,(long long)end);
 
 	/* if there is already a view selected, lets destroy it */ 
 	f->viewstart = -1;
@@ -1731,8 +1730,7 @@ H5PartSetView (
 		f->memshape=H5S_ALL;
 	}
 	if(start==-1 && end==-1) {
-		_H5Part_print_debug( "%s: Early Termination: Unsetting View",
-				     __funcname );
+		_H5Part_print_debug( "Early Termination: Unsetting View" );
 		return H5PART_SUCCESS; /* all done */
 	}
 	/* for now, we interpret start=-1 to mean 0 and 
@@ -1740,8 +1738,7 @@ H5PartSetView (
 	total = (hsize_t) H5PartGetNumParticles(f);
 	if ( total < 0 ) return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( total );
 
-	_H5Part_print_debug ( "%s: Total nparticles=%lld",
-			      __funcname, (long long)total );
+	_H5Part_print_debug ( "Total nparticles=%lld", (long long)total );
 	if(start==-1) start=0;
 	if(end==-1) end=total; /* can we trust nparticles (no)? 
 				  fortunately, view has been reset
@@ -1753,9 +1750,9 @@ H5PartSetView (
 	*/
 	if(end<start) {
 		_H5Part_print_warn (
-			"%s: Nonfatal error. "
-			"End of view (%d) is less than start (%d).",
-			__funcname, (int)end,(int)start);
+			"Nonfatal error. "
+			"End of view (%lld) is less than start (%lld).",
+			(long long)end, (long long)start );
 		end = start; /* ensure that we don't have a range error */
 	}
 	range[0]=start;
@@ -1764,8 +1761,8 @@ H5PartSetView (
 	f->viewstart=range[0]; /* inclusive start */
 	f->viewend=range[1]; /* inclusive end */
 	f->nparticles=range[1]-range[0];
-	_H5Part_print_debug ( "%s: Range is now %d:%d",
-			      __funcname, (int)range[0], (int)range[1]);
+	_H5Part_print_debug ( "Range is now %lld:%lld",
+			      (long long)range[0], (long long)range[1]);
 	/* OK, now we must create a selection from this */
 	
 	/* declare overall datasize */
@@ -2132,9 +2129,8 @@ H5PartDefaultErrorHandler (
 	if ( _debug > 0 ) {
 		va_list ap;
 		va_start ( ap, fmt );
-		fprintf ( stderr, "%s: ", funcname );
-		vfprintf ( stderr, fmt, ap );
-		fprintf ( stderr, "\n" );
+		_H5Part_vprint_error ( fmt, ap );
+		va_end ( ap );
 	}
 	return _errno;
 }
@@ -2181,6 +2177,20 @@ _h5_error_handler ( void* unused ) {
 	return 0;
 }
 
+static void
+_vprint (
+	FILE* f,
+	const char *prefix,
+	const char *fmt,
+	va_list ap
+	) {
+	char *fmt2 = malloc( strlen ( prefix ) +strlen ( fmt ) + strlen ( __funcname ) + 16 );
+	if ( fmt2 == NULL ) return;
+	sprintf ( fmt2, "%s: %s: %s\n", prefix, __funcname, fmt ); 
+	vfprintf ( stderr, fmt2, ap );
+	free ( fmt2 );
+}
+
 void
 _H5Part_vprint_error (
 	const char *fmt,
@@ -2188,8 +2198,7 @@ _H5Part_vprint_error (
 	) {
 
 	if ( _debug < 1 ) return;
-	vfprintf ( stderr, fmt, ap );
-	fprintf ( stderr, "\n" );
+	_vprint ( stderr, "E", fmt, ap );
 }
 
 void
@@ -2211,8 +2220,7 @@ _H5Part_vprint_warn (
 	) {
 
 	if ( _debug < 2 ) return;
-	vfprintf ( stderr, fmt, ap );
-	fprintf ( stderr, "\n" );
+	_vprint ( stderr, "W", fmt, ap );
 }
 
 void
@@ -2234,8 +2242,7 @@ _H5Part_vprint_info (
 	) {
 
 	if ( _debug < 3 ) return;
-	vfprintf ( stdout, fmt, ap );
-	fprintf ( stdout, "\n" );
+	_vprint ( stdout, "I", fmt, ap );
 }
 
 void
@@ -2257,8 +2264,7 @@ _H5Part_vprint_debug (
 	) {
 
 	if ( _debug < 4 ) return;
-	vfprintf ( stdout, fmt, ap );
-	fprintf ( stdout, "\n" );
+	_vprint ( stdout, "D", fmt, ap );
 }
 
 void
