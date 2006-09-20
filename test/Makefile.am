@@ -113,12 +113,21 @@ H5test.o: H5test.cc
 % : %.o
 	$(CC) -o $@ $< $(H5LIB) $(LIBS)
 
-
-
-H5BlockTestAttributes.o: H5BlockTestAttributes.c
+%.o : %.c
 	$(CC) $(CFLAGS) $(INC) -g -c $<
 
+%.o : %.f90
+	${FC} $(FFLAGS) -c $(H5INC) $<
+
+H5BlockTestAttributes.o: H5BlockTestAttributes.c
+
 H5BlockTestAttributes:	H5BlockTestAttributes.o
+
+H5BlockTestAttributesF.o: H5BlockTestAttributesF.f90
+
+H5BlockTestAttributesF:	H5BlockTestAttributesF.o
+	$(FC)  -o $@ $< $(H5LIB) -lpH5PartF -lpH5Part $(LIBS)
+
 
 H5BlockParTestScalarField.o: H5BlockParTestScalarField.c
 	$(CC) $(CFLAGS) $(INC) -g -c $<
