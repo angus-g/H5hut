@@ -148,7 +148,7 @@ f_h5bl_get_reduced_partition_of_proc (
 
 h5part_int64_t
 f_h5bl_get_proc_of (
-	const H5PartFile *f,
+	H5PartFile *f,
 	const h5part_int64_t *i,
 	const h5part_int64_t *j,
 	const h5part_int64_t *k
