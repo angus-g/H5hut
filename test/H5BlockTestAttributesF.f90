@@ -84,8 +84,34 @@ PROGRAM H5BlockTestAttributesF
         RETURN
      ENDIF
 
+     PRINT *, "PROC[",myproc,"]: Open file ",fname," for reading ..."
+
+     file = h5pt_openr ( fname )
+     if ( file == 0 ) THEN
+        read_file = -1
+        RETURN
+     ENDIF
+     PRINT *, "file: ", file
+
+     h5pt_err = h5pt_setstep ( file, timestep )
+     IF ( h5pt_err < 0 ) THEN
+        read_file = -1
+        RETURN
+     ENDIF
+
+     h5pt_err = read_attributes ( file )
+
+     h5pt_err = h5pt_close ( file )
+     IF ( h5pt_err < 0 ) THEN
+        read_file = -1
+        RETURN
+     ENDIF
+
+
+
      read_file = 0
    END FUNCTION read_file
+
 
    INTEGER*8 FUNCTION read_field ( file, myproc, layout )
      INTEGER*8, INTENT(IN) :: file
@@ -104,7 +130,7 @@ PROGRAM H5BlockTestAttributesF
      INTEGER*8 :: k_dims
      REAL*8 :: value
   
-     INTEGER*8 data(64,64,512)
+     REAL*8, DIMENSION(:,:,:), ALLOCATABLE :: data
 
      PRINT *, "Reading field ..."
      i_start = layout(1)
@@ -118,7 +144,7 @@ PROGRAM H5BlockTestAttributesF
      k_dims  = k_end - k_start + 1
 
      PRINT *, "dims: (", i_dims, j_dims, k_dims, ")"
-     !ALLOCATE ( data ( i_dims, j_dims, k_dims ) )
+     ALLOCATE ( data (i_dims,j_dims, k_dims) )
 
      PRINT *, "Defining Layout ..."
      h5pt_err = h5bl_define3dlayout ( file, i_start, i_end, j_start, j_end, k_start, k_end )
@@ -137,7 +163,7 @@ PROGRAM H5BlockTestAttributesF
      DO i = 1, i_dims
         DO j = 1, j_dims
            DO k = 1, k_dims
-              value = k + 1000*j + 100000*i
+              value = (k-1) + 1000*(j-1) + 100000*(i-1)
               if ( data(i,j,k) /= value ) THEN
                  PRINT *, "data(",i,",",j,",",k,") = ",data(i,j,k), " /= ",value
               END IF
@@ -148,4 +174,44 @@ PROGRAM H5BlockTestAttributesF
    END FUNCTION read_field
 
 
-END PROGRAM
+   INTEGER*8 FUNCTION read_attributes ( file )
+     INTEGER*8, INTENT(IN) :: file
+
+     INTEGER*8 :: h5pt_err = 0
+     CHARACTER(LEN=128) :: s_val
+     INTEGER*8 :: i_val(1)
+     REAL*8 :: r_val(1)
+
+     h5pt_err = h5bl_readfieldattrib_string ( file, "TestField", "TestString", s_val ) 
+     IF ( h5pt_err < 0 ) THEN
+        read_attributes = h5pt_err
+        RETURN
+     END IF
+     
+     IF ( s_val /= "42" ) THEN
+        PRINT *, "Error reading string attribute: Value is ", s_val, " and should be 42"
+     END IF
+
+     h5pt_err = h5bl_readfieldattrib_i8 ( file, "TestField", "TestInt64", i_val )
+     IF ( h5pt_err < 0 ) THEN
+        read_attributes = h5pt_err
+        RETURN
+     END IF
+     IF ( i_val(1) /= 42 ) THEN
+        PRINT *, "Error reading int64 attribute: Value is ", i_val(1), " and should be 42"
+     END IF
+
+     h5pt_err = h5bl_readfieldattrib_r8 ( file, "TestField", "TestFloat64", r_val )
+     IF ( h5pt_err < 0 ) THEN
+        read_attributes = h5pt_err
+        RETURN
+     END IF
+
+     IF ( r_val(1) /= 42.0 ) THEN
+        PRINT *, "Error reading float64 attribute: Value is ", r_val(1), " and should be 42.0"
+     END IF
+
+
+   END FUNCTION read_attributes
+
+ END PROGRAM H5BlockTestAttributesF
