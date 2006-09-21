@@ -357,7 +357,6 @@ if test "X$USE_PARALLEL" = "Xyes"; then
  
         MTARGET="${MTARGET} libpH5PartF.a"
         TTARGET="${TTARGET} H5testFpar"
-	TTARGET="${TTARGET} H5BlockTestAttributesF"
     else
         echo "PARALLEL ENABLED WITHOUT FORTRAN"
     fi
@@ -374,6 +373,7 @@ else
 
         MTARGET="${MTARGET} libH5PartF.a"
         TTARGET="${TTARGET} H5testF"
+	TTARGET="${TTARGET} H5BlockTestAttributesF"
    else
         echo "BOTH PARALLEL & FORTRAN NOT ENABLED"
    fi
