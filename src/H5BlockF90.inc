@@ -71,7 +71,7 @@
 
         INTEGER*8 FUNCTION h5bl_getfieldinfo ( filehandle, idx, field_name, grid_rank, grid_dims, field_dims )
           INTEGER*8, INTENT(IN) :: filehandle
-          INTEGER*8, INTENT(IN) :: idx,
+          INTEGER*8, INTENT(IN) :: idx
           CHARACTER(LEN=*), INTENT(OUT) :: field_name
           INTEGER*8, INTENT(OUT) :: grid_rank
           INTEGER*8, INTENT(OUT) :: grid_dims(:)
@@ -86,7 +86,7 @@
           INTEGER*8, INTENT(IN) :: attrib_nelem         ! Number of elements in the attrib array
         END FUNCTION
 
-        INTEGER*8 FUNCTION h5bl_writefieldattrib_i8 (filehandle,attrib_name,attrib_value,attrib_nelem)
+        INTEGER*8 FUNCTION h5bl_writefieldattrib_i8 (filehandle, field_name, attrib_name,attrib_value,attrib_nelem)
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: field_name    ! The name of the field
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! The name of the attribute
