@@ -39,30 +39,30 @@
         INTEGER*8 FUNCTION h5bl_3d_read_scalar_field ( filehandle, name, data )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name
-	  INTEGER*8, INTENT(OUT) :: data(:,:,:)
+	  REAL*8, INTENT(OUT) :: data(*)
 	END FUNCTION
 
         INTEGER*8 FUNCTION h5bl_3d_write_scalar_field ( filehandle, name, data )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name
-	  INTEGER*8, INTENT(IN) :: data(:,:,:)
+	  INTEGER*8, INTENT(IN) :: data(*)
 	END FUNCTION
 
         INTEGER*8 FUNCTION h5bl_3d_read_3dvector_field ( filehandle, name, x, y, z )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name
-	  INTEGER*8, INTENT(OUT) :: x(:,:,:)
-	  INTEGER*8, INTENT(OUT) :: y(:,:,:)
-	  INTEGER*8, INTENT(OUT) :: z(:,:,:)
+	  INTEGER*8, INTENT(OUT) :: x(*)
+	  INTEGER*8, INTENT(OUT) :: y(*)
+	  INTEGER*8, INTENT(OUT) :: z(*)
 	END FUNCTION
 	
 
         INTEGER*8 FUNCTION h5bl_3d_write_3dvector_field ( filehandle, name, x, y, z )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name
-	  INTEGER*8, INTENT(IN) :: x(:,:,:)
-	  INTEGER*8, INTENT(IN) :: y(:,:,:)
-	  INTEGER*8, INTENT(IN) :: z(:,:,:)
+	  INTEGER*8, INTENT(IN) :: x(*)
+	  INTEGER*8, INTENT(IN) :: y(*)
+	  INTEGER*8, INTENT(IN) :: z(*)
 	END FUNCTION
 	
         INTEGER*8 FUNCTION h5bl_getnumfields ( filehandle )
@@ -74,7 +74,7 @@
           INTEGER*8, INTENT(IN) :: idx
           CHARACTER(LEN=*), INTENT(OUT) :: field_name
           INTEGER*8, INTENT(OUT) :: grid_rank
-          INTEGER*8, INTENT(OUT) :: grid_dims(:)
+          INTEGER*8, INTENT(OUT) :: grid_dims(*)
           INTEGER*8, INTENT(OUT) :: field_dims
         END FUNCTION
 
@@ -82,7 +82,7 @@
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: field_name    ! The name of the field
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! The name of the attribute
-          REAL*8, INTENT(IN) :: attrib_value(:)         ! The array of data to write into the attribute
+          REAL*8, INTENT(IN) :: attrib_value(*)         ! The array of data to write into the attribute
           INTEGER*8, INTENT(IN) :: attrib_nelem         ! Number of elements in the attrib array
         END FUNCTION
 
@@ -90,7 +90,7 @@
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: field_name    ! The name of the field
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! The name of the attribute
-          INTEGER*8, INTENT(IN) :: attrib_value(:)      ! The array of data to write into the attribute
+          INTEGER*8, INTENT(IN) :: attrib_value(*)      ! The array of data to write into the attribute
           INTEGER*8, INTENT(IN) :: attrib_nelem         ! Number of elements in the attrib array
         END FUNCTION
       
@@ -118,14 +118,14 @@
           INTEGER*8,        INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: field_name    ! The name of the field
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! name of the attribute to read
-          INTEGER*8,        INTENT(OUT):: attrib_value(:)! the attribute data will be read into this array
+          INTEGER*8,        INTENT(OUT):: attrib_value(*)! the attribute data will be read into this array
         END FUNCTION
 
         INTEGER*8 FUNCTION h5bl_readfieldattrib_r8 ( filehandle, field_name, attrib_name, attrib_value )
           INTEGER*8,        INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: field_name    ! The name of the field
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! name of the attribute to read
-          REAL*8,           INTENT(OUT):: attrib_value(:)! the attribute data will be read into this array
+          REAL*8,           INTENT(OUT):: attrib_value(*)! the attribute data will be read into this array
         END FUNCTION
 
         INTEGER*8 FUNCTION h5bl_readfieldattrib_string ( filehandle, field_name, attrib_name, attrib_value )
