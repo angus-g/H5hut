@@ -78,23 +78,20 @@ In fortran, these pointers (handles) are carried as INTEGER*8
 #define f_h5pt_set_verbosity_level F77NAME(h5pt_set_verbosity_level_,h5pt_set_verbosity_level,H5PT_SET_VERBOSITY_LEVEL)
 
 /* open/close interface */
-haddr_t
+h5part_int64_t
 f_h5pt_openr (
 	char *file,
 	int flen
 	) { /* func returns INT8 */
 
-	haddr_t fh;
 	H5PartFile* f;
 	char *newname = (char*)malloc(flen+1); /* be safe? */
 	strncpy(newname,file,flen);
 	newname[flen]='\0';
-	f = (H5PartOpenFile(newname,H5PART_READ));
-	/*  printf("openr file=[%s] flen=%u haddr=%u\n",file,flen,f); */
-	fh = (haddr_t)f;
-	/* printf("FileHandle=%llu\n",fh); */
+	f = H5PartOpenFile ( newname, H5PART_READ );
 
-	return fh;
+	return (h5part_int64_t)(size_t)f; 
+
 }
 
 haddr_t
