@@ -179,13 +179,6 @@ H5PartOpenFileParallel (
 		HANDLE_H5F_OPEN_ERR ( filename, flags );
 		goto error_cleanup;
 	}
-#ifdef PARALLEL_IO
-	_H5Part_print_info (
-		"Proc[%d]: Opened file \"%s\" val=%d",
-		f->myproc,
-		filename,
-		f->file );
-#endif
 	f->mode = flags;
 	f->timegroup = 0;
 	f->shape = 0;
@@ -193,6 +186,12 @@ H5PartOpenFileParallel (
 	f->memshape = H5S_ALL;
 	f->viewstart = -1;
 	f->viewend = -1;
+
+	_H5Part_print_debug (
+		"Proc[%d]: Opened file \"%s\" val=%lld",
+		f->myproc,
+		filename,
+		(long long)(size_t)f );
 
 	return f;
 
@@ -297,6 +296,11 @@ H5PartOpenFile (
 	f->memshape = H5S_ALL;
 	f->viewstart = -1;
 	f->viewend = -1;
+
+	_H5Part_print_debug (
+		"Opened file \"%s\" val=%lld",
+		filename,
+		(long long)(size_t)f );
 
 	return f;
 
@@ -1243,7 +1247,7 @@ H5PartSetStep (
 	CHECK_FILEHANDLE ( f );
 
 	_H5Part_print_info ( "Proc[%d]: Set step to #%lld for file %d",
-			     f->myproc, (long long)step, (int) f->file );
+			     f->myproc, (long long)step, (int) f );
 	sprintf ( name, "%s#%lld", H5PART_PARTICLES_GROUP, (long long) step );
 	r = H5Gget_objinfo( f->file, name, 1, NULL );
 	if ( ( (f->mode == H5PART_APPEND) || (f->mode == H5PART_WRITE) )
