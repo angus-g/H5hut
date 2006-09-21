@@ -877,6 +877,14 @@ _select_hyperslab_for_reading (
 	     (field_dims[1] < b->j_max) ||
 	     (field_dims[2] < b->i_max) ) return HANDLE_H5PART_LAYOUT_ERR;
 
+	_H5Part_print_debug (
+		"PROC[%d]: \n"
+		"\tfield_dims: (%lld,%lld,%lld)",
+		f->myproc,
+		(long long)field_dims[2],
+		(long long)field_dims[1],
+		(long long)field_dims[0] );
+
 	b->diskshape = H5Screate_simple ( rank, field_dims,field_dims );
 	if ( b->diskshape < 0 )
 		return HANDLE_H5S_CREATE_SIMPLE_3D_ERR ( field_dims );
@@ -893,6 +901,22 @@ _select_hyperslab_for_reading (
 		part_dims,
 		NULL );
 	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
+
+	_H5Part_print_debug (
+		"PROC[%d]: Select hyperslab: \n"
+		"\tstart:  (%lld,%lld,%lld)\n"
+		"\tstride: (%lld,%lld,%lld)\n"
+		"\tdims:   (%lld,%lld,%lld)",
+		f->myproc,
+		(long long)start[2],
+		(long long)start[1],
+		(long long)start[0],
+		(long long)stride[2],
+		(long long)stride[1],
+		(long long)stride[0],
+		(long long)part_dims[2],
+		(long long)part_dims[1],
+		(long long)part_dims[0]  );
 
 	return H5PART_SUCCESS;
 }
@@ -1027,16 +1051,21 @@ _select_hyperslab_for_writing (
 	if ( b->diskshape < 0 )
 		return HANDLE_H5S_CREATE_SIMPLE_3D_ERR ( field_dims );
 
-	_H5Part_print_debug ( "PROC[%d]: Select hyperslab on diskshape: "
-			      "start: (%lld,%lld,%lld); "
-			      "dims:  (%lld,%lld,%lld)",
-			      f->myproc,
-			      (long long)start[0],
-			      (long long)start[1],
-			      (long long)start[2],
-			      (long long)part_dims[0],
-			      (long long)part_dims[1],
-			      (long long)part_dims[2] );
+	_H5Part_print_debug (
+		"PROC[%d]: Select hyperslab on diskshape: \n"
+		"\tstart:  (%lld,%lld,%lld)\n"
+		"\tstride: (%lld,%lld,%lld)\n"
+		"\tdims:   (%lld,%lld,%lld)",
+		f->myproc,
+		(long long)start[2],
+		(long long)start[1],
+		(long long)start[0],
+		(long long)stride[2],
+		(long long)stride[1],
+		(long long)stride[0],
+		(long long)part_dims[2],
+		(long long)part_dims[1],
+		(long long)part_dims[0]  );
 
 	herr = H5Sselect_hyperslab (
 		b->diskshape,
@@ -1058,6 +1087,22 @@ _select_hyperslab_for_writing (
 	start[0] = p->k_start - q->k_start;
 	start[1] = p->j_start - q->j_start;
 	start[2] = p->i_start - q->i_start;
+
+	_H5Part_print_debug (
+		"PROC[%d]: Select hyperslab on memshape: \n"
+		"\tstart:  (%lld,%lld,%lld)\n"
+		"\tstride: (%lld,%lld,%lld)\n"
+		"\tdims:   (%lld,%lld,%lld)",
+		f->myproc,
+		(long long)start[2],
+		(long long)start[1],
+		(long long)start[0],
+		(long long)stride[2],
+		(long long)stride[1],
+		(long long)stride[0],
+		(long long)part_dims[2],
+		(long long)part_dims[1],
+		(long long)part_dims[0]  );
 
 	herr = H5Sselect_hyperslab (
 		b->memshape,
