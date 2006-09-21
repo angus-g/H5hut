@@ -1,0 +1,11 @@
+## Makefile.am -- process this file with automake to produce Makefile.in
+##
+## authors   - benedikt oswald and patrick leidenberger
+## modified  - 2006 aug 21, patrick leidenberger, creation
+## modified  - 2006 aug 24, pl, add h5fed path.
+#
+## objective - automake input file for the libsrc directory
+## project   - gmsh2h5fed
+
+SUBDIRS     = gmsh h5fed
+AM_CPPFLAGS = @AM_CPPFLAGS@

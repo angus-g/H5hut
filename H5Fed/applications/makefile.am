@@ -1,0 +1,26 @@
+## Makefile.am -- process this file with automake to produce Makefile.in
+##
+## authors   - benedikt oswald and patrick leidenberger
+## modified  - 2006 aug 21, patrick leidenberger, creation
+## modified  - 2006 aug 23, pl, adaped to changed directory structure.
+## modified  - 2006 aug 25, pl, adaped to changed directory structure.
+#
+## objective - automake input file for the gmsh directory
+## project   - gmsh2h5fed
+
+noinst_PROGRAMS = gmsh2h5fed
+
+gmsh2h5fed_SOURCES = gmsh2h5fed.cc
+gmsh2h5fed_DEPENDENCIES = ../libsrc/stdincl/nonsciconst.h      \
+                             ../libsrc/stdincl/physicomath.h      \
+                             ../libsrc/gmsh/gmsh.hh               \
+                             ../libsrc/gmsh/gmsh.cc               \
+                             ../libsrc/gmsh/gmshconst.hh          \
+                             ../libsrc/gmsh/gmshgrammar.hh        \
+                             ../libsrc/gmsh/gmshsemanticaction.hh \
+                             ../libsrc/h5fed/h5fed.hh             \
+                             ../libsrc/h5fed/h5fed.cc
+
+gmsh2h5fed_LDADD = @GMSH2H5FED_LIBS@
+
+#AM_CPPFLAGS = @AM_CPPFLAGS@
