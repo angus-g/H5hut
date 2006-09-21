@@ -963,6 +963,7 @@ H5Block3dReadScalarField (
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
+	printf ( "data: %lx\n", (unsigned long)data );
 	h5part_int64_t herr = _open_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
