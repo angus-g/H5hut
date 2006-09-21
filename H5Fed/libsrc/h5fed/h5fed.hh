@@ -341,127 +341,159 @@ public:
     // Set dimension of an elements vector.
     unsigned int elemDim = H5FED_TET_N_NODE;
     // Set the name of the dataset, we want to operate.
-    string datasetName = H5FED_D_TETMESH + stringify(level);
+    string datasetName = H5FED_D_TETMESH;
     // This function does the real work for all elements.
     element_(level, elem, datasetName, elemDim);
     return OKCODE;
     
   }
   
+  // This function gets some attributes of the element, it should insert and
+  // insert it to the given dataset.
+  // Here we do the index mapping.
   int element_(unsigned int level,
                std::vector< std::vector<unsigned int> >* elem,
-               std::string datasetName,
+               std::string datasetNameBlank,
                unsigned int elemDim )
   {
     // All these operations are only allowed, if there is a valid file
     // identifier.
     if (hdf5FileIdent_ >= 0)
     {
-      rDebug("Insert a check, if the selected level exits,");
-      rDebug("and if it is consecutive.");
-      // Define the rank of the different dataspaces.
-      const int rank = 2;
-      // Hdf5 error handling variable for Hdf5 actions.
-      herr_t hdf5Status;
-      // Hdf5 dataspace identifier.
-      hid_t hdf5DataspaceId;
-      // Hdf5 dataset identifier.
-      hid_t hdf5DatasetId;
-      // Define the dimension of the data array.
-      hsize_t dim[2];
-      // Number of rows: as much as elements.
-      dim[0] = elem->size();
-      // Number of colums: dimenstion of an elements vector.
-      dim[1] = elemDim;
-      
-      // We copy the element nodes from a element in an standart array,
-      // so that hdf5 can handle it.
-      // We do this for every element separate, so we save memory.
-      
-      // Subdimension of hyperslab in memory: 1 line, elemDim columns.
-      hsize_t dim_sub_mem[2];
-      dim_sub_mem[0] = 1;
-      dim_sub_mem[1] = elemDim;
-      // Subdimension of hyperslab in file: 1 line, elemDim columns.
-      hsize_t dim_sub_file[2];
-      dim_sub_file[0] = 1;
-      dim_sub_file[1] = elemDim;
-      // Define the offset for reading from the memory.
-      // Always fixed, because memory has exactly the same size.
-      hsize_t offset_mem[2];
-      offset_mem[0] = 0;
-      offset_mem[1] = 0;
-      // Define the offset for writing into the file.
-      hsize_t offset_file[2];
-      offset_file[0] = 0;     // Row ofsett zero only at the beginning.
-      offset_file[1] = 0;     // We have no offset respective to the column.
-      
-      // Array for single elements of an element vector.
-      unsigned int element[elemDim];
-      
-      // Dimesion and datatype of the file dataset, read out form file.
-      // This is not the fastest, but the most robust way.
-      hsize_t dim_out[2];
-      hid_t dataType;
+      // Make datasetName with the datasetNameBlank and the level.
+      string datasetName = datasetNameBlank + stringify(level);
 
-      // Create dataspace of full size.
-      hdf5DataspaceId = H5Screate_simple(rank, dim, H5P_DEFAULT);
-
-      // Create dataset of full size.
-      hdf5DatasetId = H5Dcreate(hdf5FileIdent_, datasetName.c_str(), 
-                                H5T_STD_U32LE, hdf5DataspaceId, H5P_DEFAULT);
-      
-      // Loop over all rows of the dataset (file) and copy the elem vector
-      // row wise.
-      hdf5Status = H5Sget_simple_extent_dims(hdf5DataspaceId, dim_out,
-                                             H5P_DEFAULT);
-      // Get the datatype of the datas we want to write.
-      dataType = H5Dget_type(hdf5DatasetId);
-      for (unsigned int varI = 0; varI < dim_out[0]; varI++)
+      // Check if the dataset with the given datasetName already exists:
+      // if it exists, abort; 
+      // if not, check if the previouse level exists:
+      //   if not, prompt warning
+      //   if it exits, every thing is correct.
+      if (existsDataspace(datasetName))
       {
-        // Iterate over the rows in file dataspace.
-        offset_file[0] = varI;
-        
-        // Copy every element of a coordinate.
-        for (unsigned int varJ = 0; varJ < dim_out[1]; varJ++)
+        rError("Dataspace %s already exists!", datasetName.c_str());
+        rError("You cannot insert it twice.");
+        exit(ERRORCODE);
+      }
+      else
+      {
+        // INSERT COMMENT HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (level > 0)
         {
-          // Here is the only special case for automated mapping:
-          // Do not copy the next in the input vector, copy the coord
-          // with the next following number.
-          if (doIndexMapping_ == true)
+          if (!(existsDataspace(datasetNameBlank + stringify(level-1))))
           {
-            std::map<unsigned int, unsigned int>::iterator iter;
-            iter = indexMap_.find((*elem)[varI][varJ]);
-            element[varJ] = iter->second;
+            rError("You insert level %d while level %d does not exists.",
+                   level, level-1);
+            rError("So the %s levels will be not consective.",
+                   datasetNameBlank);
+            rError("Exit.");
+            exit(ERRORCODE);
           }
-          else
-            element[varJ] = (*elem)[varI][varJ];
         }
 
-        // Select hyperslab ('region') in file dataspace.
-        hdf5Status = H5Sselect_hyperslab(hdf5DataspaceId, H5S_SELECT_SET,
-                                         offset_file, H5P_DEFAULT,
-                                         dim_sub_file, H5P_DEFAULT);
-        // Define memory Dataspace.
-        hid_t hdf5MemspaceId;
-        hdf5MemspaceId = H5Screate_simple(rank, dim_sub_mem, H5P_DEFAULT);
-        // Select hyperslab ('region') in memory.
-        hdf5Status = H5Sselect_hyperslab(hdf5MemspaceId, H5S_SELECT_SET,
-                                         offset_mem, H5P_DEFAULT,
-                                         dim_sub_mem, H5P_DEFAULT);
-        // Copy dataset to dataset from memory to file.
-        hdf5Status = H5Dwrite(hdf5DatasetId, dataType,
-                              hdf5MemspaceId, hdf5DataspaceId,
-                              H5P_DEFAULT, element);
-        // Close the memory space identifier.
-        H5Sclose(hdf5MemspaceId);
-     }
-
-      // Close hdf5 identifier.
-      hdf5Status = H5Dclose(hdf5DatasetId);
-      hdf5Status = H5Sclose(hdf5DataspaceId);
-      
-      return OKCODE;
+        // Define the rank of the different dataspaces.
+        const int rank = 2;
+        // Hdf5 error handling variable for Hdf5 actions.
+        herr_t hdf5Status;
+        // Hdf5 dataspace identifier.
+        hid_t hdf5DataspaceId;
+        // Hdf5 dataset identifier.
+        hid_t hdf5DatasetId;
+        // Define the dimension of the data array.
+        hsize_t dim[2];
+        // Number of rows: as much as elements.
+        dim[0] = elem->size();
+        // Number of colums: dimenstion of an elements vector.
+        dim[1] = elemDim;
+        
+        // We copy the element nodes from a element in an standart array,
+        // so that hdf5 can handle it.
+        // We do this for every element separate, so we save memory.
+        
+        // Subdimension of hyperslab in memory: 1 line, elemDim columns.
+        hsize_t dim_sub_mem[2];
+        dim_sub_mem[0] = 1;
+        dim_sub_mem[1] = elemDim;
+        // Subdimension of hyperslab in file: 1 line, elemDim columns.
+        hsize_t dim_sub_file[2];
+        dim_sub_file[0] = 1;
+        dim_sub_file[1] = elemDim;
+        // Define the offset for reading from the memory.
+        // Always fixed, because memory has exactly the same size.
+        hsize_t offset_mem[2];
+        offset_mem[0] = 0;
+        offset_mem[1] = 0;
+        // Define the offset for writing into the file.
+        hsize_t offset_file[2];
+        offset_file[0] = 0;     // Row ofsett zero only at the beginning.
+        offset_file[1] = 0;     // We have no offset respective to the column.
+        
+        // Array for single elements of an element vector.
+        unsigned int element[elemDim];
+        
+        // Dimesion and datatype of the file dataset, read out form file.
+        // This is not the fastest, but the most robust way.
+        hsize_t dim_out[2];
+        hid_t dataType;
+  
+        // Create dataspace of full size.
+        hdf5DataspaceId = H5Screate_simple(rank, dim, H5P_DEFAULT);
+  
+        // Create dataset of full size.
+        hdf5DatasetId = H5Dcreate(hdf5FileIdent_, datasetName.c_str(), 
+                                  H5T_STD_U32LE, hdf5DataspaceId, H5P_DEFAULT);
+        
+        // Loop over all rows of the dataset (file) and copy the elem vector
+        // row wise.
+        hdf5Status = H5Sget_simple_extent_dims(hdf5DataspaceId, dim_out,
+                                               H5P_DEFAULT);
+        // Get the datatype of the datas we want to write.
+        dataType = H5Dget_type(hdf5DatasetId);
+        for (unsigned int varI = 0; varI < dim_out[0]; varI++)
+        {
+          // Iterate over the rows in file dataspace.
+          offset_file[0] = varI;
+          
+          // Copy every element of a coordinate.
+          for (unsigned int varJ = 0; varJ < dim_out[1]; varJ++)
+          {
+            // Here is the only special case for automated mapping:
+            // Do not copy the next in the input vector, copy the coord
+            // with the next following number.
+            if (doIndexMapping_ == true)
+            {
+              std::map<unsigned int, unsigned int>::iterator iter;
+              iter = indexMap_.find((*elem)[varI][varJ]);
+              element[varJ] = iter->second;
+            }
+            else
+              element[varJ] = (*elem)[varI][varJ];
+          }
+  
+          // Select hyperslab ('region') in file dataspace.
+          hdf5Status = H5Sselect_hyperslab(hdf5DataspaceId, H5S_SELECT_SET,
+                                           offset_file, H5P_DEFAULT,
+                                           dim_sub_file, H5P_DEFAULT);
+          // Define memory Dataspace.
+          hid_t hdf5MemspaceId;
+          hdf5MemspaceId = H5Screate_simple(rank, dim_sub_mem, H5P_DEFAULT);
+          // Select hyperslab ('region') in memory.
+          hdf5Status = H5Sselect_hyperslab(hdf5MemspaceId, H5S_SELECT_SET,
+                                           offset_mem, H5P_DEFAULT,
+                                           dim_sub_mem, H5P_DEFAULT);
+          // Copy dataset to dataset from memory to file.
+          hdf5Status = H5Dwrite(hdf5DatasetId, dataType,
+                                hdf5MemspaceId, hdf5DataspaceId,
+                                H5P_DEFAULT, element);
+          // Close the memory space identifier.
+          H5Sclose(hdf5MemspaceId);
+       }
+  
+        // Close hdf5 identifier.
+        hdf5Status = H5Dclose(hdf5DatasetId);
+        hdf5Status = H5Sclose(hdf5DataspaceId);
+        
+        return OKCODE;
+      }
     }
     else 
     {
@@ -473,6 +505,39 @@ public:
 
 
 
+  // Write 3dim coordinates to h5fed file.
+  bool existsDataspace (std::string dataspaceName)
+  {
+    // All these operations are only allowed, if there is a valid file
+    // identifier.
+    if (hdf5FileIdent_ >= 0)
+    {
+      // Hdf5 error handling variable for Hdf5 actions.
+      herr_t hdf5Status;
+      // Hdf5 dataspace identifier.
+      hid_t hdf5DataspaceId;
+
+      hdf5DataspaceId = H5Dopen(hdf5FileIdent_, dataspaceName.c_str());
+      if (hdf5DataspaceId < 0)
+      {
+        //rDebug("This dataspace exists NOT in this file: %s",
+        //       dataspaceName.c_str());
+        return false;
+      }
+      else
+      {
+        //rDebug("This dataspace exists in this file: %s",
+        //       dataspaceName.c_str());
+        return true;
+      }
+    }
+    else 
+    {
+      rError("You cannot check if the dataspace exists.");
+      rError("There is no valid file identifier.");
+      return false;
+    }
+  }
 
 
 		
