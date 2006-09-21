@@ -43,7 +43,7 @@
 					h5bl_3d_read_3dvector_field_,	\
 					h5bl_3d_read_3dvector_field,	\
 					H5BL_3D_READ_3DVECTOR_FIELD )
-#define f_h5bl_3d_write_3dvector_field F77NAME (					\
+#define f_h5bl_3d_write_3dvector_field F77NAME (			\
 					h5bl_3d_write_3dvector_field_,	\
 					h5bl_3d_write_3dvector_field,	\
 					H5BL_3D_WRITE_3DVECTOR_FIELD )
@@ -183,7 +183,6 @@ f_h5bl_3d_read_scalar_field (
 	strncpy ( field_name2, field_name, l_field_name );
 	field_name2[l_field_name] = '\0';
 
-	printf ( "data: %lx\n", (unsigned long)data );
 	h5part_int64_t herr = H5Block3dReadScalarField (
 		filehandle, field_name2, data );
 
@@ -214,7 +213,7 @@ f_h5bl_3d_write_scalar_field (
 
 h5part_int64_t
 f_h5bl_3d_read_3dvector_field (
-	h5part_int64_t *f,			/*!< file handle */
+	h5part_int64_t *f,		/*!< file handle */
 	const char *field_name,		/*!< name of the data set */
 	h5part_float64_t *xval,		/*!< array of x component data */
 	h5part_float64_t *yval,		/*!< array of y component data */
@@ -451,7 +450,7 @@ f_h5bl_readfieldattrib_i8 (
 	attrib_name2[l_attrib_name] = '\0';
 
 	h5part_int64_t herr = H5BlockReadFieldAttrib (
-		filehandle, field_name, attrib_name, attrib_value );
+		filehandle, field_name2, attrib_name2, attrib_value );
 
 	free ( field_name2 );
 	free ( attrib_name2 );
@@ -479,7 +478,7 @@ f_h5bl_readfieldattrib_r8 (
 	attrib_name2[l_attrib_name] = '\0';
 
 	h5part_int64_t herr = H5BlockReadFieldAttrib (
-		filehandle, field_name, attrib_name, attrib_value );
+		filehandle, field_name2, attrib_name2, attrib_value );
 
 	free ( field_name2 );
 	free ( attrib_name2 );
@@ -508,7 +507,7 @@ f_h5bl_readfieldattrib_string (
 	attrib_name2[l_attrib_name] = '\0';
 
 	h5part_int64_t herr = H5BlockReadFieldAttrib (
-		filehandle, field_name, attrib_name, attrib_value );
+		filehandle, field_name2, attrib_name2, attrib_value );
 
 	free ( field_name2 );
 	free ( attrib_name2 );
