@@ -126,7 +126,7 @@ H5BlockTestAttributes:	H5BlockTestAttributes.o
 H5BlockTestAttributesF.o: H5BlockTestAttributesF.f90
 
 H5BlockTestAttributesF:	H5BlockTestAttributesF.o
-	$(FC)  -o $@ $< $(H5LIB) -lpH5PartF -lpH5Part $(LIBS)
+	$(FC)  -o $@ $< $(H5LIB) -lH5PartF -lH5Part $(LIBS)
 
 
 H5BlockParTestScalarField.o: H5BlockParTestScalarField.c
