@@ -67,6 +67,40 @@ _write_data (
 }
 
 static h5part_int64_t
+_write_attributes (
+	H5PartFile *f,
+	const int myproc
+	) {
+
+	h5part_int64_t herr = H5BlockWriteFieldAttribString (
+		f,
+		"TestField",
+		"TestString",
+		"42" );
+	if ( herr < 0 ) return -1;
+
+	h5part_int64_t ival[1] = { 42 };
+	h5part_float64_t rval[1] = { 42.0 };
+	herr = H5BlockWriteFieldAttrib (
+		f,
+		"TestField",
+		"TestInt64",
+		H5PART_INT64,
+		ival, 1 );
+	if ( herr < 0 ) return -1;
+
+	herr = H5BlockWriteFieldAttrib (
+		f,
+		"TestField",
+		"TestFloat64",
+		H5PART_FLOAT64,
+		rval, 1 );
+	if ( herr < 0 ) return -1;
+
+	return H5PART_SUCCESS;
+}
+
+static h5part_int64_t
 _write_file (
 	const char *fname,
 	const int myproc,
@@ -104,73 +138,18 @@ _write_file (
 		return 2;
 	}
 	
+	if ( _write_attributes ( f, myproc ) < 0 ) {
+		printf ("Failed to write attributes \"%s\"\n", fname );
+		return 2;
+	}
+	
+
 	herr = H5PartCloseFile ( f );
 	if ( herr < 0 ) return -1;
 	
 	return 0;
 }
 
-static h5part_int64_t
-_write_attributes (
-	const char *fname,
-	const int myproc,
-	MPI_Comm comm
-	) {
-	h5part_int64_t timestep = 0;
-
-
-	printf ("PROC[%d]: Open file \"%s\" for writing ...\n",
-		myproc, fname );
-  
-#ifdef PARALLEL_IO
-	H5PartFile *f = H5PartOpenFileParallel (
-		fname,
-		H5PART_APPEND,
-		comm
-		);
-#else
-	H5PartFile *f = H5PartOpenFile (
-		fname,
-		H5PART_APPEND
-		);
-
-#endif
-	if ( f == NULL ) return -1;
-	
-	h5part_int64_t herr = H5PartSetStep ( f, timestep );
-	if ( herr < 0 ) return herr;
-
-
-	herr = H5BlockWriteFieldAttribString (
-		f,
-		"TestField",
-		"TestString",
-		"42" );
-	if ( herr < 0 ) return -1;
-
-	h5part_int64_t ival[1] = { 42 };
-	h5part_float64_t rval[1] = { 42.0 };
-	herr = H5BlockWriteFieldAttrib (
-		f,
-		"TestField",
-		"TestInt64",
-		H5PART_INT64,
-		ival, 1 );
-	if ( herr < 0 ) return -1;
-
-	herr = H5BlockWriteFieldAttrib (
-		f,
-		"TestField",
-		"TestFloat64",
-		H5PART_FLOAT64,
-		rval, 1 );
-	if ( herr < 0 ) return -1;
-
-	herr = H5PartCloseFile ( f );
-	if ( herr < 0 ) return -1;
-	
-	return H5PART_SUCCESS;
-}
 
 static h5part_int64_t
 _read_data (
@@ -326,19 +305,19 @@ _read_attributes (
 	h5part_int64_t timestep = 0;
 
 
-	printf ("PROC[%d]: Open file \"%s\" for writing ...\n",
+	printf ("PROC[%d]: Open file \"%s\" for reading ...\n",
 		myproc, fname );
   
 #ifdef PARALLEL_IO
 	H5PartFile *f = H5PartOpenFileParallel (
 		fname,
-		H5PART_WRITE,
+		H5PART_READ,
 		comm
 		);
 #else
 	H5PartFile *f = H5PartOpenFile (
 		fname,
-		H5PART_WRITE
+		H5PART_READ
 		);
 #endif
 	if ( f == NULL ) return -1;
@@ -431,11 +410,6 @@ main (
 	if ( opt_write ) {
 		if ( _write_file ( fname, myproc, comm, Layout1 ) < 0 ) {
 			printf ("Failed to write file \"%s\"\n", fname );
-			ex = 1;
-			goto cleanup;
-		}
-		if ( _write_attributes ( fname, myproc, comm ) < 0 ) {
-			printf ("Failed to write attributes \"%s\"\n", fname );
 			ex = 1;
 			goto cleanup;
 		}
