@@ -46,8 +46,132 @@ PROGRAM H5BlockTestAttributesF
      INTEGER, INTENT(IN) ::          myproc
      INTEGER*8, INTENT(IN) ::        layout(6)
 
+     INTEGER*8 :: file
+     INTEGER*8 :: timestep = 1
+
+     PRINT *, "PROC[",myproc,"]: Open file ",fname," for writing ..."
+
+     file = h5pt_openw ( fname )
+     if ( file == 0 ) THEN
+        write_file = -1
+        RETURN
+     ENDIF
+     PRINT *, "file: ", file
+
+     h5pt_err = h5pt_setstep ( file, timestep )
+     IF ( h5pt_err < 0 ) THEN
+        write_file = h5pt_err
+        RETURN
+     ENDIF
+
+     h5pt_err =  write_field ( file, myproc, layout )
+     IF ( h5pt_err < 0 ) THEN
+        write_file = h5pt_err
+        RETURN
+     ENDIF
+
+     h5pt_err = write_attributes ( file )
+
+     h5pt_err = h5pt_close ( file )
+     IF ( h5pt_err < 0 ) THEN
+        write_file = h5pt_err
+        RETURN
+     ENDIF
+
      write_file = 0
    END FUNCTION write_file
+
+   INTEGER*8 FUNCTION write_field ( file, myproc, layout )
+     INTEGER*8, INTENT(IN) :: file
+     INTEGER, INTENT(IN) ::   myproc
+     INTEGER*8, INTENT(IN) :: layout(6)
+
+     INTEGER*8 :: i, j, k
+     INTEGER*8 :: i_start
+     INTEGER*8 :: i_end
+     INTEGER*8 :: j_start
+     INTEGER*8 :: j_end
+     INTEGER*8 :: k_start
+     INTEGER*8 :: k_end
+     INTEGER*8 :: i_dims
+     INTEGER*8 :: j_dims
+     INTEGER*8 :: k_dims
+     REAL*8 :: value
+  
+     REAL*8, DIMENSION(:,:,:), ALLOCATABLE :: data
+
+     PRINT *, "Reading field ..."
+     i_start = layout(1)
+     i_end   = layout(2)
+     j_start = layout(3)
+     j_end   = layout(4)
+     k_start = layout(5)
+     k_end   = layout(6)
+     i_dims  = i_end - i_start + 1
+     j_dims  = j_end - j_start + 1
+     k_dims  = k_end - k_start + 1
+
+     PRINT *, "dims: (", i_dims, j_dims, k_dims, ")"
+     ALLOCATE ( data (i_dims,j_dims, k_dims) )
+
+     PRINT *, "Defining Layout ..."
+     h5pt_err = h5bl_define3dlayout ( file, i_start, i_end, j_start, j_end, k_start, k_end )
+     IF ( h5pt_err < 0 ) THEN
+        write_field = h5pt_err
+        RETURN
+     END IF
+
+     DO i = 1, i_dims
+        DO j = 1, j_dims
+           DO k = 1, k_dims
+              value = (k-1) + 1000*(j-1) + 100000*(i-1)
+              data(i,j,k) = value
+           END DO
+        END DO
+     END DO
+
+     PRINT *, "Writing field ..."
+     h5pt_err = h5bl_3d_write_scalar_field ( file, "TestField", data )
+     IF ( h5pt_err < 0 ) THEN
+        write_field = h5pt_err
+        RETURN
+     END IF
+
+     write_field = 0
+   END FUNCTION write_field
+
+   INTEGER*8 FUNCTION write_attributes ( file )
+     INTEGER*8, INTENT(IN) :: file
+
+     INTEGER*8 :: h5pt_err = 0
+     CHARACTER(LEN=128) :: s_val
+     INTEGER*8 :: i_val(1)
+     REAL*8 :: r_val(1)
+
+     s_val = "42"
+     h5pt_err = h5bl_writefieldattrib_string ( file, "TestField", "TestString", s_val ) 
+     IF ( h5pt_err < 0 ) THEN
+        write_attributes = h5pt_err
+        RETURN
+     END IF
+
+     i_val(1) = 42
+     h5pt_err = h5bl_writefieldattrib_i8 ( file, "TestField", "TestInt64", i_val, 1_8 )
+     IF ( h5pt_err < 0 ) THEN
+        write_attributes = h5pt_err
+        RETURN
+     END IF
+
+     r_val(1) = 42.0
+     h5pt_err = h5bl_writefieldattrib_r8 ( file, "TestField", "TestFloat64", r_val,1_8 )
+     IF ( h5pt_err < 0 ) THEN
+        write_attributes = h5pt_err
+        RETURN
+     END IF
+
+   END FUNCTION write_attributes
+
+
 
    INTEGER*8 FUNCTION read_file ( fname, myproc, layout )
      CHARACTER(LEN=*), INTENT(IN) :: fname
