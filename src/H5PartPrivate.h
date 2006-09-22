@@ -160,5 +160,16 @@ __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
+char *
+_H5Part_strdupfor2c (
+	const char *s,
+	const ssize_t len
+	);
+
+char *
+_H5Part_strc2for (
+	char * const str,
+	const ssize_t l_str
+	);
 
 #endif
