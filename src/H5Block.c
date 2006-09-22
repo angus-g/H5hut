@@ -966,7 +966,7 @@ H5Block3dReadScalarField (
 	h5part_int64_t herr = _open_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
-	herr = _read_data ( f, "x", data );
+	herr = _read_data ( f, "0", data );
 	if ( herr < 0 ) return herr;
 
 	herr = _close_field_group ( f );
@@ -992,11 +992,11 @@ H5Block3dRead3dVectorField (
 	h5part_int64_t herr = _open_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
-	herr = _read_data ( f, "x", x_data );
+	herr = _read_data ( f, "0", x_data );
 	if ( herr < 0 ) return herr;
-	herr = _read_data ( f, "y", y_data );
+	herr = _read_data ( f, "1", y_data );
 	if ( herr < 0 ) return herr;
-	herr = _read_data ( f, "z", z_data );
+	herr = _read_data ( f, "2", z_data );
 	if ( herr < 0 ) return herr;
 
 	herr = _close_field_group ( f );
@@ -1218,7 +1218,7 @@ H5Block3dWriteScalarField (
 	h5part_int64_t herr = _create_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
-	herr = _write_data ( f, "x", data );
+	herr = _write_data ( f, "0", data );
 	if ( herr < 0 ) return herr;
 
 	herr = _close_field_group ( f );
@@ -1245,11 +1245,11 @@ H5Block3dWrite3dVectorField (
 	h5part_int64_t herr = _create_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
-	herr = _write_data ( f, "x", x_data );
+	herr = _write_data ( f, "0", x_data );
 	if ( herr < 0 ) return herr;
-	herr = _write_data ( f, "y", y_data );
+	herr = _write_data ( f, "1", y_data );
 	if ( herr < 0 ) return herr;
-	herr = _write_data ( f, "z", z_data );
+	herr = _write_data ( f, "2", z_data );
 	if ( herr < 0 ) return herr;
 
 	herr = _close_field_group ( f );
@@ -1275,34 +1275,19 @@ H5BlockGetNumFields (
 	return _H5Part_get_num_objects ( f->timegroup, H5BLOCK_GROUP_NAME, H5G_GROUP );
 }
 
-h5part_int64_t
-H5BlockGetFieldInfo (
+static h5part_int64_t
+_get_field_info (
 	H5PartFile *f,
-	const h5part_int64_t idx,
-	char *field_name,
-	const h5part_int64_t len_field_name,
+	const char *field_name,
 	h5part_int64_t *grid_rank,
 	h5part_int64_t *grid_dims,
 	h5part_int64_t *field_dims
 	) {
 
-	SET_FNAME ( "H5BlockGetFieldInfo" );
-	INIT ( f );
-	CHECK_TIMEGROUP( f );
-
 	hsize_t dims[16];
 	h5part_int64_t i, j;
 
-	h5part_int64_t herr = _H5Part_get_object_name (
-		f->timegroup,
-		H5BLOCK_GROUP_NAME,
-		H5G_GROUP,
-		idx,
-		field_name,
-		len_field_name );
-	if ( herr < 0 ) return herr;
-
-	herr = _open_block_group ( f );
+	h5part_int64_t herr = _open_block_group ( f );
 	if ( herr < 0 ) return herr;
 
 	hid_t group_id = H5Gopen ( f->block->blockgroup, field_name );
@@ -1338,9 +1323,54 @@ H5BlockGetFieldInfo (
 	return H5PART_SUCCESS;
 }
 
-/********************** reading and writing attribute ************************/
+h5part_int64_t
+H5BlockGetFieldInfo (
+	H5PartFile *f,
+	const h5part_int64_t idx,
+	char *field_name,
+	const h5part_int64_t len_field_name,
+	h5part_int64_t *grid_rank,
+	h5part_int64_t *grid_dims,
+	h5part_int64_t *field_dims
+	) {
+
+	SET_FNAME ( "H5BlockGetFieldInfo" );
+	INIT ( f );
+	CHECK_TIMEGROUP( f );
+
+	h5part_int64_t herr = _H5Part_get_object_name (
+		f->timegroup,
+		H5BLOCK_GROUP_NAME,
+		H5G_GROUP,
+		idx,
+		field_name,
+		len_field_name );
+	if ( herr < 0 ) return herr;
+
+	return _get_field_info (
+		f, field_name, grid_rank, grid_dims, field_dims );
+}
 
 h5part_int64_t
+H5BlockGetFieldInfoByName (
+	H5PartFile *f,
+	const char *field_name,
+	h5part_int64_t *grid_rank,
+	h5part_int64_t *grid_dims,
+	h5part_int64_t *field_dims
+	) {
+
+	SET_FNAME ( "H5BlockGetFieldInfo" );
+	INIT ( f );
+	CHECK_TIMEGROUP( f );
+
+	return _get_field_info (
+		f, field_name, grid_rank, grid_dims, field_dims );
+}
+
+/********************** reading and writing attribute ************************/
+
+static h5part_int64_t
 _write_field_attrib (
 	H5PartFile *f,
 	const char *field_name,
@@ -1467,17 +1497,13 @@ H5BlockGetFieldAttribInfo (
 }
 
 
-h5part_int64_t
-H5BlockReadFieldAttrib (
+static h5part_int64_t
+_read_field_attrib (
 	H5PartFile *f,
 	const char *field_name,
 	const char *attrib_name,
 	void *attrib_value
 	) {
-
-	SET_FNAME ( "H5PartReadFieldAttrib" );
-	INIT ( f );
-	CHECK_TIMEGROUP( f );
 
 	struct H5BlockStruct *b = f->block;
 
@@ -1494,6 +1520,118 @@ H5BlockReadFieldAttrib (
 	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
+}
+
+h5part_int64_t
+H5BlockReadFieldAttrib (
+	H5PartFile *f,
+	const char *field_name,
+	const char *attrib_name,
+	void *attrib_value
+	) {
+
+	SET_FNAME ( "H5PartReadFieldAttrib" );
+	INIT ( f );
+	CHECK_TIMEGROUP( f );
+	
+	return _read_field_attrib (
+		f, field_name, attrib_name, attrib_value );
+}
+
+h5part_int64_t
+H5Block3dGetFieldOrigin (
+	H5PartFile *f,
+	const char *field_name,
+	h5part_float64_t *x_origin,
+	h5part_float64_t *y_origin,
+	h5part_float64_t *z_origin
+	) {
+
+	SET_FNAME ( "H5BlockSetFieldOrigin" );
+	INIT ( f );
+	CHECK_TIMEGROUP( f );
+
+	h5part_float64_t origin[3];
+
+	h5part_int64_t herr = _read_field_attrib (
+		f, field_name, "Origin", origin );
+
+	*x_origin = origin[0];
+	*y_origin = origin[1];
+	*z_origin = origin[2];
+	return herr;
+}
+
+h5part_int64_t
+H5Block3dSetFieldOrigin (
+	H5PartFile *f,
+	const char *field_name,
+	const h5part_float64_t x_origin,
+	const h5part_float64_t y_origin,
+	const h5part_float64_t z_origin
+	) {
+
+	SET_FNAME ( "H5BlockSetFieldOrigin" );
+	INIT ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	h5part_float64_t origin[3] = { x_origin, y_origin, z_origin };
+
+	return _write_field_attrib (
+		f,
+		field_name,
+		"Origin", H5PART_FLOAT64, 
+		origin,
+		3 );
+}
+
+h5part_int64_t
+H5Block3dGetFieldSpacing (
+	H5PartFile *f,
+	const char *field_name,
+	h5part_float64_t *x_spacing,
+	h5part_float64_t *y_spacing,
+	h5part_float64_t *z_spacing
+	) {
+
+	SET_FNAME ( "H5BlockGetFieldSpacing" );
+	INIT ( f );
+	CHECK_TIMEGROUP( f );
+
+	h5part_float64_t spacing[3];
+
+	h5part_int64_t herr = _read_field_attrib (
+		f, field_name, "Spacing", spacing );
+
+	*x_spacing = spacing[0];
+	*y_spacing = spacing[1];
+	*z_spacing = spacing[2];
+	return herr;
+}
+
+h5part_int64_t
+H5Block3dSetFieldSpacing (
+	H5PartFile *f,
+	const char *field_name,
+	const h5part_float64_t x_spacing,
+	const h5part_float64_t y_spacing,
+	const h5part_float64_t z_spacing
+	) {
+
+	SET_FNAME ( "H5BlockSetFieldSpacing" );
+	INIT ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	h5part_float64_t spacing[3] = { x_spacing, y_spacing, z_spacing };
+
+	return _write_field_attrib (
+		f,
+		field_name,
+		"Spacing", H5PART_FLOAT64, 
+		spacing,
+		3 );
 }
 
 /*
