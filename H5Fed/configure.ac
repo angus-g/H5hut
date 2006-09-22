@@ -3,6 +3,7 @@
 ## author    - benedikt oswald and patrick leidenberger
 ## modified  - 2006 aug 21, pl, creation.
 ## modified  - 2006 aug 24, pl, add h5fed path.
+## modified  - 2006 sep 21, pl, add h5feddump libs.
 ##
 ## to do     : The rlog lib needs a -DRLOG_COMPONENT="some name", I don't know
 ##             how tho do this so that the quotation marks are in the output
@@ -33,6 +34,7 @@ CXXFLAGS=""
 # provide include directories
 AC_SUBST([AM_CPPFLAGS], '-I$(top_srcdir)/libsrc/stdincl -I$(top_srcdir)/libsrc/gmsh -I$(top_srcdir)/libsrc/h5fed')
 AC_SUBST([GMSH2H5FED_LIBS],'$(top_srcdir)/libsrc/gmsh/libgmsh.la $(top_srcdir)/libsrc/h5fed/libh5fed.la')
+AC_SUBST([H5FEDDUMP_LIBS],'$(top_srcdir)/libsrc/h5fed/libh5fed.la')
 
 # Make available external libraries
 AC_ARG_WITH(boost,

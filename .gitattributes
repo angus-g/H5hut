@@ -5,6 +5,8 @@
 /GNUmakefile.orig -text
 H5Fed/applications/gmsh2h5fed.cc -text
 H5Fed/applications/gmsh2h5fed.hh -text
+H5Fed/applications/h5feddump.cc -text
+H5Fed/applications/h5feddump.hh -text
 H5Fed/applications/makefile.am -text
 H5Fed/autogen.sh -text
 H5Fed/configure.ac -text

@@ -2,6 +2,10 @@
 #define H5FEDCONST_HH_
 
 #include<string>
+
+// Include HDF5 headers.
+#include <hdf5.h>
+
 using namespace std;
 
 //! Hdf5 specific file access:
@@ -45,6 +49,11 @@ const unsigned short int H5FED_PRISMATIC_N_NODE  = 6;
 const unsigned short int H5FED_PYRAMID_N_NODE    = 5;
 const unsigned short int H5FED_TRIANGLE_N_NODE   = 3;
 const unsigned short int H5FED_QUADRANGLE_N_NODE = 4;
+
+// In which format should a single element of a mesh entity and the
+// index to the material list be stored.
+const hid_t H5FED_MESH_ELEM_DATATYPE = H5T_STD_U32LE;
+const hid_t H5FED_COORD_DATATYPE = H5T_IEEE_F64LE;
 
 
 #endif /*H5FEDCONST_HH_*/

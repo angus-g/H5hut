@@ -7,6 +7,7 @@
 // modified  - 2006 jun 26, creation, patrick leidenberger
 // modified  - 2006 aug 25, extend, patrick leidenberger
 // modified  - 2006 aug 26, pl, integrate automatic index mapping.
+// modified  - 2006 sep 22, pl, addaped to h5fed api changes.
 //
 // feature - Implements the a mesh preprocessor.
 // feature - It will read gmsh's mesh files of version 2.0 and write the mesh
@@ -159,12 +160,12 @@ int main(int argc, char **argv)
   
   // The gmsh node index has gaps and is not consecutive.
   // So we activate the automatic index mapping from the h5fed api.
-  h5fedFile.beginIndexMapping(&gmshNodesIndex);
+  h5fedFile.beginIndexMapping(gmshNodesIndex);
 
     // Get a vector with all node coordinates from the gmsh file.
     gmshNodes = gmshInFile.gmshNode();
     // Write the nodes to the h5fed file.
-    h5fedFile.coord3d(&gmshNodes);
+    h5fedFile.wCoord3d(gmshNodes);
     // Every node in h5fed file, so we can save memory.
     gmshNodes.clear();
   
@@ -174,8 +175,10 @@ int main(int argc, char **argv)
     {
 //      rDebug("Elem: %d Nodes: %d; %d; %d; %d", varI, gmshTetrahedron[varI][0], gmshTetrahedron[varI][1], gmshTetrahedron[varI][2], gmshTetrahedron[varI][3]);
     }
+    std::vector<unsigned int> gmshTetrahedronMatIndex;
+    gmshTetrahedronMatIndex.resize(0,gmshTetrahedron.size());
     // Write the tetrahedrons to the h5fed file on the respective level.
-    h5fedFile.tetrahedron(0,&gmshTetrahedron);
+    h5fedFile.wTetrahedron(0,gmshTetrahedron, gmshTetrahedronMatIndex);
     // Every terahedron in h5fed file, so we can save memory.
     gmshTetrahedron.clear();
     

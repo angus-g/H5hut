@@ -4,11 +4,12 @@
 ## modified  - 2006 aug 21, patrick leidenberger, creation
 ## modified  - 2006 aug 23, pl, adaped to changed directory structure.
 ## modified  - 2006 aug 25, pl, adaped to changed directory structure.
+## modified  - 2006 sep 21, pl, add the h5feddump application.
 #
 ## objective - automake input file for the gmsh directory
 ## project   - gmsh2h5fed
 
-noinst_PROGRAMS = gmsh2h5fed
+noinst_PROGRAMS = gmsh2h5fed h5feddump
 
 gmsh2h5fed_SOURCES = gmsh2h5fed.cc
 gmsh2h5fed_DEPENDENCIES = ../libsrc/stdincl/nonsciconst.h      \
@@ -22,5 +23,15 @@ gmsh2h5fed_DEPENDENCIES = ../libsrc/stdincl/nonsciconst.h      \
                              ../libsrc/h5fed/h5fed.cc
 
 gmsh2h5fed_LDADD = @GMSH2H5FED_LIBS@
+
+
+h5feddump_SOURCES = h5feddump.cc
+h5feddump_DEPENDENCIES = ../libsrc/stdincl/nonsciconst.h      \
+                         ../libsrc/stdincl/physicomath.h      \
+                         ../libsrc/h5fed/h5fed.hh             \
+                         ../libsrc/h5fed/h5fed.cc
+
+h5feddump_LDADD = @H5FEDDUMP_LIBS@
+
 
 #AM_CPPFLAGS = @AM_CPPFLAGS@
