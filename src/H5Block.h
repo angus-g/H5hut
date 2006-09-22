@@ -101,6 +101,53 @@ H5BlockGetFieldInfo (
 	h5part_int64_t *field_dims
 	);
 
+h5part_int64_t
+H5BlockGetFieldInfoByName (
+	H5PartFile *f,
+	const char *field_name,
+	h5part_int64_t *grid_rank,
+	h5part_int64_t *grid_dims,
+	h5part_int64_t *field_dims
+	);
+
+h5part_int64_t
+H5Block3dGetFieldOrigin (
+	H5PartFile *f,
+	const char *field_name,
+	h5part_float64_t *x_origin,
+	h5part_float64_t *y_origin,
+	h5part_float64_t *z_origin
+	);
+
+h5part_int64_t
+H5Block3dSetFieldOrigin (
+	H5PartFile *f,
+	const char *field_name,
+	const h5part_float64_t x_origin,
+	const h5part_float64_t y_origin,
+	const h5part_float64_t z_origin
+	);
+
+h5part_int64_t
+H5Block3dGetFieldSpacing (
+	H5PartFile *f,
+	const char *field_name,
+	h5part_float64_t *x_spacing,
+	h5part_float64_t *y_spacing,
+	h5part_float64_t *z_spacing
+	);
+
+h5part_int64_t
+H5Block3dSetFieldSpacing (
+	H5PartFile *f,
+	const char *field_name,
+	const h5part_float64_t x_spacing,
+	const h5part_float64_t y_spacing,
+	const h5part_float64_t z_spacing
+	);
+
+
+
 /*!
   Write a 3D real valued vector field using the defined FL for this block
 
