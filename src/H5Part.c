@@ -546,9 +546,9 @@ H5PartSetNumParticles (
 static h5part_int64_t
 _write_data (
 	H5PartFile *f,		/*!< IN: Handle to open file */
-	char *name,		/*!< IN: Name to associate array with */
-	void *array,		/*!< IN: Array to commit to disk */
-	hid_t type		/*!< IN: Type of data */
+	const char *name,	/*!< IN: Name to associate array with */
+	const void *array,	/*!< IN: Array to commit to disk */
+	const hid_t type	/*!< IN: Type of data */
 	) {
 	herr_t herr;
 	hid_t dataset_id;
@@ -608,8 +608,8 @@ _write_data (
 h5part_int64_t
 H5PartWriteDataFloat64 (
 	H5PartFile *f,		/*!< [in] Handle to open file */
-	char *name,		/*!< [in] Name to associate array with */
-	h5part_float64_t *array	/*!< [in] Array to commit to disk */
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5part_float64_t *array	/*!< [in] Array to commit to disk */
 	) {
 
 	SET_FNAME ( "H5PartWriteDataFloat64" );
@@ -652,8 +652,8 @@ H5PartWriteDataFloat64 (
 h5part_int64_t
 H5PartWriteDataInt64 (
 	H5PartFile *f,		/*!< [in] Handle to open file */
-	char *name,		/*!< [in] Name to associate array with */
-	h5part_int64_t *array	/*!< [in] Array to commit to disk */
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5part_int64_t *array	/*!< [in] Array to commit to disk */
 	) {
 
 	SET_FNAME ( "H5PartOpenWriteDataInt64" );
@@ -1157,7 +1157,7 @@ H5PartGetFileAttribInfo (
 h5part_int64_t
 H5PartReadStepAttrib (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
-	char *attrib_name,		/*!< [in] Name of attribute to read */
+	const char *attrib_name,	/*!< [in] Name of attribute to read */
 	void *attrib_value		/*!< [out] Value of attribute */
 	) {
 
@@ -1182,7 +1182,7 @@ H5PartReadStepAttrib (
 h5part_int64_t
 H5PartReadFileAttrib ( 
 	H5PartFile *f,
-	char *attrib_name,
+	const char *attrib_name,
 	void *attrib_value
 	) {
 
@@ -1923,9 +1923,9 @@ H5PartSetCanonicalView (
 static h5part_int64_t
 _read_data (
 	H5PartFile *f,		/*!< [in] Handle to open file */
-	char *name,		/*!< [in] Name to associate dataset with */
+	const char *name,	/*!< [in] Name to associate dataset with */
 	void *array,		/*!< [out] Array of data */
-	hid_t type
+	const hid_t type
 	) {
 
 	herr_t herr;
@@ -1986,7 +1986,7 @@ _read_data (
 h5part_int64_t
 H5PartReadDataFloat64 (
 	H5PartFile *f,		/*!< [in] Handle to open file */
-	char *name,		/*!< [in] Name to associate dataset with */
+	const char *name,	/*!< [in] Name to associate dataset with */
 	h5part_float64_t *array	/*!< [out] Array of data */
 	) {
 
