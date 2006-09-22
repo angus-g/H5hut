@@ -64,28 +64,28 @@ H5PartCloseFile (
 h5part_int64_t
 H5PartSetNumParticles ( 
 	H5PartFile *f, 
-	h5part_int64_t nparticles
+	const h5part_int64_t nparticles
 	);
 
 h5part_int64_t
 H5PartWriteDataFloat64 (
 	H5PartFile *f,
-	char *name,
-	h5part_float64_t *array
+	const char *name,
+	const h5part_float64_t *array
 	);
 
 h5part_int64_t
 H5PartWriteDataInt64 (
 	H5PartFile *f,
-	char *name,
-	h5part_int64_t *array
+	const char *name,
+	const h5part_int64_t *array
 	);
 
 /*================== File Reading Routines =================*/
 h5part_int64_t
 H5PartSetStep (
 	H5PartFile *f,
-	h5part_int64_t step
+	const h5part_int64_t step
 	);
 
 h5part_int64_t
@@ -124,8 +124,8 @@ H5PartGetNumParticles (
 h5part_int64_t
 H5PartSetView (
 	H5PartFile *f,
-	h5part_int64_t start,
-	h5part_int64_t end
+	const h5part_int64_t start,
+	const h5part_int64_t end
 	);
 
 #define H5PartResetView(f) H5PartSetView(f,-1,-1)
@@ -146,7 +146,7 @@ H5PartSetCanonicalView (
 h5part_int64_t
 H5PartReadDataFloat64(
 	H5PartFile *f,
-	char *name,
+	const char *name,
 	h5part_float64_t *array
 	);
 
@@ -160,7 +160,7 @@ H5PartReadDataInt64 (
 h5part_int64_t
 H5PartReadParticleStep (
 	H5PartFile *f,
-	h5part_int64_t step,
+	const h5part_int64_t step,
 	h5part_float64_t *x, /* particle positions */
 	h5part_float64_t *y,
 	h5part_float64_t *z,
@@ -243,32 +243,32 @@ H5PartGetFileAttribInfo (
 h5part_int64_t
 H5PartReadStepAttrib (
 	H5PartFile *f,
-	char *name,
+	const char *name,
 	void *data
 	);
 
 h5part_int64_t
 H5PartReadAttrib (
 	H5PartFile *f,
-	char *name,
+	const char *name,
 	void *data
 	);
 
 h5part_int64_t
 H5PartReadFileAttrib (
 	H5PartFile *f,
-	char *name,
+	const char *name,
 	void *data
 	);
 
 h5part_int64_t
 H5PartSetVerbosityLevel (
-	h5part_int64_t level
+	const h5part_int64_t level
 	);
 
 h5part_int64_t
 H5PartSetErrorHandler (
-	h5part_error_handler handler
+	const h5part_error_handler handler
 	);
 
 h5part_int64_t
