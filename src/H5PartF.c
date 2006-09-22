@@ -1,170 +1,261 @@
 #include "H5Part.h"
 #include "Underscore.h"
 #include <hdf5.h>
-/*
 
-********* Perhaps call this pfile **********
-
-Determine underscores using perl and then send through one stage of preprocessing
-to get the F77NAME fixed up.  Otherwise, must include correct flag each time.
-
-Or just don't declare F77NAME in the header (only in source as symbols).
-
-
-All pointers are cast to haddr_t (a unint64_t) within the C/C++ code
-In fortran, these pointers (handles) are carried as INTEGER*8
-
-*/
-
-#ifdef F77_SINGLE_UNDERSCORE
-#define F77NAME(a,b,c) a
-#elif defined(F77_NO_UNDERSCORE)
-#define F77NAME(a,b,c) b
+#if defined(F77_SINGLE_UNDERSCORE)
+#define F77NAME(a,b) a
 #elif defined(F77_CRAY_UNDERSCORE)
-#define F77NAME(a,b,c) c
+#define F77NAME(a,b) b
+#elif defined(F77_NO_UNDERSCORE)
 #else
 #error Error, no way to determine how to construct fortran bindings
 #endif
 
-/* open/close interface */
-#define f_h5pt_openr F77NAME(h5pt_openr_,h5pt_openr,H5PT_OPENR) /* func returns INT8 */
-#define f_h5pt_openw F77NAME(h5pt_openw_,h5pt_openw,H5PT_OPENW) /* func returns INT8 */
+#if ! defined(F77_NO_UNDERSCORE)
 
-#define f_h5pt_openr_par F77NAME(h5pt_openr_par_,h5pt_openr_par,H5PT_OPENR_PAR) /* func returns INT8 */
-#define f_h5pt_openw_par F77NAME(h5pt_openw_par_,h5pt_openw_par,H5PT_OPENW_PAR) /* func returns INT8 */
-#define f_h5pt_close F77NAME(h5pt_close_,h5pt_close,H5PT_CLOSE) 
+/* open/close interface */
+#define h5pt_openr F77NAME (						\
+					h5pt_openr_,			\
+					H5PT_OPENR )
+#define h5pt_openw F77NAME (						\
+					h5pt_openw_,			\
+					H5PT_OPENW )
+#define h5pt_openr_par F77NAME (					\
+					h5pt_openr_par_,		\
+					H5PT_OPENR_PAR )
+#define h5pt_openw_par F77NAME (					\
+					h5pt_openw_par_,		\
+					H5PT_OPENW_PAR )
+#define h5pt_close F77NAME (						\
+					h5pt_close_,			\
+					H5PT_CLOSE) 
 
 /* writing interface */
-#define f_h5pt_setnpoints F77NAME(h5pt_setnpoints_,h5pt_setnpoints,H5PT_SETNPOINTS)
-#define f_h5pt_setstep F77NAME(h5pt_setstep_,h5pt_setstep,H5PT_SETSTEP)
-#define f_h5pt_writedata_r8 F77NAME(h5pt_writedata_r8_,h5pt_writedata_r8,H5PT_WRITEDATA_R8)
-#define f_h5pt_writedata_i8 F77NAME(h5pt_writedata_i8_,h5pt_writedata_i8,H5PT_WRITEDATA_I8)
+#define h5pt_setnpoints F77NAME (					\
+					h5pt_setnpoints_,		\
+					H5PT_SETNPOINTS )
+#define h5pt_setstep F77NAME (						\
+					h5pt_setstep_,			\
+					H5PT_SETSTEP )
+#define h5pt_writedata_r8 F77NAME (					\
+					h5pt_writedata_r8_,		\
+					H5PT_WRITEDATA_R8 )
+#define h5pt_writedata_i8 F77NAME (					\
+					h5pt_writedata_i8_,		\
+					H5PT_WRITEDATA_I8 )
 
 /* Reading interface  (define dataset, step, particles, attributes) */
-#define f_h5pt_getnsteps F77NAME(h5pt_getnsteps_,h5pt_getnsteps,H5PT_GETNSTEPS)
-#define f_h5pt_getndatasets F77NAME(h5pt_getndatasets_,h5pt_getndatasets,H5PT_GETNDATASETS)
-#define f_h5pt_getnpoints F77NAME(h5pt_getnpoints_,h5pt_getnpoints,H5PT_GETNPOINTS)
-#define f_h5pt_getdatasetname F77NAME(h5pt_getdatasetname_,h5pt_getdatasetname,H5PT_GETDATASETNAME)
-#define f_h5pt_getnumpoints F77NAME(h5pt_getnumpoints_,h5pt_getnumpoints,H5PT_GETNUMPOINTS)
+#define h5pt_getnsteps F77NAME (					\
+					h5pt_getnsteps_,		\
+					H5PT_GETNSTEPS )
+#define h5pt_getndatasets F77NAME (					\
+					h5pt_getndatasets_,		\
+					H5PT_GETNDATASETS )
+#define h5pt_getnpoints F77NAME (					\
+					h5pt_getnpoints_,		\
+					H5PT_GETNPOINTS )
+#define h5pt_getdatasetname F77NAME (					\
+					h5pt_getdatasetname_,		\
+					H5PT_GETDATASETNAME )
+#define h5pt_getnumpoints F77NAME (					\
+					h5pt_getnumpoints_,		\
+					H5PT_GETNUMPOINTS )
 
 /* Views and parallelism */
-#define f_h5pt_setview F77NAME(h5pt_setview_,h5pt_setview,H5PT_SETVIEW)
-#define f_h5pt_resetview F77NAME(h5pt_resetview_,h5pt_resetview,H5PT_RESETVIEW)
-#define f_h5pt_hasview F77NAME(h5pt_hasview_,h5pt_hasview,H5PT_HASVIEW)
-#define f_h5pt_getview F77NAME(h5pt_getview_,h5pt_getview,H5PT_GETVIEW)
+#define h5pt_setview F77NAME (						\
+					h5pt_setview_,			\
+					H5PT_SETVIEW )
+#define h5pt_resetview F77NAME (					\
+					h5pt_resetview_,		\
+					H5PT_RESETVIEW )
+#define h5pt_hasview F77NAME (						\
+					h5pt_hasview_,			\
+					H5PT_HASVIEW )
+#define h5pt_getview F77NAME (						\
+					h5pt_getview_,			\
+					H5PT_GETVIEW )
 
 /* Reading data */
-#define f_h5pt_readdata_r8 F77NAME(h5pt_readdata_r8_,h5pt_readdata_r8,H5PT_READDATA_R8)
-#define f_h5pt_readdata_i8 F77NAME(h5pt_readdata_i8_,h5pt_readdata_i8,H5PT_READDATA_I8)
-#define f_h5pt_readdata F77NAME(h5pt_readdata_,h5pt_readdata,H5PT_READDATA)
+#define h5pt_readdata_r8 F77NAME (					\
+					h5pt_readdata_r8_,		\
+					H5PT_READDATA_R8 )
+#define h5pt_readdata_i8 F77NAME (					\
+					h5pt_readdata_i8_,		\
+					H5PT_READDATA_I8 )
+#define h5pt_readdata F77NAME (						\
+					h5pt_readdata_,			\
+					H5PT_READDATA )
 
-/* Attributes */
-/* writing */
-#define f_h5pt_writefileattrib_r8 F77NAME(h5pt_writefileattrib_r8_,h5pt_writefileattrib_r8,H5PT_WRITEFILEATTRIB_R8)
-#define f_h5pt_writefileattrib_i8 F77NAME(h5pt_writefileattrib_i8_,h5pt_writefileattrib_i8,H5PT_WRITEFILEATTRIB_I8)
-#define f_h5pt_writefileattrib_string F77NAME(h5pt_writefileattrib_string_,h5pt_writefileattrib_string,H5PT_writefileattrib_string)
-#define f_h5pt_writestepattrib_r8 F77NAME(h5pt_writestepattrib_r8_,h5pt_writestepattrib_r8,H5PT_WRITESTEPATTRIB_R8)
-#define f_h5pt_writestepattrib_i8 F77NAME(h5pt_writestepattrib_i8_,h5pt_writestepattrib_i8,H5PT_WRITESTEPATTRIB_I8)
-#define f_h5pt_writestepattrib_string F77NAME(h5pt_writestepattrib_string_,h5pt_writestepattrib_string,H5PT_WRITESTEPATTRIB_STRING)
-/* reading */
-#define f_h5pt_getnstepattribs F77NAME(h5pt_getnstepattribs_,h5pt_getnstepattribs,H5PT_GETNSTEPATTRIBS)
-#define f_h5pt_getnfileattribs F77NAME(h5pt_getnfileattribs_,h5pt_getnfileattribs,H5PT_GETNFILEATTRIBS)
-#define f_h5pt_getstepattribinfo F77NAME(h5pt_getstepattribinfo_,h5pt_getstepattribinfo,H5PT_GETSTEPATTRIBINFO)
-#define f_h5pt_getfileattribinfo F77NAME(h5pt_getfileattribinfo_,h5pt_getfileattribinfo,H5PT_GETFILEATTRIBINFO)
-#define f_h5pt_readstepattrib F77NAME(h5pt_readstepattrib_,h5pt_readstepattrib,H5PT_READSTEPATTRIB)
-#define f_h5pt_readfileattrib F77NAME(h5pt_readfileattrib_,h5pt_readfileattrib,H5PT_READFILEATTRIB)
+/* Writing attributes */
+#define h5pt_writefileattrib_r8 F77NAME (				\
+					h5pt_writefileattrib_r8_,	\
+					H5PT_WRITEFILEATTRIB_R8 )
+#define h5pt_writefileattrib_i8 F77NAME (				\
+					h5pt_writefileattrib_i8_,	\
+					H5PT_WRITEFILEATTRIB_I8 )
+#define h5pt_writefileattrib_string F77NAME (				\
+					h5pt_writefileattrib_string_,	\
+					H5PT_writefileattrib_string )
+#define h5pt_writestepattrib_r8 F77NAME (				\
+					h5pt_writestepattrib_r8_,	\
+					H5PT_WRITESTEPATTRIB_R8 )
+#define h5pt_writestepattrib_i8 F77NAME (				\
+					h5pt_writestepattrib_i8_,	\
+					H5PT_WRITESTEPATTRIB_I8 )
+#define h5pt_writestepattrib_string F77NAME (				\
+					h5pt_writestepattrib_string_,	\
+					H5PT_WRITESTEPATTRIB_STRING )
+
+/* Reading attributes */
+#define h5pt_getnstepattribs F77NAME (					\
+					h5pt_getnstepattribs_,		\
+					H5PT_GETNSTEPATTRIBS )
+#define h5pt_getnfileattribs F77NAME (					\
+					h5pt_getnfileattribs_,		\
+					H5PT_GETNFILEATTRIBS )
+#define h5pt_getstepattribinfo F77NAME (				\
+					h5pt_getstepattribinfo_,	\
+					H5PT_GETSTEPATTRIBINFO )
+#define h5pt_getfileattribinfo F77NAME (				\
+					h5pt_getfileattribinfo_,	\
+					H5PT_GETFILEATTRIBINFO )
+#define h5pt_readstepattrib F77NAME (					\
+					h5pt_readstepattrib_,		\
+					H5PT_READSTEPATTRIB )
+#define h5pt_readstepattrib_r8 F77NAME (				\
+					h5pt_readstepattrib_r8_,	\
+					H5PT_READSTEPATTRIB_R8 )
+#define h5pt_readstepattrib_i8 F77NAME (				\
+					h5pt_readstepattrib_i8_,	\
+					H5PT_READSTEPATTRIB_I8 )
+#define h5pt_readstepattrib_string F77NAME (				\
+					h5pt_readstepattrib_string_,	\
+					H5PT_READSTEPATTRIB_STRING )
+#define h5pt_readfileattrib F77NAME (					\
+					h5pt_readfileattrib_,		\
+					H5PT_READFILEATTRIB )
+#define h5pt_readfileattrib_r8 F77NAME (				\
+					h5pt_readfileattrib_r8_,	\
+					H5PT_READFILEATTRIB_R8 )
+#define h5pt_readfileattrib_i8 F77NAME (				\
+					h5pt_readfileattrib_i8_,	\
+					H5PT_READFILEATTRIB_I8 )
+#define h5pt_readfileattrib_string F77NAME (				\
+					h5pt_readfileattrib_string_,	\
+					H5PT_READFILEATTRIB_STRING )
 
 /* error handling */
-#define f_h5pt_set_verbosity_level F77NAME(h5pt_set_verbosity_level_,h5pt_set_verbosity_level,H5PT_SET_VERBOSITY_LEVEL)
+#define h5pt_set_verbosity_level F77NAME (				\
+					h5pt_set_verbosity_level_,	\
+					H5PT_SET_VERBOSITY_LEVEL )
+
+#endif
+
+char *
+_H5Part_strdupfor2c (
+	const char *s,
+	const ssize_t len
+	) {
+
+	char *dup = (char*)malloc ( len + 1 );
+	strncpy ( dup, s, len );
+	char *p = dup + len;
+	do {
+		*p-- = '\0';
+	} while ( *p == ' ' );
+	return dup;
+}
+
+char *
+_H5Part_strc2for (
+	char * const str,
+	const ssize_t l_str
+	) {
+
+	size_t len = strlen ( str );
+	memset ( str+len, ' ', l_str-len );
+
+	return str;
+}
 
 /* open/close interface */
 h5part_int64_t
-f_h5pt_openr (
-	char *file,
-	int flen
-	) { /* func returns INT8 */
+h5pt_openr (
+	const char *file_name,
+	const int l_file_name
+	) {
 
-	H5PartFile* f;
-	char *newname = (char*)malloc(flen+1); /* be safe? */
-	strncpy(newname,file,flen);
-	newname[flen]='\0';
-	f = H5PartOpenFile ( newname, H5PART_READ );
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
+	H5PartFile* f = H5PartOpenFile ( file_name2, H5PART_READ );
+
+	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
-
 }
 
-haddr_t
-f_h5pt_openw (
-	char *file,
-	int flen) { /* func returns INT8 */
+h5part_int64_t
+h5pt_openw (
+	const char *file_name,
+	const int l_file_name
+	) {
 
-	haddr_t fh;
-	H5PartFile* f;
-	char *newname = (char*)malloc(flen+1); /* be safe? */
-	strncpy(newname,file,flen);
-	newname[flen]='\0';
-	f = (H5PartOpenFile(newname,H5PART_WRITE));
-	/*  printf("openr file=[%s] flen=%u haddr=%u\n",file,flen,f); */
-	fh = (haddr_t)f;
-	/* printf("FileHandle=%llu\n",fh); */
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
-	return fh;
+	H5PartFile* f = H5PartOpenFile ( file_name2, H5PART_WRITE );
+
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f; 
 }
 
 #ifdef PARALLEL_IO
-haddr_t
-f_h5pt_openr_par (
-	char *file,
+h5part_int64_t
+h5pt_openr_par (
+	const char *file_name,
 	MPI_Comm *c,
-	int flen ) { /* func returns INT8 */
+	const int l_file_name
+	) {
 
-	haddr_t fh;
-	H5PartFile* f;
-	char *newname = (char*)malloc(flen+1); /* be safe? */
-	strncpy(newname,file,flen);
-	newname[flen]='\0';
-	f = H5PartOpenFileParallel(newname,H5PART_READ,*((MPI_Comm*)c));
-	/*  printf("openr file=[%s] flen=%u haddr=%u\n",file,flen,f); */
-	fh = (haddr_t)f;
-	/* printf("FileHandle=%llu\n",fh); */
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
-	return fh;
+	H5PartFile* f = H5PartOpenFileParallel (
+		file_name2, H5PART_READ, comm );
+
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f; 
 }
 
 haddr_t
-f_h5pt_openw_par (
-	char *file,
+h5pt_openw_par (
+	const char *file_name,
 	MPI_Comm *c,
-	int flen ) { /* func returns INT8 */
+	const int l_file_name
+	) {
 
-	haddr_t fh;
-	H5PartFile* f;
-	char *newname = (char*)malloc(flen+1); /* be safe? */
-	strncpy(newname,file,flen);
-	newname[flen]='\0';
-	f = H5PartOpenFileParallel(newname,H5PART_WRITE,*((MPI_Comm*)c));
-	/*  printf("openr file=[%s] flen=%u haddr=%u\n",file,flen,f); */
-	fh = (haddr_t)f;
-	/* printf("FileHandle=%llu\n",fh); */
-	
-	return fh;
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+
+	H5PartFile* f = H5PartOpenFileParallel (
+		file_name2, H5PART_WRITE, comm );
+
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f; 
 }
 #endif
 
 h5part_int64_t
-f_h5pt_close (
-	haddr_t *file
+h5pt_close (
+	const h5part_int64_t *f
 	) {
-	return H5PartCloseFile((H5PartFile*)*file);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartCloseFile ( filehandle );
 }
 
 /*==============Writing and Setting Dataset info========*/
-#if 0
+
 h5part_int64_t
-f_h5pt_readstep (
-	haddr_t *file,
-	h5part_int64_t *step,
+h5pt_readstep (
+	const h5part_int64_t *f,
+	const h5part_int64_t *step,
 	h5part_float64_t *x,
 	h5part_float64_t *y,
 	h5part_float64_t *z,
@@ -174,381 +265,521 @@ f_h5pt_readstep (
 	h5part_int64_t *id
 	) {
 
-	return H5PartReadParticleStep((H5PartFile*)*file,(*step)-1,x,y,z,px,py,pz,id);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartReadParticleStep (
+		filehandle,(*step)-1,x,y,z,px,py,pz,id);
 }
-#endif
+
 
 h5part_int64_t
-f_h5pt_setnpoints (
-	haddr_t *file,
+h5pt_setnpoints (
+	const h5part_int64_t *f,
 	h5part_int64_t *np
 	) {
 
-	return H5PartSetNumParticles((H5PartFile*)*file,*np);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartSetNumParticles ( filehandle, *np );
 }
 
 h5part_int64_t
-f_h5pt_setstep (
-	haddr_t *file,
+h5pt_setstep (
+	const h5part_int64_t *f,
 	h5part_int64_t *step ) {
 
-	return H5PartSetStep((H5PartFile*)*file,(*step)-1);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartSetStep ( filehandle, (*step)-1 );
 }
 
 h5part_int64_t
-f_h5pt_writedata_r8 (
-	haddr_t *file,
-	char *name,
-	h5part_float64_t *data,
-	int flen ) {
+h5pt_writedata_r8 (
+	const h5part_int64_t *f,
+	const char *name,
+	const h5part_float64_t *data,
+	const int l_name ) {
 
-	h5part_int64_t rc;
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
-	char *newname = (char*)malloc(flen+1); /* be safe? */
-	strncpy(newname,name,flen);
-	newname[flen]='\0';
-	rc = H5PartWriteDataFloat64((H5PartFile*)*file,newname, data);
-	free(newname);
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 
-	return rc;
+	h5part_int64_t herr = H5PartWriteDataFloat64 (
+		filehandle, name2, data );
+
+	free ( name2 );
+
+	return herr;
 }
 
 h5part_int64_t
-f_h5pt_writedata_i8 (
-	haddr_t *file,
-	char *name,
-	h5part_int64_t *data,
-	int flen ) {
+h5pt_writedata_i8 (
+	const h5part_int64_t *f,
+	const char *name,
+	const h5part_int64_t *data,
+	const int l_name ) {
 
-	h5part_int64_t rc;
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
-	char *newname = (char*)malloc(flen+1); /* be safe? */
-	strncpy(newname,name,flen);
-	newname[flen]='\0';
-	rc = H5PartWriteDataInt64((H5PartFile*)*file,newname,data);
-	free(newname);
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 
-	return rc;
+	h5part_int64_t herr = H5PartWriteDataInt64 (
+		filehandle, name2, data );
+
+	free ( name2 );
+
+	return herr;
 }
 
 /*==============Reading Data Characteristics============*/
 
 h5part_int64_t
-f_h5pt_getnsteps (
-	haddr_t *file 
+h5pt_getnsteps (
+	const h5part_int64_t *f
 	) {
 
-	/* printf("nstep Haddr=%llu\n",file); */
-	return H5PartGetNumSteps((H5PartFile*)*file);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartGetNumSteps ( filehandle );
 }
 
 h5part_int64_t
-f_h5pt_getndatasets (
-	haddr_t *file
+h5pt_getndatasets (
+	const h5part_int64_t *f
 	) {
-	/* printf("ndata Haddr=%llu\n",file); */
-	return H5PartGetNumDatasets((H5PartFile*)*file);
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartGetNumDatasets ( filehandle );
 }
 
 h5part_int64_t
-f_h5pt_getnpoints (
-	haddr_t *file
+h5pt_getnpoints (
+	const h5part_int64_t *f
 	) {
-	/*  printf("nprt Haddr=%llu\n",file); */
-	return H5PartGetNumParticles((H5PartFile*)*file);
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartGetNumParticles ( filehandle );
 }
 
-/* probably should get index from name */
 h5part_int64_t
-f_h5pt_getdatasetname ( 
-	haddr_t *file,
-	h5part_int64_t *index,
+h5pt_getdatasetname ( 
+	const h5part_int64_t *f,
+	const h5part_int64_t *index,
 	char *name,
-	int namelen){
+	const int l_name
+	) {
 
-	return H5PartGetDatasetName((H5PartFile *)*file,*index,name,namelen);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	h5part_int64_t herr =  H5PartGetDatasetName (
+		filehandle, *index, name, l_name );
+
+	_H5Part_strc2for ( name, l_name );
+	return herr;
 }
 
 h5part_int64_t
-f_h5pt_getnumpoints ( 
-	haddr_t *file) {
+h5pt_getnumpoints (
+	const h5part_int64_t *f
+	) {
 
-	return H5PartGetNumParticles((H5PartFile*)*file);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartGetNumParticles( filehandle );
 }
 
 /*=============Setting and getting views================*/
 
 h5part_int64_t
-f_h5pt_setview (
-	haddr_t *file,
-	h5part_int64_t *start,
-	h5part_int64_t *end ) {
-
-	return H5PartSetView((H5PartFile*)*file,*start,*end);
-}
-
-h5part_int64_t
-f_h5pt_resetview (
-	haddr_t *file
+h5pt_setview (
+	const h5part_int64_t *f,
+	const h5part_int64_t *start,
+	const h5part_int64_t *end
 	) {
 
-	return H5PartResetView((H5PartFile*)*file);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartSetView ( filehandle, *start, *end );
 }
 
 h5part_int64_t
-f_h5pt_hasview (
-	haddr_t *file
+h5pt_resetview (
+	const h5part_int64_t *f
 	) {
 
-	return H5PartHasView(((H5PartFile*)*file));
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartResetView ( filehandle );
 }
 
 h5part_int64_t
-f_h5pt_getview (
-	haddr_t *file,
+h5pt_hasview (
+	const h5part_int64_t *f
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartHasView ( filehandle );
+}
+
+h5part_int64_t
+h5pt_getview (
+	const h5part_int64_t *f,
 	h5part_int64_t *start,
 	h5part_int64_t *end
 	) {
 
-	return H5PartGetView((H5PartFile*)*file, start, end);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartGetView ( filehandle, start, end);
 }
 /*==================Reading data ============*/
 h5part_int64_t
-f_h5pt_readdata_r8 (
-	haddr_t *file,
-	char *name,
+h5pt_readdata_r8 (
+	const h5part_int64_t *f,
+	const char *name,
 	h5part_float64_t *array,
-	int namelen
+	const int l_name
 	) {
 
-	h5part_int64_t rc;
-	char *newname = (char*)malloc(namelen+1); /* be safe? */
-	strncpy(newname,name,namelen);
-	newname[namelen]='\0';
-	rc = H5PartReadDataFloat64((H5PartFile*)*file,newname, array);
-	free(newname);
-	return rc;
-}
-h5part_int64_t
-f_h5pt_readdata_i8 (
-	haddr_t *file,
-	char *name,
-	h5part_int64_t *array,
-	int namelen ) {
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
-	h5part_int64_t rc;
-	char *newname = (char*)malloc(namelen+1); /* be safe? */
-	strncpy(newname,name,namelen);
-	newname[namelen]='\0';
-	rc = H5PartReadDataInt64((H5PartFile*)*file,newname, array);
-	free(newname);
-	return rc;
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
+
+	h5part_int64_t herr = H5PartReadDataFloat64 (
+		filehandle, name2, array );
+
+	free ( name2 );
+	return herr;
+}
+
+h5part_int64_t
+h5pt_readdata_i8 (
+	const h5part_int64_t *f,
+	const char *name,
+	h5part_int64_t *array,
+	const int l_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
+
+	h5part_int64_t herr = H5PartReadDataInt64 (
+		filehandle, name2, array );
+
+	free ( name2 );
+	return herr;
 }
 
 /*=================== Attributes ================*/
 
-/* Attributes */
-/* writing */
+/* Writeing attributes */
 h5part_int64_t
-f_h5pt_writefileattrib_r8 (
-	haddr_t *f,
-	char *name,
-	void *attrib,
-	h5part_int64_t *nelem,
-	int namelen ) {
+h5pt_writefileattrib_r8 (
+	const h5part_int64_t *f,
+	const char *name,
+	const void *attrib,
+	const h5part_float64_t *nelem,
+	const int l_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 	
-	h5part_int64_t rc;
-	char *newname = (char*)malloc(namelen+1); /* be safe? */
-	strncpy(newname,name,namelen);
-	newname[namelen]='\0';
-	rc = H5PartWriteFileAttrib((H5PartFile *)*f,newname,
-				H5T_NATIVE_DOUBLE,attrib,*nelem);
-	free(newname);
-	return rc;
+	h5part_int64_t herr = H5PartWriteFileAttrib (
+		filehandle, name2, H5T_NATIVE_DOUBLE, attrib, *nelem );
+
+	free ( name2 );
+	return herr;
 }
 
 h5part_int64_t
-f_h5pt_writefileattrib_i8 (
-	haddr_t *f,
-	char *name,
-	void *attrib,
-	h5part_int64_t *nelem,
-	int namelen 
+h5pt_writefileattrib_i8 (
+	const h5part_int64_t *f,
+	const char *name,
+	const void *attrib,
+	const h5part_int64_t *nelem,
+	const int l_name
 	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 	
-	h5part_int64_t rc;
-	char *newname = (char*)malloc(namelen+1); /* be safe? */
-	strncpy(newname,name,namelen);
-	newname[namelen]='\0';
-	rc = H5PartWriteFileAttrib((H5PartFile *)*f,newname,
-				   H5T_NATIVE_INT64,attrib,*nelem);
-	free(newname);
-	return rc;
+	h5part_int64_t herr = H5PartWriteFileAttrib (
+		filehandle, name2, H5T_NATIVE_INT64, attrib, *nelem );
+
+	free ( name2 );
+	return herr;
 }
 
 h5part_int64_t
-f_h5pt_writefileattrib_string (
-	haddr_t *f,
-	char *name,
-	char *attrib,
-	int namelen,
-	int attriblen
+h5pt_writefileattrib_string (
+	const h5part_int64_t *f,
+	const char *attrib_name,
+	const char *attrib_value,
+	const int l_attrib_name,
+	const int l_attrib_value
 	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
+	char *attrib_value2= _H5Part_strdupfor2c (attrib_value,l_attrib_value);
+
+	h5part_int64_t herr = H5PartWriteFileAttribString (
+		filehandle, attrib_name2, attrib_value2 );
+
+	free ( attrib_name2 );
+	free ( attrib_value2 );
+	return herr;
+}
+
+h5part_int64_t
+h5pt_writestepattrib_r8 ( 
+	const h5part_int64_t *f,
+	const char *name,
+	const void *attrib,
+	const h5part_float64_t *nelem,
+	const int l_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 	
-	h5part_int64_t rc;
-	char *newattrib;
-	char *newname;
-	newname = (char*)malloc(namelen+1); /* be safe? */
-	strncpy(newname,name,namelen);
-	newname[namelen]='\0';
-	newattrib = (char*)malloc(attriblen+1); /* be safe? */
-	strncpy(newattrib,attrib,attriblen);
-	newattrib[attriblen]='\0';
-	rc = H5PartWriteFileAttribString((H5PartFile *)*f,newname,newattrib);
-	free(newname);
-	free(newattrib);
-	return rc;
+	h5part_int64_t herr = H5PartWriteStepAttrib (
+		filehandle, name2, H5T_NATIVE_DOUBLE, attrib, *nelem );
+
+	free ( name2 );
+	return herr;
 }
 
 h5part_int64_t
-f_h5pt_writestepattrib_r8 ( 
-	haddr_t *f,
-	char *name,
-	void *attrib,
-	h5part_int64_t *nelem,
-	int namelen){
-
-	h5part_int64_t rc;
-	char *newname = (char*)malloc(namelen+1); /* be safe? */
-	strncpy(newname,name,namelen);
-	newname[namelen]='\0';
-	rc = H5PartWriteStepAttrib((H5PartFile *)*f,newname,
-				H5T_NATIVE_DOUBLE,attrib,*nelem);
-	free(newname);
-	return rc;
-}
-
-h5part_int64_t
-f_h5pt_writestepattrib_i8 (
-	haddr_t *f,
-	char *name,
-	void *attrib,
-	h5part_int64_t *nelem,
-	int namelen 
+h5pt_writestepattrib_i8 (
+	const h5part_int64_t *f,
+	const char *name,
+	const void *attrib,
+	const h5part_float64_t *nelem,
+	const int l_name
 	) {
 
-	h5part_int64_t rc;
-	char *newname = (char*)malloc(namelen+1); /* be safe? */
-	strncpy(newname,name,namelen);
-	newname[namelen]='\0';
-	rc = H5PartWriteStepAttrib((H5PartFile *)*f,newname,
-				   H5T_NATIVE_INT64,attrib,*nelem);
-	free(newname);
-	return rc;
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
+	
+	h5part_int64_t herr = H5PartWriteStepAttrib (
+		filehandle, name2, H5T_NATIVE_INT64, attrib, *nelem );
+
+	free ( name2 );
+	return herr;
 }
 
 h5part_int64_t
-f_h5pt_writestepattrib_string (
-	haddr_t *f,
-	char *name,
-	char *attrib,
-	int namelen,
-	int attriblen ) {
-
-	h5part_int64_t rc;
-	char *newattrib;
-	char *newname;
-	newname = (char*)malloc(namelen+1); /* be safe? */
-	strncpy(newname,name,namelen);
-	newname[namelen]='\0';
-	newattrib = (char*)malloc(attriblen+1); /* be safe? */
-	strncpy(newattrib,attrib,attriblen);
-	newattrib[attriblen]='\0';
-	rc = H5PartWriteStepAttribString((H5PartFile *)*f,newname,newattrib);
-	free(newname);
-	free(newattrib);
-	return rc;
-}
-
-/* reading attributes ************************* */
-h5part_int64_t
-f_h5pt_getnstepattribs (
-	haddr_t *f
+h5pt_writestepattrib_string (
+	const h5part_int64_t *f,
+	const char *attrib_name,
+	const char *attrib_value,
+	const int l_attrib_name,
+	const int l_attrib_value
 	) {
 
-	return H5PartGetNumStepAttribs((H5PartFile*)*f);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
+	char *attrib_value2= _H5Part_strdupfor2c (attrib_value,l_attrib_value);
+
+	h5part_int64_t herr = H5PartWriteStepAttribString (
+		filehandle, attrib_name2, attrib_value2 );
+
+	free ( attrib_name2 );
+	free ( attrib_value2 );
+	return herr;
 }
 
+/* Reading attributes ************************* */
+
 h5part_int64_t
-f_h5pt_getnfileattribs (
-	haddr_t *f
+h5pt_getnstepattribs (
+	const h5part_int64_t *f
 	) {
 
-	return H5PartGetNumFileAttribs((H5PartFile*)*f);
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartGetNumStepAttribs ( filehandle );
 }
 
 h5part_int64_t
-f_h5pt_getstepattribinfo (
-	haddr_t *f,
-	h5part_int64_t *idx,
+h5pt_getnfileattribs (
+	const h5part_int64_t *f
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartGetNumFileAttribs ( filehandle );
+}
+
+h5part_int64_t
+h5pt_getstepattribinfo (
+	const h5part_int64_t *f,
+	const h5part_int64_t *idx,
 	char *name,
 	h5part_int64_t *nelem,
-	int maxnamelen
+	const int l_name
 	) {
 
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 	h5part_int64_t type;
-	return H5PartGetStepAttribInfo((H5PartFile*)*f,*idx,name,maxnamelen,&type,nelem);
+
+	h5part_int64_t herr = H5PartGetStepAttribInfo ( 
+		filehandle, *idx, name, l_name, &type, nelem);
+
+	_H5Part_strc2for( name, l_name );
+	return herr;
 }
 
 h5part_int64_t
-f_h5pt_getfileattribinfo (
-	haddr_t *f,
-	h5part_int64_t *idx,
+h5pt_getfileattribinfo (
+	const h5part_int64_t *f,
+	const h5part_int64_t *idx,
 	char *name,
 	h5part_int64_t *nelem,
-	int maxnamelen ) {
+	const int l_name ) {
 
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 	h5part_int64_t type;
-	return H5PartGetFileAttribInfo((H5PartFile*)*f,*idx,name,maxnamelen,&type,nelem);
+
+	h5part_int64_t herr = H5PartGetFileAttribInfo ( 
+		filehandle, *idx, name, l_name, &type, nelem);
+
+	_H5Part_strc2for( name, l_name );
+	return herr;
 }
 
 h5part_int64_t
-f_h5pt_readstepattrib (
-	haddr_t *f,
-	char *name,
-	void *data,
-	int namelen
+h5pt_readstepattrib (
+	const h5part_int64_t *f,
+	const char *attrib_name,
+	void *attrib_value,
+	const int l_attrib_name
 	) {
 	
-	h5part_int64_t rc;
-	char *newname = (char*)malloc(namelen+1); /* be safe? */
-	strncpy(newname,name,namelen);
-	newname[namelen]='\0';
-	rc = H5PartReadStepAttrib((H5PartFile*)*f,newname,data);
-	free( newname );
-	return rc;
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	
+	char * attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
+
+	h5part_int64_t herr = H5PartReadStepAttrib (
+		filehandle, attrib_name2, attrib_value );
+
+	free ( attrib_name2 );
+	return herr;
 }
 
 h5part_int64_t
-f_h5pt_readfileattrib (
-	haddr_t *f,
-	char *name,
-	void *data,
-	int namelen
+h5pt_readstepattrib_r8 (
+	const h5part_int64_t *f,
+	const char *attrib_name,
+	h5part_float64_t *attrib_value,
+	const int l_attrib_name
 	) {
 	
-	int rc;
-	char *newname = (char*)malloc(namelen+1); /* be safe? */
-	strncpy(newname,name,namelen);
-	newname[namelen]='\0';
-	rc = H5PartReadFileAttrib((H5PartFile*)*f,newname,data);
-	free( newname );
-	return rc;
+	return h5pt_readstepattrib (
+		f, attrib_name, attrib_value, l_attrib_name );
 }
 
 h5part_int64_t
-f_h5pt_set_verbosity_level (
-	h5part_int64_t level
+h5pt_readstepattrib_i8 (
+	const h5part_int64_t *f,
+	const char *attrib_name,
+	h5part_int64_t *attrib_value,
+	const int l_attrib_name
+	) {
+	
+	return h5pt_readstepattrib (
+		f, attrib_name, attrib_value, l_attrib_name );
+}
+
+h5part_int64_t
+h5pt_readstepattrib_string (
+	const h5part_int64_t *f,
+	const char *attrib_name,
+	char *attrib_value,
+	const int l_attrib_name,
+	const int l_attrib_value
+	) {
+	
+	h5part_int64_t herr = h5pt_readstepattrib (
+		f, attrib_name, attrib_value, l_attrib_name );
+
+	_H5Part_strc2for ( attrib_value, l_attrib_value );
+	return herr;
+}
+
+
+h5part_int64_t
+h5pt_readfileattrib (
+	const h5part_int64_t *f,
+	const char *attrib_name,
+	void *attrib_value,
+	const int l_attrib_name
+	) {
+	
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	
+	char * attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
+
+	h5part_int64_t herr = H5PartReadFileAttrib (
+		filehandle, attrib_name2, attrib_value );
+
+	free ( attrib_name2 );
+	return herr;
+}
+
+h5part_int64_t
+h5pt_readfileattrib_r8 (
+	const h5part_int64_t *f,
+	const char *attrib_name,
+	h5part_float64_t *attrib_value,
+	const int l_attrib_name
+	) {
+	return h5pt_readfileattrib (
+		f, attrib_name, attrib_value, l_attrib_name );
+}
+
+h5part_int64_t
+h5pt_readfileattrib_i8 (
+	const h5part_int64_t *f,
+	const char *attrib_name,
+	h5part_int64_t *attrib_value,
+	const int l_attrib_name
+	) {
+	return h5pt_readfileattrib (
+		f, attrib_name, attrib_value, l_attrib_name );
+}
+
+h5part_int64_t
+h5pt_readfileattrib_string (
+	const h5part_int64_t *f,
+	const char *attrib_name,
+	char *attrib_value,
+	const int l_attrib_name,
+	const int l_attrib_value
+	) {
+	
+	h5part_int64_t herr = h5pt_readfileattrib (
+		f, attrib_name, attrib_value, l_attrib_name );
+
+	_H5Part_strc2for ( attrib_value, l_attrib_value );
+	return herr;
+}
+
+h5part_int64_t
+h5pt_set_verbosity_level (
+	const h5part_int64_t level
 	) {
 	return H5PartSetVerbosityLevel ( level );
 }
