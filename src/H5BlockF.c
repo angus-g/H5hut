@@ -1,8 +1,7 @@
 #include "H5Part.h"
+#include "H5PartPrivate.h"
 #include "H5Block.h"
 #include "Underscore.h"
-#include <hdf5.h>
-
 
 #if defined(F77_SINGLE_UNDERSCORE)
 #define F77NAME(a,b) a
