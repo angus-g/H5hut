@@ -104,7 +104,7 @@ H5testFpar.o: H5testFpar.f90
 ###############################################################################
 
 H5test: H5test.o
-	$(CXX) -o $@ -c $< $(H5LIB) -lH5Part $(LIBS)
+	$(CXX) -o $@ $< $(H5LIB) $(LIBS)
 
 H5test.o: H5test.cc
 	$(CXX) $(CFLAGS) $(INC) -DREGRESSIONTEST -g -c $<
