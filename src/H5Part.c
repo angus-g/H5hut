@@ -1246,8 +1246,8 @@ H5PartSetStep (
 
 	CHECK_FILEHANDLE ( f );
 
-	_H5Part_print_info ( "Proc[%d]: Set step to #%lld for file %d",
-			     f->myproc, (long long)step, (int) f );
+	_H5Part_print_info ( "Proc[%d]: Set step to #%lld for file %lld",
+			     f->myproc, (long long)step, (long long) f );
 	sprintf ( name, "%s#%lld", H5PART_PARTICLES_GROUP, (long long) step );
 	r = H5Gget_objinfo( f->file, name, 1, NULL );
 	if ( ( (f->mode == H5PART_APPEND) || (f->mode == H5PART_WRITE) )
