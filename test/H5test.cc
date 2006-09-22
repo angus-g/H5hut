@@ -14,10 +14,6 @@ using namespace std;
   A simple regression test that shows how you use this API
   to write and read multi-timestep files of particle data.
 */
-#ifdef PARALLEL_IO
-
-
-#else
 
 int ReadFile(const string fn){
   char name[64];
@@ -149,4 +145,3 @@ int main(int argc,char **argv){
     cerr << "Failed to read file " << fn << endl;
   }
 }
-#endif
