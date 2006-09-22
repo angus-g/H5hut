@@ -211,7 +211,7 @@ h5pt_openw (
 h5part_int64_t
 h5pt_openr_par (
 	const char *file_name,
-	MPI_Comm *c,
+	MPI_Comm *comm,
 	const int l_file_name
 	) {
 
@@ -227,7 +227,7 @@ h5pt_openr_par (
 haddr_t
 h5pt_openw_par (
 	const char *file_name,
-	MPI_Comm *c,
+	MPI_Comm *comm,
 	const int l_file_name
 	) {
 
