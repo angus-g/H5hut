@@ -45,24 +45,24 @@
         INTEGER*8 FUNCTION h5bl_3d_write_scalar_field ( filehandle, name, data )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name
-	  INTEGER*8, INTENT(IN) :: data(*)
+	  REAL*8, INTENT(IN) :: data(*)
 	END FUNCTION
 
         INTEGER*8 FUNCTION h5bl_3d_read_3dvector_field ( filehandle, name, x, y, z )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name
-	  INTEGER*8, INTENT(OUT) :: x(*)
-	  INTEGER*8, INTENT(OUT) :: y(*)
-	  INTEGER*8, INTENT(OUT) :: z(*)
+	  REAL*8, INTENT(OUT) :: x(*)
+	  REAL*8, INTENT(OUT) :: y(*)
+	  REAL*8, INTENT(OUT) :: z(*)
 	END FUNCTION
 	
 
         INTEGER*8 FUNCTION h5bl_3d_write_3dvector_field ( filehandle, name, x, y, z )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name
-	  INTEGER*8, INTENT(IN) :: x(*)
-	  INTEGER*8, INTENT(IN) :: y(*)
-	  INTEGER*8, INTENT(IN) :: z(*)
+	  REAL*8, INTENT(IN) :: x(*)
+	  REAL*8, INTENT(IN) :: y(*)
+	  REAL*8, INTENT(IN) :: z(*)
 	END FUNCTION
 	
         INTEGER*8 FUNCTION h5bl_getnumfields ( filehandle )
