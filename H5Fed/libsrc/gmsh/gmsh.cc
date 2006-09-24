@@ -373,3 +373,8 @@ std::vector< std::vector<unsigned int> > gmsh::gmshTetrahedronTag()
 {
   return gmshTetrahedronTag_;
 }
+
+std::vector< std::vector<unsigned int> > gmsh::gmshTriangle()
+{
+  return gmshTriangle_;
+}

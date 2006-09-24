@@ -336,7 +336,7 @@ public:
     }
   };
 
-  // Write 3dim coordinates to h5fed file.
+  // Read 3dim coordinates from h5fed file.
   int rCoord3d (std::vector<std::vector<double> >& coord)
   {
     // All these operations are only allowed, if there is a valid file
@@ -457,7 +457,7 @@ public:
   {
     // Set the name of the dataset, we want to read.
     std::string datasetName = H5FED_D_TETMESH;
-    rElement_(datasetName, level, elem, materialIndex);
+    rElement_(datasetName, level, -1, elem, materialIndex);
     return OKCODE;
   };
 
@@ -473,10 +473,39 @@ public:
     // Select the data type in which the elements should be stored.
     hid_t dataType = H5FED_MESH_ELEM_DATATYPE;
     // This function does the real work for all elements.
-    wElement_(datasetName, level, elemDim, elem, materialIndex, dataType);
+    wElement_(datasetName, level, -1, elemDim, elem, materialIndex, dataType);
     return OKCODE;
-    
   }
+  
+  int wTriangleB(unsigned int level,
+                 unsigned int number,
+                 std::vector< std::vector<unsigned int> >& elem,
+                 std::vector<unsigned int>& boundaryIndex)
+  {
+    // Set dimension of an elements vector.
+    unsigned int elemDim = H5FED_TRIANGLE_N_NODE;
+    // Set the name of the dataset, we want to operate.
+    std::string datasetName = H5FED_D_TRIANGLEBOUNDARY;
+    // Select the data type in which the elements should be stored.
+    hid_t dataType = H5FED_MESH_ELEM_DATATYPE;
+    // This function does the real work for all elements.
+    wElement_(datasetName, level, (int)number,  elemDim, elem, boundaryIndex, dataType);
+    return OKCODE;
+  }
+
+  // Read and return boundary triangles and respective boundary index of the
+  // given level and number.
+  int rTriangleB(unsigned int level,
+                 unsigned int number,
+                 std::vector<std::vector<unsigned int> >& elem,
+                 std::vector<unsigned int>& boundaryIndex)
+  {
+    // Set the name of the dataset, we want to read.
+    std::string datasetName = H5FED_D_TRIANGLEBOUNDARY;
+    rElement_(datasetName, level, (int)number, elem, boundaryIndex);
+    return OKCODE;
+  };
+
   
   // This function gets some attributes of the element, it should insert and
   // insert it to the given dataset.
@@ -484,6 +513,9 @@ public:
   // datasetNameBlank: the name of the elements dataset without the level!
   //                   (example: ../TETMESH_L)
   // level: the hierarchy level of the elements.
+  // number: if there are different meshes on the same level (i.e. for
+  //         boudaries, they are numbered. For no numbering choose
+  //         number < 0.
   // elemDim: the number of nodes a single element has (tet = 4, line = 2, ..)
   // elem: the outer vector contains all elements,
   //       the inner vector contains the elements node numbers
@@ -492,6 +524,7 @@ public:
   //              the material index in the file.
   int wElement_(std::string datasetNameBlank,
                 unsigned int level,
+                int number,
                 unsigned int elemDim,
                 std::vector< std::vector<unsigned int> >& elem,
                 std::vector<unsigned int>& materialIndex,
@@ -503,6 +536,10 @@ public:
     {
       // Make datasetName with the datasetNameBlank and the level.
       std::string datasetName = datasetNameBlank + stringify(level);
+      if (number >= 0)
+      {
+        datasetName = datasetName + "_K" + stringify(number);
+      }
 
       // Check if the dataset with the given datasetName already exists:
       // if it exists, abort; 
@@ -616,7 +653,8 @@ public:
           // Set the appropriate material list!
           // ===> This is not implementes yet! <===
           // See warning above.
-          element[dim_out[1]-1] = materialIndex[varI];
+//          element[dim_out[1]-1] = materialIndex[varI];
+          element[dim_out[1]-1] = 0;
   
           // Select hyperslab ('region') in file dataspace.
           hdf5Status = H5Sselect_hyperslab(hdf5DataspaceId, H5S_SELECT_SET,
@@ -658,12 +696,16 @@ public:
   // vetor of vectors and a vector.
   // datasetNameBlank: the name of the elements dataset without the level!
   //                   (example: ../TETMESH_L)
-  // level:            the hierarchy level of the elements.
+  // level:            the hierarchy level of the elements
+  // number: if there are different meshes on the same level (i.e. for
+  //         boudaries, they are numbered. For no numbering choose
+  //         number < 0.
   // elem: the outer vector gets all elements,
   //       the inner vectors get the elements node numbers.
   // materialIndex: the material index to an elemen.
   int rElement_(std::string datasetNameBlank,
                 unsigned int level,
+                int number,
                 std::vector< std::vector<unsigned int> >& elem,
                 std::vector<unsigned int>& materialIndex)
   {
@@ -673,6 +715,10 @@ public:
     {
       // Make datasetName with the datasetNameBlank and the level.
       std::string datasetName = datasetNameBlank + stringify(level);
+      if (number >= 0)
+      {
+        datasetName = datasetName + "_K" + stringify(number);
+      }
 
       // Check if the dataset with the given datasetName exists:
       // if it does not return errorcode, else continue. 

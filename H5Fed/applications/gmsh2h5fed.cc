@@ -123,7 +123,10 @@ int main(int argc, char **argv)
   // Vector for the gmshs tetrahedrons.
   std::vector<std::vector<unsigned int> > gmshTetrahedronTag;
   gmshTetrahedronTag.clear();
-  
+  // Vector for the gmshs triangles.
+  std::vector<std::vector<unsigned int> > gmshTriangle;
+  gmshTriangle.clear();
+
   // Make an instance of the vtk class.
   gmsh gmshInFile;
 
@@ -148,9 +151,9 @@ int main(int argc, char **argv)
   // Open H5Fed file for writing. Filename and file write access comes
   // from command line parameters. 
   if (writeFileForce == false)
-    h5fedFile.open(hdf5fedOutputFile,FILE_CREATE);
+    h5fedFile.open(hdf5fedOutputFile,H5Fed::FILE_CREATE);
   else
-    h5fedFile.open(hdf5fedOutputFile,FILE_CREATE_FORCE);
+    h5fedFile.open(hdf5fedOutputFile,H5Fed::FILE_CREATE_FORCE);
 
   // Create the group hierarchie in the hdf5fed file.
   h5fedFile.createGroupHierarchie();
@@ -168,7 +171,6 @@ int main(int argc, char **argv)
     h5fedFile.wCoord3d(gmshNodes);
     // Every node in h5fed file, so we can save memory.
     gmshNodes.clear();
-  
     //Get a vector with all tetrahedrons from gmsh file.
     gmshTetrahedron = gmshInFile.gmshTetrahedron();
     for(int varI = 0; varI<gmshTetrahedron.size(); varI++)
@@ -189,7 +191,22 @@ int main(int argc, char **argv)
 //      rDebug("Elem: %d Nodes: %d; %d", varI, gmshTetrahedronTag[varI][0], gmshTetrahedronTag[varI][1]);
     }
 
-
+    //Get a vector with all triangles from gmsh file.
+    gmshTriangle = gmshInFile.gmshTriangle();
+    // Boundary Index
+    std::vector<unsigned int> gmshTriangleBoundaryIndex;
+    gmshTriangleBoundaryIndex.resize(0,gmshTriangle.size());
+    // Write the triangles to the h5fed file as  level zero boundary, the 
+    // first one.
+    h5fedFile.wTriangleB(0,0,gmshTriangle, gmshTriangleBoundaryIndex);
+    // Every triangle in h5fed file, so we can save memory.
+    gmshTriangle.clear();
+    /*
+    for(int varI = 0; varI<gmshTriangle.size(); varI++)
+    {
+      rDebug("Triangle: %d Nodes: %d; %d; %d; ", varI, gmshTriangle[varI][0], gmshTriangle[varI][1], gmshTriangle[varI][2]);
+    }
+    */
   
   // End with the automatic index mapping because we have no further actcion
   // with an gmsh file index.

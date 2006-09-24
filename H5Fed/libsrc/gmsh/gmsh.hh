@@ -92,6 +92,7 @@ namespace gmshtohdf5fed
       std::vector<unsigned int> gmshNodeNumber();
       std::vector< std::vector<unsigned int> > gmshTetrahedron();
       std::vector< std::vector<unsigned int> > gmshTetrahedronTag();
+      std::vector< std::vector<unsigned int> > gmshTriangle();
 
     private:
       string fileName_;

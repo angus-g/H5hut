@@ -50,7 +50,7 @@
 
 using namespace physicomath;
 using namespace nonsciconst;
-using namespace H5Fed;
+//using namespace H5Fed;
 //using namespace gmshtohdf5fed;
 
 #endif /*PHIDIAS3D_H_*/

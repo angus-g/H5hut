@@ -100,15 +100,14 @@ int main(int argc, char **argv)
   
   // Open H5Fed file for reading. Filename comes from 
   // command line parameters. 
-  h5fedFile.open(hdf5fedFile,FILE_READ);
+  h5fedFile.open(hdf5fedFile,H5Fed::FILE_READ);
 
   // Vector for the tetrahedorn nodes and the material tag.
   std::vector< std::vector<unsigned int> > elem;
   std::vector<unsigned int> materialIndex;
 
-
   // Read the tetrahedrons of the h5fed file an print them.
-  h5fedFile.rTetrahedron((unsigned int)0, elem, materialIndex);
+/*  h5fedFile.rTetrahedron((unsigned int)0, elem, materialIndex);
   for(int varI = 0; varI<elem.size(); varI++)
   {
     rDebug("Tet number: %d; nodes: %d %d; %d %d; material index: %d",
@@ -119,8 +118,19 @@ int main(int argc, char **argv)
            elem[varI][3],
            materialIndex[varI]);
   }
-
-
+*/
+  // Read the boundary trianglel of the h5fed file an print them.
+  h5fedFile.rTriangleB((unsigned int)0, (unsigned int) 0, elem, materialIndex);
+  for(int varI = 0; varI<elem.size(); varI++)
+  {
+    rDebug("Triangle number: %d; nodes: %d %d; %d; material index: %d",
+           varI,
+           elem[varI][0],
+           elem[varI][1],
+           elem[varI][2],
+           materialIndex[varI]);
+  }
+/*
   // Read the 3d coordinates of the h5fed file an print them.
   std::vector<std::vector< double> > coord;
   h5fedFile.rCoord3d(coord);
@@ -132,6 +142,8 @@ int main(int argc, char **argv)
            coord[varI][1],
            coord[varI][2]);
   }
+  
+*/  
   // Close H5Fed file.
   h5fedFile.close();
     

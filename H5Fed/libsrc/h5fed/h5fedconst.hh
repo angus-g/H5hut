@@ -47,6 +47,7 @@ const std::string H5FED_D_PRISMATICMESH  (H5FED_G_VOLUME_MESH+"/PRISMATICMESH_L"
 const std::string H5FED_D_PYRAMIDMESH    (H5FED_G_VOLUME_MESH+"/PYRAMIDMESH_L");
 const std::string H5FED_D_TRIANGLEMESH   (H5FED_G_VOLUME_MESH+"/TRIANGLEMESH_L");
 const std::string H5FED_D_QUADRANGLEMESH (H5FED_G_VOLUME_MESH+"/QUADRANGLEMESH_L");
+const std::string H5FED_D_TRIANGLEBOUNDARY (H5FED_G_BOUNDARY_MESH+"/BOUNDARY_TRIANGLE_L");
 
 // How much nodes have a geometric figure. 
 const unsigned short int H5FED_TET_N_NODE        = 4;
