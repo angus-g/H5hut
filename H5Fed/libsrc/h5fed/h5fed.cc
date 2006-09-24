@@ -17,6 +17,7 @@
 
 
 /* include proprietary files */
+/*
 #include "h5fed.hh"
 #ifdef HAVE_HDF5
 
@@ -35,3 +36,4 @@ namespace hdf5em
 //
 }
 #endif // HAVE_HDF5
+*/

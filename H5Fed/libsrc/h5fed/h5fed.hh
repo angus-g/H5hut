@@ -26,12 +26,14 @@
 #include <vector>
 
 // Include the files for rlog. 
-#include <rlog/rlog.h>
-#include <rlog/rloglocation.h>
-#include <rlog/Error.h>
-#include <rlog/RLogChannel.h>
-#include <rlog/StdioNode.h>
-#include <rlog/RLogTime.h>
+#ifdef HAVE_RLOG
+  #include <rlog/rlog.h>
+  #include <rlog/rloglocation.h>
+  #include <rlog/Error.h>
+  #include <rlog/RLogChannel.h>
+  #include <rlog/StdioNode.h>
+  #include <rlog/RLogTime.h>
+#endif // HAVE_RLOG    
 
 // Include HDF5 headers.
 #include <hdf5.h>
@@ -40,18 +42,22 @@
 #include "h5fedconst.hh"
 
 /* include standard proprietary header files */
+/*
 #include "nonsciconst.h"
 #include "physicomath.h"
+*/
 
-using namespace std;
-using namespace physicomath;
-using namespace nonsciconst;
+// Don't use this: doesn't working with dune.
+//using namespace std;
+//using namespace physicomath;
+//using namespace nonsciconst;
 
 namespace H5Fed
 {
 
 class H5Fed {
 public:
+
   /** \brief constructor and destructor */
   H5Fed()
   {
@@ -66,9 +72,8 @@ public:
   // The Destructor.
   ~H5Fed(){};
 
-
   //! Open an hdf5 finite element data file with appropriate access.
-  int open(string fileName, string fileAccess)
+  int open(std::string fileName, std::string fileAccess)
   {
     // Store filename and file access in private variable.
     fileName_ = fileName;
@@ -174,7 +179,7 @@ public:
     // Copy the old index to the map as map-key.
     for(unsigned int varI = 0; varI < indexVec.size(); varI++)
     {
-      indexMap_.insert(make_pair(indexVec[varI],0));
+      indexMap_.insert(std::make_pair(indexVec[varI],0));
     }
     // Number all elements in the map consecutive, starting with zero, that
     // is the new index set.
@@ -190,7 +195,7 @@ public:
     // of the coordinate in the vector.
     for(unsigned int varI = 0; varI < indexVec.size(); varI++)
     {
-      positionMap_.insert(make_pair(
+      positionMap_.insert(std::make_pair(
                            (indexMap_.find(indexVec[varI]))->second,varI));
     }
     return OKCODE;
@@ -330,15 +335,6 @@ public:
       return ERRORCODE;
     }
   };
-  
-
-
-
-
-
-
-
-
 
   // Write 3dim coordinates to h5fed file.
   int rCoord3d (std::vector<std::vector<double> >& coord)
@@ -453,13 +449,6 @@ public:
     }
   };
 
-
-
-
-
-
-
-
   // Read and return tetrahedrons and respective material index of the
   // given level.
   int rTetrahedron(unsigned int level,
@@ -467,7 +456,7 @@ public:
                    std::vector<unsigned int>& materialIndex)
   {
     // Set the name of the dataset, we want to read.
-    string datasetName = H5FED_D_TETMESH;
+    std::string datasetName = H5FED_D_TETMESH;
     rElement_(datasetName, level, elem, materialIndex);
     return OKCODE;
   };
@@ -480,7 +469,7 @@ public:
     // Set dimension of an elements vector.
     unsigned int elemDim = H5FED_TET_N_NODE;
     // Set the name of the dataset, we want to operate.
-    string datasetName = H5FED_D_TETMESH;
+    std::string datasetName = H5FED_D_TETMESH;
     // Select the data type in which the elements should be stored.
     hid_t dataType = H5FED_MESH_ELEM_DATATYPE;
     // This function does the real work for all elements.
@@ -513,7 +502,7 @@ public:
     if (hdf5FileIdent_ >= 0)
     {
       // Make datasetName with the datasetNameBlank and the level.
-      string datasetName = datasetNameBlank + stringify(level);
+      std::string datasetName = datasetNameBlank + stringify(level);
 
       // Check if the dataset with the given datasetName already exists:
       // if it exists, abort; 
@@ -627,7 +616,7 @@ public:
           // Set the appropriate material list!
           // ===> This is not implementes yet! <===
           // See warning above.
-          element[dim_out[1]-1] = 0;
+          element[dim_out[1]-1] = materialIndex[varI];
   
           // Select hyperslab ('region') in file dataspace.
           hdf5Status = H5Sselect_hyperslab(hdf5DataspaceId, H5S_SELECT_SET,
@@ -683,7 +672,7 @@ public:
     if (hdf5FileIdent_ >= 0)
     {
       // Make datasetName with the datasetNameBlank and the level.
-      string datasetName = datasetNameBlank + stringify(level);
+      std::string datasetName = datasetNameBlank + stringify(level);
 
       // Check if the dataset with the given datasetName exists:
       // if it does not return errorcode, else continue. 
@@ -840,7 +829,6 @@ public:
     }
   }
 
-
 		
   /** \brief Inquire existence of HDF5 groups */
 //  existsVolumeMesh()
@@ -966,15 +954,14 @@ public:
 //________________________________________________________________
 //		protected:
 //		
-		
 private:
   //-----------------------------------------------------------------------//
   // Private data structure.                                               //
   //-----------------------------------------------------------------------//
   // Store the filename of the H5Fed here.
-  string fileName_;
+  std::string fileName_;
   // Store the file access rights of the H5Fed here.
-  string fileAccess_;
+  std::string fileAccess_;
 
   // Hdf5 error variable stores the success of an Hdf5 action.
   herr_t hdf5Status_;
@@ -1006,7 +993,7 @@ private:
     {
       oStream << value;
     }
-    catch(exception& error)
+    catch(std::exception& error)
     {
       rError("Cannot convert this variable to a string.");
       rError("Error: %d",error.what());
@@ -1014,11 +1001,13 @@ private:
     }  
     return oStream.str();
   }
+
 			
 };
 
 } // End of namespace H5Fed
 
-
+#elif
+#warning "No HDF5 found. You cannot use h5fed."
 #endif // HAVE_HDF5
 #endif //H5FED_HH_
