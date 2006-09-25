@@ -39,7 +39,7 @@ extern "C" {
 H5PartFile*
 H5PartOpenFile(
 	const char *filename,
-	unsigned flags
+	const unsigned flags
 	);
 
 #define H5PartOpenFileSerial(x,y) H5PartOpenFile(x,y)
@@ -48,7 +48,7 @@ H5PartOpenFile(
 H5PartFile*
 H5PartOpenFileParallel (
 	const char *filename,
-	unsigned flags,
+	const unsigned flags,
 	MPI_Comm communicator
 	);
 #endif
@@ -128,14 +128,22 @@ H5PartSetView (
 	const h5part_int64_t end
 	);
 
-#define H5PartResetView(f) H5PartSetView(f,-1,-1)
-#define H5PartHasView(f) ((f->viewstart<0||f->viewend<0)?0:1)
 
 h5part_int64_t
 H5PartGetView (
 	H5PartFile *f,
 	h5part_int64_t *start,
 	h5part_int64_t *end
+	);
+
+h5part_int64_t
+H5PartHasView (
+	H5PartFile *f
+	);
+
+h5part_int64_t
+H5PartResetView (
+	H5PartFile *f
 	);
 
 h5part_int64_t
@@ -153,7 +161,7 @@ H5PartReadDataFloat64(
 h5part_int64_t
 H5PartReadDataInt64 (
 	H5PartFile *f,
-	char *name,
+	const char *name,
 	h5part_int64_t *array
 	);
 
@@ -242,13 +250,6 @@ H5PartGetFileAttribInfo (
 
 h5part_int64_t
 H5PartReadStepAttrib (
-	H5PartFile *f,
-	const char *name,
-	void *data
-	);
-
-h5part_int64_t
-H5PartReadAttrib (
 	H5PartFile *f,
 	const char *name,
 	void *data
