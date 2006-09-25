@@ -2,8 +2,8 @@
 ##
 ## authors   - patrick leidenberger
 ## modified  - 2006 aug 21, patrick leidenberger, creation
-## objective - top level automake file for H5Fed
-## project   - H5Fed
+## objective - top level automake file for Hdf5fed
+## project   - Hdf5fed
 
 SUBDIRS = libsrc applications
 

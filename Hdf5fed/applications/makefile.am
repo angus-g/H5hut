@@ -5,33 +5,36 @@
 ## modified  - 2006 aug 23, pl, adaped to changed directory structure.
 ## modified  - 2006 aug 25, pl, adaped to changed directory structure.
 ## modified  - 2006 sep 21, pl, add the h5feddump application.
+## modified  - 2006 sep 21, pl, change h5fed -> hdf5fed.
 #
 ## objective - automake input file for the gmsh directory
-## project   - gmsh2h5fed
+## project   - gmsh2hdf5fed
 
-noinst_PROGRAMS = gmsh2h5fed h5feddump
+noinst_PROGRAMS = gmsh2hdf5fed hdf5feddump
 
-gmsh2h5fed_SOURCES = gmsh2h5fed.cc
-gmsh2h5fed_DEPENDENCIES = ../libsrc/stdincl/nonsciconst.h      \
-                             ../libsrc/stdincl/physicomath.h      \
-                             ../libsrc/gmsh/gmsh.hh               \
-                             ../libsrc/gmsh/gmsh.cc               \
-                             ../libsrc/gmsh/gmshconst.hh          \
-                             ../libsrc/gmsh/gmshgrammar.hh        \
-                             ../libsrc/gmsh/gmshsemanticaction.hh \
-                             ../libsrc/h5fed/h5fed.hh             \
-                             ../libsrc/h5fed/h5fed.cc
+gmsh2hdf5fed_SOURCES = gmsh2hdf5fed.cc
+gmsh2hdf5fed_DEPENDENCIES = ../libsrc/stdincl/nonsciconst.h      \
+                            ../libsrc/stdincl/physicomath.h      \
+                            ../libsrc/gmsh/gmsh.hh               \
+                            ../libsrc/gmsh/gmsh.cc               \
+                            ../libsrc/gmsh/gmshconst.hh          \
+                            ../libsrc/gmsh/gmshgrammar.hh        \
+                            ../libsrc/gmsh/gmshsemanticaction.hh \
+                            ../libsrc/hdf5fed/hdf5fed.hh         \
+                            ../libsrc/hdf5fed/hdf5fed.cc         \
+                            ../libsrc/hdf5fed/hdf5fedconst.hh
 
-gmsh2h5fed_LDADD = @GMSH2H5FED_LIBS@
+
+gmsh2hdf5fed_LDADD = @GMSH2HDF5FED_LIBS@
 
 
-h5feddump_SOURCES = h5feddump.cc
-h5feddump_DEPENDENCIES = ../libsrc/stdincl/nonsciconst.h      \
-                         ../libsrc/stdincl/physicomath.h      \
-                         ../libsrc/h5fed/h5fed.hh             \
-                         ../libsrc/h5fed/h5fed.cc
+hdf5feddump_SOURCES = hdf5feddump.cc
+hdf5feddump_DEPENDENCIES = ../libsrc/stdincl/nonsciconst.h      \
+                           ../libsrc/stdincl/physicomath.h      \
+                           ../libsrc/hdf5fed/hdf5fed.hh         \
+                           ../libsrc/hdf5fed/hdf5fed.cc
 
-h5feddump_LDADD = @H5FEDDUMP_LIBS@
+h5feddump_LDADD = @HDF5FEDDUMP_LIBS@
 
 
 #AM_CPPFLAGS = @AM_CPPFLAGS@
