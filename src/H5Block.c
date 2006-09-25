@@ -8,8 +8,8 @@
   size of the field, an error will be indicated. 
  
   \note
-  In write mode views are shrinked to make them non-overlaping. This 
-  process may shrink the views more than required.
+  In write mode partitions are shrinked to make them non-overlaping. This 
+  process may shrink the partitions more than required.
 
   \note
   In read-mode partitions may not cross boundaries. This means, if the grid
@@ -164,7 +164,7 @@ _close (
 /*!
   Normalize partition
 
-  Normalize means that the start coordinates are less or equal the
+  "Normal" means that the start coordinates are less or equal the
   end coordinates.
 */
 static void
@@ -240,165 +240,6 @@ _get_dimension_sizes (
 		if ( partition->k_end > b->k_max ) b->k_max = partition->k_end;
 	}
 }
-
-#ifdef OLD
-
-#define _NO_GHOSTZONE(p,q) ( (p->i_end < q->i_start) \
-  		        ||   (p->j_end < q->j_start) \
-		        ||   (p->k_end < q->k_start) )
-
-
-static int
-_do_not_have_ghostzone (
-	const struct H5BlockPartition *p,
-	const struct H5BlockPartition *q
-	) {
-	return ( _NO_GHOSTZONE ( p, q ) || _NO_GHOSTZONE ( q, p ) );
-}
-
-static h5part_int64_t
-_volume_of_partition (
-	const struct H5BlockPartition *p
-	) {
-	return (p->i_end - p->i_start)
-		* (p->j_end - p->j_start)
-		* (p->k_end - p->k_start);
-
-}
-
-static h5part_int64_t
-_dissolve_X_ghostzone (
-	struct H5BlockPartition *p,
-	struct H5BlockPartition *q
-	) {
-
-	if ( p->i_start > q->i_start ) {
-		return _dissolve_X_ghostzone( q, p );
-	}
-
-	if ( q->i_end <= p->i_end ) {  /* no dissolving		*/
-		return 0;
-	}
-
-	p->i_end = ( p->i_end + q->i_start ) >> 1;
-	q->i_start = p->i_end + 1;
-	return _volume_of_partition ( p ) + _volume_of_partition ( q );
-}
-
-static h5part_int64_t
-_dissolve_Y_ghostzone (
-	struct H5BlockPartition *p,
-	struct H5BlockPartition *q
-	) {
-
-	if ( p->j_start > q->j_start ) {
-		return _dissolve_Y_ghostzone( q, p );
-	}
-
-	if ( q->j_end <= p->j_end ) {  /* no dissolving		*/
-		return 0;
-	}
-
-	p->j_end = ( p->j_end + q->j_start ) >> 1;
-	q->j_start = p->j_end + 1;
-	return _volume_of_partition ( p ) + _volume_of_partition ( q );
-}
-
-static h5part_int64_t
-_dissolve_Z_ghostzone (
-	struct H5BlockPartition *p,
-	struct H5BlockPartition *q
-	) {
-
-	if ( p->k_start > q->k_start ) {
-		return _dissolve_Z_ghostzone( q, p );
-	}
-
-	if ( q->k_end <= p->k_end ) {  /* no dissolving		*/
-		return 0;
-	}
-
-	p->k_end = ( p->k_end + q->k_start ) >> 1;
-	q->k_start = p->k_end + 1;
-	return _volume_of_partition ( p ) + _volume_of_partition ( q );
-}
-
-static h5part_int64_t
-_dissolve_ghostzone (
-	struct H5BlockPartition *p,
-	struct H5BlockPartition *q
-	) {
-
-	struct H5BlockPartition p_;
-	struct H5BlockPartition q_;
-	struct H5BlockPartition p_best;
-	struct H5BlockPartition q_best;
-	h5part_int64_t vol;
-	h5part_int64_t max_vol = 0;
-
-	p_ = *p;
-	q_ = *q;
-	vol = _dissolve_X_ghostzone ( &p_, &q_ );
-	if ( vol > max_vol ) {
-		max_vol = vol;
-		p_best = p_;
-		q_best = q_;
-	}
-
-	p_ = *p;
-	q_ = *q;
-	vol = _dissolve_Y_ghostzone ( &p_, &q_ );
-	if ( vol > max_vol ) {
-		max_vol = vol;
-		p_best = p_;
-		q_best = q_;
-	}
-	p_ = *p;
-	q_ = *q;
-
-	vol = _dissolve_Z_ghostzone ( &p_, &q_ );
-	if ( vol > max_vol ) {
-		max_vol = vol;
-		p_best = p_;
-		q_best = q_;
-	}
-	if ( max_vol <= 0 ) {
-		return H5PART_ERR_LAYOUT;
-	}
-	*p = p_best;
-	*q = q_best;
-
-	return H5PART_SUCCESS;
-}
-
-static h5part_int64_t
-_dissolve_ghostzones (
-	H5PartFile *f
-	) {
-
-	h5part_int64_t herr;
-	struct H5BlockStruct *b = f->block;
-	struct H5BlockPartition *mypartition = &b->write_layout[f->myproc];
-	struct H5BlockPartition *otherpartition;
-	int proc;
-
-	memcpy ( b->write_layout, b->user_layout,
-		 f->nprocs * sizeof (*f->block->user_layout) );
-
-	for ( proc = 0; proc < f->nprocs; proc++ ) {
-		if ( proc == f->myproc ) continue;
-
-		otherpartition = &b->write_layout[proc];
-		if ( _do_not_have_ghostzone ( mypartition, otherpartition ) )
-			continue;
-
-		herr = _dissolve_ghostzone ( mypartition, otherpartition );
-		if ( herr < 0 ) return herr;
-	}
-
-	return H5PART_SUCCESS;
-}
-#endif
 
 #define _NO_GHOSTZONE(p,q) ( (p->i_end < q->i_start) \
   		        ||   (p->j_end < q->j_start) \
@@ -558,6 +399,7 @@ _dissolve_ghostzone (
 	return H5PART_SUCCESS;
 }
 
+#if OLD_DISSOLVE_GHOSTZONES
 static h5part_int64_t
 _dissolve_ghostzones (
 	H5PartFile *f
@@ -617,6 +459,101 @@ _dissolve_ghostzones (
 	}
 	return H5PART_SUCCESS;
 }
+#else
+static h5part_int64_t
+_dissolve_ghostzones (
+	H5PartFile *f
+	) {
+
+	struct H5BlockStruct *b = f->block;
+	struct H5BlockPartition *p;
+	struct H5BlockPartition *q;
+	int proc_p, proc_q;
+
+	struct list {
+		struct list *prev;
+		struct list *next;
+		struct H5BlockPartition *p;
+		struct H5BlockPartition *q;
+		h5part_int64_t vol;
+	} *p_begin, *p_el, *p_max, *p_end, *p_save;
+
+	memcpy ( b->write_layout, b->user_layout,
+		 f->nprocs * sizeof (*f->block->user_layout) );
+
+	p_begin = p_max = p_end = malloc ( sizeof ( *p_begin ) );
+	if ( p_begin == NULL ) return HANDLE_H5PART_NOMEM_ERR;
+	
+	memset ( p_begin, 0, sizeof ( *p_begin ) );
+
+	for ( proc_p = 0, p = b->write_layout;
+	      proc_p < f->nprocs-1;
+	      proc_p++, p++ ) {
+		for ( proc_q = proc_p+1, q = &b->write_layout[proc_q];
+		      proc_q < f->nprocs;
+		      proc_q++, q++ ) {
+
+			if ( _have_ghostzone ( p, q ) ) {
+				p_el = malloc ( sizeof ( *p_el ) );
+				if ( p_el == NULL )
+					return HANDLE_H5PART_NOMEM_ERR;
+
+				p_el->p = p;
+				p_el->q = q;
+				p_el->vol = _volume_of_ghostzone ( p, q );
+				p_el->prev = p_end;
+				p_el->next = NULL;
+				
+				if ( p_el->vol > p_max->vol )
+					p_max = p_el;
+
+				p_end->next = p_el;
+				p_end = p_el;
+			}
+		}
+	}
+	while ( p_begin->next ) {
+		if ( p_max->next ) p_max->next->prev = p_max->prev;
+		p_max->prev->next = p_max->next;
+		
+		_dissolve_ghostzone ( p_max->p, p_max->q );
+
+		free ( p_max );
+		p_el = p_max = p_begin->next;
+
+		while ( p_el ) {
+			if ( _have_ghostzone ( p_el->p, p_el->q ) ) {
+				p_el->vol = _volume_of_ghostzone ( p_el->p, p_el->q );
+				if ( p_el->vol > p_max->vol )
+					p_max = p_el;
+				p_el = p_el->next;
+			} else {
+				if ( p_el->next )
+					p_el->next->prev = p_el->prev;
+				p_el->prev->next = p_el->next;
+				p_save = p_el->next;
+				free ( p_el );
+				p_el = p_save;
+			}
+		}
+
+	}
+	free ( p_begin );
+
+	_H5Part_print_debug ("Layout after dissolving ghost-zones:");
+	for ( proc_p = 0, p = b->write_layout;
+	      proc_p < f->nprocs;
+	      proc_p++, p++ ) {
+		_H5Part_print_debug (
+			"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
+			f->myproc, proc_p,
+			(long long)p->i_start, (long long)p->i_end,
+			(long long)p->j_start, (long long)p->j_end,
+			(long long)p->k_start, (long long)p->k_end );
+	}
+	return H5PART_SUCCESS;
+}
+#endif
 
 h5part_int64_t
 _release_hyperslab (
