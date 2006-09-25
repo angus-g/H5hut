@@ -2,14 +2,6 @@
 	H5Part C API	
 */
 
-/*
-  H5PartSetStep()
-  H5PartGetNumParticles()
-  H5PartSetView()
-
-  H5PartHasView()
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>	/* va_arg - System dependent ?! */
@@ -180,7 +172,7 @@ H5PartOpenFileParallel (
 		goto error_cleanup;
 	}
 	f->mode = flags;
-	f->timegroup = 0;
+	f->timegroup = -1;
 	f->shape = 0;
 	f->diskshape = H5S_ALL;
 	f->memshape = H5S_ALL;
@@ -290,7 +282,7 @@ H5PartOpenFile (
 	}
 
 	f->mode = flags;
-	f->timegroup = 0;
+	f->timegroup = -1;
 	f->shape = 0;
 	f->diskshape = H5S_ALL;
 	f->memshape = H5S_ALL;
@@ -359,10 +351,10 @@ H5PartCloseFile (
 		if ( r < 0 ) HANDLE_H5S_CLOSE_ERR;
 		f->shape = 0;
 	}
-	if( f->timegroup > 0 ) {
+	if( f->timegroup >= 0 ) {
 		r = H5Gclose( f->timegroup );
 		if ( r < 0 ) HANDLE_H5G_CLOSE_ERR;
-		f->timegroup = 0;
+		f->timegroup = -1;
 	}
 	if( f->diskshape != H5S_ALL ) {
 		r = H5Sclose( f->diskshape );
@@ -535,8 +527,8 @@ H5PartSetNumParticles (
 	if ( r < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
 	if ( f->timegroup < 0 ) {
-		r = H5PartSetStep ( f, 0 );
-		if ( r < 0 ) return HANDLE_H5PART_SETSTEP_ERR( r, 0 );
+		r = _set_step ( f, 0 );
+		if ( r < 0 ) return r;
 		
 	}
 #endif
@@ -1218,6 +1210,52 @@ H5PartReadFileAttrib (
   (they require explicit advancing by selecting a particular timestep).
 */
 
+static h5part_int64_t
+_set_step (
+	H5PartFile *f,			/*!< [in]  Handle to open file */
+	const h5part_int64_t step	/*!< [in]  Time-step to set. */
+	) {
+
+	char name[128];
+
+	sprintf ( name, "%s#%lld", H5PART_PARTICLES_GROUP, (long long) step );
+	herr_t herr = H5Gget_objinfo( f->file, name, 1, NULL );
+	if ( (f->mode != H5PART_READ) && ( herr >= 0 ) ) {
+		return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
+	}
+
+	if ( f->timegroup >= 0 ) {
+		herr = H5Gclose ( f->timegroup );
+		if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
+	}
+	f->timegroup = -1;
+	f->timestep = step;
+
+	if( f->mode == H5PART_READ ) {
+		_H5Part_print_info (
+			"Proc[%d]: Set step to #%lld for file %lld",
+			f->myproc,
+			(long long)step,
+			(long long)(size_t) f );
+
+		f->timegroup = H5Gopen ( f->file, name ); 
+		if ( f->timegroup < 0 ) return HANDLE_H5G_OPEN_ERR( name );
+	}
+	else {
+		_H5Part_print_debug (
+			"Proc[%d]: Create step #%lld for file %lld", 
+			f->myproc,
+			(long long)step,
+			(long long)(size_t) f );
+
+		f->timegroup = H5Gcreate ( f->file, name, 0 );
+		if ( f->timegroup < 0 ) return HANDLE_H5G_CREATE_ERR ( name );
+	}
+
+	return H5PART_SUCCESS;
+}
+
+
 /*!
   Set the current time-step.
 
@@ -1236,44 +1274,14 @@ H5PartReadFileAttrib (
 h5part_int64_t
 H5PartSetStep (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
-	h5part_int64_t step		/*!< [in]  Time-step to set. */
+	const h5part_int64_t step	/*!< [in]  Time-step to set. */
 	) {
 
 	SET_FNAME ( "H5PartSetStep" );
-	herr_t r;
-
-	char name[128];
 
 	CHECK_FILEHANDLE ( f );
 
-	_H5Part_print_info ( "Proc[%d]: Set step to #%lld for file %lld",
-			     f->myproc, (long long)step, (long long) f );
-	sprintf ( name, "%s#%lld", H5PART_PARTICLES_GROUP, (long long) step );
-	r = H5Gget_objinfo( f->file, name, 1, NULL );
-	if ( ( (f->mode == H5PART_APPEND) || (f->mode == H5PART_WRITE) )
-	     && ( r >= 0 ) ) {
-		return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
-	}
-
-	if(f->timegroup>0) {
-		r = H5Gclose(f->timegroup); if ( r < 0 ) HANDLE_H5G_CLOSE_ERR;
-	}
-	f->timegroup = -1;
-	f->timestep = step;
-
-	if(f->mode==H5PART_READ) {
-		f->timegroup = H5Gopen(f->file,name); 
-		if ( f->timegroup < 0 ) return HANDLE_H5G_OPEN_ERR( name );
-	}
-	else {
-		_H5Part_print_debug ( "Proc[%d]: create step #%lld", 
-				      f->myproc, (long long)step );
-
-		f->timegroup = H5Gcreate(f->file,name,0);
-		if ( f->timegroup < 0 ) return HANDLE_H5G_CREATE_ERR ( name );
-	}
-
-	return H5PART_SUCCESS;
+	return _set_step ( f, step );
 }
 
 /********************** query file structure *********************************/
@@ -1505,7 +1513,7 @@ H5PartGetDatasetInfo (
 		len_dataset_name );
 	if ( herr < 0 ) return herr;
 
-	*nelem = H5PartGetNumParticles(f);
+	*nelem = _H5Part_get_num_particles ( f );
 	if ( *nelem < 0 ) return *nelem;
 
 	dataset_id = H5Dopen ( f->timegroup, dataset_name );
@@ -1612,12 +1620,11 @@ _get_memshape_for_reading (
   \return	number of particles in current timestep or an error
 		code.
  */
+
 h5part_int64_t
-H5PartGetNumParticles (
+_H5Part_get_num_particles (
 	H5PartFile *f			/*!< [in]  Handle to open file */
 	) {
-
-	SET_FNAME ( "H5PartGetNumParticles" );
 
 	h5part_int64_t herr;
 	hid_t space_id;
@@ -1626,24 +1633,20 @@ H5PartGetNumParticles (
 	char step_name[128];
 	hsize_t nparticles;
 
-	CHECK_FILEHANDLE( f );
-
-	if(f->timegroup<0) {
-		h5part_int64_t step = (f->timestep<0 ? 0 : f->timestep );
-		herr = H5PartSetStep ( f, step );
-		if ( herr < 0 )
-			return HANDLE_H5PART_SETSTEP_ERR ( herr, step );
-	}
-
 	/* Get first dataset in current time-step */
-	sprintf ( step_name, "%s#%lld",
-		  H5PART_PARTICLES_GROUP, (long long) f->timestep );
-	herr = _H5Part_get_object_name ( f->file, step_name, H5G_DATASET, 0,
-					 dataset_name, sizeof (dataset_name) );
+	sprintf (
+		step_name, "%s#%lld",
+		H5PART_PARTICLES_GROUP, (long long) f->timestep );
+	herr = _H5Part_get_object_name (
+		f->file,
+		step_name,
+		H5G_DATASET,
+		0,
+		dataset_name, sizeof (dataset_name) );
 	if ( herr < 0 ) return herr;
 
 	dataset_id = H5Dopen ( f->timegroup, dataset_name );
-	if ( dataset_id < 0 )
+	if ( dataset_id < 0 ) 
 		return HANDLE_H5D_OPEN_ERR ( dataset_name );
 
 	space_id = _get_diskshape_for_reading ( f, dataset_id );
@@ -1668,53 +1671,30 @@ H5PartGetNumParticles (
 	return (h5part_int64_t) nparticles;
 }
 
-
-/*!
-  For parallel I/O or for subsetting operations on the datafile, the
-  \c H5PartSetView() function allows you to define a subset of the total
-  particle dataset to read.  The concept of "view" works for both serial
-  and for parallel I/O.  The "view" will remain in effect until a new view
-  is set, or the number of particles in a dataset changes, or the view is
-  "unset" by calling \c H5PartSetView(file,-1,-1);
-
-  Before you set a view, the \c H5PartGetNumParticles() will return the
-  total number of particles in the current time-step (even for the parallel
-  reads).  However, after you set a view, it will return the number of
-  particles contained in the view.
-
-  The range is inclusive (the start and the end index).
-
-  \return	\c H5PART_SUCCESS or error code
-*/
 h5part_int64_t
-H5PartSetView (
-	H5PartFile *f,			/*!< [in]  Handle to open file */
-	h5part_int64_t start,		/*!< [in]  Start particle */
-	h5part_int64_t end		/*!< [in]  End particle */
+H5PartGetNumParticles (
+	H5PartFile *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME ( "H5PartSetView" );
-
-	h5part_int64_t herr = 0;
-	hsize_t total;
-	hsize_t stride;
-	hsize_t dmax=H5S_UNLIMITED;
-
-#ifdef HDF5V160
-	hssize_t range[2];
-#else
-	hsize_t range[2];
-#endif
+	SET_FNAME ( "H5PartGetNumParticles" );
 
 	CHECK_FILEHANDLE( f );
 
-	if(f->mode==H5PART_WRITE || f->mode==H5PART_APPEND)
-		return HANDLE_H5PART_FILE_ACCESS_TYPE_ERR ( f->mode );
+	if ( f->timegroup < 0 ) {
+		h5part_int64_t herr = _set_step ( f, 0 );
+		if ( herr < 0 ) return herr;
+	}
 
-	_H5Part_print_debug ( "Set view (%lld,%lld).",
-			      (long long)start,(long long)end);
+	return _H5Part_get_num_particles ( f );
+}
 
-	/* if there is already a view selected, lets destroy it */ 
+static h5part_int64_t
+_reset_view (
+ 	H5PartFile *f			/*!< [in]  Handle to open file */
+	) {	     
+
+	herr_t herr = 0;
+
 	f->viewstart = -1;
 	f->viewend = -1;
 	if ( f->shape != 0 ){
@@ -1733,41 +1713,99 @@ H5PartSetView (
 		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
 		f->memshape=H5S_ALL;
 	}
-	if(start==-1 && end==-1) {
-		_H5Part_print_debug( "Early Termination: Unsetting View" );
-		return H5PART_SUCCESS; /* all done */
-	}
-	/* for now, we interpret start=-1 to mean 0 and 
-	   end==-1 to mean end of file */
-	total = (hsize_t) H5PartGetNumParticles(f);
+	return H5PART_SUCCESS;
+}
+
+h5part_int64_t
+H5PartResetView (
+ 	H5PartFile *f			/*!< [in]  Handle to open file */
+	) {
+	SET_FNAME ( "H5PartResetView" );
+
+	CHECK_FILEHANDLE( f );
+	CHECK_READONLY_MODE ( f );
+
+	return _reset_view ( f );
+}
+
+h5part_int64_t
+H5PartHasView (
+ 	H5PartFile *f			/*!< [in]  Handle to open file */
+	) {
+	SET_FNAME ( "H5PartResetView" );
+
+	CHECK_FILEHANDLE( f );
+	CHECK_READONLY_MODE ( f );
+
+	return  ( f->viewstart >= 0 ) && ( f->viewend >= 0 );
+}
+
+/*!
+  For parallel I/O or for subsetting operations on the datafile, the
+  \c H5PartSetView() function allows you to define a subset of the total
+  particle dataset to read.  The concept of "view" works for both serial
+  and for parallel I/O.  The "view" will remain in effect until a new view
+  is set, or the number of particles in a dataset changes, or the view is
+  "unset" by calling \c H5PartSetView(file,-1,-1);
+
+  Before you set a view, the \c H5PartGetNumParticles() will return the
+  total number of particles in the current time-step (even for the parallel
+  reads).  However, after you set a view, it will return the number of
+  particles contained in the view.
+
+  The range is inclusive (the start and the end index).
+
+  \return	\c H5PART_SUCCESS or error code
+*/
+static h5part_int64_t
+_set_view (
+	H5PartFile *f,			/*!< [in]  Handle to open file */
+	h5part_int64_t start,		/*!< [in]  Start particle */
+	h5part_int64_t end		/*!< [in]  End particle */
+	) {
+	h5part_int64_t herr = 0;
+	hsize_t total;
+	hsize_t stride = 1;
+	hsize_t dmax = H5S_UNLIMITED;
+
+	_H5Part_print_debug (
+		"Set view (%lld,%lld).",
+		(long long)start,(long long)end);
+
+	herr = _reset_view ( f );
+	if ( herr < 0 ) return herr;
+
+	if ( start == -1 && end == -1 ) return H5PART_SUCCESS;
+
+	/*
+	  View has been reset so H5PartGetNumParticles will tell
+	  us the total number of particles.
+
+	  For now, we interpret start=-1 to mean 0 and 
+	  end==-1 to mean end of file
+	*/
+	total = (hsize_t) _H5Part_get_num_particles ( f );
 	if ( total < 0 ) return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( total );
 
+	if ( start == -1 ) start = 0;
+	if ( end == -1 )   end = total;
+
 	_H5Part_print_debug ( "Total nparticles=%lld", (long long)total );
-	if(start==-1) start=0;
-	if(end==-1) end=total; /* can we trust nparticles (no)? 
-				  fortunately, view has been reset
-				  so H5PartGetNumParticles will tell
-				  us the total number of particles. */
 
 	/* so, is this selection inclusive or exclusive? 
 	   it appears to be inclusive for both ends of the range.
 	*/
-	if(end<start) {
+	if ( end < start ) {
 		_H5Part_print_warn (
 			"Nonfatal error. "
 			"End of view (%lld) is less than start (%lld).",
 			(long long)end, (long long)start );
 		end = start; /* ensure that we don't have a range error */
 	}
-	range[0]=start;
-	range[1]=end;
 	/* setting up the new view */
-	f->viewstart=range[0]; /* inclusive start */
-	f->viewend=range[1]; /* inclusive end */
-	f->nparticles=range[1]-range[0];
-	_H5Part_print_debug ( "Range is now %lld:%lld",
-			      (long long)range[0], (long long)range[1]);
-	/* OK, now we must create a selection from this */
+	f->viewstart =  start;
+	f->viewend =    end;
+	f->nparticles = end - start;
 	
 	/* declare overall datasize */
 	f->shape = H5Screate_simple ( 1, &total, &total );
@@ -1782,20 +1820,38 @@ H5PartSetView (
 	/* declare local memory datasize */
 	f->memshape = H5Screate_simple(1,&(f->nparticles),&dmax);
 	if ( f->memshape < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( f->nparticles );;
+		return HANDLE_H5S_CREATE_SIMPLE_ERR ( f->nparticles );
 
-	stride=1;
 	herr = H5Sselect_hyperslab ( 
 		f->diskshape,
 		H5S_SELECT_SET,
-		range,
+		(hsize_t*)&start,
 		&stride,
 		&total,
 		NULL );
 	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
-
 	return H5PART_SUCCESS;
+}
+
+h5part_int64_t
+H5PartSetView (
+	H5PartFile *f,			/*!< [in]  Handle to open file */
+	const h5part_int64_t start,	/*!< [in]  Start particle */
+	const h5part_int64_t end	/*!< [in]  End particle */
+	) {
+
+	SET_FNAME ( "H5PartSetView" );
+
+	CHECK_FILEHANDLE( f );
+	CHECK_READONLY_MODE ( f );
+
+	if ( f->timegroup < 0 ) {
+		h5part_int64_t herr = _set_step ( f, 0 );
+		if ( herr < 0 ) return herr;
+	}
+
+	return _set_view ( f, start, end );
 }
 
 /*!
@@ -1815,31 +1871,32 @@ H5PartGetView (
 
 	SET_FNAME ( "H5PartGetView" );
 
-	h5part_int64_t range[2];
-	h5part_int64_t viewend;
-
 	CHECK_FILEHANDLE( f );
 
-	range[0] = (f->viewstart>=0) ? f->viewstart : 0;
+	if ( f->timegroup < 0 ) {
+		h5part_int64_t herr = _set_step ( f, 0 );
+		if ( herr < 0 ) return herr;
+	}
+
+	h5part_int64_t viewstart = 0;
+	h5part_int64_t viewend = 0;
+
+	if ( f->viewstart >= 0 )
+		viewstart = f->viewstart;
 
 	if ( f->viewend >= 0 ) {
 		viewend = f->viewend;
 	}
 	else {
-		viewend = H5PartGetNumParticles(f);
+		viewend = _H5Part_get_num_particles ( f );
 		if ( viewend < 0 )
 			return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( viewend );
 	}
 
-	range[1] = viewend;
-	if(start) {
-		*start=range[0];
-	}
-	if(end) {
-		*end=range[1];
-	}
+	if ( start ) *start = viewstart;
+	if ( end )   *end = viewend;
 
-	return range[1]-range[0];
+	return viewend - viewstart;
 }
 
 /*!
@@ -1850,6 +1907,13 @@ H5PartGetView (
 
   \return		H5PART_SUCCESS or error code
 */
+/*
+  \note
+  There is a bug in this function:
+  If (NumParticles % f->nprocs) != 0  then
+  the last  (NumParticles % f->nprocs) particles are not handled!
+*/
+
 h5part_int64_t
 H5PartSetCanonicalView (
 	H5PartFile *f			/*!< [in]  Handle to open file */
@@ -1857,66 +1921,53 @@ H5PartSetCanonicalView (
 
 	SET_FNAME ( "H5PartSetCanonicalView" );
 
-	h5part_int64_t r;
+	h5part_int64_t herr;
 
 	CHECK_FILEHANDLE( f );
+	CHECK_READONLY_MODE ( f )
 
-	if(f->mode==H5PART_WRITE || f->mode==H5PART_APPEND)
-		return HANDLE_H5PART_FILE_ACCESS_TYPE_ERR ( f->mode );
+	herr = _reset_view ( f );
+	if ( herr < 0 ) return HANDLE_H5PART_SET_VIEW_ERR( herr, -1, -1 );
 
-	/* if a read_only file, search for on-disk canonical view */
-	/* if this view does not exist, then if MPI, subdivide by numprocs */
-	/* else, "unset" any existing View */
-
-	/* unset the view */
-	r = H5PartSetView(f,-1,-1);
-	if ( r < 0 ) return HANDLE_H5PART_SET_VIEW_ERR( r, -1, -1 );
 #ifdef PARALLEL_IO
-	{
-		h5part_int64_t start = 0;
-		h5part_int64_t end = 0;
-		h5part_int64_t n = 0;
-		int i = 0;
-		
-		if ( f->timegroup < 0 ) {
-			/* set to first step in file */
-			r = H5PartSetStep(f,0);
-			if ( r < 0 ) return HANDLE_H5PART_SETSTEP_ERR ( r, 0 );
-		}
-		n = H5PartGetNumParticles(f);
-		if ( n < 0 ) return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( n );
-		/* 
-		   now lets query the attributes for this group to see if there
-		   is a 'pnparticles' group that contains the offsets for the
-		   processors.
-		*/
-		/* try to read pnparticles right off of the disk */
-		if ( _H5Part_read_attrib (
-			     f->timegroup,
-			     "pnparticles", f->pnparticles ) < 0) {
-			/*
-			  automatically subdivide the view into NP mostly
-			  equal pieces
-			*/
-
-			n /= f->nprocs;
-			for ( i=0; i<f->nprocs; i++ ) {
-				f->pnparticles[i] = n;
-			}
-		}
-
-		/* now we set the view for this processor */
-		for ( i = 0; i < f->myproc; i++ ){
-			start += f->pnparticles[i];
-		}
-		end = start + f->pnparticles[f->myproc] - 1;
-		r = H5PartSetView ( f, start, end );
-		if ( r < 0 )
-			return HANDLE_H5PART_SET_VIEW_ERR ( r, start, end );
+	h5part_int64_t start = 0;
+	h5part_int64_t end = 0;
+	h5part_int64_t n = 0;
+	int i = 0;
+	
+	if ( f->timegroup < 0 ) {
+		herr = _set_step ( f, 0 );
+		if ( herr < 0 ) return herr;
 	}
+	n = _H5Part_get_num_particles ( f );
+	if ( n < 0 ) return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( n );
+	/* 
+	   now lets query the attributes for this group to see if there
+	   is a 'pnparticles' group that contains the offsets for the
+	   processors.
+	*/
+	if ( _H5Part_read_attrib (
+		     f->timegroup,
+		     "pnparticles", f->pnparticles ) < 0) {
+		/*
+		  Attribute "pnparticles" is not available.  So
+		  subdivide the view into NP mostly equal pieces
+		*/
+		n /= f->nprocs;
+		for ( i=0; i<f->nprocs; i++ ) {
+			f->pnparticles[i] = n;
+		}
+	}
+
+	for ( i = 0; i < f->myproc; i++ ){
+		start += f->pnparticles[i];
+	}
+	end = start + f->pnparticles[f->myproc] - 1;
+	r = _set_view ( f, start, end );
+	if ( r < 0 ) return HANDLE_H5PART_SET_VIEW_ERR ( r, start, end );
+
 #endif
-	/* the canonical view is to see everything if this is serial
-	   so there is nothing left to do */
+
 	return H5PART_SUCCESS;
 }
 
@@ -1933,10 +1984,9 @@ _read_data (
 	hid_t space_id;
 	hid_t memspace_id;
 
-	if ( ! f->timegroup ) {
-		herr = H5PartSetStep ( f, f->timestep );
-		if ( herr < 0 )
-			return HANDLE_H5PART_SETSTEP_ERR ( herr, f->timestep );
+	if ( f->timegroup < 0 ) {
+		herr = _set_step ( f, f->timestep );
+		if ( herr < 0 ) return herr;
 	}
 	dataset_id = H5Dopen ( f->timegroup, name );
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
@@ -2015,7 +2065,7 @@ H5PartReadDataFloat64 (
 h5part_int64_t
 H5PartReadDataInt64 (
 	H5PartFile *f,		/*!< [in] Handle to open file */
-	char *name,		/*!< [in] Name to associate dataset with */
+	const char *name,	/*!< [in] Name to associate dataset with */
 	h5part_int64_t *array	/*!< [out] Array of data */
 	) {
 
@@ -2061,8 +2111,8 @@ H5PartReadParticleStep (
 
 	CHECK_FILEHANDLE( f );
 
-	herr = H5PartSetStep(f,step);
-	if ( herr < 0 ) return HANDLE_H5PART_SETSTEP_ERR ( herr, step );
+	herr = _set_step ( f, step );
+	if ( herr < 0 ) return herr;
 
 	herr = _read_data ( f, "x", (void*)x, H5T_NATIVE_DOUBLE );
 	if ( herr < 0 ) return herr;
