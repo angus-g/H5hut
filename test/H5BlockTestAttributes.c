@@ -97,6 +97,12 @@ _write_attributes (
 		rval, 1 );
 	if ( herr < 0 ) return -1;
 
+	herr = H5Block3dSetFieldOrigin ( f, "TestField", 1.0, 2.0, 3.0 );
+	if ( herr < 0 ) return -1;
+
+	herr = H5Block3dSetFieldSpacing ( f, "TestField", 2.0, 3.0, 4.0 );
+	if ( herr < 0 ) return -1;
+
 	return H5PART_SUCCESS;
 }
 
@@ -361,6 +367,37 @@ _read_attributes (
 		printf ( "Error reading float64 attribute: "
 			 "Value is %f and should be 42.0\n",
 			 rval[0] );
+	}
+
+	h5part_float64_t x_origin;
+	h5part_float64_t y_origin;
+	h5part_float64_t z_origin;
+	h5part_float64_t x_spacing;
+	h5part_float64_t y_spacing;
+	h5part_float64_t z_spacing;
+
+	herr = H5Block3dGetFieldOrigin (
+		f, "TestField",
+		&x_origin,
+		&y_origin,
+		&z_origin );
+	if ( herr < 0 ) return -1;
+
+	if ( x_origin != 1.0 || y_origin != 2.0 || z_origin != 3.0 ) {
+		printf (
+			"Error reading field origin: Read values (%f,%f,%f)\n",
+			x_origin, y_origin, z_origin );
+	}
+	herr = H5Block3dGetFieldSpacing (
+		f, "TestField",
+		&x_spacing,
+		&y_spacing,
+		&z_spacing );
+	if ( herr < 0 ) return -1;
+	if ( x_spacing != 2.0 || y_spacing != 3.0 || z_spacing != 4.0 ) {
+		printf (
+			"Error reading field spacing: Read values (%f,%f,%f)\n",
+			x_spacing, y_spacing, z_spacing );
 	}
 
 	herr = H5PartCloseFile ( f );
