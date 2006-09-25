@@ -527,7 +527,7 @@ H5PartSetNumParticles (
 	if ( r < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
 	if ( f->timegroup < 0 ) {
-		r = _set_step ( f, 0 );
+		r = _H5Part_set_step ( f, 0 );
 		if ( r < 0 ) return r;
 		
 	}
@@ -1211,7 +1211,7 @@ H5PartReadFileAttrib (
 */
 
 static h5part_int64_t
-_set_step (
+_H5Part_set_step (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
 	const h5part_int64_t step	/*!< [in]  Time-step to set. */
 	) {
@@ -1281,7 +1281,7 @@ H5PartSetStep (
 
 	CHECK_FILEHANDLE ( f );
 
-	return _set_step ( f, step );
+	return _H5Part_set_step ( f, step );
 }
 
 /********************** query file structure *********************************/
@@ -1681,7 +1681,7 @@ H5PartGetNumParticles (
 	CHECK_FILEHANDLE( f );
 
 	if ( f->timegroup < 0 ) {
-		h5part_int64_t herr = _set_step ( f, 0 );
+		h5part_int64_t herr = _H5Part_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
 
@@ -1847,7 +1847,7 @@ H5PartSetView (
 	CHECK_READONLY_MODE ( f );
 
 	if ( f->timegroup < 0 ) {
-		h5part_int64_t herr = _set_step ( f, 0 );
+		h5part_int64_t herr = _H5Part_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
 
@@ -1874,7 +1874,7 @@ H5PartGetView (
 	CHECK_FILEHANDLE( f );
 
 	if ( f->timegroup < 0 ) {
-		h5part_int64_t herr = _set_step ( f, 0 );
+		h5part_int64_t herr = _H5Part_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
 
@@ -1921,12 +1921,11 @@ H5PartSetCanonicalView (
 
 	SET_FNAME ( "H5PartSetCanonicalView" );
 
-	h5part_int64_t herr;
 
 	CHECK_FILEHANDLE( f );
 	CHECK_READONLY_MODE ( f )
 
-	herr = _reset_view ( f );
+	h5part_int64_t herr = _reset_view ( f );
 	if ( herr < 0 ) return HANDLE_H5PART_SET_VIEW_ERR( herr, -1, -1 );
 
 #ifdef PARALLEL_IO
@@ -1936,7 +1935,7 @@ H5PartSetCanonicalView (
 	int i = 0;
 	
 	if ( f->timegroup < 0 ) {
-		herr = _set_step ( f, 0 );
+		herr = _H5Part_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
 	n = _H5Part_get_num_particles ( f );
@@ -1963,8 +1962,8 @@ H5PartSetCanonicalView (
 		start += f->pnparticles[i];
 	}
 	end = start + f->pnparticles[f->myproc] - 1;
-	r = _set_view ( f, start, end );
-	if ( r < 0 ) return HANDLE_H5PART_SET_VIEW_ERR ( r, start, end );
+	herr = _set_view ( f, start, end );
+	if ( herr < 0 ) return HANDLE_H5PART_SET_VIEW_ERR ( herr, start, end );
 
 #endif
 
@@ -1985,7 +1984,7 @@ _read_data (
 	hid_t memspace_id;
 
 	if ( f->timegroup < 0 ) {
-		herr = _set_step ( f, f->timestep );
+		herr = _H5Part_set_step ( f, f->timestep );
 		if ( herr < 0 ) return herr;
 	}
 	dataset_id = H5Dopen ( f->timegroup, name );
@@ -2111,7 +2110,7 @@ H5PartReadParticleStep (
 
 	CHECK_FILEHANDLE( f );
 
-	herr = _set_step ( f, step );
+	herr = _H5Part_set_step ( f, step );
 	if ( herr < 0 ) return herr;
 
 	herr = _read_data ( f, "x", (void*)x, H5T_NATIVE_DOUBLE );
