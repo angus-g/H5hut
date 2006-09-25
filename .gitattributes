@@ -22,9 +22,9 @@ Hdf5fed/libsrc/gmsh/gmshconst.hh -text
 Hdf5fed/libsrc/gmsh/gmshgrammar.hh -text
 Hdf5fed/libsrc/gmsh/gmshsemanticaction.hh -text
 Hdf5fed/libsrc/gmsh/makefile.am -text
-Hdf5fed/libsrc/hdf5fed/hed5fed.cc -text
-Hdf5fed/libsrc/hdf5fed/hed5fed.hh -text
-Hdf5fed/libsrc/hdf5fed/hed5fedconst.hh -text
+Hdf5fed/libsrc/hdf5fed/hdf5fed.cc -text
+Hdf5fed/libsrc/hdf5fed/hdf5fed.hh -text
+Hdf5fed/libsrc/hdf5fed/hdf5fedconst.hh -text
 Hdf5fed/libsrc/hdf5fed/makefile.am -text
 Hdf5fed/libsrc/makefile.am -text
 Hdf5fed/libsrc/stdincl/nonsciconst.h -text
