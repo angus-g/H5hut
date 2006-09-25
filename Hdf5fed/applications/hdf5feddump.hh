@@ -7,9 +7,10 @@
 // objective - header file for the h5feddump
 // modified  - 2006 sep 21, creation, Patrick Leidenberger
 // modified  - 2006 sep 22, pl, add dump for coordinates.
+// modified  - 2006 sep 25, pl, chage h5fed -> hdf5fed.
 
-#ifndef H5FEDDUMP_H_
-#define H5FEDDUMP_H_
+#ifndef HDF5FEDDUMP_HH_
+#define HDF5FEDDUMP_HH_
 
 /* include standard header files */
 #include <cmath>
@@ -41,9 +42,9 @@
 // Include the Hdf5FiniteElementData API.
 #ifdef HAVE_HDF5
   // Include the Hdf5FiniteElementData API.
-  #include <h5fed.hh>
+  #include <hdf5fed.hh>
   // Include h5fed specific constants.
-  #include <h5fedconst.hh>
+  #include <hdf5fedconst.hh>
 #else
   #warning No hdf5 lib found!!
 #endif
@@ -53,4 +54,4 @@ using namespace nonsciconst;
 //using namespace H5Fed;
 //using namespace gmshtohdf5fed;
 
-#endif /*PHIDIAS3D_H_*/
+#endif /* HDF5FEDDUMP_HH_ */

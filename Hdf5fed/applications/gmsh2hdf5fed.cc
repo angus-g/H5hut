@@ -1,20 +1,21 @@
 // rights - 2006-, copyright patrick leidenberger and benedikt oswald,
 //                 all rights reserved
-// project   - gmsh2h5fed
-// file name - gmsh2h5fed.cc
+// project   - gmsh2hdf5fed
+// file name - gmsh2hdf5fed.cc
 // file type - c++ implementaton file
 // objective - main file for the gmsh to hdf5fed converter
 // modified  - 2006 jun 26, creation, patrick leidenberger
 // modified  - 2006 aug 25, extend, patrick leidenberger
 // modified  - 2006 aug 26, pl, integrate automatic index mapping.
 // modified  - 2006 sep 22, pl, addaped to h5fed api changes.
+// modified  - 2006 sep 22, pl, change h5fed -> hdf5fed.
 //
 // feature - Implements the a mesh preprocessor.
 // feature - It will read gmsh's mesh files of version 2.0 and write the mesh
 // feature - into an HDF5/FiniteElementData file.
 // required software - rlog library, boost library 
 
-#include <gmsh2h5fed.hh>
+#include <gmsh2hdf5fed.hh>
 
 using namespace rlog;
 
@@ -143,17 +144,17 @@ int main(int argc, char **argv)
   // Get a vector with all node coordinates from the gmsh file.
   gmshNodes = gmshInFile.gmshNode();
   
-  // Put all H5Fed funktions in here.
+  // Put all Hdf5fed funktions in here.
   #ifdef HAVE_HDF5
   // Create H5Fed class instance. 
-  H5Fed::H5Fed h5fedFile;
+  Hdf5fed::Hdf5fed h5fedFile;
   
-  // Open H5Fed file for writing. Filename and file write access comes
+  // Open Hdf5fed file for writing. Filename and file write access comes
   // from command line parameters. 
   if (writeFileForce == false)
-    h5fedFile.open(hdf5fedOutputFile,H5Fed::FILE_CREATE);
+    h5fedFile.open(hdf5fedOutputFile,Hdf5fed::FILE_CREATE);
   else
-    h5fedFile.open(hdf5fedOutputFile,H5Fed::FILE_CREATE_FORCE);
+    h5fedFile.open(hdf5fedOutputFile,Hdf5fed::FILE_CREATE_FORCE);
 
   // Create the group hierarchie in the hdf5fed file.
   h5fedFile.createGroupHierarchie();
@@ -212,7 +213,7 @@ int main(int argc, char **argv)
   // with an gmsh file index.
   h5fedFile.endIndexMapping();
 
-  // Close H5Fed file.
+  // Close Hdf5fed file.
   h5fedFile.close();
   
     

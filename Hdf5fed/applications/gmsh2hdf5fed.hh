@@ -48,17 +48,17 @@
 // Include the Hdf5FiniteElementData API.
 #ifdef HAVE_HDF5
   // Include the Hdf5FiniteElementData API.
-  #include <h5fed.hh>
+  #include <hdf5fed.hh>
   // Include h5fed specific constants.
-  #include <h5fedconst.hh>
+  #include <hdf5fedconst.hh>
 #else
   #warning No hdf5 lib found!!
 #endif
 
 
 
-#ifndef PHIDIAS3D_H_
-#define PHIDIAS3D_H_
+#ifndef GMSH2HDF5FED_HH_
+#define GMSH2HDF5FED_HH_
 
 using namespace physicomath;
 using namespace nonsciconst;
@@ -66,4 +66,4 @@ using namespace gmshtohdf5fed;
 
 
 
-#endif /*PHIDIAS3D_H_*/
+#endif /* GMSH2HDF5FED_HH_ */

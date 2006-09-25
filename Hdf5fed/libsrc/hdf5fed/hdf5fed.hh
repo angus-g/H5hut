@@ -13,8 +13,8 @@
 // feature - library.
 // required software - 
 
-#ifndef H5FED_HH_
-#define H5FED_HH_
+#ifndef HDF5FED_HH_
+#define HDF5FED_HH_
 
 #ifdef HAVE_HDF5
 
@@ -39,7 +39,7 @@
 #include <hdf5.h>
 
 // Include h5fed specific constants.
-#include "h5fedconst.hh"
+#include "hdf5fedconst.hh"
 
 /* include standard proprietary header files */
 /*
@@ -52,14 +52,14 @@
 //using namespace physicomath;
 //using namespace nonsciconst;
 
-namespace H5Fed
+namespace Hdf5fed
 {
 
-class H5Fed {
+class Hdf5fed {
 public:
 
   /** \brief constructor and destructor */
-  H5Fed()
+  Hdf5fed()
   {
     doIndexMapping_ = false;
     indexMap_.clear();
@@ -70,7 +70,7 @@ public:
   };
 
   // The Destructor.
-  ~H5Fed(){};
+  ~Hdf5fed(){};
 
   //! Open an hdf5 finite element data file with appropriate access.
   int open(std::string fileName, std::string fileAccess)
@@ -135,33 +135,34 @@ public:
   {
     // Hdf5 group identifier for group access, localy valid (this method).
     hid_t hdf5GroupIdent_;
-    // Create the groups. All group-name strings are defined in h5fedconst.hh.
+    // Create the groups. All group-name strings are defined in 
+    // hdf5fedconst.hh.
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_ROOT.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_ROOT.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_COORD.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_COORD.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_VOLUME_MESH.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_VOLUME_MESH.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_BOUNDARY_MESH.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_BOUNDARY_MESH.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_MATERIAL.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_MATERIAL.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_ELECTROMAGNETIC.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_ELECTROMAGNETIC.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_DISCRETE.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_DISCRETE.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_PHYSICAL.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_PHYSICAL.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_DEBYE.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_DEBYE.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_LORENTZ.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_LORENTZ.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_DRUDE.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_DRUDE.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_DOF.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_DOF.c_str(),H5P_DEFAULT);
     hdf5GroupIdent_ = H5Gcreate(hdf5FileIdent_,
-                              H5FED_G_FIELD.c_str(),H5P_DEFAULT);
+                              HDF5FED_G_FIELD.c_str(),H5P_DEFAULT);
     return OKCODE;
   };
 
@@ -211,7 +212,7 @@ public:
     return OKCODE;
   };
 
-  // Write 3dim coordinates to h5fed file.
+  // Write 3dim coordinates to hdf5fed file.
   int wCoord3d (std::vector<std::vector<double> >& coord)
   {
     // All these operations are only allowed, if there is a valid file
@@ -268,8 +269,8 @@ public:
       hdf5DataspaceId = H5Screate_simple(rank, dim, H5P_DEFAULT);
 
       // Create dataset of full size.
-      hdf5DatasetId = H5Dcreate(hdf5FileIdent_, H5FED_D_COORD3D.c_str(), 
-                                H5FED_COORD_DATATYPE,
+      hdf5DatasetId = H5Dcreate(hdf5FileIdent_, HDF5FED_D_COORD3D.c_str(), 
+                                HDF5FED_COORD_DATATYPE,
                                 hdf5DataspaceId, H5P_DEFAULT);
       
 
@@ -336,7 +337,7 @@ public:
     }
   };
 
-  // Read 3dim coordinates from h5fed file.
+  // Read 3dim coordinates from hdf5fed file.
   int rCoord3d (std::vector<std::vector<double> >& coord)
   {
     // All these operations are only allowed, if there is a valid file
@@ -344,7 +345,7 @@ public:
     if (hdf5FileIdent_ >= 0)
     {
       // The name of the dataset.
-      std::string datasetName = H5FED_D_COORD3D;
+      std::string datasetName = HDF5FED_D_COORD3D;
       // Define the rank of the different dataspaces.
       const int rank = 2;
       // Hdf5 error handling variable for Hdf5 actions.
@@ -443,7 +444,7 @@ public:
     }
     else 
     {
-      rError("You cannot operate to dataset %s.",H5FED_D_COORD3D.c_str());
+      rError("You cannot operate to dataset %s.",HDF5FED_D_COORD3D.c_str());
       rError("There is no valid file identifier.");
       return ERRORCODE;
     }
@@ -456,22 +457,22 @@ public:
                    std::vector<unsigned int>& materialIndex)
   {
     // Set the name of the dataset, we want to read.
-    std::string datasetName = H5FED_D_TETMESH;
+    std::string datasetName = HDF5FED_D_TETMESH;
     rElement_(datasetName, level, -1, elem, materialIndex);
     return OKCODE;
   };
 
-  // Copy the tetrahedon elements to the h5fed filse.
+  // Copy the tetrahedon elements to the hdf5fed filse.
   int wTetrahedron(unsigned int level,
                    std::vector< std::vector<unsigned int> >& elem,
                    std::vector<unsigned int>& materialIndex)
   {
     // Set dimension of an elements vector.
-    unsigned int elemDim = H5FED_TET_N_NODE;
+    unsigned int elemDim = HDF5FED_TET_N_NODE;
     // Set the name of the dataset, we want to operate.
-    std::string datasetName = H5FED_D_TETMESH;
+    std::string datasetName = HDF5FED_D_TETMESH;
     // Select the data type in which the elements should be stored.
-    hid_t dataType = H5FED_MESH_ELEM_DATATYPE;
+    hid_t dataType = HDF5FED_MESH_ELEM_DATATYPE;
     // This function does the real work for all elements.
     wElement_(datasetName, level, -1, elemDim, elem, materialIndex, dataType);
     return OKCODE;
@@ -483,11 +484,11 @@ public:
                  std::vector<unsigned int>& boundaryIndex)
   {
     // Set dimension of an elements vector.
-    unsigned int elemDim = H5FED_TRIANGLE_N_NODE;
+    unsigned int elemDim = HDF5FED_TRIANGLE_N_NODE;
     // Set the name of the dataset, we want to operate.
-    std::string datasetName = H5FED_D_TRIANGLEBOUNDARY;
+    std::string datasetName = HDF5FED_D_TRIANGLEBOUNDARY;
     // Select the data type in which the elements should be stored.
-    hid_t dataType = H5FED_MESH_ELEM_DATATYPE;
+    hid_t dataType = HDF5FED_MESH_ELEM_DATATYPE;
     // This function does the real work for all elements.
     wElement_(datasetName, level, (int)number,  elemDim, elem, boundaryIndex, dataType);
     return OKCODE;
@@ -501,7 +502,7 @@ public:
                  std::vector<unsigned int>& boundaryIndex)
   {
     // Set the name of the dataset, we want to read.
-    std::string datasetName = H5FED_D_TRIANGLEBOUNDARY;
+    std::string datasetName = HDF5FED_D_TRIANGLEBOUNDARY;
     rElement_(datasetName, level, (int)number, elem, boundaryIndex);
     return OKCODE;
   };
@@ -690,7 +691,7 @@ public:
   };
 
   // This function gets the level and name of an element in
-  // a H5Fed file and returns the element nodes and material tag as a
+  // a Hdf5fed file and returns the element nodes and material tag as a
   // vetor of vectors and a vector.
   // datasetNameBlank: the name of the elements dataset without the level!
   //                   (example: ../TETMESH_L)
@@ -839,7 +840,7 @@ public:
     }
   };
 
-  // Write 3dim coordinates to h5fed file.
+  // Write 3dim coordinates to hdf5fed file.
   bool existsDataspace (std::string dataspaceName)
   {
     // All these operations are only allowed, if there is a valid file
@@ -1002,9 +1003,9 @@ private:
   //-----------------------------------------------------------------------//
   // Private data structure.                                               //
   //-----------------------------------------------------------------------//
-  // Store the filename of the H5Fed here.
+  // Store the filename of the Hdf5fed here.
   std::string fileName_;
-  // Store the file access rights of the H5Fed here.
+  // Store the file access rights of the Hdf5fed here.
   std::string fileAccess_;
 
   // Hdf5 error variable stores the success of an Hdf5 action.
@@ -1013,15 +1014,15 @@ private:
   // identifyer is negetive.
   hid_t hdf5FileIdent_;
   
-  // If the elements we want to write to the h5fed file are not consecutive
+  // If the elements we want to write to the hdf5fed file are not consecutive
   // and with gaps numbered, this API shoud be able to map this to an gapfree
   // and consecutive index set.
   // To activate this function we have the following variable.
   bool doIndexMapping_;
   // The first entry in indexMap_ is the old index of a coordinate, the
-  // second is the new index usend in the h5fed file.
+  // second is the new index usend in the hdf5fed file.
   std::map<unsigned int, unsigned int> indexMap_;
-  // The first entry in positionMap_ is the new index usend in the h5fed
+  // The first entry in positionMap_ is the new index usend in the hdf5fed
   // file, the second is the old postion in the coordinate vector.
   std::map<unsigned int, unsigned int> positionMap_;
 
@@ -1049,9 +1050,9 @@ private:
 			
 };
 
-} // End of namespace H5Fed
+} // End of namespace Hdf5fed
 
 #elif
-#warning "No HDF5 found. You cannot use h5fed."
+#warning "No HDF5 found. You cannot use hdf5fed."
 #endif // HAVE_HDF5
-#endif //H5FED_HH_
+#endif //HDF5FED_HH_

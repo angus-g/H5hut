@@ -1,9 +1,9 @@
 // rights - 2006-, copyright patrick leidenberger and benedikt oswald,
 //                 all rights reserved
-// project   - h5feddump
-// file name - h5feddump.cc
+// project   - hdf5feddump
+// file name - hdf5feddump.cc
 // file type - c++ implementaton file
-// objective - main file h5fed dump program
+// objective - main file hdf5fed dump program
 // modified  - 2006 sep 21, creation, patrick leidenberger.
 // modified  - 2006 sep 22, pl, add dump for coordinates.
 //
@@ -13,7 +13,7 @@
 // feature - There are different options on command line what to dump.
 // required software - rlog library, boost library 
 
-#include <h5feddump.hh>
+#include <hdf5feddump.hh>
 
 using namespace rlog;
 
@@ -93,20 +93,20 @@ int main(int argc, char **argv)
   // Start with the main work //
   //==========================//
 
-  // Put all H5Fed funktions in here.
+  // Put all Hdf5fed funktions in here.
   #ifdef HAVE_HDF5
   // Create H5Fed class instance. 
-  H5Fed::H5Fed h5fedFile;
+  Hdf5fed::Hdf5fed h5fedFile;
   
-  // Open H5Fed file for reading. Filename comes from 
+  // Open Hdf5fed file for reading. Filename comes from 
   // command line parameters. 
-  h5fedFile.open(hdf5fedFile,H5Fed::FILE_READ);
+  h5fedFile.open(hdf5fedFile,Hdf5fed::FILE_READ);
 
   // Vector for the tetrahedorn nodes and the material tag.
   std::vector< std::vector<unsigned int> > elem;
   std::vector<unsigned int> materialIndex;
 
-  // Read the tetrahedrons of the h5fed file an print them.
+  // Read the tetrahedrons of the hdf5fed file an print them.
 /*  h5fedFile.rTetrahedron((unsigned int)0, elem, materialIndex);
   for(int varI = 0; varI<elem.size(); varI++)
   {
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
            materialIndex[varI]);
   }
 */
-  // Read the boundary trianglel of the h5fed file an print them.
+  // Read the boundary trianglel of the hdf5fed file an print them.
   h5fedFile.rTriangleB((unsigned int)0, (unsigned int) 0, elem, materialIndex);
   for(int varI = 0; varI<elem.size(); varI++)
   {
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
   }
   
 */  
-  // Close H5Fed file.
+  // Close Hdf5fed file.
   h5fedFile.close();
     
   #endif // HAVE_HDF5

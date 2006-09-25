@@ -10,6 +10,6 @@
 noinst_LTLIBRARIES = libhdf5fed.la
 hdf5feddir = $(topleveldir)/libsrc/hdf5fed
 hdf5fed_HEADERS = hdf5fed.hh              
-libh5fed_la_SOURCES = hdf5fed.cc \
-                      hdf5fed.hh
+libhdf5fed_la_SOURCES = hdf5fed.cc \
+                        hdf5fed.hh
 AM_CPPFLAGS = @AM_CPPFLAGS@
