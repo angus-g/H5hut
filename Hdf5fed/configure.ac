@@ -10,7 +10,7 @@
 ##             stream as well, pl, 2006 jul 04.
 ##
 ## objective - develop input file for GNU autotools/configure
-## project   - H5Fed
+## project   - Hdf5fed
 ##
 
 AC_PREREQ(2.59)
@@ -32,9 +32,9 @@ CFFLAGS=""
 CXXFLAGS=""
 
 # provide include directories
-AC_SUBST([AM_CPPFLAGS], '-I$(top_srcdir)/libsrc/stdincl -I$(top_srcdir)/libsrc/gmsh -I$(top_srcdir)/libsrc/h5fed')
-AC_SUBST([GMSH2H5FED_LIBS],'$(top_srcdir)/libsrc/gmsh/libgmsh.la $(top_srcdir)/libsrc/h5fed/libh5fed.la')
-AC_SUBST([H5FEDDUMP_LIBS],'$(top_srcdir)/libsrc/h5fed/libh5fed.la')
+AC_SUBST([AM_CPPFLAGS], '-I$(top_srcdir)/libsrc/stdincl -I$(top_srcdir)/libsrc/gmsh -I$(top_srcdir)/libsrc/hdf5fed')
+AC_SUBST([GMSH2HDF5FED_LIBS],'$(top_srcdir)/libsrc/gmsh/libgmsh.la $(top_srcdir)/libsrc/hdf5fed/libhdf5fed.la')
+AC_SUBST([HDF5FEDDUMP_LIBS],'$(top_srcdir)/libsrc/hdf5fed/libhdf5fed.la')
 
 # Make available external libraries
 AC_ARG_WITH(boost,
@@ -102,7 +102,7 @@ AC_CONFIG_FILES([makefile
                    applications/makefile
                    libsrc/makefile
                      libsrc/gmsh/makefile
-                   libsrc/h5fed/makefile])
+                   libsrc/hdf5fed/makefile])
 
 
 AC_OUTPUT
