@@ -2,13 +2,14 @@
 ##
 ## authors   - benedikt oswald and patrick leidenberger
 ## modified  - 2006 aug 24, patrick leidenberger, creation
+## modified  - 2006 sep 25, pl, little change.
 #
 ## objective - automake input file for the h5fed directory
-## project   - gmsh2h5fed
+## project   - gmsh2hdf5fed
 
-noinst_LTLIBRARIES = libh5fed.la
-h5feddir = $(topleveldir)/libsrc/h5fed
-h5fed_HEADERS = h5fed.hh              
-libh5fed_la_SOURCES = h5fed.cc \
-                      h5fed.hh
+noinst_LTLIBRARIES = libhdf5fed.la
+hdf5feddir = $(topleveldir)/libsrc/hdf5fed
+hdf5fed_HEADERS = hdf5fed.hh              
+libh5fed_la_SOURCES = hdf5fed.cc \
+                      hdf5fed.hh
 AM_CPPFLAGS = @AM_CPPFLAGS@
