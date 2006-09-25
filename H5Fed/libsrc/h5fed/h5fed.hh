@@ -651,8 +651,6 @@ public:
           }
           
           // Set the appropriate material list!
-          // ===> This is not implementes yet! <===
-          // See warning above.
 //          element[dim_out[1]-1] = materialIndex[varI];
           element[dim_out[1]-1] = 0;
   
