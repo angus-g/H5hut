@@ -493,7 +493,7 @@ _dissolve_ghostzone (
 
 	return H5PART_SUCCESS;
 }
-
+ #if 0
 static h5part_int64_t
 _dissolve_ghostzones (
 	H5PartFile *f
@@ -535,6 +535,110 @@ _dissolve_ghostzones (
 
 		_dissolve_ghostzone ( max_p, max_q );
 	}
+
+	_H5Part_print_debug ("Layout after dissolving ghost-zones:");
+	for ( proc_p = 0, p = b->write_layout;
+	      proc_p < f->nprocs;
+	      proc_p++, p++ ) {
+		_H5Part_print_debug (
+			"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
+			f->myproc, proc_p,
+			(long long)p->i_start,
+			(long long)p->i_end,
+			(long long)p->j_start,
+			(long long)p->j_end,
+			(long long)p->k_start,
+			(long long)p->k_end );
+	}
+	return H5PART_SUCCESS;
+}
+#endif
+
+
+static h5part_int64_t
+_dissolve_ghostzones (
+	H5PartFile *f
+	) {
+
+	struct H5BlockStruct *b = f->block;
+	struct H5BlockPartition *p;
+	struct H5BlockPartition *q;
+	int proc_p, proc_q;
+
+	struct list {
+		struct list *prev;
+		struct list *next;
+		struct H5BlockPartition *p;
+		struct H5BlockPartition *q;
+		h5part_int64_t vol;
+	} *p_begin, *p_el, *p_max, *p_end, *p_save;
+
+	memcpy ( b->write_layout, b->user_layout,
+		 f->nprocs * sizeof (*f->block->user_layout) );
+
+	/*
+	  build a list of all ghost-zones, save procs and volume remember max volume
+	  while list not empty
+		take element with max volume from list and dissolve ghost-zones for this
+		recalculate volumes for remaining list elements remember max volume
+		remove list element if volume is zero
+	*/
+	
+	p_begin = p_max = p_end = malloc ( sizeof ( *p_begin ) );
+	memset ( p_begin, 0, sizeof ( *p_begin ) );
+
+	for ( proc_p = 0, p = b->write_layout;
+	      proc_p < f->nprocs-1;
+	      proc_p++, p++ ) {
+		for ( proc_q = proc_p+1, q = &b->write_layout[proc_q];
+		      proc_q < f->nprocs;
+		      proc_q++, q++ ) {
+
+			if ( _have_ghostzone ( p, q ) ) {
+				p_el = malloc ( sizeof ( *p_el ) );
+
+				p_el->p = p;
+				p_el->q = q;
+				p_el->vol = _volume_of_ghostzone ( p, q );
+				p_el->prev = p_end;
+				p_el->next = NULL;
+				
+				if ( p_el->vol > p_max->vol )
+					p_max = p_el;
+
+				p_end->next = p_el;
+				p_end = p_el;
+			}
+		}
+	}
+	while ( p_begin->next ) {
+		if ( p_max->next ) p_max->next->prev = p_max->prev;
+		p_max->prev->next = p_max->next;
+		
+		_dissolve_ghostzone ( p_max->p, p_max->q );
+
+		free ( p_max );
+		p_el = p_max = p_begin->next;
+
+		while ( p_el ) {
+			if ( _have_ghostzone ( p_el->p, p_el->q ) ) {
+				p_el->vol = _volume_of_ghostzone ( p_el->p, p_el->q );
+				if ( p_el->vol > p_max->vol )
+					p_max = p_el;
+				p_el = p_el->next;
+			} else {
+				if ( p_el->next )
+					p_el->next->prev = p_el->prev;
+				p_el->prev->next = p_el->next;
+				p_save = p_el->next;
+				free ( p_el );
+				p_el = p_save;
+			}
+		}
+
+	}
+	free ( p_begin );
+
 
 	_H5Part_print_debug ("Layout after dissolving ghost-zones:");
 	for ( proc_p = 0, p = b->write_layout;
