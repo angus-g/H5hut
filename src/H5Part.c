@@ -1,6 +1,57 @@
-/*
-	H5Part C API	
+/*! \mainpage H5Part: A Portable High Performance Parallel Data Interface to HDF5
+
+Particle based simulations of accelerator beam-lines, especially in
+six dimensional phase space, generate vast amounts of data. Even
+though a subset of statistical information regarding phase space or
+analysis needs to be preserved, reading and writing such enormous
+restart files on massively parallel supercomputing systems remains
+challenging. 
+
+H5Part consists of Particles, Block structured Fields and unstructured
+data (Topo).
+
+Developed by  .
+
+For further information contact: <a href="mailto:xxxxx">xxxxxx</a> - 
+xxxx xxxxx, (xxx) xxx.
+
+Last modified on xxx xx, 2006.
+
+Papers: 
+
+<a href="http://www-vis.lbl.gov/Research/AcceleratorSAPP/index.html">LBNL Vis Group </a><br>
 */
+
+
+/*!
+  \defgroup h5part_api H5Part API
+
+*/
+/*!
+  \ingroup h5part_api
+  \defgroup h5part_openclose	File Opening and Closing
+*/
+/*!
+  \ingroup h5part_api
+  \defgroup h5part_write	File Writing
+*/  
+/*!
+  \ingroup h5part_api
+  \defgroup h5part_read		File Reading
+*/  
+/*!
+  \ingroup h5part_api
+  \defgroup h5part_attrib	Reading and Writing Attributes
+*/
+/*!
+  \ingroup h5part_api
+  \defgroup h5part_errhandle	Error Handling
+*/
+/*!
+  \internal
+  \defgroup h5partkernel H5Part private functions 
+*/
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +94,8 @@ _h5_error_handler (
 /*========== File Opening/Closing ===============*/
 
 /*!
+  \ingroup h5part_openclose
+
   Opens file with specified filename. 
 
   If you open with flag \c H5PART_WRITE, it will truncate any
@@ -60,7 +113,6 @@ _h5_error_handler (
 
   \return	File handle or \c NULL
  */
-
 H5PartFile*
 H5PartOpenFileParallel (
 	const char *filename,	/*!< [in] The name of the data file to open. */
@@ -198,6 +250,8 @@ H5PartOpenFileParallel (
 }
 
 /*!
+  \ingroup  h5part_openclose
+
   Opens file with specified filename. 
 
   If you open with flag \c H5PART_WRITE, it will truncate any
@@ -325,6 +379,8 @@ _file_is_valid (
 }
 
 /*!
+  \ingroup h5part_openclose
+
   Closes an open file.
 
   \return	\c H5PART_SUCCESS or error code
@@ -390,7 +446,10 @@ H5PartCloseFile (
 }
 
 /*============== File Writing Functions ==================== */
+
 /*!
+  \ingroup h5part_write
+
   Set number of particles for current time-step.
 
   This function's sole purpose is to prevent 
@@ -574,6 +633,8 @@ _write_data (
 }
 
 /*!
+  \ingroup h5part_write
+
   Write array of 64 bit floating point data to file.
 
   After setting the number of particles with \c H5PartSetNumParticles() and
@@ -618,6 +679,8 @@ H5PartWriteDataFloat64 (
 }
 
 /*!
+  \ingroup h5part_write
+
   Write array of 64 bit integer data to file.
 
   After setting the number of particles with \c H5PartSetNumParticles() and
@@ -665,6 +728,12 @@ H5PartWriteDataInt64 (
 /********************** reading and writing attribute ************************/
 
 /********************** private functions to handle attributes ***************/
+
+/*!
+  \ingroup h5partkernel
+  @{
+*/
+
 /*!
    Normalize HDF5 type
 */
@@ -828,6 +897,8 @@ _H5Part_get_attrib_info (
 /********************** attribute API ****************************************/
 
 /*!
+  \ingroup h5part_attrib
+
   Writes a string attribute bound to a file.
 
   This function creates a new attribute \c name with the string \c value as
@@ -839,7 +910,6 @@ _H5Part_get_attrib_info (
 
   \return	\c H5PART_SUCCESS or error code   
 */
-
 h5part_int64_t
 H5PartWriteFileAttribString (
 	H5PartFile *f,		/*!< [in] Handle to open file */
@@ -870,6 +940,8 @@ H5PartWriteFileAttribString (
 }
 
 /*!
+  \ingroup h5part_attrib
+
   Writes a string attribute bound to the current time-step.
 
   This function creates a new attribute \c name with the string \c value as
@@ -907,6 +979,8 @@ H5PartWriteStepAttribString (
 }
 
 /*!
+  \ingroup h5part_attrib
+
   Writes a attribute bound to the current time-step.
 
   This function creates a new attribute \c name with the string \c value as
@@ -952,6 +1026,8 @@ H5PartWriteStepAttrib (
 }
 
 /*!
+  \ingroup h5part_attrib
+
   Writes a attribute bound to a file.
 
   This function creates a new attribute \c name with the string \c value as
@@ -1002,8 +1078,9 @@ H5PartWriteFileAttrib (
 	return H5PART_SUCCESS;
 }
 
-
 /*!
+  \ingroup h5part_attrib
+
   Gets the number of attributes bound to the current step.
 
   \return	Number of attributes bound to current time step or error code.
@@ -1025,6 +1102,8 @@ H5PartGetNumStepAttribs (
 }
 
 /*!
+  \ingroup h5part_attrib
+
   Gets the number of attributes bound to the file.
 
   \return	Number of attributes bound to file \c f or error code.
@@ -1052,6 +1131,8 @@ H5PartGetNumFileAttribs (
 }
 
 /*!
+  \ingroup h5part_attrib
+
   Gets the name, type and number of elements of the step attribute
   specified by its index.
 
@@ -1093,6 +1174,8 @@ H5PartGetStepAttribInfo (
 }
 
 /*!
+  \ingroup h5part_attrib
+
   Gets the name, type and number of elements of the file attribute
   specified by its index.
 
@@ -1141,11 +1224,12 @@ H5PartGetFileAttribInfo (
 }
 
 /*!
+  \ingroup h5part_attrib
+
   Reads an attribute bound to current time-step.
 
   \return \c H5PART_SUCCESS or error code 
 */
-
 h5part_int64_t
 H5PartReadStepAttrib (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
@@ -1166,11 +1250,12 @@ H5PartReadStepAttrib (
 }
 
 /*!
+  \ingroup h5part_attrib
+
   Reads an attribute bound to file \c f.
 
   \return \c H5PART_SUCCESS or error code 
 */
-
 h5part_int64_t
 H5PartReadFileAttrib ( 
 	H5PartFile *f,
@@ -1255,8 +1340,9 @@ _H5Part_set_step (
 	return H5PART_SUCCESS;
 }
 
-
 /*!
+  \ingroup h5part_read
+
   Set the current time-step.
 
   When writing data to a file the current time step must be set first
@@ -1270,7 +1356,6 @@ _H5Part_set_step (
 
   \return \c H5PART_SUCCESS or error code 
 */
-
 h5part_int64_t
 H5PartSetStep (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
@@ -1286,7 +1371,11 @@ H5PartSetStep (
 
 /********************** query file structure *********************************/
 
+/*!
+  \ingroup h5part_kernel
 
+  Iterator for \c H5Giterate().
+*/
 herr_t
 _H5Part_iteration_operator (
 	hid_t group_id,		/*!< [in]  group id */
@@ -1321,6 +1410,11 @@ _H5Part_iteration_operator (
 	return 0;		/* continue iteration */
 }
 
+/*!
+  \ingroup h5part_kernel
+
+  Iterator for \c H5Giterate().
+*/
 h5part_int64_t
 _H5Part_get_num_objects (
 	hid_t group_id,
@@ -1335,6 +1429,11 @@ _H5Part_get_num_objects (
 		NULL );
 }
 
+/*!
+  \ingroup h5part_kernel
+
+  Iterator for \c H5Giterate().
+*/
 h5part_int64_t
 _H5Part_get_num_objects_matching_pattern (
 	hid_t group_id,
@@ -1358,6 +1457,11 @@ _H5Part_get_num_objects_matching_pattern (
 	return data.count;
 }
 
+/*!
+  \ingroup h5part_kernel
+
+  Iterator for \c H5Giterate().
+*/
 h5part_int64_t
 _H5Part_get_object_name (
 	hid_t group_id,
@@ -1390,6 +1494,8 @@ _H5Part_get_object_name (
 }
 
 /*!
+  \ingroup h5part_read
+
   Get the number of time-steps that are currently stored in the file
   \c f.
 
@@ -1415,6 +1521,8 @@ H5PartGetNumSteps (
 }
 
 /*!
+  \ingroup h5part_read
+
   Get the number of datasets that are stored at the current time-step.
 
   \return	number of datasets in current timestep or error code
@@ -1438,6 +1546,8 @@ H5PartGetNumDatasets (
 }
 
 /*!
+  \ingroup h5part_read
+
   This reads the name of a dataset specified by it's index in the current
   time-step.
 
@@ -1473,6 +1583,8 @@ H5PartGetDatasetName (
 }
 
 /*!
+  \ingroup h5part_read
+
   Gets the name, type and number of elements of a dataset specified by it's
   index in the current time-step.
 
@@ -1534,10 +1646,6 @@ H5PartGetDatasetInfo (
 	return H5PART_SUCCESS;
 }
 
-/*!
-  \intenal 
-
-*/
 static hid_t
 _get_diskshape_for_reading (
 	H5PartFile *f,
@@ -1612,15 +1720,6 @@ _get_memshape_for_reading (
 	}
 }
 
-/*!
-  This gets the number of particles stored in the current timestep. 
-  It will arbitrarily select a time-step if you haven't already set
-  the timestep with \c H5PartSetStep().
-
-  \return	number of particles in current timestep or an error
-		code.
- */
-
 h5part_int64_t
 _H5Part_get_num_particles (
 	H5PartFile *f			/*!< [in]  Handle to open file */
@@ -1671,6 +1770,16 @@ _H5Part_get_num_particles (
 	return (h5part_int64_t) nparticles;
 }
 
+/*!
+  \ingroup h5part_read
+
+  This gets the number of particles stored in the current timestep. 
+  It will arbitrarily select a time-step if you haven't already set
+  the timestep with \c H5PartSetStep().
+
+  \return	number of particles in current timestep or an error
+		code.
+ */
 h5part_int64_t
 H5PartGetNumParticles (
 	H5PartFile *f			/*!< [in]  Handle to open file */
@@ -1716,6 +1825,9 @@ _reset_view (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5part_read
+*/
 h5part_int64_t
 H5PartResetView (
  	H5PartFile *f			/*!< [in]  Handle to open file */
@@ -1728,6 +1840,9 @@ H5PartResetView (
 	return _reset_view ( f );
 }
 
+/*!
+  \ingroup h5part_read
+*/
 h5part_int64_t
 H5PartHasView (
  	H5PartFile *f			/*!< [in]  Handle to open file */
@@ -1740,23 +1855,6 @@ H5PartHasView (
 	return  ( f->viewstart >= 0 ) && ( f->viewend >= 0 );
 }
 
-/*!
-  For parallel I/O or for subsetting operations on the datafile, the
-  \c H5PartSetView() function allows you to define a subset of the total
-  particle dataset to read.  The concept of "view" works for both serial
-  and for parallel I/O.  The "view" will remain in effect until a new view
-  is set, or the number of particles in a dataset changes, or the view is
-  "unset" by calling \c H5PartSetView(file,-1,-1);
-
-  Before you set a view, the \c H5PartGetNumParticles() will return the
-  total number of particles in the current time-step (even for the parallel
-  reads).  However, after you set a view, it will return the number of
-  particles contained in the view.
-
-  The range is inclusive (the start and the end index).
-
-  \return	\c H5PART_SUCCESS or error code
-*/
 static h5part_int64_t
 _set_view (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
@@ -1834,6 +1932,25 @@ _set_view (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5part_read
+
+  For parallel I/O or for subsetting operations on the datafile, the
+  \c H5PartSetView() function allows you to define a subset of the total
+  particle dataset to read.  The concept of "view" works for both serial
+  and for parallel I/O.  The "view" will remain in effect until a new view
+  is set, or the number of particles in a dataset changes, or the view is
+  "unset" by calling \c H5PartSetView(file,-1,-1);
+
+  Before you set a view, the \c H5PartGetNumParticles() will return the
+  total number of particles in the current time-step (even for the parallel
+  reads).  However, after you set a view, it will return the number of
+  particles contained in the view.
+
+  The range is inclusive (the start and the end index).
+
+  \return	\c H5PART_SUCCESS or error code
+*/
 h5part_int64_t
 H5PartSetView (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
@@ -1855,6 +1972,8 @@ H5PartSetView (
 }
 
 /*!
+  \ingroup h5part_read
+
    Allows you to query the current view. Start and End
    will be \c -1 if there is no current view established.
    Use \c H5PartHasView() to see if the view is smaller than the
@@ -1900,6 +2019,8 @@ H5PartGetView (
 }
 
 /*!
+  \ingroup h5part_read
+
   If it is too tedious to manually set the start and end coordinates
   for a view, the \c H5SetCanonicalView() will automatically select an
   appropriate domain decomposition of the data arrays for the degree
@@ -1921,11 +2042,12 @@ H5PartSetCanonicalView (
 
 	SET_FNAME ( "H5PartSetCanonicalView" );
 
+	h5part_int64_t herr;
 
 	CHECK_FILEHANDLE( f );
 	CHECK_READONLY_MODE ( f )
 
-	h5part_int64_t herr = _reset_view ( f );
+	herr = _reset_view ( f );
 	if ( herr < 0 ) return HANDLE_H5PART_SET_VIEW_ERR( herr, -1, -1 );
 
 #ifdef PARALLEL_IO
@@ -2023,6 +2145,8 @@ _read_data (
 }
 
 /*!
+  \ingroup h5part_read
+
   Read array of 64 bit floating point data from file.
 
   When retrieving datasets from disk, you ask for them
@@ -2051,7 +2175,9 @@ H5PartReadDataFloat64 (
 	return H5PART_SUCCESS;
 }
 
-/**
+/*!
+  \ingroup h5part_read
+
   Read array of 64 bit floating point data from file.
 
   When retrieving datasets from disk, you ask for them
@@ -2081,6 +2207,8 @@ H5PartReadDataInt64 (
 }
 
 /*!
+  \ingroup h5part_read
+
   This is the mongo read function that pulls in all of the data for a
   given timestep in one shot. It also takes the timestep as an argument
   and will call \c H5PartSetStep() internally so that you don't have to 
@@ -2139,6 +2267,13 @@ H5PartReadParticleStep (
 
 /****************** error handling ******************/
 
+/*!
+  \ingroup h5part_errhandle
+
+  Set verbosity level to \c level.
+
+  \return \c H5PART_SUCCESS
+*/
 h5part_int64_t
 H5PartSetVerbosityLevel (
 	h5part_int64_t level
@@ -2148,6 +2283,13 @@ H5PartSetVerbosityLevel (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5part_errhandle
+
+  Set error handler to \c handler.
+
+  \return \c H5PART_SUCCESS
+*/
 h5part_int64_t
 H5PartSetErrorHandler (
 	h5part_error_handler handler
@@ -2156,6 +2298,13 @@ H5PartSetErrorHandler (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5part_errhandle
+
+  Get current error handler.
+
+  \return Pointer to error handler.
+*/
 h5part_error_handler
 H5PartGetErrorHandler (
 	void
@@ -2163,6 +2312,13 @@ H5PartGetErrorHandler (
 	return _err_handler;
 }
 
+/*!
+  \ingroup h5part_errhandle
+
+  Get last error code.
+
+  \return error code
+*/
 h5part_int64_t
 H5PartGetErrno (
 	void
@@ -2170,6 +2326,14 @@ H5PartGetErrno (
 	return _errno;
 }
 
+/*!
+  \ingroup h5part_errhandle
+
+  This is the H5Part default error handler.  If an error occures, an
+  error message will be printed and an error number will be returned.
+
+  \return value given in \c eno
+*/
 h5part_int64_t
 H5PartDefaultErrorHandler (
 	const char *funcname,
@@ -2188,6 +2352,12 @@ H5PartDefaultErrorHandler (
 	return _errno;
 }
 
+/*!
+  \ingroup h5part_errhandle
+
+  If an error occures, an error message will be printed and the
+  program exists with the error code given in \c eno.
+*/
 h5part_int64_t
 H5PartAbortErrorHandler (
 	const char *funcname,
@@ -2207,7 +2377,9 @@ H5PartAbortErrorHandler (
 	exit (-_errno);
 }
 
-
+/*!
+  Initialize H5Part
+*/
 static h5part_int64_t
 _init ( void ) {
 	static int __init = 0;
@@ -2220,6 +2392,7 @@ _init ( void ) {
 	__init = 1;
 	return H5PART_SUCCESS;
 }
+/*! @} */
 
 static herr_t
 _h5_error_handler ( void* unused ) {
