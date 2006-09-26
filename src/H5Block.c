@@ -1,4 +1,8 @@
 /*!
+  \defgroup h5block_api H5Block API
+*/
+
+/*!
   \note
   Different field sizes are allowed in the same time-step.
 
@@ -579,6 +583,18 @@ _release_hyperslab (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_api
+*/
+/*!
+  Define the field layout (FL) given the dense index space at the actual
+  time step.
+
+  \return \c H5PART_SUCCESS or error code
+
+  \note
+  This defines  \f$ \Omega \f$ and the view for HDF5	
+*/
 h5part_int64_t
 H5BlockDefine3DFieldLayout(
 	H5PartFile *f,
@@ -620,6 +636,9 @@ H5BlockDefine3DFieldLayout(
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5Block3dGetPartitionOfProc (
 	H5PartFile *f,
@@ -650,6 +669,9 @@ H5Block3dGetPartitionOfProc (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5Block3dGetReducedPartitionOfProc (
 	H5PartFile *f,
@@ -682,6 +704,9 @@ H5Block3dGetReducedPartitionOfProc (
 }
 
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5Block3dGetProcOf (
 	H5PartFile *f,
@@ -888,6 +913,9 @@ _read_data (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5Block3dReadScalarField (
 	H5PartFile *f,
@@ -912,6 +940,9 @@ H5Block3dReadScalarField (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5Block3dRead3dVectorField (
 	H5PartFile *f,
@@ -1139,6 +1170,9 @@ _write_data (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5Block3dWriteScalarField (
 	H5PartFile *f,
@@ -1164,6 +1198,14 @@ H5Block3dWriteScalarField (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_api
+*/
+/*!
+  Write a 3D real valued vector field using the defined FL for this block
+
+  \return \c H5PART_SUCCESS or error code
+*/
 h5part_int64_t
 H5Block3dWrite3dVectorField (
 	H5PartFile *f,
@@ -1197,6 +1239,9 @@ H5Block3dWrite3dVectorField (
 
 /********************** query information about available fields *************/
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5BlockGetNumFields (
 	H5PartFile *f
@@ -1260,6 +1305,9 @@ _get_field_info (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5BlockGetFieldInfo (
 	H5PartFile *f,
@@ -1288,6 +1336,9 @@ H5BlockGetFieldInfo (
 		f, field_name, grid_rank, grid_dims, field_dims );
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5BlockGetFieldInfoByName (
 	H5PartFile *f,
@@ -1334,6 +1385,9 @@ _write_field_attrib (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5BlockWriteFieldAttrib (
 	H5PartFile *f,
@@ -1356,6 +1410,9 @@ H5BlockWriteFieldAttrib (
 		attrib_nelem );
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5BlockWriteFieldAttribString (
 	H5PartFile *f,
@@ -1376,6 +1433,9 @@ H5BlockWriteFieldAttribString (
 		strlen ( attrib_value ) + 1 );
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5BlockGetNumFieldAttribs (
 	H5PartFile *f,
@@ -1400,6 +1460,9 @@ H5BlockGetNumFieldAttribs (
 }
 
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5BlockGetFieldAttribInfo (
 	H5PartFile *f,
@@ -1459,6 +1522,9 @@ _read_field_attrib (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5BlockReadFieldAttrib (
 	H5PartFile *f,
@@ -1475,6 +1541,9 @@ H5BlockReadFieldAttrib (
 		f, field_name, attrib_name, attrib_value );
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5Block3dGetFieldOrigin (
 	H5PartFile *f,
@@ -1499,6 +1568,9 @@ H5Block3dGetFieldOrigin (
 	return herr;
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5Block3dSetFieldOrigin (
 	H5PartFile *f,
@@ -1523,6 +1595,9 @@ H5Block3dSetFieldOrigin (
 		3 );
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5Block3dGetFieldSpacing (
 	H5PartFile *f,
@@ -1547,6 +1622,9 @@ H5Block3dGetFieldSpacing (
 	return herr;
 }
 
+/*!
+  \ingroup h5block_api
+*/
 h5part_int64_t
 H5Block3dSetFieldSpacing (
 	H5PartFile *f,
@@ -1571,6 +1649,9 @@ H5Block3dSetFieldSpacing (
 		3 );
 }
 
+/*!
+  \ingroup h5block_api
+*/
 /*
   Checks whether the current time-step has field data or not.
 
