@@ -8,26 +8,8 @@ extern "C" {
 /*! 
   Interface for block structured field data
 
-  This  is used to store and retrieve scalar or vector valued field data.
-  With \f$  \Omega\ \f$  .... 
-
-  Basic items are blocks (\f$ \Omaga_i \f$ ), cartesian subdomains of
-  \f$ \Omega \f$ . If a  \f$ \Omega_i \f$ is refined we view this
-  \f$ \Omaga_i \f$  as a patch.
-   
 */
 
-
-
-/*!
-  Define the field layout (FL) given the dense index space at the actual
-  time step.
-
-  \return \c H5PART_SUCCESS or error code
-
-  \note
-  This defines  \f$ \Omega \f$ and the view for HDF5	
-*/
 h5part_int64_t
 H5BlockDefine3DFieldLayout (
 	H5PartFile *f,			/*!< file handle */
@@ -148,16 +130,6 @@ H5Block3dSetFieldSpacing (
 
 
 
-/*!
-  Write a 3D real valued vector field using the defined FL for this block
-
-  \return \c H5PART_SUCCESS or error code
-
-  \note we have to make a 1D and 2D version
-
-  \note Q: what about a dimension independent version?
-	  
-*/
 h5part_int64_t
 H5Block3dWrite3dVectorField (
 	H5PartFile *f,			/*!< file handle */
@@ -174,9 +146,7 @@ H5Block3dRead3dVectorField (
 	h5part_float64_t *xval,		/*!< array of x component data */
 	h5part_float64_t *yval,		/*!< array of y component data */
 	h5part_float64_t *zval		/*!< array of z component data */
-	);	
-
-
+	);
 
 h5part_int64_t
 H5BlockWriteFieldAttrib (
@@ -295,28 +265,6 @@ H5BlockSetNumberOfModes (
 	char *name,		/*!< name of the data set */
 	int modes		/*!< the number of modes */
 	); 
-
-/*!
-  Write a 3D real valued vector field using the defined FL for this block
-
-  \return \c H5PART_SUCCESS or error code
-
-  \note we have to make a 1D and 2D version
-
-  \note Q: what about a dimension independent version?
-
-  \note We need another name for this function!
-*/
-h5part_int64_t
-H5BlockWrite3DVField_ (
-	H5PartFile *f,		/*!< file handle */
-	char *name,		/*!< name of the data set */
-	int modeNumber,		/*!< the mode number of the field */
-	h5part_float64_t omega,	/*!< the eigenmode of the field */
-	h5part_float64_t *xval,	/*!< array of x component data */
-	h5part_float64_t *yval,	/*!< array of y component data */
-	h5part_float64_t *zval	/*!< array of z component data */
-	);	
 
 /*!
   Write the quality factor for a given mode
