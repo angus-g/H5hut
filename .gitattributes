@@ -40,13 +40,6 @@ Hdf5fed/makefile.am -text
 /config.sub -text
 /configure.ac -text
 /depcomp -text
-doc/2006-Berkeley-Visit/BethelSAP_1page-4.doc -text
-doc/2006-Berkeley-Visit/H5Part.ppt -text
-doc/2006-Berkeley-Visit/H5xxx.ppt -text
-doc/2006-Berkeley-Visit/H5xxxVisIt.fig -text
-doc/2006-Berkeley-Visit/SAP-Combined-v6.doc -text
-doc/2006-Berkeley-Visit/aqpsi2006mar22.pdf -text
-doc/2006-Berkeley-Visit/hdf.ps -text
 doc/Building.html -text
 doc/BuildingHDF5.html -text
 doc/Downloading.html -text
@@ -64,9 +57,6 @@ doc/H5PartVisIt/visit_query1.png -text
 doc/H5PartVisIt/visit_query1.s.png -text
 doc/H5tools/H5tools.htm -text
 doc/H5tools/H5tools_files/snapshot1.jpg -text
-doc/H5xxx/H5xxx.tex -text
-doc/H5xxx/JAC2003.cls -text
-doc/H5xxx/makefile -text
 doc/InternalLayout.html -text
 doc/ReferencePages/H5PartF_8c.html -text
 doc/ReferencePages/H5Part_8c.html -text
