@@ -1295,7 +1295,7 @@ H5PartReadFileAttrib (
   (they require explicit advancing by selecting a particular timestep).
 */
 
-static h5part_int64_t
+h5part_int64_t
 _H5Part_set_step (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
 	const h5part_int64_t step	/*!< [in]  Time-step to set. */
