@@ -218,7 +218,7 @@ h5pt_openr_par (
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
 	H5PartFile* f = H5PartOpenFileParallel (
-		file_name2, H5PART_READ, comm );
+		file_name2, H5PART_READ, *comm );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
@@ -234,7 +234,7 @@ h5pt_openw_par (
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
 	H5PartFile* f = H5PartOpenFileParallel (
-		file_name2, H5PART_WRITE, comm );
+		file_name2, H5PART_WRITE, *comm );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
