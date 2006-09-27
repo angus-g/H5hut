@@ -354,6 +354,20 @@ run:
 ./H5PartTest
 
 
+(6) Cray XT3 @ CSCS gele
+
+  1) modules/3.1.6         9) PrgEnv-pgi/1.4.26    17) xt-lustre-ss/1.4.26
+  2) MySQL/4.0.26         10) xt-pbs/5.3.4         18) Base-opts/1.4.26
+  3) acml/3.0             11) xt-service/1.4.26    19) subversion/1.3.2
+  4) pgi/6.1.4            12) xt-libc/1.4.26       20) zlib/1.2.3
+  5) totalview/7.2.0      13) xt-os/1.4.26         21) szip/2.0
+  6) xt-libsci/1.4.26     14) xt-catamount/1.4.26  22) hdf5/1.6.5
+  7) xt-mpt/1.4.26        15) xt-boot/1.4.26
+  8) xt-pe/1.4.26         16) xt-crms/1.4.26
+
+
+CFLAGS="-I$H5HOME/include -DF77_SINGLE_UNDERSCORE" LDFLAGS="-L$H5HOME/lib -L$ZHOME/lib" ./configure --enable-parallel --enable-fortran
+
 
 
 
