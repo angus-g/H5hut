@@ -369,6 +369,17 @@ run:
 CFLAGS="-I$H5HOME/include -DF77_SINGLE_UNDERSCORE" LDFLAGS="-L$H5HOME/lib -L$ZHOME/lib" ./configure --enable-parallel --enable-fortran
 
 
+(7) merlin00 / merlin3 
+
+Currently Loaded Modulefiles:
+  1) hdf5/hdf5-1.6.5            2) root/root-5.10.00          3) mpi/mpich2-1.0.3-pgi-6.1   4) pgi/pgi_64-6.1
+
+FC=mpif90 ./configure --enable-parallel --enable-fortran
+
+
+
+
+
 
 
 ==============================================================================
