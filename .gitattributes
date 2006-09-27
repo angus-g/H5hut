@@ -166,4 +166,3 @@ visit_plugins/operators/RandomSample/RandomSample.xml -text
 visit_plugins/operators/RandomSample/avtH5PartRandomSampleFilter.C -text
 visit_plugins/operators/RandomSample/avtH5PartRandomSampleFilter.h -text
 visit_plugins/operators/RandomSample/icon.xpm -text
-/xxx -text
