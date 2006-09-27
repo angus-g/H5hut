@@ -21,7 +21,7 @@ struct _iter_op_data {
 	char *pattern;
 };
 
-static h5part_int64_t
+h5part_int64_t
 _H5Part_set_step (
 	H5PartFile *f,
 	const h5part_int64_t step
