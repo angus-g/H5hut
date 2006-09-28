@@ -480,40 +480,42 @@ h5pt_readdata_i8 (
 h5part_int64_t
 h5pt_writefileattrib_r8 (
 	const h5part_int64_t *f,
-	const char *name,
-	const void *attrib,
-	const h5part_float64_t *nelem,
-	const int l_name
+	const char *attrib_name,
+	const h5part_float64_t *attrib_value,
+	const h5part_int64_t *attrib_nelem,
+	const int l_attrib_name
 	) {
 
 	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
-	char *name2 = _H5Part_strdupfor2c ( name, l_name );
+	char *attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
 	
 	h5part_int64_t herr = H5PartWriteFileAttrib (
-		filehandle, name2, H5T_NATIVE_DOUBLE, attrib, *nelem );
+		filehandle,
+		attrib_name2, H5T_NATIVE_DOUBLE, attrib_value, *attrib_nelem );
 
-	free ( name2 );
+	free ( attrib_name2 );
 	return herr;
 }
 
 h5part_int64_t
 h5pt_writefileattrib_i8 (
 	const h5part_int64_t *f,
-	const char *name,
-	const void *attrib,
-	const h5part_int64_t *nelem,
-	const int l_name
+	const char *attrib_name,
+	const h5part_int64_t *attrib_value,
+	const h5part_int64_t *attrib_nelem,
+	const int l_attrib_name
 	) {
 
 	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
-	char *name2 = _H5Part_strdupfor2c ( name, l_name );
+	char *attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
 	
 	h5part_int64_t herr = H5PartWriteFileAttrib (
-		filehandle, name2, H5T_NATIVE_INT64, attrib, *nelem );
+		filehandle,
+		attrib_name2, H5T_NATIVE_INT64, attrib_value, *attrib_nelem );
 
-	free ( name2 );
+	free ( attrib_name2 );
 	return herr;
 }
 
@@ -542,40 +544,42 @@ h5pt_writefileattrib_string (
 h5part_int64_t
 h5pt_writestepattrib_r8 ( 
 	const h5part_int64_t *f,
-	const char *name,
-	const void *attrib,
-	const h5part_float64_t *nelem,
-	const int l_name
+	const char *attrib_name,
+	const h5part_float64_t *attrib_value,
+	const h5part_int64_t *attrib_nelem,
+	const int l_attrib_name
 	) {
 
 	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
-	char *name2 = _H5Part_strdupfor2c ( name, l_name );
+	char *attrib_name2 = _H5Part_strdupfor2c ( attrib_name, l_attrib_name );
 	
 	h5part_int64_t herr = H5PartWriteStepAttrib (
-		filehandle, name2, H5T_NATIVE_DOUBLE, attrib, *nelem );
+		filehandle,
+		attrib_name2, H5T_NATIVE_DOUBLE, attrib_value, *attrib_nelem );
 
-	free ( name2 );
+	free ( attrib_name2 );
 	return herr;
 }
 
 h5part_int64_t
 h5pt_writestepattrib_i8 (
 	const h5part_int64_t *f,
-	const char *name,
-	const void *attrib,
-	const h5part_float64_t *nelem,
-	const int l_name
+	const char *attrib_name,
+	const h5part_int64_t *attrib_value,
+	const h5part_int64_t *attrib_nelem,
+	const int l_attrib_name
 	) {
 
 	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
-	char *name2 = _H5Part_strdupfor2c ( name, l_name );
-	
-	h5part_int64_t herr = H5PartWriteStepAttrib (
-		filehandle, name2, H5T_NATIVE_INT64, attrib, *nelem );
+	char *attrib_name2 = _H5Part_strdupfor2c ( attrib_name, l_attrib_name );
 
-	free ( name2 );
+	h5part_int64_t herr = H5PartWriteStepAttrib (
+		filehandle,
+		attrib_name2, H5T_NATIVE_INT64, attrib_value, *attrib_nelem );
+
+	free ( attrib_name2 );
 	return herr;
 }
 
