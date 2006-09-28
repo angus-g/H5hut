@@ -128,17 +128,19 @@ H5BlockTestAttributesF.o: H5BlockTestAttributesF.f90
 H5BlockTestAttributesF:	H5BlockTestAttributesF.o
 	$(FC)  -o $@ $< $(H5LIB) -lH5PartF -lH5Part $(LIBS)
 
-
 H5BlockParTestScalarField.o: H5BlockParTestScalarField.c
-	$(CC) $(CFLAGS) $(INC) -g -c $<
 
 H5BlockParTestScalarField: H5BlockParTestScalarField.o
 
+H5BlockParTestScalarFieldF.o: H5BlockParTestScalarFieldF.f90
+
+H5BlockParTestScalarFieldF: H5BlockParTestScalarFieldF.o
+	$(FC)  -o $@ $< $(H5LIB) -lH5PartF -lH5Part $(LIBS)
+
 H5BlockDissolveGhosts.o: H5BlockDissolveGhosts.c
-	$(CC) $(CFLAGS) $(INC) -g -c $<
 
 H5BlockDissolveGhosts: H5BlockDissolveGhosts.o
-	$(CC) -o $@ $< $(H5LIB) $(LIBS)
+
 
 ###############################################################################
 clean:
