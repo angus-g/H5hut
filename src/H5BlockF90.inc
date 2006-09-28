@@ -9,8 +9,9 @@
           INTEGER*8, INTENT(IN) :: k_end
         END FUNCTION
 
-        INTEGER*8 FUNCTION h5bl_get_partition_of_proc ( filehandle, i_start, i_end, j_start, j_end, k_start, k_end )
+        INTEGER*8 FUNCTION h5bl_get_partition_of_proc ( filehandle, proc, i_start, i_end, j_start, j_end, k_start, k_end )
           INTEGER*8, INTENT(IN) :: filehandle
+          INTEGER*8, INTENT(OUT) :: proc
           INTEGER*8, INTENT(OUT) :: i_start
           INTEGER*8, INTENT(OUT) :: i_end
           INTEGER*8, INTENT(OUT) :: j_start
@@ -19,8 +20,9 @@
           INTEGER*8, INTENT(OUT) :: k_end
         END FUNCTION
 
-        INTEGER*8 FUNCTION h5bl_get_reduced_partition_of_proc ( filehandle, i_start, i_end, j_start, j_end, k_start, k_end )
+        INTEGER*8 FUNCTION h5bl_get_reduced_partition_of_proc ( filehandle, proc, i_start, i_end, j_start, j_end, k_start, k_end )
           INTEGER*8, INTENT(IN) :: filehandle
+          INTEGER*8, INTENT(OUT) :: proc
           INTEGER*8, INTENT(OUT) :: i_start
           INTEGER*8, INTENT(OUT) :: i_end
           INTEGER*8, INTENT(OUT) :: j_start
