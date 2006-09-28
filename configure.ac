@@ -357,6 +357,7 @@ if test "X$USE_PARALLEL" = "Xyes"; then
  
         MTARGET="${MTARGET} libpH5PartF.a"
         TTARGET="${TTARGET} H5testFpar"
+	TTARGET="${TTARGET} H5BlockParTestScalarFieldF"
     else
         echo "PARALLEL ENABLED WITHOUT FORTRAN"
     fi
