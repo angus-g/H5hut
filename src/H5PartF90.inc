@@ -39,7 +39,7 @@
         INTEGER*8 FUNCTION h5pt_writedata_r8 ( filehandle, name, data )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name          ! The name of the data we are writing
-          REAL*8, INTENT(IN) :: data(:)                 ! The dataarray to write.  The number of
+          REAL*8, INTENT(IN) :: data(*)                 ! The dataarray to write.  The number of
                                                         ! elements is presumably set earlier with
                                                         ! h5pt_setnpoints(f,npoints)
         END FUNCTION
@@ -47,7 +47,7 @@
         INTEGER*8 FUNCTION h5pt_writedata_i8 ( filehandle, name, data )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name          ! The name of the data we are writing
-          INTEGER*8, INTENT(IN) :: data(:)
+          INTEGER*8, INTENT(IN) :: data(*)
         END FUNCTION
 
 !==============Reading Data Characteristics============
@@ -100,7 +100,7 @@
         INTEGER*8 FUNCTION h5pt_readdata_r8 (filehandle,name,data)
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name          ! The name of the data we are writing
-          REAL*8, INTENT(OUT) :: data(:)                ! The dataarray to read. Number of points
+          REAL*8, INTENT(OUT) :: data(*)                ! The dataarray to read. Number of points
                                                         ! read is either the number within the view set
                                                         ! by h5pt_setview() or the default (the total
                                                         ! number of particles in the file.
@@ -109,7 +109,7 @@
         INTEGER*8 FUNCTION h5pt_readdata_i8 (filehandle,name,data)
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name          ! The name of the data we are writing
-          INTEGER*8, INTENT(OUT) :: data(:)             ! The dataarray to read. Number of points
+          INTEGER*8, INTENT(OUT) :: data(*)             ! The dataarray to read. Number of points
                                                         ! read is either the number within the view set
                                                         ! by h5pt_setview() or the default (the total
                                                         ! number of particles in the file.
@@ -121,14 +121,14 @@
         INTEGER*8 FUNCTION h5pt_writefileattrib_r8 (filehandle,attrib_name,attrib_value,attrib_nelem)
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! The name of the attribute
-          REAL*8, INTENT(IN) :: attrib_value(:)         ! The array of data to write into the attribute
+          REAL*8, INTENT(IN) :: attrib_value(*)         ! The array of data to write into the attribute
           INTEGER*8, INTENT(IN) :: attrib_nelem         ! Number of elements in the attrib array
         END FUNCTION
 
         INTEGER*8 FUNCTION h5pt_writefileattrib_i8 (filehandle,attrib_name,attrib_value,attrib_nelem)
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! The name of the attribute
-          INTEGER*8, INTENT(IN) :: attrib_value(:)      ! The array of data to write into the attribute
+          INTEGER*8, INTENT(IN) :: attrib_value(*)      ! The array of data to write into the attribute
           INTEGER*8, INTENT(IN) :: attrib_nelem         ! Number of elements in the attrib array
         END FUNCTION
       
@@ -141,14 +141,14 @@
         INTEGER*8 FUNCTION h5pt_writestepattrib_r8 (filehandle,attrib_name,attrib_value,attrib_nelem)
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! The name of the attribute
-          REAL*8, INTENT(IN) :: attrib_value(:)         ! The array of data to write into the attribute
+          REAL*8, INTENT(IN) :: attrib_value(*)         ! The array of data to write into the attribute
           INTEGER*8, INTENT(IN) :: attrib_nelem         ! Number of elements in the attrib array
         END FUNCTION
          
         INTEGER*8 FUNCTION h5pt_writestepattrib_i8 (filehandle,attrib_name,attrib_value,attrib_nelem)
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! The name of the attribute
-          INTEGER*8, INTENT(IN) :: attrib_value(:)      ! The array of data to write into the attribute
+          INTEGER*8, INTENT(IN) :: attrib_value(*)      ! The array of data to write into the attribute
           INTEGER*8, INTENT(IN) :: attrib_nelem         ! Number of elements in the attrib array
         END FUNCTION
 
@@ -184,25 +184,25 @@
         INTEGER*8 FUNCTION h5pt_readstepattrib_i8 ( filehandle, attrib_name, attrib_value )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! name of the attribute to read
-          INTEGER*8, INTENT(OUT) :: attrib_value(:)     ! the attribute data will be read into this array
+          INTEGER*8, INTENT(OUT) :: attrib_value(*)     ! the attribute data will be read into this array
         END FUNCTION
 
         INTEGER*8 FUNCTION h5pt_readstepattrib_r8 ( filehandle, attrib_name, attrib_value )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! name of the attribute to read
-          REAL*8, INTENT(OUT) :: attrib_value(:)        ! the attribute data will be read into this array
+          REAL*8, INTENT(OUT) :: attrib_value(*)        ! the attribute data will be read into this array
         END FUNCTION
 
         INTEGER*8 FUNCTION h5pt_readfileattrib_i8 (filehandle, attrib_name, attrib_value )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! name of the attribute to read
-          INTEGER*8, INTENT(OUT) :: attrib_value(:)     ! the attribute data will be read into this array
+          INTEGER*8, INTENT(OUT) :: attrib_value(*)     ! the attribute data will be read into this array
         END FUNCTION
       
         INTEGER*8 FUNCTION h5pt_readfileattrib_r8 (filehandle, attrib_name, attrib_value )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! name of the attribute to read
-          REAL*8, INTENT(OUT) :: attrib_value(:)        ! the attribute data will be read into this array
+          REAL*8, INTENT(OUT) :: attrib_value(*)        ! the attribute data will be read into this array
         END FUNCTION
 
 
