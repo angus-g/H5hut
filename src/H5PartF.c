@@ -783,7 +783,7 @@ h5pt_readfileattrib_string (
 
 h5part_int64_t
 h5pt_set_verbosity_level (
-	const h5part_int64_t level
+	const h5part_int64_t *level
 	) {
-	return H5PartSetVerbosityLevel ( level );
+	return H5PartSetVerbosityLevel ( *level );
 }
