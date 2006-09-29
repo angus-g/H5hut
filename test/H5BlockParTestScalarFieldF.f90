@@ -440,7 +440,7 @@ PROGRAM H5BlockParTestScalarFieldF
               rj = rj - j_start;
               rk = rk - k_start;
 
-              value = (k-1) + 1000*(j-1) + 100000*(i-1)
+              value = (k-1) + 1000*(j-1) + 100000*(i-1) + 10000000*myproc
               if ( data(i,j,k) /= value ) THEN
                  PRINT *, "data(",i,",",j,",",k,") = ",data(i,j,k), " /= ",value
               END IF
