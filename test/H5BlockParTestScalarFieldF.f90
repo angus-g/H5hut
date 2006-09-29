@@ -25,6 +25,8 @@ PROGRAM H5BlockParTestScalarFieldF
    INTEGER*8 :: layout32 (6,32)
    INTEGER*8 :: layout32g(6,32)
 
+   INTEGER*8 :: IARGC
+
    DATA layout1  / 1,64,  1,64,   1,512 /
    DATA layout8  / 1,64,  1,64,   1, 64, &
  		   1,64,  1,64,  65,128, &
