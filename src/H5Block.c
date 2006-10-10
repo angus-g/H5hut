@@ -544,6 +544,18 @@ _dissolve_ghostzones (
 	}
 	free ( p_begin );
 
+	_H5Part_print_debug ("Layout defined by user:");
+	for ( proc_p = 0, p = b->user_layout;
+	      proc_p < f->nprocs;
+	      proc_p++, p++ ) {
+		_H5Part_print_debug (
+			"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
+			f->myproc, proc_p,
+			(long long)p->i_start, (long long)p->i_end,
+			(long long)p->j_start, (long long)p->j_end,
+			(long long)p->k_start, (long long)p->k_end );
+	}
+
 	_H5Part_print_debug ("Layout after dissolving ghost-zones:");
 	for ( proc_p = 0, p = b->write_layout;
 	      proc_p < f->nprocs;
