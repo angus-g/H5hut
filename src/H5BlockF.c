@@ -107,10 +107,20 @@ h5bl_get_partition_of_proc (
 
 	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
-	return H5Block3dGetPartitionOfProc (
+	h5part_int64_t herr = H5Block3dGetPartitionOfProc (
 		filehandle,
 		*proc,
 		i_start, i_end, j_start, j_end, k_start, k_end );
+	if ( herr < 0 ) return herr;
+
+	(*i_start)++;
+	(*i_end)++;
+	(*j_start)++;
+	(*j_end)++;
+	(*k_start)++;
+	(*k_end)++;
+
+	return H5PART_SUCCESS;
 }
 
 h5part_int64_t
