@@ -25,8 +25,6 @@ PROGRAM H5BlockParTestScalarFieldF
    INTEGER*8 :: layout32 (6,32)
    INTEGER*8 :: layout32g(6,32)
 
-   INTEGER*8 :: IARGC
-
    DATA layout1  / 1,64,  1,64,   1,512 /
    DATA layout8  / 1,64,  1,64,   1, 64, &
  		   1,64,  1,64,  65,128, &
@@ -136,7 +134,7 @@ PROGRAM H5BlockParTestScalarFieldF
 		   1,33,  1,33, 320,385, &
 		   1,33, 32,64, 320,385, &
 		  32,64,  1,33, 320,385, &
-		  32,64, 32,64, 330,385, &
+		  32,64, 32,64, 320,385, &
 		   1,33,  1,33, 384,449, &
 		   1,33, 32,64, 384,449, &
 		  32,64,  1,33, 384,449, &
@@ -205,7 +203,7 @@ PROGRAM H5BlockParTestScalarFieldF
 
    END SELECT
 
-   h5pt_err = h5pt_set_verbosity_level ( 3_8 )
+   h5pt_err = h5pt_set_verbosity_level ( 4_8 )
 
    IF ( opt_write == 1 ) THEN
       h5pt_err = write_file ( fname, myproc, comm, layout )
@@ -240,7 +238,7 @@ PROGRAM H5BlockParTestScalarFieldF
      INTEGER*8 :: file
      INTEGER*8 :: timestep = 1
 
-     PRINT *, "PROC[",myproc,"]: Open file ",fname," for writing ..."
+     PRINT "('PROC[',I,']: Open file ',A,' for writing ...')", myproc, fname
 
      file = h5pt_openw_par ( fname, comm )
      if ( file == 0 ) THEN
@@ -304,7 +302,7 @@ PROGRAM H5BlockParTestScalarFieldF
      j_dims  = j_end - j_start + 1
      k_dims  = k_end - k_start + 1
 
-     PRINT *, "dims: (", i_dims, j_dims, k_dims, ")"
+     PRINT "('dims: (',I2,I2,I2,')')", i_dims, j_dims, k_dims
      ALLOCATE ( data (i_dims,j_dims, k_dims) )
 
      PRINT *, "Defining Layout ..."
@@ -385,12 +383,12 @@ PROGRAM H5BlockParTestScalarFieldF
      INTEGER*8, INTENT(IN) ::        layout(6)
 
      INTEGER*8 :: i, j, k
-     INTEGER*8 :: i_start
-     INTEGER*8 :: i_end
-     INTEGER*8 :: j_start
-     INTEGER*8 :: j_end
-     INTEGER*8 :: k_start
-     INTEGER*8 :: k_end
+     INTEGER*8 :: i_start, i_start2
+     INTEGER*8 :: i_end, i_end2
+     INTEGER*8 :: j_start, j_start2
+     INTEGER*8 :: j_end, j_end2
+     INTEGER*8 :: k_start, k_start2
+     INTEGER*8 :: k_end, k_end2
      INTEGER*8 :: i_dims
      INTEGER*8 :: j_dims
      INTEGER*8 :: k_dims
@@ -410,7 +408,7 @@ PROGRAM H5BlockParTestScalarFieldF
      j_dims  = j_end - j_start + 1
      k_dims  = k_end - k_start + 1
 
-     PRINT *, "dims: (", i_dims, j_dims, k_dims, ")"
+     PRINT "('dims: (',I3,',',I3,',',I3,')')", i_dims, j_dims, k_dims
      ALLOCATE ( data (i_dims,j_dims, k_dims) )
 
      PRINT *, "Defining Layout ..."
@@ -430,21 +428,24 @@ PROGRAM H5BlockParTestScalarFieldF
      DO i = 1, i_dims
         DO j = 1, j_dims
            DO k = 1, k_dims
-              ri = i + layout(1)
-              rj = j + layout(3)
-              rk = k + layout(5)
+              ri = i + i_start - 1 
+              rj = j + j_start - 1
+              rk = k + k_start - 1
 
               proc = h5bl_get_proc_of ( file, ri, rj, rk )
+              h5pt_err = h5bl_get_partition_of_proc ( file, proc, i_start2, i_end2, j_start2, j_end2, k_start2, k_end2 )
 
-              h5pt_err = h5bl_get_reduced_partition_of_proc ( file, proc, i_start, i_end, j_start, j_end, k_start, k_end )
+              ri = ri - i_start2
+              rj = rj - j_start2
+              rk = rk - k_start2
 
-              ri = ri - i_start;
-              rj = rj - j_start;
-              rk = rk - k_start;
-
-              value = (k-1) + 1000*(j-1) + 100000*(i-1) + 10000000*myproc
+              value = rk + 1000*rj + 100000*ri + 10000000*proc
               if ( data(i,j,k) /= value ) THEN
-                 PRINT *, "data(",i,",",j,",",k,") = ",data(i,j,k), " /= ",value
+                 PRINT "('data(',I3,',',I3,',',I3,') = ',F,' /= ',F)", i, j, k, data(i,j,k), value
+                 PRINT "('proc: ', I2)", proc
+                 PRINT "('i_start: ', I3, '  i_end: ', I3)", i_start, i_end
+                 PRINT "('j_start: ', I3, '  j_end: ', I3)", j_start, j_end
+                 PRINT "('k_start: ', I3, '  k_end: ', I3)", k_start, k_end
               END IF
            END DO
         END DO
