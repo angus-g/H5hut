@@ -41,11 +41,20 @@ bin_PROGRAMS = @TTARGET@
 bin_SCRIPTS =
 #bin_SCRIPTS = JAC_H5PartTestP_script.scr JAC_H5testFpar_script.scr JAC_RUN_ALL_script.scr
 
+
 # Listing of all programs that maybe built. (Has to know statically...)
 EXTRA_PROGRAMS =
 
 # Extra files that I wish to include in the dist tar ball.
-EXTRA_DIST = Bench.c H5ecloudExample.cc H5ParallelTest.cc H5test.cc $(bin_SCRIPTS)
+EXTRA_DIST = 	Bench.c \
+		H5ParallelTest.cc \
+		H5PartTest.cc H5PartTestParallel.cc \
+		H5PartAndreasTest.cc \
+		H5test.cc H5testF.f \
+		H5testFpar.f90 \
+		H5BlockParTestScalarField.c H5BlockParTestScalarFieldF.f90 \
+		H5BlockTestAttributes.c H5BlockTestAttributesF.f90 \
+		$(bin_SCRIPTS)
 
 # Specific building instruction (What compilers to use...)
 # ------------ Build Tests ------------
