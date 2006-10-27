@@ -2,6 +2,7 @@
 # Top level Makefile.am
 
 SUBDIRS = \
+	doc \
 	src \
 	test \
 	tools
