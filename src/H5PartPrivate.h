@@ -1,7 +1,7 @@
 #ifndef __H5PARTPRIVATE_H
 #define __H5PARTPRIVATE_H
 
-#define H5PART_PARTICLES_GROUP	"Particles"
+#define H5PART_GROUPNAME_STEP	"Step"
 
 /*!
   The functions declared here are not part of the API, but may be used
