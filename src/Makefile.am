@@ -28,7 +28,7 @@ HDFLIB = -L$(HDF5ROOT)/lib -lhdf5 -lz $(SZLIB) @LDFLAGS@
 SZLIB = @SZLIB@
 
 # Extra files that I wish to include in the dist tar ball.
-EXTRA_DIST = H5Part.cc H5Part++.cc H5Part++.hh TestUnderscoreC.c TestUnderscore.f COPYRIGHT
+EXTRA_DIST = TestUnderscoreC.c TestUnderscore.f $(EXTRA_HEADERS)
 
 # Files that I don't want to include in the dist tar ball
 nodist_include_HEADERS = @UNDERSCORE_H@
@@ -40,15 +40,14 @@ lib_LIBRARIES = @MTARGET@
 EXTRA_LIBRARIES = libH5Part.a libH5PartF.a
 
 # Header files that I wish to install in $(prefix)/include
-include_HEADERS = H5Part.inc H5Part.h @UNDERSCORE_H@
+include_HEADERS = H5Part.h H5PartTypes.h H5PartErrors.h H5Block.h H5BlockTypes.h H5BlockErrors.h H5Part.inc H5PartF90.inc H5BlockF90.inc @UNDERSCORE_H@
 
 # Listing of all possible headers that I may include
-EXTRA_HEADERS = H5Part.inc H5PartF90.inc H5BlockF90.inc H5Part.h Underscore.h
+EXTRA_HEADERS = H5PartPrivate.h H5BlockPrivate.h
 
 # Listing of sources
 libH5Part_a_SOURCES = H5Part.c H5Block.c
-
-libH5PartF_a_SOURCES = H5Part.c H5PartF.c H5Block.c H5BlockF.c
+libH5PartF_a_SOURCES = H5PartF.c H5BlockF.c
 
 
 H5Part.inc:	H5PartF90.inc
