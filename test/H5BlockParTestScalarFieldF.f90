@@ -5,6 +5,11 @@ PROGRAM H5BlockParTestScalarFieldF
    INCLUDE 'H5PartF90.inc'
    INCLUDE 'H5BlockF90.inc'
 
+   INTERFACE
+      INTEGER FUNCTION IARGC ()
+      END FUNCTION IARGC
+   END INTERFACE
+
    INTEGER :: myproc = 0
    INTEGER :: nprocs = 1
    INTEGER :: comm = MPI_COMM_WORLD
