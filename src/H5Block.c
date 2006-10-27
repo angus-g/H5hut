@@ -1,5 +1,17 @@
 /*!
-  \defgroup h5block_api H5Block API
+  \defgroup h5block_c_api H5Block C API
+*/
+
+/*!
+  \internal
+
+  \defgroup h5block_kernel H5Block Kernel
+*/
+
+/*!
+  \internal
+
+  \defgroup h5block_private H5Block Private
 */
 
 /*!
@@ -40,14 +52,33 @@
 #include "H5BlockPrivate.h"
 #include "H5BlockErrors.h"
 
+#define INIT( f ) { \
+	h5part_int64_t herr = _init ( f ); \
+	if ( herr < 0 ) return herr; \
+}
+
+/********************** declarations *****************************************/
+
+static h5part_int64_t
+_close (
+	H5PartFile *f
+	);
+
+/********************** misc *************************************************/
 
 /*!
-  Check whether \c f points to a valid file handle
+  \ingroup h5block_private
+
+  \internal
+
+  Check whether \c f points to a valid file handle.
+
+  \return	H5PART_SUCCESS or error code
 */
 
 static h5part_int64_t
 _file_is_valid (
-	const H5PartFile *f
+	const H5PartFile *f	/*!< IN: file handle */
 	) {
 
 	if ( f == NULL )
@@ -62,20 +93,18 @@ _file_is_valid (
 
 /********************** file open and close **********************************/
 
-static h5part_int64_t
-_close (
-	H5PartFile *f
-	);
+/*!
+  \ingroup h5block_private
 
+  \internal
 
-#define INIT( f ) { \
-	h5part_int64_t herr = _init ( f ); \
-	if ( herr < 0 ) return herr; \
-}
+  Initialize H5Block internal structure.
 
+  \return	H5PART_SUCCESS or error code
+*/
 static h5part_int64_t
 _init (
-	H5PartFile *f
+	H5PartFile *f	/*!< IN: file handle */
 	) {
 	h5part_int64_t herr;
 	struct H5BlockStruct *b; 
@@ -117,6 +146,16 @@ _init (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+  De-initialize H5Block internal structure.  Open HDF5 objects are 
+  closed and allocated memory freed.
+
+  \return	H5PART_SUCCESS or error code
+*/
 static h5part_int64_t
 _close (
 	H5PartFile *f
@@ -166,9 +205,13 @@ _close (
 */
 
 /*!
-  Normalize partition
+  \ingroup h5block_private
 
-  "Normal" means that the start coordinates are less or equal the
+  \internal
+
+  Normalize partition.
+
+  \e means that the start coordinates are less or equal the
   end coordinates.
 */
 static void
@@ -195,10 +238,16 @@ _normalize_partition (
 }
 
 /*!
+  \ingroup h5block_private
+
+  \internal
+
   Gather layout to all processors
+
+  \return	H5PART_SUCCESS or error code
 */
 #ifdef PARALLEL_IO
-h5part_int64_t
+static h5part_int64_t
 _allgather (
 	const H5PartFile *f
 	) {
@@ -217,7 +266,7 @@ _allgather (
 	return H5PART_SUCCESS;
 }
 #else
-h5part_int64_t
+static h5part_int64_t
 _allgather (
 	const H5PartFile *f
 	) {
@@ -226,6 +275,14 @@ _allgather (
 }
 #endif
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+  Get dimension sizes of block.  These informations are stored inside the
+  block structure.
+*/
 static void
 _get_dimension_sizes (
 	H5PartFile *f
@@ -258,6 +315,15 @@ _get_dimension_sizes (
 		          &&   (q->k_end >= p->k_start) )
 */
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+  Check whether to partition have a common ghost-zone.
+
+  \return value != \c 0 if yes otherwise \c 0
+*/
 static int
 _have_ghostzone (
 	const struct H5BlockPartition *p,
@@ -266,6 +332,15 @@ _have_ghostzone (
 	return ( ! ( _NO_GHOSTZONE ( p, q ) || _NO_GHOSTZONE ( q, p ) ) );
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+  Calculate volume of partition.
+
+  \return volume
+*/
 static h5part_int64_t
 _volume_of_partition (
 	const struct H5BlockPartition *p
@@ -279,10 +354,19 @@ _volume_of_partition (
 #define MIN( x, y ) ( (x) <= (y) ? (x) : (y) )  
 #define MAX( x, y ) ( (x) >= (y) ? (x) : (y) )  
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+  Calc volume of ghost-zone.
+
+  \return volume
+*/
 static h5part_int64_t
 _volume_of_ghostzone (
-	const struct H5BlockPartition *p,
-	const struct H5BlockPartition *q
+	const struct H5BlockPartition *p, /*!< pointer to first partition */
+	const struct H5BlockPartition *q  /*!< pointer to second partition */
 	) {
 
 	h5part_int64_t dx = MIN ( p->i_end, q->i_end )
@@ -295,10 +379,21 @@ _volume_of_ghostzone (
 	return dx * dy * dz;
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+  Dissolve ghost-zone by moving the X coordinates.  Nothing will be changed
+  if \c { p->i_start <= q->i_end <= p->i_end }.  In this case \c -1 will be
+  returned.
+
+  \return H5PART_SUCCESS or -1
+*/
 static h5part_int64_t
 _dissolve_X_ghostzone (
-	struct H5BlockPartition *p,
-	struct H5BlockPartition *q
+	struct H5BlockPartition *p, /*!< pointer to first partition */
+	struct H5BlockPartition *q /*!< pointer to second partition */
 	) {
 
 	if ( p->i_start > q->i_start )
@@ -312,10 +407,21 @@ _dissolve_X_ghostzone (
 	return 0;
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+  Dissolve ghost-zone by moving the Y coordinates.  Nothing will be changed
+  if \c { p->j_start <= q->j_end <= p->j_end }.  In this case \c -1 will be
+  returned.
+
+  \return H5PART_SUCCESS or -1
+*/
 static h5part_int64_t
 _dissolve_Y_ghostzone (
-	struct H5BlockPartition *p,
-	struct H5BlockPartition *q
+	struct H5BlockPartition *p, /*!< pointer to first partition */
+	struct H5BlockPartition *q /*!< pointer to second partition */
 	) {
 
 	if ( p->j_start > q->j_start )
@@ -329,10 +435,21 @@ _dissolve_Y_ghostzone (
 	return 0;
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+  Dissolve ghost-zone by moving the Z coordinates.  Nothing will be changed
+  if \c { p->k_start <= q->k_end <= p->k_end }.  In this case \c -1 will be
+  returned.
+
+  \return H5PART_SUCCESS or -1
+*/
 static h5part_int64_t
 _dissolve_Z_ghostzone (
-	struct H5BlockPartition *p,
-	struct H5BlockPartition *q
+	struct H5BlockPartition *p,/*!< pointer to first partition	*/
+	struct H5BlockPartition *q /*!< pointer to second partition	*/
 	) {
 
 	if ( p->k_start > q->k_start )
@@ -346,10 +463,24 @@ _dissolve_Z_ghostzone (
 	return 0;
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+  Dissolve ghost-zone for partitions \p and \q.
+
+  Dissolving is done by moving either the X, Y or Z plane.  We never move
+  more than one plane per partition.  Thus we always have three possibilities
+  to dissolve the ghost-zone.  The "best" is the one with the largest
+  remaining volume of the partitions.
+
+  \return H5PART_SUCCESS or error code.
+*/
 static h5part_int64_t
 _dissolve_ghostzone (
-	struct H5BlockPartition *p,
-	struct H5BlockPartition *q
+	struct H5BlockPartition *p,/*!< pointer to first partition	*/
+	struct H5BlockPartition *q /*!< pointer to second partition	*/
 	) {
 
 	struct H5BlockPartition p_;
@@ -403,67 +534,28 @@ _dissolve_ghostzone (
 	return H5PART_SUCCESS;
 }
 
-#if OLD_DISSOLVE_GHOSTZONES
-static h5part_int64_t
-_dissolve_ghostzones (
-	H5PartFile *f
-	) {
+/*!
+  \ingroup h5block_private
 
-	struct H5BlockStruct *b = f->block;
-	struct H5BlockPartition *p, *max_p = NULL;
-	struct H5BlockPartition *q, *max_q = NULL;
-	int proc_p, proc_q;
-	h5part_int64_t vol, max_vol;
-	int max_proc_p, max_proc_q;
+  \internal
 
-	memcpy ( b->write_layout, b->user_layout,
-		 f->nprocs * sizeof (*f->block->user_layout) );
+  Dissolve all ghost-zones.
 
-	while ( 1 ) {
-		max_vol = 0;
-		for ( proc_p = 0, p = b->write_layout;
-		      proc_p < f->nprocs-1;
-		      proc_p++, p++ ) {
-			for ( proc_q = proc_p+1, q = &b->write_layout[proc_q];
-			      proc_q < f->nprocs;
-			      proc_q++, q++ ) {
+  Ghost-zone are dissolved in the order of their magnitude, largest first.
 
-				if ( ! _have_ghostzone ( p, q ) )
-					continue;
-				vol = _volume_of_ghostzone ( p, q );
-				if ( vol > max_vol ) {
-					max_vol = vol;
-					max_proc_p = proc_p;
-					max_proc_q = proc_q;
-					max_p = p;
-					max_q = q;
-				}
-			}
-		}
-		if ( max_vol == 0 )
-			break;
+  \note
+  Dissolving ghost-zones automaticaly is not trivial!  The implemented 
+  algorithmn garanties, that there are no ghost-zones left and that we
+  have the same result on all processors.
+  But there may be zones which are not assigned to a partition any more.
+  May be we should check this and return an error in this case.  Then
+  the user have to decide to continue or to abort.
 
-		_dissolve_ghostzone ( max_p, max_q );
-	}
+  \b {Error Codes}
+  \b H5PART_NOMEM_ERR
 
-	_H5Part_print_debug ("PROC[%d]: Layout after dissolving ghost-zones:",
-			     f->myproc );
-	for ( proc_p = 0, p = b->write_layout;
-	      proc_p < f->nprocs;
-	      proc_p++, p++ ) {
-		_H5Part_print_debug (
-			"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
-			f->myproc, proc_p,
-			(long long)p->i_start,
-			(long long)p->i_end,
-			(long long)p->j_start,
-			(long long)p->j_end,
-			(long long)p->k_start,
-			(long long)p->k_end );
-	}
-	return H5PART_SUCCESS;
-}
-#else
+  \return H5PART_SUCCESS or error code.
+*/
 static h5part_int64_t
 _dissolve_ghostzones (
 	H5PartFile *f
@@ -569,8 +661,13 @@ _dissolve_ghostzones (
 	}
 	return H5PART_SUCCESS;
 }
-#endif
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 h5part_int64_t
 _release_hyperslab (
 	H5PartFile *f
@@ -596,26 +693,24 @@ _release_hyperslab (
 }
 
 /*!
-  \ingroup h5block_api
-*/
-/*!
+  \ingroup h5block_c_api
+
   Define the field layout (FL) given the dense index space at the actual
   time step.
 
-  \return \c H5PART_SUCCESS or error code
-
-  \note
-  This defines  \f$ \Omega \f$ and the view for HDF5	
+  \return \c H5PART_SUCCESS on success<br>
+  \c H5PART_ERR_MPI<br>
+  \c H5PART_ERR_HDF5
 */
 h5part_int64_t
 H5BlockDefine3DFieldLayout(
-	H5PartFile *f,
- 	const h5part_int64_t i_start,
-	const h5part_int64_t i_end,
-	const h5part_int64_t j_start,
-	const h5part_int64_t j_end,
-	const h5part_int64_t k_start,
-	const h5part_int64_t k_end
+	H5PartFile *f,			/*!< IN: File handle		*/
+	const h5part_int64_t i_start,	/*!< OUT: start index of \c i	*/ 
+	const h5part_int64_t i_end,	/*!< OUT: end index of \c i	*/  
+	const h5part_int64_t j_start,	/*!< OUT: start index of \c j	*/ 
+	const h5part_int64_t j_end,	/*!< OUT: end index of \c j	*/ 
+	const h5part_int64_t k_start,	/*!< OUT: start index of \c j	*/ 
+	const h5part_int64_t k_end	/*!< OUT: end index of \c j	*/
 	) {
 
 	SET_FNAME ( "H5BlockDefine3DFieldLayout" );
@@ -649,25 +744,32 @@ H5BlockDefine3DFieldLayout(
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
+
+  Return partition of processor \c proc as specified with
+  \c H5BlockDefine3dLayout().
+
+  \return \c H5PART_SUCCESS on success.<br>
+	  \c H5PART_ERR_INVAL if proc is invalid.
 */
 h5part_int64_t
 H5Block3dGetPartitionOfProc (
-	H5PartFile *f,
-	h5part_int64_t proc,
-	h5part_int64_t *i_start, 
-	h5part_int64_t *i_end,
-	h5part_int64_t *j_start,
-	h5part_int64_t *j_end,
-	h5part_int64_t *k_start,
-	h5part_int64_t *k_end ) {
+	H5PartFile *f,		/*!< IN: File handle			*/
+	const h5part_int64_t proc,/*!< IN: Processor to get partition from */
+	h5part_int64_t *i_start,/*!< OUT: start index of \c i		*/ 
+	h5part_int64_t *i_end,	/*!< OUT: end index of \c i		*/  
+	h5part_int64_t *j_start,/*!< OUT: start index of \c j		*/ 
+	h5part_int64_t *j_end,	/*!< OUT: end index of \c j		*/ 
+	h5part_int64_t *k_start,/*!< OUT: start index of \c k		*/ 
+	h5part_int64_t *k_end	/*!< OUT: end index of \c k		*/ 
+	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
 	INIT ( f );
 	CHECK_LAYOUT ( f );
 
 	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
-		return -1;
+		return H5PART_ERR_INVAL;
 
 	struct H5BlockPartition *p = &f->block->user_layout[(size_t)proc];
 
@@ -682,18 +784,24 @@ H5Block3dGetPartitionOfProc (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
+
+  Return reduced (ghost-zone free) partition of processor \c proc
+  as specified with \c H5BlockDefine3dLayout().
+
+  \return \c H5PART_SUCCESS on success.<br>
+	  \c H5PART_ERR_INVAL if proc is invalid.
 */
 h5part_int64_t
 H5Block3dGetReducedPartitionOfProc (
-	H5PartFile *f,
-	h5part_int64_t proc,
-	h5part_int64_t *i_start, 
-	h5part_int64_t *i_end,
-	h5part_int64_t *j_start,
-	h5part_int64_t *j_end,
-	h5part_int64_t *k_start,
-	h5part_int64_t *k_end
+	H5PartFile *f,		/*!< IN: File handle */
+	h5part_int64_t proc,	/*!< IN: Processor to get partition from */
+	h5part_int64_t *i_start,/*!< OUT: start index of \c i */ 
+	h5part_int64_t *i_end,	/*!< OUT: end index of \c i */  
+	h5part_int64_t *j_start,/*!< OUT: start index of \c j */ 
+	h5part_int64_t *j_end,	/*!< OUT: end index of \c j */ 
+	h5part_int64_t *k_start,/*!< OUT: start index of \c j */ 
+	h5part_int64_t *k_end	/*!< OUT: end index of \c j */ 
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
@@ -717,7 +825,7 @@ H5Block3dGetReducedPartitionOfProc (
 
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5Block3dGetProcOf (
@@ -746,6 +854,12 @@ H5Block3dGetProcOf (
 
 /********************** helper functions for reading and writing *************/
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 static h5part_int64_t
 _open_block_group (
 	const H5PartFile *f
@@ -761,8 +875,8 @@ _open_block_group (
 	}
 
 	if ( b->blockgroup < 0 ) {
-		herr = H5Gopen ( f->timegroup, H5BLOCK_GROUP_NAME );
-		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( H5BLOCK_GROUP_NAME );
+		herr = H5Gopen ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK );
+		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 		b->blockgroup = herr;
 	}
 	b->timestep = f->timestep;
@@ -772,6 +886,12 @@ _open_block_group (
 
 /********************** functions for reading ********************************/
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 static h5part_int64_t
 _have_object (
 	const hid_t id,
@@ -780,6 +900,12 @@ _have_object (
 	return (H5Gget_objinfo( id, name, 1, NULL ) >= 0 ? 1 : 0);
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 static h5part_int64_t
 _open_field_group (
 	H5PartFile *f,
@@ -803,6 +929,12 @@ _open_field_group (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 h5part_int64_t
 _close_field_group (
 	H5PartFile *f
@@ -814,6 +946,12 @@ _close_field_group (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 static h5part_int64_t
 _select_hyperslab_for_reading (
 	H5PartFile *f,
@@ -895,6 +1033,12 @@ _select_hyperslab_for_reading (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 h5part_int64_t
 _read_data (
 	H5PartFile *f,
@@ -926,7 +1070,7 @@ _read_data (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5Block3dReadScalarField (
@@ -953,7 +1097,7 @@ H5Block3dReadScalarField (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5Block3dRead3dVectorField (
@@ -987,6 +1131,12 @@ H5Block3dRead3dVectorField (
 
 /********************** functions for writing ********************************/
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 static h5part_int64_t
 _select_hyperslab_for_writing (
 	H5PartFile *f
@@ -1096,7 +1246,12 @@ _select_hyperslab_for_writing (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_private
 
+  \internal
+
+*/
 static h5part_int64_t
 _create_block_group (
 	const H5PartFile *f
@@ -1111,13 +1266,19 @@ _create_block_group (
 		f->block->blockgroup = -1;
 	}
 
-	herr = H5Gcreate ( f->timegroup, H5BLOCK_GROUP_NAME, 0 );
-	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( H5BLOCK_GROUP_NAME );
+	herr = H5Gcreate ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK, 0 );
+	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 
 	f->block->blockgroup = herr;
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 static h5part_int64_t
 _create_field_group (
 	H5PartFile *f,
@@ -1128,7 +1289,7 @@ _create_field_group (
 	struct H5BlockStruct *b = f->block;
 
 
-	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUP_NAME ) ) {
+	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) ) {
 		herr = _create_block_group ( f );
 	} else {
 		herr = _open_block_group ( f );
@@ -1148,6 +1309,12 @@ _create_field_group (
 	return H5PART_SUCCESS;
 }	
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 h5part_int64_t
 _write_data (
 	H5PartFile *f,
@@ -1183,7 +1350,7 @@ _write_data (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5Block3dWriteScalarField (
@@ -1211,7 +1378,7 @@ H5Block3dWriteScalarField (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 /*!
   Write a 3D real valued vector field using the defined FL for this block
@@ -1252,7 +1419,7 @@ H5Block3dWrite3dVectorField (
 /********************** query information about available fields *************/
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5BlockGetNumFields (
@@ -1263,12 +1430,18 @@ H5BlockGetNumFields (
 	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
-	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUP_NAME ) )
+	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) )
 		return 0;
 
-	return _H5Part_get_num_objects ( f->timegroup, H5BLOCK_GROUP_NAME, H5G_GROUP );
+	return _H5Part_get_num_objects ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK, H5G_GROUP );
 }
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 static h5part_int64_t
 _get_field_info (
 	H5PartFile *f,
@@ -1318,7 +1491,7 @@ _get_field_info (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5BlockGetFieldInfo (
@@ -1337,7 +1510,7 @@ H5BlockGetFieldInfo (
 
 	h5part_int64_t herr = _H5Part_get_object_name (
 		f->timegroup,
-		H5BLOCK_GROUP_NAME,
+		H5BLOCK_GROUPNAME_BLOCK,
 		H5G_GROUP,
 		idx,
 		field_name,
@@ -1349,7 +1522,7 @@ H5BlockGetFieldInfo (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5BlockGetFieldInfoByName (
@@ -1370,6 +1543,12 @@ H5BlockGetFieldInfoByName (
 
 /********************** reading and writing attribute ************************/
 
+/*!
+  \ingroup h5block_private
+
+  \internal
+
+*/
 static h5part_int64_t
 _write_field_attrib (
 	H5PartFile *f,
@@ -1398,7 +1577,7 @@ _write_field_attrib (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5BlockWriteFieldAttrib (
@@ -1423,7 +1602,7 @@ H5BlockWriteFieldAttrib (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5BlockWriteFieldAttribString (
@@ -1446,7 +1625,7 @@ H5BlockWriteFieldAttribString (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5BlockGetNumFieldAttribs (
@@ -1473,7 +1652,7 @@ H5BlockGetNumFieldAttribs (
 
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5BlockGetFieldAttribInfo (
@@ -1508,7 +1687,12 @@ H5BlockGetFieldAttribInfo (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5block_private
 
+  \internal
+
+*/
 static h5part_int64_t
 _read_field_attrib (
 	H5PartFile *f,
@@ -1535,7 +1719,7 @@ _read_field_attrib (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5BlockReadFieldAttrib (
@@ -1554,7 +1738,7 @@ H5BlockReadFieldAttrib (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5Block3dGetFieldOrigin (
@@ -1581,7 +1765,7 @@ H5Block3dGetFieldOrigin (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5Block3dSetFieldOrigin (
@@ -1608,7 +1792,7 @@ H5Block3dSetFieldOrigin (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5Block3dGetFieldSpacing (
@@ -1635,7 +1819,7 @@ H5Block3dGetFieldSpacing (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 h5part_int64_t
 H5Block3dSetFieldSpacing (
@@ -1662,7 +1846,7 @@ H5Block3dSetFieldSpacing (
 }
 
 /*!
-  \ingroup h5block_api
+  \ingroup h5block_c_api
 */
 /*
   Checks whether the current time-step has field data or not.
@@ -1678,7 +1862,7 @@ H5BlockHasFieldData (
 	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
-	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUP_NAME ) ) {
+	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) ) {
 		return H5PART_ERR_NOENTRY;
 	}
 	return H5PART_SUCCESS;
