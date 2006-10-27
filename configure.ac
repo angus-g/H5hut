@@ -1,6 +1,6 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5Part], [Ver.1.0], [vis@hpcrdm.lbl.gov])
+AC_INIT([H5Part], [1.3.1], [vis@hpcrdm.lbl.gov])
 
 
 # Ensure that a recent enough version of Autoconf is being used. 
@@ -19,7 +19,6 @@ AC_CONFIG_HEADER(config.h)
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
 ###############################################################################
 
-
 SAVE_CC=$CC
 SAVE_CXX=$CXX
 SAVE_FC=$FC
@@ -34,7 +33,6 @@ SAVE_FFLAGS=$FFLAGS
 SAVE_MPIROOT=$MPIROOT
 SAVE_HDF5ROOT=$HDF5ROOT
 SAVE_LDFLAGS=$LDFLAGS
-
 
 ###############################################################################
 ############### PATH SERACH FUNCTION - to be used later... ####################
@@ -214,7 +212,7 @@ if test "X$USE_FORTRAN" = "Xyes"; then
    echo "YES, FORTRAN ENABLED"
 
    # Start looking for ifort first
-   AC_PROG_FC(ifort xlf_r pathf90 g95 g90 ftn)
+   AC_PROG_FC(ifort xlf_r pathf90 g95 g90 ftn gfortran)
 
    if test -n "$FC" ; then
       if test "X$FC" = "Xg95"; then
@@ -271,10 +269,10 @@ if test "X$USE_PARALLEL" = "Xyes"; then
         AC_PATH_PROGS([MPICC], [mpicc mpcc_r], [], [$PATH])
         AC_PATH_PROGS([MPICXX], [mpicxx mpcc_r], [], [$PATH])
         if test -z "$MPICC" -o -z "$MPICXX"; then 
-            AC_ARG_ENABLE([mpipath],
-                [AC_HELP_STRING([--enable-mpipath],
+            AC_ARG_WITH([mpipath],
+                [AC_HELP_STRING([--with-mpipath],
 		 [path to MPI installation [default=""]])],
-                [MPIROOT=$enableval], [MPIROOT=""])
+                [MPIROOT=$withval], [MPIROOT=""])
             if test -z "$MPIROOT"; then 
                 AC_MSG_CHECKING([for MPI root ])
                 echo
@@ -334,7 +332,6 @@ if test "X$USE_PARALLEL" = "Xyes"; then
     TTARGET="H5PartTestP H5PartAndreasTest Bench"
     TTARGET="${TTARGET} H5BlockTestAttributes"
     TTARGET="${TTARGET} H5BlockParTestScalarField"
-    TTARGET="${TTARGET} H5BlockDissolveGhosts"
 
     # parallel + fortran
     if test "X$USE_FORTRAN" = "Xyes"; then
@@ -354,6 +351,10 @@ if test "X$USE_PARALLEL" = "Xyes"; then
             MPIFC=$FC
             echo "MPIFC =  $MPIFC ..."
         fi 
+
+	if test -n "$MPIFC"; then
+	    FC=${MPIFC}
+	fi
  
         MTARGET="${MTARGET} libpH5PartF.a"
         TTARGET="${TTARGET} H5testFpar"
@@ -366,7 +367,7 @@ else
     echo "NO, PARALLEL NOT ENABLED"
 
     MTARGET="libH5Part.a"
-    TTARGET="H5PartTest H5test H5BlockDissolveGhosts"
+    TTARGET="H5PartTest H5test"
     TTARGET="${TTARGET} H5BlockTestAttributes"
 
     if test "X$USE_FORTRAN" = "Xyes"; then
@@ -395,10 +396,10 @@ fi
 ######################### PATH CHECKING & SETTING #############################
 ###############################################################################
 
-AC_ARG_ENABLE([hdf5path],
-    [AC_HELP_STRING([--enable-hdf5path],
+AC_ARG_WITH([hdf5path],
+    [AC_HELP_STRING([--with-hdf5path],
      [path to HDF5 installation [default=""]])],
-    [XROOT=$enableval], [XROOT=""])
+    [XROOT=$withval], [XROOT=""])
 
 HDF5ROOT=$XROOT
 
@@ -610,6 +611,7 @@ AC_SUBST(TOOLS_HDFLIB)
 # substituting the output variable values.
 AC_CONFIG_FILES([
 Makefile
+doc/Makefile
 src/Makefile
 test/Makefile
 tools/Makefile
