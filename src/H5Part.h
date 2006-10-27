@@ -283,7 +283,7 @@ H5PartGetErrorHandler (
 	);
 
 h5part_int64_t
-H5PartDefaultErrorHandler (
+H5PartReportErrorHandler (
 	const char *funcname,
 	const h5part_int64_t eno,
 	const char *fmt,
