@@ -24,27 +24,27 @@ Papers:
 
 
 /*!
-  \defgroup h5part_api H5Part API
+  \defgroup h5part_c_api H5Part C API
 
 */
 /*!
-  \ingroup h5part_api
+  \ingroup h5part_c_api
   \defgroup h5part_openclose	File Opening and Closing
 */
 /*!
-  \ingroup h5part_api
+  \ingroup h5part_c_api
   \defgroup h5part_write	File Writing
 */  
 /*!
-  \ingroup h5part_api
+  \ingroup h5part_c_api
   \defgroup h5part_read		File Reading
 */  
 /*!
-  \ingroup h5part_api
+  \ingroup h5part_c_api
   \defgroup h5part_attrib	Reading and Writing Attributes
 */
 /*!
-  \ingroup h5part_api
+  \ingroup h5part_c_api
   \defgroup h5part_errhandle	Error Handling
 */
 /*!
@@ -71,7 +71,7 @@ Papers:
 
 static unsigned			_debug = 0;
 static h5part_int64_t		_errno = H5PART_SUCCESS;
-static h5part_error_handler	_err_handler = H5PartDefaultErrorHandler;
+static h5part_error_handler	_err_handler = H5PartReportErrorHandler;
 static char *__funcname = "NONE";
 
 /********** Declaration of private functions ******/
@@ -210,7 +210,7 @@ H5PartOpenFileParallel (
 			  if f->file < 0. But we can safely ignore this.
 			*/
 			f->timestep = _H5Part_get_num_objects_matching_pattern(
-				f->file, "/", H5G_GROUP, H5PART_PARTICLES_GROUP );
+				f->file, "/", H5G_GROUP, H5PART_GROUPNAME_STEP );
 			if ( f->timestep < 0 ) goto error_cleanup;
 		}
 	}
@@ -321,7 +321,7 @@ H5PartOpenFile (
 			  if f->file < 0. But we can safely ignore it
 			*/
 			f->timestep = _H5Part_get_num_objects_matching_pattern(
-				f->file, "/", H5G_GROUP, H5PART_PARTICLES_GROUP );
+				f->file, "/", H5G_GROUP, H5PART_GROUPNAME_STEP );
 			if ( f->timestep < 0 ) goto error_cleanup;
 		}
 	}
@@ -1303,7 +1303,7 @@ _H5Part_set_step (
 
 	char name[128];
 
-	sprintf ( name, "%s#%lld", H5PART_PARTICLES_GROUP, (long long) step );
+	sprintf ( name, "%s#%lld", H5PART_GROUPNAME_STEP, (long long) step );
 	herr_t herr = H5Gget_objinfo( f->file, name, 1, NULL );
 	if ( (f->mode != H5PART_READ) && ( herr >= 0 ) ) {
 		return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
@@ -1517,7 +1517,7 @@ H5PartGetNumSteps (
 		f->file,
 		"/",
 		H5G_GROUP,
-		H5PART_PARTICLES_GROUP );
+		H5PART_GROUPNAME_STEP );
 }
 
 /*!
@@ -1540,7 +1540,7 @@ H5PartGetNumDatasets (
 	CHECK_FILEHANDLE( f );
 
 	sprintf ( stepname, "%s#%lld",
-		  H5PART_PARTICLES_GROUP, (long long) f->timestep );
+		  H5PART_GROUPNAME_STEP, (long long) f->timestep );
 
 	return _H5Part_get_num_objects ( f->file, stepname, H5G_DATASET );
 }
@@ -1571,7 +1571,7 @@ H5PartGetDatasetName (
 	CHECK_TIMEGROUP ( f );
 
 	sprintf ( stepname, "%s#%lld",
-		  H5PART_PARTICLES_GROUP, (long long)f->timestep);
+		  H5PART_GROUPNAME_STEP, (long long)f->timestep);
 
 	return _H5Part_get_object_name (
 		f->file,
@@ -1614,7 +1614,7 @@ H5PartGetDatasetInfo (
 	CHECK_TIMEGROUP ( f );
 
 	sprintf ( step_name, "%s#%lld",
-		  H5PART_PARTICLES_GROUP, (long long)f->timestep);
+		  H5PART_GROUPNAME_STEP, (long long)f->timestep);
 
 	herr = _H5Part_get_object_name (
 		f->timegroup,
@@ -1735,7 +1735,7 @@ _H5Part_get_num_particles (
 	/* Get first dataset in current time-step */
 	sprintf (
 		step_name, "%s#%lld",
-		H5PART_PARTICLES_GROUP, (long long) f->timestep );
+		H5PART_GROUPNAME_STEP, (long long) f->timestep );
 	herr = _H5Part_get_object_name (
 		f->file,
 		step_name,
@@ -2335,7 +2335,7 @@ H5PartGetErrno (
   \return value given in \c eno
 */
 h5part_int64_t
-H5PartDefaultErrorHandler (
+H5PartReportErrorHandler (
 	const char *funcname,
 	const h5part_int64_t eno,
 	const char *fmt,
