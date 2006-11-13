@@ -80,6 +80,7 @@ tools/Makefile.am -text
 tools/README -text
 tools/h5pAttrib.cc -text
 tools/h5pToGNUplot.cc -text
+tools/homdynToH5p.cc -text
 visit_plugins/databases/H5Part/.depend -text
 visit_plugins/databases/H5Part/Makefile -text
 visit_plugins/databases/H5Part/README.txt -text
