@@ -389,7 +389,7 @@ AC_ARG_ENABLE([tools],
 
 
 if test "X$USE_TOOLS" = "Xyes"; then
-    BUILD_TOOLS="h5pAttrib h5pToGNUplot"
+    BUILD_TOOLS="h5pAttrib h5pToGNUplot homdynToH5p"
 fi
 
 ###############################################################################
