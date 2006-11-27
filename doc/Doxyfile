@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = H5Part
-PROJECT_NUMBER         = V1.0
+PROJECT_NUMBER         = 1.3.1
 OUTPUT_DIRECTORY       = ./ReferencePages
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
