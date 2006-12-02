@@ -1903,7 +1903,7 @@ _set_view (
 	/* setting up the new view */
 	f->viewstart =  start;
 	f->viewend =    end;
-	f->nparticles = end - start;
+	f->nparticles = end - start + 1;
 	
 	/* declare overall datasize */
 	f->shape = H5Screate_simple ( 1, &total, &total );
