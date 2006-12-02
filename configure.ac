@@ -14,6 +14,45 @@ AC_INIT([H5Part], [1.3.2], [vis@hpcrdm.lbl.gov])
 # The AC_CONFIG_HEADERS macro selects this kind of output.
 AC_CONFIG_HEADER(config.h)
 
+###############################################################################
+################# --enable-xxx and --with-xxx Argument ########################
+###############################################################################
+
+AC_ARG_ENABLE(
+	[64],
+	[AC_HELP_STRING([--enable-64],
+	[Compile using 64-bit flags [default=no]])],
+	[USE_64=$enableval])
+
+AC_ARG_ENABLE(
+	[fortran],
+        [AC_HELP_STRING([--enable-fortran],
+	[Compile the Fortran interface [default=no]])],
+        [USE_FORTRAN=$enableval])
+
+AC_ARG_ENABLE(
+	[parallel],
+        [AC_HELP_STRING([--enable-parallel],
+	[Compile the MPI/IO interface [default=no]])],
+        [USE_PARALLEL=$enableval])
+
+AC_ARG_ENABLE(
+	[tools],
+        [AC_HELP_STRING([--enable-tools],
+	[Compile h5part tools [default=no]])],
+        [USE_TOOLS=$enableval])
+
+AC_ARG_WITH(
+	[mpipath],
+	[AC_HELP_STRING([--with-mpipath],
+	[path to MPI installation [default=""]])],
+        [MPIROOT=$withval], [MPIROOT=""])
+
+AC_ARG_WITH(
+	[hdf5path],
+	[AC_HELP_STRING([--with-hdf5path],
+	[path to HDF5 installation [default=""]])],
+	[HDF5ROOT=$withval], [HDF5ROOT=""])
 
 ###############################################################################
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
@@ -176,11 +215,6 @@ AC_DEFINE_UNQUOTED(MY_UNAME, "$uname", "")
 ###################### 64-bit compilation enabled #############################
 AC_MSG_CHECKING([if 64-bit compilation is enabled])
 
-AC_ARG_ENABLE([64],
-	[AC_HELP_STRING([--enable-64],
-	[Compile using 64-bit flags [default=no]])],
-	[USE_64=$enableval])
-
 
 # If --enable-64 is set in the configure line
 if test "X$USE_64" = "Xyes"; then
@@ -201,15 +235,9 @@ fi
 
 ############################ fortran enabled ##################################
 AC_MSG_CHECKING([if fortran interface enabled])
-AC_ARG_ENABLE([fortran],
-              [AC_HELP_STRING([--enable-fortran],
-	       [Compile the Fortran interface [default=no]])],
-              [USE_FORTRAN=$enableval])
-
 if test "X$USE_FORTRAN" = "Xyes"; then
     AC_MSG_RESULT([yes])
 
-    # Start looking for ifort first
     AC_PROG_FC(ifort xlf_r pathf90 g95 g90 ftn gfortran)
     if test -z "$FC" ; then
         AC_MSG_ERROR([Cannot find a fortran compiler!!!])
@@ -220,8 +248,7 @@ if test "X$USE_FORTRAN" = "Xyes"; then
         FFLAGS="${FFLAGS} -fPIC -fno-second-underscore"
     fi
 
-    AC_MSG_CHECKING([Test Number of FC Underscores])
-    AC_MSG_RESULT([OK])
+    AC_MSG_CHECKING([symbol convention in object files])
     `cd src && rm -f TestUnderscore.o TestUnderscoreC.o TestUnderscore`
     `cd src && ${FC} ${FFLAGS} -c TestUnderscore.f`
     `cd src && ${CC} ${CFLAGS} -c TestUnderscoreC.c`
@@ -230,9 +257,11 @@ if test "X$USE_FORTRAN" = "Xyes"; then
     if test -f src/TestUnderscore ; then
         UNDERSCORE_H=Underscore.h
         `cd src && ./TestUnderscore > Underscore.h`
+        AC_MSG_RESULT([ok])
     else
-         AC_MSG_ERROR([Cannot build fortran executables!!!])
-         exit 1
+        AC_MSG_RESULT([nok])
+        AC_MSG_ERROR([Cannot build fortran executables!!!])
+        exit 1
     fi
 else
     AC_MSG_RESULT([no])
@@ -241,11 +270,6 @@ fi
 
 ######################## parallel interface enabled ###########################
 AC_MSG_CHECKING([if parallel interface enabled])
-AC_ARG_ENABLE([parallel],
-              [AC_HELP_STRING([--enable-parallel],
-	       [Compile the MPI/IO interface [default=no]])],
-              [USE_PARALLEL=$enableval])
-
 if test "X$USE_PARALLEL" = "Xyes"; then
     AC_MSG_RESULT([yes])
 
@@ -262,10 +286,6 @@ if test "X$USE_PARALLEL" = "Xyes"; then
         AC_PATH_PROGS([MPICC], [mpicc mpcc_r], [], [$PATH])
         AC_PATH_PROGS([MPICXX], [mpicxx mpcc_r], [], [$PATH])
         if test -z "$MPICC" -o -z "$MPICXX"; then 
-            AC_ARG_WITH([mpipath],
-                [AC_HELP_STRING([--with-mpipath],
-		 [path to MPI installation [default=""]])],
-                [MPIROOT=$withval], [MPIROOT=""])
             if test -z "$MPIROOT"; then 
                 AC_MSG_CHECKING([for MPI root ])
                 echo
@@ -366,25 +386,17 @@ else  # --enable-parallel=no
    fi
 fi
 
-AC_MSG_CHECKING([for h5pTools file: ])
-AC_MSG_RESULT([OK])
-AC_ARG_ENABLE([tools],
-              [AC_HELP_STRING([--enable-tools], [Compile h5part tools [default=no]])],
-              [USE_TOOLS=$enableval])
-
-
+AC_MSG_CHECKING([wheter tools are enabled])
 if test "X$USE_TOOLS" = "Xyes"; then
+    AC_MSG_RESULT([yes])
     BUILD_TOOLS="h5pAttrib h5pToGNUplot homdynToH5p"
+else
+    AC_MSG_RESULT([no])
 fi
 
 ###############################################################################
 ######################### PATH CHECKING & SETTING #############################
 ###############################################################################
-
-AC_ARG_WITH([hdf5path],
-    [AC_HELP_STRING([--with-hdf5path],
-     [path to HDF5 installation [default=""]])],
-    [HDF5ROOT=$withval], [HDF5ROOT=""])
 
 if test -z "$HDF5ROOT"; then
     P=''
