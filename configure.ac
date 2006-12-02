@@ -1,6 +1,6 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5Part], [1.3.1], [vis@hpcrdm.lbl.gov])
+AC_INIT([H5Part], [1.3.2], [vis@hpcrdm.lbl.gov])
 
 
 # Ensure that a recent enough version of Autoconf is being used. 
@@ -58,16 +58,16 @@ PATH_Search()
     do
       echo -n "Looking in $h5part_place ... $ac_c" #1>&6
       if test -r "$h5part_basedir$h5part_place/$3" ; then
-        echo "$ac_t"" Found" #1>&6
+        echo "$ac_t"" found" #1>&6
         eval $1="$h5part_place"
         break
       fi
       if test -d "$h5part_basedir$h5part_place/$3" ; then
-        echo "$ac_t"" Found" #1>&6
+        echo "$ac_t"" found" #1>&6
         eval $1="$h5part_place"
         break
       fi
-      echo "$ac_t"" No" #1>&6
+      echo "$ac_t"" no" #1>&6
     done
 
   return
@@ -184,65 +184,58 @@ AC_ARG_ENABLE([64],
 
 # If --enable-64 is set in the configure line
 if test "X$USE_64" = "Xyes"; then
-   echo "YES, 64-BIT ENABLED"
-   if test $uname = "AIX"; then
-      CFLAGS="$CFLAGS -q64"
-      FFLAGS="$FFLAGS -q64"
-   fi
+    AC_MSG_RESULT([yes])
+    if test $uname = "AIX"; then
+        CFLAGS="$CFLAGS -q64"
+        FFLAGS="$FFLAGS -q64"
+    fi
 
-   if test $uname = "IRIX64"; then
-      CFLAGS="$CFLAGS -64"
-      FFLAGS="$FFLAGS -64 -fPIC -fno-second-underscore"
-   fi
+    if test $uname = "IRIX64"; then
+        CFLAGS="$CFLAGS -64"
+        FFLAGS="$FFLAGS -64 -fPIC -fno-second-underscore"
+    fi
 else
-   echo "NO, 64-BIT NOT ENABLED"
+    AC_MSG_RESULT([no])
 fi
 
 
 ############################ fortran enabled ##################################
 AC_MSG_CHECKING([if fortran interface enabled])
-AC_MSG_RESULT([])
 AC_ARG_ENABLE([fortran],
               [AC_HELP_STRING([--enable-fortran],
 	       [Compile the Fortran interface [default=no]])],
               [USE_FORTRAN=$enableval])
 
-
 if test "X$USE_FORTRAN" = "Xyes"; then
-   echo "YES, FORTRAN ENABLED"
+    AC_MSG_RESULT([yes])
 
-   # Start looking for ifort first
-   AC_PROG_FC(ifort xlf_r pathf90 g95 g90 ftn gfortran)
+    # Start looking for ifort first
+    AC_PROG_FC(ifort xlf_r pathf90 g95 g90 ftn gfortran)
+    if test -z "$FC" ; then
+        AC_MSG_ERROR([Cannot find a fortran compiler!!!])
+        exit 1
+    fi
 
-   if test -n "$FC" ; then
-      if test "X$FC" = "Xg95"; then
-          FFLAGS="${FFLAGS} -fno-second-underscore"
-      fi
-      AC_MSG_CHECKING([Test Number of FC Underscores])
-      AC_MSG_RESULT([OK])
-      `cd src && rm -f TestUnderscore.o TestUnderscoreC.o TestUnderscore`
-      `cd src && ${FC} ${FFLAGS} -c TestUnderscore.f`
-      `cd src && ${CC} ${CFLAGS} -c TestUnderscoreC.c`
-      `cd src && ${FC} ${FFLAGS} -o TestUnderscore TestUnderscore.o TestUnderscoreC.o -lc`
+    if test ! $uname = "AIX"; then
+        FFLAGS="${FFLAGS} -fPIC -fno-second-underscore"
+    fi
 
-      if test -f src/TestUnderscore ; then
-         UNDERSCORE_H=Underscore.h
-         `cd src && cat COPYRIGHT > Underscore.h`
-         `cd src && ./TestUnderscore >> Underscore.h`
-         echo "==== Underscore.h contains ============="
-         cat src/Underscore.h
-         echo "========================================"
-      else
-         AC_MSG_ERROR(could not build fortran executable)
-         USE_FORTRAN = "no"
-      fi
-   else
-      AC_MSG_ERROR(could not find a fortran compiler)
-      USE_FORTRAN = "no"
-      exit 1
-   fi
+    AC_MSG_CHECKING([Test Number of FC Underscores])
+    AC_MSG_RESULT([OK])
+    `cd src && rm -f TestUnderscore.o TestUnderscoreC.o TestUnderscore`
+    `cd src && ${FC} ${FFLAGS} -c TestUnderscore.f`
+    `cd src && ${CC} ${CFLAGS} -c TestUnderscoreC.c`
+    `cd src && ${FC} ${FFLAGS} -o TestUnderscore TestUnderscore.o TestUnderscoreC.o -lc`
+
+    if test -f src/TestUnderscore ; then
+        UNDERSCORE_H=Underscore.h
+        `cd src && ./TestUnderscore > Underscore.h`
+    else
+         AC_MSG_ERROR([Cannot build fortran executables!!!])
+         exit 1
+    fi
 else
-   echo "NO, FORTRAN NOT ENABLED"
+    AC_MSG_RESULT([no])
 fi
 
 
@@ -254,7 +247,7 @@ AC_ARG_ENABLE([parallel],
               [USE_PARALLEL=$enableval])
 
 if test "X$USE_PARALLEL" = "Xyes"; then
-    AC_MSG_RESULT([YES, PARALLEL ENABLED])
+    AC_MSG_RESULT([yes])
 
     CFLAGS="${CFLAGS} -DPARALLEL_IO -DH5_HAVE_PARALLEL -DMPICH_IGNORE_CXX_SEEK"
 
@@ -287,7 +280,7 @@ if test "X$USE_PARALLEL" = "Xyes"; then
                 PATH_Search MPIROOT "$P" include/mpi.h
             fi
             if test ! -n "$MPIROOT"; then
-                AC_MSG_RESULT([Cannot determine MPIROOT])
+		AC_MSG_ERROR([Cannot determine MPI prefix!!!])
                 exit 1
             fi
 
@@ -335,8 +328,6 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 
     # parallel + fortran
     if test "X$USE_FORTRAN" = "Xyes"; then
-        echo "PARALLEL ENABLED WITH FORTRAN"
- 
         AC_PATH_PROGS([MPIFC], [mpxlf_r mpif90], [], [$PATH])
 
 	if test -z "${MPIFC}" ; then
@@ -359,25 +350,19 @@ if test "X$USE_PARALLEL" = "Xyes"; then
         MTARGET="${MTARGET} libpH5PartF.a"
         TTARGET="${TTARGET} H5testFpar"
 	TTARGET="${TTARGET} H5BlockParTestScalarFieldF"
-    else
-        echo "PARALLEL ENABLED WITHOUT FORTRAN"
     fi
 
-else
-    echo "NO, PARALLEL NOT ENABLED"
+else  # --enable-parallel=no
+    AC_MSG_RESULT([no])
 
     MTARGET="libH5Part.a"
     TTARGET="H5PartTest H5test"
     TTARGET="${TTARGET} H5BlockTestAttributes"
 
     if test "X$USE_FORTRAN" = "Xyes"; then
-        echo "PARALLEL NOT ENABLED WITH FORTRAN ENABLED"
-
         MTARGET="${MTARGET} libH5PartF.a"
         TTARGET="${TTARGET} H5testF"
 	TTARGET="${TTARGET} H5BlockTestAttributesF"
-   else
-        echo "BOTH PARALLEL & FORTRAN NOT ENABLED"
    fi
 fi
 
@@ -399,57 +384,50 @@ fi
 AC_ARG_WITH([hdf5path],
     [AC_HELP_STRING([--with-hdf5path],
      [path to HDF5 installation [default=""]])],
-    [XROOT=$withval], [XROOT=""])
+    [HDF5ROOT=$withval], [HDF5ROOT=""])
 
-HDF5ROOT=$XROOT
+if test -z "$HDF5ROOT"; then
+    P=''
+    P="$P /usr"
+    P="$P /usr/local"
+    P="$P /usr/local/hdf5"
+    P="$P /usr/local/packages/hdf5"
+    P="$P /apps/hdf5"
 
-if test "X$USE_PARALLEL" = "Xyes"; then
-    if test -z "$HDF5ROOT"; then
-        AC_MSG_CHECKING([for Parallel HDF5 root ])
+    if test "X$USE_PARALLEL" = "Xyes"; then
+        AC_MSG_CHECKING([for parallel HDF5 prefix ])
         AC_MSG_RESULT([])
-        P=''
-        P="$P /usr"
-        P="$P /usr/local"
+
         P="$P /usr/local/phdf5"
-        P="$P /usr/local/hdf5"
-        P="$P /usr/local/packages/hdf5"
         P="$P /usr/local/hdf5/hdf5_par"
-        P="$P /apps/hdf5"
- 
         if test "X$USE_64" = "Xyes"; then
             P="$P /usr/common/usg/hdf5/64/default/parallel"
         else
             P="$P /usr/common/usg/hdf5/32/default/parallel"
         fi
-        PATH_Search HDF5ROOT "$P" include/hdf5.h
-	XROOT=$HDF5ROOT
-    fi
-else
-    if test -z "$HDF5ROOT"; then
-        AC_MSG_CHECKING([for HDF5 library location ])
+    else
+        AC_MSG_CHECKING([for serial HDF5 prefix ])
         AC_MSG_RESULT([])
-        P=''
-        P="$P /usr"
-        P="$P /usr/local"
-        P="$P /usr/local/hdf5"
-        P="$P /usr/local/packages/hdf5"
+
         P="$P /usr/local/hdf5/hdf5_serial"
-        P="$P /apps/hdf5"
         if test "X$USE_64" = "Xyes"; then
             P="$P /usr/common/usg/hdf5/64/default/serial"
         else
             P="$P /usr/common/usg/hdf5/32/default/serial"
         fi
-        PATH_Search HDF5ROOT "$P" include/hdf5.h
-	XROOT=$HDF5ROOT
+    fi
+    PATH_Search HDF5ROOT "$P" include/hdf5.h
+    if test -z "$HDF5ROOT"; then
+        AC_MSG_ERROR([Cannot determine HDF5 prefix!!!])
+	exit 1
     fi
 fi
 
 AC_MSG_CHECKING([if we need to link to libsz ])
-if test -n "$XROOT"; then
-    if test -f $XROOT/lib/libsz.a; then
+if test -n "$HDF5ROOT"; then
+    if test -f $HDF5ROOT/lib/libsz.a; then
 	AC_MSG_RESULT([yes])
-        SZLIB="-L$XROOT/lib/ -lsz"
+        SZLIB="-L$HDF5ROOT/lib/ -lsz"
     else
 	AC_MSG_RESULT([no])
         SZLIB=""
@@ -467,14 +445,6 @@ fi
 ###############################################################################
 #################### MISC SETTINGS - path, flags, etc #########################
 ###############################################################################
-
-# if not AIX
-if test ! $uname = "AIX"; then
-# Additional flags
-echo "SETTING ADDITIONAL FLAGS"
-ADDFLAGS="-fPIC -fno-second-underscore"
-fi
-
 
 H5P_LIB_LOC=`pwd`/src
 
@@ -546,36 +516,6 @@ TOOLS_HDFLIB="-L$HDF5ROOT/lib -lhdf5"
 fi
 
 ###############################################################################
-########################## PRINTING SUMMARY ###################################
-###############################################################################
-echo "+++++++++++++++++++++++++++++++"
-echo "+++++++++ SUMMARY for `(hostname || uname -n) 2>/dev/null | sed 1q` +++++++++"
-echo "CC = $CC"
-echo "CXX = $CXX"
-echo "FC = $FC"
-echo "MPICC = $MPICC"
-echo "MPICXX = $MPICXX"
-echo "MPIFC = $MPIFC"
-echo "CFLAGS = $CFLAGS"
-echo "FFLAGS = $FFLAGS"
-echo "MPILIB = $MPILIB"
-echo "MPIINC = $MPIINC"
-echo "MPIROOT = $MPIROOT"
-echo "HDF5ROOT = $HDF5ROOT"
-echo "LDFLAGS = $LDFLAGS"
-echo "host_os = $host_os"
-echo "host_cpu = $host_cpu"
-echo "host_vendor = $host_vendor"
-echo "Will Be Building Libraries ... : $MTARGET"
-echo "Will Be Building Test Programs ... : $TTARGET"
-echo "TOOLS_CXX = $TOOLS_CXX"
-echo "TOOLS_H5PART_LIB = $TOOLS_H5PART_LIB"
-echo "TOOLS_HDFLIB = $TOOLS_HDFLIB"
-echo "BUILD_TOOLS = $BUILD_TOOLS"
-echo "+++++++++++++++++++++++++++++++"
-
-
-###############################################################################
 ############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
 ###############################################################################
 # AC_SUBST (variable, [value])
@@ -597,7 +537,6 @@ AC_SUBST(TTARGET)
 AC_SUBST(SZLIB)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
-AC_SUBST(ADDFLAGS)
 AC_SUBST(STDCXX)
 AC_SUBST(H5P_LIB_LOC)
 AC_SUBST(UNDERSCORE_H)
@@ -617,5 +556,32 @@ test/Makefile
 tools/Makefile
 ])
 
-
 AC_OUTPUT
+
+###############################################################################
+########################## PRINTING SUMMARY ###################################
+###############################################################################
+echo
+echo
+echo "Summary for `(hostname || uname -n) 2>/dev/null | sed 1q`:"
+echo
+echo "Host OS:             $host_os"
+echo "Host CPU:            $host_cpu"
+echo "Host vendor:         $host_vendor"
+echo "Build libraries:     $MTARGET"
+echo "Build test programs: $TTARGET"
+echo "Build tools:         $BUILD_TOOLS"
+echo "CC =                 $CC"
+echo "CXX =                $CXX"
+echo "FC =                 $FC"
+echo "MPICC =              $MPICC"
+echo "MPICXX =             $MPICXX"
+echo "MPIFC =              $MPIFC"
+echo "CFLAGS =             $CFLAGS"
+echo "FFLAGS =             $FFLAGS"
+echo "MPILIB =             $MPILIB"
+echo "MPIINC =             $MPIINC"
+echo "MPIROOT =            $MPIROOT"
+echo "HDF5ROOT =           $HDF5ROOT"
+echo "LDFLAGS =            $LDFLAGS"
+echo
