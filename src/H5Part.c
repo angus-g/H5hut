@@ -1387,11 +1387,13 @@ _H5Part_iteration_operator (
 	herr_t herr;
 	H5G_stat_t objinfo;
 
-	herr = H5Gget_objinfo ( group_id, member_name, 1, &objinfo );
-	if ( herr < 0 ) return HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+	if ( data->type != H5G_UNKNOWN ) {
+		herr = H5Gget_objinfo ( group_id, member_name, 1, &objinfo );
+		if ( herr < 0 ) return HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
 
-	if ( objinfo.type != data->type )
-		return 0;	/* don't count, continue iteration */
+		if ( objinfo.type != data->type )
+			return 0;/* don't count, continue iteration */
+	}
 
 	if ( data->name && (data->stop_idx == data->count) ) {
 		memset ( data->name, 0, data->len );
@@ -1516,7 +1518,7 @@ H5PartGetNumSteps (
 	return _H5Part_get_num_objects_matching_pattern (
 		f->file,
 		"/",
-		H5G_GROUP,
+		H5G_UNKNOWN,
 		H5PART_GROUPNAME_STEP );
 }
 
