@@ -46,13 +46,13 @@ AC_ARG_WITH(
 	[mpipath],
 	[AC_HELP_STRING([--with-mpipath],
 	[path to MPI installation [default=""]])],
-        [MPIROOT=$withval], [MPIROOT=""])
+        [MPIPATH=$withval], [MPIPATH=""])
 
 AC_ARG_WITH(
 	[hdf5path],
 	[AC_HELP_STRING([--with-hdf5path],
 	[path to HDF5 installation [default=""]])],
-	[HDF5ROOT=$withval], [HDF5ROOT=""])
+	[HDF5PATH=$withval], [HDF5PATH=""])
 
 ###############################################################################
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
@@ -95,7 +95,7 @@ PATH_Search()
   fi
   for h5part_place in $2
     do
-      echo -n "Looking in $h5part_place ... $ac_c" #1>&6
+      echo -n "looking in $h5part_place ... $ac_c" #1>&6
       if test -r "$h5part_basedir$h5part_place/$3" ; then
         echo "$ac_t"" found" #1>&6
         eval $1="$h5part_place"
@@ -286,9 +286,13 @@ if test "X$USE_PARALLEL" = "Xyes"; then
         AC_PATH_PROGS([MPICC], [mpicc mpcc_r], [], [$PATH])
         AC_PATH_PROGS([MPICXX], [mpicxx mpcc_r], [], [$PATH])
         if test -z "$MPICC" -o -z "$MPICXX"; then 
-            if test -z "$MPIROOT"; then 
-                AC_MSG_CHECKING([for MPI root ])
-                echo
+            AC_MSG_CHECKING([for MPI root ])
+            AC_MSG_RESULT([])
+            if test -n "$MPIROOT"; then
+                P=${MPIROOT}
+            elif test -n "$MPIHOME"; then
+                P=${MPIHOME}
+            else
                 P=''
                 P="$P /usr"
                 P="$P /usr/local"
@@ -297,10 +301,10 @@ if test "X$USE_PARALLEL" = "Xyes"; then
                 P="$P /usr/local/mpich2"
                 P="$P /usr/local/mpich"
                 P="$P /opt/xt-mpt/default/mpich2-64/P2"
-                PATH_Search MPIROOT "$P" include/mpi.h
             fi
+            PATH_Search MPIROOT "$P" include/mpi.h
             if test ! -n "$MPIROOT"; then
-		AC_MSG_ERROR([Cannot determine MPI prefix!!!])
+		AC_MSG_ERROR([Cannot determine MPI root!!!])
                 exit 1
             fi
 
@@ -398,7 +402,15 @@ fi
 ######################### PATH CHECKING & SETTING #############################
 ###############################################################################
 
-if test -z "$HDF5ROOT"; then
+AC_MSG_CHECKING([for HDF5 root ])
+AC_MSG_RESULT([])
+if test -n "${HDF5ROOT}"; then
+    P=${HDF5ROOT}
+elif test -n "${HDF5HOME}" ; then
+    P=${HDF5HOME}
+elif test -n "${HDF5PATH}" ; then
+    P=${HDF5PATH}
+else
     P=''
     P="$P /usr"
     P="$P /usr/local"
@@ -407,9 +419,6 @@ if test -z "$HDF5ROOT"; then
     P="$P /apps/hdf5"
 
     if test "X$USE_PARALLEL" = "Xyes"; then
-        AC_MSG_CHECKING([for parallel HDF5 prefix ])
-        AC_MSG_RESULT([])
-
         P="$P /usr/local/phdf5"
         P="$P /usr/local/hdf5/hdf5_par"
         if test "X$USE_64" = "Xyes"; then
@@ -418,9 +427,6 @@ if test -z "$HDF5ROOT"; then
             P="$P /usr/common/usg/hdf5/32/default/parallel"
         fi
     else
-        AC_MSG_CHECKING([for serial HDF5 prefix ])
-        AC_MSG_RESULT([])
-
         P="$P /usr/local/hdf5/hdf5_serial"
         if test "X$USE_64" = "Xyes"; then
             P="$P /usr/common/usg/hdf5/64/default/serial"
@@ -428,11 +434,11 @@ if test -z "$HDF5ROOT"; then
             P="$P /usr/common/usg/hdf5/32/default/serial"
         fi
     fi
-    PATH_Search HDF5ROOT "$P" include/hdf5.h
-    if test -z "$HDF5ROOT"; then
-        AC_MSG_ERROR([Cannot determine HDF5 prefix!!!])
-	exit 1
-    fi
+fi
+PATH_Search HDF5ROOT "$P" include/hdf5.h
+if test -z "$HDF5ROOT"; then
+    AC_MSG_ERROR([Cannot determine HDF5 root!!!])
+    exit 1
 fi
 
 AC_MSG_CHECKING([if we need to link to libsz ])
