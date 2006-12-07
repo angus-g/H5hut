@@ -292,6 +292,8 @@ if test "X$USE_PARALLEL" = "Xyes"; then
                 P=${MPIROOT}
             elif test -n "$MPIHOME"; then
                 P=${MPIHOME}
+            elif test -n "$MPIPATH"; then
+                P=${MPIPATH}
             else
                 P=''
                 P="$P /usr"
