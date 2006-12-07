@@ -6,7 +6,7 @@
 #define AVT_h5part_FILE_FORMAT_H
 
 #include <avtMTMDFileFormat.h>
-#include <H5Part.hh>
+#include <H5Part.h>
 
 #include <vector>
 #include <string>

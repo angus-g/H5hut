@@ -24,7 +24,6 @@
 
 
 //h5part specific
-#include <H5Part.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -82,11 +81,11 @@ avth5partFileFormat::avth5partFileFormat(const char *filename)
     pointvarnames.resize(npointvars);
     cout << "constructor: nvariables: " << npointvars << "\n";
 
-		char name[64];
-		int status;
+		char name[128];
+		h5part_int64_t status;
     for (j=0; j < npointvars; j++){
-      status = H5PartGetDatasetName(file,j, name,64);
-			if (status != 1){
+      status = H5PartGetDatasetName(file,j, name,128);
+			if (status != H5PART_SUCCESS){
 				EXCEPTION1(VisItException, "could not read a variable name");
 			}
       pointvarnames[j] = name;
@@ -110,13 +109,13 @@ avth5partFileFormat::avth5partFileFormat(const char *filename)
 int
 avth5partFileFormat::GetNTimesteps(void)
 {
-    int nt;
+    h5part_int64_t nt;
     H5PartFile *file;
     file = H5PartOpenFile(fname.c_str(),H5PART_READ);
     H5PartSetStep(file,0);
     nt=H5PartGetNumSteps(file); /* get number of steps in file */
     H5PartCloseFile(file);
-    return nt;
+    return (int) nt;
 }
 
 
@@ -333,14 +332,15 @@ avth5partFileFormat::GetMesh(int timestate, int domain, const char *meshname)
 #ifdef PARALLEL_IO
  	nprocs = PAR_Size();	
 #endif
+
   H5PartSetStep(file,timestate);
 
   //points
   tnpoints= (int) H5PartGetNumParticles(file);
-  unsigned long long idStart = ((int)(tnpoints/nprocs))*domain;
-	unsigned long long idEnd;	
+  h5part_int64_t idStart = (( h5part_int64_t)(tnpoints/nprocs))*domain;
+	h5part_int64_t idEnd;	
 	if (domain < nprocs-1) 
-  	idEnd   = ((unsigned long int)(tnpoints/nprocs))*(domain+1);
+  	idEnd   = ((h5part_int64_t)(tnpoints/nprocs))*(domain+1);
 	else if (domain == nprocs - 1)
   	idEnd   = tnpoints;
 
@@ -358,21 +358,21 @@ avth5partFileFormat::GetMesh(int timestate, int domain, const char *meshname)
     EXCEPTION1(VisItException, "npoints is zero");
 
   points.resize(npoints*nspace);
-  double *x, *y, *z;
-  x = (double *) malloc(sizeof(double)*npoints);
-  y = (double *) malloc(sizeof(double)*npoints);
-  z = (double *) malloc(sizeof(double)*npoints);
+  h5part_float64_t *x, *y, *z;
+  x = (h5part_float64_t *) malloc(sizeof(h5part_float64_t)*npoints);
+  y = (h5part_float64_t *) malloc(sizeof(h5part_float64_t)*npoints);
+  z = (h5part_float64_t *) malloc(sizeof(h5part_float64_t)*npoints);
 
 
-  int status = 0;
+  h5part_int64_t status = H5PART_SUCCESS; 
   status = H5PartReadDataFloat64(file, "x", x);
-  if (status != 1)
+  if (status != H5PART_SUCCESS)
   EXCEPTION1(VisItException, "Could not read x coordinates");
   status = H5PartReadDataFloat64(file, "y", y);
-  if (status != 1)
+  if (status != H5PART_SUCCESS)
   EXCEPTION1(VisItException, "Could not read y coordinates");
   status = H5PartReadDataFloat64(file, "z", z);
-  if (status != 1)
+  if (status != H5PART_SUCCESS)
   EXCEPTION1(VisItException, "Could not read z coordinates");
   for (long int i = 0; i < npoints; i++){
     points[nspace*i] = (float) x[i];
@@ -464,8 +464,8 @@ avth5partFileFormat::GetVar(int timestate, int domain, const char *varname)
   if (!file)
     EXCEPTION1(InvalidFilesException, fname.c_str());
 
-  int status;
-  long int tnpoints, npoints;
+	h5part_int64_t status;
+  h5part_int64_t tnpoints, npoints;
 	int npointvars;
   int nspace = 3;
 	int nprocs = 1;
@@ -475,44 +475,44 @@ avth5partFileFormat::GetVar(int timestate, int domain, const char *varname)
 
   H5PartSetStep(file,timestate);
   //points
-  tnpoints= (long int) H5PartGetNumParticles(file);
+  tnpoints= H5PartGetNumParticles(file);
   //point vars
 
   char name[64];
-  long long *idvar;
+  h5part_int64_t *idvar;
   double *data;
-	unsigned long long idStart = ((int)(tnpoints/nprocs))*domain;
-  unsigned long long idEnd; 
+	h5part_int64_t idStart = ((h5part_int64_t)(tnpoints/nprocs))*domain;
+  h5part_int64_t idEnd; 
   if (domain < nprocs-1) 
-    idEnd   = ((unsigned long int)(tnpoints/nprocs))*(domain+1);
+    idEnd   = ((h5part_int64_t)(tnpoints/nprocs))*(domain+1);
   else if (domain == nprocs - 1)
-    idEnd   = tnpoints;
+    idEnd   = (h5part_int64_t)tnpoints;
 
   H5PartSetView(file,idStart,idEnd);
-	npoints= (int) H5PartGetNumParticles(file);
+	npoints= H5PartGetNumParticles(file);
 	cout << "GetVar: npoints for domain " << domain << ": " << npoints << "\n"; 
 
-  for (int j=0; j < pointvarnames.size(); j++){
+  for (size_t j=0; j < (size_t)(pointvarnames.size()); j++){
     status = H5PartGetDatasetName(file,j, name,64);
     if (pointvarnames[j] == name) {
       if (strstr(name, "id") != NULL){
-        idvar = (long long *) malloc(sizeof(long long)*npoints);
+        idvar = (h5part_int64_t *) malloc(sizeof(h5part_int64_t)*npoints);
         status = H5PartReadDataInt64(file, name, idvar);
-        if (status != 1)
+        if (status != H5PART_SUCCESS)
           EXCEPTION1(VisItException, "Could not read dataset");
         pointvars[j].resize(npoints);
-        for (long int i=0; i < npoints; i++){
+        for (size_t i=0; i < (size_t) npoints; i++){
           pointvars[j][i] = (float) idvar[i];
         }
         if (idvar != NULL)
           free(idvar);
       } else {
-        data = (double *) malloc(sizeof(double)*npoints);
+        data = (h5part_float64_t *) malloc(sizeof(h5part_float64_t)*npoints);
         status = H5PartReadDataFloat64(file, name, data);
-        if (status != 1)
+        if (status != H5PART_SUCCESS)
           EXCEPTION1(VisItException, "Could not read dataset");
         pointvars[j].resize(npoints);
-        for (long int i=0; i < npoints; i++){
+        for (size_t i=0; i < (size_t)(npoints); i++){
           pointvars[j][i] = (float) data[i];
         }
         if (data != NULL)
