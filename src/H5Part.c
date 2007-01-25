@@ -861,16 +861,16 @@ _H5Part_get_attrib_info (
 	attrib_id = H5Aopen_idx ( id, attrib_idx );
 	if ( attrib_id < 0 ) return HANDLE_H5A_OPEN_IDX_ERR ( attrib_idx );
 
-	mytype = H5Aget_type ( attrib_id );
-	if ( attrib_id < 0 ) return HANDLE_H5A_GET_TYPE_ERR;
-
-	space_id =  H5Aget_space ( attrib_id );
-	if ( attrib_id < 0 ) return HANDLE_H5A_GET_SPACE_ERR;
-
 	if ( attrib_nelem ) {
+		space_id =  H5Aget_space ( attrib_id );
+		if ( space_id < 0 ) return HANDLE_H5A_GET_SPACE_ERR;
+
 		*attrib_nelem = H5Sget_simple_extent_npoints ( space_id );
 		if ( *attrib_nelem < 0 )
 			return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR;
+
+		herr = H5Sclose ( space_id );
+		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
 	}
 	if ( attrib_name ) {
 		herr = H5Aget_name (
@@ -880,14 +880,14 @@ _H5Part_get_attrib_info (
 		if ( herr < 0 ) return HANDLE_H5A_GET_NAME_ERR;
 	}
 	if ( attrib_type ) {
+		mytype = H5Aget_type ( attrib_id );
+		if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR;
+
 		*attrib_type = _H5Part_normalize_h5_type ( mytype );
+
+		herr = H5Tclose ( mytype );
+		if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR;
 	}
-	herr = H5Sclose ( space_id );
- 	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
-
-	herr = H5Tclose ( mytype );
-	if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR;
-
 	herr = H5Aclose ( attrib_id);
 	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR;
 
