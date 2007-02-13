@@ -61,6 +61,7 @@ Papers:
 #include <errno.h>
 #include <fcntl.h>
 #include <hdf5.h>
+#include <assert.h>
 
 #include "H5PartTypes.h"
 #include "H5Part.h"
@@ -140,8 +141,25 @@ H5PartOpenFileParallel (
 
 #ifdef PARALLEL_IO
 	/* for the SP2... perhaps different for linux */
-	MPI_Info info = MPI_INFO_NULL;
 
+	/*
+	  add MPI I/O hints given to me by Valerie
+	  based on Romans Beenchmark.cpp
+	*/
+#ifdef ENABLE_XT3_MPIHINTS
+        int infoI;
+        MPI_Info info;
+        infoI = MPI_Info_create(&info);
+        assert(infoI == MPI_SUCCESS);
+        infoI = MPI_Info_set(info, "cb_buffer_size", "134217728");
+        assert(infoI == MPI_SUCCESS);
+        infoI = MPI_Info_set(info, "cb_config_list", "*:*");
+        assert(infoI == MPI_SUCCESS);
+        infoI = MPI_Info_set(info, "romio_cb_write", "enable");
+        assert(infoI == MPI_SUCCESS);
+#else
+	MPI_Info info = MPI_INFO_NULL;
+#endif
 	if (MPI_Comm_size (comm, &f->nprocs) != MPI_SUCCESS) {
 		HANDLE_MPI_COMM_SIZE_ERR;
 		goto error_cleanup;
