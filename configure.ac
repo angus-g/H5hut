@@ -1,6 +1,6 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5Part], [1.3.2], [vis@hpcrdm.lbl.gov])
+AC_INIT([H5Part], [1.3.2], [vis@hpcrdm.lbl.gov], H5Part)
 
 
 # Ensure that a recent enough version of Autoconf is being used. 
@@ -395,7 +395,7 @@ fi
 AC_MSG_CHECKING([wheter tools are enabled])
 if test "X$USE_TOOLS" = "Xyes"; then
     AC_MSG_RESULT([yes])
-    BUILD_TOOLS="h5pAttrib h5pToGNUplot homdynToH5p"
+    BUILD_TOOLS="h5pAttrib h5pToGNUplot # homdynToH5p"
 else
     AC_MSG_RESULT([no])
 fi
