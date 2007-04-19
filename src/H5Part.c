@@ -7,19 +7,40 @@ analysis needs to be preserved, reading and writing such enormous
 restart files on massively parallel supercomputing systems remains
 challenging. 
 
-H5Part consists of Particles, Block structured Fields and unstructured
-data (Topo).
+H5Part consists of Particles and Block structured Fields.
 
-Developed by  .
+Developed by:
 
-For further information contact: <a href="mailto:xxxxx">xxxxxx</a> - 
-xxxx xxxxx, (xxx) xxx.
+<UL>
+<LI> Andreas Adelmann (PSI) </LI>
+<LI> Achim Gsell (PSI) </LI>
+<LI> Benedikt Oswald (PSI) </LI>
 
-Last modified on xxx xx, 2006.
+<LI> Wes Bethel (NERSC/LBNL)</LI>
+<LI> John Shalf (NERSC/LBNL)</LI>
+<LI> Cristina Siegerist (NERSC/LBNL)</LI>
+</UL>
+
 
 Papers: 
 
-<a href="http://www-vis.lbl.gov/Research/AcceleratorSAPP/index.html">LBNL Vis Group </a><br>
+<UL>
+<LI> A. Adelmann, R.D. Ryne, C. Siegerist, J. Shalf,"From Visualization to Data Mining with Large Data Sets," <i>
+<a href="http://www.sns.gov/pac05">Particle Accelerator Conference (PAC05)</a></i>, Knoxville TN., May 16-20, 2005. (LBNL-57603)
+<a href="http://vis.lbl.gov/Publications/2005/FPAT082.pdf">FPAT082.pdf</a>
+</LI>
+
+
+<LI> A. Adelmann, R.D. Ryne, J. Shalf, C. Siegerist,"H5Part: A Portable High Performance Parallel Data Interface for Particle Simulations," <i>
+<a href="http://www.sns.gov/pac05">Particle Accelerator Conference (PAC05)</a></i>, Knoxville TN., May 16-20, 2005.
+<a href="http://vis.lbl.gov/Publications/2005/FPAT083.pdf">FPAT083.pdf</a>
+</LI>
+</UL>
+
+For further information contact: <a href="mailto:h5part@lists.psi.ch">h5part</a>
+
+Last modified on April 19, 2007.
+
 */
 
 
