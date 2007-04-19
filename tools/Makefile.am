@@ -33,7 +33,7 @@ H5PINC = -I@H5P_LIB_LOC@
 bin_PROGRAMS = @BUILD_TOOLS@
 
 # Listing of all programs that maybe built. (Has to know statically...)
-EXTRA_PROGRAMS = h5pAttrib h5pToGNUplot homdynToH5p
+EXTRA_PROGRAMS = h5pAttrib h5pToGNUplot # homdynToH5p
 
 # Extra files that I wish to include in the dist tar ball.
 EXTRA_DIST = h5pAttrib.cc h5pToGNUplot.cc## TO BE TAILORED LATER...
@@ -43,7 +43,7 @@ h5pAttrib_SOURCES = h5pAttrib.cc
 
 h5pToGNUplot_SOURCES = h5pToGNUplot.cc
 
-homdynToH5p_SOURCES = homdynToH5p.cc
+#homdynToH5p_SOURCES = homdynToH5p.cc
 
 # Specific building instruction (What compilers to use...)
 # ------------ Build Tools ------------
