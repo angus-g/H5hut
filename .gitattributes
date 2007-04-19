@@ -76,7 +76,6 @@ test/H5test.cc -text
 test/H5testF.f -text
 test/H5testFpar.f90 -text
 test/Makefile.am -text
-/testfile -text
 tools/Makefile.am -text
 tools/README -text
 tools/h5pAttrib.cc -text
