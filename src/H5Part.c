@@ -61,7 +61,6 @@ Papers:
 #include <errno.h>
 #include <fcntl.h>
 #include <hdf5.h>
-#include <assert.h>
 
 #include "H5PartTypes.h"
 #include "H5Part.h"
@@ -94,36 +93,13 @@ _h5_error_handler (
 
 /*========== File Opening/Closing ===============*/
 
-/*!
-  \ingroup h5part_openclose
-
-  Opens file with specified filename. 
-
-  If you open with flag \c H5PART_WRITE, it will truncate any
-  file with the specified filename and start writing to it. If 
-  you open with \c H5PART_APPEND, then you can append new timesteps.
-  If you open with \c H5PART_READ, then it will open the file
-  readonly.
-
-  The typical extension for these files is \c .h5.
-  
-  H5PartFile should be treated as an essentially opaque
-  datastructure.  It acts as the file handle, but internally
-  it maintains several key state variables associated with 
-  the file.
-
-  \return	File handle or \c NULL
- */
-H5PartFile*
-H5PartOpenFileParallel (
+static H5PartFile*
+_H5Part_open_file (
 	const char *filename,	/*!< [in] The name of the data file to open. */
-	unsigned flags		/*!< [in] The access mode for the file. */
-#ifdef PARALLEL_IO
-	,MPI_Comm comm		/*!< [in] MPI communicator */
-#endif
-) {
-	SET_FNAME ( "H5PartOpenFileParallel" );
-
+	unsigned flags,		/*!< [in] The access mode for the file. */
+	MPI_Comm comm,		/*!< [in] MPI communicator */
+	int f_parallel		/*!< [in] 0 for serial io otherwise parallel */
+	) {
 	if ( _init() < 0 ) {
 		HANDLE_H5PART_INIT_ERR;
 		return NULL;
@@ -137,74 +113,71 @@ H5PartOpenFileParallel (
 		goto error_cleanup;
 	}
 	memset (f, 0, sizeof (H5PartFile));
-	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
 
-#ifdef PARALLEL_IO
-	/* for the SP2... perhaps different for linux */
-
-	/*
-	  add MPI I/O hints given to me by Valerie
-	  based on Romans Beenchmark.cpp
-	*/
-#ifdef ENABLE_XT3_MPIHINTS
-        int infoI;
-        MPI_Info info;
-        infoI = MPI_Info_create(&info);
-        assert(infoI == MPI_SUCCESS);
-        infoI = MPI_Info_set(info, "cb_buffer_size", "134217728");
-        assert(infoI == MPI_SUCCESS);
-        infoI = MPI_Info_set(info, "cb_config_list", "*:*");
-        assert(infoI == MPI_SUCCESS);
-        infoI = MPI_Info_set(info, "romio_cb_write", "enable");
-        assert(infoI == MPI_SUCCESS);
-#else
-	MPI_Info info = MPI_INFO_NULL;
-#endif
-	if (MPI_Comm_size (comm, &f->nprocs) != MPI_SUCCESS) {
-		HANDLE_MPI_COMM_SIZE_ERR;
-		goto error_cleanup;
-	}
-	if (MPI_Comm_rank (comm, &f->myproc) != MPI_SUCCESS) {
-		HANDLE_MPI_COMM_RANK_ERR;
-		goto error_cleanup;
-	}
-
-	f->pnparticles = malloc (f->nprocs * sizeof (h5part_int64_t));
-	if (f->pnparticles == NULL) {
+	f->groupname_step = strdup ( H5PART_GROUPNAME_STEP );
+	if( f->groupname_step == NULL ) {
 		HANDLE_H5PART_NOMEM_ERR;
 		goto error_cleanup;
 	}
+	f->stepno_width = 0;
+
+	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
+
+#ifdef PARALLEL_IO
+	if ( f_parallel ) {
+		/* for the SP2... perhaps different for linux */
+		MPI_Info info = MPI_INFO_NULL;
+
+		if (MPI_Comm_size (comm, &f->nprocs) != MPI_SUCCESS) {
+			HANDLE_MPI_COMM_SIZE_ERR;
+			goto error_cleanup;
+		}
+		if (MPI_Comm_rank (comm, &f->myproc) != MPI_SUCCESS) {
+			HANDLE_MPI_COMM_RANK_ERR;
+			goto error_cleanup;
+		}
+
+		f->pnparticles = malloc (f->nprocs * sizeof (h5part_int64_t));
+		if (f->pnparticles == NULL) {
+			HANDLE_H5PART_NOMEM_ERR;
+			goto error_cleanup;
+		}
 		
-	f->access_prop = H5Pcreate (H5P_FILE_ACCESS);
-	if (f->access_prop < 0) {
-		HANDLE_H5P_CREATE_ERR;
-		goto error_cleanup;
-	}
+		f->access_prop = H5Pcreate (H5P_FILE_ACCESS);
+		if (f->access_prop < 0) {
+			HANDLE_H5P_CREATE_ERR;
+			goto error_cleanup;
+		}
 
-	if (H5Pset_fapl_mpio (f->access_prop, comm, info) < 0) {
-		HANDLE_H5P_SET_FAPL_MPIO_ERR;
-		goto error_cleanup;
-	}
+		if (H5Pset_fapl_mpio (f->access_prop, comm, info) < 0) {
+			HANDLE_H5P_SET_FAPL_MPIO_ERR;
+			goto error_cleanup;
+		}
 		
-	/* create_prop: tunable parameters like blocksize and btree sizes */
-	/* f->create_prop = H5Pcreate(H5P_FILE_CREATE); */
-	f->create_prop = H5P_DEFAULT;
+		/* f->create_prop = H5Pcreate(H5P_FILE_CREATE); */
+		f->create_prop = H5P_DEFAULT;
 
-	/* currently create_prop is empty */
-	/* xfer_prop:  also used for parallel I/O, during actual writes
-	   rather than the access_prop which is for file creation. */
-	f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
-	if (f->xfer_prop < 0) {
-		HANDLE_H5P_CREATE_ERR;
-		goto error_cleanup;
+		/* currently create_prop is empty */
+		/* xfer_prop:  also used for parallel I/O, during actual writes
+		   rather than the access_prop which is for file creation. */
+		f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
+		if (f->xfer_prop < 0) {
+			HANDLE_H5P_CREATE_ERR;
+			goto error_cleanup;
+		}
+
+		if (H5Pset_dxpl_mpio (f->xfer_prop,H5FD_MPIO_COLLECTIVE) < 0) {
+			HANDLE_H5P_SET_DXPL_MPIO_ERR;
+			goto error_cleanup;
+		}
+
+		f->comm = comm;
+	} else {
+		f->pnparticles = 0;
+		f->comm = MPI_COMM_WORLD;
+		f->nprocs = 1;
+		f->myproc = 0;
 	}
-
-	if (H5Pset_dxpl_mpio (f->xfer_prop, H5FD_MPIO_COLLECTIVE) < 0) {
-		HANDLE_H5P_SET_DXPL_MPIO_ERR;
-		goto error_cleanup;
-	}
-
-	f->comm = comm;
 #endif
 	if ( flags == H5PART_READ ) {
 		f->file = H5Fopen (filename, H5F_ACC_RDONLY, f->access_prop);
@@ -212,12 +185,14 @@ H5PartOpenFileParallel (
 	else if ( flags == H5PART_WRITE ){
 		f->file = H5Fcreate (filename, H5F_ACC_TRUNC, f->create_prop,
 				     f->access_prop);
+		f->empty = 1;
 	}
 	else if ( flags == H5PART_APPEND ) {
 		int fd = open (filename, O_RDONLY, 0);
 		if ( (fd == -1) && (errno == ENOENT) ) {
 			f->file = H5Fcreate(filename, H5F_ACC_TRUNC,
 					    f->create_prop, f->access_prop);
+			f->empty = 1;
 		}
 		else if (fd != -1) {
 			close (fd);
@@ -228,7 +203,7 @@ H5PartOpenFileParallel (
 			  if f->file < 0. But we can safely ignore this.
 			*/
 			f->timestep = _H5Part_get_num_objects_matching_pattern(
-				f->file, "/", H5G_GROUP, H5PART_GROUPNAME_STEP );
+				f->file, "/", H5G_GROUP, f->groupname_step );
 			if ( f->timestep < 0 ) goto error_cleanup;
 		}
 	}
@@ -259,6 +234,9 @@ H5PartOpenFileParallel (
 
  error_cleanup:
 	if (f != NULL ) {
+		if (f->groupname_step) {
+			free (f->groupname_step);
+		}
 		if (f->pnparticles != NULL) {
 			free (f->pnparticles);
 		}
@@ -266,6 +244,39 @@ H5PartOpenFileParallel (
 	}
 	return NULL;
 }
+
+#ifdef PARALLEL_IO
+/*!
+  \ingroup h5part_openclose
+
+  Opens file with specified filename. 
+
+  If you open with flag \c H5PART_WRITE, it will truncate any
+  file with the specified filename and start writing to it. If 
+  you open with \c H5PART_APPEND, then you can append new timesteps.
+  If you open with \c H5PART_READ, then it will open the file
+  readonly.
+
+  The typical extension for these files is \c .h5.
+  
+  H5PartFile should be treated as an essentially opaque
+  datastructure.  It acts as the file handle, but internally
+  it maintains several key state variables associated with 
+  the file.
+
+  \return	File handle or \c NULL
+ */
+H5PartFile*
+H5PartOpenFileParallel (
+	const char *filename,	/*!< [in] The name of the data file to open. */
+	unsigned flags,		/*!< [in] The access mode for the file. */
+	MPI_Comm comm		/*!< [in] MPI communicator */
+) {
+	int f_parallel = 1;	/* parallel i/o */
+
+	return _H5Part_open_file ( filename, flags, comm, f_parallel );
+}
+#endif
 
 /*!
   \ingroup  h5part_openclose
@@ -295,87 +306,11 @@ H5PartOpenFile (
 	) {
 
 	SET_FNAME ( "H5PartOpenFile" );
-	if ( _init() < 0 ) {
-		HANDLE_H5PART_INIT_ERR;
-		return NULL;
-	}
 
-	_errno = H5PART_SUCCESS;
-	H5PartFile *f = NULL;
+	MPI_Comm comm = 0;	/* dummy */
+	int f_parallel = 0;	/* serial open */
 
-	f = (H5PartFile*) malloc( sizeof (H5PartFile) );
-	if( f == NULL ) {
-		HANDLE_H5PART_NOMEM_ERR;
-		goto error_cleanup;
-	}
-	memset (f, 0, sizeof (H5PartFile));
-	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
-
-#ifdef PARALLEL_IO
-	f->pnparticles = 0;
-	f->comm = MPI_COMM_WORLD;
-	f->nprocs = 1;
-	f->myproc = 0;
-#endif
-	if (flags == H5PART_READ) {
-		f->file = H5Fopen (filename, H5F_ACC_RDONLY, f->access_prop);
-	}
-	else if (flags == H5PART_WRITE){
-		f->file = H5Fcreate (filename, H5F_ACC_TRUNC, f->create_prop,
-				     f->access_prop);
-	}
-	else if (flags == H5PART_APPEND) {
-		int fd = open (filename, O_RDONLY, 0);
-		if ( (fd == -1) && (errno == ENOENT) ) {
-			f->file = H5Fcreate(filename, H5F_ACC_TRUNC,
-					    f->create_prop, f->access_prop);
-		}
-		else if (fd != -1) {
-			close (fd);
-			f->file = H5Fopen (filename, H5F_ACC_RDWR,
-					   f->access_prop);
-			/*
-			  The following function call returns an error,
-			  if f->file < 0. But we can safely ignore it
-			*/
-			f->timestep = _H5Part_get_num_objects_matching_pattern(
-				f->file, "/", H5G_GROUP, H5PART_GROUPNAME_STEP );
-			if ( f->timestep < 0 ) goto error_cleanup;
-		}
-	}
-	else {
-		HANDLE_H5PART_FILE_ACCESS_TYPE_ERR ( flags );
-		goto error_cleanup;
-	}
-
-	if (f->file < 0) {
-		HANDLE_H5F_OPEN_ERR ( filename, flags );
-		goto error_cleanup;
-	}
-
-	f->mode = flags;
-	f->timegroup = -1;
-	f->shape = 0;
-	f->diskshape = H5S_ALL;
-	f->memshape = H5S_ALL;
-	f->viewstart = -1;
-	f->viewend = -1;
-
-	_H5Part_print_debug (
-		"Opened file \"%s\" val=%lld",
-		filename,
-		(long long)(size_t)f );
-
-	return f;
-
- error_cleanup:
-	if (f != NULL ) {
-		if (f->pnparticles != NULL) {
-			free (f->pnparticles);
-		}
-		free (f);
-	}
-	return NULL;
+	return _H5Part_open_file ( filename, flags, comm, f_parallel );
 }
 
 /*!
@@ -455,6 +390,9 @@ H5PartCloseFile (
 		if ( r < 0 ) HANDLE_H5F_CLOSE_ERR;
 		f->file = 0;
 	}
+	if (f->groupname_step) {
+		free (f->groupname_step);
+	}
 	if( f->pnparticles ) {
 		free( f->pnparticles );
 	}
@@ -464,6 +402,21 @@ H5PartCloseFile (
 }
 
 /*============== File Writing Functions ==================== */
+
+h5part_int64_t
+H5PartDefineStepName (
+	H5PartFile *f,
+	const char *name,
+	const h5part_int64_t width
+	) {
+	f->groupname_step = strdup ( name );
+	if( f->groupname_step == NULL ) {
+		return HANDLE_H5PART_NOMEM_ERR;
+	}
+	f->stepno_width = width;
+	
+	return H5PART_SUCCESS;
+}
 
 /*!
   \ingroup h5part_write
@@ -646,6 +599,8 @@ _write_data (
 
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
+
+	f->empty = 0;
 
 	return H5PART_SUCCESS;
 }
@@ -1321,7 +1276,10 @@ _H5Part_set_step (
 
 	char name[128];
 
-	sprintf ( name, "%s#%lld", H5PART_GROUPNAME_STEP, (long long) step );
+	sprintf (
+		name,
+		"%s#%0*lld",
+		f->groupname_step, f->stepno_width, (long long) step );
 	herr_t herr = H5Gget_objinfo( f->file, name, 1, NULL );
 	if ( (f->mode != H5PART_READ) && ( herr >= 0 ) ) {
 		return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
@@ -1537,7 +1495,7 @@ H5PartGetNumSteps (
 		f->file,
 		"/",
 		H5G_UNKNOWN,
-		H5PART_GROUPNAME_STEP );
+		f->groupname_step );
 }
 
 /*!
@@ -1559,8 +1517,10 @@ H5PartGetNumDatasets (
 
 	CHECK_FILEHANDLE( f );
 
-	sprintf ( stepname, "%s#%lld",
-		  H5PART_GROUPNAME_STEP, (long long) f->timestep );
+	sprintf (
+		stepname,
+		"%s#%0*lld",
+		f->groupname_step, f->stepno_width, (long long) f->timestep );
 
 	return _H5Part_get_num_objects ( f->file, stepname, H5G_DATASET );
 }
@@ -1590,8 +1550,10 @@ H5PartGetDatasetName (
 	CHECK_FILEHANDLE ( f );
 	CHECK_TIMEGROUP ( f );
 
-	sprintf ( stepname, "%s#%lld",
-		  H5PART_GROUPNAME_STEP, (long long)f->timestep);
+	sprintf (
+		stepname,
+		"%s#%0*lld",
+		f->groupname_step, f->stepno_width, (long long) f->timestep );
 
 	return _H5Part_get_object_name (
 		f->file,
@@ -1633,8 +1595,10 @@ H5PartGetDatasetInfo (
 	CHECK_FILEHANDLE ( f );
 	CHECK_TIMEGROUP ( f );
 
-	sprintf ( step_name, "%s#%lld",
-		  H5PART_GROUPNAME_STEP, (long long)f->timestep);
+	sprintf (
+		step_name,
+		"%s#%0*lld",
+		f->groupname_step, f->stepno_width, (long long) f->timestep );
 
 	herr = _H5Part_get_object_name (
 		f->timegroup,
@@ -1754,8 +1718,10 @@ _H5Part_get_num_particles (
 
 	/* Get first dataset in current time-step */
 	sprintf (
-		step_name, "%s#%lld",
-		H5PART_GROUPNAME_STEP, (long long) f->timestep );
+		step_name,
+		"%s#%0*lld",
+		f->groupname_step, f->stepno_width, (long long) f->timestep );
+
 	herr = _H5Part_get_object_name (
 		f->file,
 		step_name,
