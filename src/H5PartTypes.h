@@ -14,6 +14,10 @@ __attribute__ ((format (printf, 3, 4)))
 #endif
  ;
 
+#ifndef PARALLEL_IO
+typedef unsigned long		MPI_Comm;
+#endif
+
 struct H5BlockFile;
 
 /**
@@ -25,7 +29,11 @@ struct H5BlockFile;
    H5PartCloseFile().  
 */
 struct H5PartFile {
-	hid_t file;
+	hid_t	file;
+	char	*groupname_step;
+	int	stepno_width;
+	int	empty;
+	
 	h5part_int64_t timestep;
 	hsize_t nparticles;
 	
@@ -60,12 +68,12 @@ struct H5PartFile {
 	   The index of the processor this process is running on.
 	*/
 	int myproc;
-#ifdef PARALLEL_IO
+
 	/**
 	   MPI comnunicator
 	*/
 	MPI_Comm comm;
-#endif
+
 	struct H5BlockStruct *block;
 	h5part_int64_t (*close_block)(struct H5PartFile *f);
 };
