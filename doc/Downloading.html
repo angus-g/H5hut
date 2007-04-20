@@ -11,7 +11,7 @@
     <title>Downloading HDF5 and H5Part</title>
 
   </head>
-   <body bgcolor="#F0F0F0">
+   <body>
     <font face="arial,helvetica" size="+2" color="#555588"><h2>Downloading H5Part</h2></font>
     <UL>
       <LI><a href="#hdf5">Downloading HDF5</a>
@@ -21,63 +21,15 @@
     <hr>
     <a name="hdf5">
     <h2>Downloading HDF5</h2></a>
-	You will need to download and install the hdf5 library and link H5Part with it.
-	<pre>
-	ftp ftp.ncsa.uiuc.edu
-	username: anonymous
-	password: your email
-	cd HDF/HDF5/current/src
-	ls
-	get hdf5-1.6.5.tar.gz (get the current version, this as the one on April 20th, 2006)
-	cd szip/src
-	ls
-	get szip-2.0.tar.gz (get the current version, this as the one on April 20th, 2006)
-	cd ../../
-	cd zlib/1.2/src
-	ls
-	get zlib-1.2.1.tar.gz (get the current version, this as the one on April 20th, 2006)
-	</pre>
-
- <P>
-	Note: you might already have libz in your system and you will not need libsz unless you build hdf5 with support for it.
-</P>
-
-<h4>Building Parallel HDF5</h4>
-<P>
-When you build HDF5, you will need to build an version with parallel I/O
-enabled. Here is a set of configure options that worked for us on a
-Linux workstation running SuSE 10.1 with MPICH installed in /usr/local/mpich.
-</p>
-
-<pre>
-./configure --prefix=/usr/local/hdf5-mpich --enable-parallel CC=mpicc CXX=mpicxx --disable-shared --enable-static --enable-stream-vfd
-</pre>
-
-<UL>
-<li> --prefix=/usr/local/hdf5-mpich : the location where the HDF5 libs and
-binaries will be installed.</LI>
-<li> --enable-parallel : contrary to the HDF5 documentation, which says that
-"--enable-parallel" is optional for building the parallel version of
-HDF5, you <b>must</b> have --enable-parallel to get the parallel-enabled
-build. See <a href="ftp://ftp.hdfgroup.org/HDF5/current/src/unpacked/release_docs/INSTALL_parallel">these notes from HDF5</a> where they claim that
---enable-parallel is optional.</LI>
-<li> CC=mpicc CXX=mpicxx : contrary to the output from configure --help, the
-configure script seems to ignore the CC and CXX environment variables.
-We tried setting these environment variables to mpicc and mpicxx,
-respectively, and then ran configure with --enable-parallel. The configure
-script would faile with this error message: 	
-<pre>
-checking whether a simple MPI-IO program can be linked... no
-configure: error: unable to link a simple MPI-IO application
-</pre>
-</LI>
-<LI> --disable-shared and --enable-static: the HDF5 build failed for us
-w/o these options when attempting to read symbols from libmpich.a. The
-result of these options is that your parallel-enabled HDF5 libaries
-will be static rather than dynamic.
-
-</UL>
-
+	You will need to download and install the HDF5 library and link H5Part with it.
+	<UL>
+	  <LI><a href="ftp://ftp.hdfgroup.org/HDF5/current/src/hdf5-1.6.5.tar.gz">ftp://ftp.hdfgroup.org/HDF5/current/src/hdf5-1.6.5.tar.gz</a></LI>
+	  <LI><a href="http://www.zlib.net/zlib-1.2.3.tar.gz">http://www.zlib.net/zlib-1.2.3.tar.gz</a></LI>
+	  <LI><a href="ftp://ftp.hdfgroup.org/lib-external/szip/2.0/src/szip-2.0.tar.gz">ftp://ftp.hdfgroup.org/lib-external/szip/2.0/src/szib-2.0.tar.gz</a></LI>
+	</UL>
+         <P>
+	  Note: you might already have libz in your system and you will not need libsz unless you build hdf5 with support for it.
+         </P>
 
     <h2 id="h5part">Downloading H5Part</h2>
         H5Part is available for download from Berkeley Labs Codeforge system <a href="https://codeforge.lbl.gov/projects/h5part/">https://codeforge.lbl.gov/projects/h5part</a>.
