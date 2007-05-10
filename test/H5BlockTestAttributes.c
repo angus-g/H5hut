@@ -4,10 +4,7 @@
 #include "H5Part.h"
 #include "H5Block.h"
 #include "H5BlockTypes.h"
-#ifdef PARALLEL_IO
-#include <mpi.h>
-#else
-typedef int MPI_Comm;
+#ifndef PARALLEL_IO
 #ifndef MPI_COMM_WORLD
 #define MPI_COMM_WORLD 0
 #endif
