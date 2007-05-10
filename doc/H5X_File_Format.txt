@@ -28,9 +28,10 @@ top of HDF5: A H5X file is a very special HDF5 file.
 2.1.1 File attributes
 
 Attributes of the HDF5 root group are called "file attributes". There
-are no restrictions on file attribute names. Supported values are
-scalars and arrays of 64bit integer and 64bit floating point number as
-well as string values,  but not arrays of strings.
+are no restrictions on file attribute names.  Names with "__" as prefix and
+postfix are intended for internal use. Supported values for file attributes
+are scalars and arrays of 64bit integer and 64bit floating point number as
+well as string values. Arrays of strings are not supported.
 
 2.1.1.1 Predefined file attributes
 
@@ -72,9 +73,15 @@ consecutively.
 2.2.1  Step attributes
 
 Step attributes are HDF5 attributes asigned to a step group.  There
-are no restrictions on file attribute names. Supported values are
-scalars and arrays of 64bit integer and 64bit floating point number as
-well as string values,  but not arrays of strings.
+are no restrictions on step attribute names. As with file attributes names
+enclosed in "__" are intended for internal use. Supported values are the same
+as for file attributes:
+	* 64bit integer value
+	* arrays of 64bit integer values
+	* 64bit floating point number
+	* array of 64bit floating point number
+	* strings
+Note that array of strings are not supported! 
 
 2.2.2  Predefined step attributes
 
@@ -147,5 +154,13 @@ n-dimensional vector values with n := 1.
 
 2.3    Step properties [NEW]
 
+Why? Much faster than step attributes if you need to access consecutive values
 
+Group of root group with name "StepProperties"
+
+Members are datasets
+
+Supported values are the same as for step attributes
+
+Mapping of value to step via object index of step group
 
