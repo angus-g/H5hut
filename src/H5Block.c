@@ -119,17 +119,17 @@ _init (
 	*/
 	if ( f->nprocs == 0 ) f->nprocs = 1;
 
-	f->block = malloc( sizeof (*f->block) );
+	f->block = (struct H5BlockStruct*) malloc( sizeof (*f->block) );
 	if ( f->block == NULL ) {
 		return HANDLE_H5PART_NOMEM_ERR;
 	}
 	b = f->block;
 	memset ( b, 0, sizeof (*b) );
-	b->user_layout = malloc ( f->nprocs * sizeof (b->user_layout[0]) );
+	b->user_layout = (struct H5BlockPartition*) malloc ( f->nprocs * sizeof (b->user_layout[0]) );
 	if ( b->user_layout == NULL ) {
 		return HANDLE_H5PART_NOMEM_ERR;
 	}
-	b->write_layout = malloc ( f->nprocs * sizeof (b->write_layout[0]) );
+	b->write_layout = (struct H5BlockPartition*) malloc ( f->nprocs * sizeof (b->write_layout[0]) );
 	if ( b->write_layout == NULL ) {
 		return HANDLE_H5PART_NOMEM_ERR;
 	}
@@ -577,7 +577,7 @@ _dissolve_ghostzones (
 	memcpy ( b->write_layout, b->user_layout,
 		 f->nprocs * sizeof (*f->block->user_layout) );
 
-	p_begin = p_max = p_end = malloc ( sizeof ( *p_begin ) );
+	p_begin = p_max = p_end = (struct list*) malloc ( sizeof ( *p_begin ) );
 	if ( p_begin == NULL ) return HANDLE_H5PART_NOMEM_ERR;
 	
 	memset ( p_begin, 0, sizeof ( *p_begin ) );
@@ -590,7 +590,7 @@ _dissolve_ghostzones (
 		      proc_q++, q++ ) {
 
 			if ( _have_ghostzone ( p, q ) ) {
-				p_el = malloc ( sizeof ( *p_el ) );
+				p_el = (struct list*) malloc ( sizeof ( *p_el ) );
 				if ( p_el == NULL )
 					return HANDLE_H5PART_NOMEM_ERR;
 
@@ -664,7 +664,7 @@ _dissolve_ghostzones (
 
 /*!
   \ingroup h5block_private
-
+1
   \internal
 
 */
