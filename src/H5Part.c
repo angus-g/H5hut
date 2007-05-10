@@ -78,10 +78,17 @@ Last modified on April 19, 2007.
 #include <stdlib.h>
 #include <stdarg.h>	/* va_arg - System dependent ?! */
 #include <string.h>
-#include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <hdf5.h>
+
+#ifndef WIN32
+#include <unistd.h>
+#else /* WIN32 */
+#include <io.h>
+#define open  _open
+#define close _close
+#endif /* WIN32 */
 
 #include "H5PartTypes.h"
 #include "H5Part.h"
@@ -91,7 +98,7 @@ Last modified on April 19, 2007.
 /********* Private Variable Declarations *************/
 
 static unsigned			_debug = 0;
-static h5part_int64_t		_errno = H5PART_SUCCESS;
+static h5part_int64_t		_h5part_errno = H5PART_SUCCESS;
 static h5part_error_handler	_err_handler = H5PartReportErrorHandler;
 static char *__funcname = "NONE";
 
@@ -107,6 +114,9 @@ _file_is_valid (
 	const H5PartFile *f
 	);
 
+/*
+  error handler for hdf5
+*/
 static herr_t
 _h5_error_handler (
 	void *
@@ -125,7 +135,7 @@ _H5Part_open_file (
 		HANDLE_H5PART_INIT_ERR;
 		return NULL;
 	}
-	_errno = H5PART_SUCCESS;
+	_h5part_errno = H5PART_SUCCESS;
 	H5PartFile *f = NULL;
 
 	f = (H5PartFile*) malloc( sizeof (H5PartFile) );
@@ -158,7 +168,8 @@ _H5Part_open_file (
 			goto error_cleanup;
 		}
 
-		f->pnparticles = malloc (f->nprocs * sizeof (h5part_int64_t));
+		f->pnparticles =
+		  (h5part_int64_t*) malloc (f->nprocs * sizeof (h5part_int64_t));
 		if (f->pnparticles == NULL) {
 			HANDLE_H5PART_NOMEM_ERR;
 			goto error_cleanup;
@@ -366,7 +377,7 @@ H5PartCloseFile (
 
 	SET_FNAME ( "H5PartCloseFile" );
 	herr_t r = 0;
-	_errno = H5PART_SUCCESS;
+	_h5part_errno = H5PART_SUCCESS;
 
 	CHECK_FILEHANDLE ( f );
 
@@ -419,7 +430,7 @@ H5PartCloseFile (
 	}
 	free( f );
 
-	return _errno;
+	return _h5part_errno;
 }
 
 /*============== File Writing Functions ==================== */
@@ -1380,7 +1391,7 @@ _H5Part_iteration_operator (
 	void *operator_data	/*!< [in,out] data passed to the iterator */
 	) {
 
-	struct _iter_op_data *data = operator_data;
+	struct _iter_op_data *data = (struct _iter_op_data*)operator_data;
 	herr_t herr;
 	H5G_stat_t objinfo;
 
@@ -2330,7 +2341,7 @@ h5part_int64_t
 H5PartGetErrno (
 	void
 	) {
-	return _errno;
+	return _h5part_errno;
 }
 
 /*!
@@ -2349,14 +2360,14 @@ H5PartReportErrorHandler (
 	...
 	) {
 
-	_errno = eno;
+	_h5part_errno = eno;
 	if ( _debug > 0 ) {
 		va_list ap;
 		va_start ( ap, fmt );
 		_H5Part_vprint_error ( fmt, ap );
 		va_end ( ap );
 	}
-	return _errno;
+	return _h5part_errno;
 }
 
 /*!
@@ -2373,7 +2384,7 @@ H5PartAbortErrorHandler (
 	...
 	) {
 
-	_errno = eno;
+	_h5part_errno = eno;
 	if ( _debug > 0 ) {
 		va_list ap;
 		va_start ( ap, fmt );
@@ -2381,7 +2392,7 @@ H5PartAbortErrorHandler (
 		vfprintf ( stderr, fmt, ap );
 		fprintf ( stderr, "\n" );
 	}
-	exit (-_errno);
+	exit (-_h5part_errno);
 }
 
 /*!
@@ -2417,7 +2428,7 @@ _vprint (
 	const char *fmt,
 	va_list ap
 	) {
-	char *fmt2 = malloc( strlen ( prefix ) +strlen ( fmt ) + strlen ( __funcname ) + 16 );
+	char *fmt2 = (char*)malloc( strlen ( prefix ) +strlen ( fmt ) + strlen ( __funcname ) + 16 );
 	if ( fmt2 == NULL ) return;
 	sprintf ( fmt2, "%s: %s: %s\n", prefix, __funcname, fmt ); 
 	vfprintf ( stderr, fmt2, ap );
