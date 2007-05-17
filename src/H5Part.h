@@ -97,6 +97,12 @@ H5PartSetStep (
 	);
 
 h5part_int64_t
+H5PartHasStep (
+	H5PartFile *f,
+	const h5part_int64_t step
+	);
+
+h5part_int64_t
 H5PartGetNumSteps (
 	H5PartFile *f
 	);
