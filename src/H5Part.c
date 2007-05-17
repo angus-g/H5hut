@@ -154,8 +154,8 @@ _H5Part_open_file (
 
 	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
 
-#ifdef PARALLEL_IO
 	if ( f_parallel ) {
+#ifdef PARALLEL_IO
 		/* for the SP2... perhaps different for linux */
 		MPI_Info info = MPI_INFO_NULL;
 
@@ -204,13 +204,14 @@ _H5Part_open_file (
 		}
 
 		f->comm = comm;
+#endif
 	} else {
-		f->pnparticles = 0;
 		f->comm = MPI_COMM_WORLD;
 		f->nprocs = 1;
 		f->myproc = 0;
+		f->pnparticles = 
+			(h5part_int64_t*) malloc (f->nprocs * sizeof (h5part_int64_t));
 	}
-#endif
 	if ( flags == H5PART_READ ) {
 		f->file = H5Fopen (filename, H5F_ACC_RDONLY, f->access_prop);
 	}
@@ -535,6 +536,7 @@ H5PartSetNumParticles (
 	/*
 	  acquire the number of particles to be written from each MPI process
 	*/
+--------
 	r = MPI_Allgather (
 		&nparticles, 1, MPI_LONG_LONG,
 		f->pnparticles, 1, MPI_LONG_LONG,
@@ -557,13 +559,13 @@ H5PartSetNumParticles (
 		start[0] += f->pnparticles[i];
 	}
 	
-
-
         /* compute total nparticles */
 	total = 0;
 	for (i=0; i < f->nprocs; i++) {
 		total += f->pnparticles[i];
 	}
+
+------------
 
 	/* declare overall datasize */
 	f->shape = H5Screate_simple (1, &total, &total);
@@ -1502,6 +1504,34 @@ _H5Part_get_object_name (
 
 	return H5PART_SUCCESS;
 }
+
+/*!
+  \ingroup h5part_read
+
+  Query whether a particular step already exists in the file
+  \c f.
+
+  It works for both reading and writing of files
+
+  \return      true or false
+*/
+h5part_int64_t
+H5PartHasStep (
+	H5PartFile *f,		/*!< [in]  Handle to open file */
+	h5part_int64_t step	/*!< [in]  Step number to query */
+	) {
+  
+	SET_FNAME ( "H5PartHasStep" );
+
+	CHECK_FILEHANDLE( f );
+
+	char name[128];
+	sprintf ( name, "%s#%0*lld", f->groupname_step, f->stepno_width, (long long) step );
+	herr_t herr = H5Gget_objinfo( f->file, name, 1, NULL );
+
+	return ( herr >= 0 );
+}
+
 
 /*!
   \ingroup h5part_read
