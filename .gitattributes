@@ -15,6 +15,7 @@
 /depcomp -text
 doc/Doxyfile -text
 doc/H5X_File_Format.txt -text
+doc/Makefile.am -text
 doc/doxyfooter -text
 /install-sh -text
 /license.txt -text
