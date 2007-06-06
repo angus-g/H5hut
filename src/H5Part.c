@@ -206,7 +206,7 @@ _H5Part_open_file (
 		f->comm = comm;
 #endif
 	} else {
-		f->comm = MPI_COMM_WORLD;
+		f->comm = 0;
 		f->nprocs = 1;
 		f->myproc = 0;
 		f->pnparticles = 
