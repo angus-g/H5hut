@@ -1479,8 +1479,8 @@ _get_field_info (
 	hid_t group_id = H5Gopen ( f->block->blockgroup, field_name );
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR ( field_name );
 
-	hid_t dataset_id = H5Dopen ( group_id, "x" );
-	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( "x" );
+	hid_t dataset_id = H5Dopen ( group_id, "0" );
+	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( "0" );
 
  	hid_t dataspace_id = H5Dget_space ( dataset_id );
 	if ( dataspace_id < 0 ) return HANDLE_H5D_GET_SPACE_ERR;
