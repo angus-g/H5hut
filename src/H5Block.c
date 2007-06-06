@@ -78,7 +78,7 @@ _close (
 
 static h5part_int64_t
 _file_is_valid (
-	const H5PartFile *f	/*!< IN: file handle */
+	const H5PartFile *f		/*!< IN: file handle */
 	) {
 
 	if ( f == NULL )
@@ -104,7 +104,7 @@ _file_is_valid (
 */
 static h5part_int64_t
 _init (
-	H5PartFile *f	/*!< IN: file handle */
+	H5PartFile *f			/*!< IN: file handle */
 	) {
 	h5part_int64_t herr;
 	struct H5BlockStruct *b; 
@@ -251,7 +251,7 @@ _normalize_partition (
 #ifdef PARALLEL_IO
 static h5part_int64_t
 _allgather (
-	const H5PartFile *f	/*!< IN: file handle */
+	const H5PartFile *f		/*!< IN: file handle */
 	) {
 	struct H5BlockPartition *partition = &f->block->user_layout[f->myproc];
 	struct H5BlockPartition *layout = f->block->user_layout;
@@ -270,7 +270,7 @@ _allgather (
 #else
 static h5part_int64_t
 _allgather (
-	const H5PartFile *f	/*!< IN: file handle */
+	const H5PartFile *f		/*!< IN: file handle */
 	) {
 
 	return H5PART_SUCCESS;
@@ -287,7 +287,7 @@ _allgather (
 */
 static void
 _get_dimension_sizes (
-	H5PartFile *f	/*!< IN: file handle */
+	H5PartFile *f			/*!< IN: file handle */
 	) {
 	int proc;
 	struct H5BlockStruct *b = f->block;
@@ -664,7 +664,7 @@ _dissolve_ghostzones (
 */
 h5part_int64_t
 _release_hyperslab (
-	H5PartFile *f		/*!< IN: file handle */
+	H5PartFile *f			/*!< IN: file handle */
 	) {
 	herr_t herr;
 
@@ -748,14 +748,14 @@ H5BlockDefine3DFieldLayout(
 */
 h5part_int64_t
 H5Block3dGetPartitionOfProc (
-	H5PartFile *f,		/*!< IN: File handle			*/
-	const h5part_int64_t proc,/*!< IN: Processor to get partition from */
-	h5part_int64_t *i_start,/*!< OUT: start index of \c i		*/ 
-	h5part_int64_t *i_end,	/*!< OUT: end index of \c i		*/  
-	h5part_int64_t *j_start,/*!< OUT: start index of \c j		*/ 
-	h5part_int64_t *j_end,	/*!< OUT: end index of \c j		*/ 
-	h5part_int64_t *k_start,/*!< OUT: start index of \c k		*/ 
-	h5part_int64_t *k_end	/*!< OUT: end index of \c k		*/ 
+	H5PartFile *f,			/*!< IN: File handle */
+	const h5part_int64_t proc,	/*!< IN: Processor to get partition from */
+	h5part_int64_t *i_start,	/*!< OUT: start index of \c i	*/ 
+	h5part_int64_t *i_end,		/*!< OUT: end index of \c i	*/  
+	h5part_int64_t *j_start,	/*!< OUT: start index of \c j	*/ 
+	h5part_int64_t *j_end,		/*!< OUT: end index of \c j	*/ 
+	h5part_int64_t *k_start,	/*!< OUT: start index of \c k	*/ 
+	h5part_int64_t *k_end		/*!< OUT: end index of \c k	*/ 
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
@@ -788,14 +788,14 @@ H5Block3dGetPartitionOfProc (
 */
 h5part_int64_t
 H5Block3dGetReducedPartitionOfProc (
-	H5PartFile *f,		/*!< IN: File handle */
-	h5part_int64_t proc,	/*!< IN: Processor to get partition from */
-	h5part_int64_t *i_start,/*!< OUT: start index of \c i */ 
-	h5part_int64_t *i_end,	/*!< OUT: end index of \c i */  
-	h5part_int64_t *j_start,/*!< OUT: start index of \c j */ 
-	h5part_int64_t *j_end,	/*!< OUT: end index of \c j */ 
-	h5part_int64_t *k_start,/*!< OUT: start index of \c j */ 
-	h5part_int64_t *k_end	/*!< OUT: end index of \c j */ 
+	H5PartFile *f,			/*!< IN: File handle */
+	h5part_int64_t proc,		/*!< IN: Processor to get partition from */
+	h5part_int64_t *i_start,	/*!< OUT: start index of \c i */ 
+	h5part_int64_t *i_end,		/*!< OUT: end index of \c i */  
+	h5part_int64_t *j_start,	/*!< OUT: start index of \c j */ 
+	h5part_int64_t *j_end,		/*!< OUT: end index of \c j */ 
+	h5part_int64_t *k_start,	/*!< OUT: start index of \c j */ 
+	h5part_int64_t *k_end		/*!< OUT: end index of \c j */ 
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
@@ -821,14 +821,17 @@ H5Block3dGetReducedPartitionOfProc (
 /*!
   \ingroup h5block_c_api
 
+  Returns the processor computing the reduced (ghostzone-free) 
+  partition given by the coordinates \c i, \c j and \c k.
+
   \return \c H5PART_SUCCESS or error code
 */
 h5part_int64_t
 H5Block3dGetProcOf (
-	H5PartFile *f,
-	h5part_int64_t i,
-	h5part_int64_t j,
-	h5part_int64_t k
+	H5PartFile *f,			/*!< IN: File handle */
+	h5part_int64_t i,		/*!< IN: \c i coordinate */
+	h5part_int64_t j,		/*!< IN: \c j coordinate */
+	h5part_int64_t k		/*!< IN: \c k coordinate */
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
@@ -859,7 +862,7 @@ H5Block3dGetProcOf (
 */
 static h5part_int64_t
 _open_block_group (
-	const H5PartFile *f	/*!< IN: file handle */
+	const H5PartFile *f		/*!< IN: file handle */
 	) {
 
 	h5part_int64_t herr;
@@ -906,7 +909,7 @@ _have_object (
 */
 static h5part_int64_t
 _open_field_group (
-	H5PartFile *f,		/*!< IN: file handle */
+	H5PartFile *f,			/*!< IN: file handle */
 	const char *name
 	) {
 
@@ -936,7 +939,7 @@ _open_field_group (
 */
 h5part_int64_t
 _close_field_group (
-	H5PartFile *f		/*!< IN: file handle */
+	H5PartFile *f			/*!< IN: file handle */
 	) {
 
 	herr_t herr = H5Gclose ( f->block->field_group_id );
@@ -954,7 +957,7 @@ _close_field_group (
 */
 static h5part_int64_t
 _select_hyperslab_for_reading (
-	H5PartFile *f,		/*!< IN: file handle */
+	H5PartFile *f,			/*!< IN: file handle */
 	hid_t dataset
 	) {
 
@@ -1042,9 +1045,9 @@ _select_hyperslab_for_reading (
 */
 h5part_int64_t
 _read_data (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *name,
-	h5part_float64_t *data
+	H5PartFile *f,			/*!< IN: file handle */
+	const char *name,		/*!< IN: name of dataset to read */
+	h5part_float64_t *data		/*!< OUT: ptr to read buffer */
 	) {
 
 	struct H5BlockStruct *b = f->block;
@@ -1077,9 +1080,9 @@ _read_data (
 */
 h5part_int64_t
 H5Block3dReadScalarField (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *name,
-	h5part_float64_t *data
+	H5PartFile *f,			/*!< IN: file handle */
+	const char *name,		/*!< IN: name of dataset to read */
+	h5part_float64_t *data		/*!< OUT: ptr to read buffer */
 	) {
 
 	SET_FNAME ( "H5Block3dReadScalarField" );
@@ -1106,11 +1109,11 @@ H5Block3dReadScalarField (
 */
 h5part_int64_t
 H5Block3dRead3dVectorField (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *name,
-	h5part_float64_t *x_data,
-	h5part_float64_t *y_data,
-	h5part_float64_t *z_data
+	H5PartFile *f,			/*!< IN: file handle */
+	const char *name,		/*!< IN: name of dataset to read */
+	h5part_float64_t *x_data,	/*!< OUT: ptr to read buffer X axis */
+	h5part_float64_t *y_data,	/*!< OUT: ptr to read buffer Y axis */
+	h5part_float64_t *z_data	/*!< OUT: ptr to read buffer Z axis */
 	) {
 
 	SET_FNAME ( "H5Block3dRead3dVectorField" );
@@ -1261,7 +1264,7 @@ _select_hyperslab_for_writing (
 */
 static h5part_int64_t
 _create_block_group (
-	const H5PartFile *f	/*!< IN: file handle */
+	const H5PartFile *f		/*!< IN: file handle */
 	) {
 
 	herr_t herr;
@@ -1289,8 +1292,8 @@ _create_block_group (
 */
 static h5part_int64_t
 _create_field_group (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *name
+	H5PartFile *f,			/*!< IN: file handle */
+	const char *name		/*!< IN: name of field group to create */
 	) {
 
 	herr_t herr;
@@ -1326,9 +1329,9 @@ _create_field_group (
 */
 h5part_int64_t
 _write_data (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *name,
-	const h5part_float64_t *data
+	H5PartFile *f,			/*!< IN: file handle */
+	const char *name,		/*!< IN: name of dataset to write */
+	const h5part_float64_t *data	/*!< IN: data to write */
 	) {
 
 	herr_t herr;
@@ -1365,9 +1368,9 @@ _write_data (
 */
 h5part_int64_t
 H5Block3dWriteScalarField (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *name,
-	const h5part_float64_t *data
+	H5PartFile *f,			/*!< IN: file handle */
+	const char *name,		/*!< IN: name of dataset to write */
+	const h5part_float64_t *data	/*!< IN: scalar data to write */
 	) {
 
 	SET_FNAME ( "H5Block3dWriteScalarField" );
@@ -1398,11 +1401,11 @@ H5Block3dWriteScalarField (
 */
 h5part_int64_t
 H5Block3dWrite3dVectorField (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *name,
-	const h5part_float64_t *x_data,
-	const h5part_float64_t *y_data,
-	const h5part_float64_t *z_data
+	H5PartFile *f,			/*!< IN: file handle */
+	const char *name,		/*!< IN: name of dataset to write */
+	const h5part_float64_t *x_data,	/*!< IN: X axis data */
+	const h5part_float64_t *y_data,	/*!< IN: Y axis data */
+	const h5part_float64_t *z_data	/*!< IN: Z axis data */
 	) {
 
 	SET_FNAME ( "H5Block3dWrite3dVectorField" );
@@ -1460,11 +1463,11 @@ H5BlockGetNumFields (
 */
 static h5part_int64_t
 _get_field_info (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *field_name,
-	h5part_int64_t *grid_rank,
-	h5part_int64_t *grid_dims,
-	h5part_int64_t *field_dims
+	H5PartFile *f,			/*!< IN: file handle */
+	const char *field_name,		/*!< IN: field name to get info about */
+	h5part_int64_t *grid_rank,	/*!< OUT: rank of grid */
+	h5part_int64_t *grid_dims,	/*!< OUT: dimensions of grid */
+	h5part_int64_t *field_dims	/*!< OUT: rank of field  (1 or 3) */
 	) {
 
 	hsize_t dims[16];
@@ -1513,13 +1516,13 @@ _get_field_info (
 */
 h5part_int64_t
 H5BlockGetFieldInfo (
-	H5PartFile *f,		/*!< IN: file handle */
-	const h5part_int64_t idx,
-	char *field_name,
-	const h5part_int64_t len_field_name,
-	h5part_int64_t *grid_rank,
-	h5part_int64_t *grid_dims,
-	h5part_int64_t *field_dims
+	H5PartFile *f,				/*!< IN: file handle */
+	const h5part_int64_t idx,		/*!< IN: index of field */
+	char *field_name,			/*!< OUT: field name */
+	const h5part_int64_t len_field_name,	/*!< IN: buffer size */
+	h5part_int64_t *grid_rank,		/*!< OUT: grid rank */
+	h5part_int64_t *grid_dims,		/*!< OUT: grid dimensions */
+	h5part_int64_t *field_dims		/*!< OUT: field rank */
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
@@ -1546,11 +1549,11 @@ H5BlockGetFieldInfo (
 */
 h5part_int64_t
 H5BlockGetFieldInfoByName (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *field_name,
-	h5part_int64_t *grid_rank,
-	h5part_int64_t *grid_dims,
-	h5part_int64_t *field_dims
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	h5part_int64_t *grid_rank,		/*!< OUT: grid rank */
+	h5part_int64_t *grid_dims,		/*!< OUT: grid dimensions */
+	h5part_int64_t *field_dims		/*!< OUT: field rank */
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
@@ -1572,12 +1575,12 @@ H5BlockGetFieldInfoByName (
 */
 static h5part_int64_t
 _write_field_attrib (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *field_name,
-	const char *attrib_name,
-	const hid_t attrib_type,
-	const void *attrib_value,
-	const h5part_int64_t attrib_nelem
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const hid_t attrib_type,		/*!< IN: attribute type */
+	const void *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
 	) {
 
 	h5part_int64_t herr = _open_field_group ( f, field_name );
@@ -1604,12 +1607,12 @@ _write_field_attrib (
 */
 h5part_int64_t
 H5BlockWriteFieldAttrib (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *field_name,
-	const char *attrib_name,
-	const h5part_int64_t attrib_type,
-	const void *attrib_value,
-	const h5part_int64_t attrib_nelem
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_int64_t attrib_type,	/*!< IN: attribute type */
+	const void *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
 	) {
 
 	SET_FNAME ( "H5BlockWriteFieldAttrib" );
@@ -1634,10 +1637,10 @@ H5BlockWriteFieldAttrib (
 */
 h5part_int64_t
 H5BlockWriteFieldAttribString (
-	H5PartFile *f,		/*!< IN: file handle */
-	const char *field_name,
-	const char *attrib_name,
-	const char *attrib_value
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const char *attrib_value		/*!< IN: attribute value */
 	) {
 
 	SET_FNAME ( "H5BlockWriteFieldAttribString" );
@@ -1661,8 +1664,8 @@ H5BlockWriteFieldAttribString (
 */
 h5part_int64_t
 H5BlockGetNumFieldAttribs (
-	H5PartFile *f,			/*!< IN: file handle */
-	const char *field_name		/*<! IN: field name */
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name			/*<! IN: field name */
 	) {
 
 	SET_FNAME ( "H5BlockGetNumFieldAttribs" );
