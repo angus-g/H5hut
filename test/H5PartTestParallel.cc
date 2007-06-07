@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <hdf5.h>
-#include "H5Part.hh"
+#include "H5Part.h"
 
 #ifdef PARALLEL_IO
 
@@ -84,8 +84,8 @@ int main(int argc,char *argv[]){
   /* now lets compute the appropriate idStart and idEnd 
      for this particular processor */
 
-  unsigned h5part_int64_t idStart = sz*myproc;
-  unsigned h5part_int64_t idEnd   = (sz-1)+sz*myproc;
+  h5part_int64_t idStart = sz*myproc;
+  h5part_int64_t idEnd   = (sz-1)+sz*myproc;
   H5PartSetView(file,idStart,idEnd);
   np=H5PartGetNumParticles(file);
   printf("Proc[%u]: View=%u:%u : particles= %u\n",
