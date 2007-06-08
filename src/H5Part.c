@@ -159,6 +159,10 @@ _H5Part_open_file (
 		/* for the SP2... perhaps different for linux */
 		MPI_Info info = MPI_INFO_NULL;
 
+		/* ks: IBM_large_block_io */
+		MPI_Info_create(&info);
+		MPI_Info_set(info, "IBM_largeblock_io", "true" );
+
 		if (MPI_Comm_size (comm, &f->nprocs) != MPI_SUCCESS) {
 			HANDLE_MPI_COMM_SIZE_ERR;
 			goto error_cleanup;
@@ -204,6 +208,8 @@ _H5Part_open_file (
 		}
 
 		f->comm = comm;
+
+		MPI_Info_free(&info);
 #endif
 	} else {
 		f->comm = 0;
@@ -536,7 +542,7 @@ H5PartSetNumParticles (
 	/*
 	  acquire the number of particles to be written from each MPI process
 	*/
---------
+
 	r = MPI_Allgather (
 		&nparticles, 1, MPI_LONG_LONG,
 		f->pnparticles, 1, MPI_LONG_LONG,
@@ -564,8 +570,6 @@ H5PartSetNumParticles (
 	for (i=0; i < f->nprocs; i++) {
 		total += f->pnparticles[i];
 	}
-
-------------
 
 	/* declare overall datasize */
 	f->shape = H5Screate_simple (1, &total, &total);
@@ -622,6 +626,15 @@ _write_data (
 	if ( dataset_id < 0 )
 		return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
 
+#ifdef COLLECTIVE_IO
+	herr = H5Dwrite (
+		dataset_id,
+		type,
+		f->memshape,
+		f->diskshape,
+		f->xfer_prop,
+		array );
+#else
 	herr = H5Dwrite (
 		dataset_id,
 		type,
@@ -629,6 +642,8 @@ _write_data (
 		f->diskshape,
 		H5P_DEFAULT,
 		array );
+#endif
+
 	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
 
 	herr = H5Dclose ( dataset_id );
@@ -2166,6 +2181,7 @@ _read_data (
 	memspace_id = _get_memshape_for_reading ( f, dataset_id );
 	if ( memspace_id < 0 ) return (h5part_int64_t)memspace_id;
 
+#ifdef INDEPENDENT_IO
 	herr = H5Dread (
 		dataset_id,
 		type,
@@ -2175,6 +2191,18 @@ _read_data (
 					   (get hyperslab if needed) */
 		H5P_DEFAULT,		/* ignore... its for parallel reads */
 		array );
+#else
+	herr = H5Dread (
+		dataset_id,
+		type,
+		memspace_id,		/* shape/size of data in memory (the
+					   complement to disk hyperslab) */
+		space_id,		/* shape/size of data on disk 
+					   (get hyperslab if needed) */
+		f->xfer_prop,		/* ignore... its for parallel reads */
+		array );
+#endif
+
 	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->timestep );
 
 	if ( space_id != H5S_ALL ) {
