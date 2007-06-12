@@ -689,7 +689,7 @@ _release_hyperslab (
 /*!
   \ingroup h5block_c_api
 
-  Define the field layout (FL) given the dense index space at the actual
+  Define the field layout given the dense index space at the actual
   time step.
 
   \return \c H5PART_SUCCESS on success<br>
@@ -1076,6 +1076,12 @@ _read_data (
 /*!
   \ingroup h5block_c_api
 
+  Read a 3-dimensional field \c name into the buffer starting at \c data from
+  the current time-step using the defined field layout. Values are real valued
+  scalars.
+
+  You must use the FORTRAN indexing scheme to access items in \c data.
+
   \return \c H5PART_SUCCESS or error code
 */
 h5part_int64_t
@@ -1104,6 +1110,13 @@ H5Block3dReadScalarField (
 
 /*!
   \ingroup h5block_c_api
+
+  Read a 3-dimensional field \c name with 3-dimensional vectors as values 
+  into the buffers starting at \c x_data, \c y_data and \c z_data from the
+  current time-step using the defined field layout. Values are 3-dimensional
+  vectors with real values.
+
+  You must use the FORTRAN indexing scheme to access items in the buffers.
 
   \return \c H5PART_SUCCESS or error code
 */
@@ -1364,6 +1377,12 @@ _write_data (
 /*!
   \ingroup h5block_c_api
 
+  Write a 3-dimensional field \c name from the buffer starting at \c data 
+  to the current time-step using the defined field layout. Values are real 
+  valued scalars.
+
+  You must use the FORTRAN indexing scheme to access items in \c data.
+
   \return \c H5PART_SUCCESS or error code
 */
 h5part_int64_t
@@ -1395,7 +1414,12 @@ H5Block3dWriteScalarField (
   \ingroup h5block_c_api
 */
 /*!
-  Write a 3D real valued vector field using the defined FL for this block
+  Write a 3-dimensional field \c name with 3-dimensional vectors as values 
+  from the buffers starting at \c x_data, \c y_data and \c z_data to the
+  current time-step using the defined field layout. Values are 3-dimensional
+  vectors with real values.
+
+  You must use the FORTRAN indexing scheme to access items in \c data.
 
   \return \c H5PART_SUCCESS or error code
 */
@@ -1512,6 +1536,14 @@ _get_field_info (
 /*!
   \ingroup h5block_c_api
 
+  Get the name, rank and dimensions of the field specified by the
+  index \c idx.
+
+  This function can be used to retrieve all fields bound to the
+  current time-step by looping from \c 0 to the number of fields
+  minus one.  The number of fields bound to the current time-step
+  can be queried by calling the function \c H5BlockGetNumFields().
+
   \return \c H5PART_SUCCESS or error code
 */
 h5part_int64_t
@@ -1544,6 +1576,8 @@ H5BlockGetFieldInfo (
 
 /*!
   \ingroup h5block_c_api
+
+  Get the rank and dimensions of the field specified by its name.
 
   \return \c H5PART_SUCCESS or error code
 */
@@ -1602,6 +1636,9 @@ _write_field_attrib (
 
 /*!
   \ingroup h5block_c_api
+
+  Write \c attrib_value with type \c attrib_type as attribute \c attrib_name
+  to field \c field_name.
 
   \return \c H5PART_SUCCESS or error code
 */
@@ -1850,7 +1887,7 @@ H5Block3dSetFieldOrigin (
 /*!
   \ingroup h5block_c_api
 
-  Get field spacing.
+  Get field spacing for field \c field_name in the current time step.
 
   \return \c H5PART_SUCCESS or error code
 */
@@ -1881,7 +1918,7 @@ H5Block3dGetFieldSpacing (
 /*!
   \ingroup h5block_c_api
 
-  Set field spacing.
+  Set field spacing for field \c field_name in the current time step.
 
   \return \c H5PART_SUCCESS or error code
 */
