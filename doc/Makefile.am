@@ -1,2 +1,2 @@
 EXTRA_DIST = \
-	Doxyfile doxyfooter \
+	Doxyfile doxyfooter
