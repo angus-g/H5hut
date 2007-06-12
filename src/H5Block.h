@@ -12,25 +12,25 @@ extern "C" {
 
 h5part_int64_t
 H5BlockDefine3DFieldLayout (
-	H5PartFile *f,			/*!< file handle */
-	const h5part_int64_t i_start,	/*!< start index of i */
-	const h5part_int64_t i_end,	/*!< end index of i */
-	const h5part_int64_t j_start,	/*!< start index of j */
-	const h5part_int64_t j_end,	/*!< end index of j */
-	const h5part_int64_t k_start,	/*!< start index of k */
-	const h5part_int64_t k_end	/*!< end index of k */
+	H5PartFile *f,
+	const h5part_int64_t i_start,
+	const h5part_int64_t i_end,
+	const h5part_int64_t j_start,
+	const h5part_int64_t j_end,
+	const h5part_int64_t k_start,
+	const h5part_int64_t k_end
 	);
 
 h5part_int64_t
 H5Block3dGetPartitionOfProc (
-	H5PartFile *f,			/*!< file handle */
+	H5PartFile *f,
 	const h5part_int64_t proc,
-	h5part_int64_t *i_start,	/*!< start index of i */
-	h5part_int64_t *i_end,		/*!< end index of i */
-	h5part_int64_t *j_start,	/*!< start index of j */
-	h5part_int64_t *j_end,		/*!< end index of j */
-	h5part_int64_t *k_start,	/*!< start index of k */
-	h5part_int64_t *k_end		/*!< end index of k */
+	h5part_int64_t *i_start,
+	h5part_int64_t *i_end,
+	h5part_int64_t *j_start,
+	h5part_int64_t *j_end,
+	h5part_int64_t *k_start,
+	h5part_int64_t *k_end
 	);
 
 h5part_int64_t
@@ -132,20 +132,20 @@ H5Block3dSetFieldSpacing (
 
 h5part_int64_t
 H5Block3dWrite3dVectorField (
-	H5PartFile *f,			/*!< file handle */
-	const char *name,		/*!< name of the data set */
-	const h5part_float64_t *xval,	/*!< array of x component data */
-	const h5part_float64_t *yval,	/*!< array of y component data */
-	const h5part_float64_t *zval	/*!< array of z component data */
+	H5PartFile *f,
+	const char *name,
+	const h5part_float64_t *xval,
+	const h5part_float64_t *yval,
+	const h5part_float64_t *zval
 	);	
 
 h5part_int64_t
 H5Block3dRead3dVectorField (
-	H5PartFile *f,			/*!< file handle */
-	const char *name,		/*!< name of the data set */
-	h5part_float64_t *xval,		/*!< array of x component data */
-	h5part_float64_t *yval,		/*!< array of y component data */
-	h5part_float64_t *zval		/*!< array of z component data */
+	H5PartFile *f,
+	const char *name,
+	h5part_float64_t *xval,
+	h5part_float64_t *yval,
+	h5part_float64_t *zval
 	);
 
 h5part_int64_t
@@ -194,128 +194,6 @@ H5BlockReadFieldAttrib (
 h5part_int64_t
 H5BlockHasFieldData (
 	H5PartFile *f
-	);
-
-/*!
-  Checks if the block of the actual time step is refined i.e. if we
-  have a patch
-
-  \return \c 1 if we have a patch, otherwise \c 0
-*/
-h5part_int64_t
-H5BlockIsPatch (
-	H5PartFile *f,		/*!< file handle */
-	const char *name	/*!< name of the data set */
-	);
-
-/*!
-  return the maximum level refinement of refinement at the current
-  time step
-
-  \return number or error code
-*/
-h5part_int64_t
-H5BlockGetMaxRefinementLevel (
-	H5PartFile *f,		/*!< file handle */
-	const char *name	/*!< name of the data set */
-	);
-
-/*!
-  Write the mesh spacing for the active (current) block 
-
-  \return \c H5PART_SUCCESS or error code
-*/
-h5part_int64_t
-H5BlockSetMeshSpacing (
-	H5PartFile *f,		/*!< file handle */
-	char *name,		/*!< name of the data set */
-	h5part_float64_t dx,	/*!< mesh spacing in x */
-	h5part_float64_t dy,	/*!< mesh spacing in y */
-	h5part_float64_t dz	/*!< mesh spacing in z */
-	);
-
-/*==========================================================================*/
-/*
-  The following reflects the fact that we have fields which are decomposed
-  into modes.
-
-  Augment the field name with the mode number and use this name to store
-  the field.  For the mode freqency use the same procedure.
-*/
-
-/*!	
-  Read the number of stored modes at actual timestep 
-
-  \return \c H5PART_SUCCESS or error code
-*/
-h5part_int64_t
-H5BlockGetNumberOfModes (
-	H5PartFile *f,		/*!< file handle */
-	char *name		/*!< name of the data set */
-	); 
-
-/*!
-  Set the number of stored modes at actual timestep 
-
-  \return \c H5PART_SUCCESS or error code
-*/
-h5part_int64_t
-H5BlockSetNumberOfModes (
-	H5PartFile *f,		/*!< file handle */
-	char *name,		/*!< name of the data set */
-	int modes		/*!< the number of modes */
-	); 
-
-/*!
-  Write the quality factor for a given mode
-
-  \return \c H5PART_SUCCESS or error code
-*/
-h5part_int64_t
-H5BlockSetQFactor (
-	H5PartFile *f,		/*!< file handle */
-	char *name,		/*!< name of the data set */
-	int mode,		/*!< the mode number of the field */
-	h5part_float64_t Q	/*!< the quality factor */
-	);
-
-/*!
-  Write the S-parameters for a given mode
-
-  \return \c H5PART_SUCCESS or error code
-*/	
-h5part_int64_t
-H5BlockSetSParams (
-	H5PartFile *f,		/*!< file handle */
-	char *name,		/*!< name of the data set */
-	int mode,		/*!< the mode number of the field */
-	h5part_float64_t **s	/*!< S-parameters */
-	);
-
-/*!
-  Read the quality factor for a given mode
-
-  \return \c H5PART_SUCCESS or error code
-*/
-h5part_int64_t
-H5BlockGetQFactor (
-	H5PartFile *f,		/*!< file handle */
-	char *name,		/*!< name of the data set */
-	int mode,		/*!< the mode number of the field */
-	h5part_float64_t *Q	/*!< the quality factor */
-	);
-
-/*!
-  Read the S-parameters for a given mode
-
-  \return \c H5PART_SUCCESS or error code
-*/	
-h5part_int64_t
-H5BlockGetSParams ( 
-	H5PartFile *f,		/*!< file handle */
-	char *name,		/*!< name of the data set */
-	int mode,		/*!< the mode number of the field */
-	h5part_float64_t **s	/*!< S-parameters */
 	);
 
 
