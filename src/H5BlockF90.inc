@@ -141,4 +141,20 @@
           INTEGER*8, INTENT(IN) :: filehandle
         END FUNCTION
 
+        INTEGER*8 FUNCTION h5bl_3d_get_field_spacing ( filehandle, name, x, y, z )
+          INTEGER*8, INTENT(IN) :: filehandle
+          CHARACTER(LEN=*), INTENT(IN) :: name
+	  REAL*8, INTENT(OUT) :: x
+	  REAL*8, INTENT(OUT) :: y
+	  REAL*8, INTENT(OUT) :: z
+	END FUNCTION
+
+        INTEGER*8 FUNCTION h5bl_3d_set_field_spacing ( filehandle, name, x, y, z )
+          INTEGER*8, INTENT(IN) :: filehandle
+          CHARACTER(LEN=*), INTENT(IN) :: name
+	  REAL*8, INTENT(IN) :: x
+	  REAL*8, INTENT(IN) :: y
+	  REAL*8, INTENT(IN) :: z
+	END FUNCTION
+
       END INTERFACE
