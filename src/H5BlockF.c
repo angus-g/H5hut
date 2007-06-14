@@ -74,9 +74,15 @@
 #define h5bl_3d_set_field_spacing (					\
 					h5bl_3d_set_field_spacing_,	\
 					H5BL_3D_SET_FIELD_SPACING )
-#define h5bl_3d_set_field_spacing (					\
+#define h5bl_3d_get_field_spacing (					\
 					h5bl_3d_get_field_spacing_,	\
 					H5BL_3D_GET_FIELD_SPACING )
+#define h5bl_3d_set_field_origin (					\
+					h5bl_3d_set_field_origin_,	\
+					H5BL_3D_SET_FIELD_ORIGIN )
+#define h5bl_3d_get_field_origin (					\
+					h5bl_3d_get_field_origin_,	\
+					H5BL_3D_GET_FIELD_origin )
 #endif
 
 h5part_int64_t
@@ -494,9 +500,9 @@ h5part_int64_t
 h5b_3d_get_field_spacing (
 	h5part_int64_t *f,
 	const char *field_name,
-	h5part_int64_t *x,
-	h5part_int64_t *y,
-	h5part_int64_t *z,
+	h5part_float64_t *x,
+	h5part_float64_t *y,
+	h5part_float64_t *z,
 	const int l_field_name
 	) {
 
@@ -515,9 +521,9 @@ h5part_int64_t
 h5b_3d_set_field_spacing (
 	h5part_int64_t *f,
 	const char *field_name,
-	const h5part_int64_t *x,
-	const h5part_int64_t *y,
-	const h5part_int64_t *z,
+	const h5part_float64_t *x,
+	const h5part_float64_t *y,
+	const h5part_float64_t *z,
 	const int l_field_name
 	) {
 
@@ -526,6 +532,48 @@ h5b_3d_set_field_spacing (
 	char *field_name2 =  _H5Part_strdupfor2c ( field_name, l_field_name );
 
 	h5part_int64_t herr = H5Block3dSetFieldSpacing (
+		filehandle, field_name2, *x, *y, *z );
+
+	free ( field_name2 );
+	return herr;
+}
+
+h5part_int64_t
+h5b_3d_get_field_origin (
+	h5part_int64_t *f,
+	const char *field_name,
+	h5part_float64_t *x,
+	h5part_float64_t *y,
+	h5part_float64_t *z,
+	const int l_field_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *field_name2 =  _H5Part_strdupfor2c ( field_name, l_field_name );
+
+	h5part_int64_t herr = H5Block3dGetFieldOrigin (
+		filehandle, field_name2, x, y, z );
+
+	free ( field_name2 );
+	return herr;
+}
+
+h5part_int64_t
+h5b_3d_set_field_origin (
+	h5part_int64_t *f,
+	const char *field_name,
+	const h5part_float64_t *x,
+	const h5part_float64_t *y,
+	const h5part_float64_t *z,
+	const int l_field_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *field_name2 =  _H5Part_strdupfor2c ( field_name, l_field_name );
+
+	h5part_int64_t herr = H5Block3dSetFieldOrigin (
 		filehandle, field_name2, *x, *y, *z );
 
 	free ( field_name2 );
