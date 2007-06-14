@@ -1822,6 +1822,10 @@ H5BlockReadFieldAttrib (
 		f, field_name, attrib_name, attrib_value );
 }
 
+
+#define H5BLOCK_FIELD_ORIGIN_NAME	"__Origin__"
+#define H5BLOCK_FIELD_SPACING_NAME	"__Spacing__"
+
 /*!
   \ingroup h5block_c_api
 
@@ -1845,7 +1849,10 @@ H5Block3dGetFieldOrigin (
 	h5part_float64_t origin[3];
 
 	h5part_int64_t herr = _read_field_attrib (
-		f, field_name, "Origin", origin );
+		f,
+		field_name,
+		H5BLOCK_FIELD_ORIGIN_NAME,
+		origin );
 
 	*x_origin = origin[0];
 	*y_origin = origin[1];
@@ -1879,7 +1886,8 @@ H5Block3dSetFieldOrigin (
 	return _write_field_attrib (
 		f,
 		field_name,
-		"Origin", H5PART_FLOAT64, 
+		H5BLOCK_FIELD_ORIGIN_NAME,
+		H5PART_FLOAT64, 
 		origin,
 		3 );
 }
@@ -1907,7 +1915,10 @@ H5Block3dGetFieldSpacing (
 	h5part_float64_t spacing[3];
 
 	h5part_int64_t herr = _read_field_attrib (
-		f, field_name, "Spacing", spacing );
+		f,
+		field_name,
+		H5BLOCK_FIELD_SPACING_NAME,
+		spacing );
 
 	*x_spacing = spacing[0];
 	*y_spacing = spacing[1];
@@ -1941,7 +1952,8 @@ H5Block3dSetFieldSpacing (
 	return _write_field_attrib (
 		f,
 		field_name,
-		"Spacing", H5PART_FLOAT64, 
+		H5BLOCK_FIELD_SPACING_NAME,
+		H5PART_FLOAT64, 
 		spacing,
 		3 );
 }
