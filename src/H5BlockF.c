@@ -71,16 +71,16 @@
 #define h5bl_has_fielddata F77NAME (					\
 					h5bl_has_fielddata_,		\
 					H5BL_HAS_FIELDDATA )
-#define h5bl_3d_set_field_spacing (					\
+#define h5bl_3d_set_field_spacing F77NAME (				\
 					h5bl_3d_set_field_spacing_,	\
 					H5BL_3D_SET_FIELD_SPACING )
-#define h5bl_3d_get_field_spacing (					\
+#define h5bl_3d_get_field_spacing F77NAME (				\
 					h5bl_3d_get_field_spacing_,	\
 					H5BL_3D_GET_FIELD_SPACING )
-#define h5bl_3d_set_field_origin (					\
+#define h5bl_3d_set_field_origin F77NAME (				\
 					h5bl_3d_set_field_origin_,	\
 					H5BL_3D_SET_FIELD_ORIGIN )
-#define h5bl_3d_get_field_origin (					\
+#define h5bl_3d_get_field_origin F77NAME (				\
 					h5bl_3d_get_field_origin_,	\
 					H5BL_3D_GET_FIELD_origin )
 #endif
