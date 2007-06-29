@@ -10,8 +10,12 @@
           CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for writing
         END FUNCTION
 
+        INTEGER*8 FUNCTION h5pt_opena ( filename )
+          CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for appending
+        END FUNCTION
+
         INTEGER*8 FUNCTION h5pt_openr_par ( filename, mpi_communicator )
-          CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for writing
+          CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for reading
           INTEGER, INTENT(IN) :: mpi_communicator       ! the MPI_Communicator used by the program
         END FUNCTION
 
@@ -19,6 +23,12 @@
           CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for writing
           INTEGER, INTENT(IN) :: mpi_communicator       ! the MPI_Communicator used by the program
         END FUNCTION
+
+        INTEGER*8 FUNCTION h5pt_opena_par ( filename, mpi_communicator )
+          CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for appending
+          INTEGER, INTENT(IN) :: mpi_communicator       ! the MPI_Communicator used by the program
+        END FUNCTION
+
 
         INTEGER*8 FUNCTION h5pt_close ( filehandle )
           INTEGER*8, INTENT(IN) :: filehandle           ! close this open filehandle
