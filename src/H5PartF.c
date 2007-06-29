@@ -20,12 +20,18 @@
 #define h5pt_openw F77NAME (						\
 					h5pt_openw_,			\
 					H5PT_OPENW )
+#define h5pt_opena F77NAME (						\
+					h5pt_opena_,			\
+					H5PT_OPENA )
 #define h5pt_openr_par F77NAME (					\
 					h5pt_openr_par_,		\
 					H5PT_OPENR_PAR )
 #define h5pt_openw_par F77NAME (					\
 					h5pt_openw_par_,		\
 					H5PT_OPENW_PAR )
+#define h5pt_opena_par F77NAME (					\
+					h5pt_opena_par_,		\
+					H5PT_OPENA_PAR )
 #define h5pt_close F77NAME (						\
 					h5pt_close_,			\
 					H5PT_CLOSE) 
@@ -207,6 +213,20 @@ h5pt_openw (
 	return (h5part_int64_t)(size_t)f; 
 }
 
+h5part_int64_t
+h5pt_opena (
+	const char *file_name,
+	const int l_file_name
+	) {
+	
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+
+	H5PartFile* f = H5PartOpenFile ( file_name2, H5PART_APPEND );
+
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f;
+}
+
 #ifdef PARALLEL_IO
 h5part_int64_t
 h5pt_openr_par (
@@ -224,7 +244,7 @@ h5pt_openr_par (
 	return (h5part_int64_t)(size_t)f; 
 }
 
-haddr_t
+h5part_int64_t
 h5pt_openw_par (
 	const char *file_name,
 	MPI_Comm *comm,
@@ -238,6 +258,22 @@ h5pt_openw_par (
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
+}
+
+h5part_int64_t
+h5pt_opena_par (
+	const char *file_name,
+	MPI_Comm *comm,
+	const int l_file_name
+	) {
+	
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+       
+       H5PartFile* f = H5PartOpenFileParallel (
+               file_name2, H5PART_APPEND, *comm );
+       
+       free ( file_name2 );
+       return (h5part_int64_t)(size_t)f;
 }
 #endif
 
