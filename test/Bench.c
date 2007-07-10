@@ -15,21 +15,29 @@
 
 #define FILENAME "testio"
 /* normally 64 steps for real benchmark */
-#define NSTEPS 5 
+/* #define NSTEPS 5 */
+ 
 /* normally 51e6 for real benchmark */
 #define NPARTICLES 51e4
 #define NTRIALS 3
 
 /*
 
-bench <nParticles>
-
+bench <nParticles> <nSteps>
 
 */
 
 
 int main(int argc,char *argv[]){
-  printf("Start benchmarks...\n");
+
+  if (argc < 3) {
+    printf("Usage: bench <nParticles> <nSteps> \n");
+    exit(-1);
+  }
+  else {
+    printf("nparticles: %d, nsteps: %d \n", atoi(argv[1]), atoi(argv[2]));
+  }
+
   MPI_Info info;
   int nprocs,rank;
   int trial;
@@ -37,6 +45,7 @@ int main(int argc,char *argv[]){
   double starttime,curtime, endtime;
 
   int nparticles = atoi(argv[1]);
+  int nsteps = atoi(argv[2]);
 
   double *x,*y,*z,*px,*py,*pz;
   typedef double *ddouble;
@@ -49,7 +58,6 @@ int main(int argc,char *argv[]){
   H5PartFile *f;
 #endif
   char newfilename[128];
-  char lastfilename[128];
   FILE *fd;
   MPI_File file;
   MPI_Offset foffset;
@@ -72,8 +80,6 @@ int main(int argc,char *argv[]){
   data[4]=py=(double*)malloc(sizeof(double)*(size_t)localnp);
   data[5]=pz=(double*)malloc(sizeof(double)*(size_t)localnp);
 
-
-
   
   /* printf("about to call create subarray with nparticles=%u localnp=%u offset=%u\n",
      nparticles,localnp,offset); */
@@ -86,9 +92,10 @@ int main(int argc,char *argv[]){
 			   &chunktype);
   MPI_Type_commit(&chunktype);
   MPI_Info_create(&info);
+  MPI_Info_set(info, "IBM_largeblock_io", "true" );
 
   if(rank==0) printf("Nprocs=%u Particles=%u*6attribs*sizeof(double) Particles/proc=%u Nsteps=%u Ntrials=%u\n",
-		     nprocs,nparticles,localnp,NSTEPS,NTRIALS);
+		     nprocs,nparticles,localnp,nsteps,NTRIALS);
 	
 
   for(trial=0;trial<NTRIALS;trial++){
@@ -97,7 +104,6 @@ int main(int argc,char *argv[]){
 
     MPI_Barrier(MPI_COMM_WORLD); /* to prevent unlink from interfering with file open */
     sprintf(filename,"%s.%u.mpio.dat",FILENAME,nprocs);
-    sprintf(lastfilename,"%s.%u.mpio.dat",FILENAME,nprocs);
 
     if(rank==0) unlink(filename);
     MPI_Barrier(MPI_COMM_WORLD); /* to prevent unlink from interfering with file open */
@@ -117,7 +123,7 @@ int main(int argc,char *argv[]){
     foffset=0;
     i=0;
     curtime=starttime;
-    for(i=0;i<NSTEPS;i++){
+    for(i=0;i<nsteps;i++){
       int n;
       MPI_Status status;
       for(j=0;j<6;j++){
@@ -126,42 +132,56 @@ int main(int argc,char *argv[]){
 	  (data[j])[n]=(double)rank;
 	/* write to that file */
 	/*  MPI_File_set_view(file,foffset,MPI_DOUBLE,chunktype,"native",info);*/
+
+#ifdef COLLECTIVE_IO
 	MPI_File_write_at_all(file,
 			      foffset,
 			      data[j],
 			      localnp,
 			      MPI_DOUBLE,&status);
+#else
+	MPI_File_write_at(file,
+			  foffset,
+			  data[j],
+			  localnp,
+			  MPI_DOUBLE,&status);
+#endif
+
 	foffset+=nparticles/nprocs;
       }
       curtime=MPI_Wtime(); /* ensure no race condition by broadcasting time */
       MPI_Bcast(&curtime,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
     }
+
+
     MPI_File_close(&file);
     MPI_Barrier(MPI_COMM_WORLD);
     endtime=MPI_Wtime();
-    sprintf(filename,"%s.%u.h5.dat",FILENAME,nprocs);
+
+
     /* foffset*=nprocs; if we want total megabytes written */
     if(rank==0){
       puts("*");
-      unlink(filename);
+      unlink(filename); 
       puts("======================================================");
       printf("Raw MPI-IO Total Duration %lf seconds, iterations=%u %lf Megabytes written per processor Nprocs= %u \n",
 	     (endtime-starttime),i,((double)foffset)/(1024.0*1024.0),nprocs);
       printf("Raw MPI-IO Effective Data Rate = %lf Megabytes/sec global and %lf Megabytes/sec per task Nprocs= %u \n",
-	     (double)(nprocs*localnp*sizeof(double))*((double)NSTEPS)*6.0/((endtime-starttime)*1024.0*1024.0),
-	     (double)(localnp*sizeof(double))*((double)NSTEPS)*6.0/((endtime-starttime)*1024.0*1024.0),nprocs);
+	     (double)(nprocs*localnp*sizeof(double))*((double)nsteps)*6.0/((endtime-starttime)*1024.0*1024.0),
+	     (double)(localnp*sizeof(double))*((double)nsteps)*6.0/((endtime-starttime)*1024.0*1024.0),nprocs);
       puts("======================================================");
     }
 
     MPI_Barrier(MPI_COMM_WORLD); /* to prevent unlink from interfering with file open */
-    /* OK, now we do this using H5Part */
+
+    /* OK, now we do this using POSIX IO */
     sprintf(newfilename,"testio%u.%u.dat",rank,nprocs);
     unlink(newfilename);
     MPI_Barrier(MPI_COMM_WORLD); /* to prevent unlink from interfering with file open */
     fd = fopen(newfilename,"w");
     /* start the timer */
     starttime=endtime=MPI_Wtime();
-    for(i=0;i<NSTEPS;i++){
+    for(i=0;i<nsteps;i++){
       for(j=0;j<6;j++){
 	/* touch data */
 	for(n=0;n<localnp;n++)
@@ -176,28 +196,33 @@ int main(int argc,char *argv[]){
     endtime=MPI_Wtime();
     if(rank==0) puts("*");
     MPI_Barrier(MPI_COMM_WORLD); /* to prevent unlink from interfering with file open */
-    unlink(newfilename);
+    unlink(newfilename); 
     MPI_Barrier(MPI_COMM_WORLD);
     if(rank==0){
       puts("======================================================");
       printf("Raw 1-file-per-proc Total Duration %lf seconds, iterations=%u %lf Megabytes written Nprocs= %u \n",
-	     (endtime-starttime),NSTEPS,((double)foffset)/(1024.0*1024.0),nprocs);
+	     (endtime-starttime),nsteps,((double)foffset)/(1024.0*1024.0),nprocs);
       printf("Raw 1-file-per-proc Effective Data Rate = %lf Megabytes/sec global and %lf Megabytes/sec per task Nprocs= %u \n",
-	     (double)(nprocs*localnp*sizeof(double))*((double)NSTEPS)*6.0/((endtime-starttime)*1024.0*1024.0),
-	     (double)(localnp*sizeof(double))*((double)NSTEPS)*6.0/((endtime-starttime)*1024.0*1024.0),nprocs);
+	     (double)(nprocs*localnp*sizeof(double))*((double)nsteps)*6.0/((endtime-starttime)*1024.0*1024.0),
+	     (double)(localnp*sizeof(double))*((double)nsteps)*6.0/((endtime-starttime)*1024.0*1024.0),nprocs);
       puts("======================================================");
     }
 
 #ifndef DISABLE_H5PART
-    //printf("H5Part benchmark...");
+
     MPI_Barrier(MPI_COMM_WORLD); /* to prevent unlink from interfering with file open */
     /* OK, now we do this using H5Part */
+
+    sprintf(filename,"%s.%u.h5.dat",FILENAME,nprocs); 
+    if(rank==0) unlink(filename);
+    MPI_Barrier(MPI_COMM_WORLD); /* to prevent unlink from interfering with file open */
+
     f = H5PartOpenFileParallel(filename,H5PART_WRITE,MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD); /* to prevent unlink from interfering with file open */
     /* start the timer */
     starttime=endtime=MPI_Wtime();
     H5PartSetNumParticles(f,localnp);
-    for(i=0;i<NSTEPS;i++){
+    for(i=0;i<nsteps;i++){
       for(j=0;j<6;j++){
 	/* touch data */
 	for(n=0;n<localnp;n++)
@@ -219,26 +244,20 @@ int main(int argc,char *argv[]){
     endtime=MPI_Wtime();
     if(rank==0){
       puts("*");
-      unlink(filename);
+      unlink(filename); 
       puts("======================================================");
       printf("H5Part Total Duration %lf seconds, iterations=%u %lf Megabytes written Nprocs= %u \n",
-	     (endtime-starttime),NSTEPS,((double)foffset)/(1024.0*1024.0),nprocs);
+	     (endtime-starttime),nsteps,((double)foffset)/(1024.0*1024.0),nprocs);
       printf("H5Part Effective Data Rate = %lf Megabytes/sec global and %lf Megabytes/sec per task Nprocs= %u \n",
-	     (double)(nprocs*localnp*sizeof(double))*((double)NSTEPS)*6.0/((endtime-starttime)*1024.0*1024.0),
-	     (double)(localnp*sizeof(double))*((double)NSTEPS)*6.0/((endtime-starttime)*1024.0*1024.0),nprocs);
+	     (double)(nprocs*localnp*sizeof(double))*((double)nsteps)*6.0/((endtime-starttime)*1024.0*1024.0),
+	     (double)(localnp*sizeof(double))*((double)nsteps)*6.0/((endtime-starttime)*1024.0*1024.0),nprocs);
       puts("======================================================");
     }
     MPI_Barrier(MPI_COMM_WORLD);
 #endif
   } /* trials */
 
-  if (rank==0) {
-    printf("lastfilename: %s \n", lastfilename);
-    unlink(lastfilename);
-  }
-
   MPI_Finalize();
-
 
   return 0;
 }
