@@ -897,7 +897,7 @@ _H5Part_get_attrib_info (
 	if ( attrib_name ) {
 		herr = H5Aget_name (
 			attrib_id,
-			len_attrib_name,
+			(size_t)len_attrib_name,
 			attrib_name );
 		if ( herr < 0 ) return HANDLE_H5A_GET_NAME_ERR;
 	}
@@ -1030,7 +1030,7 @@ H5PartWriteStepAttrib (
 
 	SET_FNAME ( "H5PartWriteStepAttrib" );
 
-	herr_t herr;
+	h5part_int64_t herr;
 
 	CHECK_FILEHANDLE ( f );
 	CHECK_WRITABLE_MODE( f );
@@ -1039,7 +1039,7 @@ H5PartWriteStepAttrib (
 	herr = _H5Part_write_attrib (
 		f->timegroup,
 		attrib_name,
-		attrib_type,
+		(const hid_t)attrib_type,
 		attrib_value,
 		attrib_nelem );
 	if ( herr < 0 ) return herr;
@@ -1077,7 +1077,7 @@ H5PartWriteFileAttrib (
 
 	SET_FNAME ( "H5PartWriteFileAttrib" );
 
-	herr_t herr;
+	h5part_int64_t herr;
 	hid_t group_id;
 
 	CHECK_FILEHANDLE ( f );
@@ -1089,7 +1089,7 @@ H5PartWriteFileAttrib (
 	herr = _H5Part_write_attrib (
 		group_id,
 		attrib_name,
-		attrib_type,
+		(const hid_t)attrib_type,
 		attrib_value,
 		attrib_nelem );
 	if ( herr < 0 ) return herr;
@@ -1179,7 +1179,7 @@ H5PartGetStepAttribInfo (
 	) {
 	
 	SET_FNAME ( "H5PartGetStepAttribInfo" );
-	hid_t herr;
+	h5part_int64_t herr;
 
 	CHECK_FILEHANDLE( f );
 
@@ -1223,7 +1223,7 @@ H5PartGetFileAttribInfo (
 
 	SET_FNAME ( "H5PartGetFileAttribInfo" );
 	hid_t group_id;
-	herr_t herr;
+	h5part_int64_t herr;
 
 	CHECK_FILEHANDLE( f );
 
@@ -1261,7 +1261,7 @@ H5PartReadStepAttrib (
 
 	SET_FNAME ( "H5PartReadStepAttrib" );
 
-	hid_t herr;
+	h5part_int64_t herr;
 
 	CHECK_FILEHANDLE( f );
 
@@ -1288,7 +1288,7 @@ H5PartReadFileAttrib (
 	SET_FNAME ( "H5PartReadFileAttrib" );
 
 	hid_t group_id;
-	hid_t herr;
+	h5part_int64_t herr;
 
 	CHECK_FILEHANDLE( f );
 
@@ -1325,8 +1325,9 @@ _H5Part_set_step (
 
 	char name[128];
 
-	sprintf (
+	snprintf (
 		name,
+		sizeof( name ),
 		"%s#%0*lld",
 		f->groupname_step, f->stepno_width, (long long) step );
 	herr_t herr = H5Gget_objinfo( f->file, name, 1, NULL );
