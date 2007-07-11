@@ -688,7 +688,7 @@ H5PartWriteDataFloat64 (
 	) {
 
 	SET_FNAME ( "H5PartWriteDataFloat64" );
-	herr_t herr;
+	h5part_int64_t herr;
 
 	CHECK_FILEHANDLE ( f );
 	CHECK_WRITABLE_MODE( f );
@@ -735,7 +735,7 @@ H5PartWriteDataInt64 (
 
 	SET_FNAME ( "H5PartOpenWriteDataInt64" );
 
-	herr_t herr;
+	h5part_int64_t herr;
 
 	CHECK_FILEHANDLE ( f );
 	CHECK_WRITABLE_MODE( f );
@@ -880,7 +880,7 @@ _H5Part_get_attrib_info (
 	hid_t mytype;
 	hid_t space_id;
 
-	attrib_id = H5Aopen_idx ( id, attrib_idx );
+	attrib_id = H5Aopen_idx ( id, (unsigned int)attrib_idx );
 	if ( attrib_id < 0 ) return HANDLE_H5A_OPEN_IDX_ERR ( attrib_idx );
 
 	if ( attrib_nelem ) {
