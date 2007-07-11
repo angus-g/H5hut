@@ -1325,9 +1325,8 @@ _H5Part_set_step (
 
 	char name[128];
 
-	snprintf (
+	sprintf (
 		name,
-		sizeof( name ),
 		"%s#%0*lld",
 		f->groupname_step, f->stepno_width, (long long) step );
 	herr_t herr = H5Gget_objinfo( f->file, name, 1, NULL );
