@@ -34,7 +34,7 @@ struct H5BlockFile;
 struct H5PartFile {
 	hid_t	file;
 	char	*groupname_step;
-	int	stepno_width;
+	h5part_int64_t	stepno_width;
 	int	empty;
 	
 	h5part_int64_t timestep;
