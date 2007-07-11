@@ -2169,8 +2169,8 @@ _read_data (
 	hid_t memspace_id;
 
 	if ( f->timegroup < 0 ) {
-		herr = _H5Part_set_step ( f, f->timestep );
-		if ( herr < 0 ) return herr;
+		h5part_int64_t h5err = _H5Part_set_step ( f, f->timestep );
+		if ( h5err < 0 ) return h5err;
 	}
 	dataset_id = H5Dopen ( f->timegroup, name );
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
@@ -2355,7 +2355,7 @@ H5PartSetVerbosityLevel (
 	h5part_int64_t level
 	) {
 
-	_debug = level;
+	_debug = (unsigned int)level;
 	return H5PART_SUCCESS;
 }
 
@@ -2450,7 +2450,7 @@ H5PartAbortErrorHandler (
 		vfprintf ( stderr, fmt, ap );
 		fprintf ( stderr, "\n" );
 	}
-	exit (-_h5part_errno);
+	exit (-(int)_h5part_errno);
 }
 
 /*!
