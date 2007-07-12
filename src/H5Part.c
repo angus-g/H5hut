@@ -452,7 +452,7 @@ H5PartDefineStepName (
 	if( f->groupname_step == NULL ) {
 		return HANDLE_H5PART_NOMEM_ERR;
 	}
-	f->stepno_width = width;
+	f->stepno_width = (int)width;
 	
 	return H5PART_SUCCESS;
 }
@@ -1414,7 +1414,7 @@ _H5Part_iteration_operator (
 
 	if ( data->type != H5G_UNKNOWN ) {
 		herr = H5Gget_objinfo ( group_id, member_name, 1, &objinfo );
-		if ( herr < 0 ) return HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+		if ( herr < 0 ) return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
 
 		if ( objinfo.type != data->type )
 			return 0;/* don't count, continue iteration */
@@ -1504,10 +1504,10 @@ _H5Part_get_object_name (
 	int iterator_idx = 0;
 
 	memset ( &data, 0, sizeof ( data ) );
-	data.stop_idx = idx;
+	data.stop_idx = (hid_t)idx;
 	data.type = type;
 	data.name = obj_name;
-	data.len = len_obj_name;
+	data.len = (size_t)len_obj_name;
 
 	herr = H5Giterate ( group_id, group_name, &iterator_idx,
 			    _H5Part_iteration_operator,
@@ -1664,7 +1664,7 @@ H5PartGetDatasetInfo (
 
 	SET_FNAME ( "H5PartGetDatasetInfo" );
 
-	herr_t herr;
+	h5part_int64_t herr;
 	hid_t dataset_id;
 	hid_t mytype;
 	char step_name[128];
@@ -1715,10 +1715,8 @@ _get_diskshape_for_reading (
 
 	herr_t r;
 
-	CHECK_FILEHANDLE( f );
-
 	hid_t space = H5Dget_space(dataset);
-	if ( space < 0 ) return HANDLE_H5D_GET_SPACE_ERR;
+	if ( space < 0 ) return (hid_t)HANDLE_H5D_GET_SPACE_ERR;
 
 	if ( H5PartHasView(f) ){ 
 		hsize_t stride;
@@ -1740,13 +1738,13 @@ _get_diskshape_for_reading (
 			r = H5Sselect_hyperslab (
 				f->diskshape, H5S_SELECT_SET,
 				&start, &stride, &count, NULL);
-			if ( r < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
+			if ( r < 0 ) return (hid_t)HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 		}
 		/* now we select a subset */
 		r = H5Sselect_hyperslab (
 			space,H5S_SELECT_SET,
 			&start, &stride, &count, NULL );
-		if ( r < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
+		if ( r < 0 ) return (hid_t)HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
 		_H5Part_print_debug (
 			"Selection: range=%d:%d, npoints=%d s=%d",
@@ -1765,15 +1763,11 @@ _get_memshape_for_reading (
 	hid_t dataset
 	) {
 
-	hid_t r;
-
-	CHECK_FILEHANDLE( f );
- 
 	if(H5PartHasView(f)) {
 		hsize_t dmax=H5S_UNLIMITED;
 		hsize_t len = f->viewend - f->viewstart;
-		r = H5Screate_simple(1,&len,&dmax);
-		if ( r < 0 ) return HANDLE_H5S_CREATE_SIMPLE_ERR ( len );
+		hid_t r = H5Screate_simple(1,&len,&dmax);
+		if ( r < 0 ) return (hid_t)HANDLE_H5S_CREATE_SIMPLE_ERR ( len );
 		return r;
 	}
 	else {
