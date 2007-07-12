@@ -220,7 +220,7 @@ static void
 _normalize_partition (
 	struct H5BlockPartition *p	/*!< IN/OUT: partition */
 	) {
-	h5part_float64_t x;
+	h5part_int64_t x;
 
 	if ( p->i_start > p->i_end ) {
 		x = p->i_start;
@@ -865,17 +865,16 @@ _open_block_group (
 	const H5PartFile *f		/*!< IN: file handle */
 	) {
 
-	h5part_int64_t herr;
 	struct H5BlockStruct *b = f->block;
 
 	if ( (f->timestep != b->timestep) && (b->blockgroup > 0) ) {
-		herr = H5Gclose ( b->blockgroup );
+		herr_t herr = H5Gclose ( b->blockgroup );
 		if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
 		f->block->blockgroup = -1;
 	}
 
 	if ( b->blockgroup < 0 ) {
-		herr = H5Gopen ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK );
+		hid_t herr = H5Gopen ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK );
 		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 		b->blockgroup = herr;
 	}
@@ -913,16 +912,15 @@ _open_field_group (
 	const char *name
 	) {
 
-	herr_t herr;
 	struct H5BlockStruct *b = f->block;
 
-	herr = _open_block_group ( f );
-	if ( herr < 0 ) return herr;
+	h5part_int64_t h5err = _open_block_group ( f );
+	if ( h5err < 0 ) return h5err;
 
 	if ( ! _have_object ( b->blockgroup, name ) )
 		return HANDLE_H5PART_NOENT_ERR ( name );
 
-	herr = H5Gopen ( b->blockgroup, name );
+	herr_t herr = H5Gopen ( b->blockgroup, name );
 	if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( name );
 
 	b->field_group_id = herr;
@@ -975,7 +973,7 @@ _select_hyperslab_for_reading (
 		p->j_end - p->j_start + 1,
 		p->i_end - p->i_start + 1 };
 
-	herr_t herr = _release_hyperslab ( f );
+	h5part_int64_t herr = _release_hyperslab ( f );
 	if ( herr < 0 )	return HANDLE_H5S_CLOSE_ERR;
 
  	b->diskshape = H5Dget_space ( dataset );
@@ -988,9 +986,9 @@ _select_hyperslab_for_reading (
 	rank = H5Sget_simple_extent_dims ( b->diskshape, field_dims, NULL );
 	if ( rank < 0 )  return HANDLE_H5S_GET_SIMPLE_EXTENT_DIMS_ERR;
 	
-	if ( (field_dims[0] < b->k_max) ||
-	     (field_dims[1] < b->j_max) ||
-	     (field_dims[2] < b->i_max) ) return HANDLE_H5PART_LAYOUT_ERR;
+	if ( (field_dims[0] < (hsize_t)b->k_max) ||
+	     (field_dims[1] < (hsize_t)b->j_max) ||
+	     (field_dims[2] < (hsize_t)b->i_max) ) return HANDLE_H5PART_LAYOUT_ERR;
 
 	_H5Part_print_debug (
 		"PROC[%d]: \n"
@@ -1309,24 +1307,24 @@ _create_field_group (
 	const char *name		/*!< IN: name of field group to create */
 	) {
 
-	herr_t herr;
+	h5part_int64_t h5err;
 	struct H5BlockStruct *b = f->block;
 
 
 	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) ) {
-		herr = _create_block_group ( f );
+		h5err = _create_block_group ( f );
 	} else {
-		herr = _open_block_group ( f );
+		h5err = _open_block_group ( f );
 	}
-	if ( herr < 0 ) return herr;
+	if ( h5err < 0 ) return h5err;
 
-	herr = _select_hyperslab_for_writing ( f );
-	if ( herr < 0 ) return herr;
+	h5err = _select_hyperslab_for_writing ( f );
+	if ( h5err < 0 ) return h5err;
 
 	if ( _have_object ( b->blockgroup, name ) )
 		return  HANDLE_H5PART_GROUP_EXISTS_ERR ( name );
 
-	herr = H5Gcreate ( b->blockgroup, name, 0 );
+	herr_t herr = H5Gcreate ( b->blockgroup, name, 0 );
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( name );
 	b->field_group_id = herr;
 
@@ -1660,8 +1658,8 @@ H5BlockWriteFieldAttrib (
 	return _write_field_attrib (
 		f,
 		field_name,
-		attrib_name, attrib_type, attrib_value,
-		attrib_nelem );
+		attrib_name, (const hid_t)attrib_type, attrib_value,
+		(const hid_t)attrib_nelem );
 }
 
 /*!
@@ -1887,7 +1885,7 @@ H5Block3dSetFieldOrigin (
 		f,
 		field_name,
 		H5BLOCK_FIELD_ORIGIN_NAME,
-		H5PART_FLOAT64, 
+		(const hid_t)H5PART_FLOAT64, 
 		origin,
 		3 );
 }
@@ -1953,7 +1951,7 @@ H5Block3dSetFieldSpacing (
 		f,
 		field_name,
 		H5BLOCK_FIELD_SPACING_NAME,
-		H5PART_FLOAT64, 
+		(const hid_t)H5PART_FLOAT64, 
 		spacing,
 		3 );
 }
