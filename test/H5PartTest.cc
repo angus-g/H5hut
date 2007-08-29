@@ -8,6 +8,8 @@
   A simple regression test that shows how you use this API
   to write and read multi-timestep files of particle data.
 */
+
+
 #ifdef PARALLEL_IO
 
 int main(int argc,char *argv[]){
@@ -153,11 +155,12 @@ int main(int argc,char *argv[]){
     H5PartWriteStepAttrib(file, "Step", H5T_NATIVE_CHAR, StepAttrib ,strlen(StepAttrib));
   }
 
+
   printf("AllDone writing\n");
   H5PartCloseFile(file);
   
  
-  /*+++++++++++++ Reopen File for Reading +++++++++++*/
+  /*+++++++++++++ Reopen File for Reading +++H5PartSetStep(h5partFile,0)++++++++*/
   file=H5PartOpenFile("parttest.h5",H5PART_READ);
 
   
@@ -188,7 +191,8 @@ int main(int argc,char *argv[]){
 	    "\tp[%3u] x=%lf y=%lf z=%lf id=%lld\n",
 	    i,x[i],y[i],z[i],(long long)(id[i]));
   }
-  /********************************************/
+  /************************  std::cout << "nParticles: " << nParticles << std::endl;
+********************/
   printf("Set to last step and reload data\n");
   H5PartSetStep(file,nt-1);
   H5PartReadDataFloat64(file,"x",x);
@@ -246,6 +250,34 @@ int main(int argc,char *argv[]){
 	    "\tp[%3u] x=%lf y=%lf z=%lf id=%lld\n",
 	    i,x[i],y[i],z[i],(long long)id[i]);
   }
+
+  // read dataset names
+  h5part_int64_t status = H5PART_SUCCESS;
+  const h5part_int64_t lenName = 64;
+  char datasetName[lenName];
+  h5part_int64_t datasetType;
+  h5part_int64_t datasetNElems;
+
+  H5PartSetStep(file,0);
+  for (h5part_int64_t i=0; i < nds; i++) {
+    status = H5PartGetDatasetInfo(file, i, datasetName, lenName,
+				  &datasetType, &datasetNElems);
+
+    if (status != H5PART_SUCCESS) {
+      perror("Could not retrieve dataset names!");
+    }
+    else {
+      printf("datasetName: %s, type: %d, nElements: %d   ", 
+	     datasetName, datasetType, datasetNElems);
+      if (datasetType ==  H5PART_INT64) {
+	printf("H5PPART_INT64 \n");
+      }
+      else {
+	printf("H5PPART_FLOAT64 \n");
+      }
+    }
+  }
+
   if(x) 
     free(x); 
   if(y) 
@@ -256,6 +288,7 @@ int main(int argc,char *argv[]){
     free(id);
 
   H5PartCloseFile(file);
+
   fprintf(stderr,"done\n");
 }
 
