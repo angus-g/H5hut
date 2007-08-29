@@ -1622,7 +1622,8 @@ H5PartGetDatasetInfo (
 		f->groupname_step, f->stepno_width, (long long) f->timestep );
 
 	herr = _H5Part_get_object_name (
-		f->timegroup,
+					//f->timegroup,
+		f->file,
 		step_name,
 		H5G_DATASET,
 		idx,
