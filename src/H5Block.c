@@ -50,148 +50,18 @@
 #include "H5BlockTypes.h"
 #include "H5Block.h"
 #include "H5BlockPrivate.h"
+#include "h5/H5.h"
 #include "H5BlockErrors.h"
 
-#define INIT( f ) { \
-	h5part_int64_t herr = _init ( f ); \
-	if ( herr < 0 ) return herr; \
-}
 
 /********************** declarations *****************************************/
 
-static h5part_int64_t
-_close (
-	H5PartFile *f
-	);
 
 /********************** misc *************************************************/
-
-/*!
-  \ingroup h5block_private
-
-  \internal
-
-  Check whether \c f points to a valid file handle.
-
-  \return	H5PART_SUCCESS or error code
-*/
-
-static h5part_int64_t
-_file_is_valid (
-	const H5PartFile *f		/*!< IN: file handle */
-	) {
-
-	if ( f == NULL )
-		return H5PART_ERR_BADFD;
-	if ( f->file == 0 )
-		return H5PART_ERR_BADFD;
-	if ( f->block == NULL )
-		return H5PART_ERR_BADFD;
-	return H5PART_SUCCESS;
-}
 
 
 /********************** file open and close **********************************/
 
-/*!
-  \ingroup h5block_private
-
-  \internal
-
-  Initialize H5Block internal structure.
-
-  \return	H5PART_SUCCESS or error code
-*/
-static h5part_int64_t
-_init (
-	H5PartFile *f			/*!< IN: file handle */
-	) {
-	h5part_int64_t herr;
-	struct H5BlockStruct *b; 
-
-	herr = _file_is_valid ( f );
-	if ( herr == H5PART_SUCCESS ) return H5PART_SUCCESS;
-
-	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5PART_BADFD_ERR;
-
-	/*
-	  hack for non-parallel processing, should be set in H5Part
-	*/
-	if ( f->nprocs == 0 ) f->nprocs = 1;
-
-	f->block = (struct H5BlockStruct*) malloc( sizeof (*f->block) );
-	if ( f->block == NULL ) {
-		return HANDLE_H5PART_NOMEM_ERR;
-	}
-	b = f->block;
-	memset ( b, 0, sizeof (*b) );
-	b->user_layout = (struct H5BlockPartition*) malloc (
-		f->nprocs * sizeof (b->user_layout[0]) );
-	if ( b->user_layout == NULL ) {
-		return HANDLE_H5PART_NOMEM_ERR;
-	}
-	b->write_layout = (struct H5BlockPartition*) malloc (
-		f->nprocs * sizeof (b->write_layout[0]) );
-	if ( b->write_layout == NULL ) {
-		return HANDLE_H5PART_NOMEM_ERR;
-	}
-	b->timestep = -1;
-	b->blockgroup = -1;
-	b->shape = -1;
-	b->diskshape = -1;
-	b->memshape = -1;
-	b->field_group_id = -1;
-	b->have_layout = 0;
-
-	f->close_block = _close;
-
-	return H5PART_SUCCESS;
-}
-
-/*!
-  \ingroup h5block_private
-
-  \internal
-
-  De-initialize H5Block internal structure.  Open HDF5 objects are 
-  closed and allocated memory freed.
-
-  \return	H5PART_SUCCESS or error code
-*/
-static h5part_int64_t
-_close (
-	H5PartFile *f		/*!< IN: file handle */
-	) {
-
-	herr_t herr;
-	struct H5BlockStruct *b = f->block;
-
-	if ( b->blockgroup >= 0 ) {
-		herr = H5Gclose ( b->blockgroup );
-		if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
-		b->blockgroup = -1;
-	}
-	if ( b->shape >= 0 ) {
-		herr = H5Sclose ( b->shape );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
-		b->shape = -1;
-	}
-	if ( b->diskshape >= 0 ) {
-		herr = H5Sclose ( b->diskshape );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
-		b->diskshape = -1;
-	}
-	if ( b->memshape >= 0 ) {
-		herr = H5Sclose ( b->memshape );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
-		b->memshape = -1;
-	}
-	free ( f->block );
-	f->block = NULL;
-	f->close_block = NULL;
-
-	return H5PART_SUCCESS;
-}
 
 /********************** defining the layout **********************************/
 
@@ -630,11 +500,11 @@ _dissolve_ghostzones (
 	}
 	free ( p_begin );
 
-	_H5Part_print_debug ("Layout defined by user:");
+	H5_print_debug ("Layout defined by user:");
 	for ( proc_p = 0, p = b->user_layout;
 	      proc_p < f->nprocs;
 	      proc_p++, p++ ) {
-		_H5Part_print_debug (
+		H5_print_debug (
 			"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
 			f->myproc, proc_p,
 			(long long)p->i_start, (long long)p->i_end,
@@ -642,11 +512,11 @@ _dissolve_ghostzones (
 			(long long)p->k_start, (long long)p->k_end );
 	}
 
-	_H5Part_print_debug ("Layout after dissolving ghost-zones:");
+	H5_print_debug ("Layout after dissolving ghost-zones:");
 	for ( proc_p = 0, p = b->write_layout;
 	      proc_p < f->nprocs;
 	      proc_p++, p++ ) {
-		_H5Part_print_debug (
+		H5_print_debug (
 			"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
 			f->myproc, proc_p,
 			(long long)p->i_start, (long long)p->i_end,
@@ -708,7 +578,6 @@ H5BlockDefine3DFieldLayout(
 	) {
 
 	SET_FNAME ( "H5BlockDefine3DFieldLayout" );
-	INIT( f );
 
 	struct H5BlockStruct *b = f->block;
 	struct H5BlockPartition *p = &b->user_layout[f->myproc];
@@ -759,7 +628,6 @@ H5Block3dGetPartitionOfProc (
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
-	INIT ( f );
 	CHECK_LAYOUT ( f );
 
 	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
@@ -799,7 +667,6 @@ H5Block3dGetReducedPartitionOfProc (
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
-	INIT ( f );
 	CHECK_LAYOUT ( f );
 
 	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
@@ -835,7 +702,6 @@ H5Block3dGetProcOf (
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
-	INIT ( f );
 	CHECK_LAYOUT ( f );
 
 	struct H5BlockPartition *layout = f->block->write_layout;
@@ -990,7 +856,7 @@ _select_hyperslab_for_reading (
 	     (field_dims[1] < (hsize_t)b->j_max) ||
 	     (field_dims[2] < (hsize_t)b->i_max) ) return HANDLE_H5PART_LAYOUT_ERR;
 
-	_H5Part_print_debug (
+	H5_print_debug (
 		"PROC[%d]: \n"
 		"\tfield_dims: (%lld,%lld,%lld)",
 		f->myproc,
@@ -1015,7 +881,7 @@ _select_hyperslab_for_reading (
 		NULL );
 	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
-	_H5Part_print_debug (
+	H5_print_debug (
 		"PROC[%d]: Select hyperslab: \n"
 		"\tstart:  (%lld,%lld,%lld)\n"
 		"\tstride: (%lld,%lld,%lld)\n"
@@ -1090,7 +956,6 @@ H5Block3dReadScalarField (
 	) {
 
 	SET_FNAME ( "H5Block3dReadScalarField" );
-	INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
@@ -1128,7 +993,6 @@ H5Block3dRead3dVectorField (
 	) {
 
 	SET_FNAME ( "H5Block3dRead3dVectorField" );
-	INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
@@ -1201,7 +1065,7 @@ _select_hyperslab_for_writing (
 	if ( b->diskshape < 0 )
 		return HANDLE_H5S_CREATE_SIMPLE_3D_ERR ( field_dims );
 
-	_H5Part_print_debug (
+	H5_print_debug (
 		"PROC[%d]: Select hyperslab on diskshape: \n"
 		"\tstart:  (%lld,%lld,%lld)\n"
 		"\tstride: (%lld,%lld,%lld)\n"
@@ -1238,7 +1102,7 @@ _select_hyperslab_for_writing (
 	start[1] = p->j_start - q->j_start;
 	start[2] = p->i_start - q->i_start;
 
-	_H5Part_print_debug (
+	H5_print_debug (
 		"PROC[%d]: Select hyperslab on memshape: \n"
 		"\tstart:  (%lld,%lld,%lld)\n"
 		"\tstride: (%lld,%lld,%lld)\n"
@@ -1338,38 +1202,24 @@ _create_field_group (
 
   \return \c H5PART_SUCCESS or error code
 */
-h5part_int64_t
-_write_data (
+static h5part_int64_t
+_write_field_data (
 	H5PartFile *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
 	const h5part_float64_t *data	/*!< IN: data to write */
 	) {
 
-	herr_t herr;
-	hid_t dataset;
 	struct H5BlockStruct *b = f->block;
 
-	dataset = H5Dcreate (
-		b->field_group_id,
+	return H5_write_data (
+		f,
 		name,
+		data,
 		H5T_NATIVE_DOUBLE,
-		b->shape, 
-		H5P_DEFAULT );
-	if ( dataset < 0 ) return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
-
-	herr = H5Dwrite ( 
-		dataset,
-		H5T_NATIVE_DOUBLE,
+		b->field_group_id,
+		b->shape,
 		b->memshape,
-		b->diskshape,
-		H5P_DEFAULT,
-		data );
-	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
-
-	herr = H5Dclose ( dataset );
-	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
-
-	return H5PART_SUCCESS;
+		b->diskshape );
 }
 
 /*!
@@ -1391,15 +1241,16 @@ H5Block3dWriteScalarField (
 	) {
 
 	SET_FNAME ( "H5Block3dWriteScalarField" );
-	INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
 	h5part_int64_t herr = _create_field_group ( f, name );
 	if ( herr < 0 ) return herr;
-
-	herr = _write_data ( f, "0", data );
+	herr = _write_field_data (
+		f,
+		"0",
+		data );
 	if ( herr < 0 ) return herr;
 
 	herr = _close_field_group ( f );
@@ -1431,7 +1282,6 @@ H5Block3dWrite3dVectorField (
 	) {
 
 	SET_FNAME ( "H5Block3dWrite3dVectorField" );
-	INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -1439,11 +1289,11 @@ H5Block3dWrite3dVectorField (
 	h5part_int64_t herr = _create_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
-	herr = _write_data ( f, "0", x_data );
+	herr = _write_field_data ( f, "0", x_data );
 	if ( herr < 0 ) return herr;
-	herr = _write_data ( f, "1", y_data );
+	herr = _write_field_data ( f, "1", y_data );
 	if ( herr < 0 ) return herr;
-	herr = _write_data ( f, "2", z_data );
+	herr = _write_field_data ( f, "2", z_data );
 	if ( herr < 0 ) return herr;
 
 	herr = _close_field_group ( f );
@@ -1467,13 +1317,12 @@ H5BlockGetNumFields (
 	) {
 
 	SET_FNAME ( "H5BlockGetNumFields" );
-	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
 	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) )
 		return 0;
 
-	return _H5Part_get_num_objects ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK, H5G_GROUP );
+	return H5_get_num_objects ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK, H5G_GROUP );
 }
 
 /*!
@@ -1513,7 +1362,7 @@ _get_field_info (
 	for ( i = 0, j = *grid_rank-1; i < *grid_rank; i++, j-- )
 		grid_dims[i] = (h5part_int64_t)dims[j];
 
-	*field_dims = _H5Part_get_num_objects (
+	*field_dims = H5_get_num_objects (
 		f->block->blockgroup,
 		field_name,
 		H5G_DATASET );
@@ -1556,7 +1405,6 @@ H5BlockGetFieldInfo (
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
-	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
 	h5part_int64_t herr = _H5Part_get_object_name (
@@ -1589,7 +1437,6 @@ H5BlockGetFieldInfoByName (
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
-	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
 	return _get_field_info (
@@ -1618,7 +1465,7 @@ _write_field_attrib (
 	h5part_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
-	_H5Part_write_attrib (
+	H5_write_attrib (
 		f->block->field_group_id,
 		attrib_name,
 		attrib_type,
@@ -1651,7 +1498,6 @@ H5BlockWriteFieldAttrib (
 	) {
 
 	SET_FNAME ( "H5BlockWriteFieldAttrib" );
-	INIT ( f );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
 
@@ -1679,7 +1525,6 @@ H5BlockWriteFieldAttribString (
 	) {
 
 	SET_FNAME ( "H5BlockWriteFieldAttribString" );
-	INIT ( f );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
 
@@ -1704,7 +1549,6 @@ H5BlockGetNumFieldAttribs (
 	) {
 
 	SET_FNAME ( "H5BlockGetNumFieldAttribs" );
-	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
 	h5part_int64_t herr = _open_field_group ( f, field_name );
@@ -1742,13 +1586,12 @@ H5BlockGetFieldAttribInfo (
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldAttribInfo" );
-	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
 	h5part_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
-	herr = _H5Part_get_attrib_info (
+	herr = H5_get_attrib_info (
 		f->block->field_group_id,
 		attrib_idx,
 		attrib_name,
@@ -1785,7 +1628,7 @@ _read_field_attrib (
 	h5part_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
-	herr = _H5Part_read_attrib (
+	herr = H5_read_attrib (
 		b->field_group_id,
 		attrib_name,
 		attrib_value );
@@ -1813,7 +1656,6 @@ H5BlockReadFieldAttrib (
 	) {
 
 	SET_FNAME ( "H5PartReadFieldAttrib" );
-	INIT ( f );
 	CHECK_TIMEGROUP( f );
 	
 	return _read_field_attrib (
@@ -1841,7 +1683,6 @@ H5Block3dGetFieldOrigin (
 	) {
 
 	SET_FNAME ( "H5BlockSetFieldOrigin" );
-	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
 	h5part_float64_t origin[3];
@@ -1875,7 +1716,6 @@ H5Block3dSetFieldOrigin (
 	) {
 
 	SET_FNAME ( "H5BlockSetFieldOrigin" );
-	INIT ( f );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
 
@@ -1907,7 +1747,6 @@ H5Block3dGetFieldSpacing (
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldSpacing" );
-	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
 	h5part_float64_t spacing[3];
@@ -1941,7 +1780,6 @@ H5Block3dSetFieldSpacing (
 	) {
 
 	SET_FNAME ( "H5BlockSetFieldSpacing" );
-	INIT ( f );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
 
@@ -1971,7 +1809,6 @@ H5BlockHasFieldData (
 	) {
 
 	SET_FNAME ( "H5BlockHasFieldData" );
-	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
 	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) ) {
