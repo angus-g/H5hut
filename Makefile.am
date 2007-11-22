@@ -4,6 +4,8 @@
 SUBDIRS = \
 	doc \
 	src \
+	src \
+	src/h5 \
 	test \
 	tools
 
