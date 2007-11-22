@@ -38,6 +38,12 @@ src/H5PartTypes.h -text
 src/Makefile.am -text
 src/TestUnderscore.f -text
 src/TestUnderscoreC.c -text
+src/bindings/Fortran/H5BlockF.c -text
+src/bindings/Fortran/H5BlockF90.inc -text
+src/bindings/Fortran/H5PartF.c -text
+src/bindings/Fortran/H5PartF90.inc -text
+src/bindings/Fortran/TestUnderscore.f -text
+src/bindings/Fortran/TestUnderscoreC.c -text
 test/Bench.c -text
 test/BlockTestSpecs.txt -text
 test/H5BlockDissolveGhosts.c -text
