@@ -1,3 +1,4 @@
+
 /*
   System dependend definitions
 */
@@ -33,9 +34,12 @@ struct H5BlockFile;
 */
 struct H5PartFile {
 	hid_t	file;
+	hid_t	root_id;		/* id of group "/" */
 	char	*groupname_step;
 	int	stepno_width;
 	int	empty;
+
+	char	index_name[128];
        
 	h5part_int64_t timestep;
 	hsize_t nparticles;
