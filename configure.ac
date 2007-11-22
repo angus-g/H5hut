@@ -1,12 +1,10 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5Part], [1.4.0], [h5part@lists.psi.ch], H5Part)
+AC_INIT([H5Part], [1.5.0], [h5part@lists.psi.ch], H5Part)
 
 
 # Ensure that a recent enough version of Autoconf is being used. 
-# If the version of Autoconf being used to create configure is earlier than version, 
-# print an error message to the standard error output and do not create configure.
-#AC_PREREQ(2.59)
+AC_PREREQ(2.59)
 
 
 # should be called right after AC_INIT.
@@ -49,8 +47,8 @@ AC_ARG_WITH(
         [MPIPATH=$withval], [MPIPATH=""])
 
 AC_ARG_WITH(
-	[hdf5path],
-	[AC_HELP_STRING([--with-hdf5path],
+	[hdf5],
+	[AC_HELP_STRING([--with-hdf5],
 	[path to HDF5 installation [default=""]])],
 	[HDF5PATH=$withval], [HDF5PATH=""])
 
@@ -347,7 +345,7 @@ if test "X$USE_PARALLEL" = "Xyes"; then
         fi
     fi
 
-    MTARGET="libpH5Part.a"
+    MTARGET="libH5Part.a"
     TTARGET="H5PartTestP H5PartAndreasTest Bench"
     TTARGET="${TTARGET} H5BlockTestAttributes"
     TTARGET="${TTARGET} H5BlockParTestScalarField"
@@ -373,7 +371,7 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 	    FC=${MPIFC}
 	fi
  
-        MTARGET="${MTARGET} libpH5PartF.a"
+        MTARGET="${MTARGET} libH5PartF.a"
         TTARGET="${TTARGET} H5testFpar"
 	TTARGET="${TTARGET} H5BlockParTestScalarFieldF"
     fi
@@ -538,13 +536,7 @@ fi
 ###############################################################################
 ############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
 ###############################################################################
-# AC_SUBST (variable, [value])
-# Create an output variable from a shell variable. 
-# Make AC_OUTPUT substitute the variable variable into output files (typically one or more `Makefile's). 
-# This means that AC_OUTPUT will replace instances of `@variable@' in input files with the value that 
-# the shell variable variable has when AC_OUTPUT is called. 
-# This value of variable should not contain literal newlines.
-# If value is given, in addition assign it to variable. 
+
 AC_SUBST(MPIROOT)
 AC_SUBST(HDF5ROOT)
 AC_SUBST(MPIINC)
@@ -566,11 +558,10 @@ AC_SUBST(TOOLS_CXX)
 AC_SUBST(TOOLS_H5PART_LIB)
 AC_SUBST(TOOLS_HDFLIB)
 
-# Make AC_OUTPUT create each `file' by copying an input file (by default `file.in'),
-# substituting the output variable values.
 AC_CONFIG_FILES([
 Makefile
 doc/Makefile
+src/h5/Makefile
 src/Makefile
 test/Makefile
 tools/Makefile
