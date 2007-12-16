@@ -33,6 +33,8 @@ src/H5PartErrors.h -text
 src/H5PartPrivate.h -text
 src/H5PartTypes.h -text
 src/Makefile.am -text
+src/bindings/C++/H5Fed.cc -text
+src/bindings/C++/H5Fed.hh -text
 src/bindings/Fortran/H5BlockF.c -text
 src/bindings/Fortran/H5BlockF90.inc -text
 src/bindings/Fortran/H5PartF.c -text
