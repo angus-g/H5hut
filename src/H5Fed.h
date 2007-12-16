@@ -34,10 +34,10 @@
 #ifndef __H5FED_H
 #define __H5FED_H
 
-typedef h5_float h5_vertex[3];
-typedef h5_int   h5_edge[2];
-typedef h5_int   h5_triangle[3];
-typedef h5_int   h5_tetrahedron[4];
+typedef h5_float_t	h5_vertex[3];
+typedef h5_id_t		h5_edge[2];
+typedef h5_id_t		h5_triangle[3];
+typedef h5_id_t		h5_tetrahedron[4];
 
 /*!
   \defgroup h5fed_c_api H5Fed C API
@@ -61,7 +61,7 @@ typedef h5_int   h5_tetrahedron[4];
   Implement as wrapper of \c H5_open_file()!
 */
 h5_file* H5FedOpenFile (
-	const char* filename,		/*!< file name			*/
+	const char * filename,		/*!< file name			*/
 	const MPI_Comm comm		/*!< MPI communicator		*/
 	);
 
@@ -73,8 +73,8 @@ h5_file* H5FedOpenFile (
   \return value \c >=0 on success
   \return -1 on error
 */
-h5_int H5FedCloseFile (
-	h5_file* fh			/*!< file handle		*/
+h5_int_t H5FedCloseFile (
+	h5_file * fh			/*!< file handle		*/
 	);
 
 /******	INQUIRY routines *****************************************************/
@@ -87,8 +87,8 @@ h5_int H5FedCloseFile (
   \return Number of compute notes.
   \return \c -1 on error.
  */
-h5_int H5GetNumNodes (
-	h5_file* fh			/*!< file handle		*/
+h5_int_t H5GetNumNodes (
+	h5_file * fh			/*!< file handle		*/
 	);
 
 /*!
@@ -99,8 +99,8 @@ h5_int H5GetNumNodes (
   \return Number of hierarchical mesh levels
   \return \c -1 on error
  */
-h5_int H5FedGetNumMeshLevels (
-	h5_file* fh			/*!< file handle		*/
+h5_int_t H5FedGetNumMeshLevels (
+	h5_file * fh			/*!< file handle		*/
 	);
 
 /*!
@@ -108,13 +108,13 @@ h5_int H5FedGetNumMeshLevels (
 
   Check whether a tetrahedral mesh hierarchy exists on level \c level
 
-  \return  \c 1		tetrahedral mesh hierarchy exists on given level
-  \return  \c 0		hierarchy doesn't exist
-  \return  \c -1	\c level doesn't exist
+  \return  \c 1		tetrahedral mesh hierarchy exists on given level. 
+  \return  \c 0		tetrahedral mesh exists, but not on given level.
+  \return  \c -1	tetrahedral mesh doesn't exist
  */
-h5_int H5FedHasTetrahedralMesh (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level		/*!< mesh level to check	*/
+h5_int_t H5FedHasTetrahedralMesh (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to check	*/
 	);
 
 /*!
@@ -122,13 +122,13 @@ h5_int H5FedHasTetrahedralMesh (
 
   Check whether a boundary mesh hierarchy exists on level \c level
 
-  \return \c 1		boundary mesh hierarchy exists on given level
-  \return \c 0		hierarchy doesn't exist
-  \return \c -1		\c level doesn't exist
+  \return \c 1		boundary mesh hierarchy exists on given level.
+  \return \c 0		boundary mesh hierarchy exists, but not on given level.
+  \return \c -1		boundary mesh doesn't exist.
 */
-h5_int H5FedHasBoundaryMesh(
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level		/*!< mesh level to check	*/
+h5_int_t H5FedHasBoundaryMesh(
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to check	*/
 );
 
 /******	VERTEX statistics routines *******************************************/
@@ -142,9 +142,9 @@ h5_int H5FedHasBoundaryMesh(
   \return number of vertices
   \return \c -1	on error.
 */
-h5_int H5FedGetNumVertexInMesh (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level		/*!< mesh level to query	*/
+h5_size_t H5FedGetNumVerticesInMesh (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to query	*/
 	);
 
 /*!
@@ -156,9 +156,9 @@ h5_int H5FedGetNumVertexInMesh (
   \return number of vertices
   \return \c -1	on error.
 */
-h5_int H5FedGetNumVertexInMeshTotal(
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level		/*!< mesh level to query	*/
+h5_size_t H5FedGetNumVerticesInMeshTotal(
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to query	*/
 	);
 
 /*!
@@ -170,10 +170,10 @@ h5_int H5FedGetNumVertexInMeshTotal(
   \return number of vertices
   \return \c -1	on error.
 */
-h5_int H5FedGetNumVertexInMeshOnNode (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,		/*!< mesh level to query	*/
-	const h5_int cnode		/*!< compute node		*/
+h5_size_t H5FedGetNumVerticesInMeshOnNode (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t cnode		/*!< compute node		*/
 	);
 
 /******	EDGE statistics routines ********************************************/
@@ -197,9 +197,9 @@ h5_int H5FedGetNumVertexInMeshOnNode (
   to collect the number from the other cnodes and store them into an
   array.  The inquired number will be provided from this array.
 */
-h5_int H5FedGetNumEdgesInTetrahedralMesh (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level		/*!< mesh level to query	*/
+h5_size_t H5FedGetNumEdgesInTetrahedralMesh (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to query	*/
 	);
 
 /*!
@@ -211,9 +211,9 @@ h5_int H5FedGetNumEdgesInTetrahedralMesh (
   \return number of edges
   \return \c -1	on error.
 */
-h5_int H5FedGetNumEdgesInTetrahedralMeshTotal (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level		/*!< mesh level to query	*/
+h5_size_t H5FedGetNumEdgesInTetrahedralMeshTotal (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to query	*/
 	);
 
 /*!
@@ -225,10 +225,10 @@ h5_int H5FedGetNumEdgesInTetrahedralMeshTotal (
   \return number of edges
   \return \c -1 on error.
 */
-h5_int H5FedGetNumEdgeInTetrahedralMeshOfNode (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,		/*!< mesh level to query	*/
-	const h5_int cnode		/*!< compute node		*/
+h5_size_t H5FedGetNumEdgeInTetrahedralMeshOfNode (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t cnode		/*!< compute node		*/
 	);
 
 /******	TRIANGLE statistics routines *****************************************/
@@ -247,9 +247,9 @@ h5_int H5FedGetNumEdgeInTetrahedralMeshOfNode (
   to collect the number from the other cnodes and store them into an
   array.  The inquired number will be provided from this array.
 */
-h5_int H5FedGetNumTrianglesInTetrahedralMesh (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level		/*!< mesh level to query	*/
+h5_size_t H5FedGetNumTrianglesInTetrahedralMesh (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to query	*/
 	);
 
 /*!
@@ -261,9 +261,9 @@ h5_int H5FedGetNumTrianglesInTetrahedralMesh (
   \return Number of triangles
   \return \c -1 on error.
 */
-h5_int H5FedGetNumTrianglesInTetrahedralMeshTotal (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level		/*!< mesh level to query	*/
+h5_size_t H5FedGetNumTrianglesInTetrahedralMeshTotal (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to query	*/
 	);
 
 /*!
@@ -275,10 +275,10 @@ h5_int H5FedGetNumTrianglesInTetrahedralMeshTotal (
   \return Number of triangles
   \return \c -1 on error.
 */
-h5_int H5FedGetNumTrianglesInTetrahedralMeshOnNode (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,	/*!< mesh level to query	*/
-	const h5_int cnode	/*!< compute node		*/
+h5_size_t H5FedGetNumTrianglesInTetrahedralMeshOnNode (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t cnode		/*!< compute node		*/
 	);
 
 /******	TETRAHEDRON statistics routines **************************************/
@@ -297,9 +297,9 @@ h5_int H5FedGetNumTrianglesInTetrahedralMeshOnNode (
   to collect the number from the other cnodes and store them into an
   array.  The inquired number will be provided from this array.
 */
-h5_int H5FedGetNumTetrahedraInMesh(
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level	/*!< mesh level to query	*/
+h5_size_t H5FedGetNumTetrahedraInMesh(
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to query	*/
 	);
 
 /*!
@@ -311,9 +311,9 @@ h5_int H5FedGetNumTetrahedraInMesh(
   \return number of tetrahedra
   \return \c -1 on error.
 */
-h5_int H5FedGetNumTetrahedraInMeshTotal(
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level	/*!< mesh level to query	*/
+h5_size_t H5FedGetNumTetrahedraInMeshTotal(
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to query	*/
 	);
 
 /*!
@@ -325,9 +325,10 @@ h5_int H5FedGetNumTetrahedraInMeshTotal(
   \return number of tetrahedra
   \return \c -1 on error.
 */
-h5_int H5FedGetNumTetrahedraInMeshTotal(
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level	/*!< mesh level to query	*/
+h5_size_t H5FedGetNumTetrahedraInMeshOnNode (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t cnode		/*!< compute node		*/
 	);
 
 /******	BOUNDARY statistics routines ****************************************/
@@ -353,9 +354,9 @@ h5_int H5FedGetNumTetrahedraInMeshTotal(
   to collect the number from the other cnodes and store them into an
   array.  The inquired number will be provided from this array.
 */
-h5_int H5FedGetNumBoundaryTrianglesInMesh (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level		/*!< mesh level to query	*/
+h5_size_t H5FedGetNumBoundaryTrianglesInMesh (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to query	*/
 	);
 
 /*!
@@ -367,9 +368,9 @@ h5_int H5FedGetNumBoundaryTrianglesInMesh (
   \return number of tetrahedras
   \return \c -1 on error.
 */
-h5_int H5FedGetNumBoundaryTrianglesInMeshTotal (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level		/*!< mesh level to query	*/
+h5_size_t H5FedGetNumBoundaryTrianglesInMeshTotal (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level		/*!< mesh level to query	*/
 	);
 
 /*!
@@ -381,10 +382,10 @@ h5_int H5FedGetNumBoundaryTrianglesInMeshTotal (
   \return number of tetrahedras
   \return \c -1 on error.
 */
-h5_int H5FedGetNumBoundaryTrianglesInMeshOnNode (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,		/*!< mesh level to query	*/
-	const h5_int cnode		/*!< compute node		*/
+h5_size_t H5FedGetNumBoundaryTrianglesInMeshOnNode (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t cnode		/*!< compute node		*/
 	);
 
 /******	RETRIEVAL routines **************************************************/
@@ -394,7 +395,7 @@ h5_int H5FedGetNumBoundaryTrianglesInMeshOnNode (
 
   Get coordinates of the vertex \c vertex_id.
 
-  \return 3-tuple with coordinates.
+  \return pointer to 3-dimensional coordinates.
   \return NULL-pointer on error.
  
   \note
@@ -416,40 +417,175 @@ h5_int H5FedGetNumBoundaryTrianglesInMeshOnNode (
   before any access to vertex coordinates or topological entities are
   carried out.
  */
-h5_vertex* H5FedGetVertexCoordinate (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int vertex_id		/*!< vertex id			*/
+h5_vertex * H5FedGetVertexCoordinate (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level			*/
+	const h5_id_t vertex_id		/*!< vertex id			*/
+	);
+
+/*!
+  \ingroup h5fed_c_api
+
+  Get the definition of a specific edge \edge_id, i.e. a 2-tuple
+  containing the specific indices of the 3-dimensional vertex
+  coordinates.
+
+  \return pointer to 2-tuple of vertex id's defining the edge.
+  \return NULL-pointer on error.
+*/
+h5_edge * H5FedGetEdge (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level			*/
+	const h5_id_t edge_id,		/*!< global edge id		*/
+	h5_id_t * const parent_id	/*!< OUT: parent id if level
+					     \c >0 else \c -1		*/
+	);
+
+/*!
+  \ingroup h5fed_c_api
+
+  Get the definition of a specific triangle \triangle_id, i.e. 
+  a 3-tuple containing the specific indices of the 3-dimensional vertex
+  coordinates.
+
+  \return pointer to 3-tuple of vertex id's defining the triangle.
+  \return NULL-pointer on error.
+*/
+h5_triangle * H5FedGetTriangle (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level			*/
+	const h5_id_t triangle_id,	/*!< global triangle id		*/
+	h5_id_t * parent_id		/*!< OUT: parent id if level
+					     \c >0 else \c -1		*/
 	);
 
 /*!
   \ingroup h5fed_c_api
 
   Get the definition of a specific tetrahedron \c tetra_id, i.e. 
-  the indices of the 3-dimensional vertex coordinates.
+  a 4-tuple containing the specific indices of the 3-dimensional vertex
+  coordinates.
 
-  \return 4-tuple defining the tetrahedron.
+  \return pointer to 4-tuple of vertex id's defining the tetrahedron.
   \return NULL-pointer on error.
 */
-h5_tetrahedron* H5FedGetTetrahedron (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,		/*!< mesh level to query	*/
-	const h5_int tetra_id		/*!< tetrahedron id		*/
+h5_tetrahedron * H5FedGetTetrahedron (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t tetra_id		/*!< global tetrahedron id	*/
+	h5_id_t * parent_id		/*!< OUT: parent id if level
+					     \c >0 else \c -1		*/
 	);
 
 /*!
   \ingroup h5fed_c_api
 
-  Get the definition of the boundary triangle \c triangle_id at level \c level, 
-  i.e. the indices of the 3-dimensional vertex coordinates.
+  Get the definition of the boundary triangle \c triangle_id at level
+  \c level, i.e. the indices of the 3-dimensional vertex coordinates.
 
-  \return 3-tuple defining the boundary triangle.
+  \return pointer to 3-tuple of vertex id's defining the boundary triangle.
   \return NULL-pointer on error.
 */
-h5_triangle* H5FedGetBoundaryTriangle (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,		/*!< mesh level to query	*/
-	const h5_int triangle_id	/*!< triangle_id		*/
+h5_triangle * H5FedGetBoundaryTriangle (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t triangle_id,	/*!< global btriangle_id	*/
+	h5_id_t * parent_id		/*!< OUT: parent id if level
+					     \c >0 else \c -1		*/
 	);
+
+/******	STORE routines*****************************************************/
+
+/*!
+  \ingroup h5fed_c_api
+
+  Stores the the coordinates of a specific vertex at level \c level
+  with id \c vertex_id of the tetrahedral mesh.
+
+  \return value \c >=0 on success
+  \return \c -1 on error
+*/
+h5_int_t H5FedStoreVertexCoordinate (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level			*/
+	const h5_id_t vertex_id,	/*!< global vertex id		*/
+	const h5_vertex * const vertex	/*!< 3-tuple of coordinates	*/
+	);
+
+/*!
+  \ingroup h5fed_c_api
+
+  Stores the 2-tuple, that contains the specific indices describing
+  an edge with id \c edge_id at level \c level of the tetrahedral mesh.
+
+  \return value \c >=0 on success
+  \return \c -1 on error
+*/
+h5_int_t H5FedStoreEdge (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level			*/
+	const h5_id_t edge_id,		/*!< global edge id		*/
+	const h5_id_t parent_id,	/*!< parent id if level \c >0
+					  else \x -1			*/
+	const h5_edge * const edge	/*!< 2-tuple with vertex id's	*/
+	);
+
+/*!
+  \ingroup h5fed_c_api
+
+  Stores the 3-tuple, that contains the specific indices describing a
+  triangle with id \c triangle_id at level \c level of the tetrahedral mesh.
+
+  \return value \c >=0 on success
+  \return \c -1 on error
+*/
+h5_int_t H5FedStoreTriangle (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level			*/
+	const h5_id_t triangle_id,	/*!< global triangle id		*/
+	const h5_id_t parent_id,	/*!< parent id if level \c >0
+					     else \x -1			*/
+	const h5_triangle * const triangle/*!< 3-tuple with vertex id's	*/
+	);
+
+/*!
+  \ingroup h5fed_c_api
+
+  Stores the 4-tuple, that contains the specific indices describing
+  a tetrahedron with id \c tet_id at level \c level of the tetrahedral
+  mesh.
+
+  \return value \c >=0 on success
+  \return \c -1 on error
+*/
+h5_int_t H5FedStoreTetrahedron (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level			*/
+	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
+	const h5_id_t parent_id,	/*!< parent id if level \c >0
+					  else \x -1			*/
+	const h5_tetrahedron * const tet/*!< 4-tuple with vertex id's	*/
+	);
+
+/*!
+  \ingroup h5fed_c_api
+
+  Writes the vector, that contains the specific indices that describe
+  a boundary triangle \c btriangle with id \c btriangle_id at level
+  \c level of the tetrahedral mesh.
+
+  \return value \c >=0 on success
+  \return \c -1 on error
+*/
+h5_int_t H5FedStoreBoundaryTriangle (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level			*/
+	const h5_id_t btriangle_id,	/*!< global boundary triangle id*/
+	const h5_id_t parent_id,	/*!< parent id if level \c >0
+					     else \c -1			*/
+	const h5_triangle * const btriangle/*!< 3-tuple with vertex id's*/
+	);
+
 
 /******	UPWARD ADJACENCY routines *********************************************/
 
@@ -464,10 +600,11 @@ h5_triangle* H5FedGetBoundaryTriangle (
   \return n-tuple of upward adjacent edges
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetEdgesUAdjacentToVertex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int vertex_id,		/*!< vertex id			*/
-	h5_int * const num_adj_edges	/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetEdgesUAdjacentToVertex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t vertex_id,	/*!< global vertex id		*/
+	h5_size_t * const num_adj_edges	/*!< OUT: size of returned vector */
 	);
 
 /*!
@@ -481,10 +618,12 @@ h5_int* H5FedGetEdgesUAdjacentToVertex (
   \return n-tuple of upward adjacent triangles.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetTrianglesUAdjacentToVertex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int vertex_id,		/*!< vertex id			*/
-	h5_int * const num_adj_triangles/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetTrianglesUAdjacentToVertex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t vertex_id,	/*!< global vertex id		*/
+	h5_size_t * const num_adj_triangles
+					/*!< OUT: size of returned vector */
 );
 
 /*!
@@ -498,10 +637,12 @@ h5_int* H5FedGetTrianglesUAdjacentToVertex (
   \return n-tuple of upward adjacent tetrahedra.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetTetrahedrasUAdjacentToVertex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int vertex_id,		/*!< vertex id			*/
-	h5_int * const num_adj_tetrahedra/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetTetrahedrasUAdjacentToVertex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t vertex_id,	/*!< global vertex id		*/
+	h5_size_t * const num_adj_tetrahedra
+					/*!< OUT: size of returned vector */
 	);
 
 /*!
@@ -515,10 +656,12 @@ h5_int* H5FedGetTetrahedrasUAdjacentToVertex (
   \return n-tuple of upward adjacent triangles.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetTrianglesUAdjacentToEdge (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int edge_id,		/*!< edge id			*/
-	h5_int * const num_adj_triangles/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetTrianglesUAdjacentToEdge (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t edge_id,		/*!< global edge id		*/
+	h5_size_t * const num_adj_triangles
+					/*!< OUT: size of returned vector */
 	);
 
 /*!
@@ -532,10 +675,11 @@ h5_int* H5FedGetTrianglesUAdjacentToEdge (
   \return n-tuple of upward adjacent tetrahedra.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetTetrahedraUAdjacentToEdge (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int edge_id,		/*!< edge id			*/
-	h5_int * const num_adj_tets	/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetTetrahedraUAdjacentToEdge (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t edge_id,		/*!< global edge id		*/
+	h5_size_t * const num_adj_tets	/*!< OUT: size of returned vector */
 	);
 
 /*!
@@ -555,10 +699,11 @@ h5_int* H5FedGetTetrahedraUAdjacentToEdge (
   \return n-tuple of upward adjacent tetrahedra.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetTetrahedraUAdjacentToTriangle (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int triangle_id,	/*!< triangle id		*/
-	h5_int * const num_adj_tets	/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetTetrahedraUAdjacentToTriangle (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_int level,		/*!< mesh level to query	*/
+	const h5_int triangle_id,	/*!< global triangle id		*/
+	h5_size_t * const num_adj_tets	/*!< OUT: size of returned vector */
 	);
 
 /******	DOWNWARD ADJACENCY routines *********************************************/
@@ -572,10 +717,12 @@ h5_int* H5FedGetTetrahedraUAdjacentToTriangle (
   \return n-tuple of downward adjacent vertices.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetVerticesDAdjacentToEdge (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int edge_id,		/*!< edge id			*/
-	h5_int * const num_adj_vertices	/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetVerticesDAdjacentToEdge (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_int level,		/*!< mesh level to query 	*/
+	const h5_int edge_id,		/*!< global edge id		*/
+	h5_size_t * const num_adj_vertices
+					/*!< OUT: size of returned vector */
 	);
 
 /*!
@@ -587,10 +734,12 @@ h5_int* H5FedGetVerticesDAdjacentToEdge (
   \return n-tuple of downward adjacent edges.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetEdjesDAdjacentToTriangle (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int triangle_id,	/*!< triangle id		*/
-	h5_int * const num_adj_triangles/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetEdjesDAdjacentToTriangle (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query 	*/
+	const h5_id_t triangle_id,	/*!< global triangle id		*/
+	h5_size_t * const num_adj_triangles
+					/*!< OUT: size of returned vector */
 	);
 
 /*!
@@ -602,10 +751,12 @@ h5_int* H5FedGetEdjesDAdjacentToTriangle (
   \return n-tuple of downward adjacent vertices.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetVerticesDAdjacentToTriangle (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int triangle_id,	/*!< triangle id		*/
-	h5_int * const num_adj_vertices/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetVerticesDAdjacentToTriangle (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t triangle_id,	/*!< global triangle id		*/
+	h5_size_t * const num_adj_vertices
+					/*!< OUT: size of returned vector */
 	);
  
 /*!
@@ -617,10 +768,12 @@ h5_int* H5FedGetVerticesDAdjacentToTriangle (
   \return n-tuple of downward adjacent triangles.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetTrianglesDAdjacentToTetrahedron (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int tet_id,		/*!< tetrahedron id		*/
-	h5_int * const num_adj_triangles/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetTrianglesDAdjacentToTetrahedron (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
+	h5_size_t * const num_adj_triangles
+					/*!< OUT: size of returned vector */
 	); 
 
 /*!
@@ -632,10 +785,11 @@ h5_int* H5FedGetTrianglesDAdjacentToTetrahedron (
   \return n-tuple of downward adjacent edges.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetEdjesDAdjacentToTetrahedron (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int tet_id,		/*!< tetrahedron id		*/
-	h5_int * const num_adj_edges	/*!< OUT: size of returned vector */
+h5_id_t * H5FedGetEdjesDAdjacentToTetrahedron (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
+	h5_size_t * const num_adj_edges	/*!< OUT: size of returned vector */
 	);
 
 /*!
@@ -647,92 +801,12 @@ h5_int* H5FedGetEdjesDAdjacentToTetrahedron (
   \return n-tuple of downward adjacent vertices.
   \return NULL-pointer on error.
 */
-h5_int* H5FedGetVerticesDAdjacentToTetrahedron (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int tet_id,		/*!< tetrahedron id		*/
-	h5_int * const num_adj_vertices	/*!< OUT: size of returned vector */
-	);
-
-/*!
-  \ingroup h5fed_c_api
-
-  Stores the the coordinates of a specific vertex at level \c level
-  with id \c vertex_id of the tetrahedral mesh.
-
-  \return value \c >=0 on success
-  \return \c -1 on error
-*/
-h5_int H5FedStoreVectorCoordinates (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,		/*!< mesh level			*/
-	const h5_int vertex_id,		/*!< vertex id			*/
-	const h5_vertex * const vertex	/*!< 3-tuple of coordinates	*/
-	);
-
-/*!
-  \ingroup h5fed_c_api
-
-  Stores the 2-tuple, that contains the specific indices describing
-  an edge with id \c edge_id at level \c level of the tetrahedral mesh.
-
-  \return value \c >=0 on success
-  \return \c -1 on error
-*/
-h5_int H5FedStoreEdge (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,		/*!< mesh level			*/
-	const h5_int edge_id,		/*!< edge id			*/
-	const h5_edge * const edge	/*!< 2-tuple with vertex id's	*/
-	);
-
-/*!
-  \ingroup h5fed_c_api
-
-  Stores the 3-tuple, that contains the specific indices describing a
-  triangle with id \c triangle_id at level \c level of the tetrahedral mesh.
-
-  \return value \c >=0 on success
-  \return \c -1 on error
-*/
-h5_intl H5FedStoreTriangle (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,		/*!< mesh level			*/
-	const h5_int triangle_id,	/*!< triangle id		*/
-	const h5_triangle * const triangle/*!< 3-tuple with vertex id's	*/
-	);
-
-/*!
-  \ingroup h5fed_c_api
-
-  Stores the 4-tuple, that contains the specific indices describing
-  a tetrahedron with id \c tet_id at level \c level of the tetrahedral
-  mesh.
-
-  \return value \c >=0 on success
-  \return \c -1 on error
-*/
-h5_int H5FedStoreTetrahedron (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,		/*!< mesh level			*/
-	const h5_int tet_id,		/*!< tetrahedron id		*/
-	const h5_tetrahedron * const tet/*!< 4-tuple with vertex id's	*/
-	);
-
-/*!
-  \ingroup h5fed_c_api
-
-  Writes the vector, that contains the specific indices that describe
-  a boundary triangle \c btriangle with id \c btriangle_id at level
-  \c level of the tetrahedral mesh.
-
-  \return value \c >=0 on success
-  \return \c -1 on error
-*/
-h5_int H5FedWriteBoundaryTriangle (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int level,		/*!< mesh level			*/
-	const h5_int btriangle_id,	/*!< boundary triangle id	*/
-	const h5_triangle * const btriangle/*!< 3-tuple with vertex id's*/
+h5_id_t * H5FedGetVerticesDAdjacentToTetrahedron (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
+	h5_size_t * const num_adj_vertices
+					/*!< OUT: size of returned vector */
 	);
 
 /******	routines for accessing degrees of freedom DoF *************************/
@@ -746,15 +820,15 @@ h5_int H5FedWriteBoundaryTriangle (
   step. The DoF are passed to the function as n-tuple with an arbitrary
   number of elements.
 
-  \return something \c >=0 on success
+  \return value \c >=0 on success
   \return \c -1 on error
 */
-h5_int H5FedStoreDoFVertexFloat (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int vertex_id,		/*!< vertex id			*/
+h5_int_t H5FedStoreDoFVertexFloat (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t vertex_id,	/*!< global vertex id		*/
 	const h5_float * const dof,	/*!< DoF n-tuple		*/
-	const h5_int dof_size		/*!< number of \c h5_float 
-					  value in \c dof		*/
+	const h5_size_t dof_size	/*!< number of \c h5_float 
+					      value in \c dof		*/
 	);
  
 /*!
@@ -764,15 +838,15 @@ h5_int H5FedStoreDoFVertexFloat (
   step. The DoF are passed to the function as n-tuple with an arbitrary
   number of elements.
   
-  \return something \c >=0 on success
+  \return value \c >=0 on success
   \return \c -1 on error
 */
 h5_int H5FedStoreDoFVertexComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int vertex_id,		/*!< vertex id			*/
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t vertex_id,	/*!< global vertex id		*/
 	const h5_complex * const dof,	/*!< DoF n-tuple		*/
-	const h5_int dof_size		/*!< number of \c h5_complex
-					  values in \c dof		*/
+	const h5_size_t dof_size	/*!< number of \c h5_complex
+					     values in \c dof		*/
 	);
 
 /*!
@@ -785,11 +859,11 @@ h5_int H5FedStoreDoFVertexComplex (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_float* H5FedGetDoFVertexFloat (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int vertex_id,		/*!< vertex id			*/
-	h5_int * const dof_size		/*!< OUT: number of \c h5_float
-					  values in returned n-tuple	*/
+h5_float * H5FedGetDoFVertexFloat (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t vertex_id,	/*!< global vertex id		*/
+	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
+					     values in returned n-tuple	*/
 	); 
 
 /*!
@@ -802,11 +876,11 @@ h5_float* H5FedGetDoFVertexFloat (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_complex* H5FedGetDoFVertexComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int vertex_id,		/*!< vertex id			*/
-	h5_int * const dof_size		/*!< OUT: number of \c h5_float
-					  values in returned n-tuple	*/
+h5_complex * H5FedGetDoFVertexComplex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t vertex_id,	/*!< global vertex id		*/
+	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
+					     values in returned n-tuple	*/
 	);
 
 /*!
@@ -821,9 +895,9 @@ h5_complex* H5FedGetDoFVertexComplex (
   \note
   Do we need this function????
 */
-h5_int H5FedGetNumDoFVertexFloat  (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int vertex_id		/*!< vertex id			*/
+h5_size_t H5FedGetNumDoFVertexFloat  (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t vertex_id		/*!< global vertex id		*/
 	);
 
 /*!
@@ -838,9 +912,9 @@ h5_int H5FedGetNumDoFVertexFloat  (
   \note
   Do we need this function????
 */
-h5_int H5FedGetNumDoFVertexComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int vertex_id		/*!< vertex id			*/
+h5_size_t H5FedGetNumDoFVertexComplex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_size_t vertex_id	/*!< global vertex id		*/
 	);
 
 /* DoF access for edges */
@@ -855,12 +929,12 @@ h5_int H5FedGetNumDoFVertexComplex (
   \return something \c >=0 on success
   \return \c -1 on error
 */
-h5_int H5FedStoreDoFEdgeFloat (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int edge_id,		/*!< edge id			*/
+h5_int_t H5FedStoreDoFEdgeFloat (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t edge_id,		/*!< global edge id		*/
 	const h5_float * const dof,	/*!< DoF n-tuple		*/
-	const h5_int dof_size		/*!< number of \c h5_float 
-					  value in \c dof		*/
+	const h5_size_t dof_size	/*!< number of \c h5_float 
+					     value in \c dof		*/
 	);
  
 /*!
@@ -873,12 +947,12 @@ h5_int H5FedStoreDoFEdgeFloat (
   \return something \c >=0 on success
   \return \c -1 on error
 */
-h5_int H5FedStoreDoFEdgeComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int edge_id,		/*!< edge id			*/
+h5_int_t H5FedStoreDoFEdgeComplex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t edge_id,		/*!< global edge id		*/
 	const h5_complex * const dof,	/*!< DoF n-tuple		*/
-	const h5_int dof_size		/*!< number of \c h5_complex 
-					  value in \c dof		*/
+	const h5_size_t dof_size	/*!< number of \c h5_complex 
+					     value in \c dof		*/
 	);
  
 /*!
@@ -891,11 +965,11 @@ h5_int H5FedStoreDoFEdgeComplex (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_float* H5FedGetDoFEdgeFloat (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int edge_id,		/*!< edge id			*/
-	h5_int * const dof_size		/*!< OUT: number of \c h5_float
-					  values in returned n-tuple	*/
+h5_float_t * H5FedGetDoFEdgeFloat (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t edge_id,		/*!< global edge id		*/
+	h5_siue_t * const dof_size	/*!< OUT: number of \c h5_float
+					     values in returned n-tuple	*/
 	);
 
 /*!
@@ -909,10 +983,10 @@ h5_float* H5FedGetDoFEdgeFloat (
   \return NULL-pointer on error.
 */
 h5_complex* H5FedGetDoFEdgeComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int edge_id,		/*!< edge id			*/
-	h5_int * const dof_size		/*!< OUT: number of \c h5_float
-					  values in returned n-tuple	*/
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t edge_id,		/*!< global edge id		*/
+	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
+					     values in returned n-tuple	*/
 	);
 
 /*!
@@ -927,9 +1001,9 @@ h5_complex* H5FedGetDoFEdgeComplex (
   \note
   Do we need this function????
 */
-h5_int H5FedGetNumDoFEdgeFloat (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int edge_id		/*!< edge id			*/
+h5_size_t H5FedGetNumDoFEdgeFloat (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t edge_id		/*!< global edge id		*/
 	);
 
 /*!
@@ -941,9 +1015,9 @@ h5_int H5FedGetNumDoFEdgeFloat (
   \return Number of stored degrees of freedom.
   \return \c -1 if edge doesn't exist.
 */
-h5_int H5FedGetNumDoFEdgeComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int edge_id		/*!< edge id			*/
+h5_size_t H5FedGetNumDoFEdgeComplex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t edge_id		/*!< global edge id		*/
 	);
 
 
@@ -960,11 +1034,11 @@ h5_int H5FedGetNumDoFEdgeComplex (
   \return \c -1 on error
 */
 h5_int H5FedStoreDoFTriangleFloat (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int triangle_id,	/*!< triangle id		*/
-	const h5_double * const dof,
-	const h5_int dof_size		/*!< number of \c h5_complex
-					  values in \c dof		*/
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t triangle_id,	/*!< global triangle id		*/
+	const h5_float_t * const dof,	/*!< DoF vector			*/
+	const h5_size_t dof_size	/*!< number of \c h5_float_t
+					     values in \c dof		*/
 	);
  
 /*!
@@ -977,13 +1051,12 @@ h5_int H5FedStoreDoFTriangleFloat (
   \return value \c >=0 on success
   \return \c -1 on error
 */
-h5_intl H5FedStoreDoFTriangleComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int triangle_id,	/*!< triangle id		*/
-	const h5_int dof_id,		/*!< DoF id			*/
-	const h5_complex * const dof	/*!< DoF vector			*/
-	const h5_int dof_size		/*!< number of \c h5_complex
-					  values in \c dof		*/
+h5_int H5FedStoreDoFTriangleComplex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t triangle_id,	/*!< global triangle id		*/
+	const h5_complex * const dof,	/*!< DoF vector			*/
+	const h5_size_t dof_size	/*!< number of \c h5_complex
+					     values in \c dof		*/
 	);
  
 /*!
@@ -996,11 +1069,11 @@ h5_intl H5FedStoreDoFTriangleComplex (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_float* H5FedGetDoFTriangleFloat (
+h5_float_t * H5FedGetDoFTriangleFloat (
 	h5_file* fh,			/*!< file handle		*/
-	const h5_int triangle_id,	/*!< triangle id		*/
-	h5_int * const dof_size		/*!< OUT: number of \c h5_float
-					  values in returned n-tuple	*/
+	const h5_id_t triangle_id,	/*!< global triangle id		*/
+	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
+					     values in returned n-tuple	*/
 	); 
 
 /*!
@@ -1013,11 +1086,11 @@ h5_float* H5FedGetDoFTriangleFloat (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_complex* H5FedGetDoFTriangleComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int triangle_id,	/*!< triangle id		*/
-	h5_int * const dof_size		/*!< OUT: number of \c h5_float
-					  values in returned n-tuple	*/
+h5_complex * H5FedGetDoFTriangleComplex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t triangle_id,	/*!< global triangle id		*/
+	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
+					     values in returned n-tuple	*/
 	);
 
 /*!
@@ -1032,9 +1105,9 @@ h5_complex* H5FedGetDoFTriangleComplex (
   \note
   Do we need this function????
 */
-h5_int H5FedGetNumDoFTriangleFloat (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int triangle_id	/*!< triangle id		*/
+h5_size_t H5FedGetNumDoFTriangleFloat (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t triangle_id	/*!< global triangle id		*/
 	); 
 
 /*!
@@ -1049,9 +1122,9 @@ h5_int H5FedGetNumDoFTriangleFloat (
   \note
   Do we need this function????
 */
-h5_int H5FedGetNumDoFTriangleComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int triangle_id,	/*!< triangle id		*/
+h5_size_t H5FedGetNumDoFTriangleComplex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t triangle_id,	/*!< global triangle id		*/
 	);
 
 
@@ -1067,12 +1140,12 @@ h5_int H5FedGetNumDoFTriangleComplex (
   \return value \c >=0 on success
   \return \c -1 on error
 */
-h5_int H5FedStoreDoFTetrahedronFloat (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int tet_id,		/*!< tetrahedron id		*/
-	const h5_float * const dof,	/*!< DoF vector			*/
-	const h5_int dof_size		/*!< number of \c h5_float 
-					  value in \c dof		*/
+h5_int_t H5FedStoreDoFTetrahedronFloat (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
+	const h5_float_t * const dof,	/*!< DoF vector			*/
+	const h5_size_t dof_size	/*!< number of \c h5_float 
+					     value in \c dof		*/
 	);
 
 /*!
@@ -1085,12 +1158,12 @@ h5_int H5FedStoreDoFTetrahedronFloat (
   \return value \c >=0 on success
   \return \c -1 on error
 */
-h5_int H5FedStoreDoFTetrahedronComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int tet_id,		/*!< tetrahedron id		*/
+h5_int_t H5FedStoreDoFTetrahedronComplex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
 	const h5_complex * const dof,	/*!< DoF vector			*/
-	const h5_int dof_size		/*!< number of \c h5_complex
-					  value in \c dof		*/
+	const h5_size_t dof_size	/*!< number of \c h5_complex
+					     value in \c dof		*/
 	);
  
 /*!
@@ -1103,11 +1176,11 @@ h5_int H5FedStoreDoFTetrahedronComplex (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_float* H5FedGetDoFTetrahedronFloat (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int tet_id,		/*!< tetrahedron id		*/
-	h5_int * const dof_size		/*!< OUT: number of \c h5_float
-					  values in returned n-tuple	*/
+h5_float_t * H5FedGetDoFTetrahedronFloat (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
+	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
+					     values in returned n-tuple	*/
 	);
 
 /*!
@@ -1120,11 +1193,11 @@ h5_float* H5FedGetDoFTetrahedronFloat (
   \return Pointer to n-tuple of type \c h5_complex
   \return NULL-pointer on error.
 */
-h5_complex* H5FedGetDoFTetrahedronComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int tet_id,		/*!< tetrahedron id		*/
-	h5_int * const dof_size		/*!< OUT: number of \c h5_complex
-					  values in returned n-tuple	*/
+h5_complex * H5FedGetDoFTetrahedronComplex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
+	h5_size_t * const dof_size	/*!< OUT: number of \c h5_complex
+					     values in returned n-tuple	*/
 	);
 
 /*!
@@ -1139,9 +1212,9 @@ h5_complex* H5FedGetDoFTetrahedronComplex (
   \note
   Do we need this function????
 */
-h5_int H5FedGetNumDoFTetrahedronFloat (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int tet_id		/*!< tetrahedron id		*/
+h5_size_t H5FedGetNumDoFTetrahedronFloat (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t tet_id		/*!< global tetrahedron id	*/
 	);
 
 /*!
@@ -1153,9 +1226,9 @@ h5_int H5FedGetNumDoFTetrahedronFloat (
   \return Number of stored degrees of freedom.
   \retuen \c -1 if tetrahedron doesn't exist.
 */
-h5_int H5FedGetNumDoFTetrahedronComplex (
-	h5_file* fh,			/*!< file handle		*/
-	const h5_int tet_id		/*!< tetrahedron id		*/
+h5_size_t H5FedGetNumDoFTetrahedronComplex (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t tet_id		/*!< global tetrahedron id	*/
 	);
 
 #endif
