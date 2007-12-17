@@ -1407,7 +1407,7 @@ H5BlockGetFieldInfo (
 	SET_FNAME ( "H5BlockGetFieldInfo" );
 	CHECK_TIMEGROUP( f );
 
-	h5part_int64_t herr = _H5Part_get_object_name (
+	h5part_int64_t herr = H5_get_object_name (
 		f->timegroup,
 		H5BLOCK_GROUPNAME_BLOCK,
 		H5G_GROUP,
