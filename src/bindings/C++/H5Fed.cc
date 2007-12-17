@@ -69,7 +69,7 @@ int H5Fed::filename(std::string filename)
 
 
 /** \brief retrieve name of H5Fed file to be accessed */
-std::string filename()
+std::string H5Fed::filename()
 {
 	return(filename_);
 }
