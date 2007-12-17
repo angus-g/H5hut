@@ -400,14 +400,14 @@ fi
 ######################### PATH CHECKING & SETTING #############################
 ###############################################################################
 
-AC_MSG_CHECKING([for HDF5 root ])
+AC_MSG_CHECKING([for HDF5 prefix ])
 AC_MSG_RESULT([])
-if test -n "${HDF5ROOT}"; then
-    P=${HDF5ROOT}
+if test -n "${HDF5PATH}"; then
+    P=${HDF5PATH}
 elif test -n "${HDF5HOME}" ; then
     P=${HDF5HOME}
-elif test -n "${HDF5PATH}" ; then
-    P=${HDF5PATH}
+elif test -n "${HDF5ROOT}" ; then
+    P=${HDF5ROOT}
 else
     P=''
     P="$P /usr"
@@ -523,7 +523,7 @@ fi
 
 if test -n "$MPICXX"; then
 TOOLS_CXX=$MPICXX
-TOOLS_H5PART_LIB="-lpH5Part"
+TOOLS_H5PART_LIB="-lH5Part"
 TOOLS_HDFLIB="-L$HDF5ROOT/lib -lhdf5"
 else
 TOOLS_CXX=$CXX
