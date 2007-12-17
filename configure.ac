@@ -41,8 +41,8 @@ AC_ARG_ENABLE(
         [USE_TOOLS=$enableval])
 
 AC_ARG_WITH(
-	[mpipath],
-	[AC_HELP_STRING([--with-mpipath],
+	[mpi],
+	[AC_HELP_STRING([--with-mpi],
 	[path to MPI installation [default=""]])],
         [MPIPATH=$withval], [MPIPATH=""])
 
@@ -83,28 +83,26 @@ SAVE_LDFLAGS=$LDFLAGS
 #   @enddesc
 #@@*/
 
-PATH_Search()
-{
-  eval  $1=""
-  if test $# -lt 4 ; then
-    h5part_basedir=""
-  else
-    h5part_basedir="$4/"
-  fi
-  for h5part_place in $2
-    do
-      echo -n "looking in $h5part_place ... $ac_c" #1>&6
-      if test -r "$h5part_basedir$h5part_place/$3" ; then
-        echo "$ac_t"" found" #1>&6
-        eval $1="$h5part_place"
-        break
-      fi
-      if test -d "$h5part_basedir$h5part_place/$3" ; then
-        echo "$ac_t"" found" #1>&6
-        eval $1="$h5part_place"
-        break
-      fi
-      echo "$ac_t"" no" #1>&6
+PATH_Search() {
+    eval  $1=""
+    if test $# -lt 4 ; then
+	h5part_basedir=""
+    else
+	h5part_basedir="$4/"
+    fi
+    for h5part_place in $2; do
+	AC_MSG_CHECKING([directory "$h5part_place"]) #1>&6
+	if test -r "$h5part_basedir$h5part_place/$3" ; then
+            AC_MSG_RESULT([found]) #1>&6
+            eval $1="$h5part_place"
+            break
+	fi
+	if test -d "$h5part_basedir$h5part_place/$3" ; then
+            AC_MSG_RESULT([found]) #1>&6
+            eval $1="$h5part_place"
+            break
+	fi
+	AC_MSG_RESULT([no]) #1>&6
     done
 
   return
@@ -122,32 +120,32 @@ AC_CANONICAL_HOST
 
 uname=`uname -s`
 if test $uname = "AIX"; then
-  AC_MSG_CHECKING([if system is AIX])
-  AC_MSG_RESULT([OK])
+    AC_MSG_CHECKING([if system is AIX])
+    AC_MSG_RESULT([OK])
 
-  # If on AIX, define _ALL_SOURCE. Allows the use of some BSD functions. 
-  # Should be called before any macros that run the C compiler.
-  AC_AIX
+    # If on AIX, define _ALL_SOURCE. Allows the use of some BSD functions. 
+    # Should be called before any macros that run the C compiler.
+    AC_AIX
 fi
 
 
 # DAVINCI SPECIFIC!!!
 if test `uname -n` = "davinci"; then
-   echo "DAVINCI SPECIFIC TESTING FOR STDC++ LIBRARY!"
-   PATH_Search STDCXX_CHECK '/usr/lib64 /usr/lib' libstdc++.a
+    echo "DAVINCI SPECIFIC TESTING FOR STDC++ LIBRARY!"
+    PATH_Search STDCXX_CHECK '/usr/lib64 /usr/lib' libstdc++.a
 
-   # if STDCXX_CHECK is set...
-   if test "$STDCXX_CHECK" = "/usr/lib64"; then
-      echo "STDCXX setting ..."
-      echo "STDCXX_CHECK = $STDCXX_CHECK ..."
-      STDCXX="-L/usr/lib64 -lstdc++"
-      echo "STDCXX =  $STDCXX ..."
-   elif test "$STDCXX_CHECK" = "/usr/lib"; then
-      echo "STDCXX setting ..."
-      echo "STDCXX_CHECK = $STDCXX_CHECK ..."
-      STDCXX="-L/usr/lib -lstdc++"
-      echo "STDCXX =  $STDCXX ..."
-   fi 
+    # if STDCXX_CHECK is set...
+    if test "$STDCXX_CHECK" = "/usr/lib64"; then
+	echo "STDCXX setting ..."
+	echo "STDCXX_CHECK = $STDCXX_CHECK ..."
+	STDCXX="-L/usr/lib64 -lstdc++"
+	echo "STDCXX =  $STDCXX ..."
+    elif test "$STDCXX_CHECK" = "/usr/lib"; then
+	echo "STDCXX setting ..."
+	echo "STDCXX_CHECK = $STDCXX_CHECK ..."
+	STDCXX="-L/usr/lib -lstdc++"
+	echo "STDCXX =  $STDCXX ..."
+    fi
 fi
 
 
