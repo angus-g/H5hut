@@ -6,6 +6,7 @@ CXX = @CXX@
 
 CFLAGS = @CFLAGS@ @MPIINC@ @HDF5ROOT@/include
 
+OBJEXT = o
 lib_LIBRARIES = libH5XX.a
 include_HEADERS = H5Fed.hh
 libH5XX_a_SOURCES = H5Fed.cc
