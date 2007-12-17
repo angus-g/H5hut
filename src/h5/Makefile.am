@@ -5,9 +5,6 @@ HDF5ROOT = @HDF5ROOT@
 
 OBJEXT = o
 
-
-
-
 # COMPILERS
 CC = @CC@
 
