@@ -90,7 +90,7 @@ _init_block (
 	h5part_int64_t herr;
 	struct H5BlockStruct *b; 
 
-	herr = _file_is_valid ( f );
+	herr = H5_check_filehandle ( f );
 	if ( herr == H5PART_SUCCESS ) return H5PART_SUCCESS;
 
 	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5PART_BADFD_ERR;
