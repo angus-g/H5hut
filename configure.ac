@@ -29,6 +29,12 @@ AC_ARG_ENABLE(
         [USE_FORTRAN=$enableval])
 
 AC_ARG_ENABLE(
+	[cxx],
+        [AC_HELP_STRING([--enable-cxx],
+	[Compile the C++ interface [default=no]])],
+        [ENABLE_CXX=$enableval])
+
+AC_ARG_ENABLE(
 	[parallel],
         [AC_HELP_STRING([--enable-parallel],
 	[Compile the MPI/IO interface [default=no]])],
@@ -55,7 +61,6 @@ AC_ARG_WITH(
 ###############################################################################
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
 ###############################################################################
-
 SAVE_CC=$CC
 SAVE_CXX=$CXX
 SAVE_FC=$FC
@@ -230,7 +235,7 @@ fi
 
 
 ############################ fortran enabled ##################################
-AC_MSG_CHECKING([if fortran interface enabled])
+AC_MSG_CHECKING([if the Fortran interface is enabled])
 if test "X$USE_FORTRAN" = "Xyes"; then
     AC_MSG_RESULT([yes])
 
@@ -259,6 +264,15 @@ if test "X$USE_FORTRAN" = "Xyes"; then
         AC_MSG_ERROR([Cannot build fortran executables!!!])
         exit 1
     fi
+else
+    AC_MSG_RESULT([no])
+fi
+
+############################ C++ enabled ““““##################################
+AC_MSG_CHECKING([if the C++ interface is enabled])
+if test "X$ENABLE_CXX" = "Xyes"; then
+    AC_MSG_RESULT([yes])
+    BINDINGS="$BINDINGS C++"
 else
     AC_MSG_RESULT([no])
 fi
@@ -535,6 +549,7 @@ fi
 ############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
 ###############################################################################
 
+AC_SUBST(BINDINGS)
 AC_SUBST(MPIROOT)
 AC_SUBST(HDF5ROOT)
 AC_SUBST(MPIINC)
@@ -560,6 +575,8 @@ AC_CONFIG_FILES([
 Makefile
 doc/Makefile
 src/h5/Makefile
+src/bindings/Makefile
+src/bindings/C++/Makefile
 src/Makefile
 test/Makefile
 tools/Makefile
