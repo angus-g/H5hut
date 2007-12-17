@@ -34,6 +34,15 @@
 /** include proprietary header files */
 #include <H5Fed.hh>
 
+/** \brief make the C API functions available so that
+ * we can used them in the implementation of the H5Fed class
+ * member functions implementations.
+ */
+extern "C"
+{
+	#include <H5Fed.h>
+}
+
 
 /** activate namespaces */
 using namespace H5Fed;
@@ -60,6 +69,14 @@ H5Fed::H5Fed(std::string filename)
 	/** initialize internal variables */
 	filename_.erase();
 	filename_.append(filename);
+}
+
+
+/** \brief implement constructor */
+~H5Fed::H5Fed()
+{
+	/** initialize internal variables */
+	filename_.erase();
 }
 
 

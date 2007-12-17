@@ -72,14 +72,8 @@ namespace H5Fed
 		
 		/******	INQUIRY routines *****************************************************/	
 		
-		
-		
-		
+
 	protected:
-		
-		
-		
-		
 		
 		
 	private:
