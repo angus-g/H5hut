@@ -59,12 +59,12 @@ EXTRA_DIST = 	Bench.c \
 # ------------ Build Tests ------------
 
 Bench: Bench.c
-	$(CC) $(CFLAGS) $(INC) -o $@ $< $(H5PLIB) -lH5Part $(LIBS)
+	$(CC) $(CFLAGS) $(INC) -o $@ $< $(H5PLIB) $(LIBS)
 
 ###############################################################################
 
 H5PartTest: H5PartTest.o
-	$(CXX) -o $@ $< $(H5PLIB) -lH5Part $(LIBS)
+	$(CXX) -o $@ $< $(H5PLIB) $(LIBS)
 
 H5PartTest.o: H5PartTest.cc
 	$(CXX) $(CFLAGS) $(INC) -DREGRESSIONTEST -g -c $<
@@ -72,7 +72,7 @@ H5PartTest.o: H5PartTest.cc
 ###############################################################################
 
 H5PartTestP: H5PartTestP.o
-	$(CXX) $(INC) -o $@ $< $(H5LIB) -lH5Part $(LIBS)
+	$(CXX) $(INC) -o $@ $< $(H5LIB)  $(LIBS)
 
 H5PartTestP.o: H5PartTest.cc
 	$(CXX) $(CFLAGS) $(INC) -DREGRESSIONTEST  -c $< -o $@
@@ -80,7 +80,7 @@ H5PartTestP.o: H5PartTest.cc
 ###############################################################################
 
 H5PartTestParallel: H5PartTestParallel.o
-	$(CXX) -o $@ $< $(H5LIB) -lH5Part $(LIBS)
+	$(CXX) -o $@ $< $(H5LIB) $(LIBS)
 
 H5PartTestParallel.o: H5PartTestParallel.cc
 	$(CXX) $(CFLAGS) $(INC) -c $<
@@ -88,7 +88,7 @@ H5PartTestParallel.o: H5PartTestParallel.cc
 ###############################################################################
 
 H5PartAndreasTest: H5PartAndreasTest.o
-	$(CXX)  -o $@ $< $(H5LIB) -lpH5Part $(LIBS)
+	$(CXX)  -o $@ $< $(H5LIB)  $(LIBS)
 
 H5PartAndreasTest.o: H5PartAndreasTest.cc
 	$(CXX) $(CFLAGS) $(INC) -c $<
@@ -96,7 +96,7 @@ H5PartAndreasTest.o: H5PartAndreasTest.cc
 ###############################################################################
 
 H5testF: H5testF.o
-	$(FC)  -o $@ $< $(H5LIB) -lH5PartF -lH5Part $(LIBS)
+	$(FC)  -o $@ $< $(H5LIB) -lH5PartF  $(LIBS)
 
 H5testF.o: H5testF.f
 	$(FC) $(FFLAGS) -c $(H5INC) $<
@@ -104,7 +104,7 @@ H5testF.o: H5testF.f
 ###############################################################################
 
 H5testFpar: H5testFpar.o
-	$(MPIFC)  -o $@ $< $(H5LIB) -lpH5PartF -lpH5Part $(LIBS)
+	$(MPIFC)  -o $@ $< $(H5LIB) -lpH5PartF $(LIBS)
 
 H5testFpar.o: H5testFpar.f90
 	$(MPIFC) $(FFLAGS) -c $(H5INC) $<
