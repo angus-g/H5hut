@@ -35,12 +35,14 @@ src/H5PartTypes.h -text
 src/Makefile.am -text
 src/bindings/C++/H5Fed.cc -text
 src/bindings/C++/H5Fed.hh -text
+src/bindings/C++/Makefile.am -text
 src/bindings/Fortran/H5BlockF.c -text
 src/bindings/Fortran/H5BlockF90.inc -text
 src/bindings/Fortran/H5PartF.c -text
 src/bindings/Fortran/H5PartF90.inc -text
 src/bindings/Fortran/TestUnderscore.f -text
 src/bindings/Fortran/TestUnderscoreC.c -text
+src/bindings/Makefile.am -text
 src/h5/H5.h -text
 src/h5/Makefile.am -text
 src/h5/attribs.c -text
