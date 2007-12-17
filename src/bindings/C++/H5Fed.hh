@@ -48,8 +48,9 @@
 
 namespace H5Fed
 {
-	const int ERRORCODE		=	-1;
-	const int OKCODE			=	0;
+	/** \brief Define return codes */
+	enum H5FED_RETURN_CODE{OKCODE,ERROR};
+
 
 
 	class H5Fed
@@ -57,14 +58,21 @@ namespace H5Fed
 	public:
 		
 		/** \brief infrastructure routines */
-		H5Fed();													/** \brief Constructor without argument */
-		H5Fed(std::string filename);			/** \brief Constructor without argument */
-		~H5Fed();													/** \brief Class destructor */
+		H5Fed();																						/** \brief Constructor without argument */
+		H5Fed(std::string filename);												/** \brief Constructor without argument */
+		~H5Fed();																						/** \brief Class destructor */
 		
-		int filename(std::string filename);		/** \brief Set name of H5Fed file to be accessed */
-		std::string filename();								/** \brief retrieve name of H5Fed file to be accessed */
+		H5FED_RETURN_CODE filename(std::string filename);		/** \brief Set name of H5Fed file to be accessed */
+		std::string filename();															/** \brief retrieve name of H5Fed file to be accessed */
 		
-		/** \brief book keeping */
+		/******	General routines *****************************************************/
+		H5FED_RETURN_CODE  open_file();											/** \brief open the file */
+		H5FED_RETURN_CODE  closeFile();											/** \brief close the file */
+		
+		
+		/******	INQUIRY routines *****************************************************/	
+		
+		
 		
 		
 	protected:
@@ -76,7 +84,7 @@ namespace H5Fed
 		
 	private:
 		/** book keeping */
-		std::string filename_;
+		std::string filename_;								/** \brief Name of H5Fed file to be accessed */
 		
 		
 		
@@ -84,25 +92,6 @@ namespace H5Fed
 		
 		
 	};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 #endif /** H5FED_HH */

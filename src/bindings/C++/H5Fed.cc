@@ -40,6 +40,12 @@ using namespace H5Fed;
 using namespace std;
 
 
+
+/*!
+  \defgroup h5fed_cpp_api H5Fed CPP API
+*/
+
+
 /** \brief implement constructor without arguments */
 H5Fed::H5Fed()
 {
@@ -58,7 +64,7 @@ H5Fed::H5Fed(std::string filename)
 
 
 /** \brief Set name of H5Fed file to be accessed */
-int H5Fed::filename(std::string filename)
+H5FED_RETURN_CODE H5Fed::filename(std::string filename)
 {
 	/** initialize internal variables */
 	filename_.erase();
@@ -75,9 +81,47 @@ std::string H5Fed::filename()
 }
 
 
+/*!
+  \ingroup h5fed_cpp_api
+  
+  Open file. This function is available in the paralell
+  and serial version. In the serial case \c comm may have any value.
+
+  \return
+  \return
+
+  \note
+  File is always opened in read/writer mode!
+
+  \note
+  Implement as wrapper of \c H5_open_file()!
+*/
+H5FED_RETURN_CODE H5Fed::open_file()
+{
+	return(OKCODE);
+}
 
 
+/*!
+  \ingroup h5fed_cpp_api
+  
+  Close file. This function is available in the paralell
+  and serial version. In the serial case \c comm may have
+  any value.
 
+  \return
+  \return
+
+  \note
+  File is always opened in read/writer mode!
+
+  \note
+  Implement as wrapper of \c H5_open_file()!
+*/
+H5FED_RETURN_CODE H5Fed::closeFile()
+{
+	return(OKCODE);
+}
 
 
 
