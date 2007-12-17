@@ -49,7 +49,7 @@ EXTRA_HEADERS = H5PartPrivate.h H5BlockPrivate.h
 libH5Part_a_SOURCES = H5Part.c H5Block.c
 
 
-SUBDIRS = h5
+SUBDIRS = h5 bindings
 
 # Specific building instruction (What compilers to use...)
 # ------------ Serial Lib build commands ------------
@@ -58,15 +58,8 @@ libH5Part.a: H5Part.o H5Block.o
  
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
-
 H5Part.o: H5Part.c H5Part.h H5PartPrivate.h H5PartTypes.h
 H5Block.o: H5Block.c H5Part.h H5PartPrivate.h H5PartTypes.h H5Block.h H5BlockTypes.h
-
-# ----------- Build Parallel H5Part Stuff ------------
-
-libpH5Part.a: libH5Part.a
-	${RM} $@
-	ln -s $^ $@
 
 clean:
 	rm -f *~ *.o *.a *.so
