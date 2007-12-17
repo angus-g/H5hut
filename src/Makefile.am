@@ -58,6 +58,7 @@ libH5Part.a: H5Part.o H5Block.o
  
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
+
 H5Part.o: H5Part.c H5Part.h H5PartPrivate.h H5PartTypes.h
 H5Block.o: H5Block.c H5Part.h H5PartPrivate.h H5PartTypes.h H5Block.h H5BlockTypes.h
 
