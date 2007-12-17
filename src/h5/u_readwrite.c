@@ -272,9 +272,9 @@ H5U_set_num_elements (
 		return HANDLE_MPI_ALLGATHER_ERR;
 	}
 	if ( f->myproc == 0 ) {
-		_H5Part_print_debug ( "Particle offsets:" );
+		H5_print_debug ( "Particle offsets:" );
 		for(i=0;i<f->nprocs;i++) 
-			_H5Part_print_debug ( "\tnp=%lld",
+			H5_print_debug ( "\tnp=%lld",
 					      (long long) f->pnparticles[i] );
 	}
 	/* should I create a selection here? */
