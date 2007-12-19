@@ -44,6 +44,7 @@
 //}
 
 
+
 /** activate namespaces */
 
 using namespace std;
@@ -140,12 +141,53 @@ H5FED_RETURN_CODE H5Fed::closeFile()
 	return(OKCODE);
 }
 
+
+
+
+/******	STORE routines*****************************************************/
+
+/*!
+  \ingroup h5fed_c_api
+
+  Stores the the coordinates of a specific vertex at level \c level
+  with id \c vertex_id of the tetrahedral mesh.
+
+  \return value \c >=0 on success
+  \return \c -1 on error
+*/		
+H5FED_RETURN_CODE H5Fed::storeVertexCoordinate(
+		unsigned int level,				/*!< mesh level			*/
+		unsigned int vertex_id,		/*!< global vertex id		*/
+		std::vector<double>	/*!< 3-tuple of coordinates	*/
+)
+{
+	;
 }
 
 
 
 
+/*!
+  \ingroup h5fed_c_api
+
+  Stores the 4-tuple, that contains the specific indices describing
+  a tetrahedron with id \c tet_id at level \c level of the tetrahedral
+  mesh.
+
+  \return value \c >=0 on success
+  \return \c -1 on error
+*/
+H5FED_RETURN_CODE H5Fed::H5FedStoreTetrahedron (
+	const unsigned int level,							/*!< mesh level			*/
+	const unsigned int tet_id,						/*!< global tetrahedron id	*/
+	const unsigned int parent_id,					/*!< parent id if level \c >0 else \x -1 */
+	const  std::vector<unsigned int> tet		/*!< 4-tuple with vertex id's	*/
+	)
+{
+	return(OKCODE);
+}
 
 
 
+}
 
