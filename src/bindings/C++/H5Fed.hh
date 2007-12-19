@@ -78,7 +78,7 @@ namespace H5Fed
 		
 	private:
 		/** book keeping */
-		std::string filename_;								/** \brief Name of H5Fed file to be accessed */
+		std::string filename_;														/** \brief Name of H5Fed file to be accessed */
 		
 		
 		

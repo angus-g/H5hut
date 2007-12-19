@@ -32,24 +32,24 @@
 
 
 /** include proprietary header files */
-#include <H5Fed.hh>
+#include "H5Fed.hh"
 
 /** \brief make the C API functions available so that
  * we can used them in the implementation of the H5Fed class
  * member functions implementations.
  */
-extern "C"
-{
-	#include <H5Fed.h>
-}
+//extern "C"
+//{
+//	#include "../../H5Fed.h"
+//}
 
 
 /** activate namespaces */
-using namespace H5Fed;
+
 using namespace std;
 
-
-
+namespace H5Fed
+{
 /*!
   \defgroup h5fed_cpp_api H5Fed CPP API
 */
@@ -73,7 +73,7 @@ H5Fed::H5Fed(std::string filename)
 
 
 /** \brief implement constructor */
-~H5Fed::H5Fed()
+H5Fed::~H5Fed()
 {
 	/** initialize internal variables */
 	filename_.erase();
@@ -140,7 +140,7 @@ H5FED_RETURN_CODE H5Fed::closeFile()
 	return(OKCODE);
 }
 
-
+}
 
 
 
