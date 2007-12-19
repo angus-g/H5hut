@@ -158,10 +158,10 @@ H5FED_RETURN_CODE H5Fed::closeFile()
 H5FED_RETURN_CODE H5Fed::storeVertexCoordinate(
 		unsigned int level,				/*!< mesh level			*/
 		unsigned int vertex_id,		/*!< global vertex id		*/
-		std::vector<double>	/*!< 3-tuple of coordinates	*/
+		std::vector<double>				/*!< 3-tuple of coordinates	*/
 )
 {
-	;
+	return(OKCODE);
 }
 
 
@@ -181,7 +181,7 @@ H5FED_RETURN_CODE H5Fed::H5FedStoreTetrahedron (
 	const unsigned int level,							/*!< mesh level			*/
 	const unsigned int tet_id,						/*!< global tetrahedron id	*/
 	const unsigned int parent_id,					/*!< parent id if level \c >0 else \x -1 */
-	const  std::vector<unsigned int> tet		/*!< 4-tuple with vertex id's	*/
+	const  std::vector<unsigned int> tet	/*!< 4-tuple with vertex id's	*/
 	)
 {
 	return(OKCODE);
