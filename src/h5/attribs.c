@@ -150,7 +150,7 @@ H5_get_attrib_info (
 
 h5part_int64_t
 H5_get_num_attribs (
-	H5PartFile *f,
+	h5_file *f,
 	hid_t id
 	) {
 

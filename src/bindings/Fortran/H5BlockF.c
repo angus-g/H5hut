@@ -96,7 +96,7 @@ h5bl_define3dlayout (
 	const h5part_int64_t *k_end	/*!< end index of k */
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5BlockDefine3DFieldLayout (
 		filehandle,
@@ -117,7 +117,7 @@ h5bl_get_partition_of_proc (
 	h5part_int64_t *k_end		/*!< end index of k */
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	h5part_int64_t herr = H5Block3dGetPartitionOfProc (
 		filehandle,
@@ -147,7 +147,7 @@ h5bl_get_reduced_partition_of_proc (
 	h5part_int64_t *k_end
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	h5part_int64_t herr = H5Block3dGetReducedPartitionOfProc (
 		filehandle,
@@ -173,7 +173,7 @@ h5bl_get_proc_of (
 	const h5part_int64_t *k
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5Block3dGetProcOf ( filehandle, (*i)-1, (*j)-1, (*k)-1 );
 }
@@ -186,7 +186,7 @@ h5bl_3d_read_scalar_field (
 	const int l_field_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =  _H5Part_strdupfor2c ( field_name,  l_field_name );
 
@@ -205,7 +205,7 @@ h5bl_3d_write_scalar_field (
 	const int l_field_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =  _H5Part_strdupfor2c ( field_name,  l_field_name );
 
@@ -226,7 +226,7 @@ h5bl_3d_read_3dvector_field (
 	const int l_field_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =  _H5Part_strdupfor2c ( field_name,  l_field_name );
 
@@ -247,7 +247,7 @@ h5bl_3d_write_3dvector_field (
 	const int l_field_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =  _H5Part_strdupfor2c ( field_name,  l_field_name );
 
@@ -263,7 +263,7 @@ h5bl_getnumfields (
 	h5part_int64_t *f			/*!< file handle */
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5BlockGetNumFields ( filehandle );
 }
@@ -279,7 +279,7 @@ h5bl_getfieldinfo (
 	const int l_field_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	h5part_int64_t herr = H5BlockGetFieldInfo (
 		filehandle, *idx, field_name, l_field_name,
@@ -299,7 +299,7 @@ h5bl_writefieldattrib_r8 (
 	const int l_attrib_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 = _H5Part_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 =_H5Part_strdupfor2c ( attrib_name, l_attrib_name );
@@ -325,7 +325,7 @@ h5bl_writefieldattrib_i8 (
 	const int l_attrib_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 = _H5Part_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 =_H5Part_strdupfor2c ( attrib_name, l_attrib_name );
@@ -350,7 +350,7 @@ h5bl_writefieldattrib_string (
 	const int l_attrib_value
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =_H5Part_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2=_H5Part_strdupfor2c ( attrib_name, l_attrib_name );
@@ -373,7 +373,7 @@ h5bl_getnfieldattribs (
 	const int l_field_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 = _H5Part_strdupfor2c ( field_name,   l_field_name );
 
@@ -395,7 +395,7 @@ h5bl_getfieldattribinfo (
 	const int l_attrib_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	h5part_int64_t	attrib_type;
 
@@ -424,7 +424,7 @@ h5bl_readfieldattrib_i8 (
 	const int l_attrib_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =_H5Part_strdupfor2c ( field_name,   l_field_name );
 	char *attrib_name2=_H5Part_strdupfor2c ( attrib_name,  l_attrib_name );
@@ -447,7 +447,7 @@ h5bl_readfieldattrib_r8 (
 	const int l_attrib_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =_H5Part_strdupfor2c ( field_name,   l_field_name );
 	char *attrib_name2=_H5Part_strdupfor2c ( attrib_name,  l_attrib_name );
@@ -471,7 +471,7 @@ h5bl_readfieldattrib_string (
 	const int l_attrib_value
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =_H5Part_strdupfor2c ( field_name,   l_field_name );
 	char *attrib_name2=_H5Part_strdupfor2c ( attrib_name,  l_attrib_name );
@@ -491,7 +491,7 @@ h5bl_has_fielddata (
 	h5part_int64_t *f
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5BlockHasFieldData ( filehandle );
 }
@@ -506,7 +506,7 @@ h5b_3d_get_field_spacing (
 	const int l_field_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =  _H5Part_strdupfor2c ( field_name, l_field_name );
 
@@ -527,7 +527,7 @@ h5b_3d_set_field_spacing (
 	const int l_field_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =  _H5Part_strdupfor2c ( field_name, l_field_name );
 
@@ -548,7 +548,7 @@ h5b_3d_get_field_origin (
 	const int l_field_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =  _H5Part_strdupfor2c ( field_name, l_field_name );
 
@@ -569,7 +569,7 @@ h5b_3d_set_field_origin (
 	const int l_field_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *field_name2 =  _H5Part_strdupfor2c ( field_name, l_field_name );
 

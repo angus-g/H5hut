@@ -37,7 +37,7 @@ extern "C" {
 #define H5PART_CHAR		((h5part_int64_t)H5T_NATIVE_CHAR)
 
 /*========== File Opening/Closing ===============*/
-H5PartFile*
+h5_file*
 H5PartOpenFile(
 	const char *filename,
 	const unsigned flags
@@ -46,7 +46,7 @@ H5PartOpenFile(
 #define H5PartOpenFileSerial(x,y) H5PartOpenFile(x,y)
 
 #ifdef PARALLEL_IO
-H5PartFile*
+h5_file*
 H5PartOpenFileParallel (
 	const char *filename,
 	const unsigned flags,
@@ -57,34 +57,34 @@ H5PartOpenFileParallel (
 
 h5part_int64_t
 H5PartCloseFile (
-	H5PartFile *f
+	h5_file *f
 	);
 
 
 /*============== File Writing Functions ==================== */
 h5part_int64_t
 H5PartDefineStepName (
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	const h5part_int64_t width
 	);
 
 h5part_int64_t
 H5PartSetNumParticles ( 
-	H5PartFile *f, 
+	h5_file *f, 
 	const h5part_int64_t nparticles
 	);
 
 h5part_int64_t
 H5PartWriteDataFloat64 (
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	const h5part_float64_t *array
 	);
 
 h5part_int64_t
 H5PartWriteDataInt64 (
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	const h5part_int64_t *array
 	);
@@ -92,29 +92,29 @@ H5PartWriteDataInt64 (
 /*================== File Reading Routines =================*/
 h5part_int64_t
 H5PartSetStep (
-	H5PartFile *f,
+	h5_file *f,
 	const h5part_int64_t step
 	);
 
 h5part_int64_t
 H5PartHasStep (
-	H5PartFile *f,
+	h5_file *f,
 	const h5part_int64_t step
 	);
 
 h5part_int64_t
 H5PartGetNumSteps (
-	H5PartFile *f
+	h5_file *f
 	);
 
 h5part_int64_t
 H5PartGetNumDatasets (
-	H5PartFile *f
+	h5_file *f
 	);
 
 h5part_int64_t
 H5PartGetDatasetName (
-	H5PartFile *f,
+	h5_file *f,
 	const h5part_int64_t idx,
 	char *name,
 	const h5part_int64_t maxlen
@@ -122,7 +122,7 @@ H5PartGetDatasetName (
 
 h5part_int64_t
 H5PartGetDatasetInfo (
-	H5PartFile *f,
+	h5_file *f,
 	const h5part_int64_t idx,
 	char *name,
 	const h5part_int64_t maxlen,
@@ -132,12 +132,12 @@ H5PartGetDatasetInfo (
 
 h5part_int64_t
 H5PartGetNumParticles (
-	H5PartFile *f
+	h5_file *f
 	);
 
 h5part_int64_t
 H5PartSetView (
-	H5PartFile *f,
+	h5_file *f,
 	const h5part_int64_t start,
 	const h5part_int64_t end
 	);
@@ -145,43 +145,43 @@ H5PartSetView (
 
 h5part_int64_t
 H5PartGetView (
-	H5PartFile *f,
+	h5_file *f,
 	h5part_int64_t *start,
 	h5part_int64_t *end
 	);
 
 h5part_int64_t
 H5PartHasView (
-	H5PartFile *f
+	h5_file *f
 	);
 
 h5part_int64_t
 H5PartResetView (
-	H5PartFile *f
+	h5_file *f
 	);
 
 h5part_int64_t
 H5PartSetCanonicalView (
-	H5PartFile *f
+	h5_file *f
 	);
 
 h5part_int64_t
 H5PartReadDataFloat64(
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	h5part_float64_t *array
 	);
 
 h5part_int64_t
 H5PartReadDataInt64 (
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	h5part_int64_t *array
 	);
 
 h5part_int64_t
 H5PartReadParticleStep (
-	H5PartFile *f,
+	h5_file *f,
 	const h5part_int64_t step,
 	h5part_float64_t *x, /* particle positions */
 	h5part_float64_t *y,
@@ -202,7 +202,7 @@ H5PartReadParticleStep (
 */
 h5part_int64_t
 H5PartWriteStepAttrib (
-	H5PartFile *f,
+	h5_file *f,
 	const char *attrib_name,
 	const h5part_int64_t attrib_type,
 	const void *attrib_value,
@@ -211,7 +211,7 @@ H5PartWriteStepAttrib (
 
 h5part_int64_t
 H5PartWriteFileAttrib (
-	H5PartFile *f,
+	h5_file *f,
 	const char *attrib_name,
 	const h5part_int64_t attrib_type,
 	const void *attrib_value,
@@ -220,31 +220,31 @@ H5PartWriteFileAttrib (
 
 h5part_int64_t
 H5PartWriteFileAttribString (
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	const char *attrib
 	);
 
 h5part_int64_t
 H5PartWriteStepAttribString ( 
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	const char *attrib
 	);
 
 h5part_int64_t
 H5PartGetNumStepAttribs ( /* for current filestep */
-	H5PartFile *f
+	h5_file *f
 	);
 
 h5part_int64_t
 H5PartGetNumFileAttribs (
-	H5PartFile *f
+	h5_file *f
 	);
 
 h5part_int64_t
 H5PartGetStepAttribInfo (
-	H5PartFile *f,
+	h5_file *f,
 	const h5part_int64_t attrib_idx,
 	char *attrib_name,
 	const h5part_int64_t len_of_attrib_name,
@@ -254,7 +254,7 @@ H5PartGetStepAttribInfo (
 
 h5part_int64_t
 H5PartGetFileAttribInfo (
-	H5PartFile *f,
+	h5_file *f,
 	const h5part_int64_t idx,
 	char *name,
 	const h5part_int64_t maxnamelen,
@@ -264,14 +264,14 @@ H5PartGetFileAttribInfo (
 
 h5part_int64_t
 H5PartReadStepAttrib (
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	void *data
 	);
 
 h5part_int64_t
 H5PartReadFileAttrib (
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	void *data
 	);

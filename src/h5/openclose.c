@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <stdarg.h>	/* va_arg - System dependent ?! */
 #include <string.h>
 #include <errno.h>
@@ -22,7 +23,7 @@ extern unsigned			_debug;
 
 static h5part_int64_t
 _close_block (
-	H5PartFile *f
+	h5_file *f
 	);
 
 /*!
@@ -36,7 +37,7 @@ _close_block (
 */
 h5part_int64_t
 H5_check_filehandle (
-	const H5PartFile *f	/*!< filehandle  to check validity of */
+	const h5_file *f	/*!< filehandle  to check validity of */
 	) {
 
 	if ( f == NULL )
@@ -85,17 +86,17 @@ _init ( void ) {
 */
 static h5part_int64_t
 _init_block (
-	H5PartFile *f			/*!< IN: file handle */
+	h5_file *f			/*!< IN: file handle */
 	) {
 	h5part_int64_t herr;
-	struct H5BlockStruct *b; 
+	struct h5b_fdata *b; 
 
 	herr = H5_check_filehandle ( f );
 	if ( herr == H5PART_SUCCESS ) return H5PART_SUCCESS;
 
 	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5PART_BADFD_ERR;
 
-	f->block = (struct H5BlockStruct*) malloc( sizeof (*f->block) );
+	f->block = (struct h5b_fdata*) malloc( sizeof (*f->block) );
 	if ( f->block == NULL ) {
 		return HANDLE_H5PART_NOMEM_ERR;
 	}
@@ -136,11 +137,11 @@ _init_block (
 */
 static h5part_int64_t
 _close_block (
-	H5PartFile *f		/*!< IN: file handle */
+	h5_file *f		/*!< IN: file handle */
 	) {
 
 	herr_t herr;
-	struct H5BlockStruct *b = f->block;
+	struct h5b_fdata *b = f->block;
 
 	if ( b->blockgroup >= 0 ) {
 		herr = H5Gclose ( b->blockgroup );
@@ -170,7 +171,7 @@ _close_block (
 }
 
 
-H5PartFile*
+h5_file*
 H5_open_file (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	unsigned flags,		/*!< [in] The access mode for the file. */
@@ -185,14 +186,14 @@ H5_open_file (
 		return NULL;
 	}
 	_h5part_errno = H5PART_SUCCESS;
-	H5PartFile *f = NULL;
+	h5_file *f = NULL;
 
-	f = (H5PartFile*) malloc( sizeof (H5PartFile) );
+	f = (h5_file*) malloc( sizeof (h5_file) );
 	if( f == NULL ) {
 		HANDLE_H5PART_NOMEM_ERR;
 		goto error_cleanup;
 	}
-	memset (f, 0, sizeof (H5PartFile));
+	memset (f, 0, sizeof (h5_file));
 
 	f->groupname_step = strdup ( H5PART_GROUPNAME_STEP );
 	if( f->groupname_step == NULL ) {
@@ -356,7 +357,7 @@ H5_open_file (
 
 h5part_int64_t
 H5_close_file (
-	H5PartFile *f
+	h5_file *f
 	) {
 	herr_t r = 0;
 	_h5part_errno = H5PART_SUCCESS;
@@ -422,7 +423,7 @@ H5_close_file (
 
 h5part_int64_t
 H5_define_stepname (
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	const h5part_int64_t width
 	) {

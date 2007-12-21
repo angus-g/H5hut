@@ -6,53 +6,22 @@
 #ifndef _H5PARTTYPES_H_
 #define _H5PARTTYPES_H_
 
-#ifdef   WIN32
-typedef __int64			int64_t;
-#endif /* WIN32 */
+#include "h5/h5_types.h"
 
-typedef int64_t			h5part_int64_t;
-typedef double			h5part_float64_t;
-typedef h5part_int64_t (*h5part_error_handler)( const char*, const h5part_int64_t, const char*,...)
-#ifdef __GNUC__
-__attribute__ ((format (printf, 3, 4)))
-#endif
- ;
-
-#ifndef PARALLEL_IO
-typedef unsigned long		MPI_Comm;
-#endif
-
-struct H5BlockFile;
+struct h5b_fdata;
+struct h5t_fdata;
 
 /**
-   \struct H5PartFile
+   \struct h5_file
 
    This is an essentially opaque datastructure that
    acts as the filehandle for all practical purposes.
    It is created by H5PartOpenFile<xx>() and destroyed by
    H5PartCloseFile().  
 */
-struct H5PartFile {
-	hid_t	file;
-	hid_t	root_id;		/* id of group "/" */
-	char	*groupname_step;
-	int	stepno_width;
-	int	empty;
-
-	char	index_name[128];
-       
-	h5part_int64_t timestep;
+struct h5_file {
 	hsize_t nparticles;
 	
-	hid_t timegroup;
-	hid_t shape;
-	unsigned mode;
-	hid_t xfer_prop;
-	hid_t create_prop;
-	hid_t access_prop;
-	hid_t diskshape;
-	hid_t memshape;	     /* for parallel I/O (this is on-disk) H5S_ALL 
-				if serial I/O */
 	h5part_int64_t viewstart; /* -1 if no view is available: A "view" looks */
 	h5part_int64_t viewend;   /* at a subset of the data. */
   
@@ -65,6 +34,30 @@ struct H5PartFile {
 	   the view for each processor
 	*/
 	h5part_int64_t *pnparticles;
+
+	hid_t shape;
+	hid_t diskshape;
+	hid_t memshape;
+
+	/*
+	 */
+
+	hid_t	file;
+	unsigned mode;
+	hid_t xfer_prop;
+	hid_t create_prop;
+	hid_t access_prop;
+
+	hid_t	root_id;		/* id of group "/" */
+	char	*groupname_step;
+	int	stepno_width;
+	int	empty;
+
+	char	index_name[128];
+       
+	h5_int64_t timestep;
+	hid_t timegroup;
+
 
 	/**
 	   Number of processors
@@ -81,16 +74,18 @@ struct H5PartFile {
 	*/
 	MPI_Comm comm;
 
-	struct H5BlockStruct *block;
-	h5part_int64_t (*close_block)(struct H5PartFile *f);
+	struct h5b_fdata *block;
+	h5_int64_t (*close_block)(struct h5_file *f);
+
+	struct h5t_fdata *topo;
+	h5_int64_t (*close_topo)(struct h5_file *f);
 };
 
-typedef struct H5PartFile H5PartFile;
+typedef struct h5_file H5PartFile;
+typedef struct h5_file h5_file;
 
 #ifdef IPL_XT3
 # define SEEK_END 2 
 #endif
-
-
 
 #endif

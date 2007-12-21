@@ -23,13 +23,13 @@ struct _iter_op_data {
 
 h5part_int64_t
 H5_set_step (
-	H5PartFile *f,
+	h5_file *f,
 	const h5part_int64_t step
 	);
 
 h5part_int64_t
 H5_get_num_particles (
-	H5PartFile *f
+	h5_file *f
 	);
 
 herr_t

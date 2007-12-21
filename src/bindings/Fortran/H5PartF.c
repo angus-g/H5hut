@@ -193,7 +193,7 @@ h5pt_openr (
 
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
-	H5PartFile* f = H5PartOpenFile ( file_name2, H5PART_READ );
+	h5_file* f = H5PartOpenFile ( file_name2, H5PART_READ );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
@@ -207,7 +207,7 @@ h5pt_openw (
 
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
-	H5PartFile* f = H5PartOpenFile ( file_name2, H5PART_WRITE );
+	h5_file* f = H5PartOpenFile ( file_name2, H5PART_WRITE );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
@@ -221,7 +221,7 @@ h5pt_opena (
 	
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
-	H5PartFile* f = H5PartOpenFile ( file_name2, H5PART_APPEND );
+	h5_file* f = H5PartOpenFile ( file_name2, H5PART_APPEND );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f;
@@ -237,7 +237,7 @@ h5pt_openr_par (
 
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
-	H5PartFile* f = H5PartOpenFileParallel (
+	h5_file* f = H5PartOpenFileParallel (
 		file_name2, H5PART_READ, *comm );
 
 	free ( file_name2 );
@@ -253,7 +253,7 @@ h5pt_openw_par (
 
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
-	H5PartFile* f = H5PartOpenFileParallel (
+	h5_file* f = H5PartOpenFileParallel (
 		file_name2, H5PART_WRITE, *comm );
 
 	free ( file_name2 );
@@ -269,7 +269,7 @@ h5pt_opena_par (
 	
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
        
-       H5PartFile* f = H5PartOpenFileParallel (
+       h5_file* f = H5PartOpenFileParallel (
                file_name2, H5PART_APPEND, *comm );
        
        free ( file_name2 );
@@ -281,7 +281,7 @@ h5part_int64_t
 h5pt_close (
 	const h5part_int64_t *f
 	) {
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartCloseFile ( filehandle );
 }
@@ -301,7 +301,7 @@ h5pt_readstep (
 	h5part_int64_t *id
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartReadParticleStep (
 		filehandle,(*step)-1,x,y,z,px,py,pz,id);
@@ -314,7 +314,7 @@ h5pt_setnpoints (
 	h5part_int64_t *np
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartSetNumParticles ( filehandle, *np );
 }
@@ -324,7 +324,7 @@ h5pt_setstep (
 	const h5part_int64_t *f,
 	h5part_int64_t *step ) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartSetStep ( filehandle, (*step)-1 );
 }
@@ -336,7 +336,7 @@ h5pt_writedata_r8 (
 	const h5part_float64_t *data,
 	const int l_name ) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 
@@ -355,7 +355,7 @@ h5pt_writedata_i8 (
 	const h5part_int64_t *data,
 	const int l_name ) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 
@@ -374,7 +374,7 @@ h5pt_getnsteps (
 	const h5part_int64_t *f
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartGetNumSteps ( filehandle );
 }
@@ -384,7 +384,7 @@ h5pt_getndatasets (
 	const h5part_int64_t *f
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartGetNumDatasets ( filehandle );
 }
@@ -394,7 +394,7 @@ h5pt_getnpoints (
 	const h5part_int64_t *f
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartGetNumParticles ( filehandle );
 }
@@ -407,7 +407,7 @@ h5pt_getdatasetname (
 	const int l_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	h5part_int64_t herr =  H5PartGetDatasetName (
 		filehandle, *index, name, l_name );
@@ -421,7 +421,7 @@ h5pt_getnumpoints (
 	const h5part_int64_t *f
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartGetNumParticles( filehandle );
 }
@@ -435,7 +435,7 @@ h5pt_setview (
 	const h5part_int64_t *end
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartSetView ( filehandle, *start, *end );
 }
@@ -445,7 +445,7 @@ h5pt_resetview (
 	const h5part_int64_t *f
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartResetView ( filehandle );
 }
@@ -455,7 +455,7 @@ h5pt_hasview (
 	const h5part_int64_t *f
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartHasView ( filehandle );
 }
@@ -467,7 +467,7 @@ h5pt_getview (
 	h5part_int64_t *end
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartGetView ( filehandle, start, end);
 }
@@ -480,7 +480,7 @@ h5pt_readdata_r8 (
 	const int l_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 
@@ -499,7 +499,7 @@ h5pt_readdata_i8 (
 	const int l_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 
@@ -522,7 +522,7 @@ h5pt_writefileattrib_r8 (
 	const int l_attrib_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
 	
@@ -543,7 +543,7 @@ h5pt_writefileattrib_i8 (
 	const int l_attrib_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
 	
@@ -564,7 +564,7 @@ h5pt_writefileattrib_string (
 	const int l_attrib_value
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
 	char *attrib_value2= _H5Part_strdupfor2c (attrib_value,l_attrib_value);
@@ -586,7 +586,7 @@ h5pt_writestepattrib_r8 (
 	const int l_attrib_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *attrib_name2 = _H5Part_strdupfor2c ( attrib_name, l_attrib_name );
 	
@@ -607,7 +607,7 @@ h5pt_writestepattrib_i8 (
 	const int l_attrib_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *attrib_name2 = _H5Part_strdupfor2c ( attrib_name, l_attrib_name );
 
@@ -628,7 +628,7 @@ h5pt_writestepattrib_string (
 	const int l_attrib_value
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	char *attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
 	char *attrib_value2= _H5Part_strdupfor2c (attrib_value,l_attrib_value);
@@ -648,7 +648,7 @@ h5pt_getnstepattribs (
 	const h5part_int64_t *f
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartGetNumStepAttribs ( filehandle );
 }
@@ -658,7 +658,7 @@ h5pt_getnfileattribs (
 	const h5part_int64_t *f
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 
 	return H5PartGetNumFileAttribs ( filehandle );
 }
@@ -672,7 +672,7 @@ h5pt_getstepattribinfo (
 	const int l_name
 	) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 	h5part_int64_t type;
 
 	h5part_int64_t herr = H5PartGetStepAttribInfo ( 
@@ -690,7 +690,7 @@ h5pt_getfileattribinfo (
 	h5part_int64_t *nelem,
 	const int l_name ) {
 
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 	h5part_int64_t type;
 
 	h5part_int64_t herr = H5PartGetFileAttribInfo ( 
@@ -708,7 +708,7 @@ h5pt_readstepattrib (
 	const int l_attrib_name
 	) {
 	
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 	
 	char * attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
 
@@ -768,7 +768,7 @@ h5pt_readfileattrib (
 	const int l_attrib_name
 	) {
 	
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+	h5_file *filehandle = (h5_file*)(size_t)*f;
 	
 	char * attrib_name2 = _H5Part_strdupfor2c (attrib_name,l_attrib_name);
 

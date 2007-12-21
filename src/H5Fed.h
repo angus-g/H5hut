@@ -142,7 +142,7 @@ h5_int_t H5FedHasBoundaryMesh(
   \return number of vertices
   \return \c -1	on error.
 */
-h5_size_t H5FedGetNumVerticesInMesh (
+h5_size_t H5FedGetNumVertices (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to query	*/
 	);
@@ -156,7 +156,7 @@ h5_size_t H5FedGetNumVerticesInMesh (
   \return number of vertices
   \return \c -1	on error.
 */
-h5_size_t H5FedGetNumVerticesInMeshTotal(
+h5_size_t H5FedGetNumVerticesTotal(
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to query	*/
 	);
@@ -170,7 +170,7 @@ h5_size_t H5FedGetNumVerticesInMeshTotal(
   \return number of vertices
   \return \c -1	on error.
 */
-h5_size_t H5FedGetNumVerticesInMeshOnNode (
+h5_size_t H5FedGetNumVerticesCnode (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t cnode		/*!< compute node		*/
@@ -225,7 +225,7 @@ h5_size_t H5FedGetNumEdgesInTetrahedralMeshTotal (
   \return number of edges
   \return \c -1 on error.
 */
-h5_size_t H5FedGetNumEdgeInTetrahedralMeshOfNode (
+h5_size_t H5FedGetNumEdgeInTetrahedralMeshCnode (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t cnode		/*!< compute node		*/
@@ -275,7 +275,7 @@ h5_size_t H5FedGetNumTrianglesInTetrahedralMeshTotal (
   \return Number of triangles
   \return \c -1 on error.
 */
-h5_size_t H5FedGetNumTrianglesInTetrahedralMeshOnNode (
+h5_size_t H5FedGetNumTrianglesInTetrahedralMeshCnode (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t cnode		/*!< compute node		*/
@@ -297,7 +297,7 @@ h5_size_t H5FedGetNumTrianglesInTetrahedralMeshOnNode (
   to collect the number from the other cnodes and store them into an
   array.  The inquired number will be provided from this array.
 */
-h5_size_t H5FedGetNumTetrahedraInMesh(
+h5_size_t H5FedGetNumTetrahedra (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to query	*/
 	);
@@ -311,7 +311,7 @@ h5_size_t H5FedGetNumTetrahedraInMesh(
   \return number of tetrahedra
   \return \c -1 on error.
 */
-h5_size_t H5FedGetNumTetrahedraInMeshTotal(
+h5_size_t H5FedGetNumTetrahedraTotal(
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to query	*/
 	);
@@ -325,7 +325,7 @@ h5_size_t H5FedGetNumTetrahedraInMeshTotal(
   \return number of tetrahedra
   \return \c -1 on error.
 */
-h5_size_t H5FedGetNumTetrahedraInMeshOnNode (
+h5_size_t H5FedGetNumTetrahedraCnode (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t cnode		/*!< compute node		*/
@@ -354,7 +354,7 @@ h5_size_t H5FedGetNumTetrahedraInMeshOnNode (
   to collect the number from the other cnodes and store them into an
   array.  The inquired number will be provided from this array.
 */
-h5_size_t H5FedGetNumBoundaryTrianglesInMesh (
+h5_size_t H5FedGetNumBoundaryTriangles (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to query	*/
 	);
@@ -368,7 +368,7 @@ h5_size_t H5FedGetNumBoundaryTrianglesInMesh (
   \return number of tetrahedras
   \return \c -1 on error.
 */
-h5_size_t H5FedGetNumBoundaryTrianglesInMeshTotal (
+h5_size_t H5FedGetNumBoundaryTrianglesTotal (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to query	*/
 	);
@@ -382,13 +382,28 @@ h5_size_t H5FedGetNumBoundaryTrianglesInMeshTotal (
   \return number of tetrahedras
   \return \c -1 on error.
 */
-h5_size_t H5FedGetNumBoundaryTrianglesInMeshOnNode (
+h5_size_t H5FedGetNumBoundaryTrianglesCnode (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t cnode		/*!< compute node		*/
 	);
 
 /******	RETRIEVAL routines **************************************************/
+
+h5_int_t H5FedSetNumVertices (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level			*/
+	const h5_size_t num_vertices	/*!< number of verices at level
+					  \c level			*/
+	);
+
+h5_int_t H5FedSetNumTetrahedra (
+	h5_file * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level			*/
+	const h5_size_t num_tet		/*!< number of tetrahedra at
+					  level \c level		*/
+	);
+
 
 /*!
   \ingroup h5fed_c_api
@@ -472,7 +487,7 @@ h5_triangle * H5FedGetTriangle (
 h5_tetrahedron * H5FedGetTetrahedron (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
-	const h5_id_t tetra_id		/*!< global tetrahedron id	*/
+	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
 	h5_id_t * parent_id		/*!< OUT: parent id if level
 					     \c >0 else \c -1		*/
 	);

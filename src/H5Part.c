@@ -122,14 +122,14 @@ extern unsigned			_debug;
 
   The typical extension for these files is \c .h5.
   
-  H5PartFile should be treated as an essentially opaque
+  h5_file should be treated as an essentially opaque
   datastructure.  It acts as the file handle, but internally
   it maintains several key state variables associated with 
   the file.
 
   \return	File handle or \c NULL
  */
-H5PartFile*
+h5_file*
 H5PartOpenFileParallel (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	unsigned flags,		/*!< [in] The access mode for the file. */
@@ -153,7 +153,7 @@ H5PartOpenFileParallel (
 
   The typical extension for these files is \c .h5.
   
-  H5PartFile should be treated as an essentially opaque
+  h5_file should be treated as an essentially opaque
   datastructure.  It acts as the file handle, but internally
   it maintains several key state variables associated with 
   the file.
@@ -161,7 +161,7 @@ H5PartOpenFileParallel (
   \return	File handle or \c NULL
  */
 
-H5PartFile*
+h5_file*
 H5PartOpenFile (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	unsigned flags		/*!< [in] The access mode for the file. */
@@ -184,7 +184,7 @@ H5PartOpenFile (
 */
 h5part_int64_t
 H5PartCloseFile (
-	H5PartFile *f		/*!< [in] filehandle of the file to close */
+	h5_file *f		/*!< [in] filehandle of the file to close */
 	) {
 
 	SET_FNAME ( "H5PartCloseFile" );
@@ -196,7 +196,7 @@ H5PartCloseFile (
 
 h5part_int64_t
 H5PartDefineStepName (
-	H5PartFile *f,
+	h5_file *f,
 	const char *name,
 	const h5part_int64_t width
 	) {
@@ -221,7 +221,7 @@ H5PartDefineStepName (
  */
 h5part_int64_t
 H5PartSetNumParticles (
-	H5PartFile *f,			/*!< [in] Handle to open file */
+	h5_file *f,			/*!< [in] Handle to open file */
 	h5part_int64_t nparticles	/*!< [in] Number of particles */
 	) {
 
@@ -258,7 +258,7 @@ H5PartSetNumParticles (
  */
 h5part_int64_t
 H5PartWriteDataFloat64 (
-	H5PartFile *f,			/*!< [in] Handle to open file */
+	h5_file *f,			/*!< [in] Handle to open file */
 	const char *name,		/*!< [in] Name to associate array with */
 	const h5part_float64_t *array	/*!< [in] Array to commit to disk */
 	) {
@@ -296,7 +296,7 @@ H5PartWriteDataFloat64 (
  */
 h5part_int64_t
 H5PartWriteDataInt64 (
-	H5PartFile *f,		/*!< [in] Handle to open file */
+	h5_file *f,		/*!< [in] Handle to open file */
 	const char *name,	/*!< [in] Name to associate array with */
 	const h5part_int64_t *array	/*!< [in] Array to commit to disk */
 	) {
@@ -334,7 +334,7 @@ H5PartWriteDataInt64 (
 */
 h5part_int64_t
 H5PartWriteFileAttribString (
-	H5PartFile *f,		/*!< [in] Handle to open file */
+	h5_file *f,		/*!< [in] Handle to open file */
 	const char *attrib_name,/*!< [in] Name of attribute to create */
 	const char *attrib_value/*!< [in] Value of attribute */ 
 	) {
@@ -369,7 +369,7 @@ H5PartWriteFileAttribString (
 
 h5part_int64_t
 H5PartWriteStepAttribString (
-	H5PartFile *f,		/*!< [in] Handle to open file */
+	h5_file *f,		/*!< [in] Handle to open file */
 	const char *attrib_name,/*!< [in] Name of attribute to create */
 	const char *attrib_value/*!< [in] Value of attribute */ 
 	) {
@@ -408,7 +408,7 @@ H5PartWriteStepAttribString (
 
 h5part_int64_t
 H5PartWriteStepAttrib (
-	H5PartFile *f,			/*!< [in] Handle to open file */
+	h5_file *f,			/*!< [in] Handle to open file */
 	const char *attrib_name,	/*!< [in] Name of attribute */
 	const h5part_int64_t attrib_type,/*!< [in] Type of value. */
 	const void *attrib_value,	/*!< [in] Value of attribute */ 
@@ -449,7 +449,7 @@ H5PartWriteStepAttrib (
 
 h5part_int64_t
 H5PartWriteFileAttrib (
-	H5PartFile *f,			/*!< [in] Handle to open file */
+	h5_file *f,			/*!< [in] Handle to open file */
 	const char *attrib_name,	/*!< [in] Name of attribute */
 	const h5part_int64_t attrib_type,/*!< [in] Type of value. */
 	const void *attrib_value,	/*!< [in] Value of attribute */ 
@@ -478,7 +478,7 @@ H5PartWriteFileAttrib (
 */
 h5part_int64_t
 H5PartGetNumStepAttribs (
-	H5PartFile *f			/*!< [in] Handle to open file */
+	h5_file *f			/*!< [in] Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartGetNumStepAttribs" );
@@ -498,7 +498,7 @@ H5PartGetNumStepAttribs (
 */
 h5part_int64_t
 H5PartGetNumFileAttribs (
-	H5PartFile *f			/*!< [in] Handle to open file */
+	h5_file *f			/*!< [in] Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartGetNumFileAttribs" );
@@ -525,7 +525,7 @@ H5PartGetNumFileAttribs (
 */
 h5part_int64_t
 H5PartGetStepAttribInfo (
-	H5PartFile *f,			/*!< [in]  Handle to open file */
+	h5_file *f,			/*!< [in]  Handle to open file */
 	const h5part_int64_t attrib_idx,/*!< [in]  Index of attribute to
 					           get infos about */
 	char *attrib_name,		/*!< [out] Name of attribute */
@@ -565,7 +565,7 @@ H5PartGetStepAttribInfo (
 
 h5part_int64_t
 H5PartGetFileAttribInfo (
-	H5PartFile *f,			/*!< [in]  Handle to open file */
+	h5_file *f,			/*!< [in]  Handle to open file */
 	const h5part_int64_t attrib_idx,/*!< [in]  Index of attribute to get
 					           infos about */
 	char *attrib_name,		/*!< [out] Name of attribute */
@@ -598,7 +598,7 @@ H5PartGetFileAttribInfo (
 */
 h5part_int64_t
 H5PartReadStepAttrib (
-	H5PartFile *f,			/*!< [in]  Handle to open file */
+	h5_file *f,			/*!< [in]  Handle to open file */
 	const char *attrib_name,	/*!< [in] Name of attribute to read */
 	void *attrib_value		/*!< [out] Value of attribute */
 	) {
@@ -620,7 +620,7 @@ H5PartReadStepAttrib (
 */
 h5part_int64_t
 H5PartReadFileAttrib ( 
-	H5PartFile *f,
+	h5_file *f,
 	const char *attrib_name,
 	void *attrib_value
 	) {
@@ -664,7 +664,7 @@ H5PartReadFileAttrib (
 */
 h5part_int64_t
 H5PartSetStep (
-	H5PartFile *f,			/*!< [in]  Handle to open file */
+	h5_file *f,			/*!< [in]  Handle to open file */
 	const h5part_int64_t step	/*!< [in]  Time-step to set. */
 	) {
 
@@ -691,7 +691,7 @@ H5PartSetStep (
 */
 h5part_int64_t
 H5PartHasStep (
-	H5PartFile *f,		/*!< [in]  Handle to open file */
+	h5_file *f,		/*!< [in]  Handle to open file */
 	h5part_int64_t step	/*!< [in]  Step number to query */
 	) {
   
@@ -716,7 +716,7 @@ H5PartHasStep (
 */
 h5part_int64_t
 H5PartGetNumSteps (
-	H5PartFile *f			/*!< [in]  Handle to open file */
+	h5_file *f			/*!< [in]  Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartGetNumSteps" );
@@ -741,7 +741,7 @@ H5PartGetNumSteps (
 
 h5part_int64_t
 H5PartGetNumDatasets (
-	H5PartFile *f			/*!< [in]  Handle to open file */
+	h5_file *f			/*!< [in]  Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartGetNumDatasets" );
@@ -764,7 +764,7 @@ H5PartGetNumDatasets (
 */
 h5part_int64_t
 H5PartGetDatasetName (
-	H5PartFile *f,			/*!< [in]  Handle to open file */
+	h5_file *f,			/*!< [in]  Handle to open file */
 	const h5part_int64_t idx,	/*!< [in]  Index of the dataset */
 	char *name,			/*!< [out] Name of dataset */
 	const h5part_int64_t len_of_name/*!< [in]  Size of buffer \c name */
@@ -796,7 +796,7 @@ H5PartGetDatasetName (
 */
 h5part_int64_t
 H5PartGetDatasetInfo (
-	H5PartFile *f,		/*!< [in]  Handle to open file */
+	h5_file *f,		/*!< [in]  Handle to open file */
 	const h5part_int64_t idx,/*!< [in]  Index of the dataset */
 	char *dataset_name,	/*!< [out] Name of dataset */
 	const h5part_int64_t len_dataset_name,
@@ -826,7 +826,7 @@ H5PartGetDatasetInfo (
  */
 h5part_int64_t
 H5PartGetNumParticles (
-	H5PartFile *f			/*!< [in]  Handle to open file */
+	h5_file *f			/*!< [in]  Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartGetNumParticles" );
@@ -847,7 +847,7 @@ H5PartGetNumParticles (
 */
 h5part_int64_t
 H5PartResetView (
- 	H5PartFile *f			/*!< [in]  Handle to open file */
+ 	h5_file *f			/*!< [in]  Handle to open file */
 	) {
 	SET_FNAME ( "H5PartResetView" );
 
@@ -864,7 +864,7 @@ H5PartResetView (
 */
 h5part_int64_t
 H5PartHasView (
- 	H5PartFile *f			/*!< [in]  Handle to open file */
+ 	h5_file *f			/*!< [in]  Handle to open file */
 	) {
 	SET_FNAME ( "H5PartResetView" );
 
@@ -896,7 +896,7 @@ H5PartHasView (
 */
 h5part_int64_t
 H5PartSetView (
-	H5PartFile *f,			/*!< [in]  Handle to open file */
+	h5_file *f,			/*!< [in]  Handle to open file */
 	const h5part_int64_t start,	/*!< [in]  Start particle */
 	const h5part_int64_t end	/*!< [in]  End particle */
 	) {
@@ -926,7 +926,7 @@ H5PartSetView (
 */
 h5part_int64_t
 H5PartGetView (
-	H5PartFile *f,			/*!< [in]  Handle to open file */
+	h5_file *f,			/*!< [in]  Handle to open file */
 	h5part_int64_t *start,		/*!< [out]  Start particle */
 	h5part_int64_t *end		/*!< [out]  End particle */
 	) {
@@ -961,7 +961,7 @@ H5PartGetView (
 
 h5part_int64_t
 H5PartSetCanonicalView (
-	H5PartFile *f			/*!< [in]  Handle to open file */
+	h5_file *f			/*!< [in]  Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartSetCanonicalView" );
@@ -993,7 +993,7 @@ H5PartSetCanonicalView (
 */
 h5part_int64_t
 H5PartReadDataFloat64 (
-	H5PartFile *f,		/*!< [in] Handle to open file */
+	h5_file *f,		/*!< [in] Handle to open file */
 	const char *name,	/*!< [in] Name to associate dataset with */
 	h5part_float64_t *array	/*!< [out] Array of data */
 	) {
@@ -1019,7 +1019,7 @@ H5PartReadDataFloat64 (
 */
 h5part_int64_t
 H5PartReadDataInt64 (
-	H5PartFile *f,		/*!< [in] Handle to open file */
+	h5_file *f,		/*!< [in] Handle to open file */
 	const char *name,	/*!< [in] Name to associate dataset with */
 	h5part_int64_t *array	/*!< [out] Array of data */
 	) {
@@ -1047,7 +1047,7 @@ H5PartReadDataInt64 (
 */
 h5part_int64_t
 H5PartReadParticleStep (
-	H5PartFile *f,		/*!< [in]  Handle to open file */
+	h5_file *f,		/*!< [in]  Handle to open file */
 	h5part_int64_t step,	/*!< [in]  Step to read */
 	h5part_float64_t *x,	/*!< [out] Buffer for dataset named "x" */
 	h5part_float64_t *y,	/*!< [out] Buffer for dataset named "y" */

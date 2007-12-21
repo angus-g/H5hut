@@ -18,7 +18,7 @@ extern unsigned			_debug;
 
 static hid_t
 _get_diskshape_for_reading (
-	H5PartFile *f,
+	h5_file *f,
 	hid_t dataset
 	) {
 
@@ -65,7 +65,7 @@ _get_diskshape_for_reading (
 
 static hid_t
 _get_memshape_for_reading (
-	H5PartFile *f,
+	h5_file *f,
 	hid_t dataset
 	) {
 
@@ -83,7 +83,7 @@ _get_memshape_for_reading (
 
 h5part_int64_t
 H5U_get_num_elems (
-	H5PartFile *f			/*!< [in]  Handle to open file */
+	h5_file *f			/*!< [in]  Handle to open file */
 	) {
 
 	h5part_int64_t herr;
@@ -135,7 +135,7 @@ H5U_get_num_elems (
 
 h5part_int64_t
 H5U_read_elems (
-	H5PartFile *f,		/*!< [in] Handle to open file */
+	h5_file *f,		/*!< [in] Handle to open file */
 	const char *name,	/*!< [in] Name to associate dataset with */
 	void *array,		/*!< [out] Array of data */
 	const hid_t type
@@ -200,7 +200,7 @@ H5U_read_elems (
 
 h5part_int64_t
 H5U_set_num_elements (
-	H5PartFile *f,			/*!< [in] Handle to open file */
+	h5_file *f,			/*!< [in] Handle to open file */
 	h5part_int64_t nparticles	/*!< [in] Number of particles */
 	) {
 
@@ -326,7 +326,7 @@ H5U_set_num_elements (
 
 h5part_int64_t
 H5U_write_data (
-	H5PartFile *f,		/*!< IN: Handle to open file */
+	h5_file *f,		/*!< IN: Handle to open file */
 	const char *name,	/*!< IN: Name to associate array with */
 	const void *array,	/*!< IN: Array to commit to disk */
 	const hid_t type	/*!< IN: Type of data */
@@ -349,7 +349,7 @@ H5U_write_data (
 
 h5part_int64_t
 H5U_reset_view (
-	H5PartFile *f
+	h5_file *f
 	) {	     
 
 	herr_t herr = 0;
@@ -377,7 +377,7 @@ H5U_reset_view (
 
 h5part_int64_t
 H5U_set_view (
-	H5PartFile *f,			/*!< [in]  Handle to open file */
+	h5_file *f,			/*!< [in]  Handle to open file */
 	h5part_int64_t start,		/*!< [in]  Start particle */
 	h5part_int64_t end		/*!< [in]  End particle */
 	) {
@@ -454,7 +454,7 @@ H5U_set_view (
 
 h5part_int64_t 
 H5U_get_view (
-	H5PartFile *f,
+	h5_file *f,
 	h5part_int64_t *start,
 	h5part_int64_t *end
 	) {
@@ -482,7 +482,7 @@ H5U_get_view (
 
 h5part_int64_t
 H5U_set_canonical_view (
-	H5PartFile *f
+	h5_file *f
 	) {
 	h5part_int64_t herr = H5U_reset_view ( f );
 	if ( herr < 0 ) return HANDLE_H5PART_SET_VIEW_ERR( herr, -1, -1 );
@@ -531,7 +531,7 @@ H5U_set_canonical_view (
  */
 h5part_int64_t
 H5U_get_dataset_info (
-	H5PartFile *f,		/*!< [in]  Handle to open file */
+	h5_file *f,		/*!< [in]  Handle to open file */
 	const h5part_int64_t idx,/*!< [in]  Index of the dataset */
 	char *dataset_name,	/*!< [out] Name of dataset */
 	const h5part_int64_t len_dataset_name,

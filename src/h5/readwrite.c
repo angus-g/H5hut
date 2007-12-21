@@ -19,7 +19,7 @@
 
 h5part_int64_t
 H5_write_data (
-	H5PartFile *f,		/*!< IN: Handle to open file */
+	h5_file *f,		/*!< IN: Handle to open file */
 	const char *name,	/*!< IN: Name to associate array with */
 	const void *array,	/*!< IN: Array to commit to disk */
 	const hid_t type,	/*!< IN: Type of data */
@@ -189,7 +189,7 @@ H5_get_object_name (
 
 h5part_int64_t
 H5_set_step (
-	H5PartFile *f,			/*!< [in]  Handle to open file */
+	h5_file *f,			/*!< [in]  Handle to open file */
 	const h5part_int64_t step	/*!< [in]  Time-step to set. */
 	) {
 
@@ -288,7 +288,7 @@ H5_get_dataset_type(
 
 h5part_int64_t
 H5_has_index (
-	H5PartFile *f,		/*!< [in]  Handle to open file */
+	h5_file *f,		/*!< [in]  Handle to open file */
 	h5part_int64_t step	/*!< [in]  Step number to query */
 	) {
 	char name[128];
