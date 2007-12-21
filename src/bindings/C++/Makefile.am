@@ -4,7 +4,11 @@ HDF5ROOT = @HDF5ROOT@
 CC = @CC@
 CXX = @CXX@
 
-CFLAGS = @CFLAGS@ @MPIINC@ @HDF5ROOT@/include
+HDF5INC = -I@HDF5ROOT@/include
+MPIINC = -I@MPIROOT@/include
+INCL = $(HDF5INC) ${MPIINC} -I../../
+
+CFLAGS = @CFLAGS@ $(INCL)
 
 OBJEXT = o
 lib_LIBRARIES = libH5XX.a
