@@ -33,27 +33,43 @@ EXTRA_DIST = TestUnderscoreC.c TestUnderscore.f $(EXTRA_HEADERS)
 # Files that I don't want to include in the dist tar ball
 nodist_include_HEADERS = @UNDERSCORE_H@
 
+
 # What to build... Will be determined by configure script.
+OBJEXT = o
 lib_LIBRARIES = @MTARGET@
 
 # Listing of all possible targets that I may build.
 EXTRA_LIBRARIES = libH5Part.a
 
 # Header files that I wish to install in $(prefix)/include
-include_HEADERS = H5Part.h H5PartTypes.h H5PartErrors.h H5Block.h H5BlockTypes.h H5BlockErrors.h
+include_HEADERS = \
+	H5Part.h \
+	H5PartTypes.h \
+	H5PartErrors.h \
+	H5Block.h \
+	H5BlockTypes.h \
+	H5BlockErrors.h \
+	H5Fed.h
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS = H5PartPrivate.h H5BlockPrivate.h
 
 # Listing of sources
-libH5Part_a_SOURCES = H5Part.c H5Block.c
-
+libH5Part_a_SOURCES = \
+	H5Part.c \
+	H5Block.c \
+	H5Fed.c \
+	H5Fed_adjacency.c \
+	H5Fed_dof.c \
+	H5Fed_retrieve.c \
+	H5Fed_statistics.c \
+	H5Fed_store.c
 
 SUBDIRS = h5 bindings
 
 # Specific building instruction (What compilers to use...)
 # ------------ Serial Lib build commands ------------
-libH5Part.a: H5Part.o H5Block.o
+libH5Part.a: $(libH5Part_a_OBJECTS)
 	${AR} rucs $@ $^
  
 %.o : %.c
