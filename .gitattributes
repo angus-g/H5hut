@@ -26,6 +26,7 @@ src/H5Block.h -text
 src/H5BlockErrors.h -text
 src/H5BlockPrivate.h -text
 src/H5BlockTypes.h -text
+src/H5Fed.c -text
 src/H5Fed.h -text
 src/H5Part.c -text
 src/H5Part.h -text
