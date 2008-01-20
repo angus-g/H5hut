@@ -97,7 +97,7 @@ H5U_get_num_elems (
 	sprintf (
 		step_name,
 		"%s#%0*lld",
-		f->groupname_step, f->stepno_width, (long long) f->timestep );
+		f->prefix_step_name, f->width_step_idx, (long long) f->step_idx );
 
 	herr = H5_get_object_name (
 		f->file,
@@ -107,7 +107,7 @@ H5U_get_num_elems (
 		dataset_name, sizeof (dataset_name) );
 	if ( herr < 0 ) return herr;
 
-	dataset_id = H5Dopen ( f->timegroup, dataset_name );
+	dataset_id = H5Dopen ( f->step_gid, dataset_name );
 	if ( dataset_id < 0 ) 
 		return HANDLE_H5D_OPEN_ERR ( dataset_name );
 
@@ -146,11 +146,11 @@ H5U_read_elems (
 	hid_t space_id;
 	hid_t memspace_id;
 
-	if ( f->timegroup < 0 ) {
-		h5part_int64_t h5err = H5_set_step ( f, f->timestep );
+	if ( f->step_gid < 0 ) {
+		h5part_int64_t h5err = H5_set_step ( f, f->step_idx );
 		if ( h5err < 0 ) return h5err;
 	}
-	dataset_id = H5Dopen ( f->timegroup, name );
+	dataset_id = H5Dopen ( f->step_gid, name );
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
 
 	space_id = _get_diskshape_for_reading ( f, dataset_id );
@@ -181,7 +181,7 @@ H5U_read_elems (
 		array );
 #endif
 
-	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->timestep );
+	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->step_idx );
 
 	if ( space_id != H5S_ALL ) {
 		herr = H5Sclose (space_id );
@@ -315,7 +315,7 @@ H5U_set_num_elements (
 		count, NULL );
 	if ( r < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
-	if ( f->timegroup < 0 ) {
+	if ( f->step_gid < 0 ) {
 		r = H5_set_step ( f, 0 );
 		if ( r < 0 ) return r;
 		
@@ -341,7 +341,7 @@ H5U_write_data (
 		name,
 		array,
 		type,
-		f->timegroup,
+		f->step_gid,
 		f->shape,
 		f->memshape,
 		f->diskshape );
@@ -501,7 +501,7 @@ H5U_set_canonical_view (
 	   processors.
 	*/
 	if ( H5_read_attrib (
-		     f->timegroup,
+		     f->step_gid,
 		     "pnparticles", f->pnparticles ) < 0) {
 		/*
 		  Attribute "pnparticles" is not available.  So
@@ -542,7 +542,7 @@ H5U_get_dataset_info (
 
 	h5part_int64_t herr = H5_get_object_name (
 		f->file,
-		f->index_name,
+		f->step_name,
 		H5G_DATASET,
 		idx,
 		dataset_name,
@@ -555,7 +555,7 @@ H5U_get_dataset_info (
 	}
 
 	if ( type ) {
-		*type = H5_get_dataset_type( f->timegroup, dataset_name );
+		*type = H5_get_dataset_type( f->step_gid, dataset_name );
 		if ( *type < 0 ) return *type;
 	}
 
