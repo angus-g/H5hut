@@ -11,7 +11,7 @@ struct H5BlockPartition {
 };
 
 struct h5b_fdata {
-	h5part_int64_t timestep;
+	h5part_int64_t step_idx;
 	h5part_int64_t i_max;
 	h5part_int64_t j_max;
 	h5part_int64_t k_max;
