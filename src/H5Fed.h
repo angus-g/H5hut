@@ -20,11 +20,6 @@
 #ifndef __H5FED_H
 #define __H5FED_H
 
-typedef h5_float_t	h5_vertex[3];
-typedef h5_id_t		h5_edge[2];
-typedef h5_id_t		h5_triangle[3];
-typedef h5_id_t		h5_tetrahedron[4];
-
 
 /******	General routines *****************************************************/
 
@@ -158,29 +153,25 @@ h5_vertex * H5FedGetVertexCoordinate (
 h5_edge * H5FedGetEdge (
 	h5_file * fh,
 	const h5_id_t level,
-	const h5_id_t edge_id,
-	h5_id_t * const parent_id
+	const h5_id_t local_id
 	);
 
 h5_triangle * H5FedGetTriangle (
 	h5_file * fh,
 	const h5_id_t level,
-	const h5_id_t triangle_id,
-	h5_id_t * parent_id
+	const h5_id_t local_id
 	);
 
 h5_tetrahedron * H5FedGetTetrahedron (
 	h5_file * fh,
 	const h5_id_t level,
-	const h5_id_t tet_id,
-	h5_id_t * parent_id
+	const h5_id_t local_id
 	);
 
 h5_triangle * H5FedGetBoundaryTriangle (
 	h5_file * fh,
 	const h5_id_t level,
-	const h5_id_t triangle_id,
-	h5_id_t * parent_id
+	const h5_id_t local_id
 	);
 
 /******	STORE routines*****************************************************/
