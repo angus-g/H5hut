@@ -23,7 +23,7 @@
 			"Operation is not allowed on writable files." );
 
 #define CHECK_TIMEGROUP( f ) \
-	if ( f->timegroup <= 0 ) \
+	if ( f->step_gid <= 0 ) \
 		return (*_err_handler) ( \
 			H5_get_funcname(), \
 			H5PART_ERR_INVAL, \
