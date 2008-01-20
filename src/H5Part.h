@@ -27,10 +27,14 @@ extern "C" {
 #define H5PART_ERR_HDF5		-202
 
 
-#define H5PART_READ		0x01
-#define H5PART_WRITE		0x02
-#define H5PART_APPEND		0x03
+#define H5_O_RDONLY		0x01
+#define H5_O_WRONLY		0x02
+#define H5_O_APPEND		0x03
+#define H5_O_RDWR		0x04
 
+#define H5PART_READ		H5_O_RDONLY	# legacy def, will be removed
+#define H5PART_WRITE		H5_O_WRONLY	# legacy def, will be removed
+#define H5PART_APPEND		H5_O_APPEND	# legacy def, will be removed
 
 #define H5PART_INT64		((h5part_int64_t)H5T_NATIVE_INT64)
 #define H5PART_FLOAT64		((h5part_int64_t)H5T_NATIVE_DOUBLE)
@@ -194,8 +198,8 @@ H5PartReadParticleStep (
 
 /**********==============Attributes Interface============***************/
 /* currently there is file attributes:  Attributes bound to the file
-   and step attributes which are bound to the current timestep.  You 
-   must set the timestep explicitly before writing the attributes (just
+   and step attributes which are bound to the current step.  You 
+   must set the step explicitly before writing the attributes (just
    as you must do when you write a new dataset.  Currently there are no
    attributes that are bound to a particular data array, but this could
    easily be done if required.
