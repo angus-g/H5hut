@@ -60,6 +60,8 @@ src/h5/openclose.c -text
 src/h5/openclose.h -text
 src/h5/readwrite.c -text
 src/h5/readwrite.h -text
+src/h5/t_openclose.c -text
+src/h5/t_readwrite.c -text
 src/h5/u_readwrite.c -text
 src/h5/u_readwrite.h -text
 test/Bench.c -text
