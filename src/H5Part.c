@@ -116,7 +116,7 @@ extern unsigned			_debug;
 
   If you open with flag \c H5PART_WRITE, it will truncate any
   file with the specified filename and start writing to it. If 
-  you open with \c H5PART_APPEND, then you can append new timesteps.
+  you open with \c H5PART_APPEND, then you can append new steps.
   If you open with \c H5PART_READ, then it will open the file
   readonly.
 
@@ -135,9 +135,7 @@ H5PartOpenFileParallel (
 	unsigned flags,		/*!< [in] The access mode for the file. */
 	MPI_Comm comm		/*!< [in] MPI communicator */
 ) {
-	int f_parallel = 1;	/* parallel i/o */
-
-	return H5_open_file ( filename, flags, comm, f_parallel );
+	return H5_open_file ( filename, flags, comm );
 }
 
 /*!
@@ -147,7 +145,7 @@ H5PartOpenFileParallel (
 
   If you open with flag \c H5PART_WRITE, it will truncate any
   file with the specified filename and start writing to it. If 
-  you open with \c H5PART_APPEND, then you can append new timesteps.
+  you open with \c H5PART_APPEND, then you can append new steps.
   If you open with \c H5PART_READ, then it will open the file
   readonly.
 
@@ -170,9 +168,8 @@ H5PartOpenFile (
 	SET_FNAME ( "H5PartOpenFile" );
 
 	MPI_Comm comm = 0;	/* dummy */
-	int f_parallel = 0;	/* serial open */
 
-	return H5_open_file ( filename, flags, comm, f_parallel );
+	return H5_open_file ( filename, flags, comm );
 }
 
 /*!
@@ -236,7 +233,7 @@ H5PartSetNumParticles (
   Write array of 64 bit floating point data to file.
 
   After setting the number of particles with \c H5PartSetNumParticles() and
-  the current timestep using \c H5PartSetStep(), you can start writing datasets
+  the current step using \c H5PartSetStep(), you can start writing datasets
   into the file. Each dataset has a name associated with it (chosen by the
   user) in order to facilitate later retrieval. The name of the dataset is
   specified in the parameter \c name, which must be a null-terminated string.
@@ -248,9 +245,9 @@ H5PartSetNumParticles (
   the array can be reconstructed properly on other systems with incompatible
   type representations.
 
-  All data that is written after setting the timestep is associated with that
-  timestep. While the number of particles can change for each timestep, you
-  cannot change the number of particles in the middle of a given timestep.
+  All data that is written after setting the step is associated with that
+  step. While the number of particles can change for each step, you
+  cannot change the number of particles in the middle of a given step.
 
   The data is committed to disk before the routine returns.
 
@@ -274,7 +271,7 @@ H5PartWriteDataFloat64 (
   Write array of 64 bit integer data to file.
 
   After setting the number of particles with \c H5PartSetNumParticles() and
-  the current timestep using \c H5PartSetStep(), you can start writing datasets
+  the current step using \c H5PartSetStep(), you can start writing datasets
   into the file. Each dataset has a name associated with it (chosen by the
   user) in order to facilitate later retrieval. The name of the dataset is
   specified in the parameter \c name, which must be a null-terminated string.
@@ -286,9 +283,9 @@ H5PartWriteDataFloat64 (
   the array can be reconstructed properly on other systems with incompatible
   type representations.
 
-  All data that is written after setting the timestep is associated with that
-  timestep. While the number of particles can change for each timestep, you
-  cannot change the number of particles in the middle of a given timestep.
+  All data that is written after setting the step is associated with that
+  step. While the number of particles can change for each step, you
+  cannot change the number of particles in the middle of a given step.
 
   The data is committed to disk before the routine returns.
 
@@ -345,7 +342,7 @@ H5PartWriteFileAttribString (
 		return _h5part_errno;
 
 	return H5_write_attrib (
-		f->root_id,
+		f->root_gid,
 		attrib_name,
 		H5T_NATIVE_CHAR,
 		attrib_value,
@@ -380,7 +377,7 @@ H5PartWriteStepAttribString (
 		return _h5part_errno;
 
 	return H5_write_attrib (
-		f->timegroup,
+		f->step_gid,
 		attrib_name,
 		H5T_NATIVE_CHAR,
 		attrib_value,
@@ -421,7 +418,7 @@ H5PartWriteStepAttrib (
 		return _h5part_errno;
 
 	return H5_write_attrib (
-		f->timegroup,
+		f->step_gid,
 		attrib_name,
 		(const hid_t)attrib_type,
 		attrib_value,
@@ -462,7 +459,7 @@ H5PartWriteFileAttrib (
 		return _h5part_errno;
 
 	return H5_write_attrib (
-		f->root_id,
+		f->root_gid,
 		attrib_name,
 		(const hid_t)attrib_type,
 		attrib_value,
@@ -486,7 +483,7 @@ H5PartGetNumStepAttribs (
    	if ( H5_check_filehandle ( f ) != H5PART_SUCCESS )
 		return _h5part_errno;
 
-	return H5_get_num_attribs ( f, f->timegroup );
+	return H5_get_num_attribs ( f, f->step_gid );
 }
 
 /*!
@@ -506,7 +503,7 @@ H5PartGetNumFileAttribs (
    	if ( H5_check_filehandle ( f ) != H5PART_SUCCESS )
 		return _h5part_errno;
 
-	return H5_get_num_attribs ( f, f->root_id );
+	return H5_get_num_attribs ( f, f->root_gid );
 }
 
 /*!
@@ -541,7 +538,7 @@ H5PartGetStepAttribInfo (
 		return _h5part_errno;
 
 	return H5_get_attrib_info (
-		f->timegroup,
+		f->step_gid,
 		attrib_idx,
 		attrib_name,
 		len_of_attrib_name,
@@ -581,7 +578,7 @@ H5PartGetFileAttribInfo (
 		return _h5part_errno;
 
 	return H5_get_attrib_info (
-		f->root_id,
+		f->root_gid,
 		attrib_idx,
 		attrib_name,
 		len_of_attrib_name,
@@ -608,7 +605,7 @@ H5PartReadStepAttrib (
 	if ( H5_check_filehandle ( f ) != H5PART_SUCCESS )
 		return _h5part_errno;
 
-	return H5_read_attrib ( f->timegroup, attrib_name, attrib_value );
+	return H5_read_attrib ( f->step_gid, attrib_name, attrib_value );
 }
 
 /*!
@@ -630,7 +627,7 @@ H5PartReadFileAttrib (
 	if ( H5_check_filehandle ( f ) != H5PART_SUCCESS )
 		return _h5part_errno;
 
-	return H5_read_attrib ( f->root_id, attrib_name, attrib_value );
+	return H5_read_attrib ( f->root_gid, attrib_name, attrib_value );
 }
 
 
@@ -639,11 +636,11 @@ H5PartReadFileAttrib (
   H5PartSetStep:
 
 
-  So you use this to random-access the file for a particular timestep.
-  Failure to explicitly set the timestep on each read will leave you
-  stuck on the same timestep for *all* of your reads.  That is to say
+  So you use this to random-access the file for a particular step.
+  Failure to explicitly set the step on each read will leave you
+  stuck on the same step for *all* of your reads.  That is to say
   the writes auto-advance the file pointer, but the reads do not
-  (they require explicit advancing by selecting a particular timestep).
+  (they require explicit advancing by selecting a particular step).
 */
 
 /*!
@@ -658,7 +655,7 @@ H5PartReadFileAttrib (
   that you \b must write all data before going to the next time-step.
 
   In read-mode you can use this function to random-access the file for a
-  particular timestep.
+  particular step.
 
   \return \c H5PART_SUCCESS or error code 
 */
@@ -728,7 +725,7 @@ H5PartGetNumSteps (
 		f->file,
 		"/",
 		H5G_UNKNOWN,
-		f->groupname_step );
+		f->prefix_step_name );
 }
 
 /*!
@@ -736,7 +733,7 @@ H5PartGetNumSteps (
 
   Get the number of datasets that are stored at the current time-step.
 
-  \return	number of datasets in current timestep or error code
+  \return	number of datasets in current step or error code
 */
 
 h5part_int64_t
@@ -749,7 +746,7 @@ H5PartGetNumDatasets (
 	if ( H5_check_filehandle ( f ) != H5PART_SUCCESS )
 		return _h5part_errno;
 
-	return H5_get_num_objects ( f->file, f->index_name, H5G_DATASET );
+	return H5_get_num_objects ( f->file, f->step_name, H5G_DATASET );
 }
 
 /*!
@@ -777,7 +774,7 @@ H5PartGetDatasetName (
 
 	return H5_get_object_name (
 		f->file,
-		f->index_name,
+		f->step_name,
 		H5G_DATASET,
 		idx,
 		name,
@@ -817,11 +814,11 @@ H5PartGetDatasetInfo (
 /*!
   \ingroup h5part_read
 
-  This gets the number of particles stored in the current timestep. 
+  This gets the number of particles stored in the current step. 
   It will arbitrarily select a time-step if you haven't already set
-  the timestep with \c H5PartSetStep().
+  the step with \c H5PartSetStep().
 
-  \return	number of particles in current timestep or an error
+  \return	number of particles in current step or an error
 		code.
  */
 h5part_int64_t
@@ -834,7 +831,7 @@ H5PartGetNumParticles (
 	if ( H5_check_filehandle ( f ) != H5PART_SUCCESS )
 		return _h5part_errno;
 
-	if ( f->timegroup < 0 ) {
+	if ( f->step_gid < 0 ) {
 		h5part_int64_t herr = H5_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
@@ -906,7 +903,7 @@ H5PartSetView (
 	CHECK_FILEHANDLE( f );
 	CHECK_READONLY_MODE ( f );
 
-	if ( f->timegroup < 0 ) {
+	if ( f->step_gid < 0 ) {
 		h5part_int64_t herr = H5_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
@@ -935,7 +932,7 @@ H5PartGetView (
 
 	CHECK_FILEHANDLE( f );
 
-	if ( f->timegroup < 0 ) {
+	if ( f->step_gid < 0 ) {
 		h5part_int64_t herr = H5_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
@@ -971,7 +968,7 @@ H5PartSetCanonicalView (
 	CHECK_FILEHANDLE( f );
 	CHECK_READONLY_MODE ( f )
 
-	if ( f->timegroup < 0 ) {
+	if ( f->step_gid < 0 ) {
 		herr = H5_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
@@ -1035,7 +1032,7 @@ H5PartReadDataInt64 (
   \ingroup h5part_read
 
   This is the mongo read function that pulls in all of the data for a
-  given timestep in one shot. It also takes the timestep as an argument
+  given step in one shot. It also takes the step as an argument
   and will call \c H5PartSetStep() internally so that you don't have to 
   make that call separately.
 
