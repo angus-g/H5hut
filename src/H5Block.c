@@ -733,18 +733,18 @@ _open_block_group (
 
 	struct h5b_fdata *b = f->block;
 
-	if ( (f->timestep != b->timestep) && (b->blockgroup > 0) ) {
+	if ( (f->step_idx != b->step_idx) && (b->blockgroup > 0) ) {
 		herr_t herr = H5Gclose ( b->blockgroup );
 		if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
 		f->block->blockgroup = -1;
 	}
 
 	if ( b->blockgroup < 0 ) {
-		hid_t herr = H5Gopen ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK );
+		hid_t herr = H5Gopen ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK );
 		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 		b->blockgroup = herr;
 	}
-	b->timestep = f->timestep;
+	b->step_idx = f->step_idx;
 
 	return H5PART_SUCCESS;
 }
@@ -929,7 +929,7 @@ _read_data (
 		f->block->diskshape,
 		H5P_DEFAULT,
 		data );
-	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->timestep );
+	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->step_idx );
 
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
@@ -1151,7 +1151,7 @@ _create_block_group (
 		f->block->blockgroup = -1;
 	}
 
-	herr = H5Gcreate ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK, 0 );
+	herr = H5Gcreate ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK, 0 );
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 
 	f->block->blockgroup = herr;
@@ -1175,7 +1175,7 @@ _create_field_group (
 	struct h5b_fdata *b = f->block;
 
 
-	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) ) {
+	if ( ! _have_object ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK ) ) {
 		h5err = _create_block_group ( f );
 	} else {
 		h5err = _open_block_group ( f );
@@ -1319,10 +1319,10 @@ H5BlockGetNumFields (
 	SET_FNAME ( "H5BlockGetNumFields" );
 	CHECK_TIMEGROUP( f );
 
-	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) )
+	if ( ! _have_object ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK ) )
 		return 0;
 
-	return H5_get_num_objects ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK, H5G_GROUP );
+	return H5_get_num_objects ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK, H5G_GROUP );
 }
 
 /*!
@@ -1408,7 +1408,7 @@ H5BlockGetFieldInfo (
 	CHECK_TIMEGROUP( f );
 
 	h5part_int64_t herr = H5_get_object_name (
-		f->timegroup,
+		f->step_gid,
 		H5BLOCK_GROUPNAME_BLOCK,
 		H5G_GROUP,
 		idx,
@@ -1811,7 +1811,7 @@ H5BlockHasFieldData (
 	SET_FNAME ( "H5BlockHasFieldData" );
 	CHECK_TIMEGROUP( f );
 
-	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) ) {
+	if ( ! _have_object ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK ) ) {
 		return H5PART_ERR_NOENTRY;
 	}
 	return H5PART_SUCCESS;
