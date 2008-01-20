@@ -16,7 +16,6 @@
 #include "H5BlockErrors.h"
 #include "H5.h"
 
-
 h5part_int64_t
 H5_write_data (
 	h5_file *f,		/*!< IN: Handle to open file */
@@ -32,8 +31,8 @@ H5_write_data (
 	hid_t dataset_id;
 
 	H5_print_debug ( "Create a dataset[%s] mounted on the "
-			      "timestep %lld",
-			      name, (long long)f->timestep );
+			      "step_idx %lld",
+			      name, (long long)f->step_idx );
 
 	dataset_id = H5Dcreate ( 
 		groupid,
@@ -42,7 +41,7 @@ H5_write_data (
 		shape,
 		H5P_DEFAULT );
 	if ( dataset_id < 0 )
-		return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
+		return HANDLE_H5D_CREATE_ERR ( name, f->step_idx );
 
 	herr = H5Dwrite (
 		dataset_id,
@@ -52,7 +51,7 @@ H5_write_data (
 		f->xfer_prop,
 		array );
 
-	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
+	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->step_idx );
 
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
@@ -187,51 +186,114 @@ H5_get_object_name (
 	return H5PART_SUCCESS;
 }
 
-h5part_int64_t
-H5_set_step (
-	h5_file *f,			/*!< [in]  Handle to open file */
-	const h5part_int64_t step	/*!< [in]  Time-step to set. */
+h5_int64_t
+_create_step (
+	h5_file * f
+	) {
+	H5_print_debug (
+		"Proc[%d]: Create step #%lld for file %lld", 
+		f->myproc,
+		(long long)f->step_idx,
+		(long long)(size_t) f );
+	f->is_new_step = 1;
+	f->step_gid = H5Gcreate ( f->file, f->step_name, 0 );
+	if ( f->step_gid < 0 )
+		return HANDLE_H5G_CREATE_ERR ( f->step_name );
+
+	return H5_SUCCESS;
+}
+
+h5_int64_t
+_open_step (
+	h5_file * f
+	) {
+	H5_print_info (
+		"Proc[%d]: Open step #%lld for file %lld",
+		f->myproc,
+		(long long)step,
+		(long long)(size_t) f );
+	f->is_new_step = 0;
+	f->step_gid = H5Gopen ( f->file, f->step_name ); 
+	if ( f->step_gid < 0 )
+		return HANDLE_H5G_OPEN_ERR( f->step_name );
+
+	return H5_SUCCESS;
+}
+
+static h5_err_t
+_init_step (
+	h5_err_t h5err = _h5t_init_step ( f );
+	if ( h5err < 0 ) return h5err;
+
+	return H5_SUCCESS;
+}	
+
+static h5_err_t
+_close_step (
+	h5_file * f
 	) {
 
+	if ( f->step_gid < 0 ) return H5_SUCCESS;
+
+	h5_err_t h5err = _h5t_close_step ( f );
+	if ( h5err < 0 ) return h5err;
+
+	herr_t herr = H5Gclose ( f->step_gid );
+	if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
+
+	f->step_gid = -1;
+
+	return H5_SUCCESS;
+}
+
+h5_int64_t
+_set_step (
+	h5_file * f,
+	const h5_int64_t step_idx	/*!< [in]  Step to set. */
+	) {
+	f->step_idx = step_idx;
+
 	sprintf (
-		f->index_name,
+		f->step_name,
 		"%s#%0*lld",
-		f->groupname_step, f->stepno_width, (long long) step );
-	herr_t herr = H5Gget_objinfo( f->file, f->index_name, 1, NULL );
-	if ( (f->mode != H5PART_READ) && ( herr >= 0 ) ) {
-		return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
+		f->prefix_step_name, f->width_step_idx, (long long) f->step_idx );
+
+	herr_t herr = H5Gget_objinfo( f->file, f->step_name, 1, NULL );
+
+	if( f->mode == H5_O_RDONLY ) {
+		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR( f->step_name );
+		herr = _open_step ( f );
+		if ( herr < 0 ) return herr;
+	} else if ( (f->mode == H5_O_WRONLY)  || (f->mode == H5_O_APPEND) ) {
+		if ( herr > 0 ) return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
+ 		herr = _create_step ( f );
+		if ( herr < 0 ) return herr;
+	} else if ( (f->mode == H5_O_RDWR) && (herr < 0) ) {
+		herr = _create_step ( f );
+		if ( herr < 0 ) return herr;
+	} else if ( (f->mode == H5_O_RDWR) && (herr >= 0) ) {
+		herr = _open_step ( f );
+		if ( herr < 0 ) return herr;
 	}
+	return H5_SUCCESS;
+}
 
-	if ( f->timegroup >= 0 ) {
-		herr = H5Gclose ( f->timegroup );
-		if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
-	}
-	f->timegroup = -1;
-	f->timestep = step;
+h5p_int64_t
+H5_set_step (
+	h5_file *f,			/*!< [in]  Handle to open file */
+	const h5_int64_t step_idx	/*!< [in]  Step to set. */
+	) {
 
-	if( f->mode == H5PART_READ ) {
-		H5_print_info (
-			"Proc[%d]: Set step to #%lld for file %lld",
-			f->myproc,
-			(long long)step,
-			(long long)(size_t) f );
+	herr = _close_step ( f );
+	if ( herr < 0 ) return herr;
 
-		f->timegroup = H5Gopen ( f->file, f->index_name ); 
-		if ( f->timegroup < 0 ) return HANDLE_H5G_OPEN_ERR( f->index_name );
-	}
-	else {
-		H5_print_debug (
-			"Proc[%d]: Create step #%lld for file %lld", 
-			f->myproc,
-			(long long)step,
-			(long long)(size_t) f );
+	herr = _set_step ( f );
+	if ( herr < 0 ) return herr;
 
-		f->timegroup = H5Gcreate ( f->file, f->index_name, 0 );
-		if ( f->timegroup < 0 )
-			return HANDLE_H5G_CREATE_ERR ( f->index_name );
-	}
+	herr = _init_step ( f );
+	if ( herr < 0 ) return herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -294,6 +356,6 @@ H5_has_index (
 	char name[128];
 	sprintf ( name,
 		  "%s#%0*lld",
-		  f->groupname_step, f->stepno_width, (long long) step );
+		  f->prefix_step_name, f->width_step_idx, (long long) step );
 	return ( H5Gget_objinfo( f->file, name, 1, NULL ) >= 0 );
 }
