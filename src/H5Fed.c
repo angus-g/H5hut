@@ -17,10 +17,13 @@
   Some conventions:
 	Functions:
 		Name:
-			ThisIsAFunction()
+			thisIsAFunction()
 		Return values:
-			-1 or NULL signals an error
+			negative value or NULL signals an error
 
+
+	Macros:
+		UPPERCASE_WITH_UNDERSCORE
   \note
   In function names we use the words \b get and \b store insteed of
   \b read and \b write, because no I/O is actually done in these
@@ -58,7 +61,7 @@ h5_file * H5FedOpenFile (
 	const char * filename,		/*!< file name			*/
 	const MPI_Comm comm		/*!< MPI communicator		*/
 	) {
-	return NULL;
+	return H5_open_file( filename, H5_O_RDWR, comm ); 
 }
 
 /*!
@@ -72,7 +75,7 @@ h5_file * H5FedOpenFile (
 h5_int_t H5FedCloseFile (
 	h5_file * fh			/*!< file handle		*/
 	) {
-	return -1;
+	return H5_close_file ( fh );
 }
 
 /******	INQUIRY routines *****************************************************/
@@ -88,7 +91,7 @@ h5_int_t H5FedCloseFile (
 h5_int_t H5GetNumNodes (
 	h5_file * fh			/*!< file handle		*/
 	) {
-	return -1;
+	return (h5_int_t)fh->nprocs;
 }
 
 /*!
