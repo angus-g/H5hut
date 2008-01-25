@@ -10,26 +10,26 @@
 			H5PART_ERR_LAYOUT, \
 			"No layout defined." )
 
-#define HANDLE_H5PART_LAYOUT_ERR \
+#define HANDLE_H5_LAYOUT_ERR \
 		(*_err_handler) ( \
 			H5_get_funcname(), \
 			H5PART_ERR_LAYOUT, \
 			"Bad layout." );
 
-#define HANDLE_H5PART_NOENT_ERR( name ) \
+#define HANDLE_H5_NOENT_ERR( name ) \
 		(*_err_handler) ( \
 			H5_get_funcname(), \
 			H5PART_ERR_NOENT, \
 			"Object \"%s\" doesn't exists.", name );
 
-#define HANDLE_H5PART_DATASET_RANK_ERR( m, n ) \
+#define HANDLE_H5_DATASET_RANK_ERR( m, n ) \
 		(*_err_handler) ( \
 			H5_get_funcname(), \
 			H5PART_ERR_INVAL, \
 			"Wrong rank of dataset: Is %d, but should be %d", \
 			m, n );
 
-#define HANDLE_H5PART_GROUP_EXISTS_ERR( name ) \
+#define HANDLE_H5_GROUP_EXISTS_ERR( name ) \
 		(*_err_handler) ( \
 			H5_get_funcname(), \
 			H5PART_ERR_INVAL, \

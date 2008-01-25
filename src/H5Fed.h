@@ -54,11 +54,6 @@ h5_int_t H5FedHasBoundaryMesh(
 
 /******	VERTEX statistics routines *******************************************/
 
-h5_size_t H5FedGetNumVertices (
-	h5_file * fh,
-	const h5_id_t level
-	);
-
 h5_size_t H5FedGetNumVerticesTotal(
 	h5_file * fh,
 	const h5_id_t level
@@ -72,17 +67,12 @@ h5_size_t H5FedGetNumVerticesCnode (
 
 /******	EDGE statistics routines ********************************************/
 
-h5_size_t H5FedGetNumEdgesInTetrahedralMesh (
+h5_size_t H5FedGetNumEdgesTotal (
 	h5_file * fh,
 	const h5_id_t level
 	);
 
-h5_size_t H5FedGetNumEdgesInTetrahedralMeshTotal (
-	h5_file * fh,
-	const h5_id_t level
-	);
-
-h5_size_t H5FedGetNumEdgeInTetrahedralMeshCnode (
+h5_size_t H5FedGetNumEdgesCnode (
 	h5_file * fh,
 	const h5_id_t level,
 	const h5_id_t cnode
@@ -90,28 +80,18 @@ h5_size_t H5FedGetNumEdgeInTetrahedralMeshCnode (
 
 /******	TRIANGLE statistics routines *****************************************/
 
-h5_size_t H5FedGetNumTrianglesInTetrahedralMesh (
+h5_size_t H5FedGetNumTrianglesTotal (
 	h5_file * fh,
 	const h5_id_t level
 	);
 
-h5_size_t H5FedGetNumTrianglesInTetrahedralMeshTotal (
-	h5_file * fh,
-	const h5_id_t level
-	);
-
-h5_size_t H5FedGetNumTrianglesInTetrahedralMeshCnode (
+h5_size_t H5FedGetNumTrianglesCnode (
 	h5_file * fh,
 	const h5_id_t level,
 	const h5_id_t cnode
 	);
 
 /******	TETRAHEDRON statistics routines **************************************/
-
-h5_size_t H5FedGetNumTetrahedra (
-	h5_file * fh,
-	const h5_id_t level
-	);
 
 h5_size_t H5FedGetNumTetrahedraTotal(
 	h5_file * fh,
@@ -126,11 +106,6 @@ h5_size_t H5FedGetNumTetrahedraCnode (
 
 /******	BOUNDARY statistics routines ****************************************/
 
-h5_size_t H5FedGetNumBoundaryTriangles (
-	h5_file * fh,
-	const h5_id_t level
-	);
-
 h5_size_t H5FedGetNumBoundaryTrianglesTotal (
 	h5_file * fh,
 	const h5_id_t level
@@ -142,89 +117,145 @@ h5_size_t H5FedGetNumBoundaryTrianglesCnode (
 	const h5_id_t cnode
 	);
 
-/******	RETRIEVAL routines **************************************************/
+/******	STORE / RETRIEVAL routines ********************************************/
 
-h5_vertex * H5FedGetVertexCoordinate (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_id_t vertex_id
+/* vertices */
+h5_size_t
+H5FedSetNumVertices (
+	h5_file * f,
+	const h5_size_t num
 	);
 
-h5_edge * H5FedGetEdge (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_id_t local_id
+h5_size_t
+H5FedGetNumVertices (
+	h5_file * f
 	);
 
-h5_triangle * H5FedGetTriangle (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_id_t local_id
+h5_id_t
+H5FedStoreVertex (
+	h5_file * f,
+	const h5_id_t id,
+	const h5_float64_t P[3]
 	);
 
-h5_tetrahedron * H5FedGetTetrahedron (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_id_t local_id
+h5_id_t
+H5FedGetVertex (
+	h5_file * f,
+	h5_id_t	* const	id,
+	h5_float64_t * const P[3]
 	);
 
-h5_triangle * H5FedGetBoundaryTriangle (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_id_t local_id
+/* edges */
+h5_size_t
+H5FedSetNumEdges (
+	h5_file * f,
+	const h5_size_t num
 	);
 
-/******	STORE routines*****************************************************/
-
-h5_int_t H5FedSetNumVertices (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_size_t num_vertices
+h5_size_t
+H5FedGetNumEdges (
+	h5_file * f
 	);
 
-h5_int_t H5FedSetNumTetrahedra (
+h5_id_t
+H5FedStoreEdge (
+	h5_file * f,
+	const h5_id_t id,
+	const h5_id_t parent_id,
+	const h5_id_t vertex_ids[2]
+	);
+
+h5_id_t
+H5FedGetEdge (
+	h5_file * f,
+	h5_id_t * const id,
+	h5_id_t * const parent_id,
+	h5_id_t * const vertex_ids[2]
+	);
+
+/* triangles */
+h5_size_t
+H5FedSetNumTriangles (
+	h5_file * f,
+	const h5_size_t num
+	);
+
+h5_size_t
+H5FedGetNumTriangles (
+	h5_file * f
+	);
+
+h5_int_t
+H5FedStoreTriangle (
+	h5_file * f,
+	const h5_id_t id,
+	const h5_id_t parent_id,
+	const h5_id_t vertex_ids[3]
+	);
+
+h5_id_t
+H5FedGetTriangle (
+	h5_file * f,
+	h5_id_t * const id,
+	h5_id_t * const parent_id,
+	h5_id_t * const vertex_ids[2]
+	);
+
+/* boundary triangles */
+h5_size_t
+H5FedSetNumBoundaryTriangles (
+	h5_file * f,
+	const h5_size_t num
+	);
+
+h5_size_t
+H5FedGetNumBoundaryTriangles (
+	h5_file * f
+	);
+
+
+h5_id_t
+H5FedStoreBoundaryTriangle (
 	h5_file * fh,
-	const h5_id_t level,
+	const h5_id_t id,
+	const h5_id_t parent_id,
+	const h5_id_t vertex_ids[3]
+	);
+
+h5_id_t
+H5FedGetBoundaryTriangle (
+	h5_file * f,
+	h5_id_t * const id,
+	h5_id_t * const parent_id,
+	h5_id_t * const vertex_ids[3]
+	);
+
+/* tetrahedra */
+h5_size_t
+H5FedSetNumTetrahedra (
+	h5_file * f,
 	const h5_size_t num_tet
 	);
 
-h5_int_t H5FedStoreVertexCoordinate (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_id_t vertex_id,
-	const h5_vertex * const vertex
+h5_size_t
+H5FedGetNumTetrahedra (
+	h5_file * f
 	);
 
-h5_int_t H5FedStoreEdge (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_id_t edge_id,
+h5_id_t
+H5FedStoreTetrahedron (
+	h5_file * f,
+	const h5_id_t id,
 	const h5_id_t parent_id,
-	const h5_edge * const edge
+	const h5_id_t vertex_ids[4]
 	);
 
-h5_int_t H5FedStoreTriangle (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_id_t triangle_id,
-	const h5_id_t parent_id,
-	const h5_triangle * const triangle
-	);
-
-h5_int_t H5FedStoreTetrahedron (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_id_t tet_id,
-	const h5_id_t parent_id,
-	const h5_tetrahedron * const tet/*!< 4-tuple with vertex id's	*/
-	);
-
-h5_int_t H5FedStoreBoundaryTriangle (
-	h5_file * fh,
-	const h5_id_t level,
-	const h5_id_t btriangle_id,
-	const h5_id_t parent_id,
-	const h5_triangle * const btriangle
+h5_id_t
+H5FedGetTetrahedron (
+	h5_file * f,
+	h5_id_t * const id,
+	h5_id_t * parent_id,
+	h5_id_t * const vertex_ids[4]
 	);
 
 /******	UPWARD ADJACENCY routines *********************************************/

@@ -12,10 +12,10 @@
 #include "H5Part.h"
 #include "H5Block.h"
 #include "H5PartPrivate.h"
-#include "H5BlockPrivate.h"
 #include "H5PartErrors.h"
 #include "H5BlockErrors.h"
 #include "H5.h"
+#include "h5/h5_types.h"
 
 extern h5part_error_handler	_err_handler;
 extern h5part_int64_t		_h5part_errno;
@@ -26,7 +26,9 @@ static h5_err_t
 _create_array_types (
 	h5_file * f
 	) {
+	struct h5t_fdata *t = &f->t;
 	hsize_t dims[1] = { 3 };
+
 	t->float64_3tuple_tid = H5Tarray_create ( H5T_NATIVE_DOUBLE, 1, dims,NULL);
 	dims[0] = 2;
 	t->int32_2tuple_tid = H5Tarray_create ( H5T_NATIVE_INT32, 1, dims, NULL );
@@ -42,6 +44,8 @@ static h5_err_t
 _create_vertex_type (
 	h5_file * f
 	) {
+	struct h5t_fdata *t = &f->t;
+
 	t->vertex_tid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_vertex) );
 	H5Tinsert (
 		t->vertex_tid,
@@ -65,31 +69,35 @@ static h5_err_t
 _create_tet_type (
 	h5_file * f
 	) {
+	struct h5t_fdata *t = &f->t;
+
 	t->tet_tid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_tetrahedron) );
 	H5Tinsert (
 		t->tet_tid,
 		"id",
-		HOFFSET(struct h5_tet, id),
+		HOFFSET(struct h5_tetrahedron, id),
 		H5T_NATIVE_INT32 );
 	H5Tinsert (
 		t->tet_tid,
 		"parent_id",
-		HOFFSET(struct h5_tet, parent_id),
+		HOFFSET(struct h5_tetrahedron, parent_id),
 		H5T_NATIVE_INT32 );
 	H5Tinsert (
 		t->tet_tid,
 		"vertex_ids",
-		HOFFSET(struct h5_tet, vertex_ids),
+		HOFFSET(struct h5_tetrahedron, vertex_ids),
 		t->int32_4tuple_tid );
 
 	return H5_SUCCESS;
+}
 
 /*!
   \ingroup h5_private
 
   \internal
 
-  Initialize H5Block internal structure.
+  Initialize topo internal structure. The structure has already be initialized
+  with zero's.
 
   \return	H5_SUCCESS or error code
 */
@@ -98,15 +106,49 @@ _h5t_open_file (
 	h5_file * f			/*!< IN: file handle */
 	) {
 	h5_err_t h5err = H5_SUCCESS;;
-	struct h5t_fdata * t = &fh->t; 
+	struct h5t_fdata * t = &f->t; 
 
 	t->num_levels = -1;
-	levels = NULL;
 
-	if (h5err = _create_array_types ( f )) < 0 ) return herr;
-	if (h5err = _create_vertex_type ( f )) < 0 ) return herr;
-	if (h5err = _create_tet_type ( f )) < 0 ) return herr;
-
+	if (( h5err = _create_array_types ( f )) < 0 ) return h5err;
+	if (( h5err = _create_vertex_type ( f )) < 0 ) return h5err;
+	if (( h5err = _create_tet_type ( f )) < 0 ) return h5err;
 
 	return H5_SUCCESS;
+}
+
+/*!
+  \ingroup h5_private
+
+  \internal
+
+  De-initialize topological internal structure.  Open HDF5 objects are 
+  closed and allocated memory freed.
+
+  \return	H5_SUCCESS or error code
+*/
+static h5part_int64_t
+_h5t_close_file (
+	h5_file *fh		/*!< IN: file handle */
+	) {
+
+	h5_err_t herr = H5_SUCCESS;
+	struct h5t_fdata *t = &fh->t;
+
+	if ( t->num_vertices ) {
+		free ( t->num_vertices );
+	}
+	if ( t->num_tets ) {
+		free ( t->num_tets );
+	}
+	if ( t->num_tets_on_level ) {
+		free ( t->num_tets_on_level );
+	}
+	if ( t->vertices ) {
+		free ( t->vertices );
+	}
+	if ( t->tets ) {
+		free ( t->tets );
+	}
+	return herr;
 }

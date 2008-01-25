@@ -11,7 +11,6 @@
 #include "H5Part.h"
 #include "H5Block.h"
 #include "H5PartPrivate.h"
-#include "H5BlockPrivate.h"
 #include "H5PartErrors.h"
 #include "H5BlockErrors.h"
 #include "H5.h"
@@ -23,11 +22,31 @@ h5_err_t
 _h5t_init_step (
 	h5_file * f
 	) {
-	memset ( f->t, 0, sizeof(f->t) );
+	memset ( &f->t, 0, sizeof(f->t) );
 
-	f->t.mesh_gid = -1;
+	f->t.topo_gid = -1;
 	f->t.num_levels = f->is_new_step ? 0 : -1;
 	f->t.cur_level = -1;
+
+	return H5_SUCCESS;
+}
+
+static hid_t
+_open_group (
+	h5_file * f,
+	hid_t parent_gid,
+	const char * const grpname
+	) {
+	hid_t gid;
+	herr_t herr = H5Gget_objinfo(
+		parent_gid, grpname, 1, NULL );
+	if ( herr >= 0 ) {
+		gid = H5Gopen ( parent_gid, grpname );
+	} else {
+		gid = H5Gcreate ( parent_gid, grpname, 0 );
+	}
+	if ( gid < 0 ) 
+		return HANDLE_H5G_OPEN_ERR ( H5T_CONTAINER_GRPNAME );
 
 	return H5_SUCCESS;
 }
@@ -36,14 +55,72 @@ static h5_err_t
 _open_topo_group (
 	h5_file * f
 	) {
-	herr_t herr = H5Gget_objinfo( f->step_gid, "Topo", 1, NULL );
-	if ( herr => 0 ) {
-		f->t.mesh_gid = H5Gopen ( f->step_gid, "Topo" );
-	} else {
-		f->t.mesh_gid = H5Gcreate ( f->step_gid, "Topo", 0 );
+	return _open_group ( f, f->step_gid, H5T_CONTAINER_GRPNAME );
+}
+
+static h5_err_t
+_open_coord_group (
+	h5_file * f
+	) {
+	if ( f->t.topo_gid < 0 ) {
+		h5_err_t h5err = _open_topo_group ( f );
+		if ( h5err < 0 ) return h5err;
 	}
-	if ( f->t.mesh_gid < 0 ) 
-		return HANDLE_H5G_OPEN_ERR ( "Topo" );
+	return _open_group ( f, f->t.topo_gid, H5T_COORD_GRPNAME );
+}
+
+static h5_err_t
+_open_vmesh_group (
+	h5_file * f
+	) {
+	if ( f->t.topo_gid < 0 ) {
+		h5_err_t h5err = _open_topo_group ( f );
+		if ( h5err < 0 ) return h5err;
+	}
+	return _open_group ( f, f->t.topo_gid, H5T_VMESH_GRPNAME );
+}
+
+static h5_err_t
+_write_obj (
+	const hid_t	gid,
+	const hsize_t  current_dims,
+	const hsize_t  max_dims,
+	const hid_t    tid,
+	const void * const object,
+	const char * const dsname
+	) {
+	hsize_t dims[1] = { current_dims };
+	hsize_t maxdims[1] = { max_dims };
+
+	hid_t sid = H5Screate_simple (
+		1,
+		dims,
+		maxdims
+		);
+	if ( sid < 0 ) return -1;
+
+	hid_t did = H5Dcreate (
+		gid,
+		dsname,
+		tid,
+		sid,
+		H5P_DEFAULT);
+	if ( did < 0 ) return -1;
+
+	herr_t herr = H5Dwrite (
+		did,
+		tid,
+		H5S_ALL, H5S_ALL, H5P_DEFAULT,
+		object );
+	if ( herr < 0 ) return -1;
+	
+	herr = H5Dclose ( did );
+	if ( herr < 0 ) return -1;
+
+	herr = H5Sclose ( sid );
+	if ( herr < 0 ) return -1;
+
+	return H5_SUCCESS;
 }
 
 /*
@@ -54,41 +131,23 @@ static h5_err_t
 _write_vertices (
 	h5_file * f
 	) {
-	h5t_fdata t &f->t;
-	herr_t herr;
+	struct h5t_fdata *t = &f->t;
+	h5_err_t h5err;
 
-	if ( t->coord3d_gid < 0 ) {
-		h5err = _open_coord3d_group ( f );
+	if ( t->coord_gid < 0 ) {
+		h5err = _open_coord_group ( f );
 		if ( h5err < 0 ) return h5err;
 	}
 
-	if ( t->num_levels == 0 ) return 0;
-	if ( t->num_levels < 0 ) return -1; 
-
-	hsize_t current_dims[1];
-	current_dims[0] = t->levels[t->num_levels-1].num_vertices;
-
-	t->coord3d_sid = H5Screate_simple (
-		1,
-		current_dims,
-		 H5S_UNLIMITED
+	hsize_t maxdim = H5S_UNLIMITED;
+	h5err = _write_obj (
+		t->coord_gid,
+		t->vertex_tid,
+		t->num_vertices[t->num_levels-1],
+		maxdim,
+		(void*)t->vertices,
+		H5T_COORD3D_DSNAME
 		);
-	if ( t->coord3d_sid < 0 ) return -1;
-
-	t->coord3d_did = H5Dcreate (
-		coord3d_gid,
-		"COORD3D",
-		t->vertex_tid,
-		t->coord3d_sid,
-		H5P_DEFAULT);
-	if ( t->coord3d_did < 0 ) return -1;
-
-	herr = H5Dwrite (
-		coord3d,
-		t->vertex_tid,
-		H5S_ALL, H5S_ALL, H5P_DEFAULT,
-		t->vertices );
-	if ( herr < 0 ) return -1;
 
 	return H5_SUCCESS;
 }
@@ -97,9 +156,26 @@ static h5_err_t
 _write_tets (
 	h5_file * f
 	) {
-	return -1;
-}
+	struct h5t_fdata *t = &f->t;
+	h5_err_t h5err;
 
+	if ( t->vmesh_gid < 0 ) {
+		h5err = _open_vmesh_group ( f );
+		if ( h5err < 0 ) return h5err;
+	}
+
+	hsize_t maxdim = H5S_UNLIMITED;
+	herr_t herr = _write_obj (
+		t->vmesh_gid,
+		t->tet_tid,
+		t->num_tets[t->num_levels-1],
+		maxdim,
+		(void*)t->tets,
+		H5T_TETMESH_DSNAME
+		);
+
+	return H5_SUCCESS;
+}
 
 /*
   determine new levels
@@ -114,6 +190,10 @@ _write_data (
 	) {
 	struct h5t_fdata *t = &f->t;
 	h5_err_t h5err;
+
+	if ( t->num_levels == 0 ) return 0;
+	if ( t->num_levels < 0 ) return -1; 
+
 	if ( t->topo_gid < 0 ) {
 		h5err = _open_topo_group ( f );
 		if ( h5err < 0 ) return h5err;
@@ -156,10 +236,10 @@ _h5t_close_step (
 	h5_err_t h5err = _write_data ( f );
 	if ( h5err < 0 ) return h5err;
 
-	h5_err_t h5err = _close_hdf5_objs ( f );
+	h5err = _close_hdf5_objs ( f );
 	if ( h5err < 0 ) return h5err;
 
-	h5_err_t h5err = _release_memory ( f );
+	h5err = _release_memory ( f );
 	if ( h5err < 0 ) return h5err;
 
 	return H5_SUCCESS;

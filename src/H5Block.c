@@ -49,7 +49,6 @@
 
 #include "H5BlockTypes.h"
 #include "H5Block.h"
-#include "H5BlockPrivate.h"
 #include "h5/H5.h"
 #include "H5BlockErrors.h"
 
@@ -442,7 +441,7 @@ _dissolve_ghostzones (
 		 f->nprocs * sizeof (*f->block->user_layout) );
 
 	p_begin = p_max = p_end = (struct list*) malloc ( sizeof ( *p_begin ) );
-	if ( p_begin == NULL ) return HANDLE_H5PART_NOMEM_ERR;
+	if ( p_begin == NULL ) return HANDLE_H5_NOMEM_ERR;
 	
 	memset ( p_begin, 0, sizeof ( *p_begin ) );
 
@@ -456,7 +455,7 @@ _dissolve_ghostzones (
 			if ( _have_ghostzone ( p, q ) ) {
 				p_el = (struct list*) malloc ( sizeof ( *p_el ) );
 				if ( p_el == NULL )
-					return HANDLE_H5PART_NOMEM_ERR;
+					return HANDLE_H5_NOMEM_ERR;
 
 				p_el->p = p;
 				p_el->q = q;
@@ -596,7 +595,7 @@ H5BlockDefine3DFieldLayout(
 	_get_dimension_sizes ( f );
 
 	herr = _dissolve_ghostzones ( f );
-	if ( herr < 0 ) return HANDLE_H5PART_LAYOUT_ERR;
+	if ( herr < 0 ) return HANDLE_H5_LAYOUT_ERR;
 
 	herr = _release_hyperslab ( f );
 	if ( herr < 0 )	return HANDLE_H5S_CLOSE_ERR;
@@ -784,7 +783,7 @@ _open_field_group (
 	if ( h5err < 0 ) return h5err;
 
 	if ( ! _have_object ( b->blockgroup, name ) )
-		return HANDLE_H5PART_NOENT_ERR ( name );
+		return HANDLE_H5_NOENT_ERR ( name );
 
 	herr_t herr = H5Gopen ( b->blockgroup, name );
 	if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( name );
@@ -847,14 +846,14 @@ _select_hyperslab_for_reading (
 
 	rank = H5Sget_simple_extent_dims ( b->diskshape, NULL, NULL );
 	if ( rank < 0 )  return HANDLE_H5S_GET_SIMPLE_EXTENT_DIMS_ERR;
-	if ( rank != 3 ) return HANDLE_H5PART_DATASET_RANK_ERR ( rank, 3 );
+	if ( rank != 3 ) return HANDLE_H5_DATASET_RANK_ERR ( rank, 3 );
 
 	rank = H5Sget_simple_extent_dims ( b->diskshape, field_dims, NULL );
 	if ( rank < 0 )  return HANDLE_H5S_GET_SIMPLE_EXTENT_DIMS_ERR;
 	
 	if ( (field_dims[0] < (hsize_t)b->k_max) ||
 	     (field_dims[1] < (hsize_t)b->j_max) ||
-	     (field_dims[2] < (hsize_t)b->i_max) ) return HANDLE_H5PART_LAYOUT_ERR;
+	     (field_dims[2] < (hsize_t)b->i_max) ) return HANDLE_H5_LAYOUT_ERR;
 
 	H5_print_debug (
 		"PROC[%d]: \n"
@@ -1186,7 +1185,7 @@ _create_field_group (
 	if ( h5err < 0 ) return h5err;
 
 	if ( _have_object ( b->blockgroup, name ) )
-		return  HANDLE_H5PART_GROUP_EXISTS_ERR ( name );
+		return  HANDLE_H5_GROUP_EXISTS_ERR ( name );
 
 	herr_t herr = H5Gcreate ( b->blockgroup, name, 0 );
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( name );

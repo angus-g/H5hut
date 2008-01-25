@@ -14,27 +14,21 @@ extern "C" {
 
 #include "H5PartTypes.h"
 
+#define H5PART_SUCCESS		H5_SUCCESS
+#define H5PART_ERR_NOMEM	H5_ERR_NOMEM
+#define H5PART_ERR_INVAL	H5_ERR_INVAL
+#define H5PART_ERR_BADFD	H5_ERR_BADFD
+#define H5PART_ERR_LAYOUT	H5_ERR_LAYOUT
+#define H5PART_ERR_NOENT	H5_ERR_NOENT
+#define H5PART_ERR_INIT         H5_ERR_INIT
+#define H5PART_ERR_NOENTRY	H5_ERR_NOENTRY
 
-#define H5PART_SUCCESS		0
-#define H5PART_ERR_NOMEM	-12
-#define H5PART_ERR_INVAL	-22
-#define H5PART_ERR_BADFD	-77
+#define H5PART_ERR_MPI		H5_ERR_MPI
+#define H5PART_ERR_HDF5		H5_ERR_HDF5
 
-#define H5PART_ERR_INIT         -200
-#define H5PART_ERR_NOENTRY	-201
-
-#define H5PART_ERR_MPI		-201
-#define H5PART_ERR_HDF5		-202
-
-
-#define H5_O_RDONLY		0x01
-#define H5_O_WRONLY		0x02
-#define H5_O_APPEND		0x03
-#define H5_O_RDWR		0x04
-
-#define H5PART_READ		H5_O_RDONLY	# legacy def, will be removed
-#define H5PART_WRITE		H5_O_WRONLY	# legacy def, will be removed
-#define H5PART_APPEND		H5_O_APPEND	# legacy def, will be removed
+#define H5PART_READ		H5_O_RDONLY
+#define H5PART_WRITE		H5_O_WRONLY
+#define H5PART_APPEND		H5_O_APPEND
 
 #define H5PART_INT64		((h5part_int64_t)H5T_NATIVE_INT64)
 #define H5PART_FLOAT64		((h5part_int64_t)H5T_NATIVE_DOUBLE)

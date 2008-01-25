@@ -31,7 +31,7 @@ _write_data (
 	h5part_int64_t j_dims = layout->j_end - layout->j_start + 1;
 	h5part_int64_t k_dims = layout->k_end - layout->k_start + 1;
 
-	printf ( "Writing Step #%lld\n", (long long)f->timestep );
+	printf ( "Writing Step #%lld\n", (long long)f->step_idx );
 
 	data = malloc ( i_dims * j_dims * k_dims * sizeof ( *data ) );
 	for ( i = 0; i < i_dims; i++ ) {
@@ -168,7 +168,7 @@ _read_data (
 	h5part_int64_t j_dims = layout->j_end - layout->j_start + 1;
 	h5part_int64_t k_dims = layout->k_end - layout->k_start + 1;
 
-	printf ( "Reading Step #%lld\n", (long long)f->timestep );
+	printf ( "Reading Step #%lld\n", (long long)f->step_idx );
 
 	data = malloc ( i_dims * j_dims * k_dims * sizeof ( *data ) );
 

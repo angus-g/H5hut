@@ -403,7 +403,7 @@ H5U_set_view (
 	  end==-1 to mean end of file
 	*/
 	total = (hsize_t) H5U_get_num_elems ( f );
-	if ( total < 0 ) return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( total );
+	if ( total < 0 ) return HANDLE_H5_GET_NUM_PARTICLES_ERR ( total );
 
 	if ( start == -1 ) start = 0;
 	if ( end == -1 )   end = total;
@@ -471,7 +471,7 @@ H5U_get_view (
 	else {
 		viewend = H5U_get_num_elems ( f );
 		if ( viewend < 0 )
-			return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( viewend );
+			return HANDLE_H5_GET_NUM_PARTICLES_ERR ( viewend );
 	}
 
 	if ( start ) *start = viewstart;
@@ -485,7 +485,7 @@ H5U_set_canonical_view (
 	h5_file *f
 	) {
 	h5part_int64_t herr = H5U_reset_view ( f );
-	if ( herr < 0 ) return HANDLE_H5PART_SET_VIEW_ERR( herr, -1, -1 );
+	if ( herr < 0 ) return HANDLE_H5_SET_VIEW_ERR( herr, -1, -1 );
 
 #ifdef PARALLEL_IO
 	h5part_int64_t start = 0;
@@ -494,7 +494,7 @@ H5U_set_canonical_view (
 	int i = 0;
 	
 	n = H5U_get_num_elems ( f );
-	if ( n < 0 ) return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( n );
+	if ( n < 0 ) return HANDLE_H5_GET_NUM_PARTICLES_ERR ( n );
 	/* 
 	   now lets query the attributes for this group to see if there
 	   is a 'pnparticles' group that contains the offsets for the
@@ -518,7 +518,7 @@ H5U_set_canonical_view (
 	}
 	end = start + f->pnparticles[f->myproc] - 1;
 	herr = H5U_set_view ( f, start, end );
-	if ( herr < 0 ) return HANDLE_H5PART_SET_VIEW_ERR ( herr, start, end );
+	if ( herr < 0 ) return HANDLE_H5_SET_VIEW_ERR ( herr, start, end );
 
 #endif
 

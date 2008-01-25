@@ -18,21 +18,6 @@
 #include "h5/h5_types.h"
 #include "H5Fed.h"
 
-/*!
-  \ingroup h5fed_c_api
-
-  Get the number of vertices used for defining a submesh
-  at level \c level for this compute node in current step.
-
-  \return number of vertices
-  \return \c -1	on error.
-*/
-h5_size_t H5FedGetNumVertices (
-	h5_file * fh,			/*!< file handle		*/
-	const h5_id_t level		/*!< mesh level to query	*/
-	) {
-	return -1;
-}
 
 /*!
   \ingroup h5fed_c_api
@@ -69,31 +54,6 @@ h5_size_t H5FedGetNumVerticesCnode (
 
 /******	EDGE statistics routines ********************************************/
 
-/*!
-  \ingroup h5fed_c_api
-
-  Returns the number of edges present in the mesh at level \c level in 
-  current time step on this compute node.
-
-  \return number of edges
-  \return \c -1	on error.
-
-  \note
-  It is left to the API implementor how to make this information
-  available; in general he can compute it from the definition of
-  the tetrahedral mesh.
-
-  \note
-  After counting the number for the local cnode we call MPI_Gather()
-  to collect the number from the other cnodes and store them into an
-  array.  The inquired number will be provided from this array.
-*/
-h5_size_t H5FedGetNumEdgesInTetrahedralMesh (
-	h5_file * fh,			/*!< file handle		*/
-	const h5_id_t level		/*!< mesh level to query	*/
-	) {
-	return -1;
-}
 
 /*!
   \ingroup h5fed_c_api
@@ -104,7 +64,7 @@ h5_size_t H5FedGetNumEdgesInTetrahedralMesh (
   \return number of edges
   \return \c -1	on error.
 */
-h5_size_t H5FedGetNumEdgesInTetrahedralMeshTotal (
+h5_size_t H5FedGetNumEdgesTotal (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to query	*/
 	) {
@@ -120,7 +80,7 @@ h5_size_t H5FedGetNumEdgesInTetrahedralMeshTotal (
   \return number of edges
   \return \c -1 on error.
 */
-h5_size_t H5FedGetNumEdgeInTetrahedralMeshCnode (
+h5_size_t H5FedGetNumEdgesCnode (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t cnode		/*!< compute node		*/
@@ -134,33 +94,12 @@ h5_size_t H5FedGetNumEdgeInTetrahedralMeshCnode (
   \ingroup h5fed_c_api
 
   Get the number of triangles present in the mesh at level \c level in 
-  current time step on this compute note.
-
-  \return Number of triangles
-  \return \c -1 on error.
-
-  \note
-  After counting the number for the local cnode we call MPI_Gather()
-  to collect the number from the other cnodes and store them into an
-  array.  The inquired number will be provided from this array.
-*/
-h5_size_t H5FedGetNumTrianglesInTetrahedralMesh (
-	h5_file * fh,			/*!< file handle		*/
-	const h5_id_t level		/*!< mesh level to query	*/
-	) {
-	return -1;
-}
-
-/*!
-  \ingroup h5fed_c_api
-
-  Get the number of triangles present in the mesh at level \c level in 
   current time step summed up over all compute notes.
 
   \return Number of triangles
   \return \c -1 on error.
 */
-h5_size_t H5FedGetNumTrianglesInTetrahedralMeshTotal (
+h5_size_t H5FedGetNumTrianglesTotal (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to query	*/
 	) {
@@ -176,7 +115,7 @@ h5_size_t H5FedGetNumTrianglesInTetrahedralMeshTotal (
   \return Number of triangles
   \return \c -1 on error.
 */
-h5_size_t H5FedGetNumTrianglesInTetrahedralMeshCnode (
+h5_size_t H5FedGetNumTrianglesCnode (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t cnode		/*!< compute node		*/
@@ -185,27 +124,6 @@ h5_size_t H5FedGetNumTrianglesInTetrahedralMeshCnode (
 }
 
 /******	TETRAHEDRON statistics routines **************************************/
-
-/*!
-  \ingroup h5fed_c_api
-
-  Returns the number of tetrahedral elements present in the mesh at 
-  level \c level in current step on this compute node.
-
-  \return number of tetrahedra
-  \return \c -1 on error.
-
-  \note
-  After counting the number for the local cnode we call MPI_Gather()
-  to collect the number from the other cnodes and store them into an
-  array.  The inquired number will be provided from this array.
-*/
-h5_size_t H5FedGetNumTetrahedra (
-	h5_file * fh,			/*!< file handle		*/
-	const h5_id_t level		/*!< mesh level to query	*/
-	) {
-	return -1;
-}
 
 /*!
   \ingroup h5fed_c_api
@@ -242,33 +160,6 @@ h5_size_t H5FedGetNumTetrahedraCnode (
 
 /******	BOUNDARY statistics routines ****************************************/
 
-/*!
-  \ingroup h5fed_c_api
-
-  Get the number of boundary triangles present in the mesh at
-  level \c level in current step on this compute node.
-
-  \return number of tetrahedras
-  \return \c -1 on error.
-
-  \note
-  It is left to the API implementor how to make this information
-  available. In general he can compute it from the definition
-  of the tetrahedral mesh, using the adjacency relations, i.e.
-  the fact that a boundary triangle has only one single adjacent
-  tetrahedron.
-
-  \note
-  After counting the number for the local cnode we call MPI_Gather()
-  to collect the number from the other cnodes and store them into an
-  array.  The inquired number will be provided from this array.
-*/
-h5_size_t H5FedGetNumBoundaryTriangles (
-	h5_file * fh,			/*!< file handle		*/
-	const h5_id_t level		/*!< mesh level to query	*/
-	) {
-	return -1;
-}
 
 /*!
   \ingroup h5fed_c_api

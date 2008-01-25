@@ -12,7 +12,6 @@
 #include "H5Part.h"
 #include "H5Block.h"
 #include "H5PartPrivate.h"
-#include "H5BlockPrivate.h"
 #include "H5PartErrors.h"
 #include "H5BlockErrors.h"
 #include "H5.h"
@@ -41,11 +40,11 @@ H5_check_filehandle (
 	) {
 
 	if ( f == NULL )
-		return HANDLE_H5PART_BADFD_ERR;
+		return HANDLE_H5_BADFD_ERR;
 	if ( f->file == 0 )
-		return HANDLE_H5PART_BADFD_ERR;
+		return HANDLE_H5_BADFD_ERR;
 	if ( f->block == NULL )
-		return HANDLE_H5PART_BADFD_ERR;
+		return HANDLE_H5_BADFD_ERR;
 	return H5PART_SUCCESS;
 }
 
@@ -96,8 +95,7 @@ _h5u_open_file (
 	f->pnparticles =
 		(h5part_int64_t*) malloc (f->nprocs * sizeof (h5part_int64_t));
 	if (f->pnparticles == NULL) {
-		HANDLE_H5PART_NOMEM_ERR;
-		goto error_cleanup;
+		return HANDLE_H5_NOMEM_ERR;
 	}
 	return H5_SUCCESS;
 }
@@ -121,23 +119,23 @@ _h5b_open_file (
 	herr = H5_check_filehandle ( f );
 	if ( herr == H5_SUCCESS ) return H5_SUCCESS;
 
-	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5PART_BADFD_ERR;
+	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5_BADFD_ERR;
 
 	f->block = (struct h5b_fdata*) malloc( sizeof (*f->block) );
 	if ( f->block == NULL ) {
-		return HANDLE_H5PART_NOMEM_ERR;
+		return HANDLE_H5_NOMEM_ERR;
 	}
 	b = f->block;
 	memset ( b, 0, sizeof (*b) );
 	b->user_layout = (struct H5BlockPartition*) malloc (
 		f->nprocs * sizeof (b->user_layout[0]) );
 	if ( b->user_layout == NULL ) {
-		return HANDLE_H5PART_NOMEM_ERR;
+		return HANDLE_H5_NOMEM_ERR;
 	}
 	b->write_layout = (struct H5BlockPartition*) malloc (
 		f->nprocs * sizeof (b->write_layout[0]) );
 	if ( b->write_layout == NULL ) {
-		return HANDLE_H5PART_NOMEM_ERR;
+		return HANDLE_H5_NOMEM_ERR;
 	}
 	b->step_idx = -1;
 	b->blockgroup = -1;
@@ -161,7 +159,7 @@ H5_open_file (
 	h5part_int64_t rc = H5PART_SUCCESS;
 
 	if ( _init() < 0 ) {
-		HANDLE_H5PART_INIT_ERR;
+		HANDLE_H5_INIT_ERR;
 		return NULL;
 	}
 	_h5part_errno = H5PART_SUCCESS;
@@ -169,14 +167,14 @@ H5_open_file (
 
 	f = (h5_file*) malloc( sizeof (h5_file) );
 	if( f == NULL ) {
-		HANDLE_H5PART_NOMEM_ERR;
+		HANDLE_H5_NOMEM_ERR;
 		goto error_cleanup;
 	}
 	memset (f, 0, sizeof (h5_file));
 
 	f->prefix_step_name = strdup ( H5PART_GROUPNAME_STEP );
 	if( f->prefix_step_name == NULL ) {
-		HANDLE_H5PART_NOMEM_ERR;
+		HANDLE_H5_NOMEM_ERR;
 		goto error_cleanup;
 	}
 	f->width_step_idx = 0;
@@ -245,7 +243,7 @@ H5_open_file (
 				     f->access_prop);
 		f->empty = 1;
 	}
-	else if ( flags == H5_O_APPEND || H5_O_RDWR ) {
+	else if ( flags == H5_O_APPEND || H5_O_RDWR ) {
 		int fd = open (filename, O_RDONLY, 0);
 		if ( (fd == -1) && (errno == ENOENT) ) {
 			f->file = H5Fcreate(filename, H5F_ACC_TRUNC,
@@ -259,7 +257,7 @@ H5_open_file (
 		}
 	}
 	else {
-		HANDLE_H5PART_FILE_ACCESS_TYPE_ERR ( flags );
+		HANDLE_H5_FILE_ACCESS_TYPE_ERR ( flags );
 		goto error_cleanup;
 	}
 
@@ -327,20 +325,21 @@ static h5part_int64_t
 _h5u_close_file (
 	h5_file *f		/*!< IN: file handle */
 	) {
+	herr_t herr;
 	_h5part_errno = H5_SUCCESS;
 	if( f->shape > 0 ) {
-		r = H5Sclose( f->shape );
-		if ( r < 0 ) HANDLE_H5S_CLOSE_ERR;
+		herr = H5Sclose( f->shape );
+		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR;
 		f->shape = 0;
 	}
 	if( f->diskshape != H5S_ALL ) {
-		r = H5Sclose( f->diskshape );
-		if ( r < 0 ) HANDLE_H5S_CLOSE_ERR;
+		herr = H5Sclose( f->diskshape );
+		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR;
 		f->diskshape = 0;
 	}
 	if( f->memshape != H5S_ALL ) {
-		r = H5Sclose( f->memshape );
-		if ( r < 0 ) HANDLE_H5S_CLOSE_ERR;
+		herr = H5Sclose( f->memshape );
+		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR;
 		f->memshape = 0;
 	}
 	if( f->pnparticles ) {
@@ -391,30 +390,6 @@ _h5b_close_file (
 	f->block = NULL;
 
 	return H5PART_SUCCESS;
-}
-
-/*!
-  \ingroup h5_private
-
-  \internal
-
-  De-initialize topological internal structure.  Open HDF5 objects are 
-  closed and allocated memory freed.
-
-  \return	H5_SUCCESS or error code
-*/
-static h5part_int64_t
-_h5t_close_file (
-	h5_file *fh		/*!< IN: file handle */
-	) {
-
-	h5_err_t herr = H5_SUCCESS;
-	struct h5t_fdata *t = fh->t;
-
-	if ( t->levels ) {
-		free ( levels );
-	}
-	return herr;
 }
 
 h5part_int64_t
@@ -477,7 +452,7 @@ H5_define_stepname (
 	) {
 	f->prefix_step_name = strdup ( name );
 	if( f->prefix_step_name == NULL ) {
-		return HANDLE_H5PART_NOMEM_ERR;
+		return HANDLE_H5_NOMEM_ERR;
 	}
 	f->width_step_idx = (int)width;
 	

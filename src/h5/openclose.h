@@ -5,21 +5,12 @@ h5_file*
 H5_open_file (
 	const char *filename,
 	unsigned flags,
-	MPI_Comm comm,
-	int f_parallel
+	MPI_Comm comm
 	);
 
 h5part_int64_t
 H5_check_filehandle (
 	const h5_file *f
-	);
-
-h5_file*
-H5_open_file (
-	const char *filename,
-	unsigned flags,
-	MPI_Comm comm,
-	int f_parallel
 	);
 
 h5part_int64_t

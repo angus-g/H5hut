@@ -11,7 +11,6 @@
 #include "H5Part.h"
 #include "H5Block.h"
 #include "H5PartPrivate.h"
-#include "H5BlockPrivate.h"
 #include "H5PartErrors.h"
 #include "H5BlockErrors.h"
 #include "H5.h"
@@ -180,7 +179,7 @@ H5_get_object_name (
 			    &data );
 	if ( herr < 0 ) return (h5part_int64_t)herr;
 
-	if ( herr == 0 ) HANDLE_H5PART_NOENTRY_ERR( group_name,
+	if ( herr == 0 ) HANDLE_H5_NOENTRY_ERR( group_name,
 						    type, idx );
 
 	return H5PART_SUCCESS;
@@ -210,7 +209,7 @@ _open_step (
 	H5_print_info (
 		"Proc[%d]: Open step #%lld for file %lld",
 		f->myproc,
-		(long long)step,
+		(long long)f->step_idx,
 		(long long)(size_t) f );
 	f->is_new_step = 0;
 	f->step_gid = H5Gopen ( f->file, f->step_name ); 
@@ -222,14 +221,16 @@ _open_step (
 
 static h5_err_t
 _init_step (
+	h5_file * f
+	) {
 	h5_err_t h5err = _h5t_init_step ( f );
 	if ( h5err < 0 ) return h5err;
 
 	return H5_SUCCESS;
 }	
 
-static h5_err_t
-_close_step (
+h5_err_t
+_h5_close_step (
 	h5_file * f
 	) {
 
@@ -265,7 +266,7 @@ _set_step (
 		herr = _open_step ( f );
 		if ( herr < 0 ) return herr;
 	} else if ( (f->mode == H5_O_WRONLY)  || (f->mode == H5_O_APPEND) ) {
-		if ( herr > 0 ) return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
+		if ( herr > 0 ) return HANDLE_H5_STEP_EXISTS_ERR ( step_idx );
  		herr = _create_step ( f );
 		if ( herr < 0 ) return herr;
 	} else if ( (f->mode == H5_O_RDWR) && (herr < 0) ) {
@@ -278,20 +279,20 @@ _set_step (
 	return H5_SUCCESS;
 }
 
-h5p_int64_t
+h5_int64_t
 H5_set_step (
 	h5_file *f,			/*!< [in]  Handle to open file */
 	const h5_int64_t step_idx	/*!< [in]  Step to set. */
 	) {
 
-	herr = _close_step ( f );
-	if ( herr < 0 ) return herr;
+	h5_err_t h5err = _h5_close_step ( f );
+	if ( h5err < 0 ) return h5err;
 
-	herr = _set_step ( f );
-	if ( herr < 0 ) return herr;
+	h5err = _set_step ( f, step_idx );
+	if ( h5err < 0 ) return h5err;
 
-	herr = _init_step ( f );
-	if ( herr < 0 ) return herr;
+	h5err = _init_step ( f );
+	if ( h5err < 0 ) return h5err;
 
 	return H5_SUCCESS;
 }

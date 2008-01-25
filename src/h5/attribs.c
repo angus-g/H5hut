@@ -11,7 +11,6 @@
 #include "H5Part.h"
 #include "H5Block.h"
 #include "H5PartPrivate.h"
-#include "H5BlockPrivate.h"
 #include "H5PartErrors.h"
 #include "H5BlockErrors.h"
 #include "H5.h"

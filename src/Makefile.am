@@ -61,9 +61,8 @@ libH5Part_a_SOURCES = \
 	H5Fed.c \
 	H5Fed_adjacency.c \
 	H5Fed_dof.c \
-	H5Fed_retrieve.c \
 	H5Fed_statistics.c \
-	H5Fed_store.c
+	H5Fed_storeretrieve.c
 
 SUBDIRS = h5 bindings
 
@@ -78,7 +77,10 @@ libH5Part.a: $(libH5Part_a_OBJECTS)
 H5Part.o: H5Part.c H5Part.h H5PartPrivate.h H5PartTypes.h
 H5Block.o: H5Block.c H5Part.h H5PartPrivate.h H5PartTypes.h H5Block.h H5BlockTypes.h
 
-clean:
+clean-recursive:
+	for d in ${SUBDIRS}; do ${MAKE} -C $$d clean; done
+
+clean: clean-recursive
 	rm -f *~ *.o *.a *.so
 
 distclean: clean
