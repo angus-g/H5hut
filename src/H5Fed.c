@@ -35,6 +35,7 @@
   \defgroup h5fed_c_api H5Fed C API
 */
 
+#include <stdarg.h>
 #include <hdf5.h>
 #include "h5/H5.h"
 #include "H5Fed.h"
