@@ -25,4 +25,8 @@ H5_define_stepname (
 	const h5part_int64_t width
 	);
 
+h5_err_t
+_h5_close_step (
+	h5_file *f
+	);
 #endif
