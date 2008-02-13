@@ -32,6 +32,7 @@ src/H5Fed_adjacency.c -text
 src/H5Fed_dof.c -text
 src/H5Fed_retrieve.c -text
 src/H5Fed_statistics.c -text
+src/H5Fed_storeretrieve.c -text
 src/H5Part.c -text
 src/H5Part.h -text
 src/H5PartErrors.h -text
