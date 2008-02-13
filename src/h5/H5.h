@@ -8,6 +8,7 @@
 #include "errorhandling.h"
 #include "openclose.h"
 #include "readwrite.h"
+#include "t_openclose.h"
 #include "t_readwrite.h"
 #include "u_readwrite.h"
 
