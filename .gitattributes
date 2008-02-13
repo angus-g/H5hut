@@ -69,6 +69,7 @@ test/H5PartAndreasTest.cc -text
 test/H5PartTestParallel.cc -text
 test/H5testFpar.f90 -text
 test/Makefile.am -text
+test/h5b/BlockTestSpecs.txt -text
 test/h5b/H5BlockDissolveGhosts.c -text
 test/h5b/H5BlockParTestScalarField.c -text
 test/h5b/H5BlockParTestScalarField.pbs -text
