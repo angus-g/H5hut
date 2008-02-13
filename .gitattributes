@@ -80,6 +80,7 @@ test/h5u/H5ParallelTest.cc -text
 test/h5u/H5PartTest.cc -text
 test/h5u/H5test.cc -text
 test/h5u/H5testF.f -text
+test/h5u/H5testFpar.f90 -text
 tools/H5PartMerge/AUTHORS -text
 tools/H5PartMerge/COPYING -text
 tools/H5PartMerge/ChangeLog -text
