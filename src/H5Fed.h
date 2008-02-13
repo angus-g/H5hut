@@ -28,8 +28,24 @@ h5_file* H5FedOpenFile (
 	const MPI_Comm comm
 	);
 
-h5_int_t H5FedCloseFile (
+h5_int64_t H5FedCloseFile (
 	h5_file * fh
+	);
+
+h5_id_t
+H5FedAddMesh (
+	h5_file * fh
+	);
+
+h5_id_t
+H5FedAddLevel (
+	h5_file * fh
+	);
+
+h5_size_t
+H5FedSetAdditionalNumVerticesToStore (
+	h5_file * f,			/*!< file handle		*/
+	const h5_size_t num		/*!< number of additional vertices */
 	);
 
 /******	INQUIRY routines *****************************************************/
@@ -118,6 +134,13 @@ h5_size_t H5FedGetNumBoundaryTrianglesCnode (
 	);
 
 /******	STORE / RETRIEVAL routines ********************************************/
+
+h5_err_t
+H5FedSetStep (
+	h5_file * f,
+	const h5_id_t step
+	);
+	
 
 /* vertices */
 h5_size_t
@@ -232,7 +255,7 @@ H5FedGetBoundaryTriangle (
 
 /* tetrahedra */
 h5_size_t
-H5FedSetNumTetrahedra (
+H5FedSetAdditionalNumTetrahedraToStore (
 	h5_file * f,
 	const h5_size_t num_tet
 	);
