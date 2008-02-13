@@ -64,9 +64,7 @@ src/h5/t_openclose.c -text
 src/h5/t_readwrite.c -text
 src/h5/u_readwrite.c -text
 src/h5/u_readwrite.h -text
-test/BlockTestSpecs.txt -text
 test/H5PartAndreasTest.cc -text
-test/H5PartTestParallel.cc -text
 test/H5testFpar.f90 -text
 test/Makefile.am -text
 test/h5b/BlockTestSpecs.txt -text
