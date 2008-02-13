@@ -20,11 +20,6 @@ extern h5part_error_handler	_err_handler;
 extern h5part_int64_t		_h5part_errno;
 extern unsigned			_debug;
 
-static h5part_int64_t
-_close_block (
-	h5_file *f
-	);
-
 /*!
   \ingroup h5block_private
 
@@ -155,8 +150,6 @@ H5_open_file (
 	unsigned flags,		/*!< [in] The access mode for the file. */
 	MPI_Comm comm		/*!< [in] MPI communicator */
 	) {
-
-	h5part_int64_t rc = H5PART_SUCCESS;
 
 	if ( _init() < 0 ) {
 		HANDLE_H5_INIT_ERR;
@@ -402,6 +395,7 @@ H5_close_file (
 	CHECK_FILEHANDLE ( f );
 
 	_h5_close_step ( f );
+
 	_h5u_close_file ( f );
 	_h5b_close_file ( f );
 	_h5t_close_file ( f );
