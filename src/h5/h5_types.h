@@ -73,7 +73,7 @@ struct h5_triangle { /*24Bytes*/
 struct h5_tetrahedron { /* 24Bytes */
 	h5_id_t		id;
 	h5_id_t		parent_id;
-	h5_id_t		refined_on_evel;
+	h5_id_t		refined_on_level;
 	h5_id_t		unused;	/* for right alignment */
 	h5_id_t		vertex_ids[4];
 };
@@ -145,13 +145,17 @@ struct h5t_fdata_level {
 };
 
 struct h5t_fdata {
+	char		mesh_name[16];
+	h5_id_t		cur_mesh;
+	h5_id_t		new_mesh;	/* idx of the first new mesh or -1 */
+
 	h5_id_t		new_level;	/* idx of the first new level or -1 */
 	h5_id_t		cur_level;
 	h5_size_t	num_levels;
 
 	h5_size_t	*num_vertices;
 	h5_size_t	*num_tets;
-	h5_size_t	*num_tets_on_level;
+	h5_size_t	*map_tets_g2l;
 
 	h5_id_t		last_stored_vertex_id; 
 	h5_vertex	* vertices;
@@ -162,6 +166,7 @@ struct h5t_fdata {
 	/* HDF5 objects */
 
 	hid_t		topo_gid;	/* grp id of mesh in current level */
+	hid_t		mesh_gid;
 	hid_t		coord_gid;
 	hid_t		vmesh_gid;
 
@@ -204,7 +209,6 @@ struct h5_file {
 	int	width_step_idx;		/* pad step index with 0 up to this */
 
 	char	step_name[128];		/* full step name		*/
-	int	empty_step;
        
 	h5_int64_t step_idx;		/* step index			*/
 	hid_t	step_gid;		/* HDF5 grp id of current step	*/

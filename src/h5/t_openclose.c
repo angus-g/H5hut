@@ -84,9 +84,40 @@ _create_tet_type (
 		H5T_NATIVE_INT32 );
 	H5Tinsert (
 		t->tet_tid,
+		"refined_on_level",
+		HOFFSET(struct h5_tetrahedron, refined_on_level),
+		H5T_NATIVE_INT32 );
+	H5Tinsert (
+		t->tet_tid,
+		"unused",
+		HOFFSET(struct h5_tetrahedron, unused),
+		H5T_NATIVE_INT32 );
+	H5Tinsert (
+		t->tet_tid,
 		"vertex_ids",
 		HOFFSET(struct h5_tetrahedron, vertex_ids),
 		t->int32_4tuple_tid );
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
+_h5t_init_fdata (
+	h5_file * f
+	) {
+	struct h5t_fdata * t = &f->t;
+
+	memset ( t->mesh_name, 0, sizeof ( t->mesh_name ) );
+	t->cur_mesh = -1;
+	t->num_levels = -1;
+	t->new_level = -1;
+	t->cur_level = -1;
+	t->last_stored_vertex_id = -1;
+	t->last_stored_tet_id = -1;
+	t->topo_gid = -1;
+	t->mesh_gid = -1;
+	t->coord_gid = -1;
+	t->vmesh_gid = -1;
 
 	return H5_SUCCESS;
 }
@@ -106,9 +137,9 @@ _h5t_open_file (
 	h5_file * f			/*!< IN: file handle */
 	) {
 	h5_err_t h5err = H5_SUCCESS;;
-	struct h5t_fdata * t = &f->t; 
 
-	t->num_levels = -1;
+	f->t.new_mesh = -1;
+	if (( h5err = _h5t_init_fdata ( f )) < 0 ) return h5err;
 
 	if (( h5err = _create_array_types ( f )) < 0 ) return h5err;
 	if (( h5err = _create_vertex_type ( f )) < 0 ) return h5err;
@@ -127,28 +158,14 @@ _h5t_open_file (
 
   \return	H5_SUCCESS or error code
 */
-static h5part_int64_t
+h5_err_t
 _h5t_close_file (
-	h5_file *fh		/*!< IN: file handle */
+	h5_file *f		/*!< IN: file handle */
 	) {
 
-	h5_err_t herr = H5_SUCCESS;
-	struct h5t_fdata *t = &fh->t;
+	h5_err_t h5err = H5_SUCCESS;
 
-	if ( t->num_vertices ) {
-		free ( t->num_vertices );
-	}
-	if ( t->num_tets ) {
-		free ( t->num_tets );
-	}
-	if ( t->num_tets_on_level ) {
-		free ( t->num_tets_on_level );
-	}
-	if ( t->vertices ) {
-		free ( t->vertices );
-	}
-	if ( t->tets ) {
-		free ( t->tets );
-	}
-	return herr;
+	h5err = _h5t_close_mesh ( f );
+
+	return h5err;
 }

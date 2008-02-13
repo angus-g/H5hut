@@ -22,11 +22,6 @@ h5_err_t
 _h5t_init_step (
 	h5_file * f
 	) {
-	memset ( &f->t, 0, sizeof(f->t) );
-
-	f->t.topo_gid = -1;
-	f->t.num_levels = f->is_new_step ? 0 : -1;
-	f->t.cur_level = -1;
 
 	return H5_SUCCESS;
 }
@@ -48,40 +43,64 @@ _open_group (
 	if ( gid < 0 ) 
 		return HANDLE_H5G_OPEN_ERR ( H5T_CONTAINER_GRPNAME );
 
-	return H5_SUCCESS;
+	return gid;
 }
 
 static h5_err_t
 _open_topo_group (
 	h5_file * f
 	) {
-	return _open_group ( f, f->step_gid, H5T_CONTAINER_GRPNAME );
+	struct h5t_fdata *t = &f->t;
+
+	t->topo_gid = _open_group ( f, f->root_gid, H5T_CONTAINER_GRPNAME );
+	return t->topo_gid;
+}
+
+static h5_err_t
+_open_mesh_group (
+	h5_file * f
+	) {
+	struct h5t_fdata *t = &f->t;
+
+	if ( t->topo_gid < 0 ) {
+		h5_err_t h5err = _open_topo_group ( f );
+		if ( h5err < 0 ) return h5err;
+	}
+	t->mesh_gid = _open_group ( f, t->topo_gid, t->mesh_name );
+	return (h5_err_t)t->mesh_gid;
 }
 
 static h5_err_t
 _open_coord_group (
 	h5_file * f
 	) {
-	if ( f->t.topo_gid < 0 ) {
-		h5_err_t h5err = _open_topo_group ( f );
+	struct h5t_fdata *t = &f->t;
+
+	if ( t->mesh_gid < 0 ) {
+		h5_err_t h5err = _open_mesh_group ( f );
 		if ( h5err < 0 ) return h5err;
 	}
-	return _open_group ( f, f->t.topo_gid, H5T_COORD_GRPNAME );
+	t->coord_gid = _open_group ( f, t->mesh_gid, H5T_COORD_GRPNAME );
+	return (h5_err_t) t->coord_gid;
 }
 
 static h5_err_t
 _open_vmesh_group (
 	h5_file * f
 	) {
-	if ( f->t.topo_gid < 0 ) {
-		h5_err_t h5err = _open_topo_group ( f );
+	struct h5t_fdata *t = &f->t;
+
+	if ( t->mesh_gid < 0 ) {
+		h5_err_t h5err = _open_mesh_group ( f );
 		if ( h5err < 0 ) return h5err;
 	}
-	return _open_group ( f, f->t.topo_gid, H5T_VMESH_GRPNAME );
+	t->vmesh_gid = _open_group ( f, t->mesh_gid, H5T_VMESH_GRPNAME );
+	return (h5_err_t) t->vmesh_gid;
 }
 
 static h5_err_t
 _write_obj (
+	h5_file * f,
 	const hid_t	gid,
 	const hsize_t  current_dims,
 	const hsize_t  max_dims,
@@ -90,7 +109,8 @@ _write_obj (
 	const char * const dsname
 	) {
 	hsize_t dims[1] = { current_dims };
-	hsize_t maxdims[1] = { max_dims };
+	hsize_t maxdims[1] = { current_dims };
+	/*hsize_t maxdims[1] = { max_dims };*/
 
 	hid_t sid = H5Screate_simple (
 		1,
@@ -99,6 +119,17 @@ _write_obj (
 		);
 	if ( sid < 0 ) return -1;
 
+	h5_err_t h5err = (h5_err_t)H5_write_data (
+		f,
+		dsname,
+		object,
+		tid,
+		gid,
+		sid,
+		H5S_ALL,
+		H5S_ALL );
+	if ( h5err < 0 ) return h5err;
+/*
 	hid_t did = H5Dcreate (
 		gid,
 		dsname,
@@ -116,8 +147,8 @@ _write_obj (
 	
 	herr = H5Dclose ( did );
 	if ( herr < 0 ) return -1;
-
-	herr = H5Sclose ( sid );
+*/
+	herr_t herr = H5Sclose ( sid );
 	if ( herr < 0 ) return -1;
 
 	return H5_SUCCESS;
@@ -134,6 +165,8 @@ _write_vertices (
 	struct h5t_fdata *t = &f->t;
 	h5_err_t h5err;
 
+	if ( t->num_vertices <= 0 ) return H5_SUCCESS;
+
 	if ( t->coord_gid < 0 ) {
 		h5err = _open_coord_group ( f );
 		if ( h5err < 0 ) return h5err;
@@ -141,15 +174,24 @@ _write_vertices (
 
 	hsize_t maxdim = H5S_UNLIMITED;
 	h5err = _write_obj (
+		f,
 		t->coord_gid,
-		t->vertex_tid,
 		t->num_vertices[t->num_levels-1],
 		maxdim,
+		t->vertex_tid,
 		(void*)t->vertices,
 		H5T_COORD3D_DSNAME
 		);
-
-	return H5_SUCCESS;
+	if ( h5err < 0 ) return h5err;
+	return _write_obj (
+		f,
+		t->coord_gid,
+		t->num_levels,
+		maxdim,
+		H5T_NATIVE_INT32,
+		(void*)t->num_vertices,
+		H5T_COORD3D_NUM_ELEMS_DSNAME
+		);
 }
 
 static h5_err_t
@@ -158,6 +200,8 @@ _write_tets (
 	) {
 	struct h5t_fdata *t = &f->t;
 	h5_err_t h5err;
+	
+	if ( t->num_tets <= 0 ) return H5_SUCCESS;
 
 	if ( t->vmesh_gid < 0 ) {
 		h5err = _open_vmesh_group ( f );
@@ -165,17 +209,29 @@ _write_tets (
 	}
 
 	hsize_t maxdim = H5S_UNLIMITED;
-	herr_t herr = _write_obj (
+	h5err = _write_obj (
+		f,
 		t->vmesh_gid,
-		t->tet_tid,
 		t->num_tets[t->num_levels-1],
 		maxdim,
+		t->tet_tid,
 		(void*)t->tets,
 		H5T_TETMESH_DSNAME
 		);
+	if ( h5err < 0 ) return h5err;
 
-	return H5_SUCCESS;
+	return _write_obj (
+		f,
+		t->vmesh_gid,
+		t->num_levels,
+		maxdim,
+		H5T_NATIVE_INT32,
+		(void*)t->num_tets,
+		H5T_TETMESH_NUM_ELEMS_DSNAME
+		);
+
 }
+
 
 /*
   determine new levels
@@ -191,8 +247,7 @@ _write_data (
 	struct h5t_fdata *t = &f->t;
 	h5_err_t h5err;
 
-	if ( t->num_levels == 0 ) return 0;
-	if ( t->num_levels < 0 ) return -1; 
+	if ( t->num_levels <= 0 ) return 0;
 
 	if ( t->topo_gid < 0 ) {
 		h5err = _open_topo_group ( f );
@@ -203,7 +258,7 @@ _write_data (
 	h5err = _write_tets( f );
 	if ( h5err < 0 ) return h5err;
 
-	return -1;
+	return H5_SUCCESS;
 }
 
 static h5_err_t
@@ -212,15 +267,41 @@ _close_hdf5_objs (
 	) {
 
 	
-	return -1;
+	return H5_SUCCESS;
 }
 
 static h5_err_t
 _release_memory (
 	h5_file * f
 	) {
+	struct h5t_fdata *t = &f->t;
 
-	return -1;
+	if ( t->num_vertices ) {
+		free ( t->num_vertices );
+	}
+	t->num_vertices = NULL;
+
+	if ( t->num_tets ) {
+		free ( t->num_tets );
+	}
+	t->num_tets = NULL;
+
+	if ( t->map_tets_g2l ) {
+		free ( t->map_tets_g2l );
+	}
+	t->map_tets_g2l = NULL;
+
+	if ( t->vertices ) {
+		free ( t->vertices );
+	}
+	t->vertices = NULL;
+
+	if ( t->tets ) {
+		free ( t->tets );
+	}
+	t->tets = NULL;
+
+	return H5_SUCCESS;
 }
 
 
@@ -233,7 +314,34 @@ h5_err_t
 _h5t_close_step (
 	h5_file * f
 	) {
-	h5_err_t h5err = _write_data ( f );
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
+_h5t_create_mesh (
+	h5_file *f		/*!< file handle */
+	) {
+
+	struct h5t_fdata *t = &f->t;
+	h5_err_t h5err = H5_SUCCESS;
+
+	h5err = _open_mesh_group ( f );
+	if ( h5err < 0 ) return h5err;
+
+	t->num_levels = 0;
+
+	return h5err;
+}
+
+h5_err_t
+_h5t_close_mesh (
+	h5_file *f		/*!< file handle */
+	) {
+
+	h5_err_t h5err = H5_SUCCESS;
+	
+	h5err = _write_data ( f );
 	if ( h5err < 0 ) return h5err;
 
 	h5err = _close_hdf5_objs ( f );
@@ -242,5 +350,43 @@ _h5t_close_step (
 	h5err = _release_memory ( f );
 	if ( h5err < 0 ) return h5err;
 
-	return H5_SUCCESS;
+	if (( h5err = _h5t_init_fdata ( f )) < 0 ) return h5err;
+
+	return h5err;
+}
+
+
+h5_id_t
+H5t_add_mesh (
+	h5_file * f
+	) {
+	struct h5t_fdata *t = &f->t;
+	h5_err_t h5err = H5_SUCCESS;
+
+	/*
+	  - close current mesh
+	  - count number of objects in /TOPO - this is the number of stored
+	  meshes.
+	  - create new group
+	*/
+	h5err = _h5t_close_mesh ( f );
+	if ( h5err < 0 ) return h5err;
+
+	h5err = _open_topo_group ( f );
+	if ( h5err < 0 ) return h5err;
+
+	t->cur_mesh = (h5_id_t)H5_get_num_objects (
+		f->root_gid,
+		H5T_CONTAINER_GRPNAME,
+		H5G_GROUP );
+	if ( t->cur_mesh < 0 ) return t->cur_mesh;
+	if ( t->new_mesh < 0 )
+		t->new_mesh = t->cur_mesh;
+
+	snprintf ( t->mesh_name, sizeof ( t->mesh_name ), "Mesh#%d", t->cur_mesh );
+
+	h5err = _h5t_create_mesh ( f );
+	if ( h5err < 0 ) return h5err;
+
+	return t->cur_mesh;
 }
