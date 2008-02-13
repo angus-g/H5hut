@@ -358,9 +358,9 @@ if test "X$USE_PARALLEL" = "Xyes"; then
     fi
 
     MTARGET="libH5Part.a"
-    TTARGET="H5PartTestP H5PartAndreasTest Bench"
-    TTARGET="${TTARGET} H5BlockTestAttributes"
-    TTARGET="${TTARGET} H5BlockParTestScalarField"
+    TUTARGET="H5PartTestP H5PartAndreasTest Bench"
+    TBTARGET="${TBTARGET} H5BlockTestAttributes"
+    TBTARGET="${TBTARGET} H5BlockParTestScalarField"
 
     # parallel + fortran
     if test "X$USE_FORTRAN" = "Xyes"; then
@@ -384,21 +384,21 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 	fi
  
         MTARGET="${MTARGET} libH5PartF.a"
-        TTARGET="${TTARGET} H5testFpar"
-	TTARGET="${TTARGET} H5BlockParTestScalarFieldF"
+        TUTARGET="${TUTARGET} H5testFpar"
+	TBTARGET="${TBTARGET} H5BlockParTestScalarFieldF"
     fi
 
 else  # --enable-parallel=no
     AC_MSG_RESULT([no])
 
     MTARGET="libH5Part.a"
-    TTARGET="H5PartTest H5test"
-    TTARGET="${TTARGET} H5BlockTestAttributes"
+    TUTARGET="H5PartTest H5test"
+    TBTARGET="${TBTARGET} H5BlockTestAttributes"
 
     if test "X$USE_FORTRAN" = "Xyes"; then
         MTARGET="${MTARGET} libH5PartF.a"
-        TTARGET="${TTARGET} H5testF"
-	TTARGET="${TTARGET} H5BlockTestAttributesF"
+        TUTARGET="${TUTARGET} H5testF"
+	TBTARGET="${TBTARGET} H5BlockTestAttributesF"
    fi
 fi
 
@@ -558,7 +558,8 @@ AC_SUBST(MPICC)
 AC_SUBST(MPICXX)
 AC_SUBST(MPIFC)
 AC_SUBST(MTARGET)
-AC_SUBST(TTARGET)
+AC_SUBST(TUTARGET)
+AC_SUBST(TBTARGET)
 AC_SUBST(SZLIB)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
@@ -579,6 +580,9 @@ src/bindings/Makefile
 src/bindings/C++/Makefile
 src/Makefile
 test/Makefile
+test/h5u/Makefile
+test/h5b/Makefile
+test/h5t/Makefile
 tools/Makefile
 ])
 
@@ -595,7 +599,7 @@ echo "Host OS:             $host_os"
 echo "Host CPU:            $host_cpu"
 echo "Host vendor:         $host_vendor"
 echo "Build libraries:     $MTARGET"
-echo "Build test programs: $TTARGET"
+echo "Build test programs: $TUTARGET $TBTARGET"
 echo "Build tools:         $BUILD_TOOLS"
 echo "CC =                 $CC"
 echo "CXX =                $CXX"
