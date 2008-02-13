@@ -29,9 +29,7 @@ H5_write_data (
 	herr_t herr;
 	hid_t dataset_id;
 
-	H5_print_debug ( "Create a dataset[%s] mounted on the "
-			      "step_idx %lld",
-			      name, (long long)f->step_idx );
+	H5_print_debug ( "Create dataset[%s]", name );
 
 	dataset_id = H5Dcreate ( 
 		groupid,
@@ -40,7 +38,7 @@ H5_write_data (
 		shape,
 		H5P_DEFAULT );
 	if ( dataset_id < 0 )
-		return HANDLE_H5D_CREATE_ERR ( name, f->step_idx );
+		return HANDLE_H5D_CREATE_ERR ( name );
 
 	herr = H5Dwrite (
 		dataset_id,
@@ -50,7 +48,7 @@ H5_write_data (
 		f->xfer_prop,
 		array );
 
-	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->step_idx );
+	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name );
 
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
@@ -105,7 +103,7 @@ H5_iteration_operator (
 /*!
   \ingroup h5part_kernel
 
-  Iterator for \c H5Giterate().
+  Get number of object of type \c type in HDF5 group \c group_id.
 */
 h5part_int64_t
 H5_get_num_objects (
@@ -124,7 +122,9 @@ H5_get_num_objects (
 /*!
   \ingroup h5part_kernel
 
-  Iterator for \c H5Giterate().
+  Get number of objects of type \c type matching ^pattern.
+
+  If pattern is NULL, count all objects of given type.
 */
 h5part_int64_t
 H5_get_num_objects_matching_pattern (
