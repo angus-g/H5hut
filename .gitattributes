@@ -77,6 +77,7 @@ test/h5b/H5BlockParTestScalarFieldF.f90 -text
 test/h5b/H5BlockTestAttributes.c -text
 test/h5b/H5BlockTestAttributesF.f90 -text
 test/h5b/Makefile.am -text
+test/h5t/simple_tet.c -text
 test/h5u/Bench.c -text
 test/h5u/H5ParallelTest.cc -text
 test/h5u/H5PartAndreasTest.cc -text
