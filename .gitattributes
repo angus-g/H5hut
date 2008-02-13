@@ -78,6 +78,7 @@ test/h5b/H5BlockTestAttributesF.f90 -text
 test/h5u/Bench.c -text
 test/h5u/H5ParallelTest.cc -text
 test/h5u/H5PartTest.cc -text
+test/h5u/H5PartTestParallel.cc -text
 test/h5u/H5test.cc -text
 test/h5u/H5testF.f -text
 test/h5u/H5testFpar.f90 -text
