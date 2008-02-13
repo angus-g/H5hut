@@ -158,12 +158,12 @@
 		H5_ERR_HDF5, \
 		"Close of dataset failed." );
 
-#define HANDLE_H5D_CREATE_ERR( s, n ) \
+#define HANDLE_H5D_CREATE_ERR( s ) \
 	 (*_err_handler) ( \
 		H5_get_funcname(), \
 		H5_ERR_HDF5, \
-		"Cannot create dataset for name \"%s\", step \"%lld\".", \
-		s, (long long) n );
+		"Cannot create dataset name \"%s\"", \
+		s );
 
 #define HANDLE_H5D_GET_SPACE_ERR \
 	 (*_err_handler) ( \
@@ -187,15 +187,15 @@
 	 (*_err_handler) ( \
 		H5_get_funcname(), \
 		H5_ERR_HDF5, \
-		"Read from dataset \"%s\" failed, step \"%lld\".", \
-		s, (long long) n );
+		"Read from dataset \"%s\".", \
+		s );
 
-#define HANDLE_H5D_WRITE_ERR( s, n ) \
+#define HANDLE_H5D_WRITE_ERR( s ) \
 	 (*_err_handler) ( \
 		H5_get_funcname(), \
 		H5_ERR_HDF5, \
-		"Write to dataset \"%s\" failed, step \"%lld\".", \
-		s, (long long)n );
+		"Write to dataset \"%s\" failed.", \
+		s );
 
 /* H5F: file */
 #define HANDLE_H5F_CLOSE_ERR \
