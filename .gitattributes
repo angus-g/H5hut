@@ -48,6 +48,7 @@ src/bindings/Fortran/TestUnderscoreC.c -text
 src/bindings/Makefile.am -text
 src/h5/H5.h -text
 src/h5/Makefile.am -text
+src/h5/_h5.h -text
 src/h5/attribs.c -text
 src/h5/attribs.h -text
 src/h5/errorhandling.c -text
