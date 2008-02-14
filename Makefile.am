@@ -1,5 +1,3 @@
-# Trial by Antino Kim
-# Top level Makefile.am
 
 SUBDIRS = \
 	doc \
@@ -15,3 +13,4 @@ MAINTAINERCLEANFILES = \
 	config.status \
 	stamp-h.in \
 	stamp-h1
+

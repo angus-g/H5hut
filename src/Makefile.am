@@ -77,17 +77,13 @@ libH5Part.a: $(libH5Part_a_OBJECTS)
 H5Part.o: H5Part.c H5Part.h H5PartPrivate.h H5PartTypes.h
 H5Block.o: H5Block.c H5Part.h H5PartPrivate.h H5PartTypes.h H5Block.h H5BlockTypes.h
 
-clean-recursive:
-	for d in ${SUBDIRS}; do ${MAKE} -C $$d clean; done
-
 clean: clean-recursive
-	rm -f *~ *.o *.a *.so
+	$(RM) -f *~ *.o *.a *.so
 
-distclean: clean
-	rm -f *.a
-	rm -rf .deps
-	rm -rf .libs
-	rm -f Underscore.h
-	rm -f H5Part_py_wrap.c
-	rm -f H5Part.py
-	rm -f Makefile
+distclean:
+	$(RM) -f *.a
+	$(RM) -f Underscore.h
+
+#	$(RM) -rf .deps
+#	$(RM) -rf .libs
+#	$(RM) -f Makefile
