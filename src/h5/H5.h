@@ -2,7 +2,6 @@
 #define __H5_H
 
 #include "h5_types.h"
-#include "h5_private.h"
 
 #include "attribs.h"
 #include "errorhandling.h"
