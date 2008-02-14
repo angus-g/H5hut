@@ -44,13 +44,12 @@
 
 #include <hdf5.h>
 #include "H5Part.h"
-#include "H5PartErrors.h"
 #include "H5PartPrivate.h"
 
 #include "H5BlockTypes.h"
 #include "H5Block.h"
-#include "h5/H5.h"
-#include "H5BlockErrors.h"
+#include "h5/h5.h"
+#include "h5/h5_private.h"
 
 
 /********************** declarations *****************************************/

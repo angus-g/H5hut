@@ -12,9 +12,8 @@
 #include "H5Part.h"
 #include "H5Block.h"
 #include "H5PartPrivate.h"
-#include "H5PartErrors.h"
-#include "H5BlockErrors.h"
-#include "H5.h"
+#include "h5.h"
+#include "h5_private.h"
 
 extern h5part_error_handler	_err_handler;
 extern h5part_int64_t		_h5part_errno;

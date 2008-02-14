@@ -93,8 +93,8 @@ Last modified on April 19, 2007.
 #include "H5PartTypes.h"
 #include "H5Part.h"
 #include "H5PartPrivate.h"
-#include "h5/H5.h"
-#include "H5PartErrors.h"
+#include "h5/h5.h"
+#include "h5/h5_private.h"
 
 extern h5part_error_handler	_err_handler;
 extern h5part_int64_t		_h5part_errno;
