@@ -31,7 +31,6 @@ src/H5Fed_statistics.c -text
 src/H5Fed_storeretrieve.c -text
 src/H5Part.c -text
 src/H5Part.h -text
-src/H5PartErrors.h -text
 src/H5PartPrivate.h -text
 src/H5PartTypes.h -text
 src/Makefile.am -text
