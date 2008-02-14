@@ -9,12 +9,12 @@
 #include "H5PartTypes.h"
 #include "H5Part.h"
 #include "H5PartPrivate.h"
-#include "H5PartErrors.h"
-#include "H5.h"
+#include "h5.h"
+#include "h5_private.h"
 
-h5part_error_handler	_err_handler = H5_report_errorhandler;
-h5part_int64_t		_h5part_errno = H5PART_SUCCESS;
-h5part_int64_t		_debug = 0;
+h5_error_handler	_err_handler = H5_report_errorhandler;
+h5_int64_t		_h5part_errno = H5PART_SUCCESS;
+h5_int64_t		_debug = 0;
 
 static char *__funcname = "NONE";
 
@@ -211,9 +211,9 @@ H5_print_debug (
 
 void
 H5_set_funcname (
-	char  * const fname
+	const char  * const fname
 	) {
-	__funcname = fname;
+	__funcname = (char * const) fname;
 }
 
 const char *
