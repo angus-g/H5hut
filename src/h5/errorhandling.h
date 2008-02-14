@@ -1,6 +1,8 @@
 #ifndef __ERRORHANDLING_H
 #define __ERRORHANDLING_H
 
+#define H5_warn H5_print_warn
+
 h5part_int64_t
 H5_set_debuglevel (
 	h5part_int64_t level
@@ -107,7 +109,7 @@ __attribute__ ((format (printf, 1, 2)))
 
 void
 H5_set_funcname (
-	char  * const fname
+	const char  * const fname
 	);
 
 const char *
