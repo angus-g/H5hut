@@ -14,10 +14,9 @@
  
  */
 
-#include <stdarg.h>
 #include <hdf5.h>
-#include "h5/h5_types.h"
-#include "h5/H5.h"
+#include "h5/h5.h"
+#include "h5/h5_private.h"
 #include "H5Fed.h"
 
 
@@ -46,33 +45,24 @@
 
   ERRORS:
 
-  H5_ERR_INVAL:	It is not possible to add vertices due to limitation of
-  the library
+  H5_ERR_INVAL:	It is not possible to add vertices to an existing mesh due
+  to limitation of the library
 
   H5_ERR_NOMEM: Couldn't allocate enough memory.
 
   \return number of vertices
   \return errno	on error
 */
+
 h5_size_t
 H5FedSetAdditionalNumVerticesToStore (
 	h5_file * f,			/*!< file handle		*/
 	const h5_size_t num		/*!< number of additional vertices */
 	) {
 
-	struct h5t_fdata *t = &f->t;
+	SET_FNAME ( __func__ );
 
-	ssize_t num_elems = (t->cur_level > 0 ? t->num_vertices[t->cur_level-1] : 0)
-		+ num;
-
-	t->num_vertices[t->cur_level] = num_elems;
-	t->vertices = realloc ( t->vertices, num_elems*sizeof ( t->vertices[0] ) );
-
-	if ( t->vertices == NULL ) {
-		return H5_ERR_NOMEM;
-	}
-
-	return num;
+	return H5t_add_num_vertices ( f, num );
 }
 
 /*!
@@ -88,6 +78,7 @@ h5_size_t
 H5FedGetNumVertices (
 	h5_file * f			/*!< file handle		*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -107,19 +98,9 @@ H5FedStoreVertex (
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
 
-	struct h5t_fdata *t = &f->t;
+	SET_FNAME ( __func__ );
 
-	if ( t->cur_level < 0 )
-		return H5_ERR_INVAL;
-
-	if ( t->last_stored_vertex_id+1 >= t->num_vertices[t->cur_level] )
-		return H5_ERR_INVAL;
-
-	h5_vertex *vertex = &t->vertices[++t->last_stored_vertex_id];
-	vertex->id = id;
-	memcpy ( &vertex->P, P, sizeof ( vertex->P ) );
-	
-	return t->last_stored_vertex_id;
+	return H5t_store_vertex ( f, id, P );
 }
 
 /*!
@@ -137,6 +118,7 @@ H5FedGetVertex (
 	h5_id_t	* const id,		/*!< OUT: global id		*/
 	h5_float64_t * const P[3]	/*!< OUT: coordinates		*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -147,6 +129,7 @@ H5FedSetNumEdges (
 	h5_file * f,
 	const h5_size_t num
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -163,6 +146,7 @@ h5_size_t
 H5FedGetNumEdges (
 	h5_file * f			/*!< file handle		*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -183,6 +167,7 @@ H5FedStoreEdge (
 					     if level \c >0 else \x -1	*/
 	const h5_id_t vertex_ids[2]	/*!< tuple with vertex id's	*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -204,6 +189,7 @@ H5FedGetEdge (
 					     if level \c >0 else \c -1	*/
 	h5_id_t * const vertex_ids[2]	/*!< OUT: vertex id's		*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -214,6 +200,7 @@ H5FedSetNumTriangles (
 	h5_file * f,
 	const h5_size_t num
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -231,6 +218,7 @@ h5_size_t
 H5FedGetNumTriangles (
 	h5_file * f			/*!< file handle		*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -251,6 +239,7 @@ H5FedStoreTriangle (
 					     if level \c >0 else \x -1	*/
 	const h5_id_t vertex_ids[3]	/*!< tuple with vertex id's	*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -264,6 +253,13 @@ H5FedStoreTriangle (
   \return local id
   \return error code (H5_ERR_NOENT means no more vertices on this level)
 */
+
+#define HANDLE_H5_ERR_NOT_IMPLEMENTED \
+	(*H5_get_errorhandler()) (		\
+		H5_get_funcname(),		\
+		H5_ERR_NOT_IMPLEMENTED,		\
+		"Function not yet implemented!" );
+
 h5_id_t
 H5FedGetTriangle (
 	h5_file * f,			/*!< file handle		*/
@@ -272,7 +268,8 @@ H5FedGetTriangle (
 					     \c >0 else \c -1		*/
 	h5_id_t * const vertex_ids[3]	/*!< OUT: vertex id's		*/
 	) {
-	return -1;
+	SET_FNAME ( __func__ );
+	return HANDLE_H5_ERR_NOT_IMPLEMENTED;
 }
 
 /*** B O U N D A R Y   T R I A N G L E S *************************************/
@@ -290,6 +287,7 @@ h5_size_t
 H5FedGetNumBoundaryTriangles (
 	h5_file * f			/*!< file handle		*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -310,6 +308,7 @@ h5_id_t H5FedStoreBoundaryTriangle (
 					     else \c -1			*/
 	const h5_id_t btriangle[3]	/*!< tuple with vertex id's*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -329,6 +328,7 @@ h5_id_t H5FedGetBoundaryTriangle (
 					     \c >0 else \c -1		*/
 	h5_id_t * const vertex_ids[3]	/*!< OUT: vertex id's		*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -340,22 +340,9 @@ H5FedSetAdditionalNumTetrahedraToStore (
 	const h5_size_t num		/*!< number of additional
 					  tetrahedra at level \c level	*/
 	) {
+	SET_FNAME ( __func__ );
 
-	struct h5t_fdata *t = &f->t;
-
-	ssize_t num_elems = (t->cur_level > 0 ? t->num_tets[t->cur_level-1] : 0)
-		+ num;
-
-	t->num_tets[t->cur_level] = num_elems;
-	t->tets = realloc ( t->tets, num_elems*sizeof ( t->tets[0] ) );
-	if ( t->tets == NULL ) {
-		return H5_ERR_NOMEM;
-	}
-	t->map_tets_g2l = realloc (
-		t->map_tets_g2l,
-		num_elems*sizeof ( t->map_tets_g2l[0] ) );
-
-	return num;
+	return H5t_add_num_tets ( f, num );
 }
 
 /*!
@@ -371,6 +358,7 @@ h5_size_t
 H5FedGetNumTetrahedra (
 	h5_file * f			/*!< file handle		*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -391,65 +379,14 @@ H5FedGetNumTetrahedra (
 h5_id_t
 H5FedStoreTetrahedron (
 	h5_file * f,			/*!< file handle		*/
-	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
+	const h5_id_t id,		/*!< global tetrahedron id	*/
 	const h5_id_t parent_id,	/*!< global parent id
 					     if level \c >0 else \c -1	*/
 	const h5_id_t vertex_ids[4]	/*!< tuple with vertex id's	*/
 	) {
+	SET_FNAME ( __func__ );
 
-	struct h5t_fdata *t = &f->t;
-
-	/*
-	  more than allocated
-	*/
-	if ( t->last_stored_tet_id+1 >= t->num_tets[t->cur_level] ) 
-		return H5_ERR_INVAL;
-
-	/*
-	  missing call to add the first level
-	 */
-	if ( t->cur_level < 0 )
-		return H5_ERR_INVAL;
-
-	/*
-	  check parent id
-	*/
-	if ( (t->cur_level == 0) && (parent_id != -1) ) {
-		return H5_ERR_INVAL;
-	} 
-	if ( (t->cur_level >  0) && (parent_id < 0) ) {
-		return H5_ERR_INVAL;
-	}
-	if ( (t->cur_level >  0) && (parent_id >= t->num_tets[t->cur_level-1]) ) {
-		return H5_ERR_INVAL;
-	}
-	/*
-	  check tet_id
-	*/
-	if ( (t->cur_level == 0) && (
-		     (tet_id < 0) || (tet_id >= t->num_tets[0]) ) ) {
-		return H5_ERR_INVAL;
-	}
-	if ( (t->cur_level > 0) && (
-		     (tet_id <  t->num_tets[t->cur_level-1]) ||
-		     (tet_id >= t->num_tets[t->cur_level]) ) ) {
-		return H5_ERR_INVAL;
-	}
-	
-
-	h5_tetrahedron *tet = &t->tets[++t->last_stored_tet_id];
-	tet->id = tet_id;
-	tet->parent_id = parent_id;
-	tet->refined_on_level = -1;
-	tet->unused = 0;
-	memcpy ( &tet->vertex_ids, vertex_ids, sizeof ( tet->vertex_ids ) );
-
-	t->map_tets_g2l[tet_id] = t->last_stored_tet_id;
-	if ( parent_id >= 0 ) {
-		h5_id_t local_parent_id = t->map_tets_g2l[parent_id];
-		t->tets[local_parent_id].refined_on_level = t->cur_level;
-	}
-	return t->last_stored_vertex_id;
+	return H5t_store_tet ( f, id, parent_id, vertex_ids );
 }
 
 /*!
@@ -469,6 +406,7 @@ h5_id_t H5FedGetTetrahedron (
 					     \c >0 else \c -1		*/
 	h5_id_t * const vertex_ids[4]	/*!< OUT: vertex id's		*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -477,7 +415,7 @@ H5FedSetStep (
 	h5_file *f,			/*!< Handle to open file */
 	const h5_id_t step		/*!< Time-step to set. */
 	) {
-
+	SET_FNAME ( __func__ );
 	return (h5_err_t) H5_set_step ( f, step );
 }
 
@@ -486,6 +424,7 @@ h5_id_t
 H5FedAddMesh (
 	h5_file * f
 	) {
+	SET_FNAME ( __func__ );
 	return H5t_add_mesh ( f );
 }
 
@@ -511,31 +450,6 @@ h5_id_t
 H5FedAddLevel (
 	h5_file * f			/*!< file handle		*/
 	) {
-	struct h5t_fdata *t = &f->t;
-
-	if ( f->mode == H5_O_RDONLY ) {
-		return H5_ERR_INVAL;
-	}
-
-	/* t->num_levels will be set to zero on file creation(!) */
-	if ( t->num_levels == -1 ) {	/* unknown number of levels	*/
-		/* determine number of levels */
-		return -1;		/* not implemented		*/
-	}
-	t->cur_level = t->num_levels++;
-
-	ssize_t num_bytes = t->num_levels*sizeof ( h5_size_t );
-	t->num_vertices = realloc ( t->num_vertices, num_bytes );
-	t->num_vertices[t->cur_level] = -1;
-
-	t->num_tets = realloc ( t->num_tets, num_bytes );
-	t->num_tets[t->cur_level] = -1;
-
-	t->new_level = t->cur_level;
-	if ( t->cur_level == 0 ) {
-		/* nothing stored yet */
-		t->last_stored_vertex_id = -1;
-		t->last_stored_tet_id = -1;
-	}
-	return t->cur_level;
+	SET_FNAME ( __func__ );
+	return H5t_add_level ( f );
 }
