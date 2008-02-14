@@ -45,10 +45,8 @@ EXTRA_LIBRARIES = libH5Part.a
 include_HEADERS = \
 	H5Part.h \
 	H5PartTypes.h \
-	H5PartErrors.h \
 	H5Block.h \
 	H5BlockTypes.h \
-	H5BlockErrors.h \
 	H5Fed.h
 
 # Listing of all possible headers that I may include
