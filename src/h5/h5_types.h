@@ -21,6 +21,7 @@
 
 #define H5_ERR_MPI		-201
 #define H5_ERR_HDF5		-202
+#define H5_ERR_NOT_IMPLEMENTED	-254
 
 #define H5_O_RDONLY		0x01
 #define H5_O_WRONLY		0x02
