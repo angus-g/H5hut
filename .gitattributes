@@ -30,7 +30,6 @@ src/H5Fed_statistics.c -text
 src/H5Fed_storeretrieve.c -text
 src/H5Part.c -text
 src/H5Part.h -text
-src/H5PartPrivate.h -text
 src/Makefile.am -text
 src/bindings/C++/H5Fed.cc -text
 src/bindings/C++/H5Fed.hh -text
