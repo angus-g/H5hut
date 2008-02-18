@@ -42,7 +42,7 @@ lib_LIBRARIES = libH5.a
 EXTRA_LIBRARIES = libH5.a
 
 # Header files that I wish to install in $(prefix)/include
-include_HEADERS = H5.h
+include_HEADERS = h5.h
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS =
@@ -59,7 +59,7 @@ libH5.a: $(libH5_a_OBJECTS)
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
 
-$(libH5_a_OBJECTS): H5.h
+$(libH5_a_OBJECTS): h5.h
 
 errorhandling.o: errorhandling.c
 
