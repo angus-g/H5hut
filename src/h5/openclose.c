@@ -107,13 +107,10 @@ static h5part_int64_t
 _h5b_open_file (
 	h5_file *f			/*!< IN: file handle */
 	) {
-	h5part_int64_t herr;
 	struct h5b_fdata *b; 
 
-	herr = H5_check_filehandle ( f );
-	if ( herr == H5_SUCCESS ) return H5_SUCCESS;
-
 	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5_BADFD_ERR;
+	if ( f->block ) return H5_SUCCESS;
 
 	f->block = (struct h5b_fdata*) malloc( sizeof (*f->block) );
 	if ( f->block == NULL ) {
@@ -149,6 +146,8 @@ H5_open_file (
 	unsigned flags,		/*!< [in] The access mode for the file. */
 	MPI_Comm comm		/*!< [in] MPI communicator */
 	) {
+
+	H5_info ( "Opening file %s.", filename );
 
 	if ( _init() < 0 ) {
 		HANDLE_H5_INIT_ERR;
@@ -281,12 +280,6 @@ H5_open_file (
 	if ( _h5t_open_file ( f ) < 0 ) {
 		goto error_cleanup;
 	}
-
-	H5_print_debug (
-		"Proc[%d]: Opened file \"%s\" val=%lld",
-		f->myproc,
-		filename,
-		(long long)(size_t)f );
 
 	return f;
 
