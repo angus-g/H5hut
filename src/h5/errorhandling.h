@@ -1,7 +1,10 @@
 #ifndef __ERRORHANDLING_H
 #define __ERRORHANDLING_H
 
-#define H5_warn H5_print_warn
+#define H5_debug	H5_print_debug
+#define H5_info		H5_print_info
+#define H5_warn		H5_print_warn
+#define H5_error	H5_print_error
 
 h5part_int64_t
 H5_set_debuglevel (
@@ -115,6 +118,11 @@ H5_set_funcname (
 const char *
 H5_get_funcname (
 	void
+	);
+
+const char *
+H5_get_objname (
+	hid_t id
 	);
 
 #endif
