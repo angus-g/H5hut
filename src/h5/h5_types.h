@@ -248,5 +248,5 @@ struct h5_file {
 };
 
 typedef struct h5_file h5_file;
-
+typedef struct h5_file H5PartFile;
 #endif

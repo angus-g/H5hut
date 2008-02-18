@@ -3,7 +3,6 @@
 #include <hdf5.h>
 #include "H5Part.h"
 #include "H5Block.h"
-#include "H5BlockTypes.h"
 #ifndef PARALLEL_IO
 #ifndef MPI_COMM_WORLD
 #define MPI_COMM_WORLD 0

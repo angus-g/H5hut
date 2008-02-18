@@ -6,13 +6,10 @@
 #include <fcntl.h>
 #include <hdf5.h>
 
-#include "H5PartTypes.h"
-#include "H5BlockTypes.h"
-#include "H5Part.h"
-#include "H5Block.h"
-#include "H5PartPrivate.h"
 #include "h5.h"
 #include "h5_private.h"
+#include "H5Part.h"
+#include "H5Block.h"
 
 h5part_int64_t
 H5_write_data (

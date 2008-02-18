@@ -12,7 +12,7 @@ CC = @CC@
 HDFINC = -I$(HDF5ROOT)/include
 MPIINC = @MPIINC@
 
-INC = $(HDFINC) ${MPIINC} -I../
+INC = $(HDFINC) ${MPIINC} -I. -I../
 
 # H5Part header file location
 H5PINC = -I@prefix@/include
@@ -42,7 +42,16 @@ lib_LIBRARIES = libH5.a
 EXTRA_LIBRARIES = libH5.a
 
 # Header files that I wish to install in $(prefix)/include
-include_HEADERS = h5.h
+include_HEADERS = \
+	h5.h \
+	h5_types.h \
+	attribs.h \
+	errorhandling.h \
+	openclose.h \
+	readwrite.h \
+	t_openclose.h \
+	t_readwrite.h \
+	u_readwrite.h 
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS =

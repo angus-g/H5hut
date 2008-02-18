@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <hdf5.h>
+#include "h5.h"
 #ifdef PARALLEL_IO
 #include <mpi.h>
 #endif
@@ -11,8 +12,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "H5PartTypes.h"
 
 #define H5PART_SUCCESS		H5_SUCCESS
 #define H5PART_ERR_NOMEM	H5_ERR_NOMEM
