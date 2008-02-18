@@ -41,6 +41,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include <hdf5.h>
 
