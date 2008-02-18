@@ -104,7 +104,7 @@ main (
 	char *argv[]
 	) {
 
-	H5PartSetVerbosityLevel ( 5 );
+	H5PartSetVerbosityLevel ( 4 );
 
 	h5_file *f = H5FedOpenFile ( "simple_tet.h5", 0 );
 	if ( f == NULL ) {
