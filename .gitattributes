@@ -22,7 +22,6 @@ doc/doxyfooter -text
 /rules.make -text
 src/H5Block.c -text
 src/H5Block.h -text
-src/H5BlockTypes.h -text
 src/H5Fed.c -text
 src/H5Fed.h -text
 src/H5Fed_adjacency.c -text
