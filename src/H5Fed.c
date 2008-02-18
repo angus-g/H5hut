@@ -37,6 +37,7 @@
 
 #include <hdf5.h>
 #include "h5/h5.h"
+#include "h5/h5_private.h"
 #include "H5Fed.h"
 
 
@@ -61,6 +62,7 @@ h5_file * H5FedOpenFile (
 	const char * filename,		/*!< file name			*/
 	const MPI_Comm comm		/*!< MPI communicator		*/
 	) {
+	SET_FNAME ( __func__ );
 	return H5_open_file( filename, H5_O_RDWR, comm ); 
 }
 
@@ -75,6 +77,7 @@ h5_file * H5FedOpenFile (
 h5_int_t H5FedCloseFile (
 	h5_file * fh			/*!< file handle		*/
 	) {
+	SET_FNAME ( __func__ );
 	return H5_close_file ( fh );
 }
 
@@ -91,6 +94,7 @@ h5_int_t H5FedCloseFile (
 h5_int_t H5GetNumNodes (
 	h5_file * fh			/*!< file handle		*/
 	) {
+	SET_FNAME ( __func__ );
 	return (h5_int_t)fh->nprocs;
 }
 
@@ -105,6 +109,7 @@ h5_int_t H5GetNumNodes (
 h5_int_t H5FedGetNumMeshLevels (
 	h5_file * fh			/*!< file handle		*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -121,6 +126,7 @@ h5_int_t H5FedHasTetrahedralMesh (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to check	*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
@@ -137,6 +143,7 @@ h5_int_t H5FedHasBoundaryMesh(
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to check	*/
 	) {
+	SET_FNAME ( __func__ );
 	return -1;
 }
 
