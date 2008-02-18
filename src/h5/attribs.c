@@ -72,7 +72,7 @@ H5_write_attrib (
 
 	space_id = H5Screate_simple (1, &attrib_nelem, NULL);
 	if ( space_id < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( attrib_nelem );
+		return HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 
 	attrib_id = H5Acreate ( 
 		id,
