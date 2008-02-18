@@ -10,10 +10,9 @@
 #include "H5PartTypes.h"
 #include "H5BlockTypes.h"
 #include "H5Part.h"
-#include "H5Block.h"
 #include "H5PartPrivate.h"
 #include "h5/h5.h"
-#include "h5/h5_types.h"
+#include "h5/h5_private.h"
 
 extern h5part_error_handler	_err_handler;
 extern h5part_int64_t		_h5part_errno;
@@ -25,15 +24,34 @@ _create_array_types (
 	h5_file * f
 	) {
 	struct h5t_fdata *t = &f->t;
-	hsize_t dims[1] = { 3 };
 
-	t->float64_3tuple_tid = H5Tarray_create ( H5T_NATIVE_DOUBLE, 1, dims,NULL);
+	hsize_t dims[1] = { 3 };
+	hid_t hid = H5Tarray_create ( H5T_NATIVE_DOUBLE, 1, dims, NULL);
+	if ( hid < 0 ) {
+		return HANDLE_H5T_ARRAY_CREATE_ERR ( "H5T_NATIVE_DOUBLE", 1 );
+	}
+	t->float64_3tuple_tid = hid;
+
 	dims[0] = 2;
-	t->int32_2tuple_tid = H5Tarray_create ( H5T_NATIVE_INT32, 1, dims, NULL );
+	hid = H5Tarray_create ( H5T_NATIVE_INT32, 1, dims, NULL );
+	if ( hid < 0 ) {
+		return HANDLE_H5T_ARRAY_CREATE_ERR ( "H5T_NATIVE_INT32", 1 );
+	}
+	t->int32_2tuple_tid = hid;
+
 	dims[0] = 3;
-	t->int32_3tuple_tid = H5Tarray_create ( H5T_NATIVE_INT32, 1, dims, NULL );
+	hid = H5Tarray_create ( H5T_NATIVE_INT32, 1, dims, NULL );
+	if ( hid < 0 ) {
+		return HANDLE_H5T_ARRAY_CREATE_ERR ( "H5T_NATIVE_INT32", 1 );
+	}
+	t->int32_3tuple_tid = hid;
+
 	dims[0] = 4;
-	t->int32_4tuple_tid = H5Tarray_create ( H5T_NATIVE_INT32, 1, dims, NULL );
+	hid = H5Tarray_create ( H5T_NATIVE_INT32, 1, dims, NULL );
+	if ( hid < 0 ) {
+		return HANDLE_H5T_ARRAY_CREATE_ERR ( "H5T_NATIVE_INT32", 1 );
+	}
+	t->int32_4tuple_tid = hid;
 
 	return H5_SUCCESS;
 }
@@ -44,22 +62,39 @@ _create_vertex_type (
 	) {
 	struct h5t_fdata *t = &f->t;
 
-	t->vertex_tid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_vertex) );
-	H5Tinsert (
+	hid_t hid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_vertex) );
+	if ( hid < 0 ) {
+		return HANDLE_H5T_CREATE_ERR ( "H5T_COMPOUND", "verticies" );
+	}
+	t->vertex_tid = hid;
+
+	herr_t herr = H5Tinsert (
 		t->vertex_tid,
 		"id",
 		HOFFSET(struct h5_vertex, id),
 		H5T_NATIVE_INT32 );
-	H5Tinsert (
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "id", "verticies" );
+	}
+
+	herr = H5Tinsert (
 		t->vertex_tid,
 		"unused",
 		HOFFSET(struct h5_vertex, unused),
 		H5T_NATIVE_INT32 );
-	H5Tinsert (
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "unused", "verticies" );
+	}
+
+	herr = H5Tinsert (
 		t->vertex_tid,
 		"P",
 		HOFFSET(struct h5_vertex, P),
 		t->float64_3tuple_tid );
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "P", "verticies" );
+	}
+
 	return H5_SUCCESS;
 }
 
@@ -69,32 +104,56 @@ _create_tet_type (
 	) {
 	struct h5t_fdata *t = &f->t;
 
-	t->tet_tid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_tetrahedron) );
-	H5Tinsert (
+	hid_t hid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_tetrahedron) );
+	if ( hid < 0 ) {
+		return HANDLE_H5T_CREATE_ERR ( "H5T_COMPOUND", "tetrahedra" );
+	}
+	t->tet_tid = hid;
+
+	herr_t herr = H5Tinsert (
 		t->tet_tid,
 		"id",
 		HOFFSET(struct h5_tetrahedron, id),
 		H5T_NATIVE_INT32 );
-	H5Tinsert (
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "id", "tetrahedra" );
+	}
+
+	herr = H5Tinsert (
 		t->tet_tid,
 		"parent_id",
 		HOFFSET(struct h5_tetrahedron, parent_id),
 		H5T_NATIVE_INT32 );
-	H5Tinsert (
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "parent_id", "tetrahedra" );
+	}
+
+	herr = H5Tinsert (
 		t->tet_tid,
 		"refined_on_level",
 		HOFFSET(struct h5_tetrahedron, refined_on_level),
 		H5T_NATIVE_INT32 );
-	H5Tinsert (
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "refined_on_level", "tetrahedra" );
+	}
+
+	herr = H5Tinsert (
 		t->tet_tid,
 		"unused",
 		HOFFSET(struct h5_tetrahedron, unused),
 		H5T_NATIVE_INT32 );
-	H5Tinsert (
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "unused", "tetrahedra" );
+	}
+
+	herr = H5Tinsert (
 		t->tet_tid,
 		"vertex_ids",
 		HOFFSET(struct h5_tetrahedron, vertex_ids),
 		t->int32_4tuple_tid );
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "vertex_ids", "tetrahedra" );
+	}
 
 	return H5_SUCCESS;
 }
