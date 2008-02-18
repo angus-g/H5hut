@@ -222,3 +222,20 @@ H5_get_funcname (
 	) {
 	return __funcname;
 }
+
+const char *
+H5_get_objname (
+	hid_t id
+	) {
+	static char objname[256];
+
+	memset ( objname, 0, sizeof(objname) );
+	ssize_t size = H5Iget_name ( id, objname, sizeof(objname) );
+	if ( size < 0 ) {
+		strcpy ( objname, "[error getting object name]" );
+	} else if ( size == 0 ) {
+		strcpy ( objname, "[no name associated with identifier]" );
+	}
+
+	return objname;
+}
