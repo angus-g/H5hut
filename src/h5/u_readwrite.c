@@ -72,7 +72,7 @@ _get_memshape_for_reading (
 		hsize_t dmax=H5S_UNLIMITED;
 		hsize_t len = f->viewend - f->viewstart;
 		hid_t r = H5Screate_simple(1,&len,&dmax);
-		if ( r < 0 ) return (hid_t)HANDLE_H5S_CREATE_SIMPLE_ERR ( len );
+		if ( r < 0 ) return (hid_t)HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 		return r;
 	}
 	else {
@@ -237,7 +237,7 @@ H5U_set_num_elements (
 	f->shape = H5Screate_simple (1,
 				     &(f->nparticles),
 				     NULL);
-	if ( f->shape < 0 ) HANDLE_H5S_CREATE_SIMPLE_ERR ( f->nparticles );
+	if ( f->shape < 0 ) HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 
 #else /* PARALLEL_IO */
 	/*
@@ -293,17 +293,17 @@ H5U_set_num_elements (
 
 	/* declare overall datasize */
 	f->shape = H5Screate_simple (1, &total, &total);
-	if (f->shape < 0) return HANDLE_H5S_CREATE_SIMPLE_ERR ( total );
+	if (f->shape < 0) return HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 
 
 	/* declare overall data size  but then will select a subset */
 	f->diskshape = H5Screate_simple (1, &total, &total);
-	if (f->diskshape < 0) return HANDLE_H5S_CREATE_SIMPLE_ERR ( total );
+	if (f->diskshape < 0) return HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 
 	/* declare local memory datasize */
 	f->memshape = H5Screate_simple (1, &(f->nparticles), &dmax);
 	if (f->memshape < 0)
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( f->nparticles );
+		return HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 
 	count[0] = nparticles;
 	r = H5Sselect_hyperslab (
@@ -427,17 +427,17 @@ H5U_set_view (
 	/* declare overall datasize */
 	f->shape = H5Screate_simple ( 1, &total, &total );
 	if ( f->shape < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( total );
+		return HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 
 	/* declare overall data size  but then will select a subset */
 	f->diskshape= H5Screate_simple ( 1, &total, &total );
 	if ( f->diskshape < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( total );
+		return HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 
 	/* declare local memory datasize */
 	f->memshape = H5Screate_simple(1,&(f->nparticles),&dmax);
 	if ( f->memshape < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( f->nparticles );
+		return HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 
 	herr = H5Sselect_hyperslab ( 
 		f->diskshape,
