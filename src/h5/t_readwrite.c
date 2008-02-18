@@ -34,12 +34,21 @@ _open_group (
 	hid_t gid;
 	herr_t herr = H5Gget_objinfo(
 		parent_gid, grpname, 1, NULL );
+
 	if ( herr >= 0 ) {
+		H5_info (
+			"Opening group %s/%s.",
+			H5_get_objname(parent_gid),
+			grpname );
 		gid = H5Gopen ( parent_gid, grpname );
 	} else {
+		H5_info (
+			"Creating group %s/%s.",
+			H5_get_objname(parent_gid),
+			grpname );
 		gid = H5Gcreate ( parent_gid, grpname, 0 );
 	}
-	if ( gid < 0 ) 
+	if ( gid < 0 )
 		return HANDLE_H5G_OPEN_ERR ( H5T_CONTAINER_GRPNAME );
 
 	return gid;
@@ -116,7 +125,7 @@ _write_obj (
 		dims,
 		maxdims
 		);
-	if ( sid < 0 ) return -1;
+	if ( sid < 0 ) return HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 
 	h5_err_t h5err = (h5_err_t)H5_write_data (
 		f,
@@ -128,27 +137,9 @@ _write_obj (
 		H5S_ALL,
 		H5S_ALL );
 	if ( h5err < 0 ) return h5err;
-/*
-	hid_t did = H5Dcreate (
-		gid,
-		dsname,
-		tid,
-		sid,
-		H5P_DEFAULT);
-	if ( did < 0 ) return -1;
 
-	herr_t herr = H5Dwrite (
-		did,
-		tid,
-		H5S_ALL, H5S_ALL, H5P_DEFAULT,
-		object );
-	if ( herr < 0 ) return -1;
-	
-	herr = H5Dclose ( did );
-	if ( herr < 0 ) return -1;
-*/
 	herr_t herr = H5Sclose ( sid );
-	if ( herr < 0 ) return -1;
+	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
 
 	return H5_SUCCESS;
 }
