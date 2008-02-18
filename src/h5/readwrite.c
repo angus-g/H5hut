@@ -28,7 +28,7 @@ H5_write_data (
 	herr_t herr;
 	hid_t dataset_id;
 
-	H5_print_debug ( "Create dataset[%s]", name );
+	H5_info ( "Writing dataset %s/%s.", H5_get_objname(groupid), name );
 
 	dataset_id = H5Dcreate ( 
 		groupid,
