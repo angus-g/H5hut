@@ -154,7 +154,7 @@ _write_vertices (
 
 	if ( t->num_vertices <= 0 ) return H5_SUCCESS;
 
-	if ( t->coord_gid < 0 ) {
+ 	if ( t->coord_gid < 0 ) {
 		h5err = _open_coord_group ( f );
 		if ( h5err < 0 ) return h5err;
 	}
@@ -207,7 +207,7 @@ _write_tets (
 		);
 	if ( h5err < 0 ) return h5err;
 
-	return _write_obj (
+	h5err = _write_obj (
 		f,
 		t->vmesh_gid,
 		t->num_levels,
@@ -216,7 +216,17 @@ _write_tets (
 		(void*)t->num_tets,
 		H5T_TETMESH_NUM_ELEMS_DSNAME
 		);
+	if ( h5err < 0 ) return h5err;
 
+	return _write_obj (
+		f,
+		t->vmesh_gid,
+		t->num_levels,
+		maxdim,
+		H5T_NATIVE_INT32,
+		(void*)t->num_tets_on_level,
+		H5T_TETMESH_NUM_ELEMS_ON_LEVEL_DSNAME
+		);
 }
 
 
@@ -272,6 +282,11 @@ _release_memory (
 		free ( t->num_tets );
 	}
 	t->num_tets = NULL;
+
+	if ( t->num_tets_on_level ) {
+		free ( t->num_tets_on_level );
+	}
+	t->num_tets_on_level = NULL;
 
 	if ( t->map_tets_g2l ) {
 		free ( t->map_tets_g2l );
@@ -401,6 +416,8 @@ H5t_add_level (
 
 	t->num_tets = realloc ( t->num_tets, num_bytes );
 	t->num_tets[t->cur_level] = -1;
+	t->num_tets_on_level = realloc ( t->num_tets_on_level, num_bytes );
+	t->num_tets_on_level[t->cur_level] = -1;
 
 	t->new_level = t->cur_level;
 	if ( t->cur_level == 0 ) {
@@ -418,17 +435,59 @@ H5t_add_num_vertices (
 	) {
 	struct h5t_fdata *t = &f->t;
 
-	ssize_t num_elems = (t->cur_level > 0 ? t->num_vertices[t->cur_level-1] : 0)
-		+ num;
+	ssize_t num_elems = (t->cur_level > 0 ?
+			     t->num_vertices[t->cur_level-1] + num : num);
 
 	t->num_vertices[t->cur_level] = num_elems;
-	t->vertices = realloc ( t->vertices, num_elems*sizeof ( t->vertices[0] ) );
+	t->vertices = realloc (
+		t->vertices, num_elems*sizeof ( t->vertices[0] ) );
 
 	if ( t->vertices == NULL ) {
 		return H5_ERR_NOMEM;
 	}
 
 	return num;
+}
+
+static h5_err_t
+_read_vertices (
+	h5_file * f
+	) {
+	h5_err_t h5err;
+	struct h5t_fdata *t = &f->t;
+
+	if ( t->topo_gid < 0 ) {
+		h5err = _open_topo_group ( f );
+		if ( h5err < 0 ) return h5err;
+	}
+ 	if ( t->coord_gid < 0 ) {
+		h5err = _open_coord_group ( f );
+		if ( h5err < 0 ) return h5err;
+	}
+
+	/*
+	  get number of levels
+	*/
+	return H5_SUCCESS;
+}
+
+h5_size_t
+H5t_get_num_vertices (
+	h5_file * f
+	) {
+	struct h5t_fdata *t = &f->t;
+
+	if ( t->cur_mesh < 0 ) {
+		return -1;
+	}
+	if ( t->cur_level < 0 ) {
+		return -1;
+	}
+	if ( t->vertices == NULL ) {
+		h5_err_t h5err = _read_vertices ( f );
+		if ( h5err < 0 ) return h5err;
+	}
+	return t->num_vertices[t->cur_level];
 }
 
 h5_id_t
@@ -452,6 +511,24 @@ H5t_store_vertex (
 	return t->last_stored_vertex_id;
 }
 
+
+h5_size_t
+H5t_get_vertex_ids (
+	h5_file * f,
+	h5_id_t * const ids[]
+	) {
+	return -1;
+}
+
+h5_id_t
+H5t_get_vertex (
+	h5_file * f,			/*!< file handle		*/
+	h5_id_t * const id,		/*!< global vertex id or -1	*/
+	h5_float64_t * const P[3]	/*!< coordinates		*/
+	) {
+	return -1;
+}
+
 h5_size_t
 H5t_add_num_tets (
 	h5_file * f,
@@ -459,19 +536,30 @@ H5t_add_num_tets (
 	) {
 	struct h5t_fdata *t = &f->t;
 
-	ssize_t num_elems = (t->cur_level > 0 ? t->num_tets[t->cur_level-1] : 0)
-		+ num;
+	ssize_t num_tets = t->cur_level > 0 ?
+			    num + t->num_tets[t->cur_level-1] : num;
+	t->num_tets[t->cur_level] = num_tets;
 
-	t->num_tets[t->cur_level] = num_elems;
-	t->tets = realloc ( t->tets, num_elems*sizeof ( t->tets[0] ) );
+	t->num_tets_on_level[t->cur_level] = t->cur_level > 0 ?
+			    num + t->num_tets_on_level[t->cur_level-1] : num;
+
+	t->tets = realloc ( t->tets, num_tets*sizeof ( t->tets[0] ) );
 	if ( t->tets == NULL ) {
 		return H5_ERR_NOMEM;
 	}
+
 	t->map_tets_g2l = realloc (
 		t->map_tets_g2l,
-		num_elems*sizeof ( t->map_tets_g2l[0] ) );
+		num_tets*sizeof ( t->map_tets_g2l[0] ) );
 
 	return num;
+}
+
+h5_size_t
+H5t_get_num_tets (
+	h5_file * f
+	) {
+	return -1;
 }
 
 h5_id_t
@@ -533,7 +621,21 @@ H5t_store_tet (
 	t->map_tets_g2l[tet_id] = t->last_stored_tet_id;
 	if ( parent_id >= 0 ) {
 		h5_id_t local_parent_id = t->map_tets_g2l[parent_id];
-		t->tets[local_parent_id].refined_on_level = t->cur_level;
+		if ( t->tets[local_parent_id].refined_on_level < 0 ) {
+			t->tets[local_parent_id].refined_on_level = t->cur_level;
+			t->num_tets_on_level[t->cur_level]--;
+		}
 	}
 	return t->last_stored_vertex_id;
+}
+
+h5_id_t
+H5t_get_tet (
+	h5_file * f,
+	h5_id_t * const tet_id,		/*!< global tetrahedron id	*/
+	h5_id_t * const parent_id,	/*!< global parent id
+					     if level \c >0 else \c -1	*/
+	h5_id_t * const vertex_ids[4]	/*!< tuple with vertex id's	*/
+	) {
+	return -1;
 }
