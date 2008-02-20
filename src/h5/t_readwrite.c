@@ -575,7 +575,9 @@ H5t_add_num_tets (
 	t->num_tets_on_level[t->cur_level] = t->cur_level > 0 ?
 			    num + t->num_tets_on_level[t->cur_level-1] : num;
 
-	t->tets = realloc ( t->tets, num_tets*sizeof ( t->tets[0] ) );
+	ssize_t num_bytes = num_tets*sizeof ( t->tets[0] );
+	H5_debug ( "Allocating %d bytes.", num_bytes ); 
+	t->tets = realloc ( t->tets, num_bytes );
 	if ( t->tets == NULL ) {
 		return H5_ERR_NOMEM;
 	}
