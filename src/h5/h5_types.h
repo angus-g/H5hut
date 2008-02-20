@@ -156,6 +156,7 @@ struct h5t_fdata {
 
 	h5_size_t	*num_vertices;
 	h5_size_t	*num_tets;
+	h5_size_t	*num_tets_on_level;
 	h5_size_t	*map_tets_g2l;
 
 	h5_id_t		last_stored_vertex_id; 
