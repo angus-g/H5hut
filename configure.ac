@@ -12,6 +12,9 @@ AC_PREREQ(2.59)
 # The AC_CONFIG_HEADERS macro selects this kind of output.
 AC_CONFIG_HEADER(config.h)
 
+CFLAGS=-fPIC
+
+
 ###############################################################################
 ################# --enable-xxx and --with-xxx Argument ########################
 ###############################################################################
