@@ -21,7 +21,6 @@ _h5t_close_mesh (
 	h5_file * f
 	);
 
-
 h5_size_t
 H5t_get_num_meshes (
 	h5_file * f
