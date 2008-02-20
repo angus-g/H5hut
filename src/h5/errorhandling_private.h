@@ -39,7 +39,7 @@
 			H5PART_ERR_INVAL, \
 			"Group \"%s\" already exists", name )
 
-/**************** H5Part *********************/
+/**************** H5 *********************/
 
 #define HANDLE_H5_BADFD_ERR \
 	(*H5_get_errorhandler())( \
@@ -97,6 +97,38 @@
 			H5_ERR_NOENTRY, \
 			"No entry with index %lld and type %d in group %s!", \
 			(long long)idx, type, group_name );
+
+#define HANDLE_H5_UNDEF_MESH_ERR \
+		(*H5_get_errorhandler()) ( \
+			H5_get_funcname(), \
+			H5_ERR_INVAL, \
+			"Mesh not yet defined." );
+
+#define HANDLE_H5_UNDEF_LEVEL_ERR \
+		(*H5_get_errorhandler()) ( \
+			H5_get_funcname(), \
+			H5_ERR_INVAL, \
+			"Level not yet defined." );
+
+#define HANDLE_H5_OVERFLOW_ERR( otype, max )	\
+		(*H5_get_errorhandler()) ( \
+			H5_get_funcname(), \
+			H5_ERR_INVAL, \
+			"Cannot store more than %d %s", max, otype );
+
+#define HANDLE_H5_PARENT_ID_ERR( otype, oid, pid  )	\
+		(*H5_get_errorhandler()) ( \
+			H5_get_funcname(), \
+			H5_ERR_INVAL, \
+			"Impossible parent_id %d for %s with global id %d", \
+			pid, otype, oid );
+
+#define HANDLE_H5_OUT_OF_RANGE_ERR( otype, oid ) \
+		(*H5_get_errorhandler()) ( \
+			H5_get_funcname(), \
+			H5_ERR_INVAL, \
+			"%s id %d out of range", \
+			otype, oid );
 
 /**************** HDF5 *********************/
 /* H5A: Attribute */
