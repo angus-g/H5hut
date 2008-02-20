@@ -15,7 +15,6 @@
  */
 
 #include <hdf5.h>
-#include <stdarg.h>
 #include "h5/h5.h"
 #include "h5/h5_private.h"
 #include "H5Fed.h"
@@ -62,7 +61,6 @@ H5FedSetAdditionalNumVerticesToStore (
 	) {
 
 	SET_FNAME ( __func__ );
-
 	return H5t_add_num_vertices ( f, num );
 }
 
@@ -80,7 +78,7 @@ H5FedGetNumVertices (
 	h5_file * f			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
-	return -1;
+	return H5t_get_num_vertices ( f );
 }
 
 /*!
@@ -100,14 +98,13 @@ H5FedStoreVertex (
 	) {
 
 	SET_FNAME ( __func__ );
-
 	return H5t_store_vertex ( f, id, P );
 }
 
 /*!
   \ingroup h5fed_c_api
 
-  Get coordinates of the vertex \c vertex_id.
+  Get coordinates of next vertex.
 
   \return local id
   \return error code (H5_ERR_NOENT means no more vertices on this level)
@@ -120,7 +117,7 @@ H5FedGetVertex (
 	h5_float64_t * const P[3]	/*!< OUT: coordinates		*/
 	) {
 	SET_FNAME ( __func__ );
-	return -1;
+	return H5t_get_vertex ( f, id, P );
 }
 
 /*** E D G E S ***************************************************************/
@@ -302,7 +299,8 @@ H5FedGetNumBoundaryTriangles (
   \return local boundary triangle id
   \return \c -1 on error
 */
-h5_id_t H5FedStoreBoundaryTriangle (
+h5_id_t
+H5FedStoreBoundaryTriangle (
 	h5_file * fh,			/*!< file handle		*/
 	const h5_id_t btriangle_id,	/*!< global boundary triangle id*/
 	const h5_id_t parent_id,	/*!< parent id if level \c >0
@@ -322,7 +320,8 @@ h5_id_t H5FedStoreBoundaryTriangle (
   \return pointer to 3-tuple of vertex id's defining the boundary triangle.
   \return NULL-pointer on error.
 */
-h5_id_t H5FedGetBoundaryTriangle (
+h5_id_t
+H5FedGetBoundaryTriangle (
 	h5_file * f,			/*!< file handle		*/
 	h5_id_t * const id,		/*!< global btriangle_id	*/
 	h5_id_t * const parent_id,	/*!< OUT: parent id if level
@@ -360,7 +359,7 @@ H5FedGetNumTetrahedra (
 	h5_file * f			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
-	return -1;
+	return H5t_get_num_tets ( f );
 }
 
 /*!
@@ -386,7 +385,6 @@ H5FedStoreTetrahedron (
 	const h5_id_t vertex_ids[4]	/*!< tuple with vertex id's	*/
 	) {
 	SET_FNAME ( __func__ );
-
 	return H5t_store_tet ( f, id, parent_id, vertex_ids );
 }
 
@@ -400,7 +398,8 @@ H5FedStoreTetrahedron (
   \return pointer to 4-tuple of vertex id's defining the tetrahedron.
   \return NULL-pointer on error.
 */
-h5_id_t H5FedGetTetrahedron (
+h5_id_t
+H5FedGetTetrahedron (
 	h5_file * f,			/*!< file handle		*/
 	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
 	h5_id_t * parent_id,		/*!< OUT: parent id if level
@@ -408,7 +407,7 @@ h5_id_t H5FedGetTetrahedron (
 	h5_id_t * const vertex_ids[4]	/*!< OUT: vertex id's		*/
 	) {
 	SET_FNAME ( __func__ );
-	return -1;
+	return H5t_get_tet ( f, id, parent_id, vertex_ids );
 }
 
 h5_err_t
