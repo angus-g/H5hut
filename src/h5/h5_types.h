@@ -149,9 +149,10 @@ struct h5t_fdata {
 	char		mesh_name[16];
 	h5_id_t		cur_mesh;
 	h5_id_t		new_mesh;	/* idx of the first new mesh or -1 */
+	h5_id_t		num_meshes;
 
-	h5_id_t		new_level;	/* idx of the first new level or -1 */
 	h5_id_t		cur_level;
+	h5_id_t		new_level;	/* idx of the first new level or -1 */
 	h5_size_t	num_levels;
 
 	h5_size_t	*num_vertices;
