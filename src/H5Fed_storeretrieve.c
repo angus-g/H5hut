@@ -36,6 +36,90 @@
   
 */
 
+h5_err_t
+H5FedSetStep (
+	h5_file *f,			/*!< Handle to open file */
+	const h5_id_t step		/*!< Time-step to set. */
+	) {
+	SET_FNAME ( __func__ );
+	return (h5_err_t) H5_set_step ( f, step );
+}
+
+h5_size_t
+H5FedGetNumMeshes (
+	h5_file * f			/*!< file handle		*/
+	) {
+	SET_FNAME ( __func__ );
+	return H5t_get_num_meshes ( f );
+}
+
+h5_err_t
+H5FedSetMesh (
+	h5_file * f,
+	const h5_id_t id
+	) {
+	SET_FNAME ( __func__ );
+	return H5t_set_mesh ( f, id );
+}
+
+h5_id_t
+H5FedAddMesh (
+	h5_file * f
+	) {
+	SET_FNAME ( __func__ );
+	return H5t_add_mesh ( f );
+}
+
+/*!
+  \ingroup h5fed_c_api
+
+  Get the number of hierarchical mesh levels available in current step.
+
+  \return Number of hierarchical mesh levels
+  \return \c -1 on error
+ */
+h5_size_t
+H5FedGetNumLevels (
+	h5_file * f			/*!< file handle		*/
+	) {
+	SET_FNAME ( __func__ );
+	return H5t_get_num_levels ( f );
+}
+
+h5_err_t
+H5FedSetLevel (
+	h5_file * f,
+	const h5_id_t id
+	) {
+	SET_FNAME ( __func__ );
+	return H5t_set_level ( f, id );
+}
+
+/*!
+  Add a new level.
+
+  \note
+  values for f->t.num_levels:
+  \c -1		unknown: after opening the file. This is equivalent to
+		"topological data has not been initialized".
+  \c 0		no levels: HDF5 group for meshes may already exist but must not!
+  \c > 0	number of mesh levels
+ 
+  \note
+  write new level:
+	H5FedAddLevel( f );
+	H5FedSetNumVertices( f, nv );
+	H5FedSetNumTetrahedra( f, nt );
+*/
+  
+h5_id_t
+H5FedAddLevel (
+	h5_file * f			/*!< file handle		*/
+	) {
+	SET_FNAME ( __func__ );
+	return H5t_add_level ( f );
+}
+
 /*** V E R T I C E S *********************************************************/
 
 /*!
@@ -410,46 +494,3 @@ H5FedGetTetrahedron (
 	return H5t_get_tet ( f, id, parent_id, vertex_ids );
 }
 
-h5_err_t
-H5FedSetStep (
-	h5_file *f,			/*!< Handle to open file */
-	const h5_id_t step		/*!< Time-step to set. */
-	) {
-	SET_FNAME ( __func__ );
-	return (h5_err_t) H5_set_step ( f, step );
-}
-
-
-h5_id_t
-H5FedAddMesh (
-	h5_file * f
-	) {
-	SET_FNAME ( __func__ );
-	return H5t_add_mesh ( f );
-}
-
-/*****************************************************************************/
-/*!
-  Add a new level.
-
-  \note
-  values for f->t.num_levels:
-  \c -1		unknown: after opening the file. This is equivalent to
-		"topological data has not been initialized".
-  \c 0		no levels: HDF5 group for meshes may already exist but must not!
-  \c > 0	number of mesh levels
- 
-  \note
-  write new level:
-	H5FedAddLevel( f );
-	H5FedSetNumVertices( f, nv );
-	H5FedSetNumTetrahedra( f, nt );
-*/
-  
-h5_id_t
-H5FedAddLevel (
-	h5_file * f			/*!< file handle		*/
-	) {
-	SET_FNAME ( __func__ );
-	return H5t_add_level ( f );
-}
