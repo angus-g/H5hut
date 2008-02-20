@@ -357,6 +357,20 @@ _h5t_close_mesh (
 	return h5err;
 }
 
+h5_size_t
+H5t_get_num_meshes (
+	h5_file * f
+	) {
+	return -1;
+}
+
+h5_err_t
+H5t_set_mesh (
+	h5_file * f,
+	const h5_id_t id
+	) {
+	return -1;
+}
 
 h5_id_t
 H5t_add_mesh (
@@ -391,6 +405,21 @@ H5t_add_mesh (
 	if ( h5err < 0 ) return h5err;
 
 	return t->cur_mesh;
+}
+
+h5_size_t
+H5t_get_num_levels (
+	h5_file * f
+	) {
+	return -1;
+}
+
+h5_err_t
+H5t_set_level (
+	h5_file * f,
+	const h5_id_t id
+	) {
+	return -1;
 }
 
 h5_id_t
@@ -435,6 +464,9 @@ H5t_add_num_vertices (
 	) {
 	struct h5t_fdata *t = &f->t;
 
+	if ( t->cur_level < 0 ) {
+		return HANDLE_H5_UNDEF_LEVEL_ERR;
+	}
 	ssize_t num_elems = (t->cur_level > 0 ?
 			     t->num_vertices[t->cur_level-1] + num : num);
 
@@ -443,7 +475,7 @@ H5t_add_num_vertices (
 		t->vertices, num_elems*sizeof ( t->vertices[0] ) );
 
 	if ( t->vertices == NULL ) {
-		return H5_ERR_NOMEM;
+		return HANDLE_H5_NOMEM_ERR;
 	}
 
 	return num;
@@ -478,10 +510,10 @@ H5t_get_num_vertices (
 	struct h5t_fdata *t = &f->t;
 
 	if ( t->cur_mesh < 0 ) {
-		return -1;
+		return HANDLE_H5_UNDEF_MESH_ERR;
 	}
 	if ( t->cur_level < 0 ) {
-		return -1;
+		return HANDLE_H5_UNDEF_LEVEL_ERR;
 	}
 	if ( t->vertices == NULL ) {
 		h5_err_t h5err = _read_vertices ( f );
@@ -577,37 +609,37 @@ H5t_store_tet (
 	  more than allocated
 	*/
 	if ( t->last_stored_tet_id+1 >= t->num_tets[t->cur_level] ) 
-		return H5_ERR_INVAL;
+		return HANDLE_H5_OVERFLOW_ERR(  "tet", t->num_tets[t->cur_level] );
 
 	/*
 	  missing call to add the first level
 	 */
 	if ( t->cur_level < 0 )
-		return H5_ERR_INVAL;
+		return HANDLE_H5_UNDEF_LEVEL_ERR;
 
 	/*
 	  check parent id
 	*/
 	if ( (t->cur_level == 0) && (parent_id != -1) ) {
-		return H5_ERR_INVAL;
+		return HANDLE_H5_PARENT_ID_ERR ( "tet", tet_id, parent_id );
 	} 
 	if ( (t->cur_level >  0) && (parent_id < 0) ) {
-		return H5_ERR_INVAL;
+		return HANDLE_H5_PARENT_ID_ERR ( "tet", tet_id, parent_id );
 	}
 	if ( (t->cur_level >  0) && (parent_id >= t->num_tets[t->cur_level-1]) ) {
-		return H5_ERR_INVAL;
+		return HANDLE_H5_PARENT_ID_ERR ( "tet", tet_id, parent_id );
 	}
 	/*
 	  check tet_id
 	*/
 	if ( (t->cur_level == 0) && (
 		     (tet_id < 0) || (tet_id >= t->num_tets[0]) ) ) {
-		return H5_ERR_INVAL;
+		return HANDLE_H5_OUT_OF_RANGE_ERR( "tet", tet_id );
 	}
 	if ( (t->cur_level > 0) && (
 		     (tet_id <  t->num_tets[t->cur_level-1]) ||
 		     (tet_id >= t->num_tets[t->cur_level]) ) ) {
-		return H5_ERR_INVAL;
+		return HANDLE_H5_OUT_OF_RANGE_ERR( "tet", tet_id );
 	}
 	
 
