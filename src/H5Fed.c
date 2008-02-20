@@ -35,7 +35,6 @@
   \defgroup h5fed_c_api H5Fed C API
 */
 
-#include <stdarg.h>
 #include <hdf5.h>
 #include "h5/h5.h"
 #include "h5/h5_private.h"
@@ -97,21 +96,6 @@ h5_int_t H5GetNumNodes (
 	) {
 	SET_FNAME ( __func__ );
 	return (h5_int_t)fh->nprocs;
-}
-
-/*!
-  \ingroup h5fed_c_api
-
-  Get the number of hierarchical mesh levels available in current step.
-
-  \return Number of hierarchical mesh levels
-  \return \c -1 on error
- */
-h5_int_t H5FedGetNumMeshLevels (
-	h5_file * fh			/*!< file handle		*/
-	) {
-	SET_FNAME ( __func__ );
-	return -1;
 }
 
 /*!
