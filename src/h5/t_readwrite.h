@@ -11,10 +11,42 @@ _h5t_close_step (
 	h5_file * f
 	);
 
+h5_id_t
+_h5t_open_mesh (
+	h5_file * f
+	);
+
+h5_id_t
+_h5t_close_mesh (
+	h5_file * f
+	);
+
+
+h5_size_t
+H5t_get_num_meshes (
+	h5_file * f
+	);
+
+h5_err_t
+H5t_set_mesh (
+	h5_file * f,
+	const h5_id_t id
+	);
 
 h5_id_t
 H5t_add_mesh (
 	h5_file * f
+	);
+
+h5_size_t
+H5t_get_num_levels (
+	h5_file * f
+	);
+
+h5_err_t
+H5t_set_level (
+	h5_file * f,
+	const h5_id_t id
 	);
 
 h5_id_t
@@ -73,16 +105,6 @@ H5t_get_tet (
 	h5_id_t * const id,
 	h5_id_t * const parent_id,
 	h5_id_t * const vertex_ids[4]
-	);
-
-h5_id_t
-_h5t_open_mesh (
-	h5_file * f
-	);
-
-h5_id_t
-_h5t_close_mesh (
-	h5_file * f
 	);
 
 #endif
