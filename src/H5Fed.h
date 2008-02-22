@@ -32,9 +32,30 @@ h5_int64_t H5FedCloseFile (
 	h5_file * fh
 	);
 
+h5_size_t
+H5FedGetNumMeshes (
+	h5_file * f			/*!< file handle		*/
+	);
+
+h5_err_t
+H5FedOpenMesh (
+	h5_file * f,
+	const h5_id_t id
+	);
 h5_id_t
 H5FedAddMesh (
 	h5_file * fh
+	);
+
+h5_size_t
+H5FedGetNumLevels (
+	h5_file * f			/*!< file handle		*/
+	);
+
+h5_err_t
+H5FedSetLevel (
+	h5_file * f,
+	const h5_id_t id
 	);
 
 h5_id_t
@@ -165,7 +186,7 @@ h5_id_t
 H5FedGetVertex (
 	h5_file * f,
 	h5_id_t	* const	id,
-	h5_float64_t * const P[3]
+	h5_float64_t P[3]
 	);
 
 /* edges */
@@ -278,7 +299,7 @@ H5FedGetTetrahedron (
 	h5_file * f,
 	h5_id_t * const id,
 	h5_id_t * parent_id,
-	h5_id_t * const vertex_ids[4]
+	h5_id_t vertex_ids[4]
 	);
 
 /******	UPWARD ADJACENCY routines *********************************************/
