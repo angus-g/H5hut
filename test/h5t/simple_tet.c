@@ -11,6 +11,7 @@
 #endif
 
 struct vertex {
+	h5_id_t global_id;
 	h5_float64_t P[3];
 };
 
@@ -25,15 +26,15 @@ typedef struct tet tet_t;
 	       
 
 vertex_t V0[5] = {
-	{ {-1.0,  0.0,  0.0} },
-	{ { 1.0,  0.0,  0.0} },
-	{ { 0.0,  1.0,  0.0} },
-	{ { 0.0,  0.0,  1.0} },
-	{ { 0.0, -1.0,  0.0} }
+	{ 0, {-1.0,  0.0,  0.0} },
+	{ 1, { 1.0,  0.0,  0.0} },
+	{ 2, { 0.0,  1.0,  0.0} },
+	{ 3, { 0.0,  0.0,  1.0} },
+	{ 4, { 0.0, -1.0,  0.0} }
 };
 
 vertex_t V1[1] = {
-	{{  0.0,  0.0,  0.0 }}
+	{ 5, {0.0,  0.0,  0.0 } }
 };
 
 tet_t T0[2] = {
@@ -70,7 +71,7 @@ add_level (
 	for ( i = 0; i<num_verts; i++ ) {
 		h5err = H5FedStoreVertex (
 			f,
-			i,
+			V[i].global_id,
 			V[i].P );
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Can't store vertex.\n" );
@@ -119,7 +120,9 @@ main (
 	}
 
 	h5err = add_level ( f, V0, 5, T0, 2 );
+	if ( h5err < 0 ) return h5err;
 	h5err = add_level ( f, V1, 1, T1, 2 );
+	if ( h5err < 0 ) return h5err;
 
 	h5err = H5FedCloseFile ( f );
 	if ( h5err < 0 ) {
