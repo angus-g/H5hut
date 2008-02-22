@@ -55,12 +55,12 @@ H5FedGetNumMeshes (
 }
 
 h5_err_t
-H5FedSetMesh (
+H5FedOpenMesh (
 	h5_file * f,
 	const h5_id_t id
 	) {
 	SET_FNAME ( __func__ );
-	return H5t_set_mesh ( f, id );
+	return H5t_open_mesh ( f, id );
 }
 
 h5_id_t
@@ -68,7 +68,7 @@ H5FedAddMesh (
 	h5_file * f
 	) {
 	SET_FNAME ( __func__ );
-	return H5t_add_mesh ( f );
+	return H5t_open_mesh ( f, -1 );
 }
 
 /*!
@@ -93,7 +93,7 @@ H5FedSetLevel (
 	const h5_id_t id
 	) {
 	SET_FNAME ( __func__ );
-	return H5t_set_level ( f, id );
+	return H5t_open_level ( f, id );
 }
 
 /*!
@@ -199,7 +199,7 @@ h5_id_t
 H5FedGetVertex (
 	h5_file * f,			/*!< file handle		*/
 	h5_id_t	* const id,		/*!< OUT: global id		*/
-	h5_float64_t * const P[3]	/*!< OUT: coordinates		*/
+	h5_float64_t P[3]		/*!< OUT: coordinates		*/
 	) {
 	SET_FNAME ( __func__ );
 	return H5t_get_vertex ( f, id, P );
@@ -489,7 +489,7 @@ H5FedGetTetrahedron (
 	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
 	h5_id_t * parent_id,		/*!< OUT: parent id if level
 					     \c >0 else \c -1		*/
-	h5_id_t * const vertex_ids[4]	/*!< OUT: vertex id's		*/
+	h5_id_t vertex_ids[4]		/*!< OUT: vertex id's		*/
 	) {
 	SET_FNAME ( __func__ );
 	return H5t_get_tet ( f, id, parent_id, vertex_ids );
