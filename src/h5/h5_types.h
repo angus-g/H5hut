@@ -21,6 +21,7 @@
 
 #define H5_ERR_MPI		-201
 #define H5_ERR_HDF5		-202
+#define H5_ERR_INTERNAL		-253
 #define H5_ERR_NOT_IMPLEMENTED	-254
 
 #define H5_O_RDONLY		0x01
@@ -160,9 +161,11 @@ struct h5t_fdata {
 	h5_size_t	*num_tets_on_level;
 	h5_size_t	*map_tets_g2l;
 
+	h5_id_t		last_retrieved_vertex_id; 
 	h5_id_t		last_stored_vertex_id; 
 	h5_vertex	* vertices;
 
+	h5_id_t		last_retrieved_tet_id; 
 	h5_id_t		last_stored_tet_id;
 	h5_tetrahedron	* tets;
 
