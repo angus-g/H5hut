@@ -33,7 +33,8 @@ read_vertices (
 
 	h5_size_t num = H5FedGetNumVertices ( f );
 	printf ( "    Number of vertices on level: %d\n", num );
-	while ( (local_id = H5FedGetVertex ( f, &id, P )) >= 0 ) {
+	while ( (real_num < num) &&
+		((local_id = H5FedGetVertex ( f, &id, P )) >= 0) ) {
 		printf ( "    Vertex[%d]: local id: %d, coords: %f %f %f \n",
 			 id, local_id, P[0], P[1], P[2] );
 		real_num++;
@@ -55,7 +56,8 @@ read_tets (
 
 	h5_size_t num = H5FedGetNumTetrahedra ( f );
 	printf ( "    Number of tetrahedra on level: %d\n", num );
-	while ( (local_id = H5FedGetTetrahedron ( f, &id, &parent_id, vids )) >= 0 ) {
+	while ( (real_num < num) &&
+		((local_id = H5FedGetTetrahedron ( f, &id, &parent_id, vids )) >= 0) ) {
 		printf ( "    Tet[%d]: local id: %d, parent id: %d, vids: %d %d %d %d\n",
 			 id, local_id, parent_id, vids[0], vids[1], vids[2], vids[3] );
 		real_num++;
