@@ -27,9 +27,9 @@ H5t_get_num_meshes (
 	);
 
 h5_err_t
-H5t_set_mesh (
+H5t_open_mesh (
 	h5_file * f,
-	const h5_id_t id
+	h5_id_t id
 	);
 
 h5_id_t
@@ -43,7 +43,7 @@ H5t_get_num_levels (
 	);
 
 h5_err_t
-H5t_set_level (
+H5t_open_level (
 	h5_file * f,
 	const h5_id_t id
 	);
@@ -75,7 +75,7 @@ h5_id_t
 H5t_get_vertex (
 	h5_file * f,
 	h5_id_t * const  id,
-	h5_float64_t * const P[3]
+	h5_float64_t P[3]
 	);
 
 h5_size_t
@@ -103,7 +103,7 @@ H5t_get_tet (
 	h5_file * f,
 	h5_id_t * const id,
 	h5_id_t * const parent_id,
-	h5_id_t * const vertex_ids[4]
+	h5_id_t vertex_ids[4]
 	);
 
 #endif
