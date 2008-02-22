@@ -39,6 +39,12 @@
 			H5PART_ERR_INVAL, \
 			"Group \"%s\" already exists", name )
 
+#define HANDLE_H5_INTERNAL_ERR \
+		(*H5_get_errorhandler()) ( \
+			H5_get_funcname(), \
+			H5_ERR_INTERNAL, \
+			"Internal error: %s line %d!", __FILE__, __LINE__ )
+
 /**************** H5 *********************/
 
 #define HANDLE_H5_BADFD_ERR \
@@ -225,7 +231,7 @@
 		H5_ERR_HDF5, \
 		"Cannot open dataset \"%s\".", s );
 
-#define HANDLE_H5D_READ_ERR( s, n ) \
+#define HANDLE_H5D_READ_ERR( s ) \
 	 (*H5_get_errorhandler()) ( \
 		H5_get_funcname(), \
 		H5_ERR_HDF5, \
