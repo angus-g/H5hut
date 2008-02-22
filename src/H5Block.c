@@ -925,7 +925,7 @@ _read_data (
 		f->block->diskshape,
 		H5P_DEFAULT,
 		data );
-	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->step_idx );
+	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name );
 
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
