@@ -157,17 +157,6 @@ H5U_read_elems (
 	memspace_id = _get_memshape_for_reading ( f, dataset_id );
 	if ( memspace_id < 0 ) return (h5part_int64_t)memspace_id;
 
-#ifdef INDEPENDENT_IO
-	herr = H5Dread (
-		dataset_id,
-		type,
-		memspace_id,		/* shape/size of data in memory (the
-					   complement to disk hyperslab) */
-		space_id,		/* shape/size of data on disk 
-					   (get hyperslab if needed) */
-		H5P_DEFAULT,		/* ignore... its for parallel reads */
-		array );
-#else
 	herr = H5Dread (
 		dataset_id,
 		type,
@@ -177,9 +166,7 @@ H5U_read_elems (
 					   (get hyperslab if needed) */
 		f->xfer_prop,		/* ignore... its for parallel reads */
 		array );
-#endif
-
-	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->step_idx );
+	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name );
 
 	if ( space_id != H5S_ALL ) {
 		herr = H5Sclose (space_id );
