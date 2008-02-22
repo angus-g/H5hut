@@ -162,6 +162,7 @@ _h5t_init_fdata (
 	struct h5t_fdata * t = &f->t;
 
 	memset ( t->mesh_name, 0, sizeof ( t->mesh_name ) );
+	t->num_meshes = -1;
 	t->cur_mesh = -1;
 	t->num_levels = -1;
 	t->new_level = -1;
