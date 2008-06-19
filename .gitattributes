@@ -379,8 +379,6 @@ src/h5/errorhandling.c -text
 src/h5/errorhandling.h -text
 src/h5/errorhandling_private.h -text
 src/h5/general.c -text
-src/h5/h5.c -text
-src/h5/h5.h -text
 src/h5/h5_core.h -text
 src/h5/h5_private.h -text
 src/h5/h5_types.h -text

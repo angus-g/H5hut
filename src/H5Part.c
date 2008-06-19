@@ -90,7 +90,7 @@ Last modified on April 19, 2007.
 #define close _close
 #endif /* WIN32 */
 
-#include "h5/h5.h"
+#include "h5/h5_core.h"
 #include "h5/h5_private.h"
 #include "H5Part.h"
 

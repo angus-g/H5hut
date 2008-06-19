@@ -43,7 +43,7 @@ EXTRA_LIBRARIES = libH5.a
 
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS = \
-	h5.h \
+	h5_core.h \
 	h5_types.h \
 	attribs.h \
 	errorhandling.h \
@@ -57,7 +57,7 @@ EXTRA_HEADERS =
 
 # Listing of sources
 libH5_a_SOURCES = \
-	h5.c \
+	general.c \
 	attribs.c \
 	errorhandling.c \
 	t_openclose.c \
@@ -74,7 +74,7 @@ libH5.a: $(libH5_a_OBJECTS)
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
 
-$(libH5_a_OBJECTS): h5.h
+$(libH5_a_OBJECTS): h5_core.h
 
 errorhandling.o: errorhandling.c
 
