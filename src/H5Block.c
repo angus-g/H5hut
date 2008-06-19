@@ -496,11 +496,11 @@ _dissolve_ghostzones (
 	}
 	free ( p_begin );
 
-	H5_print_debug ("Layout defined by user:");
+	h5_print_debug ("Layout defined by user:");
 	for ( proc_p = 0, p = b->user_layout;
 	      proc_p < f->nprocs;
 	      proc_p++, p++ ) {
-		H5_print_debug (
+		h5_print_debug (
 			"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
 			f->myproc, proc_p,
 			(long long)p->i_start, (long long)p->i_end,
@@ -508,11 +508,11 @@ _dissolve_ghostzones (
 			(long long)p->k_start, (long long)p->k_end );
 	}
 
-	H5_print_debug ("Layout after dissolving ghost-zones:");
+	h5_print_debug ("Layout after dissolving ghost-zones:");
 	for ( proc_p = 0, p = b->write_layout;
 	      proc_p < f->nprocs;
 	      proc_p++, p++ ) {
-		H5_print_debug (
+		h5_print_debug (
 			"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
 			f->myproc, proc_p,
 			(long long)p->i_start, (long long)p->i_end,
@@ -852,7 +852,7 @@ _select_hyperslab_for_reading (
 	     (field_dims[1] < (hsize_t)b->j_max) ||
 	     (field_dims[2] < (hsize_t)b->i_max) ) return HANDLE_H5_LAYOUT_ERR;
 
-	H5_print_debug (
+	h5_print_debug (
 		"PROC[%d]: \n"
 		"\tfield_dims: (%lld,%lld,%lld)",
 		f->myproc,
@@ -877,7 +877,7 @@ _select_hyperslab_for_reading (
 		NULL );
 	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
-	H5_print_debug (
+	h5_print_debug (
 		"PROC[%d]: Select hyperslab: \n"
 		"\tstart:  (%lld,%lld,%lld)\n"
 		"\tstride: (%lld,%lld,%lld)\n"
@@ -1061,7 +1061,7 @@ _select_hyperslab_for_writing (
 	if ( b->diskshape < 0 )
 		return HANDLE_H5S_CREATE_SIMPLE_3D_ERR ( field_dims );
 
-	H5_print_debug (
+	h5_print_debug (
 		"PROC[%d]: Select hyperslab on diskshape: \n"
 		"\tstart:  (%lld,%lld,%lld)\n"
 		"\tstride: (%lld,%lld,%lld)\n"
@@ -1098,7 +1098,7 @@ _select_hyperslab_for_writing (
 	start[1] = p->j_start - q->j_start;
 	start[2] = p->i_start - q->i_start;
 
-	H5_print_debug (
+	h5_print_debug (
 		"PROC[%d]: Select hyperslab on memshape: \n"
 		"\tstart:  (%lld,%lld,%lld)\n"
 		"\tstride: (%lld,%lld,%lld)\n"
@@ -1207,7 +1207,7 @@ _write_field_data (
 
 	struct h5b_fdata *b = f->block;
 
-	return H5_write_data (
+	return h5_write_data (
 		f,
 		name,
 		data,
@@ -1318,7 +1318,7 @@ H5BlockGetNumFields (
 	if ( ! _have_object ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK ) )
 		return 0;
 
-	return H5_get_num_objects ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK, H5G_GROUP );
+	return h5_get_num_objects ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK, H5G_GROUP );
 }
 
 /*!
@@ -1358,7 +1358,7 @@ _get_field_info (
 	for ( i = 0, j = *grid_rank-1; i < *grid_rank; i++, j-- )
 		grid_dims[i] = (h5part_int64_t)dims[j];
 
-	*field_dims = H5_get_num_objects (
+	*field_dims = h5_get_num_objects (
 		f->block->blockgroup,
 		field_name,
 		H5G_DATASET );
@@ -1403,7 +1403,7 @@ H5BlockGetFieldInfo (
 	SET_FNAME ( "H5BlockGetFieldInfo" );
 	CHECK_TIMEGROUP( f );
 
-	h5part_int64_t herr = H5_get_object_name (
+	h5part_int64_t herr = h5_get_object_name (
 		f->step_gid,
 		H5BLOCK_GROUPNAME_BLOCK,
 		H5G_GROUP,
@@ -1461,7 +1461,7 @@ _write_field_attrib (
 	h5part_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
-	H5_write_attrib (
+	h5_write_attrib (
 		f->block->field_group_id,
 		attrib_name,
 		attrib_type,
@@ -1587,7 +1587,7 @@ H5BlockGetFieldAttribInfo (
 	h5part_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
-	herr = H5_get_attrib_info (
+	herr = h5_get_attrib_info (
 		f->block->field_group_id,
 		attrib_idx,
 		attrib_name,
@@ -1624,7 +1624,7 @@ _read_field_attrib (
 	h5part_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
-	herr = H5_read_attrib (
+	herr = h5_read_attrib (
 		b->field_group_id,
 		attrib_name,
 		attrib_value );
