@@ -347,6 +347,8 @@ doc/tetrahedron_refinements/text2vtk.py -text
 /license.txt -text
 /missing -text
 /rules.make -text
+src/H5.c -text
+src/H5.h -text
 src/H5Block.c -text
 src/H5Block.h -text
 src/H5Fed.c -text
@@ -360,6 +362,7 @@ src/H5Fed_store.c -text
 src/H5Fed_storeretrieve.c -text
 src/H5Part.c -text
 src/H5Part.h -text
+src/H5_inquiry.c -text
 src/Makefile.am -text
 src/bindings/C++/H5Fed.cc -text
 src/bindings/C++/H5Fed.hh -text
