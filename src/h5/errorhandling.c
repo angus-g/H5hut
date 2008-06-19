@@ -10,14 +10,14 @@
 #include "h5_private.h"
 #include "H5Part.h"
 
-h5_error_handler	_err_handler = H5_report_errorhandler;
+h5_error_handler	_err_handler = h5_report_errorhandler;
 h5_int64_t		_h5part_errno = H5PART_SUCCESS;
 h5_int64_t		_debug = 0;
 
 static char *__funcname = "NONE";
 
 h5part_int64_t
-H5_set_debuglevel (
+h5_set_debuglevel (
 	h5part_int64_t level
 	) {
 	_debug = level;
@@ -25,14 +25,14 @@ H5_set_debuglevel (
 }
 
 h5part_int64_t
-H5_get_debuglevel (
+h5_get_debuglevel (
 	void
 	) {
 	return _debug;
 }
 
 h5part_int64_t
-H5_set_errorhandler (
+h5_set_errorhandler (
 	h5part_error_handler handler
 	) {
 	_err_handler = handler;
@@ -40,14 +40,14 @@ H5_set_errorhandler (
 }
 
 h5part_error_handler
-H5_get_errorhandler (
+h5_get_errorhandler (
 	void
 	) {
 	return _err_handler;
 }
 
 h5part_int64_t
-H5_get_errno (
+h5_get_errno (
 	void
 	) {
 	return _h5part_errno;
@@ -63,7 +63,7 @@ H5_get_errno (
   \return value given in \c eno
 */
 h5part_int64_t
-H5_report_errorhandler (
+h5_report_errorhandler (
 	const char *funcname,
 	const h5part_int64_t eno,
 	const char *fmt,
@@ -74,7 +74,7 @@ H5_report_errorhandler (
 	if ( _debug > 0 ) {
 		va_list ap;
 		va_start ( ap, fmt );
-		H5_vprint_error ( fmt, ap );
+		h5_vprint_error ( fmt, ap );
 		va_end ( ap );
 	}
 	return _h5part_errno;
@@ -87,7 +87,7 @@ H5_report_errorhandler (
   program exists with the error code given in \c eno.
 */
 h5part_int64_t
-H5_abort_errorhandler (
+h5_abort_errorhandler (
 	const char *funcname,
 	const h5part_int64_t eno,
 	const char *fmt,
@@ -120,7 +120,7 @@ _vprintf (
 }
 
 void
-H5_vprint_error (
+h5_vprint_error (
 	const char *fmt,
 	va_list ap
 	) {
@@ -130,19 +130,19 @@ H5_vprint_error (
 }
 
 void
-H5_print_error (
+h5_print_error (
 	const char *fmt,
 	...
 	) {
 
 	va_list ap;
 	va_start ( ap, fmt );
-	H5_vprint_error ( fmt, ap );
+	h5_vprint_error ( fmt, ap );
 	va_end ( ap );
 }
 
 void
-H5_vprint_warn (
+h5_vprint_warn (
 	const char *fmt,
 	va_list ap
 	) {
@@ -152,19 +152,19 @@ H5_vprint_warn (
 }
 
 void
-H5_print_warn (
+h5_print_warn (
 	const char *fmt,
 	...
 	) {
 
 	va_list ap;
 	va_start ( ap, fmt );
-	H5_vprint_warn ( fmt, ap );
+	h5_vprint_warn ( fmt, ap );
 	va_end ( ap );
 }
 
 void
-H5_vprint_info (
+h5_vprint_info (
 	const char *fmt,
 	va_list ap
 	) {
@@ -174,19 +174,19 @@ H5_vprint_info (
 }
 
 void
-H5_print_info (
+h5_print_info (
 	const char *fmt,
 	...
 	) {
 
 	va_list ap;
 	va_start ( ap, fmt );
-	H5_vprint_info ( fmt, ap );
+	h5_vprint_info ( fmt, ap );
 	va_end ( ap );
 }
 
 void
-H5_vprint_debug (
+h5_vprint_debug (
 	const char *fmt,
 	va_list ap
 	) {
@@ -196,33 +196,33 @@ H5_vprint_debug (
 }
 
 void
-H5_print_debug (
+h5_print_debug (
 	const char *fmt,
 	...
 	) {
 
 	va_list ap;
 	va_start ( ap, fmt );
-	H5_vprint_debug ( fmt, ap );
+	h5_vprint_debug ( fmt, ap );
 	va_end ( ap );
 }
 
 void
-H5_set_funcname (
+h5_set_funcname (
 	const char  * const fname
 	) {
 	__funcname = (char * const) fname;
 }
 
 const char *
-H5_get_funcname (
+h5_get_funcname (
 	void
 	) {
 	return __funcname;
 }
 
 const char *
-H5_get_objname (
+h5_get_objname (
 	hid_t id
 	) {
 	static char objname[256];
