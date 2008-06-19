@@ -47,7 +47,6 @@ include_HEADERS = \
 	h5_types.h \
 	attribs.h \
 	errorhandling.h \
-	openclose.h \
 	readwrite.h \
 	t_openclose.h \
 	t_readwrite.h \
@@ -57,7 +56,14 @@ include_HEADERS = \
 EXTRA_HEADERS =
 
 # Listing of sources
-libH5_a_SOURCES = attribs.c errorhandling.c openclose.c t_openclose.c readwrite.c u_readwrite.c t_readwrite.c
+libH5_a_SOURCES = \
+	h5.c \
+	attribs.c \
+	errorhandling.c \
+	t_openclose.c \
+	readwrite.c \
+	u_readwrite.c \
+	t_readwrite.c
 
 all: libH5.a
 
