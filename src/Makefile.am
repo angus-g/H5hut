@@ -52,13 +52,15 @@ EXTRA_HEADERS =
 
 # Listing of sources
 libH5Part_a_SOURCES = \
-	H5Part.c \
+	H5.c \
 	H5Block.c \
 	H5Fed.c \
 	H5Fed_adjacency.c \
 	H5Fed_dof.c \
-	H5Fed_statistics.c \
-	H5Fed_storeretrieve.c
+	H5Fed_inquiry.c \
+	H5Fed_retrieve.c \
+	H5Fed_store.c \
+	H5Part.c
 
 SUBDIRS = h5 bindings
 
