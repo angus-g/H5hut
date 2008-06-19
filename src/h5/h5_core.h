@@ -1,5 +1,5 @@
-#ifndef __H5_H
-#define __H5_H
+#ifndef __H5_CORE_H
+#define __H5_CORE_H
 
 #include "h5_types.h"
 
