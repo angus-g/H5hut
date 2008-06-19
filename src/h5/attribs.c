@@ -12,7 +12,7 @@
 #include "H5Block.h"
 
 h5part_int64_t
-H5_read_attrib (
+h5_read_attrib (
 	hid_t id,
 	const char *attrib_name,
 	void *attrib_value
@@ -37,7 +37,7 @@ H5_read_attrib (
 	nelem = H5Sget_simple_extent_npoints ( space_id );
 	if ( nelem < 0 ) return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR;
 
-	type_id = H5_normalize_h5_type ( mytype );
+	type_id = h5_normalize_h5_type ( mytype );
 
 	herr = H5Aread (attrib_id, type_id, attrib_value );
 	if ( herr < 0 ) return HANDLE_H5A_READ_ERR;
@@ -55,7 +55,7 @@ H5_read_attrib (
 }
 
 h5part_int64_t
-H5_write_attrib (
+h5_write_attrib (
 	hid_t id,
 	const char *attrib_name,
 	const hid_t attrib_type,
@@ -92,7 +92,7 @@ H5_write_attrib (
 }
 
 h5part_int64_t
-H5_get_attrib_info (
+h5_get_attrib_info (
 	hid_t id,
 	const h5part_int64_t attrib_idx,
 	char *attrib_name,
@@ -131,7 +131,7 @@ H5_get_attrib_info (
 		mytype = H5Aget_type ( attrib_id );
 		if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR;
 
-		*attrib_type = H5_normalize_h5_type ( mytype );
+		*attrib_type = h5_normalize_h5_type ( mytype );
 
 		herr = H5Tclose ( mytype );
 		if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR;
@@ -143,7 +143,7 @@ H5_get_attrib_info (
 }
 
 h5part_int64_t
-H5_get_num_attribs (
+h5_get_num_attribs (
 	h5_file *f,
 	hid_t id
 	) {

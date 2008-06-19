@@ -2,14 +2,14 @@
 #define __ATTRIBS_H
 
 h5part_int64_t
-H5_read_attrib (
+h5_read_attrib (
 	hid_t id,
 	const char *attrib_name,
 	void *attrib_value
 	);
 
 h5part_int64_t
-H5_write_attrib (
+h5_write_attrib (
 	hid_t id,
 	const char *attrib_name,
 	const hid_t attrib_type,
@@ -18,7 +18,7 @@ H5_write_attrib (
 	);
 
 h5part_int64_t
-H5_get_attrib_info (
+h5_get_attrib_info (
 	hid_t id,
 	const h5part_int64_t attrib_idx,
 	char *attrib_name,
@@ -28,7 +28,7 @@ H5_get_attrib_info (
 	);
 
 h5part_int64_t
-H5_get_num_attribs (
+h5_get_num_attribs (
 	h5_file *f,
 	hid_t id
 	);
