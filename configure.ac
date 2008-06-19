@@ -12,9 +12,6 @@ AC_PREREQ(2.59)
 # The AC_CONFIG_HEADERS macro selects this kind of output.
 AC_CONFIG_HEADER(config.h)
 
-CFLAGS=-fPIC
-
-
 ###############################################################################
 ################# --enable-xxx and --with-xxx Argument ########################
 ###############################################################################
@@ -73,7 +70,7 @@ SAVE_MPIFC=$MPIFC
 SAVE_MPILIB=$MPILIB
 SAVE_MPIINC=$MPIINC
 SAVE_CFLAGS=$CFLAGS
-CFLAGS=''
+CFLAGS="-fPIC"
 SAVE_FFLAGS=$FFLAGS
 SAVE_MPIROOT=$MPIROOT
 SAVE_HDF5ROOT=$HDF5ROOT
