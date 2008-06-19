@@ -9,28 +9,19 @@
  	All rights reserved.
  
   Authors
- 	Benedikt Oswald, Achim Gsell
+ 	Achim Gsell
   
   Warning
 	This code is under development.
  
  */
 
-
 #ifndef __H5FED_H
 #define __H5FED_H
 
+#include "H5.h"
 
 /******	General routines *****************************************************/
-
-h5_file* H5FedOpenFile (
-	const char * filename,
-	const MPI_Comm comm
-	);
-
-h5_int64_t H5FedCloseFile (
-	h5_file * fh
-	);
 
 h5_size_t
 H5FedGetNumMeshes (
@@ -48,18 +39,18 @@ H5FedAddMesh (
 	);
 
 h5_size_t
-H5FedGetNumLevels (
+H5FedGetNumRefinementLevels (
 	h5_file * f			/*!< file handle		*/
 	);
 
 h5_err_t
-H5FedSetLevel (
+H5FedSetRefinementLevel (
 	h5_file * f,
 	const h5_id_t id
 	);
 
 h5_id_t
-H5FedAddLevel (
+H5FedAddRefinementLevel (
 	h5_file * fh
 	);
 
@@ -156,12 +147,6 @@ h5_size_t H5FedGetNumBoundaryTrianglesCnode (
 
 /******	STORE / RETRIEVAL routines ********************************************/
 
-h5_err_t
-H5FedSetStep (
-	h5_file * f,
-	const h5_id_t step
-	);
-	
 
 /* vertices */
 h5_size_t
