@@ -12,7 +12,7 @@
 #include "H5Block.h"
 
 h5part_int64_t
-H5_write_data (
+h5_write_data (
 	h5_file *f,		/*!< IN: Handle to open file */
 	const char *name,	/*!< IN: Name to associate array with */
 	const void *array,	/*!< IN: Array to commit to disk */
@@ -25,7 +25,7 @@ H5_write_data (
 	herr_t herr;
 	hid_t dataset_id;
 
-	H5_info ( "Writing dataset %s/%s.", H5_get_objname(groupid), name );
+	h5_info ( "Writing dataset %s/%s.", h5_get_objname(groupid), name );
 
 	dataset_id = H5Dcreate ( 
 		groupid,
@@ -61,7 +61,7 @@ H5_write_data (
   Iterator for \c H5Giterate().
 */
 herr_t
-H5_iteration_operator (
+h5_iteration_operator (
 	hid_t group_id,		/*!< [in]  group id */
 	const char *member_name,/*!< [in]  group name */
 	void *operator_data	/*!< [in,out] data passed to the iterator */
@@ -102,13 +102,13 @@ H5_iteration_operator (
   Get number of object of type \c type in HDF5 group \c group_id.
 */
 h5part_int64_t
-H5_get_num_objects (
+h5_get_num_objects (
 	hid_t group_id,
 	const char *group_name,
 	const hid_t type
 	) {
 
-	return H5_get_num_objects_matching_pattern (
+	return h5_get_num_objects_matching_pattern (
 		group_id,
 		group_name,
 		type,
@@ -123,7 +123,7 @@ H5_get_num_objects (
   If pattern is NULL, count all objects of given type.
 */
 h5part_int64_t
-H5_get_num_objects_matching_pattern (
+h5_get_num_objects_matching_pattern (
 	hid_t group_id,
 	const char *group_name,
 	const hid_t type,
@@ -139,7 +139,7 @@ H5_get_num_objects_matching_pattern (
 	data.pattern = pattern;
 
 	herr = H5Giterate ( group_id, group_name, &idx,
-			    H5_iteration_operator, &data );
+			    h5_iteration_operator, &data );
 	if ( herr < 0 ) return herr;
 	
 	return data.count;
@@ -151,7 +151,7 @@ H5_get_num_objects_matching_pattern (
   Iterator for \c H5Giterate().
 */
 h5part_int64_t
-H5_get_object_name (
+h5_get_object_name (
 	hid_t group_id,
 	const char *group_name,
 	const hid_t type,
@@ -171,7 +171,7 @@ H5_get_object_name (
 	data.len = (size_t)len_obj_name;
 
 	herr = H5Giterate ( group_id, group_name, &iterator_idx,
-			    H5_iteration_operator,
+			    h5_iteration_operator,
 			    &data );
 	if ( herr < 0 ) return (h5part_int64_t)herr;
 
@@ -185,7 +185,7 @@ h5_int64_t
 _create_step (
 	h5_file * f
 	) {
-	H5_print_debug (
+	h5_print_debug (
 		"Proc[%d]: Create step #%lld for file %lld", 
 		f->myproc,
 		(long long)f->step_idx,
@@ -202,7 +202,7 @@ h5_int64_t
 _open_step (
 	h5_file * f
 	) {
-	H5_print_info (
+	h5_print_info (
 		"Proc[%d]: Open step #%lld for file %lld",
 		f->myproc,
 		(long long)f->step_idx,
@@ -276,7 +276,7 @@ _set_step (
 }
 
 h5_int64_t
-H5_set_step (
+h5_set_step (
 	h5_file *f,			/*!< [in]  Handle to open file */
 	const h5_int64_t step_idx	/*!< [in]  Step to set. */
 	) {
@@ -297,7 +297,7 @@ H5_set_step (
    Normalize HDF5 type
 */
 hid_t
-H5_normalize_h5_type (
+h5_normalize_h5_type (
 	hid_t type
 	) {
 	H5T_class_t tclass = H5Tget_class ( type );
@@ -317,14 +317,14 @@ H5_normalize_h5_type (
 	default:
 		; /* NOP */
 	}
-	H5_print_warn ( "Unknown type %d", (int)type );
+	h5_print_warn ( "Unknown type %d", (int)type );
 
 	return -1;
 }
 
 
 h5part_int64_t
-H5_get_dataset_type(
+h5_get_dataset_type(
 	hid_t group_id,
 	const char *dataset_name
 	) {
@@ -334,7 +334,7 @@ H5_get_dataset_type(
 	hid_t hdf5_type = H5Dget_type ( dataset_id );
 	if ( hdf5_type < 0 ) HANDLE_H5D_GET_TYPE_ERR;
 
-	h5part_int64_t type = (h5part_int64_t) H5_normalize_h5_type ( hdf5_type );
+	h5part_int64_t type = (h5part_int64_t) h5_normalize_h5_type ( hdf5_type );
 
 	herr_t herr = H5Tclose(hdf5_type);
 	if ( herr < 0 ) HANDLE_H5T_CLOSE_ERR;
@@ -346,7 +346,7 @@ H5_get_dataset_type(
 }
 
 h5part_int64_t
-H5_has_index (
+h5_has_index (
 	h5_file *f,		/*!< [in]  Handle to open file */
 	h5part_int64_t step	/*!< [in]  Step number to query */
 	) {
