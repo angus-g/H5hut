@@ -378,7 +378,6 @@ src/h5/h5.c -text
 src/h5/h5.h -text
 src/h5/h5_private.h -text
 src/h5/h5_types.h -text
-src/h5/openclose.h -text
 src/h5/readwrite.c -text
 src/h5/readwrite.h -text
 src/h5/t_openclose.c -text
