@@ -1,5 +1,5 @@
 /*
-  Copyright 2006-2007
+  Copyright 2007-2008
  	Paul Scherrer Institut, Villigen, Switzerland;
  	Benedikt Oswald;
  	Achim Gsell
@@ -13,123 +13,34 @@
  
  */
 
-/*!
-  Some conventions:
-	Functions:
-		Name:
-			thisIsAFunction()
-		Return values:
-			negative value or NULL signals an error
-
-
-	Macros:
-		UPPERCASE_WITH_UNDERSCORE
-  \note
-  In function names we use the words \b get and \b store insteed of
-  \b read and \b write, because no I/O is actually done in these
-  functions.
-*/
-
-
-/*!
-  \defgroup h5fed_c_api H5Fed C API
-*/
-
 #include <stdarg.h>
 #include <hdf5.h>
 #include "h5/h5.h"
 #include "h5/h5_private.h"
 #include "H5Fed.h"
 
-
-/******	General routines *****************************************************/
-
-/*!
-  \ingroup h5fed_c_api
-  
-  Open file with name \c filename. This function is available in the paralell
-  and serial version. In the serial case \c comm may have any value.
-
-  \return File handle.
-  \return NULL on error.
-
-  \note
-  File is always opened in read/writer mode!
-
-  \note
-  Implement as wrapper of \c H5_open_file()!
-*/
-h5_file * H5FedOpenFile (
-	const char * filename,		/*!< file name			*/
-	const MPI_Comm comm		/*!< MPI communicator		*/
+h5_err_t
+H5FedOpenMesh (
+	h5_file * f,
+	const h5_id_t id
 	) {
 	SET_FNAME ( __func__ );
-	return H5_open_file( filename, H5_O_RDWR, comm ); 
+	return H5t_open_mesh ( f, id );
 }
 
-/*!
-  \ingroup h5fed_c_api
-
-  Close file.
-
-  \return value \c >=0 on success
-  \return -1 on error
-*/
-h5_int_t H5FedCloseFile (
-	h5_file * fh			/*!< file handle		*/
+h5_id_t
+H5FedAddMesh (
+	h5_file * f
 	) {
 	SET_FNAME ( __func__ );
-	return H5_close_file ( fh );
+	return H5t_open_mesh ( f, -1 );
 }
 
-/******	INQUIRY routines *****************************************************/
-
-/*!
-  \ingroup h5_c_api
-
-  Get the number of compute nodes.
-
-  \return Number of compute notes.
-  \return \c -1 on error.
- */
-h5_int_t H5GetNumNodes (
-	h5_file * fh			/*!< file handle		*/
+h5_err_t
+H5FedSetRefinementLevel (
+	h5_file * f,
+	const h5_id_t id
 	) {
 	SET_FNAME ( __func__ );
-	return (h5_int_t)fh->nprocs;
+	return H5t_open_level ( f, id );
 }
-
-/*!
-  \ingroup h5fed_c_api
-
-  Check whether a tetrahedral mesh hierarchy exists on level \c level
-
-  \return  \c 1		tetrahedral mesh hierarchy exists on given level. 
-  \return  \c 0		tetrahedral mesh exists, but not on given level.
-  \return  \c -1	tetrahedral mesh doesn't exist
- */
-h5_int_t H5FedHasTetrahedralMesh (
-	h5_file * fh,			/*!< file handle		*/
-	const h5_id_t level		/*!< mesh level to check	*/
-	) {
-	SET_FNAME ( __func__ );
-	return -1;
-}
-
-/*!
-  \ingroup h5fed_c_api
-
-  Check whether a boundary mesh hierarchy exists on level \c level
-
-  \return \c 1		boundary mesh hierarchy exists on given level.
-  \return \c 0		boundary mesh hierarchy exists, but not on given level.
-  \return \c -1		boundary mesh doesn't exist.
-*/
-h5_int_t H5FedHasBoundaryMesh(
-	h5_file * fh,			/*!< file handle		*/
-	const h5_id_t level		/*!< mesh level to check	*/
-	) {
-	SET_FNAME ( __func__ );
-	return -1;
-}
-
