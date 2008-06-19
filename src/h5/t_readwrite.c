@@ -33,15 +33,15 @@ _open_group (
 		parent_gid, grpname, 1, NULL );
 
 	if ( herr >= 0 ) {
-		H5_info (
+		h5_info (
 			"Opening group %s/%s.",
-			H5_get_objname(parent_gid),
+			h5_get_objname(parent_gid),
 			grpname );
 		gid = H5Gopen ( parent_gid, grpname );
 	} else {
-		H5_info (
+		h5_info (
 			"Creating group %s/%s.",
-			H5_get_objname(parent_gid),
+			h5_get_objname(parent_gid),
 			grpname );
 		gid = H5Gcreate ( parent_gid, grpname, 0 );
 	}
@@ -124,7 +124,7 @@ _write_obj (
 		);
 	if ( sid < 0 ) return HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
 
-	h5_err_t h5err = (h5_err_t)H5_write_data (
+	h5_err_t h5err = (h5_err_t)h5_write_data (
 		f,
 		dsname,
 		object,
@@ -346,7 +346,7 @@ h5_size_t
 H5t_get_num_meshes (
 	h5_file * f
 	) {
-	return (h5_size_t)H5_get_num_objects (
+	return (h5_size_t)h5_get_num_objects (
 		f->root_gid,
 		H5T_CONTAINER_GRPNAME,
 		H5G_GROUP );
@@ -497,7 +497,7 @@ H5t_add_num_vertices (
 			     t->num_vertices[t->cur_level-1] + num : num);
 	t->num_vertices[t->cur_level] = num_elems;
 	ssize_t num_bytes = num_elems*sizeof ( t->vertices[0] );
-	H5_debug ( "Allocating %ld bytes.", num_bytes ); 
+	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
 	t->vertices = realloc (	t->vertices, num_bytes );
 	if ( t->vertices == NULL ) {
 		return HANDLE_H5_NOMEM_ERR;
@@ -535,7 +535,7 @@ _read_dataset (
 		f->xfer_prop,
 		data );
 	if ( herr < 0 )
-		return HANDLE_H5D_READ_ERR ( H5_get_objname ( dataset_id ) );
+		return HANDLE_H5D_READ_ERR ( h5_get_objname ( dataset_id ) );
 
 	if ( file_space_id != H5S_ALL ) {
 		herr = H5Sclose ( file_space_id );
@@ -591,7 +591,7 @@ _read_num_vertices (
 		if ( h5err < 0 ) return h5err;
 	}
 	ssize_t num_bytes = t->num_levels*sizeof ( t->num_vertices[0] );
-	H5_debug ( "Allocating %ld bytes.", num_bytes ); 
+	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
 	t->num_vertices = realloc ( t->num_vertices, num_bytes );
 	if ( t->num_vertices == NULL )
 		return HANDLE_H5_NOMEM_ERR;
@@ -630,7 +630,7 @@ _read_vertices (
 
 	ssize_t num_elems = t->num_vertices[t->num_levels-1];
 	ssize_t num_bytes = num_elems*sizeof ( t->vertices[0] );
-	H5_debug ( "Allocating %ld bytes.", num_bytes ); 
+	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
 	t->vertices = realloc (	t->vertices, num_bytes );
 	if ( t->vertices == NULL )
 		return HANDLE_H5_NOMEM_ERR;
@@ -729,7 +729,7 @@ H5t_get_vertex (
 		if ( h5err < 0 ) return h5err;
 	}
 	if ( t->last_retrieved_vertex_id+1 >= t->num_vertices[t->cur_level] ) {
-		H5_warn ( "Trying to read more tets than available!" );
+		h5_warn ( "Trying to read more tets than available!" );
 		return -1;
 	}
 	h5_vertex *vertex = &t->vertices[++t->last_retrieved_vertex_id];
@@ -754,7 +754,7 @@ H5t_add_num_tets (
 			    num + t->num_tets_on_level[t->cur_level-1] : num;
 
 	ssize_t num_bytes = num_tets*sizeof ( t->tets[0] );
-	H5_debug ( "Allocating %ld bytes.", num_bytes ); 
+	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
 	t->tets = realloc ( t->tets, num_bytes );
 	if ( t->tets == NULL ) {
 		return H5_ERR_NOMEM;
@@ -852,7 +852,7 @@ _read_num_tets (
 		if ( h5err < 0 ) return h5err;
 	}
 	ssize_t num_bytes = t->num_levels*sizeof ( t->num_tets[0] );
-	H5_debug ( "Allocating %ld bytes.", num_bytes ); 
+	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
 	t->num_tets = realloc ( t->num_tets, num_bytes );
 	if ( t->num_tets == NULL )
 		return HANDLE_H5_NOMEM_ERR;
@@ -885,7 +885,7 @@ _read_num_tets_on_level (
 		if ( h5err < 0 ) return h5err;
 	}
 	ssize_t num_bytes = t->num_levels*sizeof ( t->num_tets_on_level[0] );
-	H5_debug ( "Allocating %ld bytes.", num_bytes ); 
+	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
 	t->num_tets_on_level = realloc ( t->num_tets_on_level, num_bytes );
 	if ( t->num_tets_on_level == NULL )
 		return HANDLE_H5_NOMEM_ERR;
@@ -940,7 +940,7 @@ _read_tets (
 
 	ssize_t num_elems = t->num_tets[t->num_levels-1];
 	ssize_t num_bytes = num_elems*sizeof ( t->tets[0] );
-	H5_debug ( "Allocating %ld bytes.", num_bytes ); 
+	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
 	t->tets = realloc (	t->tets, num_bytes );
 	if ( t->tets == NULL )
 		return HANDLE_H5_NOMEM_ERR;
@@ -991,7 +991,7 @@ H5t_get_tet (
 		if ( h5err < 0 ) return h5err;
 	}
 	if ( t->last_retrieved_tet_id+1 >= t->num_tets[t->cur_level] ) {
-		H5_warn ( "Trying to read more tets than available!" );
+		h5_warn ( "Trying to read more tets than available!" );
 		return -1;
 	}
 	h5_tetrahedron *tet = &t->tets[++t->last_retrieved_tet_id];

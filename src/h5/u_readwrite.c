@@ -52,7 +52,7 @@ _get_diskshape_for_reading (
 			&start, &stride, &count, NULL );
 		if ( r < 0 ) return (hid_t)HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
-		H5_print_debug (
+		h5_print_debug (
 			"Selection: range=%d:%d, npoints=%d s=%d",
 			(int)f->viewstart,(int)f->viewend,
 			(int)H5Sget_simple_extent_npoints(space),
@@ -97,7 +97,7 @@ H5U_get_num_elems (
 		"%s#%0*lld",
 		f->prefix_step_name, f->width_step_idx, (long long) f->step_idx );
 
-	herr = H5_get_object_name (
+	herr = h5_get_object_name (
 		f->file,
 		step_name,
 		H5G_DATASET,
@@ -145,7 +145,7 @@ H5U_read_elems (
 	hid_t memspace_id;
 
 	if ( f->step_gid < 0 ) {
-		h5part_int64_t h5err = H5_set_step ( f, f->step_idx );
+		h5part_int64_t h5err = h5_set_step ( f, f->step_idx );
 		if ( h5err < 0 ) return h5err;
 	}
 	dataset_id = H5Dopen ( f->step_gid, name );
@@ -257,9 +257,9 @@ H5U_set_num_elements (
 		return HANDLE_MPI_ALLGATHER_ERR;
 	}
 	if ( f->myproc == 0 ) {
-		H5_print_debug ( "Particle offsets:" );
+		h5_print_debug ( "Particle offsets:" );
 		for(i=0;i<f->nprocs;i++) 
-			H5_print_debug ( "\tnp=%lld",
+			h5_print_debug ( "\tnp=%lld",
 					      (long long) f->pnparticles[i] );
 	}
 	/* should I create a selection here? */
@@ -301,7 +301,7 @@ H5U_set_num_elements (
 	if ( r < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
 	if ( f->step_gid < 0 ) {
-		r = H5_set_step ( f, 0 );
+		r = h5_set_step ( f, 0 );
 		if ( r < 0 ) return r;
 		
 	}
@@ -321,7 +321,7 @@ H5U_write_data (
 	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
 
-	return H5_write_data(
+	return h5_write_data(
 		f,
 		name,
 		array,
@@ -371,7 +371,7 @@ H5U_set_view (
 	hsize_t stride = 1;
 	hsize_t dmax = H5S_UNLIMITED;
 
-	H5_print_debug (
+	h5_print_debug (
 		"Set view (%lld,%lld).",
 		(long long)start,(long long)end);
 
@@ -393,13 +393,13 @@ H5U_set_view (
 	if ( start == -1 ) start = 0;
 	if ( end == -1 )   end = total;
 
-	H5_print_debug ( "Total nparticles=%lld", (long long)total );
+	h5_print_debug ( "Total nparticles=%lld", (long long)total );
 
 	/* so, is this selection inclusive or exclusive? 
 	   it appears to be inclusive for both ends of the range.
 	*/
 	if ( end < start ) {
-		H5_print_warn (
+		h5_print_warn (
 			"Nonfatal error. "
 			"End of view (%lld) is less than start (%lld).",
 			(long long)end, (long long)start );
@@ -485,7 +485,7 @@ H5U_set_canonical_view (
 	   is a 'pnparticles' group that contains the offsets for the
 	   processors.
 	*/
-	if ( H5_read_attrib (
+	if ( h5_read_attrib (
 		     f->step_gid,
 		     "pnparticles", f->pnparticles ) < 0) {
 		/*
@@ -525,7 +525,7 @@ H5U_get_dataset_info (
 	h5part_int64_t *nelem	/*!< [out] Number of elements. */
 	) {
 
-	h5part_int64_t herr = H5_get_object_name (
+	h5part_int64_t herr = h5_get_object_name (
 		f->file,
 		f->step_name,
 		H5G_DATASET,
@@ -540,7 +540,7 @@ H5U_get_dataset_info (
 	}
 
 	if ( type ) {
-		*type = H5_get_dataset_type( f->step_gid, dataset_name );
+		*type = h5_get_dataset_type( f->step_gid, dataset_name );
 		if ( *type < 0 ) return *type;
 	}
 
