@@ -56,7 +56,7 @@ add_level (
 	int num_tets
 	) {
 
-	h5_err_t h5err = H5FedAddLevel ( f );
+	h5_err_t h5err = H5FedAddRefinementLevel ( f );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't add level.\n" );
 		return -1;
@@ -107,7 +107,7 @@ main (
 
 	H5PartSetVerbosityLevel ( 4 );
 
-	h5_file *f = H5FedOpenFile ( "simple_tet.h5", 0 );
+	h5_file *f = H5OpenFile ( "simple_tet.h5", 0 );
 	if ( f == NULL ) {
 		fprintf ( stderr, "!!! Can't open file.\n" );
 		return -1;
@@ -124,7 +124,7 @@ main (
 	h5err = add_level ( f, V1, 1, T1, 2 );
 	if ( h5err < 0 ) return h5err;
 
-	h5err = H5FedCloseFile ( f );
+	h5err = H5CloseFile ( f );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't close file.\n" );
 		return -1;

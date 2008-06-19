@@ -95,10 +95,10 @@ read_mesh (
 	) {
 
 	h5_id_t level_id;
-	h5_size_t num_levels = H5FedGetNumLevels ( f );
+	h5_size_t num_levels = H5FedGetNumRefinementLevels ( f );
 	printf ( "    Number of levels in mesh: %d\n", num_levels );
 	for ( level_id = 0; level_id < num_levels; level_id++ ) {
-		h5_err_t h5err = H5FedSetLevel ( f, level_id );
+		h5_err_t h5err = H5FedSetRefinementLevel ( f, level_id );
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Can't set level %d.\n", level_id );
 			return -1;
@@ -122,7 +122,7 @@ main (
 
 	H5PartSetVerbosityLevel ( 4 );
 
-	h5_file *f = H5FedOpenFile ( "simple_tet.h5", 0 );
+	h5_file *f = H5OpenFile ( "simple_tet.h5", 0 );
 	if ( f == NULL ) {
 		fprintf ( stderr, "!!! Can't open file.\n" );
 		return -1;
@@ -145,7 +145,7 @@ main (
 		}
 	}
 
-	h5_err_t h5err = H5FedCloseFile ( f );
+	h5_err_t h5err = H5CloseFile ( f );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't close file.\n" );
 		return -1;
