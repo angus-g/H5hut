@@ -16,7 +16,7 @@
 
 #define H5BLOCK_GROUPNAME_BLOCK	H5B_CONTAINER_GRPNAME
 
-#define SET_FNAME( fname )	H5_set_funcname( fname );
+#define SET_FNAME( fname )	h5_set_funcname( fname );
 
 #define CHECK_FILEHANDLE( f ) \
 	if ( f == NULL ) \
@@ -24,22 +24,22 @@
 
 #define CHECK_WRITABLE_MODE( f )  \
 	if ( f->mode==H5PART_READ ) \
-		return (*H5_get_errorhandler()) (	\
-			H5_get_funcname(), \
+		return (*h5_get_errorhandler()) (	\
+			h5_get_funcname(), \
 			H5_ERR_INVAL, \
 			"Attempting to write to read-only file" );
 
 #define CHECK_READONLY_MODE( f )  \
 	if ( ! f->mode==H5PART_READ ) \
-		return (*H5_get_errorhandler()) (	\
-			H5_get_funcname(), \
+		return (*h5_get_errorhandler()) (	\
+			h5_get_funcname(), \
 			H5_ERR_INVAL, \
 			"Operation is not allowed on writable files." );
 
 #define CHECK_TIMEGROUP( f ) \
 	if ( f->step_gid <= 0 ) \
-		return (*H5_get_errorhandler()) (	\
-			H5_get_funcname(), \
+		return (*h5_get_errorhandler()) (	\
+			h5_get_funcname(), \
 			H5_ERR_INVAL, \
 			"Internal error: step_gid <= 0.");
 
@@ -65,18 +65,18 @@ struct _iter_op_data {
 };
 
 h5part_int64_t
-H5_set_step (
+h5_set_step (
 	h5_file *f,
 	const h5part_int64_t step
 	);
 
 h5part_int64_t
-H5_get_num_particles (
+h5_get_num_particles (
 	h5_file *f
 	);
 
 herr_t
-H5_iteration_operator (
+h5_iteration_operator (
 	hid_t group_id,
 	const char *member_name,
 	void *operator_data
@@ -84,22 +84,22 @@ H5_iteration_operator (
 
 
 
-#define SET_FNAME( fname )	H5_set_funcname( fname );
+#define SET_FNAME( fname )	h5_set_funcname( fname );
 
 hid_t
-H5_normalize_h5_type (
+h5_normalize_h5_type (
 	hid_t type
 	);
 
 h5part_int64_t
-H5_read_attrib (
+h5_read_attrib (
 	hid_t id,
 	const char *attrib_name,
 	void *attrib_value
 	);
 
 h5part_int64_t
-H5_write_attrib (
+h5_write_attrib (
 	hid_t id,
 	const char *attrib_name,
 	const hid_t attrib_type,
@@ -108,7 +108,7 @@ H5_write_attrib (
 	);
 
 h5part_int64_t
-H5_get_attrib_info (
+h5_get_attrib_info (
 	hid_t id,
 	const h5part_int64_t attrib_idx,
 	char *attrib_name,
@@ -118,14 +118,14 @@ H5_get_attrib_info (
 	);
 
 h5part_int64_t
-H5_get_num_objects (
+h5_get_num_objects (
 	hid_t group_id,
 	const char *group_name,
 	const hid_t type
 	);
 
 h5part_int64_t
-H5_get_num_objects_matching_pattern (
+h5_get_num_objects_matching_pattern (
 	hid_t group_id,
 	const char *group_name,
 	const hid_t type,
