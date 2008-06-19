@@ -359,7 +359,6 @@ src/H5Fed_inquiry.c -text
 src/H5Fed_retrieve.c -text
 src/H5Fed_statistics.c -text
 src/H5Fed_store.c -text
-src/H5Fed_storeretrieve.c -text
 src/H5Part.c -text
 src/H5Part.h -text
 src/H5_inquiry.c -text
