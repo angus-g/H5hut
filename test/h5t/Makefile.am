@@ -36,7 +36,7 @@ INC = $(HDFINC) $(MPIINC) $(H5INC)
 
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
-bin_PROGRAMS = simple_tet read_tet
+bin_PROGRAMS = simple_tet read_tet simple_triangle read_triangle
 
 # Some useful scripts that I wish to place in the $(prefix)/bin directory.
 bin_SCRIPTS =
@@ -50,6 +50,8 @@ EXTRA_PROGRAMS =
 EXTRA_DIST = 	\
 		simple_tet.c \
 		read_tet.c \
+		simple_triangle.c \
+		read_triangle.c \
 		$(bin_SCRIPTS)
 
 all:	$(bin_PROGRAMS)
