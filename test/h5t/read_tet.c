@@ -31,10 +31,10 @@ read_vertices (
 	h5_float64_t P[3];
 	h5_size_t real_num = 0;
 
-	h5_size_t num = H5FedGetNumVertices ( f );
+	h5_size_t num = H5FedGetNumVerticesTotal ( f );
 	printf ( "    Number of vertices on level: %d\n", num );
 	while ( (real_num < num) &&
-		((local_id = H5FedGetVertex ( f, &id, P )) >= 0) ) {
+		((local_id = H5FedTraverseVertices ( f, &id, P )) >= 0) ) {
 		printf ( "    Vertex[%d]: local id: %d, coords: %f %f %f \n",
 			 id, local_id, P[0], P[1], P[2] );
 		real_num++;
@@ -54,10 +54,10 @@ read_tets (
 	h5_id_t id, local_id, parent_id, vids[4];
 	h5_size_t real_num = 0;
 
-	h5_size_t num = H5FedGetNumTetrahedra ( f );
+	h5_size_t num = H5FedGetNumTetrahedraTotal ( f );
 	printf ( "    Number of tetrahedra on level: %d\n", num );
 	while ( (real_num < num) &&
-		((local_id = H5FedGetTetrahedron ( f, &id, &parent_id, vids )) >= 0) ) {
+		((local_id = H5FedTraverseTetrahedra ( f, &id, &parent_id, vids )) >= 0) ) {
 		printf ( "    Tet[%d]: local id: %d, parent id: %d, vids: %d %d %d %d\n",
 			 id, local_id, parent_id, vids[0], vids[1], vids[2], vids[3] );
 		real_num++;
@@ -95,10 +95,10 @@ read_mesh (
 	) {
 
 	h5_id_t level_id;
-	h5_size_t num_levels = H5FedGetNumRefinementLevels ( f );
+	h5_size_t num_levels = H5FedGetNumLevels ( f );
 	printf ( "    Number of levels in mesh: %d\n", num_levels );
 	for ( level_id = 0; level_id < num_levels; level_id++ ) {
-		h5_err_t h5err = H5FedSetRefinementLevel ( f, level_id );
+		h5_err_t h5err = H5FedSetLevel ( f, level_id );
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Can't set level %d.\n", level_id );
 			return -1;
@@ -128,12 +128,12 @@ main (
 		return -1;
 	}
 
-	h5_size_t num_meshes = H5FedGetNumMeshes ( f );
+	h5_size_t num_meshes = H5FedGetNumMeshes ( f, TETRAHEDRAL_MESH );
 	printf ( "    Number of meshes: %d\n", num_meshes );
 
 	h5_id_t mesh_id;
 	for ( mesh_id = 0; mesh_id < num_meshes; mesh_id++ ) {
-		h5_err_t h5err = H5FedOpenMesh ( f, mesh_id );
+		h5_err_t h5err = H5FedOpenMesh ( f, mesh_id, TETRAHEDRAL_MESH );
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Can't open mesh %d\n", mesh_id );
 			return -1;
