@@ -15,6 +15,7 @@ doc/Doxyfile -text
 doc/H5X_File_Format.txt -text
 doc/Makefile.am -text
 doc/doxyfooter -text
+doc/doxyheader -text
 doc/tetrahedron_refinements/1-edge/edge_01_refined/01.png -text
 doc/tetrahedron_refinements/1-edge/edge_01_refined/01.pvsm -text
 doc/tetrahedron_refinements/1-edge/edge_01_refined/01.txt -text
