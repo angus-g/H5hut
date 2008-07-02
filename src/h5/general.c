@@ -446,7 +446,8 @@ h5_err_t
 h5_get_stepname_fmt (
 	h5_file * f,
 	char *name,
-	h5_int64_t *width
+	const h5_size_t l_name,
+	h5_size_t *width
 	) {
 	return -1;
 }

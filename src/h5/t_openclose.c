@@ -15,7 +15,9 @@ extern h5part_error_handler	_err_handler;
 extern h5part_int64_t		_h5part_errno;
 extern unsigned			_debug;
 
-
+/*
+  create several HDF5 types
+*/
 static h5_err_t
 _create_array_types (
 	h5_file * f
@@ -96,6 +98,57 @@ _create_vertex_type (
 }
 
 static h5_err_t
+_create_triangle_type (
+	h5_file * f
+	) {
+	struct h5t_fdata *t = &f->t;
+
+	hid_t hid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_triangle) );
+	if ( hid < 0 ) {
+		return HANDLE_H5T_CREATE_ERR ( "H5T_COMPOUND", "triangle" );
+	}
+	t->triangle_tid = hid;
+
+	herr_t herr = H5Tinsert (
+		t->triangle_tid,
+		"id",
+		HOFFSET(struct h5_triangle, id),
+		H5T_NATIVE_INT32 );
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "id", "triangle" );
+	}
+
+	herr = H5Tinsert (
+		t->triangle_tid,
+		"parent_id",
+		HOFFSET(struct h5_triangle, parent_id),
+		H5T_NATIVE_INT32 );
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "parent_id", "triangle" );
+	}
+
+	herr = H5Tinsert (
+		t->triangle_tid,
+		"refined_on_level",
+		HOFFSET(struct h5_triangle, refined_on_level),
+		H5T_NATIVE_INT32 );
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "refined_on_level", "triangle" );
+	}
+
+	herr = H5Tinsert (
+		t->triangle_tid,
+		"vertex_ids",
+		HOFFSET(struct h5_triangle, vertex_ids),
+		t->int32_3tuple_tid );
+	if ( herr < 0 ) {
+		return HANDLE_H5T_INSERT_ERR ( "vertex_ids", "triangle" );
+	}
+
+	return H5_SUCCESS;
+}
+
+static h5_err_t
 _create_tet_type (
 	h5_file * f
 	) {
@@ -168,12 +221,11 @@ _h5t_init_fdata (
 	t->new_level = -1;
 	t->cur_level = -1;
 	t->last_stored_vertex_id = -1;
-	t->last_stored_tet_id = -1;
+	t->last_stored_entity_id = -1;
 	t->topo_gid = -1;
+	t->meshes_gid = -1;
 	t->mesh_gid = -1;
-	t->coord_gid = -1;
-	t->vmesh_gid = -1;
-
+	
 	return H5_SUCCESS;
 }
 
@@ -198,6 +250,7 @@ _h5t_open_file (
 
 	if (( h5err = _create_array_types ( f )) < 0 ) return h5err;
 	if (( h5err = _create_vertex_type ( f )) < 0 ) return h5err;
+	if (( h5err = _create_triangle_type ( f )) < 0 ) return h5err;
 	if (( h5err = _create_tet_type ( f )) < 0 ) return h5err;
 
 	return H5_SUCCESS;

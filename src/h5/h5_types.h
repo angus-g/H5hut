@@ -34,6 +34,7 @@ typedef __int64			int64_t;
 #endif /* WIN32 */
 
 typedef int64_t			h5_int64_t;
+typedef int32_t			h5_int32_t;
 typedef	h5_int64_t		h5_int_t;
 typedef	h5_int64_t		h5part_int64_t;
 typedef int32_t			h5_id_t;
@@ -44,12 +45,15 @@ typedef double			h5_float64_t;
 typedef	h5_float64_t		h5_float_t;
 typedef	h5_float64_t		h5part_float64_t;
 
-typedef h5_err_t		h5_int32_t;
-
 struct h5_complex {
 	h5_float64_t		r,i;
 };
 typedef struct h5_complex	h5_complex;
+
+enum h5_mesh_types {
+	TETRAHEDRAL_MESH,
+	TRIANGLE_MESH
+};
 
 struct h5_vertex {  /* 32Byte */
 	h5_id_t		id;
@@ -85,7 +89,7 @@ typedef struct h5_edge		h5_edge;
 typedef struct h5_triangle	h5_triangle;
 typedef struct h5_tetrahedron	h5_tetrahedron;
 
-typedef h5_int64_t (*h5_error_handler)( const char*, const h5_int64_t, const char*,...)
+typedef h5_err_t (*h5_error_handler)( const char*, const h5_err_t, const char*,...)
 #ifdef __GNUC__
 __attribute__ ((format (printf, 3, 4)))
 #endif
@@ -146,8 +150,15 @@ struct h5b_fdata {
 struct h5t_fdata_level {
 };
 
+union entities {
+	h5_tetrahedron	*tets;
+	h5_triangle	*tris;
+	void		*data;
+};
+
 struct h5t_fdata {
 	char		mesh_name[16];
+	enum h5_mesh_types	mesh_type;
 	h5_id_t		cur_mesh;
 	h5_id_t		new_mesh;	/* idx of the first new mesh or -1 */
 	h5_id_t		num_meshes;
@@ -157,24 +168,25 @@ struct h5t_fdata {
 	h5_size_t	num_levels;
 
 	h5_size_t	*num_vertices;
-	h5_size_t	*num_tets;
-	h5_size_t	*num_tets_on_level;
-	h5_size_t	*map_tets_g2l;
+	h5_size_t	*num_entities;
+	h5_size_t	*num_entities_on_level;
+	h5_size_t	*map_entity_g2l;/* map global id to local id */
 
 	h5_id_t		last_retrieved_vertex_id; 
 	h5_id_t		last_stored_vertex_id; 
-	h5_vertex	* vertices;
+	h5_vertex	*vertices;
 
-	h5_id_t		last_retrieved_tet_id; 
-	h5_id_t		last_stored_tet_id;
-	h5_tetrahedron	* tets;
+	h5_id_t		last_retrieved_entity_id; 
+	h5_id_t		last_stored_entity_id;
+
+	hid_t		entity_tid;
+	union entities	entities;
 
 	/* HDF5 objects */
 
 	hid_t		topo_gid;	/* grp id of mesh in current level */
+	hid_t		meshes_gid;
 	hid_t		mesh_gid;
-	hid_t		coord_gid;
-	hid_t		vmesh_gid;
 
 	/* type ids' for compound types */
 	hid_t		float64_3tuple_tid;
@@ -182,6 +194,7 @@ struct h5t_fdata {
 	hid_t		int32_3tuple_tid;
 	hid_t		int32_4tuple_tid;
 	hid_t		vertex_tid;
+	hid_t		triangle_tid;
 	hid_t		tet_tid;
 };
 

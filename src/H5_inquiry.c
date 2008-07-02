@@ -31,12 +31,12 @@
   \return Number of compute notes.
   \return \c -1 on error.
  */
-h5_int_t
+h5_size_t
 H5GetNumNodes (
-	h5_file * fh			/*!< file handle		*/
+	h5_file * f			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
-	return (h5_int_t)fh->nprocs;
+	return (h5_size_t)fh->nprocs;
 }
 
 /*`

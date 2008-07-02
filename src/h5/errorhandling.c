@@ -11,32 +11,32 @@
 #include "H5Part.h"
 
 h5_error_handler	_err_handler = h5_report_errorhandler;
-h5_int64_t		_h5part_errno = H5PART_SUCCESS;
-h5_int64_t		_debug = 0;
+h5_err_t		_h5part_errno = H5PART_SUCCESS;
+h5_id_t		_debug = 0;
 
 static char *__funcname = "NONE";
 
-h5part_int64_t
+h5_err_t
 h5_set_debuglevel (
-	h5part_int64_t level
+	h5_id_t level
 	) {
 	_debug = level;
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
-h5part_int64_t
+h5_err_t
 h5_get_debuglevel (
 	void
 	) {
 	return _debug;
 }
 
-h5part_int64_t
+h5_err_t
 h5_set_errorhandler (
-	h5part_error_handler handler
+	h5_error_handler handler
 	) {
 	_err_handler = handler;
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5part_error_handler
@@ -46,7 +46,7 @@ h5_get_errorhandler (
 	return _err_handler;
 }
 
-h5part_int64_t
+h5_err_t
 h5_get_errno (
 	void
 	) {
@@ -62,10 +62,10 @@ h5_get_errno (
 
   \return value given in \c eno
 */
-h5part_int64_t
+h5_err_t
 h5_report_errorhandler (
 	const char *funcname,
-	const h5part_int64_t eno,
+	const h5_err_t eno,
 	const char *fmt,
 	...
 	) {
@@ -86,10 +86,10 @@ h5_report_errorhandler (
   If an error occures, an error message will be printed and the
   program exists with the error code given in \c eno.
 */
-h5part_int64_t
+h5_err_t
 h5_abort_errorhandler (
 	const char *funcname,
-	const h5part_int64_t eno,
+	const h5_err_t eno,
 	const char *fmt,
 	...
 	) {

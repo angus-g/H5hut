@@ -6,17 +6,17 @@
 #define h5_warn		h5_print_warn
 #define h5_error	h5_print_error
 
-h5part_int64_t
+h5_err_t
 h5_set_debuglevel (
-	h5part_int64_t level
+	h5_id_t level
 	);
 
-h5part_int64_t
+h5_err_t
 h5_get_debuglevel (
 	void
 	);
 
-h5part_int64_t
+h5_err_t
 h5_set_errorhandler (
 	h5part_error_handler handler
 	);
@@ -26,23 +26,23 @@ h5_get_errorhandler (
 	void
 	);
 
-h5part_int64_t
+h5_err_t
 h5_get_errno (
 	void
 	);
 
-h5part_int64_t
+h5_err_t
 h5_report_errorhandler (
 	const char *funcname,
-	const h5part_int64_t eno,
+	const h5_err_t eno,
 	const char *fmt,
 	...
 	);
 
-h5part_int64_t
+h5_err_t
 h5_abort_errorhandler (
 	const char *funcname,
-	const h5part_int64_t eno,
+	const h5_err_t eno,
 	const char *fmt,
 	...
 	) ;

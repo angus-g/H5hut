@@ -38,8 +38,8 @@ h5_err_t
 H5GetStepNameFormat (
 	h5_file *f,
 	char *name,
-	h5_int64_t *l_name,
-	h5_int64_t *width
+	const h5_size_t l_name,
+	h5_size_t *width
 	);
 
 h5_err_t

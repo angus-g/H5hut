@@ -28,6 +28,14 @@ h5_define_stepname_fmt (
 	);
 
 h5_err_t
+h5_get_stepname_fmt (
+	h5_file *f,
+	char *name,
+	const h5_size_t l_name,
+	h5_size_t *width
+	);
+
+h5_err_t
 _h5_close_step (
 	h5_file *f
 	);
@@ -36,6 +44,11 @@ h5_int64_t
 h5_has_step (
 	h5_file * f,
 	h5_int64_t step
+	);
+
+h5_int64_t
+h5_get_step (
+	h5_file *f
 	);
 
 #include "attribs.h"

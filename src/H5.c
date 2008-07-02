@@ -42,7 +42,7 @@
 
 #include <stdarg.h>
 #include <hdf5.h>
-#include "h5/h5.h"
+#include "h5/h5_core.h"
 #include "h5/h5_private.h"
 #include "H5Fed.h"
 
@@ -120,8 +120,8 @@ h5_err_t
 H5GetStepNameFormat (
 	h5_file *f,			/*!< Handle to file		*/
 	char *name,			/*!< OUT: Prefix		*/
-	h5_int64_t *l_name,		/*!< length of buffer name	*/
-	h5_int64_t *width		/*!< OUT: Width of the number	*/
+	const h5_size_t l_name,		/*!< length of buffer name	*/
+	h5_size_t *width		/*!< OUT: Width of the number	*/
 	) {
 	SET_FNAME ( "H5PartDefineStepNameFormat" );
 

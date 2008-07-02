@@ -16,9 +16,17 @@
 
 #include <stdarg.h>
 #include <hdf5.h>
-#include "h5/h5.h"
+#include "h5/h5_core.h"
 #include "h5/h5_private.h"
 #include "H5Fed.h"
+
+h5_err_t
+H5FedStartTraverseVertices (
+	h5_file * f			/*!< file handle		*/
+	) {
+	SET_FNAME ( __func__ );
+	return h5t_start_traverse_vertices ( f );
+}
 
 /*!
   \ingroup h5fed_c_api
@@ -29,15 +37,47 @@
   \return error code (H5_ERR_NOENT means no more vertices on this level)
  
  */
-h5_id_t
-H5FedGetVertex (
+h5_err_t
+H5FedTraverseVertices (
 	h5_file * f,			/*!< file handle		*/
 	h5_id_t	* const id,		/*!< OUT: global id		*/
 	h5_float64_t P[3]		/*!< OUT: coordinates		*/
 	) {
 	SET_FNAME ( __func__ );
-	return H5t_get_vertex ( f, id, P );
+	return h5t_traverse_vertices ( f, id, P );
 }
+
+
+
+h5_err_t
+H5FedStartTraverseTriangles (
+	h5_file * f			/*!< file handle		*/
+	) {
+	SET_FNAME ( __func__ );
+	return h5t_start_traverse_triangles ( f );
+}
+
+h5_err_t
+H5FedTraverseTriangles (
+	h5_file * f,			/*!< file handle		*/
+	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
+	h5_id_t * const parent_id,	/*!< OUT: parent id if level
+					     \c >0 else \c -1		*/
+	h5_id_t vertex_ids[3]		/*!< OUT: vertex id's		*/
+	) {
+	SET_FNAME ( __func__ );
+	return h5t_traverse_triangles ( f, id, parent_id, vertex_ids );
+}
+
+
+h5_err_t
+H5FedStartTraverseTetrahedra (
+	h5_file * f			/*!< file handle		*/
+	) {
+	SET_FNAME ( __func__ );
+	return h5t_start_traverse_tets ( f );
+}
+
 
 /*!
   \ingroup h5fed_c_api
@@ -49,15 +89,16 @@ H5FedGetVertex (
   \return pointer to 4-tuple of vertex id's defining the tetrahedron.
   \return NULL-pointer on error.
 */
-h5_id_t
-H5FedGetTetrahedron (
+h5_err_t
+H5FedTraverseTetrahedra (
 	h5_file * f,			/*!< file handle		*/
 	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
-	h5_id_t * parent_id,		/*!< OUT: parent id if level
+	h5_id_t * const parent_id,	/*!< OUT: parent id if level
 					     \c >0 else \c -1		*/
 	h5_id_t vertex_ids[4]		/*!< OUT: vertex id's		*/
 	) {
 	SET_FNAME ( __func__ );
-	return H5t_get_tet ( f, id, parent_id, vertex_ids );
+	return h5t_traverse_tets ( f, id, parent_id, vertex_ids );
 }
+
 
