@@ -56,12 +56,12 @@ add_level (
 	int num_tets
 	) {
 
-	h5_err_t h5err = H5FedAddRefinementLevel ( f );
+	h5_err_t h5err = H5FedAddLevel ( f );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't add level.\n" );
 		return -1;
 	}
-	h5err = H5FedSetAdditionalNumVerticesToStore ( f, num_verts );
+	h5err = H5FedAddNumVertices ( f, num_verts );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't set number of vertices.\n" );
 		return -1;
@@ -78,7 +78,7 @@ add_level (
 			return -1;
 		}
 	}
-	h5err = H5FedSetAdditionalNumTetrahedraToStore ( f, num_tets );
+	h5err = H5FedAddNumEntities ( f, num_tets );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't set number of tets.\n" );
 		return -1;
@@ -113,7 +113,7 @@ main (
 		return -1;
 	}
 
-	h5_err_t h5err = H5FedAddMesh ( f );
+	h5_err_t h5err = H5FedAddMesh ( f, TETRAHEDRAL_MESH );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't set step.\n" );
 		return -1;
