@@ -1,4 +1,3 @@
-
 #ifndef __H5_TYPES_H
 #define __H5_TYPES_H
 
@@ -50,9 +49,9 @@ struct h5_complex {
 };
 typedef struct h5_complex	h5_complex;
 
-enum h5_mesh_types {
-	TETRAHEDRAL_MESH,
-	TRIANGLE_MESH
+enum h5_mesh_types {		/* enum with number of vertices(!) */
+	TRIANGLE_MESH = 3,
+	TETRAHEDRAL_MESH = 4
 };
 
 struct h5_vertex {  /* 32Byte */
@@ -76,12 +75,21 @@ struct h5_triangle { /*24Bytes*/
 	h5_id_t		refined_on_level;
 };
 
+
 struct h5_tetrahedron { /* 24Bytes */
 	h5_id_t		id;
 	h5_id_t		parent_id;
 	h5_id_t		refined_on_level;
 	h5_id_t		unused;	/* for right alignment */
 	h5_id_t		vertex_ids[4];
+};
+
+struct h5_ltriangle {
+	h5_id_t		vertex_ids[3];	/* local(!) vertex ids */
+};
+
+struct h5_ltetrahedron {
+	h5_id_t		vertex_ids[4];	/* local(!) vertex ids */
 };
 
 typedef struct h5_vertex	h5_vertex;
@@ -151,9 +159,30 @@ struct h5t_fdata_level {
 };
 
 union entities {
-	h5_tetrahedron	*tets;
-	h5_triangle	*tris;
-	void		*data;
+	struct h5_tetrahedron	*tets;
+	struct h5_triangle	*tris;
+	void			*data;
+};
+
+union lentities {
+	struct h5_ltetrahedron	*tets;
+	struct h5_ltriangle	*tris;
+	void			*data;
+};
+
+struct smap {
+	h5_size_t	size;		/* allocated space in number of items */
+	h5_size_t	num_items;	/* stored items	*/
+	h5_id_t		*items;
+};
+
+struct idmap {
+	h5_size_t	size;		/* allocated space in number of items */
+	h5_size_t	num_items;	/* stored items	*/
+	struct {
+		h5_id_t	global_id;
+		h5_id_t	local_id;
+	}		*items;
 };
 
 struct h5t_fdata {
@@ -167,20 +196,21 @@ struct h5t_fdata {
 	h5_id_t		new_level;	/* idx of the first new level or -1 */
 	h5_size_t	num_levels;
 
+	h5_vertex	*vertices;
 	h5_size_t	*num_vertices;
-	h5_size_t	*num_entities;
-	h5_size_t	*num_entities_on_level;
-	h5_size_t	*map_entity_g2l;/* map global id to local id */
-
+	struct idmap	map_vertex_g2l;/* map global id to local id */
 	h5_id_t		last_retrieved_vertex_id; 
 	h5_id_t		last_stored_vertex_id; 
-	h5_vertex	*vertices;
+
+	union entities	entities;
+	union lentities lentities;
+	hid_t		entity_tid;	/* type of mesh: tetrahedral, triangle ... */
+	h5_size_t	*num_entities;
+	h5_size_t	*num_entities_on_level;
+	struct idmap	map_entity_g2l;/* map global id to local id */
 
 	h5_id_t		last_retrieved_entity_id; 
 	h5_id_t		last_stored_entity_id;
-
-	hid_t		entity_tid;
-	union entities	entities;
 
 	/* HDF5 objects */
 
@@ -197,7 +227,6 @@ struct h5t_fdata {
 	hid_t		triangle_tid;
 	hid_t		tet_tid;
 };
-
 
 /**
    \struct h5_file

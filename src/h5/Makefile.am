@@ -47,6 +47,7 @@ include_HEADERS = \
 	h5_types.h \
 	attribs.h \
 	errorhandling.h \
+	maps.h \
 	readwrite.h \
 	t_openclose.h \
 	t_readwrite.h \
@@ -60,6 +61,7 @@ libH5_a_SOURCES = \
 	general.c \
 	attribs.c \
 	errorhandling.c \
+	maps.c \
 	t_openclose.c \
 	readwrite.c \
 	u_readwrite.c \

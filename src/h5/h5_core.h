@@ -53,6 +53,7 @@ h5_get_step (
 
 #include "attribs.h"
 #include "errorhandling.h"
+#include "maps.h"
 #include "readwrite.h"
 #include "t_openclose.h"
 #include "t_readwrite.h"

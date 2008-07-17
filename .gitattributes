@@ -383,6 +383,8 @@ src/h5/general.c -text
 src/h5/h5_core.h -text
 src/h5/h5_private.h -text
 src/h5/h5_types.h -text
+src/h5/maps.c -text
+src/h5/maps.h -text
 src/h5/readwrite.c -text
 src/h5/readwrite.h -text
 src/h5/t_openclose.c -text

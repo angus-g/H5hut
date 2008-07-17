@@ -110,6 +110,13 @@
 			"No entry with index %lld and type %d in group %s!", \
 			(long long)idx, type, group_name );
 
+#define HANDLE_H5T_GID_NOT_EXIST_ERR( name, id ) \
+		(*h5_get_errorhandler()) ( \
+			h5_get_funcname(), \
+			H5_ERR_NOENTRY, \
+			"Global %s id %ld does not exist!", \
+			name, (long)id );
+
 #define HANDLE_H5_UNDEF_MESH_ERR \
 		(*h5_get_errorhandler()) ( \
 			h5_get_funcname(), \
