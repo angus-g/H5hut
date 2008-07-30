@@ -402,10 +402,10 @@ test/H5Block/H5BlockTestAttributes.c -text
 test/H5Block/H5BlockTestAttributesF.f90 -text
 test/H5Block/Makefile.am -text
 test/H5Fed/Makefile.am -text
-test/H5Fed/read_tet.c -text
-test/H5Fed/read_triangle.c -text
-test/H5Fed/simple_tet.c -text
-test/H5Fed/simple_triangle.c -text
+test/H5Fed/read_tetmesh.c -text
+test/H5Fed/read_trianglemesh.c -text
+test/H5Fed/write_tet.c -text
+test/H5Fed/write_triangle.c -text
 test/H5Part/Bench.c -text
 test/H5Part/H5ParallelTest.cc -text
 test/H5Part/H5PartAndreasTest.cc -text
