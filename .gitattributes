@@ -393,6 +393,11 @@ src/h5/t_readwrite.c -text
 src/h5/t_readwrite.h -text
 src/h5/u_readwrite.c -text
 src/h5/u_readwrite.h -text
+test/H5Fed/Makefile.am -text
+test/H5Fed/read_tet.c -text
+test/H5Fed/read_triangle.c -text
+test/H5Fed/simple_tet.c -text
+test/H5Fed/simple_triangle.c -text
 test/Makefile.am -text
 test/h5b/BlockTestSpecs.txt -text
 test/h5b/H5BlockDissolveGhosts.c -text
@@ -402,11 +407,6 @@ test/h5b/H5BlockParTestScalarFieldF.f90 -text
 test/h5b/H5BlockTestAttributes.c -text
 test/h5b/H5BlockTestAttributesF.f90 -text
 test/h5b/Makefile.am -text
-test/h5t/Makefile.am -text
-test/h5t/read_tet.c -text
-test/h5t/read_triangle.c -text
-test/h5t/simple_tet.c -text
-test/h5t/simple_triangle.c -text
 test/h5u/Bench.c -text
 test/h5u/H5ParallelTest.cc -text
 test/h5u/H5PartAndreasTest.cc -text
