@@ -580,9 +580,9 @@ src/bindings/Makefile
 src/bindings/C++/Makefile
 src/Makefile
 test/Makefile
-test/h5u/Makefile
-test/h5b/Makefile
-test/h5t/Makefile
+test/H5Block/Makefile
+test/H5Fed/Makefile
+test/H5Part/Makefile
 tools/Makefile
 ])
 

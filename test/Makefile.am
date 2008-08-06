@@ -1,3 +1,3 @@
 # test level Makefile.am
 
-SUBDIRS = h5u h5b h5t
+SUBDIRS = H5Block H5Fed H5Part
