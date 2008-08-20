@@ -36,22 +36,26 @@ INC = $(HDFINC) $(MPIINC) $(H5INC)
 
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
-bin_PROGRAMS = simple_tet read_tet simple_triangle read_triangle
+bin_PROGRAMS = \
+		write_tetmesh \
+		read_tetmesh \
+		write_trianglemesh \
+		read_trianglemesh \
+		map_tet2globalid
 
 # Some useful scripts that I wish to place in the $(prefix)/bin directory.
 bin_SCRIPTS =
-
-
 
 # Listing of all programs that maybe built. (Has to know statically...)
 EXTRA_PROGRAMS =
 
 # Extra files that I wish to include in the dist tar ball.
 EXTRA_DIST = 	\
-		simple_tet.c \
-		read_tet.c \
-		simple_triangle.c \
-		read_triangle.c \
+		write_tetmesh.c \
+		read_tetmesh.c \
+		write_trianglemesh.c \
+		read_trianglemesh.c \
+		map_tet2globalid.c \
 		$(bin_SCRIPTS)
 
 all:	$(bin_PROGRAMS)
