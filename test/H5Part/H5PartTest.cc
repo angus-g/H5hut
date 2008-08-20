@@ -252,7 +252,7 @@ int main(int argc,char *argv[]){
   }
 
   // read dataset names
-  h5part_int64_t status = H5PART_SUCCESS;
+  h5part_int64_t status = H5_SUCCESS;
   const h5part_int64_t lenName = 64;
   char datasetName[lenName];
   h5part_int64_t datasetType;
@@ -263,7 +263,7 @@ int main(int argc,char *argv[]){
     status = H5PartGetDatasetInfo(file, i, datasetName, lenName,
 				  &datasetType, &datasetNElems);
 
-    if (status != H5PART_SUCCESS) {
+    if (status != H5_SUCCESS) {
       perror("Could not retrieve dataset names!");
     }
     else {
