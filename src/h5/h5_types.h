@@ -54,6 +54,8 @@ enum h5_mesh_types {		/* enum with number of vertices(!) */
 	TETRAHEDRAL_MESH = 4
 };
 
+#define H5_MAX_VERTICES_PER_ENTITY TETRAHEDRAL_MESH
+
 struct h5_vertex {  /* 32Byte */
 	h5_id_t		id;
 	h5_id_t		unused;	/* for right alignment */
@@ -208,6 +210,11 @@ struct h5t_fdata {
 	h5_size_t	*num_entities;
 	h5_size_t	*num_entities_on_level;
 	struct idmap	map_entity_g2l;/* map global id to local id */
+
+	/* array with geometrically sorted local entitiy ids
+	 [0]: 0,1,2,3 sorted 
+	 [1]: 1,0,2,3 sorted */
+	struct smap	sorted_lentities[H5_MAX_VERTICES_PER_ENTITY];
 
 	h5_id_t		last_retrieved_entity_id; 
 	h5_id_t		last_stored_entity_id;

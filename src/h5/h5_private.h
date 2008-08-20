@@ -2,12 +2,20 @@
 #define __H5_PRIVATE_H
 
 #include "errorhandling_private.h"
+#include "t_map_private.h"
+#include "t_errorhandling_private.h"
 
-#define H5B_CONTAINER_GRPNAME		"Block"
+#define H5PART_GROUPNAME_STEP	"Step"
 
-#define H5T_CONTAINER_GRPNAME		"Topo"
+#define H5B_CONTAINER_GRPNAME	"Block"
+
+#define H5T_CONTAINER_GRPNAME	"Topo"
 
 #define H5BLOCK_GROUPNAME_BLOCK	H5B_CONTAINER_GRPNAME
+
+#define H5_TET_MASK		( (h5_id_t)(-1) >> 3 )
+#define _h5t_build_triangle_id( idx, entity_id ) \
+	( (idx << (sizeof(entity_id)*8 - 3)) | (entity_id & H5_TET_MASK))
 
 #define SET_FNAME( fname )	h5_set_funcname( fname );
 
@@ -37,7 +45,6 @@
 			"Internal error: step_gid <= 0.");
 
 
-#define H5PART_GROUPNAME_STEP	"Step"
 
 /*!
   The functions declared here are not part of the API, but may be used

@@ -387,6 +387,11 @@ src/h5/maps.c -text
 src/h5/maps.h -text
 src/h5/readwrite.c -text
 src/h5/readwrite.h -text
+src/h5/t_errorhandling.c -text
+src/h5/t_errorhandling_private.h -text
+src/h5/t_map.c -text
+src/h5/t_map.h -text
+src/h5/t_map_private.h -text
 src/h5/t_openclose.c -text
 src/h5/t_openclose.h -text
 src/h5/t_readwrite.c -text

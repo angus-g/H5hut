@@ -55,6 +55,11 @@ h5t_add_level (
 	h5_file * f
 	);
 
+h5_err_t
+_h5t_read_vertices (
+	h5_file * f
+	);
+
 h5_size_t
 h5t_add_num_vertices (
 	h5_file * f,
@@ -69,7 +74,7 @@ h5t_store_vertex (
 	);
 
 h5_size_t
-h5t_get_num_vertices (
+h5t_get_num_vertices_on_level (
 	h5_file * f
 	);
 
@@ -96,6 +101,11 @@ h5t_get_num_entities (
 	h5_file * f
 	);
 
+h5_size_t
+h5t_get_num_entities_on_level (
+	h5_file * f
+	);
+
 h5_id_t
 h5t_store_tet (
 	h5_file * f,
@@ -110,6 +120,11 @@ h5t_store_triangle (
 	const h5_id_t id,
 	const h5_id_t parent_id,
 	const h5_id_t vertex_ids[3]
+	);
+
+h5_err_t
+_h5t_read_entities (
+	h5_file * f
 	);
 
 h5_err_t

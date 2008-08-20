@@ -5,17 +5,33 @@
 #include "h5_core.h"
 #include "h5_private.h"
 
+h5_err_t
+_h5_alloc_smap (
+	struct smap	*map,
+	h5_size_t	size
+	) {
+	int new = ( map == NULL );
+	map->items = realloc ( map->items, size * sizeof ( map->items[0] ) );
+	if ( map->items == NULL ) {
+		return HANDLE_H5_NOMEM_ERR;
+	}
+	map->size = size;
+	if ( new ) map->num_items = 0;
+	return H5_SUCCESS;
+}
 
 h5_err_t
 _h5_alloc_idmap (
 	struct idmap	*map,
 	h5_size_t	size
 	) {
+	int new = ( map == NULL );
 	map->items = realloc ( map->items, size * sizeof ( map->items[0] ) );
 	if ( map->items == NULL ) {
 		return HANDLE_H5_NOMEM_ERR;
 	}
 	map->size = size;
+	if ( new ) map->num_items = 0;
 	return H5_SUCCESS;
 }
 
@@ -51,7 +67,7 @@ _h5_insert_idmap (
 
   \ingroup h5_core
 
-  binary search in simple map
+  binary search in id map. 
 
   \return index in array if found, othwise \c -(result+1) is the index
   where \c value must be inserted.
@@ -78,15 +94,19 @@ _h5_search_idmap (
        	return -(low+1);  // not found
 }
 
-h5_id_t
-h5t_map_vertex_id_global2local (
-	h5_file *f,
-	h5_id_t global_id
+int
+_cmp_idmap (
+	const void *id1,
+	const void *id2
 	) {
-	struct h5t_fdata *t = &f->t;
+	
+	return *(h5_id_t*)id1 - *(h5_id_t*)id2;
+}
 
-	h5_id_t local_id = _h5_search_idmap ( &t->map_vertex_g2l, global_id );
-	if ( local_id < 0 ) 
-		return HANDLE_H5T_GID_NOT_EXIST_ERR ( "vertex", global_id );
-	return local_id;
+h5_err_t
+_h5_sort_idmap (
+	struct idmap *map
+	) {
+	qsort ( map->items, map->num_items, sizeof(map->items[0]), _cmp_idmap );
+	return H5_SUCCESS;
 }

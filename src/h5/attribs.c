@@ -51,7 +51,7 @@ h5_read_attrib (
 	herr = H5Aclose ( attrib_id );
 	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5part_int64_t
@@ -88,7 +88,7 @@ h5_write_attrib (
 	herr = H5Sclose ( space_id );
 	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5part_int64_t
@@ -139,7 +139,7 @@ h5_get_attrib_info (
 	herr = H5Aclose ( attrib_id);
 	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5part_int64_t

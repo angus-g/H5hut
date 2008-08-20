@@ -47,8 +47,11 @@ include_HEADERS = \
 	h5_types.h \
 	attribs.h \
 	errorhandling.h \
+	errorhandling_private.h \
 	maps.h \
 	readwrite.h \
+	t_errorhandling_private.h \
+	t_map.h \
 	t_openclose.h \
 	t_readwrite.h \
 	u_readwrite.h 
@@ -58,14 +61,16 @@ EXTRA_HEADERS =
 
 # Listing of sources
 libH5_a_SOURCES = \
-	general.c \
 	attribs.c \
 	errorhandling.c \
+	general.c \
 	maps.c \
-	t_openclose.c \
 	readwrite.c \
-	u_readwrite.c \
-	t_readwrite.c
+	t_errorhandling.c \
+	t_map.c \
+	t_openclose.c \
+	t_readwrite.c \
+	u_readwrite.c
 
 all: libH5.a
 
@@ -78,7 +83,7 @@ libH5.a: $(libH5_a_OBJECTS)
 
 $(libH5_a_OBJECTS): h5_core.h
 
-errorhandling.o: errorhandling.c
+#errorhandling.o: errorhandling.c
 
 clean:
 	$(RM) -f *~ *.o *.a *.so

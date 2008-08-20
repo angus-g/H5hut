@@ -1,3 +1,4 @@
+
 #ifndef __H5_CORE_H
 #define __H5_CORE_H
 
@@ -55,6 +56,7 @@ h5_get_step (
 #include "errorhandling.h"
 #include "maps.h"
 #include "readwrite.h"
+#include "t_map.h"
 #include "t_openclose.h"
 #include "t_readwrite.h"
 #include "u_readwrite.h"

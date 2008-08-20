@@ -12,10 +12,6 @@
 #include "H5Part.h"
 #include "H5Block.h"
 
-extern h5part_error_handler	_err_handler;
-extern h5part_int64_t		_h5part_errno;
-extern unsigned			_debug;
-
 /*!
   \ingroup h5block_private
 
@@ -23,7 +19,7 @@ extern unsigned			_debug;
 
   Check whether \c f points to a valid file handle.
 
-  \return	H5PART_SUCCESS or error code
+  \return	H5_SUCCESS or error code
 */
 h5part_int64_t
 h5_check_filehandle (
@@ -36,7 +32,7 @@ h5_check_filehandle (
 		return HANDLE_H5_BADFD_ERR;
 	if ( f->block == NULL )
 		return HANDLE_H5_BADFD_ERR;
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 
@@ -62,7 +58,7 @@ _init ( void ) {
 		if ( r5 < 0 ) return H5PART_ERR_INIT;
 	}
 	__init = 1;
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -133,7 +129,7 @@ _h5b_open_file (
 	b->field_group_id = -1;
 	b->have_layout = 0;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
  
@@ -150,7 +146,7 @@ h5_open_file (
 		HANDLE_H5_INIT_ERR;
 		return NULL;
 	}
-	_h5part_errno = H5PART_SUCCESS;
+	_h5part_errno = H5_SUCCESS;
 	h5_file *f = NULL;
 
 	f = (h5_file*) malloc( sizeof (h5_file) );
@@ -301,7 +297,7 @@ h5_open_file (
   De-initialize H5Block internal structure.  Open HDF5 objects are 
   closed and allocated memory freed.
 
-  \return	H5PART_SUCCESS or error code
+  \return	H5_SUCCESS or error code
 */
 static h5part_int64_t
 _h5u_close_file (
@@ -338,7 +334,7 @@ _h5u_close_file (
   De-initialize H5Block internal structure.  Open HDF5 objects are 
   closed and allocated memory freed.
 
-  \return	H5PART_SUCCESS or error code
+  \return	H5_SUCCESS or error code
 */
 static h5part_int64_t
 _h5b_close_file (
@@ -371,7 +367,7 @@ _h5b_close_file (
 	free ( f->block );
 	f->block = NULL;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5part_int64_t
@@ -379,7 +375,7 @@ h5_close_file (
 	h5_file *f
 	) {
 	herr_t r = 0;
-	_h5part_errno = H5PART_SUCCESS;
+	_h5part_errno = H5_SUCCESS;
 
 	CHECK_FILEHANDLE ( f );
 
@@ -439,7 +435,7 @@ h5_define_stepname_fmt (
 	}
 	f->width_step_idx = (int)width;
 	
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5_err_t

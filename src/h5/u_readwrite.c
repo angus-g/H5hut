@@ -10,10 +10,6 @@
 #include "h5_private.h"
 #include "H5Part.h"
 
-extern h5part_error_handler	_err_handler;
-extern h5part_int64_t		_h5part_errno;
-extern unsigned			_debug;
-
 static hid_t
 _get_diskshape_for_reading (
 	h5_file *f,
@@ -180,7 +176,7 @@ H5U_read_elems (
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
 	
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5part_int64_t
@@ -201,7 +197,7 @@ H5U_set_num_elements (
 	   we don't know if things have changed globally
 	*/
 	if ( f->nparticles == nparticles ) {
-		return H5PART_SUCCESS;
+		return H5_SUCCESS;
 	}
 #endif
 	if ( f->diskshape != H5S_ALL ) {
@@ -306,7 +302,7 @@ H5U_set_num_elements (
 		
 	}
 #endif
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5part_int64_t
@@ -357,7 +353,7 @@ H5U_reset_view (
 		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
 		f->memshape=H5S_ALL;
 	}
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5part_int64_t
@@ -378,7 +374,7 @@ H5U_set_view (
 	herr = H5U_reset_view ( f );
 	if ( herr < 0 ) return herr;
 
-	if ( start == -1 && end == -1 ) return H5PART_SUCCESS;
+	if ( start == -1 && end == -1 ) return H5_SUCCESS;
 
 	/*
 	  View has been reset so H5PartGetNumParticles will tell
@@ -434,7 +430,7 @@ H5U_set_view (
 		NULL );
 	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5part_int64_t 
@@ -507,7 +503,7 @@ H5U_set_canonical_view (
 
 #endif
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 
@@ -544,5 +540,5 @@ H5U_get_dataset_info (
 		if ( *type < 0 ) return *type;
 	}
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }

@@ -11,7 +11,7 @@
 #include "H5Part.h"
 
 h5_error_handler	_err_handler = h5_report_errorhandler;
-h5_err_t		_h5part_errno = H5PART_SUCCESS;
+h5_err_t		_h5part_errno = H5_SUCCESS;
 h5_id_t		_debug = 0;
 
 static char *__funcname = "NONE";

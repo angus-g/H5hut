@@ -8,6 +8,7 @@
 
 #include "h5_core.h"
 #include "h5_private.h"
+
 #include "H5Part.h"
 #include "H5Block.h"
 
@@ -513,6 +514,24 @@ h5t_add_level (
 	return t->cur_level;
 }
 
+static h5_err_t
+_alloc_num_vertices (
+	h5_file * f,
+	const h5_size_t num_vertices
+	) {
+	struct h5t_fdata *t = &f->t;
+
+	ssize_t num_bytes = num_vertices*sizeof ( t->vertices[0] );
+	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
+	t->vertices = realloc (	t->vertices, num_bytes );
+	if ( t->vertices == NULL ) {
+		return HANDLE_H5_NOMEM_ERR;
+	}
+
+	return _h5_alloc_idmap (&t->map_vertex_g2l, num_vertices );
+}
+
+
 h5_err_t
 h5t_add_num_vertices (
 	h5_file * f,
@@ -523,20 +542,11 @@ h5t_add_num_vertices (
 	if ( t->cur_level < 0 ) {
 		return HANDLE_H5_UNDEF_LEVEL_ERR;
 	}
-	ssize_t num_elems = (t->cur_level > 0 ?
+	ssize_t num_vertices = (t->cur_level > 0 ?
 			     t->num_vertices[t->cur_level-1] + num : num);
-	t->num_vertices[t->cur_level] = num_elems;
-	ssize_t num_bytes = num_elems*sizeof ( t->vertices[0] );
-	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
-	t->vertices = realloc (	t->vertices, num_bytes );
-	if ( t->vertices == NULL ) {
-		return HANDLE_H5_NOMEM_ERR;
-	}
+	t->num_vertices[t->cur_level] = num_vertices;
 
-	h5_err_t h5err = _h5_alloc_idmap (&t->map_vertex_g2l, num );
-	if ( h5err < 0 ) return h5err;
-
-	return H5_SUCCESS;
+	return _alloc_num_vertices ( f, num_vertices );
 }
 
 /*
@@ -616,9 +626,6 @@ _read_num_vertices (
 	h5_err_t h5err;
 	struct h5t_fdata *t = &f->t;
 
-	if ( t->cur_level < 0 ) 
-		return HANDLE_H5_UNDEF_LEVEL_ERR;
-
  	if ( t->mesh_gid < 0 ) {
 		h5err = _open_mesh_group ( f );
 		if ( h5err < 0 ) return h5err;
@@ -641,15 +648,12 @@ _read_num_vertices (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-_read_vertices (
+h5_err_t
+_h5t_read_vertices (
 	h5_file * f
 	) {
 	h5_err_t h5err;
 	struct h5t_fdata *t = &f->t;
-
-	if ( t->cur_level < 0 ) 
-		return HANDLE_H5_UNDEF_LEVEL_ERR;
 
  	if ( t->mesh_gid < 0 ) {
 		h5err = _open_mesh_group ( f );
@@ -661,12 +665,9 @@ _read_vertices (
 		if ( h5err < 0 ) return h5err;
 	}
 
-	ssize_t num_elems = t->num_vertices[t->num_levels-1];
-	ssize_t num_bytes = num_elems*sizeof ( t->vertices[0] );
-	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
-	t->vertices = realloc (	t->vertices, num_bytes );
-	if ( t->vertices == NULL )
-		return HANDLE_H5_NOMEM_ERR;
+	h5err = _alloc_num_vertices ( f, t->num_vertices[t->num_levels-1] );
+	if ( h5err < 0 ) return h5err;
+
 	h5err = _read_dataset (
 		f,
 		t->mesh_gid,
@@ -677,11 +678,19 @@ _read_vertices (
 		t->vertices );
 	if ( h5err < 0 ) return h5err;
 
+	h5_id_t local_vid = 0;
+	for ( ; local_vid < t->num_vertices[t->num_levels-1]; local_vid++ ) {
+		t->map_vertex_g2l.items[local_vid].global_id =
+			t->vertices[local_vid].id; 
+		t->map_vertex_g2l.items[local_vid].local_id = local_vid;
+		t->map_vertex_g2l.num_items++;
+	}
+	_h5_sort_idmap ( &t->map_vertex_g2l );
 	return H5_SUCCESS;
 }
 
 h5_size_t
-h5t_get_num_vertices (
+h5t_get_num_vertices_on_level (
 	h5_file * f
 	) {
 	struct h5t_fdata *t = &f->t;
@@ -762,7 +771,7 @@ h5t_traverse_vertices (
 	struct h5t_fdata *t = &f->t;
 
 	if ( t->vertices == NULL ) {
-		h5_err_t h5err = _read_vertices ( f );
+		h5_err_t h5err = _h5t_read_vertices ( f );
 		if ( h5err < 0 ) return h5err;
 	}
 	if ( t->last_retrieved_vertex_id+1 >= t->num_vertices[t->cur_level] ) {
@@ -776,23 +785,15 @@ h5t_traverse_vertices (
 	return t->last_retrieved_vertex_id;
 }
 
-h5_err_t
-h5t_add_num_entities (
+static h5_err_t
+_alloc_num_entities (
 	h5_file * f,
-	const h5_size_t num
+	size_t cur_num_entities,
+	size_t new_num_entities
 	) {
 	struct h5t_fdata *t = &f->t;
-	ssize_t sizeof_entity = 0;
-	ssize_t sizeof_lentity = 0;
-
-	ssize_t cur_num_entities = t->cur_level > 0 ?
-		t->num_entities[t->cur_level-1] : 0;
-	ssize_t num_entities = t->cur_level > 0 ?
-		num + t->num_entities[t->cur_level-1] : num;
-	t->num_entities[t->cur_level] = num_entities;
-
-	t->num_entities_on_level[t->cur_level] = t->cur_level > 0 ?
-		num + t->num_entities_on_level[t->cur_level-1] : num;
+	size_t sizeof_entity = 0;
+	size_t sizeof_lentity = 0;
 
 	switch ( t->mesh_type ) {
 	case TETRAHEDRAL_MESH:
@@ -808,159 +809,43 @@ h5t_add_num_entities (
 	}
 
 	t->entities.data = realloc (
-		t->entities.data, num_entities*sizeof_entity );
+		t->entities.data, new_num_entities * sizeof_entity );
 	if ( t->entities.data == NULL ) {
 		return H5_ERR_NOMEM;
 	}
+
 	t->lentities.data = realloc (
-		t->lentities.data, num_entities*sizeof_lentity );
+		t->lentities.data, new_num_entities*sizeof_lentity );
 	if ( t->lentities.data == NULL ) {
 		return H5_ERR_NOMEM;
 	}
 	memset (
 		t->lentities.data+cur_num_entities*sizeof_lentity,
 		-1,
-		(num_entities-cur_num_entities) * sizeof_lentity );
+		(new_num_entities-cur_num_entities) * sizeof_lentity );
 
-	h5_err_t h5err = _h5_alloc_idmap (&t->map_entity_g2l, num_entities );
-	if ( h5err < 0 ) return h5err;
-
-	return H5_SUCCESS;
+	return  _h5_alloc_idmap (&t->map_entity_g2l, new_num_entities );
 }
 
-static h5_id_t 
-_get_local_vertex_id_of_entity (
-	h5_file * f,
-	int  vertex,
-	h5_id_t local_eid
-	) {
-	struct h5t_fdata *t = &f->t;
-
-	h5_id_t local_vid = -1;
-	h5_id_t global_vid = -1;
-
-	switch ( t->mesh_type ) {
-	case TETRAHEDRAL_MESH: {
-		local_vid = t->lentities.tets[local_eid].vertex_ids[vertex];
-		if ( local_vid == -1 ) {
-			global_vid =
-				t->entities.tets[local_eid].vertex_ids[vertex];
-			local_vid =
-				_h5_search_idmap ( &t->map_vertex_g2l, global_vid );
-			t->lentities.tets[local_eid].vertex_ids[vertex] = local_vid;
-		}
-		break;
-	}
-	case TRIANGLE_MESH: {
-		local_vid = t->lentities.tris[local_eid].vertex_ids[vertex];
-		if ( local_vid == -1 ) {
-			global_vid =
-				t->entities.tris[local_eid].vertex_ids[vertex];
-			local_vid =
-				_h5_search_idmap ( &t->map_vertex_g2l, global_vid );
-			t->lentities.tris[local_eid].vertex_ids[vertex] = local_vid;
-		}
-		break;
-	}
-	}
-	return local_vid;
-}
-
-static h5_float64_t*
-_get_vertex_of_entity (
-	h5_file * f,
-	int  vertex,
-	h5_id_t local_entity_id
-	) {
-	struct h5t_fdata *t = &f->t;
-
-	h5_id_t local_vid = _get_local_vertex_id_of_entity ( f, vertex, local_entity_id );
-	if ( local_vid == -1 ) 
-		return NULL;
-	return t->vertices[local_vid].P;
-}
-
-
-static int
-_cmp_vertices (
-	h5_float64_t	*P1,
-	h5_float64_t	*P2
-	) {
-	int i;
-	for ( i = 0; i < 3; i++ ) {
-		if ( P1[i] < P2[i] ) 	return -1;
-		else if (P1[i] > P2[i] )return 1;
-	}
-	return 0;
-}
-
-static int
-_cmp_entities (
-	h5_file * f,
-	h5_id_t	lid1,
-	h5_id_t lid2
-	) {
-
-	int i;
-	for ( i = 0; i < 4; i++ ) {
-		int r = _cmp_vertices (
-			_get_vertex_of_entity ( f, i, lid1 ),
-			_get_vertex_of_entity ( f, i, lid2 ) );
-		if ( r < 0 )		return -1;
-		else if ( r > 0 ) 	return 1;
-	}
-	return 0;
-}
-
-
-/*!
-  Insertion sort of vertices - for small arrays only!
-*/
 h5_err_t
-_h5t_isort_vertices (
-	h5_file *f,
-	h5_id_t *global_ids,		/* global ids */
-	h5_size_t size			/* size of array */
+h5t_add_num_entities (
+	h5_file * f,
+	const h5_size_t num
 	) {
 	struct h5t_fdata *t = &f->t;
 
-	h5_id_t *global_id = global_ids;
+	size_t cur_num_entities = t->cur_level > 0 ?
+		t->num_entities[t->cur_level-1] : 0;
+	size_t new_num_entities = t->cur_level > 0 ?
+		num + t->num_entities[t->cur_level-1] : num;
+	t->num_entities[t->cur_level] = new_num_entities;
 
-	h5_id_t *local_ids = malloc ( size * sizeof(global_ids[0]) );
-	h5_id_t *local_id = local_ids;
-	h5_err_t h5err = H5_SUCCESS;
-	h5_size_t i;
+	t->num_entities_on_level[t->cur_level] = t->cur_level > 0 ?
+		num + t->num_entities_on_level[t->cur_level-1] : num;
 
-	if ( local_ids == NULL )
-		return HANDLE_H5_NOMEM_ERR;
-
-	for ( i = 0; i < size; i++, local_id++, global_id++ ) {
-		*local_id = _h5_search_idmap ( &t->map_vertex_g2l, *global_id );
-		if ( *local_id < 0 ) {
-			h5err = *local_id;
-			goto cleanup;
-		}
-	}
-
-	for ( i = 1; i < size; ++i ) {
-		h5_id_t gid = global_ids[i];
-		h5_id_t lid = local_ids[i];
-		h5_id_t j = i;
-		while ( _cmp_vertices (
-				t->vertices[lid].P,
-				t->vertices[local_ids[j-1]].P 
-				) < 0 ) {
-			global_ids[j] = global_ids[j-1];
-			local_ids[j] = local_ids[j-1];
-			--j;
-		}
-		global_ids[j] = gid;
-		local_ids[j] = lid;
-	}
-cleanup:
-	free ( local_ids );
-	return h5err;
+	return _alloc_num_entities ( f, cur_num_entities, new_num_entities );
 }
+
 
 h5_id_t
 h5t_store_tet (
@@ -977,7 +862,8 @@ h5t_store_tet (
 	  more than allocated
 	*/
 	if ( t->last_stored_entity_id+1 >= t->num_entities[t->cur_level] ) 
-		return HANDLE_H5_OVERFLOW_ERR(  "tet", t->num_entities[t->cur_level] );
+		return HANDLE_H5_OVERFLOW_ERR(
+			"tet", t->num_entities[t->cur_level] );
 
 	/*
 	  missing call to add the first level
@@ -988,13 +874,16 @@ h5t_store_tet (
 	/*
 	  check parent id
 	*/
-	if ( (t->cur_level == 0) && (parent_id != -1) ) {
+	if ( (t->cur_level == 0) &&
+	     (parent_id != -1) ) {
 		return HANDLE_H5_PARENT_ID_ERR ( "tet", global_id, parent_id );
 	} 
-	if ( (t->cur_level >  0) && (parent_id < 0) ) {
+	if ( (t->cur_level >  0) &&
+	     (parent_id < 0) ) {
 		return HANDLE_H5_PARENT_ID_ERR ( "tet", global_id, parent_id );
 	}
-	if ( (t->cur_level >  0) && (parent_id >= t->num_entities[t->cur_level-1]) ) {
+	if ( (t->cur_level >  0) &&
+	     (parent_id >= t->num_entities[t->cur_level-1]) ) {
 		return HANDLE_H5_PARENT_ID_ERR ( "tet", global_id, parent_id );
 	}
 	/*
@@ -1019,14 +908,15 @@ h5t_store_tet (
 
 	memcpy ( &tet->vertex_ids, vertex_ids, sizeof ( tet->vertex_ids ) );
 
-	_h5t_isort_vertices ( f, tet->vertex_ids, 4 );
+	_h5t_sort_global_vertex_ids ( f, tet->vertex_ids, 4 );
 	_h5_insert_idmap ( &t->map_entity_g2l, global_id, local_id );
 
 	if ( parent_id >= 0 ) {
 		h5_id_t local_parent_id = _h5_search_idmap (
 			&t->map_entity_g2l, parent_id );
 		if ( t->entities.tets[local_parent_id].refined_on_level < 0 ) {
-			t->entities.tets[local_parent_id].refined_on_level = t->cur_level;
+			t->entities.tets[local_parent_id].refined_on_level =
+				t->cur_level;
 			t->num_entities_on_level[t->cur_level]--;
 		}
 	}
@@ -1049,7 +939,8 @@ h5t_store_triangle (
 	  more than allocated
 	*/
 	if ( t->last_stored_entity_id+1 >= t->num_entities[t->cur_level] ) 
-		return HANDLE_H5_OVERFLOW_ERR(  "triangle", t->num_entities[t->cur_level] );
+		return HANDLE_H5_OVERFLOW_ERR(
+			"triangle", t->num_entities[t->cur_level] );
 
 	/*
 	  missing call to add the first level
@@ -1061,13 +952,16 @@ h5t_store_triangle (
 	  check parent id
 	*/
 	if ( (t->cur_level == 0) && (parent_id != -1) ) {
-		return HANDLE_H5_PARENT_ID_ERR ( "triangle", global_id, parent_id );
+		return HANDLE_H5_PARENT_ID_ERR (
+			"triangle", global_id, parent_id );
 	} 
 	if ( (t->cur_level >  0) && (parent_id < 0) ) {
-		return HANDLE_H5_PARENT_ID_ERR ( "triangle", global_id, parent_id );
+		return HANDLE_H5_PARENT_ID_ERR (
+			"triangle", global_id, parent_id );
 	}
-	if ( (t->cur_level >  0) && (parent_id >= t->num_entities[t->cur_level-1]) ) {
-		return HANDLE_H5_PARENT_ID_ERR ( "triangle", global_id, parent_id );
+	if ( (t->cur_level>0) && (parent_id >= t->num_entities[t->cur_level-1]) ) {
+		return HANDLE_H5_PARENT_ID_ERR (
+			"triangle", global_id, parent_id );
 	}
 	/*
 	  check id
@@ -1095,7 +989,8 @@ h5t_store_triangle (
 		h5_id_t local_parent_id = _h5_search_idmap (
 			&t->map_entity_g2l, parent_id );
 		if ( t->entities.tris[local_parent_id].refined_on_level < 0 ) {
-			t->entities.tris[local_parent_id].refined_on_level = t->cur_level;
+			t->entities.tris[local_parent_id].refined_on_level =
+				t->cur_level;
 			t->num_entities_on_level[t->cur_level]--;
 		}
 	}
@@ -1110,9 +1005,6 @@ _read_num_entities (
 
 	h5_err_t h5err;
 	struct h5t_fdata *t = &f->t;
-
-	if ( t->cur_level < 0 ) 
-		return HANDLE_H5_UNDEF_LEVEL_ERR;
 
  	if ( t->mesh_gid < 0 ) {
 		h5err = _open_mesh_group ( f );
@@ -1185,16 +1077,12 @@ _open_file_space_entities (
 	return H5S_ALL;
 }
 
-static h5_err_t
-_read_entities (
+h5_err_t
+_h5t_read_entities (
 	h5_file * f
 	) {
 	h5_err_t h5err;
-	ssize_t num_bytes;
 	struct h5t_fdata *t = &f->t;
-
-	if ( t->cur_level < 0 ) 
-		return HANDLE_H5_UNDEF_LEVEL_ERR;
 
  	if ( t->mesh_gid < 0 ) {
 		h5err = _open_mesh_group ( f );
@@ -1206,24 +1094,8 @@ _read_entities (
 		if ( h5err < 0 ) return h5err;
 	}
 
-	ssize_t num_elems = t->num_entities[t->num_levels-1];
+	h5err = _alloc_num_entities ( f, 0, t->num_entities[t->num_levels-1] );
 
-	switch ( t->mesh_type ) {
-	case TETRAHEDRAL_MESH: {
-		num_bytes = num_elems*sizeof ( t->entities.tets[0] );
-		break;
-	}
-	case TRIANGLE_MESH: {
-		num_bytes = num_elems*sizeof ( t->entities.tris[0] );
-		break;
-	}
-	default:
-		return -1;
-	}
-	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
-	t->entities.data = realloc ( t->entities.data, num_bytes );
-	if ( t->entities.data == NULL )
-		return HANDLE_H5_NOMEM_ERR;
 	h5err = _read_dataset (
 		f,
 		t->mesh_gid,
@@ -1234,11 +1106,43 @@ _read_entities (
 		t->entities.data );
 	if ( h5err < 0 ) return h5err;
 
+	/*
+	  setup structure with local vertex ids
+	 */
+	h5_id_t local_eid = 0;
+	h5_id_t num_entities = t->num_entities[t->num_levels-1];
+	switch ( t->mesh_type ) {
+	case TETRAHEDRAL_MESH:
+		for ( local_eid = 0; local_eid < num_entities; local_eid++ ) {
+			h5err = h5t_map_global_vertex_ids2local (
+				f,
+				t->entities.tets[local_eid].vertex_ids,
+				t->mesh_type,
+				t->lentities.tets[local_eid].vertex_ids
+				);
+			if ( h5err < 0 ) return h5err;
+		}
+		break;
+	case TRIANGLE_MESH:
+		for ( local_eid = 0; local_eid < num_entities; local_eid++ ) {
+			h5err = h5t_map_global_vertex_ids2local (
+				f,
+				t->entities.tris[local_eid].vertex_ids,
+				t->mesh_type,
+				t->lentities.tris[local_eid].vertex_ids
+				);
+			if ( h5err < 0 ) return h5err;
+		}
+		break;
+	default:
+		return -1;
+	}
+	
 	return H5_SUCCESS;
 }
 
 h5_size_t
-h5t_get_num_entities (
+h5t_get_num_entities_on_level (
 	h5_file * f
 	) {
 	struct h5t_fdata *t = &f->t;
@@ -1254,6 +1158,22 @@ h5t_get_num_entities (
 		if ( h5err < 0 ) return h5err;
 	}
 	return t->num_entities_on_level[t->cur_level];
+}
+
+h5_size_t
+h5t_get_num_entities (
+	h5_file * f
+	) {
+	struct h5t_fdata *t = &f->t;
+
+	if ( t->cur_mesh < 0 ) {
+		return HANDLE_H5_UNDEF_MESH_ERR;
+	}
+	if ( t->num_entities == NULL ) {
+		h5_err_t h5err = _read_num_entities ( f );
+		if ( h5err < 0 ) return h5err;
+	}
+	return t->num_entities[t->num_levels-1];
 }
 
 h5_err_t
@@ -1286,7 +1206,7 @@ _traverse_tets (
 	struct h5t_fdata *t = &f->t;
 
 	if ( t->entities.data == NULL ) {
-		h5_err_t h5err = _read_entities ( f );
+		h5_err_t h5err = _h5t_read_entities ( f );
 		if ( h5err < 0 ) return h5err;
 	}
 	if ( t->last_retrieved_entity_id+1 >= t->num_entities[t->cur_level] ) {
@@ -1365,7 +1285,7 @@ _traverse_triangles (
 	struct h5t_fdata *t = &f->t;
 
 	if ( t->entities.data == NULL ) {
-		h5_err_t h5err = _read_entities ( f );
+		h5_err_t h5err = _h5t_read_entities ( f );
 		if ( h5err < 0 ) return h5err;
 	}
 	if ( t->last_retrieved_entity_id+1 >= t->num_entities[t->cur_level] ) {

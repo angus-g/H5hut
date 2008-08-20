@@ -51,7 +51,7 @@ h5_write_data (
 
 	f->empty = 0;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 
@@ -178,7 +178,7 @@ h5_get_object_name (
 	if ( herr == 0 ) HANDLE_H5_NOENTRY_ERR( group_name,
 						    type, idx );
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 h5_int64_t
