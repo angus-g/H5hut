@@ -409,6 +409,7 @@ test/H5Block/H5BlockTestAttributes.c -text
 test/H5Block/H5BlockTestAttributesF.f90 -text
 test/H5Block/Makefile.am -text
 test/H5Fed/Makefile.am -text
+test/H5Fed/map_tet2globalid.c -text
 test/H5Fed/read_tetmesh.c -text
 test/H5Fed/read_trianglemesh.c -text
 test/H5Fed/write_tetmesh.c -text
