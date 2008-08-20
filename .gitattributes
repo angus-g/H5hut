@@ -7,10 +7,7 @@
 /NEWS -text
 /README -text
 /autogen.sh -text
-/config.guess -text
-/config.sub -text
 /configure.ac -text
-/depcomp -text
 doc/Doxyfile -text
 doc/H5X_File_Format.txt -text
 doc/Makefile.am -text
@@ -344,9 +341,7 @@ doc/tetrahedron_refinements/6-edges/edge_01-12-20-23-30-31_refined/buildlatex.ba
 doc/tetrahedron_refinements/6-edges/edge_01-12-20-23-30-31_refined/output_file.jpg -text
 doc/tetrahedron_refinements/README -text
 doc/tetrahedron_refinements/text2vtk.py -text
-/install-sh -text
 /license.txt -text
-/missing -text
 /rules.make -text
 src/H5.c -text
 src/H5.h -text
