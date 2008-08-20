@@ -41,7 +41,8 @@ bin_PROGRAMS = \
 		read_tetmesh \
 		write_trianglemesh \
 		read_trianglemesh \
-		map_tet2globalid
+		map_tet2globalid \
+		map_triangle2globalid
 
 # Some useful scripts that I wish to place in the $(prefix)/bin directory.
 bin_SCRIPTS =
@@ -56,6 +57,7 @@ EXTRA_DIST = 	\
 		write_trianglemesh.c \
 		read_trianglemesh.c \
 		map_tet2globalid.c \
+		map_triangle2globalid.c \
 		$(bin_SCRIPTS)
 
 all:	$(bin_PROGRAMS)
