@@ -99,7 +99,7 @@ _write_attributes (
 	herr = H5Block3dSetFieldSpacing ( f, "TestField", 2.0, 3.0, 4.0 );
 	if ( herr < 0 ) return -1;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 static h5part_int64_t
