@@ -94,10 +94,6 @@ Last modified on April 19, 2007.
 #include "h5/h5_private.h"
 #include "H5Part.h"
 
-extern h5part_error_handler	_err_handler;
-extern h5part_int64_t		_h5part_errno;
-extern unsigned			_debug;
-
 /********* Private Variable Declarations *************/
 
 
@@ -175,7 +171,7 @@ H5PartOpenFile (
 
   Closes an open file.
 
-  \return	\c H5PART_SUCCESS or error code
+  \return	\c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5PartCloseFile (
@@ -212,7 +208,7 @@ H5PartDefineStepName (
   operations will assume this number of particles will be written.
 
 
-  \return	\c H5PART_SUCCESS or error code
+  \return	\c H5_SUCCESS or error code
  */
 h5part_int64_t
 H5PartSetNumParticles (
@@ -249,7 +245,7 @@ H5PartSetNumParticles (
 
   The data is committed to disk before the routine returns.
 
-  \return	\c H5PART_SUCCESS or error code
+  \return	\c H5_SUCCESS or error code
  */
 h5part_int64_t
 H5PartWriteDataFloat64 (
@@ -287,7 +283,7 @@ H5PartWriteDataFloat64 (
 
   The data is committed to disk before the routine returns.
 
-  \return	\c H5PART_SUCCESS or error code
+  \return	\c H5_SUCCESS or error code
  */
 h5part_int64_t
 H5PartWriteDataInt64 (
@@ -320,7 +316,7 @@ H5PartWriteDataInt64 (
   If the attribute already exists an error will be returned. There
   is currently no way to change the content of an existing attribute.
 
-  \return	\c H5PART_SUCCESS or error code   
+  \return	\c H5_SUCCESS or error code   
 */
 h5part_int64_t
 H5PartWriteFileAttribString (
@@ -331,7 +327,7 @@ H5PartWriteFileAttribString (
 
 	SET_FNAME ( "H5PartWriteFileAttribString" );
 
-   	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_write_attrib (
@@ -354,7 +350,7 @@ H5PartWriteFileAttribString (
   If the attribute already exists an error will be returned. There
   is currently no way to change the content of an existing attribute.
 
-  \return	\c H5PART_SUCCESS or error code   
+  \return	\c H5_SUCCESS or error code   
 */
 
 h5part_int64_t
@@ -366,7 +362,7 @@ H5PartWriteStepAttribString (
 
 	SET_FNAME ( "H5PartWriteStepAttribString" );
 
-   	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_write_attrib (
@@ -393,7 +389,7 @@ H5PartWriteStepAttribString (
   If the attribute already exists an error will be returned. There
   is currently no way to change the content of an existing attribute.
 
-  \return	\c H5PART_SUCCESS or error code   
+  \return	\c H5_SUCCESS or error code   
 */
 
 h5part_int64_t
@@ -407,7 +403,7 @@ H5PartWriteStepAttrib (
 
 	SET_FNAME ( "H5PartWriteStepAttrib" );
 
-   	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_write_attrib (
@@ -434,7 +430,7 @@ H5PartWriteStepAttrib (
   If the attribute already exists an error will be returned. There
   is currently no way to change the content of an existing attribute.
 
-  \return	\c H5PART_SUCCESS or error code   
+  \return	\c H5_SUCCESS or error code   
 */
 
 h5part_int64_t
@@ -448,7 +444,7 @@ H5PartWriteFileAttrib (
 
 	SET_FNAME ( "H5PartWriteFileAttrib" );
 
-   	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_write_attrib (
@@ -473,7 +469,7 @@ H5PartGetNumStepAttribs (
 
 	SET_FNAME ( "H5PartGetNumStepAttribs" );
 
-   	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_get_num_attribs ( f, f->step_gid );
@@ -493,7 +489,7 @@ H5PartGetNumFileAttribs (
 
 	SET_FNAME ( "H5PartGetNumFileAttribs" );
 
-   	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_get_num_attribs ( f, f->root_gid );
@@ -511,7 +507,7 @@ H5PartGetNumFileAttribs (
   time-step can be queried by calling the function
   \c H5PartGetNumStepAttribs().
 
-  \return	\c H5PART_SUCCESS or error code 
+  \return	\c H5_SUCCESS or error code 
 */
 h5part_int64_t
 H5PartGetStepAttribInfo (
@@ -527,7 +523,7 @@ H5PartGetStepAttribInfo (
 	
 	SET_FNAME ( "H5PartGetStepAttribInfo" );
 
-   	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_get_attrib_info (
@@ -550,7 +546,7 @@ H5PartGetStepAttribInfo (
   one.  The number of attributes bound to file \c f can be queried
   by calling the function \c H5PartGetNumFileAttribs().
 
-  \return	\c H5PART_SUCCESS or error code 
+  \return	\c H5_SUCCESS or error code 
 */
 
 h5part_int64_t
@@ -567,7 +563,7 @@ H5PartGetFileAttribInfo (
 
 	SET_FNAME ( "H5PartGetFileAttribInfo" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_get_attrib_info (
@@ -584,7 +580,7 @@ H5PartGetFileAttribInfo (
 
   Reads an attribute bound to current time-step.
 
-  \return \c H5PART_SUCCESS or error code 
+  \return \c H5_SUCCESS or error code 
 */
 h5part_int64_t
 H5PartReadStepAttrib (
@@ -595,7 +591,7 @@ H5PartReadStepAttrib (
 
 	SET_FNAME ( "H5PartReadStepAttrib" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_read_attrib ( f->step_gid, attrib_name, attrib_value );
@@ -606,7 +602,7 @@ H5PartReadStepAttrib (
 
   Reads an attribute bound to file \c f.
 
-  \return \c H5PART_SUCCESS or error code 
+  \return \c H5_SUCCESS or error code 
 */
 h5part_int64_t
 H5PartReadFileAttrib ( 
@@ -617,7 +613,7 @@ H5PartReadFileAttrib (
 
 	SET_FNAME ( "H5PartReadFileAttrib" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_read_attrib ( f->root_gid, attrib_name, attrib_value );
@@ -650,7 +646,7 @@ H5PartReadFileAttrib (
   In read-mode you can use this function to random-access the file for a
   particular step.
 
-  \return \c H5PART_SUCCESS or error code 
+  \return \c H5_SUCCESS or error code 
 */
 h5part_int64_t
 H5PartSetStep (
@@ -660,7 +656,7 @@ H5PartSetStep (
 
 	SET_FNAME ( "H5PartSetStep" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_set_step ( f, step );
@@ -687,7 +683,7 @@ H5PartHasStep (
   
 	SET_FNAME ( "H5PartHasStep" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_has_step( f, step );
@@ -711,7 +707,7 @@ H5PartGetNumSteps (
 
 	SET_FNAME ( "H5PartGetNumSteps" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_get_num_objects_matching_pattern (
@@ -736,7 +732,7 @@ H5PartGetNumDatasets (
 
 	SET_FNAME ( "H5PartGetNumDatasets" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_get_num_objects ( f->file, f->step_name, H5G_DATASET );
@@ -750,7 +746,7 @@ H5PartGetNumDatasets (
 
   If the number of datasets is \c n, the range of \c _index is \c 0 to \c n-1.
 
-  \result	\c H5PART_SUCCESS
+  \result	\c H5_SUCCESS
 */
 h5part_int64_t
 H5PartGetDatasetName (
@@ -762,7 +758,7 @@ H5PartGetDatasetName (
 
 	SET_FNAME ( "H5PartGetDatasetName" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return h5_get_object_name (
@@ -782,7 +778,7 @@ H5PartGetDatasetName (
 
   Type is one of \c H5T_NATIVE_DOUBLE or \c H5T_NATIVE_INT64.
 
-  \return	\c H5PART_SUCCESS
+  \return	\c H5_SUCCESS
 */
 h5part_int64_t
 H5PartGetDatasetInfo (
@@ -797,7 +793,7 @@ H5PartGetDatasetInfo (
 
 	SET_FNAME ( "H5PartGetDatasetInfo" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	return H5U_get_dataset_info ( f, idx,
@@ -821,7 +817,7 @@ H5PartGetNumParticles (
 
 	SET_FNAME ( "H5PartGetNumParticles" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	if ( f->step_gid < 0 ) {
@@ -841,7 +837,7 @@ H5PartResetView (
 	) {
 	SET_FNAME ( "H5PartResetView" );
 
-	if ( h5_check_filehandle ( f ) != H5PART_SUCCESS )
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return _h5part_errno;
 
 	CHECK_READONLY_MODE ( f );
@@ -882,7 +878,7 @@ H5PartHasView (
 
   The range is inclusive (the start and the end index).
 
-  \return	\c H5PART_SUCCESS or error code
+  \return	\c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5PartSetView (
@@ -940,7 +936,7 @@ H5PartGetView (
   appropriate domain decomposition of the data arrays for the degree
   of parallelism and set the "view" accordingly.
 
-  \return		H5PART_SUCCESS or error code
+  \return		H5_SUCCESS or error code
 */
 /*
   \note
@@ -979,7 +975,7 @@ H5PartSetCanonicalView (
   but it is useful to arrive at some common naming
   convention when sharing data with other groups.
 
-  \return	\c H5PART_SUCCESS or error code
+  \return	\c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5PartReadDataFloat64 (
@@ -1005,7 +1001,7 @@ H5PartReadDataFloat64 (
   but it is useful to arrive at some common naming
   convention when sharing data with other groups.
 
-  \return	\c H5PART_SUCCESS or error code
+  \return	\c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5PartReadDataInt64 (
@@ -1033,7 +1029,7 @@ H5PartReadDataInt64 (
   See also \c H5PartReadDataInt64() and \c H5PartReadDataFloat64() if you want
   to just read in one of the many datasets.
 
-  \return	\c H5PART_SUCCESS or error code
+  \return	\c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5PartReadParticleStep (
@@ -1077,7 +1073,7 @@ H5PartReadParticleStep (
 	herr = H5U_read_elems ( f, "id", (void*)id, H5T_NATIVE_INT64 );
 	if ( herr < 0 ) return herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /****************** error handling ******************/
@@ -1087,7 +1083,7 @@ H5PartReadParticleStep (
 
   Set verbosity level to \c level.
 
-  \return \c H5PART_SUCCESS
+  \return \c H5_SUCCESS
 */
 h5part_int64_t
 H5PartSetVerbosityLevel (
@@ -1102,7 +1098,7 @@ H5PartSetVerbosityLevel (
 
   Set error handler to \c handler.
 
-  \return \c H5PART_SUCCESS
+  \return \c H5_SUCCESS
 */
 h5part_int64_t
 H5PartSetErrorHandler (

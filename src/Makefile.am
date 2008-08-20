@@ -45,7 +45,8 @@ EXTRA_LIBRARIES = libH5Part.a
 include_HEADERS = \
 	H5Part.h \
 	H5Block.h \
-	H5Fed.h
+	H5Fed.h \
+	H5Fed_map.h
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS =
@@ -58,6 +59,7 @@ libH5Part_a_SOURCES = \
 	H5Fed_adjacency.c \
 	H5Fed_dof.c \
 	H5Fed_inquiry.c \
+	H5Fed_map.c \
 	H5Fed_retrieve.c \
 	H5Fed_store.c \
 	H5Part.c
@@ -68,7 +70,7 @@ SUBDIRS = h5 bindings
 # ------------ Serial Lib build commands ------------
 libH5Part.a: $(libH5Part_a_OBJECTS)
 	${AR} rucs $@ $^
- 
+
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
 

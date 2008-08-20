@@ -112,7 +112,7 @@ _normalize_partition (
 
   Gather layout to all processors
 
-  \return	H5PART_SUCCESS or error code
+  \return	H5_SUCCESS or error code
 */
 #ifdef PARALLEL_IO
 static h5part_int64_t
@@ -131,7 +131,7 @@ _allgather (
 	MPI_Allgather ( partition, 1, partition_m, layout, 1, partition_m,
 			f->comm );
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 #else
 static h5part_int64_t
@@ -139,7 +139,7 @@ _allgather (
 	const h5_file *f		/*!< IN: file handle */
 	) {
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 #endif
 
@@ -248,7 +248,7 @@ _volume_of_ghostzone (
   if \c { p->i_start <= q->i_end <= p->i_end }.  In this case \c -1 will be
   returned.
 
-  \return H5PART_SUCCESS or -1
+  \return H5_SUCCESS or -1
 */
 static h5part_int64_t
 _dissolve_X_ghostzone (
@@ -276,7 +276,7 @@ _dissolve_X_ghostzone (
   if \c { p->j_start <= q->j_end <= p->j_end }.  In this case \c -1 will be
   returned.
 
-  \return H5PART_SUCCESS or -1
+  \return H5_SUCCESS or -1
 */
 static h5part_int64_t
 _dissolve_Y_ghostzone (
@@ -304,7 +304,7 @@ _dissolve_Y_ghostzone (
   if \c { p->k_start <= q->k_end <= p->k_end }.  In this case \c -1 will be
   returned.
 
-  \return H5PART_SUCCESS or -1
+  \return H5_SUCCESS or -1
 */
 static h5part_int64_t
 _dissolve_Z_ghostzone (
@@ -335,7 +335,7 @@ _dissolve_Z_ghostzone (
   to dissolve the ghost-zone.  The "best" is the one with the largest
   remaining volume of the partitions.
 
-  \return H5PART_SUCCESS or error code.
+  \return H5_SUCCESS or error code.
 */
 static h5part_int64_t
 _dissolve_ghostzone (
@@ -391,7 +391,7 @@ _dissolve_ghostzone (
 	*p = p_best;
 	*q = q_best;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -414,7 +414,7 @@ _dissolve_ghostzone (
   \b {Error Codes}
   \b H5PART_NOMEM_ERR
 
-  \return H5PART_SUCCESS or error code.
+  \return H5_SUCCESS or error code.
 */
 static h5part_int64_t
 _dissolve_ghostzones (
@@ -519,7 +519,7 @@ _dissolve_ghostzones (
 			(long long)p->j_start, (long long)p->j_end,
 			(long long)p->k_start, (long long)p->k_end );
 	}
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -549,7 +549,7 @@ _release_hyperslab (
 		if ( herr < 0 ) return H5PART_ERR_HDF5;
 		f->block->memshape = -1;
 	}
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -558,7 +558,7 @@ _release_hyperslab (
   Define the field layout given the dense index space at the actual
   time step.
 
-  \return \c H5PART_SUCCESS on success<br>
+  \return \c H5_SUCCESS on success<br>
   \c H5PART_ERR_MPI<br>
   \c H5PART_ERR_HDF5
 */
@@ -599,7 +599,7 @@ H5BlockDefine3DFieldLayout(
 
 	b->have_layout = 1;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -608,7 +608,7 @@ H5BlockDefine3DFieldLayout(
   Return partition of processor \c proc as specified with
   \c H5BlockDefine3dLayout().
 
-  \return \c H5PART_SUCCESS on success.<br>
+  \return \c H5_SUCCESS on success.<br>
 	  \c H5PART_ERR_INVAL if proc is invalid.
 */
 h5part_int64_t
@@ -638,7 +638,7 @@ H5Block3dGetPartitionOfProc (
 	*k_start = p->k_start;
 	*k_end =   p->k_end;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -647,7 +647,7 @@ H5Block3dGetPartitionOfProc (
   Return reduced (ghost-zone free) partition of processor \c proc
   as specified with \c H5BlockDefine3dLayout().
 
-  \return \c H5PART_SUCCESS on success.<br>
+  \return \c H5_SUCCESS on success.<br>
 	  \c H5PART_ERR_INVAL if proc is invalid.
 */
 h5part_int64_t
@@ -677,7 +677,7 @@ H5Block3dGetReducedPartitionOfProc (
 	*k_start = p->k_start;
 	*k_end =   p->k_end;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 
@@ -687,7 +687,7 @@ H5Block3dGetReducedPartitionOfProc (
   Returns the processor computing the reduced (ghostzone-free) 
   partition given by the coordinates \c i, \c j and \c k.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5Block3dGetProcOf (
@@ -720,7 +720,7 @@ H5Block3dGetProcOf (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 static h5part_int64_t
 _open_block_group (
@@ -742,7 +742,7 @@ _open_block_group (
 	}
 	b->step_idx = f->step_idx;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /********************** functions for reading ********************************/
@@ -766,7 +766,7 @@ _have_object (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 static h5part_int64_t
 _open_field_group (
@@ -787,7 +787,7 @@ _open_field_group (
 
 	b->field_group_id = herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -795,7 +795,7 @@ _open_field_group (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 _close_field_group (
@@ -805,7 +805,7 @@ _close_field_group (
 	herr_t herr = H5Gclose ( f->block->field_group_id );
 	if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -813,7 +813,7 @@ _close_field_group (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 static h5part_int64_t
 _select_hyperslab_for_reading (
@@ -893,7 +893,7 @@ _select_hyperslab_for_reading (
 		(long long)part_dims[1],
 		(long long)part_dims[0]  );
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -901,7 +901,7 @@ _select_hyperslab_for_reading (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 _read_data (
@@ -930,7 +930,7 @@ _read_data (
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -942,7 +942,7 @@ _read_data (
 
   You must use the FORTRAN indexing scheme to access items in \c data.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5Block3dReadScalarField (
@@ -964,7 +964,7 @@ H5Block3dReadScalarField (
 	herr = _close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -977,7 +977,7 @@ H5Block3dReadScalarField (
 
   You must use the FORTRAN indexing scheme to access items in the buffers.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5Block3dRead3dVectorField (
@@ -1005,7 +1005,7 @@ H5Block3dRead3dVectorField (
 	herr = _close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /********************** functions for writing ********************************/
@@ -1015,7 +1015,7 @@ H5Block3dRead3dVectorField (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 static h5part_int64_t
 _select_hyperslab_for_writing (
@@ -1025,7 +1025,7 @@ _select_hyperslab_for_writing (
 	/*
 	  re-use existing hyperslab
 	*/
-	if ( f->block->shape >= 0 ) return H5PART_SUCCESS;
+	if ( f->block->shape >= 0 ) return H5_SUCCESS;
 
 	herr_t herr;
 	struct h5b_fdata *b = f->block;
@@ -1123,7 +1123,7 @@ _select_hyperslab_for_writing (
 		NULL );
 	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -1131,7 +1131,7 @@ _select_hyperslab_for_writing (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 static h5part_int64_t
 _create_block_group (
@@ -1151,7 +1151,7 @@ _create_block_group (
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 
 	f->block->blockgroup = herr;
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -1159,7 +1159,7 @@ _create_block_group (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 static h5part_int64_t
 _create_field_group (
@@ -1188,7 +1188,7 @@ _create_field_group (
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( name );
 	b->field_group_id = herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }	
 
 /*!
@@ -1196,7 +1196,7 @@ _create_field_group (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 static h5part_int64_t
 _write_field_data (
@@ -1227,7 +1227,7 @@ _write_field_data (
 
   You must use the FORTRAN indexing scheme to access items in \c data.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5Block3dWriteScalarField (
@@ -1252,7 +1252,7 @@ H5Block3dWriteScalarField (
 	herr = _close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -1266,7 +1266,7 @@ H5Block3dWriteScalarField (
 
   You must use the FORTRAN indexing scheme to access items in \c data.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5Block3dWrite3dVectorField (
@@ -1295,7 +1295,7 @@ H5Block3dWrite3dVectorField (
 	herr = _close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /********************** query information about available fields *************/
@@ -1305,7 +1305,7 @@ H5Block3dWrite3dVectorField (
 
   Query number of fields in current time step.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5BlockGetNumFields (
@@ -1326,7 +1326,7 @@ H5BlockGetNumFields (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 static h5part_int64_t
 _get_field_info (
@@ -1373,7 +1373,7 @@ _get_field_info (
 	herr = H5Gclose ( group_id ); 
 	if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -1387,7 +1387,7 @@ _get_field_info (
   minus one.  The number of fields bound to the current time-step
   can be queried by calling the function \c H5BlockGetNumFields().
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5BlockGetFieldInfo (
@@ -1421,7 +1421,7 @@ H5BlockGetFieldInfo (
 
   Get the rank and dimensions of the field specified by its name.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5BlockGetFieldInfoByName (
@@ -1446,7 +1446,7 @@ H5BlockGetFieldInfoByName (
 
   \internal
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 static h5part_int64_t
 _write_field_attrib (
@@ -1472,7 +1472,7 @@ _write_field_attrib (
 	herr = _close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -1481,7 +1481,7 @@ _write_field_attrib (
   Write \c attrib_value with type \c attrib_type as attribute \c attrib_name
   to field \c field_name.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5BlockWriteFieldAttrib (
@@ -1510,7 +1510,7 @@ H5BlockWriteFieldAttrib (
   Write string \c attrib_value as attribute \c attrib_name to field
   \c field_name..
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5BlockWriteFieldAttribString (
@@ -1568,7 +1568,7 @@ H5BlockGetNumFieldAttribs (
   field name \c field_name. The function returns the name of the attribute,
   the type of the attribute and the number of elements of this type.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5BlockGetFieldAttribInfo (
@@ -1599,7 +1599,7 @@ H5BlockGetFieldAttribInfo (
 	herr = _close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -1609,7 +1609,7 @@ H5BlockGetFieldAttribInfo (
 
   Read attribute \c attrib_name of field \c field_name.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 static h5part_int64_t
 _read_field_attrib (
@@ -1633,7 +1633,7 @@ _read_field_attrib (
 	herr = _close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }
 
 /*!
@@ -1641,7 +1641,7 @@ _read_field_attrib (
 
   Read attribute \c attrib_name of field \c field_name.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5BlockReadFieldAttrib (
@@ -1667,7 +1667,7 @@ H5BlockReadFieldAttrib (
 
   Get field origin.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5Block3dGetFieldOrigin (
@@ -1700,7 +1700,7 @@ H5Block3dGetFieldOrigin (
 
   Set field origin.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5Block3dSetFieldOrigin (
@@ -1731,7 +1731,7 @@ H5Block3dSetFieldOrigin (
 
   Get field spacing for field \c field_name in the current time step.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5Block3dGetFieldSpacing (
@@ -1764,7 +1764,7 @@ H5Block3dGetFieldSpacing (
 
   Set field spacing for field \c field_name in the current time step.
 
-  \return \c H5PART_SUCCESS or error code
+  \return \c H5_SUCCESS or error code
 */
 h5part_int64_t
 H5Block3dSetFieldSpacing (
@@ -1796,7 +1796,7 @@ H5Block3dSetFieldSpacing (
 /*
   Checks whether the current time-step has field data or not.
 
-  \return \c H5PART_SUCCESS if field data is available otherwise \c
+  \return \c H5_SUCCESS if field data is available otherwise \c
   H5PART_ERR_NOENTRY.
 */
 h5part_int64_t
@@ -1810,5 +1810,5 @@ H5BlockHasFieldData (
 	if ( ! _have_object ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK ) ) {
 		return H5PART_ERR_NOENTRY;
 	}
-	return H5PART_SUCCESS;
+	return H5_SUCCESS;
 }

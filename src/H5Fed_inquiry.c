@@ -61,7 +61,7 @@ H5FedGetNumVertices (
 	h5_file * fh			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
-	return h5t_get_num_vertices ( fh );
+	return h5t_get_num_vertices_on_level ( fh );
 }
 
 /*!
@@ -78,7 +78,7 @@ H5FedGetNumVerticesTotal(
 	h5_file * fh			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
-	return h5t_get_num_vertices ( fh );
+	return h5t_get_num_vertices_on_level ( fh );
 }
 
 /*!
@@ -103,7 +103,7 @@ h5_size_t
 H5FedGetNumTriangles (
 	h5_file * fh			/*!< file handle		*/
 	) {
-	return h5t_get_num_entities ( fh );
+	return h5t_get_num_entities_on_level ( fh );
 }
 
 /*!
@@ -119,7 +119,7 @@ h5_size_t
 H5FedGetNumTrianglesTotal (
 	h5_file * fh			/*!< file handle		*/
 	) {
-	return h5t_get_num_entities ( fh );
+	return h5t_get_num_entities_on_level ( fh );
 }
 
 
@@ -156,7 +156,7 @@ H5FedGetNumTetrahedraTotal(
 	h5_file * fh			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
-	return h5t_get_num_entities ( fh );
+	return h5t_get_num_entities_on_level ( fh );
 }
 
 /*!
