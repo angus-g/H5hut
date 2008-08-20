@@ -17,35 +17,34 @@ struct vertex {
 
 typedef struct vertex vertex_t; 
 
-struct entity {
+struct tet {
 	h5_id_t global_id;
 	h5_id_t parent_id;
-	h5_id_t vids[3];
+	h5_id_t vids[4];
 };
-typedef struct entity entity_t;
+typedef struct tet tet_t;
 	       
 
-vertex_t V0[4] = {
+vertex_t V0[5] = {
 	{ 0, {-1.0,  0.0,  0.0} },
 	{ 1, { 1.0,  0.0,  0.0} },
 	{ 2, { 0.0,  1.0,  0.0} },
-	{ 3, { 0.0, -1.0,  0.0} }
+	{ 3, { 0.0,  0.0,  1.0} },
+	{ 4, { 0.0, -1.0,  0.0} }
 };
 
 vertex_t V1[1] = {
-	{ 4, {0.0,  0.0,  0.0 } }
+	{ 5, {0.0,  0.0,  0.0 } }
 };
 
-entity_t T0[2] = {
-	{ 1, -1, { 0, 1, 2 } },
-	{ 0, -1, { 0, 1, 3 } }
+tet_t T0[2] = {
+	{ 1, -1, { 0, 1, 2, 3 } },
+	{ 0, -1, { 0, 1, 3, 4 } }
 };
 
-entity_t T1[4] = {
-	{ 2, 1, { 1, 2, 4 } },
-	{ 3, 1, { 0, 2, 4 } },
-	{ 4, 0, { 0, 3, 4 } },
-	{ 5, 0, { 1, 3, 4 } }
+tet_t T1[2] = {
+	{ 2, 0, { 0, 3, 4, 5 } },   // 0, 4, 5, 3
+	{ 3, 0, { 1, 3, 4, 5 } }
 };
 
 h5_err_t
@@ -53,8 +52,8 @@ add_level (
 	h5_file *f,
 	vertex_t V[],
 	int num_verts,
-	entity_t T[],
-	int num_entities
+	tet_t T[],
+	int num_tets
 	) {
 
 	h5_err_t h5err = H5FedAddLevel ( f );
@@ -79,14 +78,14 @@ add_level (
 			return -1;
 		}
 	}
-	h5err = H5FedAddNumEntities ( f, num_entities );
+	h5err = H5FedAddNumEntities ( f, num_tets );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't set number of tets.\n" );
 		return -1;
 	}
 
-	for ( i = 0; i<num_entities; i++ ) {
-		h5err = H5FedStoreTriangle (
+	for ( i = 0; i<num_tets; i++ ) {
+		h5err = H5FedStoreTetrahedron (
 			f,
 			T[i].global_id,
 			T[i].parent_id,
@@ -105,24 +104,23 @@ main (
 	int argc,
 	char *argv[]
 	) {
-
 	H5PartSetVerbosityLevel ( 4 );
 
-	h5_file *f = H5OpenFile ( "simple_triangle.h5", 0 );
+	h5_file *f = H5OpenFile ( "simple_tet.h5", 0 );
 	if ( f == NULL ) {
 		fprintf ( stderr, "!!! Can't open file.\n" );
 		return -1;
 	}
 
-	h5_err_t h5err = H5FedAddMesh ( f, TRIANGLE_MESH );
+	h5_err_t h5err = H5FedAddMesh ( f, TETRAHEDRAL_MESH );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't set step.\n" );
 		return -1;
 	}
 
-	h5err = add_level ( f, V0, sizeof(V0)/sizeof(V0[0]), T0, sizeof(T0)/sizeof(T0[0]) );
+	h5err = add_level ( f, V0, 5, T0, 2 );
 	if ( h5err < 0 ) return h5err;
-	h5err = add_level ( f, V1, sizeof(V1)/sizeof(V1[0]), T1, sizeof(T1)/sizeof(T1[0]) );
+	h5err = add_level ( f, V1, 1, T1, 2 );
 	if ( h5err < 0 ) return h5err;
 
 	h5err = H5CloseFile ( f );

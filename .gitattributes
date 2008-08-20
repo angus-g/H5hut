@@ -411,8 +411,7 @@ test/H5Block/Makefile.am -text
 test/H5Fed/Makefile.am -text
 test/H5Fed/read_tetmesh.c -text
 test/H5Fed/read_trianglemesh.c -text
-test/H5Fed/write_tet.c -text
-test/H5Fed/write_triangle.c -text
+test/H5Fed/write_tetmesh.c -text
 test/H5Fed/write_trianglemesh.c -text
 test/H5Part/Bench.c -text
 test/H5Part/H5ParallelTest.cc -text
