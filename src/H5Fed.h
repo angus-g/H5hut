@@ -20,6 +20,7 @@
 #define __H5FED_H
 
 #include "H5.h"
+#include "H5Fed_boundaries.h"
 #include "H5Fed_map.h"
 
 /******	General routines *****************************************************/
