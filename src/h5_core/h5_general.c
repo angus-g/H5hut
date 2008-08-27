@@ -8,9 +8,7 @@
 #include <hdf5.h>
 
 #include "h5_core.h"
-#include "h5_private.h"
-#include "H5Part.h"
-#include "H5Block.h"
+#include "h5_core_private.h"
 
 /*!
   \ingroup h5block_private
@@ -42,7 +40,7 @@ h5_check_filehandle (
 static herr_t
 _h5_error_handler ( void* unused ) {
 	
-	if ( _debug >= 5 ) {
+	if ( h5_get_debuglevel() >= 5 ) {
 		H5Eprint (stderr);
 	}
 	return 0;
@@ -55,7 +53,7 @@ _init ( void ) {
 	herr_t r5;
 	if ( ! __init ) {
 		r5 = H5Eset_auto ( _h5_error_handler, NULL );
-		if ( r5 < 0 ) return H5PART_ERR_INIT;
+		if ( r5 < 0 ) return H5_ERR_INIT;
 	}
 	__init = 1;
 	return H5_SUCCESS;
@@ -146,7 +144,7 @@ h5_open_file (
 		HANDLE_H5_INIT_ERR;
 		return NULL;
 	}
-	_h5part_errno = H5_SUCCESS;
+	h5_set_errno ( H5_SUCCESS );
 	h5_file *f = NULL;
 
 	f = (h5_file*) malloc( sizeof (h5_file) );
@@ -251,7 +249,7 @@ h5_open_file (
 	}
 	f->root_gid = H5Gopen( f->file, "/" );
 	if ( f->root_gid < 0 ) {
-		HANDLE_H5G_OPEN_ERR ( "/" );
+		HANDLE_H5G_OPEN_ERR ( "", "" );
 		goto error_cleanup;
 	}
 	f->mode = flags;
@@ -304,7 +302,7 @@ _h5u_close_file (
 	h5_file *f		/*!< IN: file handle */
 	) {
 	herr_t herr;
-	_h5part_errno = H5_SUCCESS;
+	h5_set_errno ( H5_SUCCESS );
 	if( f->shape > 0 ) {
 		herr = H5Sclose( f->shape );
 		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR;
@@ -323,7 +321,7 @@ _h5u_close_file (
 	if( f->pnparticles ) {
 		free( f->pnparticles );
 	}
-	return _h5part_errno;
+	return h5_get_errno();
 }
 
 /*!
@@ -375,7 +373,7 @@ h5_close_file (
 	h5_file *f
 	) {
 	herr_t r = 0;
-	_h5part_errno = H5_SUCCESS;
+	h5_set_errno ( H5_SUCCESS );
 
 	CHECK_FILEHANDLE ( f );
 
@@ -420,7 +418,7 @@ h5_close_file (
 	}
 	free( f );
 
-	return _h5part_errno;
+	return h5_get_errno();
 }
 
 h5_int64_t
