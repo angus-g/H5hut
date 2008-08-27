@@ -381,6 +381,8 @@ src/h5/h5_core.h -text
 src/h5/h5_core_private.h -text
 src/h5/h5_private.h -text
 src/h5/h5_types.h -text
+src/h5/h5t_boundaries.c -text
+src/h5/h5t_boundaries.h -text
 src/h5/maps.c -text
 src/h5/maps.h -text
 src/h5/readwrite.c -text
