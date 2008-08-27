@@ -46,6 +46,7 @@ include_HEADERS = \
 	H5Part.h \
 	H5Block.h \
 	H5Fed.h \
+	H5Fed_boundaries.h \
 	H5Fed_map.h
 
 # Listing of all possible headers that I may include
@@ -57,6 +58,7 @@ libH5Part_a_SOURCES = \
 	H5Block.c \
 	H5Fed.c \
 	H5Fed_adjacency.c \
+	H5Fed_boundaries.c \y
 	H5Fed_dof.c \
 	H5Fed_inquiry.c \
 	H5Fed_map.c \
