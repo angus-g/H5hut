@@ -13,7 +13,7 @@
 
 #define H5BLOCK_GROUPNAME_BLOCK	H5B_CONTAINER_GRPNAME
 
-#define H5_TET_MASK		( (h5_id_t)(-1) >> 3 )
+#define H5_TET_MASK		( (h5_id_t) (0xffffffff >> 3) )
 #define _h5t_build_triangle_id( idx, entity_id ) \
 	( (idx << (sizeof(entity_id)*8 - 3)) | (entity_id & H5_TET_MASK))
 
