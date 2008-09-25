@@ -20,7 +20,7 @@ FFLAGS = @FFLAGS@ @MPIINC@
 SZLIB = @SZLIB@
 HDFLIB = -L$(HDF5ROOT)/lib -lhdf5 -lz $(SZLIB) @LDFLAGS@
 MPILIB = @MPILIB@
-H5LIB = -L@H5P_LIB_LOC@ -L@H5P_LIB_LOC@/h5 -lH5Part -lH5
+H5LIB = -L@H5P_LIB_LOC@ -L@H5P_LIB_LOC@/h5_core -lH5_core -lH5
 
 LIBS = ${H5LIB} $(HDFLIB) $(MPILIB) -lm @STDCXX@
 
@@ -30,13 +30,14 @@ LIBS = ${H5LIB} $(HDFLIB) $(MPILIB) -lm @STDCXX@
 # INCLUDES
 HDFINC = -I$(HDF5ROOT)/include
 MPIINC = @MPIINC@
-H5INC = -I@H5P_LIB_LOC@ -I@H5P_LIB_LOC@/h5
+H5INC = -I@H5P_LIB_LOC@ -I@H5P_LIB_LOC@/h5_core
 
 INC = $(HDFINC) $(MPIINC) $(H5INC)
 
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
 bin_PROGRAMS = \
+		write_boundary \
 		write_tetmesh \
 		read_tetmesh \
 		write_trianglemesh \
@@ -52,6 +53,7 @@ EXTRA_PROGRAMS =
 
 # Extra files that I wish to include in the dist tar ball.
 EXTRA_DIST = 	\
+		write_boundary.c \
 		write_tetmesh.c \
 		read_tetmesh.c \
 		write_trianglemesh.c \
