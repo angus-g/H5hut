@@ -575,7 +575,7 @@ AC_SUBST(TOOLS_HDFLIB)
 AC_CONFIG_FILES([
 Makefile
 doc/Makefile
-src/h5/Makefile
+src/h5_core/Makefile
 src/bindings/Makefile
 src/bindings/C++/Makefile
 src/Makefile
