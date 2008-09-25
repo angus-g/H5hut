@@ -38,10 +38,10 @@ h5_check_filehandle (
   Initialize H5Part
 */
 static herr_t
-_h5_error_handler ( void* unused ) {
+_h5_error_handler ( hid_t estack_id, void* unused ) {
 	
 	if ( h5_get_debuglevel() >= 5 ) {
-		H5Eprint (stderr);
+		H5Eprint (estack_id, stderr);
 	}
 	return 0;
 }
@@ -52,7 +52,7 @@ _init ( void ) {
 
 	herr_t r5;
 	if ( ! __init ) {
-		r5 = H5Eset_auto ( _h5_error_handler, NULL );
+		r5 = H5Eset_auto ( H5E_DEFAULT, _h5_error_handler, NULL );
 		if ( r5 < 0 ) return H5_ERR_INIT;
 	}
 	__init = 1;
@@ -247,7 +247,7 @@ h5_open_file (
 		HANDLE_H5F_OPEN_ERR ( filename, flags );
 		goto error_cleanup;
 	}
-	f->root_gid = H5Gopen( f->file, "/" );
+	f->root_gid = H5Gopen( f->file, "/", H5P_DEFAULT );
 	if ( f->root_gid < 0 ) {
 		HANDLE_H5G_OPEN_ERR ( "", "" );
 		goto error_cleanup;

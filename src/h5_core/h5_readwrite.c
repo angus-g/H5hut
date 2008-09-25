@@ -7,9 +7,7 @@
 #include <hdf5.h>
 
 #include "h5_core.h"
-#include "h5_private.h"
-#include "H5Part.h"
-#include "H5Block.h"
+#include "h5_core_private.h"
 
 h5part_int64_t
 h5_write_data (
@@ -32,7 +30,7 @@ h5_write_data (
 		name,
 		type,
 		shape,
-		H5P_DEFAULT );
+		H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
 	if ( dataset_id < 0 )
 		return HANDLE_H5D_CREATE_ERR ( name );
 
@@ -54,6 +52,165 @@ h5_write_data (
 	return H5_SUCCESS;
 }
 
+h5_err_t
+h5_write_dataset (
+	h5_file * const f,		/*!< IN: Handle to open file */
+	const hid_t group_id,
+	const char dataset_name[],/*!< IN: Name to associate data with */
+	const hid_t type_id,	/*!< IN: Type of data */
+	const hid_t memspace_id,
+	const hid_t diskspace_id,
+	const void * const data	/*!< IN: Data to commit to disk */
+	) {
+	h5_info ( "Writing dataset %s/%s.",
+		  h5_get_objname(group_id), dataset_name );
+
+	if ( f->mode == O_RDONLY ) 
+		return _h5_handle_file_mode_error( f->mode );
+
+	/*
+	  file modes:
+	  H5_O_RDONLY: only reading allowed
+	  H5_O_WRONLY: create new file, dataset must not exist
+	  H5_O_APPEND: allows appendings of new datasets to an existing file
+	  H5_O_RDWR:   dataset may exist
+	*/
+	H5O_info_t dataset_info;
+	herr_t herr = H5Oget_info_by_name(
+		group_id,
+		dataset_name,
+		&dataset_info,
+		H5P_DEFAULT  );
+
+	if ( (herr >= 0) && ( (f->mode==H5_O_WRONLY) || (f->mode==H5_O_APPEND) ) ) {
+		h5_warn ( "Dataset %s/%s already exist.",
+			  h5_get_objname(group_id), dataset_name );
+		return _h5_handle_file_mode_error( f->mode );
+	}
+	hid_t dataset_id;
+	if ( herr >= 0 ) {
+		dataset_id = H5Dopen ( 
+			group_id,
+			dataset_name,
+			H5P_DEFAULT );
+		if ( dataset_id < 0 )
+			return HANDLE_H5D_OPEN_ERR ( dataset_name );
+	} else {
+		dataset_id = H5Dcreate ( 
+			group_id,
+			dataset_name,
+			type_id,
+			diskspace_id,
+			H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+		if ( dataset_id < 0 )
+			return HANDLE_H5D_CREATE_ERR ( dataset_name );
+	}
+	herr = H5Dwrite (
+		dataset_id,
+		type_id,
+		memspace_id,
+		diskspace_id,
+		f->xfer_prop,
+		data );
+
+	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( dataset_name );
+
+	herr = H5Dclose ( dataset_id );
+	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
+
+	f->empty = 0;
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5_read_dataset2 (
+	h5_file * const f,
+	hid_t group_id,
+	const char dataset_name[],
+	hid_t type_id,
+	hid_t (*set_memspace)(h5_file*,hid_t),
+	hid_t (*set_diskspace)(h5_file*,hid_t),
+	void * const data ) {
+
+	hid_t dataset_id = H5Dopen ( group_id, dataset_name, H5P_DEFAULT );
+	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( dataset_name );
+
+	hid_t memspace_id = (*set_memspace)( f, dataset_id );
+	if ( memspace_id < 0 ) return memspace_id;
+	hid_t diskspace_id = (*set_diskspace)( f, dataset_id );
+	if ( diskspace_id < 0 ) return diskspace_id;
+
+	
+	h5_err_t h5err = _h5_read_dataset (
+		f,
+		dataset_id,
+		type_id,
+		memspace_id,
+		diskspace_id,
+		data );
+	if ( h5err < 0 ) return h5err;
+
+	herr_t herr = H5Sclose ( diskspace_id );
+	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+	herr = H5Sclose ( memspace_id );
+	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+
+	herr = H5Dclose ( dataset_id );
+	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5_read_dataset (
+	h5_file *f,
+	hid_t group_id,
+	const char dataset_name[],
+	hid_t type_id,
+	hid_t memspace_id,
+	hid_t diskspace_id,
+	void * const data ) {
+
+	hid_t dataset_id = H5Dopen ( group_id, dataset_name, H5P_DEFAULT );
+	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( dataset_name );
+
+	h5_err_t h5err = _h5_read_dataset (
+		f,
+		dataset_id,
+		type_id,
+		memspace_id,
+		diskspace_id,
+		data );
+	if ( h5err < 0 ) return h5err;
+
+	herr_t herr = H5Dclose ( dataset_id );
+	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
+_h5_read_dataset (
+	h5_file * const f,
+	hid_t dataset_id,
+	hid_t type_id,
+	hid_t memspace_id,
+	hid_t diskspace_id,
+	void * const data ) {
+
+	herr_t herr = H5Dread (
+		dataset_id,
+		type_id,
+		memspace_id,
+		diskspace_id,
+		f->xfer_prop,
+		data );
+	if ( herr < 0 )
+		return HANDLE_H5D_READ_ERR ( h5_get_objname ( dataset_id ) );
+
+	return H5_SUCCESS;
+}
 
 /*!
   \ingroup h5part_kernel
@@ -191,7 +348,8 @@ _create_step (
 		(long long)f->step_idx,
 		(long long)(size_t) f );
 	f->is_new_step = 1;
-	f->step_gid = H5Gcreate ( f->file, f->step_name, 0 );
+	f->step_gid = H5Gcreate ( f->file, f->step_name, 0,
+				  H5P_DEFAULT, H5P_DEFAULT );
 	if ( f->step_gid < 0 )
 		return HANDLE_H5G_CREATE_ERR ( f->step_name );
 
@@ -208,9 +366,9 @@ _open_step (
 		(long long)f->step_idx,
 		(long long)(size_t) f );
 	f->is_new_step = 0;
-	f->step_gid = H5Gopen ( f->file, f->step_name ); 
+	f->step_gid = H5Gopen ( f->file, f->step_name, H5P_DEFAULT ); 
 	if ( f->step_gid < 0 )
-		return HANDLE_H5G_OPEN_ERR( f->step_name );
+		return HANDLE_H5G_OPEN_ERR( "", f->step_name );
 
 	return H5_SUCCESS;
 }
@@ -258,7 +416,7 @@ _set_step (
 	herr_t herr = H5Gget_objinfo( f->file, f->step_name, 1, NULL );
 
 	if( f->mode == H5_O_RDONLY ) {
-		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR( f->step_name );
+		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR( "", f->step_name );
 		herr = _open_step ( f );
 		if ( herr < 0 ) return herr;
 	} else if ( (f->mode == H5_O_WRONLY)  || (f->mode == H5_O_APPEND) ) {
@@ -328,7 +486,7 @@ h5_get_dataset_type(
 	hid_t group_id,
 	const char *dataset_name
 	) {
-	hid_t dataset_id = H5Dopen ( group_id, dataset_name );
+	hid_t dataset_id = H5Dopen ( group_id, dataset_name, H5P_DEFAULT );
 	if ( dataset_id < 0 ) HANDLE_H5D_OPEN_ERR ( dataset_name );
 
 	hid_t hdf5_type = H5Dget_type ( dataset_id );

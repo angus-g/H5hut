@@ -1,9 +1,15 @@
 #ifndef __H5_PRIVATE_H
 #define __H5_PRIVATE_H
 
-#include "errorhandling_private.h"
-#include "t_map_private.h"
-#include "t_errorhandling_private.h"
+#include "h5_errorhandling_private.h"
+#include "h5_qsort_private.h"
+#include "h5b_errorhandling_private.h"
+#include "h5t_boundaries_private.h"
+#include "h5t_map_private.h"
+#include "h5t_errorhandling_private.h"
+#include "h5t_readwrite_private.h"
+#include "h5t_storemesh_private.h"
+#include "h5u_errorhandling_private.h"
 
 #define H5PART_GROUPNAME_STEP	"Step"
 
@@ -17,33 +23,8 @@
 #define _h5t_build_triangle_id( idx, entity_id ) \
 	( (idx << (sizeof(entity_id)*8 - 3)) | (entity_id & H5_TET_MASK))
 
-#define SET_FNAME( fname )	h5_set_funcname( fname );
 
-#define CHECK_FILEHANDLE( f ) \
-	if ( f == NULL ) \
-		return HANDLE_H5_BADFD_ERR;
-
-#define CHECK_WRITABLE_MODE( f )  \
-	if ( f->mode==H5PART_READ ) \
-		return (*h5_get_errorhandler()) (	\
-			h5_get_funcname(), \
-			H5_ERR_INVAL, \
-			"Attempting to write to read-only file" );
-
-#define CHECK_READONLY_MODE( f )  \
-	if ( ! f->mode==H5PART_READ ) \
-		return (*h5_get_errorhandler()) (	\
-			h5_get_funcname(), \
-			H5_ERR_INVAL, \
-			"Operation is not allowed on writable files." );
-
-#define CHECK_TIMEGROUP( f ) \
-	if ( f->step_gid <= 0 ) \
-		return (*h5_get_errorhandler()) (	\
-			h5_get_funcname(), \
-			H5_ERR_INVAL, \
-			"Internal error: step_gid <= 0.");
-
+#define TRY(func,exception) if ( func < 0 ) goto exception;
 
 
 /*!

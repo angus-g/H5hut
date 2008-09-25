@@ -3,7 +3,7 @@
 #include <hdf5.h>
 #include "h5_types.h"
 #include "h5_core.h"
-#include "h5_private.h"
+#include "h5_core_private.h"
 
 h5_err_t
 _h5_alloc_smap (

@@ -7,20 +7,27 @@
 #include <hdf5.h>
 
 #include "h5_core.h"
-#include "h5_private.h"
-#include "H5Part.h"
+#include "h5_core_private.h"
 
-h5_error_handler	_err_handler = h5_report_errorhandler;
-h5_err_t		_h5part_errno = H5_SUCCESS;
-h5_id_t		_debug = 0;
+static h5_error_handler	_err_handler = h5_report_errorhandler;
+static h5_verror_handler _verr_handler = h5_report_verrorhandler;
+static h5_err_t		_h5_errno = H5_SUCCESS;
+static h5_id_t		_h5_debug = 0;
 
 static char *__funcname = "NONE";
+
+const char * const H5_O_MODES[] = {
+	"H5_O_RDWR",
+	"H5_O_RDONLY",
+	"H5_O_WRONLY",
+	"H5_O_APPEND"
+};
 
 h5_err_t
 h5_set_debuglevel (
 	h5_id_t level
 	) {
-	_debug = level;
+	_h5_debug = level;
 	return H5_SUCCESS;
 }
 
@@ -28,7 +35,7 @@ h5_err_t
 h5_get_debuglevel (
 	void
 	) {
-	return _debug;
+	return _h5_debug;
 }
 
 h5_err_t
@@ -39,18 +46,32 @@ h5_set_errorhandler (
 	return H5_SUCCESS;
 }
 
-h5part_error_handler
+h5_error_handler
 h5_get_errorhandler (
 	void
 	) {
 	return _err_handler;
 }
 
+h5_verror_handler
+h5_get_verrorhandler (
+	void
+	) {
+	return _verr_handler;
+}
+
 h5_err_t
 h5_get_errno (
 	void
 	) {
-	return _h5part_errno;
+	return _h5_errno;
+}
+
+void
+h5_set_errno (
+	h5_err_t h5_errno
+	) {
+	_h5_errno = h5_errno;
 }
 
 
@@ -70,14 +91,29 @@ h5_report_errorhandler (
 	...
 	) {
 
-	_h5part_errno = eno;
-	if ( _debug > 0 ) {
+	_h5_errno = eno;
+	if ( _h5_debug > 0 ) {
 		va_list ap;
 		va_start ( ap, fmt );
 		h5_vprint_error ( fmt, ap );
 		va_end ( ap );
 	}
-	return _h5part_errno;
+	return _h5_errno;
+}
+
+h5_err_t
+h5_report_verrorhandler (
+	const char *funcname,
+	const h5_err_t eno,
+	const char *fmt,
+	va_list ap
+	) {
+
+	_h5_errno = eno;
+	if ( _h5_debug > 0 ) {
+		h5_vprint_error ( fmt, ap );
+	}
+	return _h5_errno;
 }
 
 /*!
@@ -94,15 +130,15 @@ h5_abort_errorhandler (
 	...
 	) {
 
-	_h5part_errno = eno;
-	if ( _debug > 0 ) {
+	_h5_errno = eno;
+	if ( _h5_debug > 0 ) {
 		va_list ap;
 		va_start ( ap, fmt );
 		fprintf ( stderr, "%s: ", funcname );
 		vfprintf ( stderr, fmt, ap );
 		fprintf ( stderr, "\n" );
 	}
-	exit (-(int)_h5part_errno);
+	exit (-(int)_h5_errno);
 }
 
 static void
@@ -112,11 +148,29 @@ _vprintf (
 	const char *fmt,
 	va_list ap
 	) {
-	char *fmt2 = (char*)malloc( strlen ( prefix ) +strlen ( fmt ) + strlen ( __funcname ) + 16 );
+	char *fmt2 = (char*)malloc(
+		strlen ( prefix ) +
+		strlen ( fmt ) + 
+		strlen ( __funcname ) + 16 );
 	if ( fmt2 == NULL ) return;
 	sprintf ( fmt2, "%s: %s: %s\n", prefix, __funcname, fmt ); 
 	vfprintf ( stderr, fmt2, ap );
 	free ( fmt2 );
+}
+
+h5_err_t
+h5_error (
+	h5_err_t error_no,
+	const char *fmt,
+	...
+	) {
+	va_list ap;
+	va_start ( ap, fmt );
+
+	(*h5_get_verrorhandler()) ( h5_get_funcname(), error_no, fmt, ap );
+
+	va_end ( ap );
+	return error_no;
 }
 
 void
@@ -125,7 +179,7 @@ h5_vprint_error (
 	va_list ap
 	) {
 
-	if ( _debug < 1 ) return;
+	if ( _h5_debug < 1 ) return;
 	_vprintf ( stderr, "E", fmt, ap );
 }
 
@@ -147,7 +201,7 @@ h5_vprint_warn (
 	va_list ap
 	) {
 
-	if ( _debug < 2 ) return;
+	if ( _h5_debug < 2 ) return;
 	_vprintf ( stderr, "W", fmt, ap );
 }
 
@@ -169,7 +223,7 @@ h5_vprint_info (
 	va_list ap
 	) {
 
-	if ( _debug < 3 ) return;
+	if ( _h5_debug < 3 ) return;
 	_vprintf ( stdout, "I", fmt, ap );
 }
 
@@ -191,7 +245,7 @@ h5_vprint_debug (
 	va_list ap
 	) {
 
-	if ( _debug < 4 ) return;
+	if ( _h5_debug < 4 ) return;
 	_vprintf ( stdout, "D", fmt, ap );
 }
 

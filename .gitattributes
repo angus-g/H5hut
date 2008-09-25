@@ -378,7 +378,6 @@ src/h5_core/h5_core_private.h -text
 src/h5_core/h5_errorhandling.c -text
 src/h5_core/h5_errorhandling.h -text
 src/h5_core/h5_errorhandling_private.h -text
-src/h5_core/h5_general.c -text
 src/h5_core/h5_maps.c -text
 src/h5_core/h5_maps.h -text
 src/h5_core/h5_openclose.c -text

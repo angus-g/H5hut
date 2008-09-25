@@ -6,9 +6,15 @@
 #include <fcntl.h>
 #include <hdf5.h>
 
-#include "h5_core.h"
-#include "h5_private.h"
-#include "H5Part.h"
+#include "h5_core/h5_core.h"
+#include "h5_core/h5_core_private.h"
+
+h5_int64_t
+h5u_has_view (
+	h5_file *f
+	) {
+	return  ( f->viewstart >= 0 ) && ( f->viewend >= 0 );
+}
 
 static hid_t
 _get_diskshape_for_reading (
@@ -21,7 +27,7 @@ _get_diskshape_for_reading (
 	hid_t space = H5Dget_space(dataset);
 	if ( space < 0 ) return (hid_t)HANDLE_H5D_GET_SPACE_ERR;
 
-	if ( H5PartHasView(f) ){ 
+	if ( h5u_has_view ( f ) ) {
 		hsize_t stride;
 		hsize_t count;
 #ifdef HDF5V160
@@ -63,7 +69,7 @@ _get_memshape_for_reading (
 	hid_t dataset
 	) {
 
-	if(H5PartHasView(f)) {
+	if ( h5u_has_view ( f ) ) {
 		hsize_t dmax=H5S_UNLIMITED;
 		hsize_t len = f->viewend - f->viewstart;
 		hid_t r = H5Screate_simple(1,&len,&dmax);
@@ -101,14 +107,14 @@ H5U_get_num_elems (
 		dataset_name, sizeof (dataset_name) );
 	if ( herr < 0 ) return herr;
 
-	dataset_id = H5Dopen ( f->step_gid, dataset_name );
+	dataset_id = H5Dopen ( f->step_gid, dataset_name, H5P_DEFAULT );
 	if ( dataset_id < 0 ) 
 		return HANDLE_H5D_OPEN_ERR ( dataset_name );
 
 	space_id = _get_diskshape_for_reading ( f, dataset_id );
 	if ( space_id < 0 ) return (h5part_int64_t)space_id;
 
-	if ( H5PartHasView ( f ) ) {
+	if ( h5u_has_view ( f ) ) {
 		nparticles = H5Sget_select_npoints ( space_id );
 		if ( nparticles < 0 ) return HANDLE_H5S_GET_SELECT_NPOINTS_ERR;
 	}
@@ -144,7 +150,7 @@ H5U_read_elems (
 		h5part_int64_t h5err = h5_set_step ( f, f->step_idx );
 		if ( h5err < 0 ) return h5err;
 	}
-	dataset_id = H5Dopen ( f->step_gid, name );
+	dataset_id = H5Dopen ( f->step_gid, name, H5P_DEFAULT );
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
 
 	space_id = _get_diskshape_for_reading ( f, dataset_id );

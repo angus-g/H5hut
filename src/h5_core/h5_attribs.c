@@ -7,7 +7,7 @@
 #include <hdf5.h>
 
 #include "h5_core.h"
-#include "h5_private.h"
+#include "h5_core_private.h"
 #include "H5Part.h"
 #include "H5Block.h"
 
@@ -76,7 +76,7 @@ h5_write_attrib (
 		attrib_name,
 		attrib_type,
 		space_id,
-		H5P_DEFAULT );
+		H5P_DEFAULT, H5P_DEFAULT );
 	if ( attrib_id < 0 ) return HANDLE_H5A_CREATE_ERR ( attrib_name );
 
 	herr = H5Awrite ( attrib_id, attrib_type, attrib_value);

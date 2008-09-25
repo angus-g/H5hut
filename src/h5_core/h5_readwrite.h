@@ -13,6 +13,18 @@ h5_write_data (
 	const hid_t diskshape
 	) ;
 
+h5_err_t
+h5_write_dataset (
+	h5_file * const f,
+	const hid_t group_id,
+	const char dataset_name[],
+	const hid_t type_id,
+	const hid_t memspace_id,
+	const hid_t diskspace_id,
+	const void * const data
+	) ;
+
+
 h5part_int64_t
 h5_get_num_objects (
 	hid_t group_id,
