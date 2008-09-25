@@ -19,14 +19,13 @@
 
 #include <stdarg.h>
 #include <hdf5.h>
-#include "h5/h5_core.h"
-#include "h5/h5_private.h"
+#include "h5_core/h5_core.h"
 #include "H5Fed.h"
 
 h5_size_t
 H5FedGetNumMeshes (
 	h5_file * f,			/*!< file handle		*/
-	const enum h5_mesh_types type
+	const h5_oid_t type
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_get_num_meshes ( f, type );

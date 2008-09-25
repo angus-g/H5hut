@@ -19,8 +19,7 @@
 
 #include <stdarg.h>
 #include <hdf5.h>
-#include "h5/h5_core.h"
-#include "h5/h5_private.h"
+#include "h5_core/h5_core.h"
 #include "H5Fed.h"
 
 h5_id_t

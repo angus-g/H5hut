@@ -16,8 +16,7 @@
 
 #include <stdarg.h>
 #include <hdf5.h>
-#include "h5/h5_core.h"
-#include "h5/h5_private.h"
+#include "h5_core/h5_core.h"
 #include "H5Fed.h"
 
 h5_err_t
@@ -37,7 +36,7 @@ H5FedStartTraverseVertices (
   \return error code (H5_ERR_NOENT means no more vertices on this level)
  
  */
-h5_err_t
+h5_id_t
 H5FedTraverseVertices (
 	h5_file * f,			/*!< file handle		*/
 	h5_id_t	* const id,		/*!< OUT: global id		*/
@@ -57,7 +56,7 @@ H5FedStartTraverseTriangles (
 	return h5t_start_traverse_triangles ( f );
 }
 
-h5_err_t
+h5_id_t
 H5FedTraverseTriangles (
 	h5_file * f,			/*!< file handle		*/
 	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
@@ -89,7 +88,7 @@ H5FedStartTraverseTetrahedra (
   \return pointer to 4-tuple of vertex id's defining the tetrahedron.
   \return NULL-pointer on error.
 */
-h5_err_t
+h5_id_t
 H5FedTraverseTetrahedra (
 	h5_file * f,			/*!< file handle		*/
 	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/

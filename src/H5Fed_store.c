@@ -15,8 +15,7 @@
 
 #include <stdarg.h>
 #include <hdf5.h>
-#include "h5/h5_core.h"
-#include "h5/h5_private.h"
+#include "h5_core/h5_core.h"
 #include "H5Fed.h"
 
 /*!
@@ -44,6 +43,7 @@ H5FedAddLevel (
 	return h5t_add_level ( f );
 }
 
+#if 0
 /*!
   \ingroup h5fed_c_api
 
@@ -66,8 +66,14 @@ H5FedAddNumVertices (
 	) {
 
 	SET_FNAME ( __func__ );
+	if ( h5t_get_level ( f ) != 0 ) {
+		return h5_error (
+			H5_ERR_INVAL,
+			"Vertices can be added to level 0 only!" );
+	}
 	return h5t_add_num_vertices ( f, num );
 }
+#endif
 
 /*!
   \ingroup h5fed_c_api
@@ -86,20 +92,34 @@ H5FedStoreVertex (
 	) {
 
 	SET_FNAME ( __func__ );
+	if ( h5t_get_level ( f ) != 0 ) {
+		return h5_error (
+			H5_ERR_INVAL,
+			"Vertices can be added to level 0 only!" );
+	}
 	return h5t_store_vertex ( f, id, P );
 }
 
 /*** T E T R A H E D R A ****************************************************/
 
 h5_err_t
-H5FedAddNumEntities (
+H5FedAddNumTets (
 	h5_file * f,			/*!< file handle		*/
 	const h5_size_t num		/*!< number of additional
-					  entities on current level	*/
+					  tets on current level	*/
 	) {
 	SET_FNAME ( __func__ );
+	return h5t_add_num_tets ( f, num );
+}
 
-	return h5t_add_num_entities ( f, num );
+h5_err_t
+H5FedAddNumTriangles (
+	h5_file * f,			/*!< file handle		*/
+	const h5_size_t num		/*!< number of additional
+					  triangle on current level	*/
+	) {
+	SET_FNAME ( __func__ );
+	return h5t_add_num_triangles ( f, num );
 }
 
 /*!
@@ -125,7 +145,21 @@ H5FedStoreTetrahedron (
 	const h5_id_t vertex_ids[4]	/*!< tuple with vertex id's	*/
 	) {
 	SET_FNAME ( __func__ );
+	if ( h5t_get_level ( f ) != 0 ) {
+		return h5_error (
+			H5_ERR_INVAL,
+			"Tetrahedra can be added to level 0 only!" );
+	}
 	return h5t_store_tet ( f, id, parent_id, vertex_ids );
+}
+
+h5_id_t
+H5FedRefineTetrahedron (
+	h5_file * f,			/*!< file handle		*/
+	const h5_id_t id		/*!< global tetrahedron id	*/
+	) {
+	SET_FNAME ( __func__ );
+	return h5t_refine_tet ( f, id );
 }
 
 h5_id_t
@@ -137,5 +171,10 @@ H5FedStoreTriangle (
 	h5_id_t vertex_ids[3]		/*!< tuple with vertex id's	*/
 	) {
 	SET_FNAME ( __func__ );
+	if ( h5t_get_level ( f ) != 0 ) {
+		return h5_error (
+			H5_ERR_INVAL,
+			"Triangles can be added to level 0 only!" );
+	}
 	return h5t_store_triangle ( f, id, parent_id, vertex_ids );
 }

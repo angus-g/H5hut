@@ -28,19 +28,19 @@
 h5_size_t
 H5FedGetNumMeshes (
 	h5_file * f,
-	const enum h5_mesh_types type
+	const h5_oid_t type
 	);
 
 h5_err_t
 H5FedOpenMesh (
 	h5_file * f,
 	const h5_id_t id,
-	const enum h5_mesh_types type
+	const h5_oid_t type
 	);
 h5_id_t
 H5FedAddMesh (
 	h5_file * f,
-	const enum h5_mesh_types type
+	const h5_oid_t type
 	);
 
 h5_size_t

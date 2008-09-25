@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <hdf5.h>
-#include "h5/h5_core.h"
+#include "h5_core/h5_core.h"
 #ifdef PARALLEL_IO
 #include <mpi.h>
 #endif
@@ -19,7 +19,6 @@ extern "C" {
 #define H5PART_ERR_BADFD	H5_ERR_BADFD
 #define H5PART_ERR_LAYOUT	H5_ERR_LAYOUT
 #define H5PART_ERR_NOENT	H5_ERR_NOENT
-#define H5PART_ERR_INIT         H5_ERR_INIT
 #define H5PART_ERR_NOENTRY	H5_ERR_NOENTRY
 
 #define H5PART_ERR_MPI		H5_ERR_MPI

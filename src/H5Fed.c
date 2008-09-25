@@ -15,15 +15,15 @@
 
 #include <stdarg.h>
 #include <hdf5.h>
-#include "h5/h5_core.h"
-#include "h5/h5_private.h"
+#include "h5_core/h5_core.h"
+#include "h5_core/h5_core_private.h"
 #include "H5Fed.h"
 
 h5_err_t
 H5FedOpenMesh (
 	h5_file * f,
 	const h5_id_t id,
-	const enum h5_mesh_types type
+	const h5_oid_t type
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_open_mesh ( f, id, type );
@@ -32,7 +32,7 @@ H5FedOpenMesh (
 h5_id_t
 H5FedAddMesh (
 	h5_file * f,
-	const enum h5_mesh_types type
+	const h5_oid_t type
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_open_mesh ( f, -1, type );

@@ -14,7 +14,7 @@
  */
 
 #include <hdf5.h>
-#include "h5/h5_types.h"
+#include "h5_core/h5_types.h"
 #include "H5Fed.h"
 
 /******	UPWARD ADJACENCY routines *********************************************/

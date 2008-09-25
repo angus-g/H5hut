@@ -45,8 +45,8 @@
 
 #include <hdf5.h>
 
-#include "h5/h5_core.h"
-#include "h5/h5_private.h"
+#include "h5_core/h5_core.h"
+#include "h5_core/h5_core_private.h"
 #include "H5Part.h"
 #include "H5Block.h"
 
@@ -736,8 +736,11 @@ _open_block_group (
 	}
 
 	if ( b->blockgroup < 0 ) {
-		hid_t herr = H5Gopen ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK );
-		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( H5BLOCK_GROUPNAME_BLOCK );
+		hid_t herr = H5Gopen ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK,
+				       H5P_DEFAULT );
+		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR (
+			h5_get_objname(f->step_gid),
+			H5BLOCK_GROUPNAME_BLOCK );
 		b->blockgroup = herr;
 	}
 	b->step_idx = f->step_idx;
@@ -782,8 +785,9 @@ _open_field_group (
 	if ( ! _have_object ( b->blockgroup, name ) )
 		return HANDLE_H5_NOENT_ERR ( name );
 
-	herr_t herr = H5Gopen ( b->blockgroup, name );
-	if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( name );
+	herr_t herr = H5Gopen ( b->blockgroup, name, H5P_DEFAULT );
+	if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR (
+		h5_get_objname(b->blockgroup), name );
 
 	b->field_group_id = herr;
 
@@ -912,7 +916,7 @@ _read_data (
 
 	struct h5b_fdata *b = f->block;
 
-	hid_t dataset_id = H5Dopen ( b->field_group_id, name );
+	hid_t dataset_id = H5Dopen ( b->field_group_id, name, H5P_DEFAULT );
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
 
 	h5part_int64_t herr = _select_hyperslab_for_reading ( f, dataset_id );
@@ -1147,7 +1151,8 @@ _create_block_group (
 		f->block->blockgroup = -1;
 	}
 
-	herr = H5Gcreate ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK, 0 );
+	herr = H5Gcreate ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK, 0,
+			   H5P_DEFAULT, H5P_DEFAULT );
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 
 	f->block->blockgroup = herr;
@@ -1184,7 +1189,7 @@ _create_field_group (
 	if ( _have_object ( b->blockgroup, name ) )
 		return  HANDLE_H5_GROUP_EXISTS_ERR ( name );
 
-	herr_t herr = H5Gcreate ( b->blockgroup, name, 0 );
+	herr_t herr = H5Gcreate ( b->blockgroup, name, 0, H5P_DEFAULT, H5P_DEFAULT );
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( name );
 	b->field_group_id = herr;
 
@@ -1343,10 +1348,12 @@ _get_field_info (
 	h5part_int64_t herr = _open_block_group ( f );
 	if ( herr < 0 ) return herr;
 
-	hid_t group_id = H5Gopen ( f->block->blockgroup, field_name );
-	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR ( field_name );
+	hid_t group_id = H5Gopen ( f->block->blockgroup, field_name,
+				   H5P_DEFAULT );
+	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR (
+		h5_get_objname(f->block->blockgroup), field_name );
 
-	hid_t dataset_id = H5Dopen ( group_id, "0" );
+	hid_t dataset_id = H5Dopen ( group_id, "0", H5P_DEFAULT );
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( "0" );
 
  	hid_t dataspace_id = H5Dget_space ( dataset_id );

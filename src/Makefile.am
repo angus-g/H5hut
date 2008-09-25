@@ -36,10 +36,10 @@ nodist_include_HEADERS = @UNDERSCORE_H@
 
 # What to build... Will be determined by configure script.
 OBJEXT = o
-lib_LIBRARIES = @MTARGET@
+lib_LIBRARIES = libH5.a
 
 # Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = libH5Part.a
+EXTRA_LIBRARIES = libH5.a
 
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS = \
@@ -53,12 +53,12 @@ include_HEADERS = \
 EXTRA_HEADERS =
 
 # Listing of sources
-libH5Part_a_SOURCES = \
+libH5_a_SOURCES = \
 	H5.c \
 	H5Block.c \
 	H5Fed.c \
 	H5Fed_adjacency.c \
-	H5Fed_boundaries.c \y
+	H5Fed_boundaries.c \
 	H5Fed_dof.c \
 	H5Fed_inquiry.c \
 	H5Fed_map.c \
@@ -66,11 +66,9 @@ libH5Part_a_SOURCES = \
 	H5Fed_store.c \
 	H5Part.c
 
-SUBDIRS = h5 bindings
+SUBDIRS = h5_core bindings
 
-# Specific building instruction (What compilers to use...)
-# ------------ Serial Lib build commands ------------
-libH5Part.a: $(libH5Part_a_OBJECTS)
+libH5.a: $(libH5_a_OBJECTS)
 	${AR} rucs $@ $^
 
 %.o : %.c

@@ -90,8 +90,8 @@ Last modified on April 19, 2007.
 #define close _close
 #endif /* WIN32 */
 
-#include "h5/h5_core.h"
-#include "h5/h5_private.h"
+#include "h5_core/h5_core.h"
+#include "h5_core/h5_errorhandling_private.h"
 #include "H5Part.h"
 
 /********* Private Variable Declarations *************/
@@ -325,10 +325,10 @@ H5PartWriteFileAttribString (
 	const char *attrib_value/*!< [in] Value of attribute */ 
 	) {
 
-	SET_FNAME ( "H5PartWriteFileAttribString" );
+	SET_FNAME ( __func__ );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_write_attrib (
 		f->root_gid,
@@ -363,7 +363,7 @@ H5PartWriteStepAttribString (
 	SET_FNAME ( "H5PartWriteStepAttribString" );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_write_attrib (
 		f->step_gid,
@@ -404,7 +404,7 @@ H5PartWriteStepAttrib (
 	SET_FNAME ( "H5PartWriteStepAttrib" );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_write_attrib (
 		f->step_gid,
@@ -445,7 +445,7 @@ H5PartWriteFileAttrib (
 	SET_FNAME ( "H5PartWriteFileAttrib" );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_write_attrib (
 		f->root_gid,
@@ -470,7 +470,7 @@ H5PartGetNumStepAttribs (
 	SET_FNAME ( "H5PartGetNumStepAttribs" );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_get_num_attribs ( f, f->step_gid );
 }
@@ -490,7 +490,7 @@ H5PartGetNumFileAttribs (
 	SET_FNAME ( "H5PartGetNumFileAttribs" );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_get_num_attribs ( f, f->root_gid );
 }
@@ -524,7 +524,7 @@ H5PartGetStepAttribInfo (
 	SET_FNAME ( "H5PartGetStepAttribInfo" );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_get_attrib_info (
 		f->step_gid,
@@ -564,7 +564,7 @@ H5PartGetFileAttribInfo (
 	SET_FNAME ( "H5PartGetFileAttribInfo" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_get_attrib_info (
 		f->root_gid,
@@ -592,7 +592,7 @@ H5PartReadStepAttrib (
 	SET_FNAME ( "H5PartReadStepAttrib" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_read_attrib ( f->step_gid, attrib_name, attrib_value );
 }
@@ -614,7 +614,7 @@ H5PartReadFileAttrib (
 	SET_FNAME ( "H5PartReadFileAttrib" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_read_attrib ( f->root_gid, attrib_name, attrib_value );
 }
@@ -657,7 +657,7 @@ H5PartSetStep (
 	SET_FNAME ( "H5PartSetStep" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_set_step ( f, step );
 }
@@ -684,7 +684,7 @@ H5PartHasStep (
 	SET_FNAME ( "H5PartHasStep" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_has_step( f, step );
 }
@@ -708,7 +708,7 @@ H5PartGetNumSteps (
 	SET_FNAME ( "H5PartGetNumSteps" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_get_num_objects_matching_pattern (
 		f->file,
@@ -733,7 +733,7 @@ H5PartGetNumDatasets (
 	SET_FNAME ( "H5PartGetNumDatasets" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_get_num_objects ( f->file, f->step_name, H5G_DATASET );
 }
@@ -759,7 +759,7 @@ H5PartGetDatasetName (
 	SET_FNAME ( "H5PartGetDatasetName" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return h5_get_object_name (
 		f->file,
@@ -794,7 +794,7 @@ H5PartGetDatasetInfo (
 	SET_FNAME ( "H5PartGetDatasetInfo" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	return H5U_get_dataset_info ( f, idx,
 			      dataset_name, len_dataset_name, type, nelem );
@@ -818,7 +818,7 @@ H5PartGetNumParticles (
 	SET_FNAME ( "H5PartGetNumParticles" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	if ( f->step_gid < 0 ) {
 		h5part_int64_t herr = h5_set_step ( f, 0 );
@@ -838,7 +838,7 @@ H5PartResetView (
 	SET_FNAME ( "H5PartResetView" );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return _h5part_errno;
+		return h5_get_errno();
 
 	CHECK_READONLY_MODE ( f );
 
@@ -852,12 +852,12 @@ h5part_int64_t
 H5PartHasView (
  	h5_file *f			/*!< [in]  Handle to open file */
 	) {
-	SET_FNAME ( "H5PartResetView" );
+	SET_FNAME ( __func__ );
 
 	CHECK_FILEHANDLE( f );
 	CHECK_READONLY_MODE ( f );
 
-	return  ( f->viewstart >= 0 ) && ( f->viewend >= 0 );
+	return  h5u_has_view ( f );
 }
 
 
