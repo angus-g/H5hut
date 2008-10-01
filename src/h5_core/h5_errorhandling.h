@@ -46,10 +46,10 @@ h5_get_debuglevel (
 
 h5_err_t
 h5_set_errorhandler (
-	h5part_error_handler handler
+	h5_error_handler handler
 	);
 
-h5part_error_handler
+h5_error_handler
 h5_get_errorhandler (
 	void
 	);

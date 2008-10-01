@@ -37,7 +37,7 @@
   
 h5_id_t
 H5FedAddLevel (
-	h5_file * f			/*!< file handle		*/
+	h5_file_t * f			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_add_level ( f );
@@ -61,7 +61,7 @@ H5FedAddLevel (
 */
 h5_err_t
 H5FedAddNumVertices (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	const h5_size_t num		/*!< number of additional vertices */
 	) {
 
@@ -86,7 +86,7 @@ H5FedAddNumVertices (
 */
 h5_id_t
 H5FedStoreVertex (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	const h5_id_t id,		/*!< global vertex id or -1	*/
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
@@ -104,7 +104,7 @@ H5FedStoreVertex (
 
 h5_err_t
 H5FedAddNumTets (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	const h5_size_t num		/*!< number of additional
 					  tets on current level	*/
 	) {
@@ -114,7 +114,7 @@ H5FedAddNumTets (
 
 h5_err_t
 H5FedAddNumTriangles (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	const h5_size_t num		/*!< number of additional
 					  triangle on current level	*/
 	) {
@@ -138,7 +138,7 @@ H5FedAddNumTriangles (
 */
 h5_id_t
 H5FedStoreTetrahedron (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	const h5_id_t id,		/*!< global tetrahedron id	*/
 	const h5_id_t parent_id,	/*!< global parent id
 					     if level \c >0 else \c -1	*/
@@ -155,7 +155,7 @@ H5FedStoreTetrahedron (
 
 h5_id_t
 H5FedRefineTetrahedron (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	const h5_id_t id		/*!< global tetrahedron id	*/
 	) {
 	SET_FNAME ( __func__ );
@@ -164,7 +164,7 @@ H5FedRefineTetrahedron (
 
 h5_id_t
 H5FedStoreTriangle (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	const h5_id_t id,		/*!< global tetrahedron id	*/
 	const h5_id_t parent_id,	/*!< global parent id
 					     if level \c >0 else \c -1	*/

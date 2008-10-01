@@ -21,7 +21,7 @@
 
 h5_err_t
 H5FedOpenMesh (
-	h5_file * f,
+	h5_file_t * f,
 	const h5_id_t id,
 	const h5_oid_t type
 	) {
@@ -31,7 +31,7 @@ H5FedOpenMesh (
 
 h5_id_t
 H5FedAddMesh (
-	h5_file * f,
+	h5_file_t * f,
 	const h5_oid_t type
 	) {
 	SET_FNAME ( __func__ );
@@ -40,7 +40,7 @@ H5FedAddMesh (
 
 h5_err_t
 H5FedSetLevel (
-	h5_file * f,
+	h5_file_t * f,
 	const h5_id_t id
 	) {
 	SET_FNAME ( __func__ );

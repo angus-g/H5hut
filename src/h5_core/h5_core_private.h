@@ -1,8 +1,11 @@
 #ifndef __H5_PRIVATE_H
 #define __H5_PRIVATE_H
 
+#include "h5t_types_private.h"
+
 #include "h5_errorhandling_private.h"
 #include "h5_qsort_private.h"
+#include "h5_syscall_private.h"
 #include "h5b_errorhandling_private.h"
 #include "h5t_boundaries_private.h"
 #include "h5t_map_private.h"
@@ -23,8 +26,19 @@
 #define _h5t_build_triangle_id( idx, entity_id ) \
 	( (idx << (sizeof(entity_id)*8 - 3)) | (entity_id & H5_TET_MASK))
 
-
-#define TRY(func,exception) if ( func < 0 ) goto exception;
+#if __SIZEOF_POINTER__ == 4
+#define TRY(func) if ( (int32_t)(func) == (int32_t)(-1) ) return H5_ERR;
+#define TRY2(func,exception) if ( (int32_t)(func) == (int32_t)(-1) ) goto exception;
+#elif __SIZEOF_POINTER__ == 8
+#define TRY(func)						\
+	if ( (int64_t)(func) == (int64_t)(-1) )			\
+		return H5_ERR;
+#define TRY2(func,exception)			\
+	if ( (int64_t)(func) == (int64_t)(-1) )	\
+		goto exception;
+#else
+  #error "Unknown pointer size!"
+#endif
 
 
 /*!
@@ -45,15 +59,15 @@ struct _iter_op_data {
 	char *pattern;
 };
 
-h5part_int64_t
+h5_int64_t
 h5_set_step (
-	h5_file *f,
-	const h5part_int64_t step
+	h5_file_t *f,
+	const h5_int64_t step
 	);
 
-h5part_int64_t
+h5_int64_t
 h5_get_num_particles (
-	h5_file *f
+	h5_file_t *f
 	);
 
 herr_t
@@ -72,14 +86,14 @@ h5_normalize_h5_type (
 	hid_t type
 	);
 
-h5part_int64_t
+h5_int64_t
 h5_read_attrib (
 	hid_t id,
 	const char *attrib_name,
 	void *attrib_value
 	);
 
-h5part_int64_t
+h5_int64_t
 h5_write_attrib (
 	hid_t id,
 	const char *attrib_name,
@@ -88,24 +102,24 @@ h5_write_attrib (
 	const hsize_t attrib_nelem
 	);
 
-h5part_int64_t
+h5_int64_t
 h5_get_attrib_info (
 	hid_t id,
-	const h5part_int64_t attrib_idx,
+	const h5_int64_t attrib_idx,
 	char *attrib_name,
-	const h5part_int64_t len_attrib_name,
-	h5part_int64_t *attrib_type,
-	h5part_int64_t *attrib_nelem
+	const h5_int64_t len_attrib_name,
+	h5_int64_t *attrib_type,
+	h5_int64_t *attrib_nelem
 	);
 
-h5part_int64_t
+h5_int64_t
 h5_get_num_objects (
 	hid_t group_id,
 	const char *group_name,
 	const hid_t type
 	);
 
-h5part_int64_t
+h5_int64_t
 h5_get_num_objects_matching_pattern (
 	hid_t group_id,
 	const char *group_name,
@@ -113,14 +127,14 @@ h5_get_num_objects_matching_pattern (
 	char * const pattern
 	);
 
-h5part_int64_t
+h5_int64_t
 _H5Part_get_object_name (
 	hid_t group_id,
 	const char *group_name,
 	const hid_t type,
-	const h5part_int64_t idx,
+	const h5_int64_t idx,
 	char *obj_name,
-	const h5part_int64_t len_obj_name
+	const h5_int64_t len_obj_name
 	);
 
 

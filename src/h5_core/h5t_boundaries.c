@@ -5,44 +5,40 @@
 
 static h5_err_t
 _open_boundaries_group (
-	h5_file * const f
+	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->cur_mesh < 0 )
 		return _h5t_error_undef_mesh ( f );
-	TRY( (t->boundaries_gid = _h5_open_group (
-		      f, t->mesh_gid, H5T_BOUNDARYMESH_GRPNAME )), error_exit );
+	TRY( t->boundaries_gid = _h5_open_group (
+		      f, t->mesh_gid, H5T_BOUNDARYMESH_GRPNAME ) );
 	return H5_SUCCESS;
-error_exit:
-	return h5_get_errno();
 }
 
 static h5_err_t
 _open_boundary_group (
-	h5_file * const f
+	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
 
 	if ( t->cur_mesh < 0 )
 		return _h5t_error_undef_mesh ( f );
 
 	if ( t->boundaries_gid < 0 ) {
-		TRY( _open_boundaries_group ( f ), error_exit );
+		TRY( _open_boundaries_group ( f ) );
 	}
 	boundary->gid = _h5_open_group (
 		f, t->boundaries_gid, boundary->name );
 	return H5_SUCCESS;
-error_exit:
-	return h5_get_errno();
 }
 
 h5_id_t
 h5t_get_num_boundaries (
-	h5_file * const f
+	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->cur_mesh < 0 )
 		return _h5t_error_undef_mesh ( f );
@@ -58,14 +54,14 @@ h5t_get_num_boundaries (
 
 h5_err_t
 h5t_set_boundary_label (
-	h5_file * const f,
+	h5_file_t * const f,
 	const char * const bname
 	) {
 	return -1;
 }
 h5_err_t
 h5t_get_boundary_label (
-	h5_file * const f,
+	h5_file_t * const f,
 	char * const boundary_name,
 	const size_t size
 	) {
@@ -74,16 +70,16 @@ h5t_get_boundary_label (
 
 h5_err_t
 h5t_open_boundary (
-	h5_file * const f,
+	h5_file_t * const f,
 	const h5_id_t boundary_id
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
 
-	TRY( h5t_close_boundary ( f ), error_exit );
+	TRY( h5t_close_boundary ( f ) );
 
 	if ( t->num_boundaries < 0 ) {
-		TRY( h5t_get_num_boundaries ( f ), error_exit );
+		TRY( h5t_get_num_boundaries ( f ) );
 	}
 	if ( (boundary_id < -1) || (boundary_id >= t->num_boundaries) ) {
 		return HANDLE_H5_OUT_OF_RANGE_ERR( "boundary", boundary_id );
@@ -96,16 +92,14 @@ h5t_open_boundary (
 	}
 	snprintf ( boundary->name, sizeof (boundary->name),
 		   "%d", boundary->id );
-	TRY( _open_boundary_group ( f ), error_exit );
+	TRY( _open_boundary_group ( f ) );
 
 	return H5_SUCCESS;
-error_exit:
-	return h5_get_errno();
 }
 
 h5_err_t
 h5t_open_boundary_with_label (
-	h5_file * const f,
+	h5_file_t * const f,
 	const char * const boundary_label
 	) {
 	return -1;
@@ -113,9 +107,9 @@ h5t_open_boundary_with_label (
 
 h5_err_t
 _h5t_read_boundaryfaces (
-	h5_file * const f
+	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
 
 	const char * const dataset_name = "Faces";
@@ -155,9 +149,9 @@ _h5t_read_boundaryfaces (
 
 h5_err_t
 _h5t_write_boundary (
-	h5_file * const f
+	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
 
 	hsize_t maxdim = H5S_UNLIMITED;
@@ -175,9 +169,9 @@ _h5t_write_boundary (
 
 h5_err_t
 h5t_close_boundary (
-	h5_file * const f
+	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
 
 	if ( boundary->changed ) {
@@ -191,23 +185,21 @@ h5t_close_boundary (
 
 	bzero ( boundary, sizeof(*boundary) );
 
-	TRY( _h5_close_group( boundary->gid ), exception);
+	TRY( _h5_close_group( boundary->gid ) );
 
 	boundary->id = -1;
 	boundary->gid = -1;
 	boundary->last_accessed_face = -1;
 
 	return H5_SUCCESS;
-exception:
-	return h5_get_errno();
 }
 
 h5_err_t
 h5t_add_num_boundaryfaces (
-	h5_file * const f,
+	h5_file_t * const f,
 	const h5_id_t num_faces
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
 	
 	boundary->num_faces = realloc (
@@ -248,17 +240,17 @@ h5t_add_num_boundaryfaces (
 */
 h5_id_t
 h5t_get_num_boundaryfaces (
-	h5_file * const f
+	h5_file_t * const f
 	) {
 	return -1;
 }
 
 h5_id_t
 h5t_store_boundaryface (
-	h5_file * const f,
+	h5_file_t * const f,
 	h5_id_t * const global_vids
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->vertices == NULL ) {
 		h5_err_t h5err = _h5t_read_mesh ( f );
@@ -283,10 +275,10 @@ h5t_store_boundaryface (
 
 h5_id_t
 h5t_store_boundaryface_global_id (
-	h5_file * const f,
+	h5_file_t * const f,
 	const h5_id_t global_fid
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
@@ -302,10 +294,10 @@ h5t_store_boundaryface_global_id (
 
 h5_id_t
 h5t_store_boundaryface_local_id (
-	h5_file * const f,
+	h5_file_t * const f,
 	const h5_id_t local_fid
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
 
 	if ( boundary->num_faces == NULL )
@@ -336,22 +328,21 @@ h5t_store_boundaryface_local_id (
 
 h5_err_t
 h5t_start_traverse_boundary_faces (
-	h5_file * const f
+	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
 
 	if ( boundary->faces == NULL ) {
-		TRY( _h5t_read_boundaryfaces ( f ), error_exit );
+		TRY( _h5t_read_boundaryfaces ( f ) );
 	}
 	boundary->last_accessed_face = -1;
-error_exit:
-	return h5_get_errno();
+	return H5_SUCCESS;
 }
 
 h5_id_t
 h5t_traverse_boundary_faces (
-	h5_file * const f,
+	h5_file_t * const f,
 	h5_id_t * const global_id,
 	h5_id_t * const parent_id,
 	h5_id_t vertex_ids[]

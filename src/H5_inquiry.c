@@ -33,7 +33,7 @@
  */
 h5_size_t
 H5GetNumNodes (
-	h5_file * f			/*!< file handle		*/
+	h5_file_t * f			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return (h5_size_t)fh->nprocs;
@@ -48,7 +48,7 @@ H5GetNumNodes (
 */
 h5_id_t
 H5GetNumSteps (
-	h5_file * fh			/*!< file handle		*/
+	h5_file_t * fh			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5_get_num_steps( fh );
@@ -63,7 +63,7 @@ H5GetNumSteps (
 */
 h5_err_t
 H5HasStep (
-	h5_file *f,		/*!< [in]  Handle to open file */
+	h5_file_t *f,		/*!< [in]  Handle to open file */
 	h5part_int64_t step	/*!< [in]  Step number to query */
 	) {
   

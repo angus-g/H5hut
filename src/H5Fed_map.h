@@ -21,13 +21,13 @@
 
 h5_id_t
 H5FedMapTet2GlobalID (
-	h5_file * const f,
+	h5_file_t * const f,
 	h5_id_t * const global_vids
 	);
 
 h5_id_t
 H5FedMapTriangle2GlobalID (
-	h5_file * const f,
+	h5_file_t * const f,
 	h5_id_t * const global_vids
 	);
 

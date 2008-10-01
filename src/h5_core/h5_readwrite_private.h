@@ -3,7 +3,7 @@
 
 h5_err_t
 _h5_read_dataset (
-	h5_file * const f,
+	h5_file_t * const f,
 	hid_t dataset_id,
 	hid_t type_id,
 	hid_t memspace_id,

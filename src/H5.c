@@ -59,7 +59,7 @@
   \note
   File is always opened in read/writer mode!
 */
-h5_file *
+h5_file_t *
 H5OpenFile (
 	const char * filename,		/*!< file name			*/
 	const MPI_Comm comm		/*!< MPI communicator		*/
@@ -78,7 +78,7 @@ H5OpenFile (
 */
 h5_err_t
 H5CloseFile (
-	h5_file * fh			/*!< file handle		*/
+	h5_file_t * fh			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5_close_file ( fh );
@@ -97,9 +97,9 @@ H5CloseFile (
 */
 h5_err_t
 H5DefineStepNameFormat (
-	h5_file *f,			/*!< Handle to file		*/
+	h5_file_t *f,			/*!< Handle to file		*/
 	const char *name,		/*!< Prefix			*/
-	const h5part_int64_t width	/*!< Width of the number	*/
+	const h5_int64_t width	/*!< Width of the number	*/
 	) {
 	SET_FNAME ( "H5PartDefineStepNameFormat" );
 
@@ -116,7 +116,7 @@ H5DefineStepNameFormat (
 */
 h5_err_t
 H5GetStepNameFormat (
-	h5_file *f,			/*!< Handle to file		*/
+	h5_file_t *f,			/*!< Handle to file		*/
 	char *name,			/*!< OUT: Prefix		*/
 	const h5_size_t l_name,		/*!< length of buffer name	*/
 	h5_size_t *width		/*!< OUT: Width of the number	*/
@@ -135,7 +135,7 @@ H5GetStepNameFormat (
 */
 h5_err_t
 H5SetStep (
-	h5_file *f,			/*!< [in]  Handle to open file */
+	h5_file_t *f,			/*!< [in]  Handle to open file */
 	const h5_int64_t step		/*!< [in]  Step to set. */
 	) {
 
@@ -152,7 +152,7 @@ H5SetStep (
 */
 h5_int64_t
 H5GetStep (
-	h5_file *f			/*!< Handle to open file */
+	h5_file_t *f			/*!< Handle to open file */
 	) {
 
 	SET_FNAME ( __func__ );
@@ -168,7 +168,7 @@ H5GetStep (
 */
 h5_err_t
 H5StartTraverseSteps (
-	h5_file *f			/*!< Handle to open file */
+	h5_file_t *f			/*!< Handle to open file */
 	) {
 
 	SET_FNAME ( "H5FedStartTraverseSteps" );
@@ -185,10 +185,10 @@ H5StartTraverseSteps (
 */
 h5_err_t
 H5TraverseSteps (
-	h5_file *f			/*!< Handle to open file */
+	h5_file_t * f			/*!< Handle to open file */
 	) {
 
-	SET_FNAME ( "H5FedStartTraverseSteps" );
+	SET_FNAME ( __func__ );
 
 	return -1;
 }

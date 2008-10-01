@@ -31,7 +31,7 @@
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetEdgesUAdjacentToVertex (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t vertex_id,	/*!< global vertex id		*/
 	h5_size_t * const num_adj_edges	/*!< OUT: size of returned vector */
@@ -51,7 +51,7 @@ h5_id_t * H5FedGetEdgesUAdjacentToVertex (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetTrianglesUAdjacentToVertex (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t vertex_id,	/*!< global vertex id		*/
 	h5_size_t * const num_adj_triangles
@@ -72,7 +72,7 @@ h5_id_t * H5FedGetTrianglesUAdjacentToVertex (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetTetrahedrasUAdjacentToVertex (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t vertex_id,	/*!< global vertex id		*/
 	h5_size_t * const num_adj_tetrahedra
@@ -93,7 +93,7 @@ h5_id_t * H5FedGetTetrahedrasUAdjacentToVertex (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetTrianglesUAdjacentToEdge (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t edge_id,		/*!< global edge id		*/
 	h5_size_t * const num_adj_triangles
@@ -114,7 +114,7 @@ h5_id_t * H5FedGetTrianglesUAdjacentToEdge (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetTetrahedraUAdjacentToEdge (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t edge_id,		/*!< global edge id		*/
 	h5_size_t * const num_adj_tets	/*!< OUT: size of returned vector */
@@ -140,9 +140,9 @@ h5_id_t * H5FedGetTetrahedraUAdjacentToEdge (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetTetrahedraUAdjacentToTriangle (
-	h5_file * fh,			/*!< file handle		*/
-	const h5_int_t level,		/*!< mesh level to query	*/
-	const h5_int_t triangle_id,	/*!< global triangle id		*/
+	h5_file_t * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query	*/
+	const h5_id_t triangle_id,	/*!< global triangle id		*/
 	h5_size_t * const num_adj_tets	/*!< OUT: size of returned vector */
 	) {
 	return NULL;
@@ -160,9 +160,9 @@ h5_id_t * H5FedGetTetrahedraUAdjacentToTriangle (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetVerticesDAdjacentToEdge (
-	h5_file * fh,			/*!< file handle		*/
-	const h5_int_t level,		/*!< mesh level to query 	*/
-	const h5_int_t edge_id,		/*!< global edge id		*/
+	h5_file_t * fh,			/*!< file handle		*/
+	const h5_id_t level,		/*!< mesh level to query 	*/
+	const h5_id_t edge_id,		/*!< global edge id		*/
 	h5_size_t * const num_adj_vertices
 					/*!< OUT: size of returned vector */
 	) {
@@ -179,7 +179,7 @@ h5_id_t * H5FedGetVerticesDAdjacentToEdge (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetEdjesDAdjacentToTriangle (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query 	*/
 	const h5_id_t triangle_id,	/*!< global triangle id		*/
 	h5_size_t * const num_adj_triangles
@@ -198,7 +198,7 @@ h5_id_t * H5FedGetEdjesDAdjacentToTriangle (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetVerticesDAdjacentToTriangle (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t triangle_id,	/*!< global triangle id		*/
 	h5_size_t * const num_adj_vertices
@@ -217,7 +217,7 @@ h5_id_t * H5FedGetVerticesDAdjacentToTriangle (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetTrianglesDAdjacentToTetrahedron (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
 	h5_size_t * const num_adj_triangles
@@ -236,7 +236,7 @@ h5_id_t * H5FedGetTrianglesDAdjacentToTetrahedron (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetEdjesDAdjacentToTetrahedron (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
 	h5_size_t * const num_adj_edges	/*!< OUT: size of returned vector */
@@ -254,7 +254,7 @@ h5_id_t * H5FedGetEdjesDAdjacentToTetrahedron (
   \return NULL-pointer on error.
 */
 h5_id_t * H5FedGetVerticesDAdjacentToTetrahedron (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
 	h5_size_t * const num_adj_vertices

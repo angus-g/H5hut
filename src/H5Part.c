@@ -123,7 +123,7 @@ Last modified on April 19, 2007.
 
   \return	File handle or \c NULL
  */
-h5_file*
+h5_file_t *
 H5PartOpenFileParallel (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	unsigned flags,		/*!< [in] The access mode for the file. */
@@ -153,7 +153,7 @@ H5PartOpenFileParallel (
   \return	File handle or \c NULL
  */
 
-h5_file*
+h5_file_t *
 H5PartOpenFile (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	unsigned flags		/*!< [in] The access mode for the file. */
@@ -173,9 +173,9 @@ H5PartOpenFile (
 
   \return	\c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5PartCloseFile (
-	h5_file *f		/*!< [in] filehandle of the file to close */
+	h5_file_t *f		/*!< [in] filehandle of the file to close */
 	) {
 
 	SET_FNAME ( "H5PartCloseFile" );
@@ -185,11 +185,11 @@ H5PartCloseFile (
 
 /*============== File Writing Functions ==================== */
 
-h5part_int64_t
+h5_int64_t
 H5PartDefineStepName (
-	h5_file *f,
+	h5_file_t *f,
 	const char *name,
-	const h5part_int64_t width
+	const h5_int64_t width
 	) {
 	SET_FNAME ( "H5PartDefineStepName" );
 
@@ -210,10 +210,10 @@ H5PartDefineStepName (
 
   \return	\c H5_SUCCESS or error code
  */
-h5part_int64_t
+h5_int64_t
 H5PartSetNumParticles (
-	h5_file *f,			/*!< [in] Handle to open file */
-	h5part_int64_t nparticles	/*!< [in] Number of particles */
+	h5_file_t *f,			/*!< [in] Handle to open file */
+	h5_int64_t nparticles	/*!< [in] Number of particles */
 	) {
 
 	SET_FNAME ( "H5PartSetNumParticles" );
@@ -247,11 +247,11 @@ H5PartSetNumParticles (
 
   \return	\c H5_SUCCESS or error code
  */
-h5part_int64_t
+h5_int64_t
 H5PartWriteDataFloat64 (
-	h5_file *f,			/*!< [in] Handle to open file */
+	h5_file_t *f,			/*!< [in] Handle to open file */
 	const char *name,		/*!< [in] Name to associate array with */
-	const h5part_float64_t *array	/*!< [in] Array to commit to disk */
+	const h5_float64_t *array	/*!< [in] Array to commit to disk */
 	) {
 
 	SET_FNAME ( "H5PartWriteDataFloat64" );
@@ -285,11 +285,11 @@ H5PartWriteDataFloat64 (
 
   \return	\c H5_SUCCESS or error code
  */
-h5part_int64_t
+h5_int64_t
 H5PartWriteDataInt64 (
-	h5_file *f,		/*!< [in] Handle to open file */
+	h5_file_t *f,		/*!< [in] Handle to open file */
 	const char *name,	/*!< [in] Name to associate array with */
-	const h5part_int64_t *array	/*!< [in] Array to commit to disk */
+	const h5_int64_t *array	/*!< [in] Array to commit to disk */
 	) {
 
 	SET_FNAME ( "H5PartOpenWriteDataInt64" );
@@ -318,9 +318,9 @@ H5PartWriteDataInt64 (
 
   \return	\c H5_SUCCESS or error code   
 */
-h5part_int64_t
+h5_int64_t
 H5PartWriteFileAttribString (
-	h5_file *f,		/*!< [in] Handle to open file */
+	h5_file_t *f,		/*!< [in] Handle to open file */
 	const char *attrib_name,/*!< [in] Name of attribute to create */
 	const char *attrib_value/*!< [in] Value of attribute */ 
 	) {
@@ -353,9 +353,9 @@ H5PartWriteFileAttribString (
   \return	\c H5_SUCCESS or error code   
 */
 
-h5part_int64_t
+h5_int64_t
 H5PartWriteStepAttribString (
-	h5_file *f,		/*!< [in] Handle to open file */
+	h5_file_t *f,		/*!< [in] Handle to open file */
 	const char *attrib_name,/*!< [in] Name of attribute to create */
 	const char *attrib_value/*!< [in] Value of attribute */ 
 	) {
@@ -392,13 +392,13 @@ H5PartWriteStepAttribString (
   \return	\c H5_SUCCESS or error code   
 */
 
-h5part_int64_t
+h5_int64_t
 H5PartWriteStepAttrib (
-	h5_file *f,			/*!< [in] Handle to open file */
+	h5_file_t *f,			/*!< [in] Handle to open file */
 	const char *attrib_name,	/*!< [in] Name of attribute */
-	const h5part_int64_t attrib_type,/*!< [in] Type of value. */
+	const h5_int64_t attrib_type,/*!< [in] Type of value. */
 	const void *attrib_value,	/*!< [in] Value of attribute */ 
-	const h5part_int64_t attrib_nelem/*!< [in] Number of elements */
+	const h5_int64_t attrib_nelem/*!< [in] Number of elements */
 	){
 
 	SET_FNAME ( "H5PartWriteStepAttrib" );
@@ -433,13 +433,13 @@ H5PartWriteStepAttrib (
   \return	\c H5_SUCCESS or error code   
 */
 
-h5part_int64_t
+h5_int64_t
 H5PartWriteFileAttrib (
-	h5_file *f,			/*!< [in] Handle to open file */
+	h5_file_t *f,			/*!< [in] Handle to open file */
 	const char *attrib_name,	/*!< [in] Name of attribute */
-	const h5part_int64_t attrib_type,/*!< [in] Type of value. */
+	const h5_int64_t attrib_type,/*!< [in] Type of value. */
 	const void *attrib_value,	/*!< [in] Value of attribute */ 
-	const h5part_int64_t attrib_nelem/*!< [in] Number of elements */
+	const h5_int64_t attrib_nelem/*!< [in] Number of elements */
 	) {
 
 	SET_FNAME ( "H5PartWriteFileAttrib" );
@@ -462,9 +462,9 @@ H5PartWriteFileAttrib (
 
   \return	Number of attributes bound to current time step or error code.
 */
-h5part_int64_t
+h5_int64_t
 H5PartGetNumStepAttribs (
-	h5_file *f			/*!< [in] Handle to open file */
+	h5_file_t *f			/*!< [in] Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartGetNumStepAttribs" );
@@ -482,9 +482,9 @@ H5PartGetNumStepAttribs (
 
   \return	Number of attributes bound to file \c f or error code.
 */
-h5part_int64_t
+h5_int64_t
 H5PartGetNumFileAttribs (
-	h5_file *f			/*!< [in] Handle to open file */
+	h5_file_t *f			/*!< [in] Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartGetNumFileAttribs" );
@@ -509,16 +509,16 @@ H5PartGetNumFileAttribs (
 
   \return	\c H5_SUCCESS or error code 
 */
-h5part_int64_t
+h5_int64_t
 H5PartGetStepAttribInfo (
-	h5_file *f,			/*!< [in]  Handle to open file */
-	const h5part_int64_t attrib_idx,/*!< [in]  Index of attribute to
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	const h5_int64_t attrib_idx,/*!< [in]  Index of attribute to
 					           get infos about */
 	char *attrib_name,		/*!< [out] Name of attribute */
-	const h5part_int64_t len_of_attrib_name,
+	const h5_int64_t len_of_attrib_name,
 					/*!< [in]  length of buffer \c name */
-	h5part_int64_t *attrib_type,	/*!< [out] Type of value. */
-	h5part_int64_t *attrib_nelem	/*!< [out] Number of elements */
+	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
+	h5_int64_t *attrib_nelem	/*!< [out] Number of elements */
 	) {
 	
 	SET_FNAME ( "H5PartGetStepAttribInfo" );
@@ -549,16 +549,16 @@ H5PartGetStepAttribInfo (
   \return	\c H5_SUCCESS or error code 
 */
 
-h5part_int64_t
+h5_int64_t
 H5PartGetFileAttribInfo (
-	h5_file *f,			/*!< [in]  Handle to open file */
-	const h5part_int64_t attrib_idx,/*!< [in]  Index of attribute to get
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	const h5_int64_t attrib_idx,/*!< [in]  Index of attribute to get
 					           infos about */
 	char *attrib_name,		/*!< [out] Name of attribute */
-	const h5part_int64_t len_of_attrib_name,
+	const h5_int64_t len_of_attrib_name,
 					/*!< [in]  length of buffer \c name */
-	h5part_int64_t *attrib_type,	/*!< [out] Type of value. */
-	h5part_int64_t *attrib_nelem	/*!< [out] Number of elements */
+	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
+	h5_int64_t *attrib_nelem	/*!< [out] Number of elements */
 	) {
 
 	SET_FNAME ( "H5PartGetFileAttribInfo" );
@@ -582,9 +582,9 @@ H5PartGetFileAttribInfo (
 
   \return \c H5_SUCCESS or error code 
 */
-h5part_int64_t
+h5_int64_t
 H5PartReadStepAttrib (
-	h5_file *f,			/*!< [in]  Handle to open file */
+	h5_file_t *f,			/*!< [in]  Handle to open file */
 	const char *attrib_name,	/*!< [in] Name of attribute to read */
 	void *attrib_value		/*!< [out] Value of attribute */
 	) {
@@ -604,9 +604,9 @@ H5PartReadStepAttrib (
 
   \return \c H5_SUCCESS or error code 
 */
-h5part_int64_t
+h5_int64_t
 H5PartReadFileAttrib ( 
-	h5_file *f,
+	h5_file_t *f,
 	const char *attrib_name,
 	void *attrib_value
 	) {
@@ -648,10 +648,10 @@ H5PartReadFileAttrib (
 
   \return \c H5_SUCCESS or error code 
 */
-h5part_int64_t
+h5_int64_t
 H5PartSetStep (
-	h5_file *f,			/*!< [in]  Handle to open file */
-	const h5part_int64_t step	/*!< [in]  Time-step to set. */
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	const h5_int64_t step	/*!< [in]  Time-step to set. */
 	) {
 
 	SET_FNAME ( "H5PartSetStep" );
@@ -675,10 +675,10 @@ H5PartSetStep (
 
   \return      true or false
 */
-h5part_int64_t
+h5_int64_t
 H5PartHasStep (
-	h5_file *f,		/*!< [in]  Handle to open file */
-	h5part_int64_t step	/*!< [in]  Step number to query */
+	h5_file_t *f,		/*!< [in]  Handle to open file */
+	h5_int64_t step	/*!< [in]  Step number to query */
 	) {
   
 	SET_FNAME ( "H5PartHasStep" );
@@ -700,9 +700,9 @@ H5PartHasStep (
 
   \return	number of time-steps or error code
 */
-h5part_int64_t
+h5_int64_t
 H5PartGetNumSteps (
-	h5_file *f			/*!< [in]  Handle to open file */
+	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartGetNumSteps" );
@@ -725,9 +725,9 @@ H5PartGetNumSteps (
   \return	number of datasets in current step or error code
 */
 
-h5part_int64_t
+h5_int64_t
 H5PartGetNumDatasets (
-	h5_file *f			/*!< [in]  Handle to open file */
+	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartGetNumDatasets" );
@@ -748,12 +748,12 @@ H5PartGetNumDatasets (
 
   \result	\c H5_SUCCESS
 */
-h5part_int64_t
+h5_int64_t
 H5PartGetDatasetName (
-	h5_file *f,			/*!< [in]  Handle to open file */
-	const h5part_int64_t idx,	/*!< [in]  Index of the dataset */
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	const h5_int64_t idx,	/*!< [in]  Index of the dataset */
 	char *name,			/*!< [out] Name of dataset */
-	const h5part_int64_t len_of_name/*!< [in]  Size of buffer \c name */
+	const h5_int64_t len_of_name/*!< [in]  Size of buffer \c name */
 	) {
 
 	SET_FNAME ( "H5PartGetDatasetName" );
@@ -780,15 +780,15 @@ H5PartGetDatasetName (
 
   \return	\c H5_SUCCESS
 */
-h5part_int64_t
+h5_int64_t
 H5PartGetDatasetInfo (
-	h5_file *f,		/*!< [in]  Handle to open file */
-	const h5part_int64_t idx,/*!< [in]  Index of the dataset */
+	h5_file_t *f,		/*!< [in]  Handle to open file */
+	const h5_int64_t idx,/*!< [in]  Index of the dataset */
 	char *dataset_name,	/*!< [out] Name of dataset */
-	const h5part_int64_t len_dataset_name,
+	const h5_int64_t len_dataset_name,
 				/*!< [in]  Size of buffer \c dataset_name */
-	h5part_int64_t *type,	/*!< [out] Type of data in dataset */
-	h5part_int64_t *nelem	/*!< [out] Number of elements. */
+	h5_int64_t *type,	/*!< [out] Type of data in dataset */
+	h5_int64_t *nelem	/*!< [out] Number of elements. */
 	) {
 
 	SET_FNAME ( "H5PartGetDatasetInfo" );
@@ -810,9 +810,9 @@ H5PartGetDatasetInfo (
   \return	number of particles in current step or an error
 		code.
  */
-h5part_int64_t
+h5_int64_t
 H5PartGetNumParticles (
-	h5_file *f			/*!< [in]  Handle to open file */
+	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartGetNumParticles" );
@@ -821,7 +821,7 @@ H5PartGetNumParticles (
 		return h5_get_errno();
 
 	if ( f->step_gid < 0 ) {
-		h5part_int64_t herr = h5_set_step ( f, 0 );
+		h5_int64_t herr = h5_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
 
@@ -831,9 +831,9 @@ H5PartGetNumParticles (
 /*!
   \ingroup h5part_read
 */
-h5part_int64_t
+h5_int64_t
 H5PartResetView (
- 	h5_file *f			/*!< [in]  Handle to open file */
+ 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 	SET_FNAME ( "H5PartResetView" );
 
@@ -848,9 +848,9 @@ H5PartResetView (
 /*!
   \ingroup h5part_read
 */
-h5part_int64_t
+h5_int64_t
 H5PartHasView (
- 	h5_file *f			/*!< [in]  Handle to open file */
+ 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 	SET_FNAME ( __func__ );
 
@@ -880,11 +880,11 @@ H5PartHasView (
 
   \return	\c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5PartSetView (
-	h5_file *f,			/*!< [in]  Handle to open file */
-	const h5part_int64_t start,	/*!< [in]  Start particle */
-	const h5part_int64_t end	/*!< [in]  End particle */
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	const h5_int64_t start,	/*!< [in]  Start particle */
+	const h5_int64_t end	/*!< [in]  End particle */
 	) {
 
 	SET_FNAME ( "H5PartSetView" );
@@ -893,7 +893,7 @@ H5PartSetView (
 	CHECK_READONLY_MODE ( f );
 
 	if ( f->step_gid < 0 ) {
-		h5part_int64_t herr = h5_set_step ( f, 0 );
+		h5_int64_t herr = h5_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
 
@@ -910,11 +910,11 @@ H5PartSetView (
 
    \return       the number of elements in the view 
 */
-h5part_int64_t
+h5_int64_t
 H5PartGetView (
-	h5_file *f,			/*!< [in]  Handle to open file */
-	h5part_int64_t *start,		/*!< [out]  Start particle */
-	h5part_int64_t *end		/*!< [out]  End particle */
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	h5_int64_t *start,		/*!< [out]  Start particle */
+	h5_int64_t *end		/*!< [out]  End particle */
 	) {
 
 	SET_FNAME ( "H5PartGetView" );
@@ -922,7 +922,7 @@ H5PartGetView (
 	CHECK_FILEHANDLE( f );
 
 	if ( f->step_gid < 0 ) {
-		h5part_int64_t herr = h5_set_step ( f, 0 );
+		h5_int64_t herr = h5_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
 	return H5U_get_view( f, start, end );
@@ -945,14 +945,14 @@ H5PartGetView (
   the last  (NumParticles % f->nprocs) particles are not handled!
 */
 
-h5part_int64_t
+h5_int64_t
 H5PartSetCanonicalView (
-	h5_file *f			/*!< [in]  Handle to open file */
+	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
 	SET_FNAME ( "H5PartSetCanonicalView" );
 
-	h5part_int64_t herr;
+	h5_int64_t herr;
 
 	CHECK_FILEHANDLE( f );
 	CHECK_READONLY_MODE ( f )
@@ -977,11 +977,11 @@ H5PartSetCanonicalView (
 
   \return	\c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5PartReadDataFloat64 (
-	h5_file *f,		/*!< [in] Handle to open file */
+	h5_file_t *f,		/*!< [in] Handle to open file */
 	const char *name,	/*!< [in] Name to associate dataset with */
-	h5part_float64_t *array	/*!< [out] Array of data */
+	h5_float64_t *array	/*!< [out] Array of data */
 	) {
 
 	SET_FNAME ( "H5PartReadDataFloat64" );
@@ -1003,11 +1003,11 @@ H5PartReadDataFloat64 (
 
   \return	\c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5PartReadDataInt64 (
-	h5_file *f,		/*!< [in] Handle to open file */
+	h5_file_t *f,		/*!< [in] Handle to open file */
 	const char *name,	/*!< [in] Name to associate dataset with */
-	h5part_int64_t *array	/*!< [out] Array of data */
+	h5_int64_t *array	/*!< [out] Array of data */
 	) {
 
 	SET_FNAME ( "H5PartReadDataInt64" );
@@ -1031,21 +1031,21 @@ H5PartReadDataInt64 (
 
   \return	\c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5PartReadParticleStep (
-	h5_file *f,		/*!< [in]  Handle to open file */
-	h5part_int64_t step,	/*!< [in]  Step to read */
-	h5part_float64_t *x,	/*!< [out] Buffer for dataset named "x" */
-	h5part_float64_t *y,	/*!< [out] Buffer for dataset named "y" */
-	h5part_float64_t *z,	/*!< [out] Buffer for dataset named "z" */
-	h5part_float64_t *px,	/*!< [out] Buffer for dataset named "px" */
-	h5part_float64_t *py,	/*!< [out] Buffer for dataset named "py" */
-	h5part_float64_t *pz,	/*!< [out] Buffer for dataset named "pz" */
-	h5part_int64_t *id	/*!< [out] Buffer for dataset named "id" */
+	h5_file_t *f,		/*!< [in]  Handle to open file */
+	h5_int64_t step,	/*!< [in]  Step to read */
+	h5_float64_t *x,	/*!< [out] Buffer for dataset named "x" */
+	h5_float64_t *y,	/*!< [out] Buffer for dataset named "y" */
+	h5_float64_t *z,	/*!< [out] Buffer for dataset named "z" */
+	h5_float64_t *px,	/*!< [out] Buffer for dataset named "px" */
+	h5_float64_t *py,	/*!< [out] Buffer for dataset named "py" */
+	h5_float64_t *pz,	/*!< [out] Buffer for dataset named "pz" */
+	h5_int64_t *id	/*!< [out] Buffer for dataset named "id" */
 	) {
 
 	SET_FNAME ( "H5PartReadParticleStep" );
-	h5part_int64_t herr;
+	h5_int64_t herr;
 
 	CHECK_FILEHANDLE( f );
 
@@ -1085,9 +1085,9 @@ H5PartReadParticleStep (
 
   \return \c H5_SUCCESS
 */
-h5part_int64_t
+h5_int64_t
 H5PartSetVerbosityLevel (
-	const h5part_int64_t level
+	const h5_int64_t level
 	) {
 
 	return h5_set_debuglevel ( level );
@@ -1100,9 +1100,9 @@ H5PartSetVerbosityLevel (
 
   \return \c H5_SUCCESS
 */
-h5part_int64_t
+h5_int64_t
 H5PartSetErrorHandler (
-	h5part_error_handler handler
+	h5_error_handler handler
 	) {
   
 	return h5_set_errorhandler( handler );
@@ -1115,7 +1115,7 @@ H5PartSetErrorHandler (
 
   \return Pointer to error handler.
 */
-h5part_error_handler
+h5_error_handler
 H5PartGetErrorHandler (
 	void
 	) {
@@ -1129,7 +1129,7 @@ H5PartGetErrorHandler (
 
   \return error code
 */
-h5part_int64_t
+h5_int64_t
 H5PartGetErrno (
 	void
 	) {

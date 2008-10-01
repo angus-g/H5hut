@@ -7,13 +7,14 @@
 #include <hdf5.h>
 
 #include "h5_core/h5_core.h"
+#include "h5t_types_private.h"
 #include "h5_core/h5_core_private.h"
 
 h5_id_t
 h5t_add_level (
 	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( f->mode == H5_O_RDONLY ) {
 		return H5_ERR_INVAL;
@@ -49,7 +50,7 @@ _h5t_alloc_num_vertices (
 	h5_file_t * const f,
 	const h5_size_t num_vertices
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	ssize_t num_bytes = num_vertices*sizeof ( t->vertices[0] );
 	h5_debug ( "Allocating %ld bytes.", num_bytes ); 
@@ -58,13 +59,10 @@ _h5t_alloc_num_vertices (
 		return HANDLE_H5_NOMEM_ERR;
 	}
 
-	TRY( _h5_alloc_idmap (&t->map_vertex_g2l, num_vertices ), error_exit );
-	TRY( _h5_alloc_smap (&t->sorted_lvertices, num_vertices ), error_exit );
+	TRY( _h5_alloc_idmap (&t->map_vertex_g2l, num_vertices ) );
+	TRY( _h5_alloc_smap (&t->sorted_lvertices, num_vertices ) );
 
 	return H5_SUCCESS;
-
-error_exit:
-	return h5_get_errno();
 }
 
 h5_err_t
@@ -72,7 +70,7 @@ _h5t_add_num_vertices (
 	h5_file_t * const f,
 	const h5_size_t num
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->cur_level < 0 ) {
 		return _h5t_error_undef_level( f );
@@ -90,7 +88,7 @@ h5t_store_vertex (
 	const h5_id_t global_id,       	/*!< global vertex id or -1	*/
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	/*
 	  more than allocated
@@ -119,7 +117,7 @@ h5t_store_vertex (
 	}
 
 	h5_id_t local_id = ++t->last_stored_vertex_id;
-	h5_vertex *vertex = &t->vertices[local_id];
+	h5_vertex_t *vertex = &t->vertices[local_id];
 	vertex->id = global_id;
 	memcpy ( &vertex->P, P, sizeof ( vertex->P ) );
 
@@ -134,7 +132,7 @@ _h5t_alloc_num_entities (
 	const size_t cur_num_entities,
 	const size_t new_num_entities
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	size_t sizeof_entity = 0;
 	size_t sizeof_lentity = 0;
 
@@ -175,17 +173,15 @@ h5_add_num_tets (
 	h5_file_t * const f,
 	const h5_size_t num
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->mesh_type != H5_OID_TETRAHEDRON ) {
 		_h5t_error_illegal_object_type ( f, H5_OID_TETRAHEDRON );
 	}
 
-	TRY( _h5t_add_num_vertices ( f, num+3 ), error_exit );
-	TRY( _h5t_add_num_entities ( f, num ), error_exit );
+	TRY( _h5t_add_num_vertices ( f, num+3 ) );
+	TRY( _h5t_add_num_entities ( f, num ) );
 	return H5_SUCCESS;
-error_exit:
-	return h5_get_errno();
 }
 
 h5_err_t
@@ -193,16 +189,14 @@ h5_add_num_triangles (
 	h5_file_t * const f,
 	const h5_size_t num
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->mesh_type != H5_OID_TRIANGLE ) {
 		_h5t_error_illegal_object_type ( f, H5_OID_TRIANGLE );
 	}
-	TRY( _h5t_add_num_vertices ( f, num+2 ), error_exit );
-	TRY( _h5t_add_num_entities ( f, num ), error_exit );
+	TRY( _h5t_add_num_vertices ( f, num+2 ) );
+	TRY( _h5t_add_num_entities ( f, num ) );
 	return H5_SUCCESS;
-error_exit:
-	return h5_get_errno();
 }
 
 h5_err_t
@@ -210,7 +204,7 @@ _h5t_add_num_entities (
 	h5_file_t * const f,
 	const h5_size_t num
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	size_t cur_num_entities = t->cur_level > 0 ?
 		t->num_entities[t->cur_level-1] : 0;
@@ -233,7 +227,7 @@ h5t_store_tet (
 	const h5_id_t vertex_ids[4]	/*!< tuple with vertex id's	*/
 	) {
 
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	/*
 	  more than allocated
@@ -277,7 +271,7 @@ h5t_store_tet (
 	}
 	
 	h5_id_t local_id = ++t->last_stored_entity_id;
-	h5_tetrahedron *tet = &t->entities.tets[local_id];
+	h5_tetrahedron_t *tet = &t->entities.tets[local_id];
 	tet->id = global_id;
 	tet->parent_id = parent_id;
 	tet->refined_on_level = -1;
@@ -310,7 +304,7 @@ h5t_store_triangle (
 	const h5_id_t vertex_ids[3]	/*!< tuple with vertex id's	*/
 	) {
 
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	/*
 	  more than allocated
@@ -354,7 +348,7 @@ h5t_store_triangle (
 	}
 	
 	h5_id_t local_id = ++t->last_stored_entity_id;
-	h5_triangle *tri = &t->entities.tris[local_id];
+	h5_triangle_t *tri = &t->entities.tris[local_id];
 	tri->id = global_id;
 	tri->parent_id = parent_id;
 	tri->refined_on_level = -1;
@@ -374,6 +368,26 @@ h5t_store_triangle (
 	return local_id;
 }
 
+
+
+/*!
+  Refine edge. Store vertex, if new.
+
+  \return local id of vertex
+*/
+h5_err_t
+_h5t_bisect_edge (
+	h5_file_t * const f,
+	h5_id_t	local_vid0,
+	h5_id_t	local_vid1
+	) {
+	struct h5t_fdata *t = f->t;
+	h5_float64_t *P0 = t->vertices[local_vid0].P;
+	h5_float64_t *P1 = t->vertices[local_vid1].P;
+
+	return H5_SUCCESS;
+}
+
 /*!
   Refine tetrahedron \c global_tid
 
@@ -384,14 +398,45 @@ h5t_refine_tet (
 	h5_file_t * const f,
 	const h5_id_t global_tid
 	) {
+	struct h5t_fdata *t = f->t;
+	h5_id_t local_vids[6];
+	h5_id_t local_tid;
+	TRY( local_tid = h5t_map_global_entity_id2local( f, global_tid ) );
+
+	local_vids[0] = _h5t_bisect_edge(
+		f,
+		t->lentities.tets[local_tid].vertex_ids[0],
+		t->lentities.tets[local_tid].vertex_ids[1] );
+	local_vids[1] = _h5t_bisect_edge(
+		f,
+		t->lentities.tets[local_tid].vertex_ids[0],
+		t->lentities.tets[local_tid].vertex_ids[2] );
+	local_vids[2] = _h5t_bisect_edge(
+		f,
+		t->lentities.tets[local_tid].vertex_ids[0],
+		t->lentities.tets[local_tid].vertex_ids[3] );
+	local_vids[3] = _h5t_bisect_edge(
+		f,
+		t->lentities.tets[local_tid].vertex_ids[1],
+		t->lentities.tets[local_tid].vertex_ids[2] );
+	local_vids[4] = _h5t_bisect_edge(
+		f,
+		t->lentities.tets[local_tid].vertex_ids[1],
+		t->lentities.tets[local_tid].vertex_ids[3] );
+	local_vids[5] = _h5t_bisect_edge(
+		f,
+		t->lentities.tets[local_tid].vertex_ids[2],
+		t->lentities.tets[local_tid].vertex_ids[3] );
+
 	/* 
-	   get local id of tet
-	   compute vertices
-	   add new vertices
 	   add new tets
 	*/
-
-error_exit:
-	return h5_get_errno();
+#if 0
+	h5t_store_tet (
+		f,
+		-1,
+		global_id,
+#endif	
+		return H5_SUCCESS;
 }
   

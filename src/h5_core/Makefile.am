@@ -53,6 +53,7 @@ include_HEADERS = \
 	h5_qsort_private.h \
 	h5_readwrite.h \
 	h5_readwrite_private.h \
+	h5_syscall_private.h \
 	h5_types.h \
 	h5b_errorhandling_private.h \
 	h5t_boundaries.h \
@@ -80,6 +81,7 @@ libH5_core_a_SOURCES = \
 	h5_qsort.c \
 	h5_qsort_r.c \
 	h5_readwrite.c \
+	h5_syscall.c \
 	h5t_boundaries.c \
 	h5t_errorhandling.c \
 	h5t_map.c \

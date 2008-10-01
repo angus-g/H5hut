@@ -24,7 +24,7 @@
 
 h5_size_t
 H5FedGetNumMeshes (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	const h5_oid_t type
 	) {
 	SET_FNAME ( __func__ );
@@ -41,7 +41,7 @@ H5FedGetNumMeshes (
  */
 h5_size_t
 H5FedGetNumLevels (
-	h5_file * fh			/*!< file handle		*/
+	h5_file_t * fh			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_get_num_levels ( fh );
@@ -49,7 +49,7 @@ H5FedGetNumLevels (
 
 h5_id_t
 H5FedGetLevel (
-	h5_file * fh			/*!< file handle		*/
+	h5_file_t * fh			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_get_level ( fh );
@@ -57,7 +57,7 @@ H5FedGetLevel (
 
 h5_size_t
 H5FedGetNumVertices (
-	h5_file * fh			/*!< file handle		*/
+	h5_file_t * fh			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_get_num_vertices_on_level ( fh );
@@ -74,7 +74,7 @@ H5FedGetNumVertices (
 */
 h5_size_t
 H5FedGetNumVerticesTotal(
-	h5_file * fh			/*!< file handle		*/
+	h5_file_t * fh			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_get_num_vertices_on_level ( fh );
@@ -90,7 +90,7 @@ H5FedGetNumVerticesTotal(
 q  \return \c -1	on error.
 */
 h5_size_t H5FedGetNumVerticesCnode (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t cnode		/*!< compute node		*/
 	) {
 	return -1;
@@ -100,7 +100,7 @@ h5_size_t H5FedGetNumVerticesCnode (
 
 h5_size_t
 H5FedGetNumTriangles (
-	h5_file * fh			/*!< file handle		*/
+	h5_file_t * fh			/*!< file handle		*/
 	) {
 	return h5t_get_num_entities_on_level ( fh );
 }
@@ -116,7 +116,7 @@ H5FedGetNumTriangles (
 */
 h5_size_t
 H5FedGetNumTrianglesTotal (
-	h5_file * fh			/*!< file handle		*/
+	h5_file_t * fh			/*!< file handle		*/
 	) {
 	return h5t_get_num_entities_on_level ( fh );
 }
@@ -133,7 +133,7 @@ H5FedGetNumTrianglesTotal (
 */
 h5_size_t
 H5FedGetNumTrianglesCnode (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t cnode		/*!< compute node to query	*/
 	) {
 	return -1;
@@ -152,7 +152,7 @@ H5FedGetNumTrianglesCnode (
 */
 h5_size_t
 H5FedGetNumTetrahedraTotal(
-	h5_file * fh			/*!< file handle		*/
+	h5_file_t * fh			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_get_num_entities_on_level ( fh );
@@ -168,7 +168,7 @@ H5FedGetNumTetrahedraTotal(
   \return \c -1 on error.
 */
 h5_size_t H5FedGetNumTetrahedraCnode (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to query	*/
 	) {
 	return -1;
@@ -188,7 +188,7 @@ h5_size_t H5FedGetNumTetrahedraCnode (
   \return \c -1 on error.
 */
 h5_size_t H5FedGetNumBoundaryTrianglesTotal (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level		/*!< mesh level to query	*/
 	) {
 	return -1;
@@ -204,7 +204,7 @@ h5_size_t H5FedGetNumBoundaryTrianglesTotal (
   \return \c -1 on error.
 */
 h5_size_t H5FedGetNumBoundaryTrianglesCnode (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t level,		/*!< mesh level to query	*/
 	const h5_id_t cnode		/*!< compute node		*/
 	) {

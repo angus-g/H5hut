@@ -4,13 +4,13 @@
 
 h5_err_t
 _h5t_handle_get_global_entity_id_err (
-	h5_file *f,
+	h5_file_t *f,
 	const h5_id_t * const global_vids
 	);
 
 h5_err_t
 _h5t_handle_get_local_entity_id_err (
-	h5_file *f,
+	h5_file_t *f,
 	const h5_id_t * const local_vids
 	);
 

@@ -21,7 +21,7 @@
 
 h5_err_t
 H5FedStartTraverseVertices (
-	h5_file * f			/*!< file handle		*/
+	h5_file_t * f			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_start_traverse_vertices ( f );
@@ -38,7 +38,7 @@ H5FedStartTraverseVertices (
  */
 h5_id_t
 H5FedTraverseVertices (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	h5_id_t	* const id,		/*!< OUT: global id		*/
 	h5_float64_t P[3]		/*!< OUT: coordinates		*/
 	) {
@@ -50,7 +50,7 @@ H5FedTraverseVertices (
 
 h5_err_t
 H5FedStartTraverseTriangles (
-	h5_file * f			/*!< file handle		*/
+	h5_file_t * f			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_start_traverse_triangles ( f );
@@ -58,7 +58,7 @@ H5FedStartTraverseTriangles (
 
 h5_id_t
 H5FedTraverseTriangles (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
 	h5_id_t * const parent_id,	/*!< OUT: parent id if level
 					     \c >0 else \c -1		*/
@@ -71,7 +71,7 @@ H5FedTraverseTriangles (
 
 h5_err_t
 H5FedStartTraverseTetrahedra (
-	h5_file * f			/*!< file handle		*/
+	h5_file_t * f			/*!< file handle		*/
 	) {
 	SET_FNAME ( __func__ );
 	return h5t_start_traverse_tets ( f );
@@ -90,7 +90,7 @@ H5FedStartTraverseTetrahedra (
 */
 h5_id_t
 H5FedTraverseTetrahedra (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
 	h5_id_t * const parent_id,	/*!< OUT: parent id if level
 					     \c >0 else \c -1		*/

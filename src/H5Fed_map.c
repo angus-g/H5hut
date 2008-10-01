@@ -24,7 +24,7 @@
 
 h5_id_t
 H5FedMapTet2GlobalID (
-	h5_file *f,
+	h5_file_t *f,
 	h5_id_t * const global_vids
 	) {
 	SET_FNAME ( __func__ );
@@ -34,7 +34,7 @@ H5FedMapTet2GlobalID (
 
 h5_id_t
 H5FedMapTriangle2GlobalID (
-	h5_file *f,
+	h5_file_t *f,
 	h5_id_t * const global_vids
 	) {
 	SET_FNAME ( __func__ );

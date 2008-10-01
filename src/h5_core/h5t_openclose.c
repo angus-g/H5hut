@@ -15,9 +15,9 @@
 */
 static h5_err_t
 _create_array_types (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	hsize_t dims[1] = { 3 };
 	hid_t hid = H5Tarray_create ( H5T_NATIVE_DOUBLE, 1, dims );
@@ -52,9 +52,9 @@ _create_array_types (
 
 static h5_err_t
 _create_vertex_type (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	hid_t hid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_vertex) );
 	if ( hid < 0 ) {
@@ -94,9 +94,9 @@ _create_vertex_type (
 
 static h5_err_t
 _create_triangle_type (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	hid_t hid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_triangle) );
 	if ( hid < 0 ) {
@@ -145,9 +145,9 @@ _create_triangle_type (
 
 static h5_err_t
 _create_tet_type (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	hid_t hid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_tetrahedron) );
 	if ( hid < 0 ) {
@@ -203,11 +203,11 @@ _create_tet_type (
 	return H5_SUCCESS;
 }
 
-h5_err_t
-_h5t_init_fdata (
-	h5_file * f
+static h5_err_t
+_init_fdata (
+	h5_file_t * f
 	) {
-	struct h5t_fdata * t = &f->t;
+	struct h5t_fdata * t = f->t;
 
 	memset ( t->mesh_name, 0, sizeof ( t->mesh_name ) );
 	t->num_meshes = -1;
@@ -238,16 +238,14 @@ _h5t_init_fdata (
 */
 h5_err_t
 _h5t_open_file (
-	h5_file * f			/*!< IN: file handle */
+	h5_file_t * f			/*!< IN: file handle */
 	) {
-	h5_err_t h5err = H5_SUCCESS;;
-
-	if (( h5err = _h5t_init_fdata ( f )) < 0 ) return h5err;
-
-	if (( h5err = _create_array_types ( f )) < 0 ) return h5err;
-	if (( h5err = _create_vertex_type ( f )) < 0 ) return h5err;
-	if (( h5err = _create_triangle_type ( f )) < 0 ) return h5err;
-	if (( h5err = _create_tet_type ( f )) < 0 ) return h5err;
+	TRY( f->t = _h5_alloc ( NULL, sizeof(*f->t) ) );
+	TRY( _init_fdata ( f ) );
+	TRY( _create_array_types ( f ) );
+	TRY( _create_vertex_type ( f ) );
+	TRY( _create_triangle_type ( f ) );
+	TRY( _create_tet_type ( f ) );
 
 	return H5_SUCCESS;
 }
@@ -264,7 +262,7 @@ _h5t_open_file (
 */
 h5_err_t
 _h5t_close_file (
-	h5_file *f		/*!< IN: file handle */
+	h5_file_t *f		/*!< IN: file handle */
 	) {
 
 	h5_err_t h5err = H5_SUCCESS;
@@ -289,7 +287,7 @@ _h5t_init_step (
 */
 h5_err_t
 _h5t_close_step (
-	h5_file * f
+	h5_file_t * f
 	) {
 
 	return H5_SUCCESS;
@@ -300,7 +298,7 @@ h5_err_t
 _h5t_open_topo_group (
 	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	t->topo_gid = _h5_open_group ( f, f->root_gid, H5T_CONTAINER_GRPNAME );
 	return t->topo_gid;
@@ -310,7 +308,7 @@ h5_err_t
 _h5t_open_meshes_group (
 	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->topo_gid < 0 ) {
 		h5_err_t h5err = _h5t_open_topo_group ( f );
@@ -333,7 +331,7 @@ h5_err_t
 _h5t_open_mesh_group (
 	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->meshes_gid < 0 ) {
 		h5_err_t h5err = _h5t_open_meshes_group ( f );
@@ -352,7 +350,7 @@ h5t_open_mesh (
 	h5_id_t id,
 	const h5_oid_t type
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	h5_err_t h5err = _h5t_close_mesh ( f );
 	if ( h5err < 0 ) return h5err;
@@ -411,7 +409,7 @@ static h5_err_t
 _release_memory (
 	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->num_vertices ) {
 		free ( t->num_vertices );
@@ -470,7 +468,7 @@ _h5t_close_mesh (
 	h5err = h5t_close_boundary ( f );
 	if ( h5err < 0 ) return h5err;
 
-	if (( h5err = _h5t_init_fdata ( f )) < 0 ) return h5err;
+	if (( h5err = _init_fdata ( f )) < 0 ) return h5err;
 
 	return h5err;
 }
@@ -480,7 +478,7 @@ h5t_open_level (
 	h5_file_t * const f,
 	const h5_id_t id
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( (id < 0) || (id >= t->num_levels) )
 		return HANDLE_H5_OUT_OF_RANGE_ERR ( "Level", id );

@@ -30,10 +30,11 @@
   \return value \c >=0 on success
   \return \c -1 on error
 */
-h5_int_t H5FedStoreDoFVertexFloat (
-	h5_file * fh,			/*!< file handle		*/
+h5_err_t
+H5FedStoreDoFVertexFloat (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t vertex_id,	/*!< global vertex id		*/
-	const h5_float_t * const dof,	/*!< DoF n-tuple		*/
+	const h5_float64_t * const dof,	/*!< DoF n-tuple		*/
 	const h5_size_t dof_size	/*!< number of \c h5_float 
 					      value in \c dof		*/
 	) {
@@ -50,10 +51,11 @@ h5_int_t H5FedStoreDoFVertexFloat (
   \return value \c >=0 on success
   \return \c -1 on error
 */
-h5_int_t H5FedStoreDoFVertexComplex (
-	h5_file * fh,			/*!< file handle		*/
+h5_err_t
+H5FedStoreDoFVertexComplex (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t vertex_id,	/*!< global vertex id		*/
-	const h5_complex * const dof,	/*!< DoF n-tuple		*/
+	const h5_complex_t * const dof,	/*!< DoF n-tuple		*/
 	const h5_size_t dof_size	/*!< number of \c h5_complex
 					     values in \c dof		*/
 	) {
@@ -70,8 +72,9 @@ h5_int_t H5FedStoreDoFVertexComplex (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_float_t * H5FedGetDoFVertexFloat (
-	h5_file * fh,			/*!< file handle		*/
+h5_float64_t *
+H5FedGetDoFVertexFloat (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t vertex_id,	/*!< global vertex id		*/
 	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
 					     values in returned n-tuple	*/
@@ -89,8 +92,8 @@ h5_float_t * H5FedGetDoFVertexFloat (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_complex * H5FedGetDoFVertexComplex (
-	h5_file * fh,			/*!< file handle		*/
+h5_complex_t * H5FedGetDoFVertexComplex (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t vertex_id,	/*!< global vertex id		*/
 	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
 					     values in returned n-tuple	*/
@@ -111,7 +114,7 @@ h5_complex * H5FedGetDoFVertexComplex (
   Do we need this function????
 */
 h5_size_t H5FedGetNumDoFVertexFloat  (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t vertex_id		/*!< global vertex id		*/
 	) {
 	return -1;
@@ -130,7 +133,7 @@ h5_size_t H5FedGetNumDoFVertexFloat  (
   Do we need this function????
 */
 h5_size_t H5FedGetNumDoFVertexComplex (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_size_t vertex_id	/*!< global vertex id		*/
 	) {
 	return -1;
@@ -148,10 +151,11 @@ h5_size_t H5FedGetNumDoFVertexComplex (
   \return something \c >=0 on success
   \return \c -1 on error
 */
-h5_int_t H5FedStoreDoFEdgeFloat (
-	h5_file * fh,			/*!< file handle		*/
+h5_err_t
+H5FedStoreDoFEdgeFloat (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t edge_id,		/*!< global edge id		*/
-	const h5_float_t * const dof,	/*!< DoF n-tuple		*/
+	const h5_float64_t * const dof,	/*!< DoF n-tuple		*/
 	const h5_size_t dof_size	/*!< number of \c h5_float 
 					     value in \c dof		*/
 	) {
@@ -168,10 +172,11 @@ h5_int_t H5FedStoreDoFEdgeFloat (
   \return something \c >=0 on success
   \return \c -1 on error
 */
-h5_int_t H5FedStoreDoFEdgeComplex (
-	h5_file * fh,			/*!< file handle		*/
+h5_err_t
+H5FedStoreDoFEdgeComplex (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t edge_id,		/*!< global edge id		*/
-	const h5_complex * const dof,	/*!< DoF n-tuple		*/
+	const h5_complex_t * const dof,	/*!< DoF n-tuple		*/
 	const h5_size_t dof_size	/*!< number of \c h5_complex 
 					     value in \c dof		*/
 	) {
@@ -188,8 +193,9 @@ h5_int_t H5FedStoreDoFEdgeComplex (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_float_t * H5FedGetDoFEdgeFloat (
-	h5_file * fh,			/*!< file handle		*/
+h5_float64_t *
+H5FedGetDoFEdgeFloat (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t edge_id,		/*!< global edge id		*/
 	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
 					     values in returned n-tuple	*/
@@ -207,8 +213,8 @@ h5_float_t * H5FedGetDoFEdgeFloat (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_complex* H5FedGetDoFEdgeComplex (
-	h5_file * fh,			/*!< file handle		*/
+h5_complex_t* H5FedGetDoFEdgeComplex (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t edge_id,		/*!< global edge id		*/
 	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
 					     values in returned n-tuple	*/
@@ -229,7 +235,7 @@ h5_complex* H5FedGetDoFEdgeComplex (
   Do we need this function????
 */
 h5_size_t H5FedGetNumDoFEdgeFloat (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t edge_id		/*!< global edge id		*/
 	) {
 	return -1;
@@ -245,7 +251,7 @@ h5_size_t H5FedGetNumDoFEdgeFloat (
   \return \c -1 if edge doesn't exist.
 */
 h5_size_t H5FedGetNumDoFEdgeComplex (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t edge_id		/*!< global edge id		*/
 	) {
 	return -1;
@@ -264,10 +270,11 @@ h5_size_t H5FedGetNumDoFEdgeComplex (
   \return value \c >=0 on success
   \return \c -1 on error
 */
-h5_int_t H5FedStoreDoFTriangleFloat (
-	h5_file * fh,			/*!< file handle		*/
+h5_err_t
+H5FedStoreDoFTriangleFloat (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t triangle_id,	/*!< global triangle id		*/
-	const h5_float_t * const dof,	/*!< DoF vector			*/
+	const h5_float64_t * const dof,	/*!< DoF vector			*/
 	const h5_size_t dof_size	/*!< number of \c h5_float_t
 					     values in \c dof		*/
 	) {
@@ -284,10 +291,11 @@ h5_int_t H5FedStoreDoFTriangleFloat (
   \return value \c >=0 on success
   \return \c -1 on error
 */
-h5_int_t H5FedStoreDoFTriangleComplex (
-	h5_file * fh,			/*!< file handle		*/
+h5_err_t
+H5FedStoreDoFTriangleComplex (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t triangle_id,	/*!< global triangle id		*/
-	const h5_complex * const dof,	/*!< DoF vector			*/
+	const h5_complex_t * const dof,	/*!< DoF vector			*/
 	const h5_size_t dof_size	/*!< number of \c h5_complex
 					     values in \c dof		*/
 	) {
@@ -304,8 +312,9 @@ h5_int_t H5FedStoreDoFTriangleComplex (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_float_t * H5FedGetDoFTriangleFloat (
-	h5_file* fh,			/*!< file handle		*/
+h5_float64_t *
+H5FedGetDoFTriangleFloat (
+	h5_file_t * f,			/*!< file handle		*/
 	const h5_id_t triangle_id,	/*!< global triangle id		*/
 	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
 					     values in returned n-tuple	*/
@@ -323,8 +332,8 @@ h5_float_t * H5FedGetDoFTriangleFloat (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_complex * H5FedGetDoFTriangleComplex (
-	h5_file * fh,			/*!< file handle		*/
+h5_complex_t * H5FedGetDoFTriangleComplex (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t triangle_id,	/*!< global triangle id		*/
 	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
 					     values in returned n-tuple	*/
@@ -345,7 +354,7 @@ h5_complex * H5FedGetDoFTriangleComplex (
   Do we need this function????
 */
 h5_size_t H5FedGetNumDoFTriangleFloat (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t triangle_id	/*!< global triangle id		*/
 	) {
 	return -1;
@@ -364,7 +373,7 @@ h5_size_t H5FedGetNumDoFTriangleFloat (
   Do we need this function????
 */
 h5_size_t H5FedGetNumDoFTriangleComplex (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t triangle_id	/*!< global triangle id		*/
 	) {
 	return -1;
@@ -383,10 +392,11 @@ h5_size_t H5FedGetNumDoFTriangleComplex (
   \return value \c >=0 on success
   \return \c -1 on error
 */
-h5_int_t H5FedStoreDoFTetrahedronFloat (
-	h5_file * fh,			/*!< file handle		*/
+h5_err_t
+H5FedStoreDoFTetrahedronFloat (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
-	const h5_float_t * const dof,	/*!< DoF vector			*/
+	const h5_float64_t * const dof,	/*!< DoF vector			*/
 	const h5_size_t dof_size	/*!< number of \c h5_float 
 					     value in \c dof		*/
 	) {
@@ -403,10 +413,11 @@ h5_int_t H5FedStoreDoFTetrahedronFloat (
   \return value \c >=0 on success
   \return \c -1 on error
 */
-h5_int_t H5FedStoreDoFTetrahedronComplex (
-	h5_file * fh,			/*!< file handle		*/
+h5_err_t
+H5FedStoreDoFTetrahedronComplex (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
-	const h5_complex * const dof,	/*!< DoF vector			*/
+	const h5_complex_t * const dof,	/*!< DoF vector			*/
 	const h5_size_t dof_size	/*!< number of \c h5_complex
 					     value in \c dof		*/
 	) {
@@ -423,8 +434,9 @@ h5_int_t H5FedStoreDoFTetrahedronComplex (
   \return Pointer to n-tuple of type \c h5_float.
   \return NULL-pointer on error.
 */
-h5_float_t * H5FedGetDoFTetrahedronFloat (
-	h5_file * fh,			/*!< file handle		*/
+h5_float64_t *
+H5FedGetDoFTetrahedronFloat (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
 	h5_size_t * const dof_size	/*!< OUT: number of \c h5_float
 					     values in returned n-tuple	*/
@@ -442,8 +454,9 @@ h5_float_t * H5FedGetDoFTetrahedronFloat (
   \return Pointer to n-tuple of type \c h5_complex
   \return NULL-pointer on error.
 */
-h5_complex * H5FedGetDoFTetrahedronComplex (
-	h5_file * fh,			/*!< file handle		*/
+h5_complex_t * 
+H5FedGetDoFTetrahedronComplex (
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t tet_id,		/*!< global tetrahedron id	*/
 	h5_size_t * const dof_size	/*!< OUT: number of \c h5_complex
 					     values in returned n-tuple	*/
@@ -464,7 +477,7 @@ h5_complex * H5FedGetDoFTetrahedronComplex (
   Do we need this function????
 */
 h5_size_t H5FedGetNumDoFTetrahedronFloat (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t tet_id		/*!< global tetrahedron id	*/
 	) {
 	return -1;
@@ -480,7 +493,7 @@ h5_size_t H5FedGetNumDoFTetrahedronFloat (
   \retuen \c -1 if tetrahedron doesn't exist.
 */
 h5_size_t H5FedGetNumDoFTetrahedronComplex (
-	h5_file * fh,			/*!< file handle		*/
+	h5_file_t * fh,			/*!< file handle		*/
 	const h5_id_t tet_id		/*!< global tetrahedron id	*/
 	) {
 	return -1;

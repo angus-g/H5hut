@@ -86,7 +86,7 @@ static void
 _normalize_partition (
 	struct H5BlockPartition *p	/*!< IN/OUT: partition */
 	) {
-	h5part_int64_t x;
+	h5_int64_t x;
 
 	if ( p->i_start > p->i_end ) {
 		x = p->i_start;
@@ -115,7 +115,7 @@ _normalize_partition (
   \return	H5_SUCCESS or error code
 */
 #ifdef PARALLEL_IO
-static h5part_int64_t
+static h5_int64_t
 _allgather (
 	const h5_file *f		/*!< IN: file handle */
 	) {
@@ -123,7 +123,7 @@ _allgather (
 	struct H5BlockPartition *layout = f->block->user_layout;
 
 	MPI_Datatype    partition_m;
-	size_t n = sizeof (struct H5BlockPartition) / sizeof (h5part_int64_t);
+	size_t n = sizeof (struct H5BlockPartition) / sizeof (h5_int64_t);
 
 	MPI_Type_contiguous ( n, MPI_LONG_LONG, &partition_m );
         MPI_Type_commit ( &partition_m );
@@ -134,9 +134,9 @@ _allgather (
 	return H5_SUCCESS;
 }
 #else
-static h5part_int64_t
+static h5_int64_t
 _allgather (
-	const h5_file *f		/*!< IN: file handle */
+	const h5_file_t *f		/*!< IN: file handle */
 	) {
 
 	return H5_SUCCESS;
@@ -153,7 +153,7 @@ _allgather (
 */
 static void
 _get_dimension_sizes (
-	h5_file *f			/*!< IN: file handle */
+	h5_file_t *f			/*!< IN: file handle */
 	) {
 	int proc;
 	struct h5b_fdata *b = f->block;
@@ -201,7 +201,7 @@ _have_ghostzone (
 
   \return volume
 */
-static h5part_int64_t
+static h5_int64_t
 _volume_of_partition (
 	const struct H5BlockPartition *p	/*!< IN: partition */
 	) {
@@ -223,17 +223,17 @@ _volume_of_partition (
 
   \return volume
 */
-static h5part_int64_t
+static h5_int64_t
 _volume_of_ghostzone (
 	const struct H5BlockPartition *p, /*!< IN: ptr to first partition */
 	const struct H5BlockPartition *q  /*!< IN: ptr to second partition */
 	) {
 
-	h5part_int64_t dx = MIN ( p->i_end, q->i_end )
+	h5_int64_t dx = MIN ( p->i_end, q->i_end )
 		- MAX ( p->i_start, q->i_start ) + 1;
-	h5part_int64_t dy = MIN ( p->j_end, q->j_end )
+	h5_int64_t dy = MIN ( p->j_end, q->j_end )
 		- MAX ( p->j_start, q->j_start ) + 1;
-	h5part_int64_t dz = MIN ( p->k_end, q->k_end )
+	h5_int64_t dz = MIN ( p->k_end, q->k_end )
 		- MAX ( p->k_start, q->k_start ) + 1;
 
 	return dx * dy * dz;
@@ -250,7 +250,7 @@ _volume_of_ghostzone (
 
   \return H5_SUCCESS or -1
 */
-static h5part_int64_t
+static h5_int64_t
 _dissolve_X_ghostzone (
 	struct H5BlockPartition *p,	/*!< IN/OUT: ptr to first partition */
 	struct H5BlockPartition *q	/*!< IN/OUT: ptr to second partition */
@@ -278,7 +278,7 @@ _dissolve_X_ghostzone (
 
   \return H5_SUCCESS or -1
 */
-static h5part_int64_t
+static h5_int64_t
 _dissolve_Y_ghostzone (
 	struct H5BlockPartition *p,	/*!< IN/OUT: ptr to first partition */
 	struct H5BlockPartition *q	/*!< IN/OUT: ptr to second partition */
@@ -306,7 +306,7 @@ _dissolve_Y_ghostzone (
 
   \return H5_SUCCESS or -1
 */
-static h5part_int64_t
+static h5_int64_t
 _dissolve_Z_ghostzone (
 	struct H5BlockPartition *p,	/*!< IN/OUT: ptr to first partition */
 	struct H5BlockPartition *q	/*!< IN/OUT: ptr to second partition */
@@ -337,7 +337,7 @@ _dissolve_Z_ghostzone (
 
   \return H5_SUCCESS or error code.
 */
-static h5part_int64_t
+static h5_int64_t
 _dissolve_ghostzone (
 	struct H5BlockPartition *p,	/*!< IN/OUT: ptr to first partition */
 	struct H5BlockPartition *q	/*!< IN/OUT: ptr to second partition */
@@ -347,8 +347,8 @@ _dissolve_ghostzone (
 	struct H5BlockPartition q_;
 	struct H5BlockPartition p_best;
 	struct H5BlockPartition q_best;
-	h5part_int64_t vol;
-	h5part_int64_t max_vol = 0;
+	h5_int64_t vol;
+	h5_int64_t max_vol = 0;
 
 	p_ = *p;
 	q_ = *q;
@@ -416,9 +416,9 @@ _dissolve_ghostzone (
 
   \return H5_SUCCESS or error code.
 */
-static h5part_int64_t
+static h5_int64_t
 _dissolve_ghostzones (
-	h5_file *f	/*!< IN: file handle */
+	h5_file_t *f	/*!< IN: file handle */
 	) {
 
 	struct h5b_fdata *b = f->block;
@@ -431,7 +431,7 @@ _dissolve_ghostzones (
 		struct list *next;
 		struct H5BlockPartition *p;
 		struct H5BlockPartition *q;
-		h5part_int64_t vol;
+		h5_int64_t vol;
 	} *p_begin, *p_el, *p_max, *p_end, *p_save;
 
 	memcpy ( b->write_layout, b->user_layout,
@@ -528,9 +528,9 @@ _dissolve_ghostzones (
   \internal
 
 */
-h5part_int64_t
+h5_int64_t
 _release_hyperslab (
-	h5_file *f			/*!< IN: file handle */
+	h5_file_t *f			/*!< IN: file handle */
 	) {
 	herr_t herr;
 
@@ -562,15 +562,15 @@ _release_hyperslab (
   \c H5PART_ERR_MPI<br>
   \c H5PART_ERR_HDF5
 */
-h5part_int64_t
+h5_int64_t
 H5BlockDefine3DFieldLayout(
-	h5_file *f,			/*!< IN: File handle		*/
-	const h5part_int64_t i_start,	/*!< OUT: start index of \c i	*/ 
-	const h5part_int64_t i_end,	/*!< OUT: end index of \c i	*/  
-	const h5part_int64_t j_start,	/*!< OUT: start index of \c j	*/ 
-	const h5part_int64_t j_end,	/*!< OUT: end index of \c j	*/ 
-	const h5part_int64_t k_start,	/*!< OUT: start index of \c j	*/ 
-	const h5part_int64_t k_end	/*!< OUT: end index of \c j	*/
+	h5_file_t *f,			/*!< IN: File handle		*/
+	const h5_int64_t i_start,	/*!< OUT: start index of \c i	*/ 
+	const h5_int64_t i_end,	/*!< OUT: end index of \c i	*/  
+	const h5_int64_t j_start,	/*!< OUT: start index of \c j	*/ 
+	const h5_int64_t j_end,	/*!< OUT: end index of \c j	*/ 
+	const h5_int64_t k_start,	/*!< OUT: start index of \c j	*/ 
+	const h5_int64_t k_end	/*!< OUT: end index of \c j	*/
 	) {
 
 	SET_FNAME ( "H5BlockDefine3DFieldLayout" );
@@ -586,7 +586,7 @@ H5BlockDefine3DFieldLayout(
 
 	_normalize_partition( p );
 
-	h5part_int64_t herr = _allgather ( f );
+	h5_int64_t herr = _allgather ( f );
 	if ( herr < 0 ) return HANDLE_MPI_ALLGATHER_ERR;
 
 	_get_dimension_sizes ( f );
@@ -611,16 +611,16 @@ H5BlockDefine3DFieldLayout(
   \return \c H5_SUCCESS on success.<br>
 	  \c H5PART_ERR_INVAL if proc is invalid.
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dGetPartitionOfProc (
-	h5_file *f,			/*!< IN: File handle */
-	const h5part_int64_t proc,	/*!< IN: Processor to get partition from */
-	h5part_int64_t *i_start,	/*!< OUT: start index of \c i	*/ 
-	h5part_int64_t *i_end,		/*!< OUT: end index of \c i	*/  
-	h5part_int64_t *j_start,	/*!< OUT: start index of \c j	*/ 
-	h5part_int64_t *j_end,		/*!< OUT: end index of \c j	*/ 
-	h5part_int64_t *k_start,	/*!< OUT: start index of \c k	*/ 
-	h5part_int64_t *k_end		/*!< OUT: end index of \c k	*/ 
+	h5_file_t *f,			/*!< IN: File handle */
+	const h5_int64_t proc,	/*!< IN: Processor to get partition from */
+	h5_int64_t *i_start,	/*!< OUT: start index of \c i	*/ 
+	h5_int64_t *i_end,		/*!< OUT: end index of \c i	*/  
+	h5_int64_t *j_start,	/*!< OUT: start index of \c j	*/ 
+	h5_int64_t *j_end,		/*!< OUT: end index of \c j	*/ 
+	h5_int64_t *k_start,	/*!< OUT: start index of \c k	*/ 
+	h5_int64_t *k_end		/*!< OUT: end index of \c k	*/ 
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
@@ -650,16 +650,16 @@ H5Block3dGetPartitionOfProc (
   \return \c H5_SUCCESS on success.<br>
 	  \c H5PART_ERR_INVAL if proc is invalid.
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dGetReducedPartitionOfProc (
-	h5_file *f,			/*!< IN: File handle */
-	h5part_int64_t proc,		/*!< IN: Processor to get partition from */
-	h5part_int64_t *i_start,	/*!< OUT: start index of \c i */ 
-	h5part_int64_t *i_end,		/*!< OUT: end index of \c i */  
-	h5part_int64_t *j_start,	/*!< OUT: start index of \c j */ 
-	h5part_int64_t *j_end,		/*!< OUT: end index of \c j */ 
-	h5part_int64_t *k_start,	/*!< OUT: start index of \c j */ 
-	h5part_int64_t *k_end		/*!< OUT: end index of \c j */ 
+	h5_file_t *f,			/*!< IN: File handle */
+	h5_int64_t proc,		/*!< IN: Processor to get partition from */
+	h5_int64_t *i_start,	/*!< OUT: start index of \c i */ 
+	h5_int64_t *i_end,		/*!< OUT: end index of \c i */  
+	h5_int64_t *j_start,	/*!< OUT: start index of \c j */ 
+	h5_int64_t *j_end,		/*!< OUT: end index of \c j */ 
+	h5_int64_t *k_start,	/*!< OUT: start index of \c j */ 
+	h5_int64_t *k_end		/*!< OUT: end index of \c j */ 
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
@@ -689,12 +689,12 @@ H5Block3dGetReducedPartitionOfProc (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dGetProcOf (
-	h5_file *f,			/*!< IN: File handle */
-	h5part_int64_t i,		/*!< IN: \c i coordinate */
-	h5part_int64_t j,		/*!< IN: \c j coordinate */
-	h5part_int64_t k		/*!< IN: \c k coordinate */
+	h5_file_t *f,			/*!< IN: File handle */
+	h5_int64_t i,		/*!< IN: \c i coordinate */
+	h5_int64_t j,		/*!< IN: \c j coordinate */
+	h5_int64_t k		/*!< IN: \c k coordinate */
 	) {
 
 	SET_FNAME ( "H5Block3dGetProcOf" );
@@ -707,7 +707,7 @@ H5Block3dGetProcOf (
 		if ( (layout->i_start <= i) && (i <= layout->i_end) &&
 		     (layout->j_start <= j) && (j <= layout->j_end) &&
 		     (layout->k_start <= k) && (k <= layout->k_end) ) 
-			return (h5part_int64_t)proc;
+			return (h5_int64_t)proc;
 	}
 	
 	return -1;
@@ -722,9 +722,9 @@ H5Block3dGetProcOf (
 
   \return \c H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _open_block_group (
-	const h5_file *f		/*!< IN: file handle */
+	const h5_file_t *f		/*!< IN: file handle */
 	) {
 
 	struct h5b_fdata *b = f->block;
@@ -756,7 +756,7 @@ _open_block_group (
   \internal
 
 */
-static h5part_int64_t
+static h5_int64_t
 _have_object (
 	const hid_t id,
 	const char *name
@@ -771,15 +771,15 @@ _have_object (
 
   \return \c H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _open_field_group (
-	h5_file *f,			/*!< IN: file handle */
+	h5_file_t *f,			/*!< IN: file handle */
 	const char *name
 	) {
 
 	struct h5b_fdata *b = f->block;
 
-	h5part_int64_t h5err = _open_block_group ( f );
+	h5_int64_t h5err = _open_block_group ( f );
 	if ( h5err < 0 ) return h5err;
 
 	if ( ! _have_object ( b->blockgroup, name ) )
@@ -801,9 +801,9 @@ _open_field_group (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 _close_field_group (
-	h5_file *f			/*!< IN: file handle */
+	h5_file_t *f			/*!< IN: file handle */
 	) {
 
 	herr_t herr = H5Gclose ( f->block->field_group_id );
@@ -819,9 +819,9 @@ _close_field_group (
 
   \return \c H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _select_hyperslab_for_reading (
-	h5_file *f,			/*!< IN: file handle */
+	h5_file_t *f,			/*!< IN: file handle */
 	hid_t dataset
 	) {
 
@@ -839,7 +839,7 @@ _select_hyperslab_for_reading (
 		p->j_end - p->j_start + 1,
 		p->i_end - p->i_start + 1 };
 
-	h5part_int64_t herr = _release_hyperslab ( f );
+	h5_int64_t herr = _release_hyperslab ( f );
 	if ( herr < 0 )	return HANDLE_H5S_CLOSE_ERR;
 
  	b->diskshape = H5Dget_space ( dataset );
@@ -907,11 +907,11 @@ _select_hyperslab_for_reading (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 _read_data (
-	h5_file *f,			/*!< IN: file handle */
+	h5_file_t *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to read */
-	h5part_float64_t *data		/*!< OUT: ptr to read buffer */
+	h5_float64_t *data		/*!< OUT: ptr to read buffer */
 	) {
 
 	struct h5b_fdata *b = f->block;
@@ -919,7 +919,7 @@ _read_data (
 	hid_t dataset_id = H5Dopen ( b->field_group_id, name, H5P_DEFAULT );
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
 
-	h5part_int64_t herr = _select_hyperslab_for_reading ( f, dataset_id );
+	h5_int64_t herr = _select_hyperslab_for_reading ( f, dataset_id );
 	if ( herr < 0 ) return herr;
 
 	herr = H5Dread ( 
@@ -948,18 +948,18 @@ _read_data (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dReadScalarField (
-	h5_file *f,			/*!< IN: file handle */
+	h5_file_t *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to read */
-	h5part_float64_t *data		/*!< OUT: ptr to read buffer */
+	h5_float64_t *data		/*!< OUT: ptr to read buffer */
 	) {
 
 	SET_FNAME ( "H5Block3dReadScalarField" );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
-	h5part_int64_t herr = _open_field_group ( f, name );
+	h5_int64_t herr = _open_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
 	herr = _read_data ( f, "0", data );
@@ -983,20 +983,20 @@ H5Block3dReadScalarField (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dRead3dVectorField (
-	h5_file *f,			/*!< IN: file handle */
+	h5_file_t *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to read */
-	h5part_float64_t *x_data,	/*!< OUT: ptr to read buffer X axis */
-	h5part_float64_t *y_data,	/*!< OUT: ptr to read buffer Y axis */
-	h5part_float64_t *z_data	/*!< OUT: ptr to read buffer Z axis */
+	h5_float64_t *x_data,	/*!< OUT: ptr to read buffer X axis */
+	h5_float64_t *y_data,	/*!< OUT: ptr to read buffer Y axis */
+	h5_float64_t *z_data	/*!< OUT: ptr to read buffer Z axis */
 	) {
 
 	SET_FNAME ( "H5Block3dRead3dVectorField" );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
-	h5part_int64_t herr = _open_field_group ( f, name );
+	h5_int64_t herr = _open_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
 	herr = _read_data ( f, "0", x_data );
@@ -1021,9 +1021,9 @@ H5Block3dRead3dVectorField (
 
   \return \c H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _select_hyperslab_for_writing (
-	h5_file *f		/*!< IN: file handle */
+	h5_file_t *f		/*!< IN: file handle */
 	) {
 
 	/*
@@ -1137,9 +1137,9 @@ _select_hyperslab_for_writing (
 
   \return \c H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _create_block_group (
-	const h5_file *f		/*!< IN: file handle */
+	const h5_file_t *f		/*!< IN: file handle */
 	) {
 
 	herr_t herr;
@@ -1166,13 +1166,13 @@ _create_block_group (
 
   \return \c H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _create_field_group (
-	h5_file *f,			/*!< IN: file handle */
+	h5_file_t *f,			/*!< IN: file handle */
 	const char *name		/*!< IN: name of field group to create */
 	) {
 
-	h5part_int64_t h5err;
+	h5_int64_t h5err;
 	struct h5b_fdata *b = f->block;
 
 
@@ -1203,11 +1203,11 @@ _create_field_group (
 
   \return \c H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _write_field_data (
-	h5_file *f,			/*!< IN: file handle */
+	h5_file_t *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
-	const h5part_float64_t *data	/*!< IN: data to write */
+	const h5_float64_t *data	/*!< IN: data to write */
 	) {
 
 	struct h5b_fdata *b = f->block;
@@ -1234,11 +1234,11 @@ _write_field_data (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dWriteScalarField (
-	h5_file *f,			/*!< IN: file handle */
+	h5_file_t *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
-	const h5part_float64_t *data	/*!< IN: scalar data to write */
+	const h5_float64_t *data	/*!< IN: scalar data to write */
 	) {
 
 	SET_FNAME ( "H5Block3dWriteScalarField" );
@@ -1246,7 +1246,7 @@ H5Block3dWriteScalarField (
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
-	h5part_int64_t herr = _create_field_group ( f, name );
+	h5_int64_t herr = _create_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 	herr = _write_field_data (
 		f,
@@ -1273,13 +1273,13 @@ H5Block3dWriteScalarField (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dWrite3dVectorField (
-	h5_file *f,			/*!< IN: file handle */
+	h5_file_t *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
-	const h5part_float64_t *x_data,	/*!< IN: X axis data */
-	const h5part_float64_t *y_data,	/*!< IN: Y axis data */
-	const h5part_float64_t *z_data	/*!< IN: Z axis data */
+	const h5_float64_t *x_data,	/*!< IN: X axis data */
+	const h5_float64_t *y_data,	/*!< IN: Y axis data */
+	const h5_float64_t *z_data	/*!< IN: Z axis data */
 	) {
 
 	SET_FNAME ( "H5Block3dWrite3dVectorField" );
@@ -1287,7 +1287,7 @@ H5Block3dWrite3dVectorField (
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
-	h5part_int64_t herr = _create_field_group ( f, name );
+	h5_int64_t herr = _create_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
 	herr = _write_field_data ( f, "0", x_data );
@@ -1312,9 +1312,9 @@ H5Block3dWrite3dVectorField (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5BlockGetNumFields (
-	h5_file *f			/*!< IN: file handle */
+	h5_file_t *f			/*!< IN: file handle */
 	) {
 
 	SET_FNAME ( "H5BlockGetNumFields" );
@@ -1333,19 +1333,19 @@ H5BlockGetNumFields (
 
   \return \c H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _get_field_info (
-	h5_file *f,			/*!< IN: file handle */
+	h5_file_t *f,			/*!< IN: file handle */
 	const char *field_name,		/*!< IN: field name to get info about */
-	h5part_int64_t *grid_rank,	/*!< OUT: rank of grid */
-	h5part_int64_t *grid_dims,	/*!< OUT: dimensions of grid */
-	h5part_int64_t *field_dims	/*!< OUT: rank of field  (1 or 3) */
+	h5_int64_t *grid_rank,	/*!< OUT: rank of grid */
+	h5_int64_t *grid_dims,	/*!< OUT: dimensions of grid */
+	h5_int64_t *field_dims	/*!< OUT: rank of field  (1 or 3) */
 	) {
 
 	hsize_t dims[16];
-	h5part_int64_t i, j;
+	h5_int64_t i, j;
 
-	h5part_int64_t herr = _open_block_group ( f );
+	h5_int64_t herr = _open_block_group ( f );
 	if ( herr < 0 ) return herr;
 
 	hid_t group_id = H5Gopen ( f->block->blockgroup, field_name,
@@ -1363,7 +1363,7 @@ _get_field_info (
 	if ( *grid_rank < 0 )  return HANDLE_H5S_GET_SIMPLE_EXTENT_DIMS_ERR;
 
 	for ( i = 0, j = *grid_rank-1; i < *grid_rank; i++, j-- )
-		grid_dims[i] = (h5part_int64_t)dims[j];
+		grid_dims[i] = (h5_int64_t)dims[j];
 
 	*field_dims = h5_get_num_objects (
 		f->block->blockgroup,
@@ -1396,21 +1396,21 @@ _get_field_info (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5BlockGetFieldInfo (
-	h5_file *f,				/*!< IN: file handle */
-	const h5part_int64_t idx,		/*!< IN: index of field */
+	h5_file_t *f,				/*!< IN: file handle */
+	const h5_int64_t idx,		/*!< IN: index of field */
 	char *field_name,			/*!< OUT: field name */
-	const h5part_int64_t len_field_name,	/*!< IN: buffer size */
-	h5part_int64_t *grid_rank,		/*!< OUT: grid rank */
-	h5part_int64_t *grid_dims,		/*!< OUT: grid dimensions */
-	h5part_int64_t *field_dims		/*!< OUT: field rank */
+	const h5_int64_t len_field_name,	/*!< IN: buffer size */
+	h5_int64_t *grid_rank,		/*!< OUT: grid rank */
+	h5_int64_t *grid_dims,		/*!< OUT: grid dimensions */
+	h5_int64_t *field_dims		/*!< OUT: field rank */
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
 	CHECK_TIMEGROUP( f );
 
-	h5part_int64_t herr = h5_get_object_name (
+	h5_int64_t herr = h5_get_object_name (
 		f->step_gid,
 		H5BLOCK_GROUPNAME_BLOCK,
 		H5G_GROUP,
@@ -1430,13 +1430,13 @@ H5BlockGetFieldInfo (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5BlockGetFieldInfoByName (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
-	h5part_int64_t *grid_rank,		/*!< OUT: grid rank */
-	h5part_int64_t *grid_dims,		/*!< OUT: grid dimensions */
-	h5part_int64_t *field_dims		/*!< OUT: field rank */
+	h5_int64_t *grid_rank,		/*!< OUT: grid rank */
+	h5_int64_t *grid_dims,		/*!< OUT: grid dimensions */
+	h5_int64_t *field_dims		/*!< OUT: field rank */
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
@@ -1455,17 +1455,17 @@ H5BlockGetFieldInfoByName (
 
   \return \c H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _write_field_attrib (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
 	const hid_t attrib_type,		/*!< IN: attribute type */
 	const void *attrib_value,		/*!< IN: attribute value */
-	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	const h5_int64_t attrib_nelem	/*!< IN: number of elements */
 	) {
 
-	h5part_int64_t herr = _open_field_group ( f, field_name );
+	h5_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	h5_write_attrib (
@@ -1490,14 +1490,14 @@ _write_field_attrib (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5BlockWriteFieldAttrib (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
-	const h5part_int64_t attrib_type,	/*!< IN: attribute type */
+	const h5_int64_t attrib_type,	/*!< IN: attribute type */
 	const void *attrib_value,		/*!< IN: attribute value */
-	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	const h5_int64_t attrib_nelem	/*!< IN: number of elements */
 	) {
 
 	SET_FNAME ( "H5BlockWriteFieldAttrib" );
@@ -1519,9 +1519,9 @@ H5BlockWriteFieldAttrib (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5BlockWriteFieldAttribString (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
 	const char *attrib_value		/*!< IN: attribute value */
@@ -1545,19 +1545,19 @@ H5BlockWriteFieldAttribString (
 
   \return number of attributes or error code
 */
-h5part_int64_t
+h5_int64_t
 H5BlockGetNumFieldAttribs (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name			/*<! IN: field name */
 	) {
 
 	SET_FNAME ( "H5BlockGetNumFieldAttribs" );
 	CHECK_TIMEGROUP( f );
 
-	h5part_int64_t herr = _open_field_group ( f, field_name );
+	h5_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
-	h5part_int64_t nattribs = H5Aget_num_attrs (
+	h5_int64_t nattribs = H5Aget_num_attrs (
 		f->block->field_group_id );
 	if ( nattribs < 0 ) HANDLE_H5A_GET_NUM_ATTRS_ERR;
 
@@ -1577,21 +1577,21 @@ H5BlockGetNumFieldAttribs (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5BlockGetFieldAttribInfo (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
-	const h5part_int64_t attrib_idx,	/*!< IN: attribute index */
+	const h5_int64_t attrib_idx,	/*!< IN: attribute index */
 	char *attrib_name,			/*!< OUT: attribute name */
-	const h5part_int64_t len_of_attrib_name,/*!< IN: buffer size */
-	h5part_int64_t *attrib_type,		/*!< OUT: attribute type */
-	h5part_int64_t *attrib_nelem		/*!< OUT: number of elements */
+	const h5_int64_t len_of_attrib_name,/*!< IN: buffer size */
+	h5_int64_t *attrib_type,		/*!< OUT: attribute type */
+	h5_int64_t *attrib_nelem		/*!< OUT: number of elements */
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldAttribInfo" );
 	CHECK_TIMEGROUP( f );
 
-	h5part_int64_t herr = _open_field_group ( f, field_name );
+	h5_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	herr = h5_get_attrib_info (
@@ -1618,9 +1618,9 @@ H5BlockGetFieldAttribInfo (
 
   \return \c H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _read_field_attrib (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
 	void *attrib_value			/*!< OUT: value */
@@ -1628,7 +1628,7 @@ _read_field_attrib (
 
 	struct h5b_fdata *b = f->block;
 
-	h5part_int64_t herr = _open_field_group ( f, field_name );
+	h5_int64_t herr = _open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	herr = h5_read_attrib (
@@ -1650,9 +1650,9 @@ _read_field_attrib (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5BlockReadFieldAttrib (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
 	void *attrib_value			/*!< OUT: value */
@@ -1676,21 +1676,21 @@ H5BlockReadFieldAttrib (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dGetFieldOrigin (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
-	h5part_float64_t *x_origin,		/*!< OUT: X origin */
-	h5part_float64_t *y_origin,		/*!< OUT: Y origin */
-	h5part_float64_t *z_origin		/*!< OUT: Z origin */
+	h5_float64_t *x_origin,		/*!< OUT: X origin */
+	h5_float64_t *y_origin,		/*!< OUT: Y origin */
+	h5_float64_t *z_origin		/*!< OUT: Z origin */
 	) {
 
 	SET_FNAME ( "H5BlockSetFieldOrigin" );
 	CHECK_TIMEGROUP( f );
 
-	h5part_float64_t origin[3];
+	h5_float64_t origin[3];
 
-	h5part_int64_t herr = _read_field_attrib (
+	h5_int64_t herr = _read_field_attrib (
 		f,
 		field_name,
 		H5BLOCK_FIELD_ORIGIN_NAME,
@@ -1709,20 +1709,20 @@ H5Block3dGetFieldOrigin (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dSetFieldOrigin (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
-	const h5part_float64_t x_origin,	/*!< IN: X origin */
-	const h5part_float64_t y_origin,	/*!< IN: Y origin */
-	const h5part_float64_t z_origin		/*!< IN: Z origin */
+	const h5_float64_t x_origin,	/*!< IN: X origin */
+	const h5_float64_t y_origin,	/*!< IN: Y origin */
+	const h5_float64_t z_origin		/*!< IN: Z origin */
 	) {
 
 	SET_FNAME ( "H5BlockSetFieldOrigin" );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
 
-	h5part_float64_t origin[3] = { x_origin, y_origin, z_origin };
+	h5_float64_t origin[3] = { x_origin, y_origin, z_origin };
 
 	return _write_field_attrib (
 		f,
@@ -1740,21 +1740,21 @@ H5Block3dSetFieldOrigin (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dGetFieldSpacing (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
-	h5part_float64_t *x_spacing,		/*!< OUT: X spacing */
-	h5part_float64_t *y_spacing,		/*!< OUT: Y spacing */
-	h5part_float64_t *z_spacing		/*!< OUT: Z spacing */
+	h5_float64_t *x_spacing,		/*!< OUT: X spacing */
+	h5_float64_t *y_spacing,		/*!< OUT: Y spacing */
+	h5_float64_t *z_spacing		/*!< OUT: Z spacing */
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldSpacing" );
 	CHECK_TIMEGROUP( f );
 
-	h5part_float64_t spacing[3];
+	h5_float64_t spacing[3];
 
-	h5part_int64_t herr = _read_field_attrib (
+	h5_int64_t herr = _read_field_attrib (
 		f,
 		field_name,
 		H5BLOCK_FIELD_SPACING_NAME,
@@ -1773,20 +1773,20 @@ H5Block3dGetFieldSpacing (
 
   \return \c H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 H5Block3dSetFieldSpacing (
-	h5_file *f,				/*!< IN: file handle */
+	h5_file_t *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
-	const h5part_float64_t x_spacing,	/*!< IN: X spacing */
-	const h5part_float64_t y_spacing,	/*!< IN: Y spacing */
-	const h5part_float64_t z_spacing	/*!< IN: Z spacing */
+	const h5_float64_t x_spacing,	/*!< IN: X spacing */
+	const h5_float64_t y_spacing,	/*!< IN: Y spacing */
+	const h5_float64_t z_spacing	/*!< IN: Z spacing */
 	) {
 
 	SET_FNAME ( "H5BlockSetFieldSpacing" );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
 
-	h5part_float64_t spacing[3] = { x_spacing, y_spacing, z_spacing };
+	h5_float64_t spacing[3] = { x_spacing, y_spacing, z_spacing };
 
 	return _write_field_attrib (
 		f,
@@ -1806,9 +1806,9 @@ H5Block3dSetFieldSpacing (
   \return \c H5_SUCCESS if field data is available otherwise \c
   H5PART_ERR_NOENTRY.
 */
-h5part_int64_t
+h5_int64_t
 H5BlockHasFieldData (
-	h5_file *f		/*!< IN: file handle */
+	h5_file_t *f		/*!< IN: file handle */
 	) {
 
 	SET_FNAME ( "H5BlockHasFieldData" );

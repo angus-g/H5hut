@@ -3,7 +3,7 @@
 
 hid_t
 _h5_open_group (
-	h5_file *f,
+	h5_file_t *f,
 	const hid_t parent_gid,
 	const char * const grpname
 	);

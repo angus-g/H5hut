@@ -19,9 +19,9 @@
 
   \return	H5_SUCCESS or error code
 */
-h5part_int64_t
+h5_int64_t
 h5_check_filehandle (
-	const h5_file *f	/*!< filehandle  to check validity of */
+	const h5_file_t *f	/*!< filehandle  to check validity of */
 	) {
 
 	if ( f == NULL )
@@ -46,7 +46,7 @@ _h5_error_handler ( hid_t estack_id, void* unused ) {
 	return 0;
 }
 
-static h5part_int64_t
+static h5_int64_t
 _init ( void ) {
 	static int __init = 0;
 
@@ -68,9 +68,9 @@ _init ( void ) {
 
   \return	H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _h5u_open_file (
-	h5_file *f			/*!< IN: file handle */
+	h5_file_t *f			/*!< IN: file handle */
 	) {
  	f->shape = 0;
 	f->diskshape = H5S_ALL;
@@ -78,7 +78,7 @@ _h5u_open_file (
 	f->viewstart = -1;
 	f->viewend = -1;
 	f->pnparticles =
-		(h5part_int64_t*) malloc (f->nprocs * sizeof (h5part_int64_t));
+		(h5_int64_t*) malloc (f->nprocs * sizeof (h5_int64_t));
 	if (f->pnparticles == NULL) {
 		return HANDLE_H5_NOMEM_ERR;
 	}
@@ -94,9 +94,9 @@ _h5u_open_file (
 
   \return	H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _h5b_open_file (
-	h5_file *f			/*!< IN: file handle */
+	h5_file_t *f			/*!< IN: file handle */
 	) {
 	struct h5b_fdata *b; 
 
@@ -131,7 +131,7 @@ _h5b_open_file (
 }
 
  
-h5_file*
+h5_file_t *
 h5_open_file (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	unsigned flags,		/*!< [in] The access mode for the file. */
@@ -145,14 +145,14 @@ h5_open_file (
 		return NULL;
 	}
 	h5_set_errno ( H5_SUCCESS );
-	h5_file *f = NULL;
+	h5_file_t *f = NULL;
 
-	f = (h5_file*) malloc( sizeof (h5_file) );
+	f = (h5_file_t*) malloc( sizeof (h5_file_t) );
 	if( f == NULL ) {
 		HANDLE_H5_NOMEM_ERR;
 		goto error_cleanup;
 	}
-	memset (f, 0, sizeof (h5_file));
+	memset (f, 0, sizeof (h5_file_t));
 
 	f->prefix_step_name = strdup ( H5PART_GROUPNAME_STEP );
 	if( f->prefix_step_name == NULL ) {
@@ -297,9 +297,9 @@ h5_open_file (
 
   \return	H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _h5u_close_file (
-	h5_file *f		/*!< IN: file handle */
+	h5_file_t *f		/*!< IN: file handle */
 	) {
 	herr_t herr;
 	h5_set_errno ( H5_SUCCESS );
@@ -334,9 +334,9 @@ _h5u_close_file (
 
   \return	H5_SUCCESS or error code
 */
-static h5part_int64_t
+static h5_int64_t
 _h5b_close_file (
-	h5_file *f		/*!< IN: file handle */
+	h5_file_t *f		/*!< IN: file handle */
 	) {
 
 	herr_t herr;
@@ -368,9 +368,9 @@ _h5b_close_file (
 	return H5_SUCCESS;
 }
 
-h5part_int64_t
+h5_int64_t
 h5_close_file (
-	h5_file *f
+	h5_file_t *f
 	) {
 	herr_t r = 0;
 	h5_set_errno ( H5_SUCCESS );
@@ -423,9 +423,9 @@ h5_close_file (
 
 h5_int64_t
 h5_define_stepname_fmt (
-	h5_file *f,
+	h5_file_t *f,
 	const char *name,
-	const h5part_int64_t width
+	const h5_int64_t width
 	) {
 	f->prefix_step_name = strdup ( name );
 	if( f->prefix_step_name == NULL ) {
@@ -438,7 +438,7 @@ h5_define_stepname_fmt (
 
 h5_err_t
 h5_get_stepname_fmt (
-	h5_file * f,
+	h5_file_t * f,
 	char *name,
 	const h5_size_t l_name,
 	h5_size_t *width
@@ -448,7 +448,7 @@ h5_get_stepname_fmt (
 
 h5_int64_t
 h5_get_step (
-	h5_file * f
+	h5_file_t * f
 	) {
 	return -1;
 }
@@ -456,7 +456,7 @@ h5_get_step (
 
 h5_int64_t
 h5_has_step (
-	h5_file * f,
+	h5_file_t * f,
 	h5_int64_t step
 	) {
 	char name[128];

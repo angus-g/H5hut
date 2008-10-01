@@ -12,7 +12,7 @@
 
 h5_err_t
 _h5t_write_obj (
-	h5_file * f,
+	h5_file_t * f,
 	const hid_t	group_id,
 	const hsize_t  current_dims,
 	const hsize_t  max_dims,
@@ -36,9 +36,9 @@ _h5t_write_obj (
 
 static h5_err_t
 _write_vertices (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	h5_err_t h5err;
 
 	if ( t->num_vertices <= 0 ) return H5_SUCCESS;  /* ???? */
@@ -72,9 +72,9 @@ _write_vertices (
 
 static h5_err_t
 _write_entities (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	h5_err_t h5err;
 	
 	if ( t->num_entities <= 0 ) return H5_SUCCESS;
@@ -120,9 +120,9 @@ _write_entities (
 
 h5_err_t
 _h5t_write_mesh (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	h5_err_t h5err;
 
 	if ( ! t->mesh_changed ) return 0;
@@ -138,10 +138,10 @@ _h5t_write_mesh (
 
 h5_size_t
 h5t_get_num_meshes (
-	h5_file * f,
+	h5_file_t * f,
 	const enum h5_oid type
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->topo_gid < 0 ) {
 		h5_err_t h5err = _h5t_open_topo_group ( f );
@@ -150,12 +150,12 @@ h5t_get_num_meshes (
 	switch ( type ) {
 	case H5_OID_TETRAHEDRON:
 		return (h5_size_t)h5_get_num_objects (
-			f->t.topo_gid,
+			t->topo_gid,
 			"TetMeshes",
 			H5G_GROUP );
 	case H5_OID_TRIANGLE:
 		return (h5_size_t)h5_get_num_objects (
-			f->t.topo_gid,
+			t->topo_gid,
 			"TriangleMeshes",
 			H5G_GROUP );
 	default:
@@ -167,9 +167,9 @@ h5t_get_num_meshes (
  */
 h5_size_t
 h5t_get_num_levels (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	h5_err_t h5err;
 
 	if ( t->num_levels >= 0 ) return t->num_levels;
@@ -200,9 +200,9 @@ h5t_get_num_levels (
 
 h5_id_t
 h5t_get_level (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	return t->cur_level;
 }
 
@@ -211,12 +211,12 @@ h5t_get_level (
 */
 static h5_err_t
 _read_dataset (
-	h5_file * f,
+	h5_file_t * f,
 	hid_t group_id,
 	const char dataset_name[],
 	hid_t type_id,
-	hid_t (*open_mem_space)(h5_file*,hid_t),
-	hid_t (*open_file_space)(h5_file*,hid_t),
+	hid_t (*open_mem_space)(h5_file_t*,hid_t),
+	hid_t (*open_file_space)(h5_file_t*,hid_t),
 	void * const data ) {
 
 	hid_t dataset_id = H5Dopen ( group_id, dataset_name, H5P_DEFAULT );
@@ -254,7 +254,7 @@ _read_dataset (
 
 static hid_t
 _open_mem_space_vertices (
-	h5_file * f,
+	h5_file_t * f,
 	hid_t dataset_id
 	) {
 	return H5S_ALL;
@@ -262,7 +262,7 @@ _open_mem_space_vertices (
 
 static hid_t
 _open_file_space_vertices (
-	h5_file * f,
+	h5_file_t * f,
 	hid_t dataset_id
 	) {
 	return H5S_ALL;
@@ -270,7 +270,7 @@ _open_file_space_vertices (
 
 static hid_t
 _open_space_all (
-	h5_file * f,
+	h5_file_t * f,
 	hid_t dataset_id
 	) {
 	return H5S_ALL;
@@ -278,10 +278,10 @@ _open_space_all (
 
 static h5_err_t
 _read_num_vertices (
-	h5_file * f
+	h5_file_t * f
 	) {
 	h5_err_t h5err;
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
  	if ( t->mesh_gid < 0 ) {
 		h5err = _h5t_open_mesh_group ( f );
@@ -307,10 +307,10 @@ _read_num_vertices (
 
 h5_err_t
 _h5t_read_vertices (
-	h5_file * f
+	h5_file_t * f
 	) {
 	h5_err_t h5err;
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
  	if ( t->mesh_gid < 0 ) {
 		h5err = _h5t_open_mesh_group ( f );
@@ -350,9 +350,9 @@ _h5t_read_vertices (
 
 h5_size_t
 h5t_get_num_vertices_on_level (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->cur_mesh < 0 ) {
 		return _h5t_error_undef_mesh ( f );
@@ -369,9 +369,9 @@ h5t_get_num_vertices_on_level (
 
 h5_err_t
 h5t_start_traverse_vertices (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	t->last_retrieved_vertex_id = -1;
 	return H5_SUCCESS;
@@ -379,11 +379,11 @@ h5t_start_traverse_vertices (
 
 h5_id_t
 h5t_traverse_vertices (
-	h5_file * f,			/*!< file handle		*/
+	h5_file_t * f,			/*!< file handle		*/
 	h5_id_t * const id,		/*!< OUT: global vertex id	*/
 	h5_float64_t P[3]		/*!< OUT: coordinates		*/
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->vertices == NULL ) {
 		h5_err_t h5err = _h5t_read_vertices ( f );
@@ -393,7 +393,7 @@ h5t_traverse_vertices (
 		h5_debug ( "Traversing done!" );
 		return 0;
 	}
-	h5_vertex *vertex = &t->vertices[++t->last_retrieved_vertex_id];
+	h5_vertex_t *vertex = &t->vertices[++t->last_retrieved_vertex_id];
 	*id = vertex->id;
 	memcpy ( P, &vertex->P, sizeof ( vertex->P ) );
 
@@ -403,12 +403,12 @@ h5t_traverse_vertices (
 
 static h5_err_t
 _read_num_entities (
-	h5_file * f
+	h5_file_t * f
 	) {
 
 
 	h5_err_t h5err;
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
  	if ( t->mesh_gid < 0 ) {
 		h5err = _h5t_open_mesh_group ( f );
@@ -434,11 +434,11 @@ _read_num_entities (
 
 static h5_err_t
 _read_num_entities_on_level (
-	h5_file * f
+	h5_file_t * f
 	) {
 
 	h5_err_t h5err;
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->cur_level < 0 ) 
 		return _h5t_error_undef_level( f );
@@ -467,7 +467,7 @@ _read_num_entities_on_level (
 
 static hid_t
 _open_mem_space_entities (
-	h5_file * f,
+	h5_file_t * f,
 	hid_t dataset_id
 	) {
 	return H5S_ALL;
@@ -475,7 +475,7 @@ _open_mem_space_entities (
 
 static hid_t
 _open_file_space_entities (
-	h5_file * f,
+	h5_file_t * f,
 	hid_t dataset_id
 	) {
 	return H5S_ALL;
@@ -483,10 +483,10 @@ _open_file_space_entities (
 
 h5_err_t
 _h5t_read_entities (
-	h5_file * f
+	h5_file_t * f
 	) {
 	h5_err_t h5err;
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
  	if ( t->mesh_gid < 0 ) {
 		h5err = _h5t_open_mesh_group ( f );
@@ -547,9 +547,9 @@ _h5t_read_entities (
 
 h5_size_t
 h5t_get_num_entities_on_level (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->cur_mesh < 0 ) {
 		return _h5t_error_undef_mesh ( f );
@@ -566,9 +566,9 @@ h5t_get_num_entities_on_level (
 
 h5_size_t
 h5t_get_num_entities (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->cur_mesh < 0 ) {
 		return _h5t_error_undef_mesh ( f );
@@ -582,9 +582,9 @@ h5t_get_num_entities (
 
 h5_err_t
 h5t_start_traverse_tets (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	switch ( t->mesh_type ) {
 	case H5_OID_TRIANGLE: {
@@ -601,13 +601,13 @@ h5t_start_traverse_tets (
 
 h5_id_t
 _traverse_tets (
-	h5_file * f,
+	h5_file_t * f,
 	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
 	h5_id_t * const parent_id,	/*!< OUT: global parent id
 					     if level \c >0 else \c -1	*/
 	h5_id_t ids[4]			/*!< OUT: tuple with vertex id's */
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->entities.data == NULL ) {
 		h5_err_t h5err = _h5t_read_entities ( f );
@@ -617,7 +617,7 @@ _traverse_tets (
 		h5_debug ( "Traversing done!" );
 		return 0;
 	}
-	h5_tetrahedron *tet = &t->entities.tets[++t->last_retrieved_entity_id];
+	h5_tetrahedron_t *tet = &t->entities.tets[++t->last_retrieved_entity_id];
 
 	while ( (tet->refined_on_level != -1) &&
 		(tet->refined_on_level <= t->cur_level) ){
@@ -637,13 +637,13 @@ _traverse_tets (
 
 h5_id_t
 h5t_traverse_tets (
-	h5_file * f,
+	h5_file_t * f,
 	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
 	h5_id_t * const parent_id,	/*!< OUT: global parent id
 					     if level \c >0 else \c -1	*/
 	h5_id_t ids[4]			/*!< OUT: tuple with vertex id's */
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	switch ( t->mesh_type ) {
 	case H5_OID_TRIANGLE: {
@@ -660,9 +660,9 @@ h5t_traverse_tets (
 
 h5_err_t
 h5t_start_traverse_triangles (
-	h5_file * f
+	h5_file_t * f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	switch ( t->mesh_type ) {
 	case H5_OID_TRIANGLE: {
@@ -680,13 +680,13 @@ h5t_start_traverse_triangles (
 
 static h5_id_t
 _traverse_triangles (
-	h5_file * f,
+	h5_file_t * f,
 	h5_id_t * const id,		/*!< OUT: global triangle id	*/
 	h5_id_t * const parent_id,	/*!< OUT: global parent id
 					     if level \c >0 else \c -1	*/
 	h5_id_t ids[3]			/*!< OUT: tuple with vertex id's */
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->entities.data == NULL ) {
 		h5_err_t h5err = _h5t_read_entities ( f );
@@ -696,7 +696,7 @@ _traverse_triangles (
 		h5_debug ( "Traversing done!" );
 		return 0;
 	}
-	h5_triangle *tri = &t->entities.tris[++t->last_retrieved_entity_id];
+	h5_triangle_t *tri = &t->entities.tris[++t->last_retrieved_entity_id];
 
 	while ( (tri->refined_on_level != -1) &&
 		(tri->refined_on_level <= t->cur_level) ){
@@ -716,14 +716,14 @@ _traverse_triangles (
 
 h5_id_t
 h5t_traverse_triangles (
-	h5_file * f,
+	h5_file_t * f,
 	h5_id_t * const id,		/*!< OUT: global triangle id	*/
 	h5_id_t * const parent_id,	/*!< OUT: global parent id
 					     if level \c >0 else \c -1	*/
 	h5_id_t ids[3]			/*!< OUT: tuple with vertex id's */
 	) {
 
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	switch ( t->mesh_type ) {
 	case H5_OID_TRIANGLE: {
@@ -739,9 +739,9 @@ h5t_traverse_triangles (
 
 h5_err_t
 _h5t_read_mesh (
-	h5_file *f
+	h5_file_t *f
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 
 	if ( t->vertices == NULL ) {
 		h5_err_t h5err = _h5t_read_vertices ( f );

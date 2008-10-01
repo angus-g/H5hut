@@ -11,14 +11,14 @@
 
 h5_int64_t
 h5u_has_view (
-	h5_file *f
+	h5_file_t *f
 	) {
 	return  ( f->viewstart >= 0 ) && ( f->viewend >= 0 );
 }
 
 static hid_t
 _get_diskshape_for_reading (
-	h5_file *f,
+	h5_file_t *f,
 	hid_t dataset
 	) {
 
@@ -65,7 +65,7 @@ _get_diskshape_for_reading (
 
 static hid_t
 _get_memshape_for_reading (
-	h5_file *f,
+	h5_file_t *f,
 	hid_t dataset
 	) {
 
@@ -81,12 +81,12 @@ _get_memshape_for_reading (
 	}
 }
 
-h5part_int64_t
+h5_int64_t
 H5U_get_num_elems (
-	h5_file *f			/*!< [in]  Handle to open file */
+	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	h5part_int64_t herr;
+	h5_int64_t herr;
 	hid_t space_id;
 	hid_t dataset_id;
 	char dataset_name[128];
@@ -112,7 +112,7 @@ H5U_get_num_elems (
 		return HANDLE_H5D_OPEN_ERR ( dataset_name );
 
 	space_id = _get_diskshape_for_reading ( f, dataset_id );
-	if ( space_id < 0 ) return (h5part_int64_t)space_id;
+	if ( space_id < 0 ) return (h5_int64_t)space_id;
 
 	if ( h5u_has_view ( f ) ) {
 		nparticles = H5Sget_select_npoints ( space_id );
@@ -130,12 +130,12 @@ H5U_get_num_elems (
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
 
-	return (h5part_int64_t) nparticles;
+	return (h5_int64_t) nparticles;
 }
 
-h5part_int64_t
+h5_int64_t
 H5U_read_elems (
-	h5_file *f,		/*!< [in] Handle to open file */
+	h5_file_t *f,		/*!< [in] Handle to open file */
 	const char *name,	/*!< [in] Name to associate dataset with */
 	void *array,		/*!< [out] Array of data */
 	const hid_t type
@@ -147,17 +147,17 @@ H5U_read_elems (
 	hid_t memspace_id;
 
 	if ( f->step_gid < 0 ) {
-		h5part_int64_t h5err = h5_set_step ( f, f->step_idx );
+		h5_int64_t h5err = h5_set_step ( f, f->step_idx );
 		if ( h5err < 0 ) return h5err;
 	}
 	dataset_id = H5Dopen ( f->step_gid, name, H5P_DEFAULT );
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
 
 	space_id = _get_diskshape_for_reading ( f, dataset_id );
-	if ( space_id < 0 ) return (h5part_int64_t)space_id;
+	if ( space_id < 0 ) return (h5_int64_t)space_id;
 
 	memspace_id = _get_memshape_for_reading ( f, dataset_id );
-	if ( memspace_id < 0 ) return (h5part_int64_t)memspace_id;
+	if ( memspace_id < 0 ) return (h5_int64_t)memspace_id;
 
 	herr = H5Dread (
 		dataset_id,
@@ -185,10 +185,10 @@ H5U_read_elems (
 	return H5_SUCCESS;
 }
 
-h5part_int64_t
+h5_int64_t
 H5U_set_num_elements (
-	h5_file *f,			/*!< [in] Handle to open file */
-	h5part_int64_t nparticles	/*!< [in] Number of particles */
+	h5_file_t *f,			/*!< [in] Handle to open file */
+	h5_int64_t nparticles	/*!< [in] Number of particles */
 	) {
 
 	CHECK_FILEHANDLE( f );
@@ -311,9 +311,9 @@ H5U_set_num_elements (
 	return H5_SUCCESS;
 }
 
-h5part_int64_t
+h5_int64_t
 H5U_write_data (
-	h5_file *f,		/*!< IN: Handle to open file */
+	h5_file_t *f,		/*!< IN: Handle to open file */
 	const char *name,	/*!< IN: Name to associate array with */
 	const void *array,	/*!< IN: Array to commit to disk */
 	const hid_t type	/*!< IN: Type of data */
@@ -334,9 +334,9 @@ H5U_write_data (
 		f->diskshape );
 }
 
-h5part_int64_t
+h5_int64_t
 H5U_reset_view (
-	h5_file *f
+	h5_file_t *f
 	) {	     
 
 	herr_t herr = 0;
@@ -362,13 +362,13 @@ H5U_reset_view (
 	return H5_SUCCESS;
 }
 
-h5part_int64_t
+h5_int64_t
 H5U_set_view (
-	h5_file *f,			/*!< [in]  Handle to open file */
-	h5part_int64_t start,		/*!< [in]  Start particle */
-	h5part_int64_t end		/*!< [in]  End particle */
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	h5_int64_t start,		/*!< [in]  Start particle */
+	h5_int64_t end		/*!< [in]  End particle */
 	) {
-	h5part_int64_t herr = 0;
+	h5_int64_t herr = 0;
 	hsize_t total;
 	hsize_t stride = 1;
 	hsize_t dmax = H5S_UNLIMITED;
@@ -439,15 +439,15 @@ H5U_set_view (
 	return H5_SUCCESS;
 }
 
-h5part_int64_t 
+h5_int64_t 
 H5U_get_view (
-	h5_file *f,
-	h5part_int64_t *start,
-	h5part_int64_t *end
+	h5_file_t *f,
+	h5_int64_t *start,
+	h5_int64_t *end
 	) {
 
-	h5part_int64_t viewstart = 0;
-	h5part_int64_t viewend = 0;
+	h5_int64_t viewstart = 0;
+	h5_int64_t viewend = 0;
 
 	if ( f->viewstart >= 0 )
 		viewstart = f->viewstart;
@@ -467,17 +467,17 @@ H5U_get_view (
 	return viewend - viewstart;
 }
 
-h5part_int64_t
+h5_int64_t
 H5U_set_canonical_view (
-	h5_file *f
+	h5_file_t *f
 	) {
-	h5part_int64_t herr = H5U_reset_view ( f );
+	h5_int64_t herr = H5U_reset_view ( f );
 	if ( herr < 0 ) return HANDLE_H5_SET_VIEW_ERR( herr, -1, -1 );
 
 #ifdef PARALLEL_IO
-	h5part_int64_t start = 0;
-	h5part_int64_t end = 0;
-	h5part_int64_t n = 0;
+	h5_int64_t start = 0;
+	h5_int64_t end = 0;
+	h5_int64_t n = 0;
 	int i = 0;
 	
 	n = H5U_get_num_elems ( f );
@@ -516,18 +516,18 @@ H5U_set_canonical_view (
 /*!
   Get information about dataset in current index given by its index
  */
-h5part_int64_t
+h5_int64_t
 H5U_get_dataset_info (
-	h5_file *f,		/*!< [in]  Handle to open file */
-	const h5part_int64_t idx,/*!< [in]  Index of the dataset */
+	h5_file_t *f,		/*!< [in]  Handle to open file */
+	const h5_int64_t idx,/*!< [in]  Index of the dataset */
 	char *dataset_name,	/*!< [out] Name of dataset */
-	const h5part_int64_t len_dataset_name,
+	const h5_int64_t len_dataset_name,
 				/*!< [in]  Size of buffer \c dataset_name */
-	h5part_int64_t *type,	/*!< [out] Type of data in dataset */
-	h5part_int64_t *nelem	/*!< [out] Number of elements. */
+	h5_int64_t *type,	/*!< [out] Type of data in dataset */
+	h5_int64_t *nelem	/*!< [out] Number of elements. */
 	) {
 
-	h5part_int64_t herr = h5_get_object_name (
+	h5_int64_t herr = h5_get_object_name (
 		f->file,
 		f->step_name,
 		H5G_DATASET,

@@ -11,7 +11,7 @@
 #include "H5Part.h"
 #include "H5Block.h"
 
-h5part_int64_t
+h5_int64_t
 h5_read_attrib (
 	hid_t id,
 	const char *attrib_name,
@@ -54,7 +54,7 @@ h5_read_attrib (
 	return H5_SUCCESS;
 }
 
-h5part_int64_t
+h5_int64_t
 h5_write_attrib (
 	hid_t id,
 	const char *attrib_name,
@@ -91,14 +91,14 @@ h5_write_attrib (
 	return H5_SUCCESS;
 }
 
-h5part_int64_t
+h5_int64_t
 h5_get_attrib_info (
 	hid_t id,
-	const h5part_int64_t attrib_idx,
+	const h5_int64_t attrib_idx,
 	char *attrib_name,
-	const h5part_int64_t len_attrib_name,
-	h5part_int64_t *attrib_type,
-	h5part_int64_t *attrib_nelem
+	const h5_int64_t len_attrib_name,
+	h5_int64_t *attrib_type,
+	h5_int64_t *attrib_nelem
 	) {
 
 	herr_t herr;
@@ -142,9 +142,9 @@ h5_get_attrib_info (
 	return H5_SUCCESS;
 }
 
-h5part_int64_t
+h5_int64_t
 h5_get_num_attribs (
-	h5_file *f,
+	h5_file_t *f,
 	hid_t id
 	) {
 
@@ -153,5 +153,5 @@ h5_get_num_attribs (
 	int nattribs = H5Aget_num_attrs ( id );
 	if ( nattribs < 0 ) HANDLE_H5A_GET_NUM_ATTRS_ERR;
 
-	return (h5part_int64_t) nattribs;
+	return (h5_int64_t) nattribs;
 }

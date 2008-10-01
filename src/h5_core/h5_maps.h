@@ -1,5 +1,5 @@
-#ifndef __MAPS_H
-#define __MAPS_H
+#ifndef __H5_MAPS_H
+#define __H5_MAPS_H
 
 h5_err_t
 _h5_alloc_smap (

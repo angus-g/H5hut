@@ -19,10 +19,10 @@ const char * H5_OID_NAMES[] = {
 
 h5_err_t
 _h5t_handle_get_global_entity_id_err (
-	h5_file *f,
+	h5_file_t *f,
 	const h5_id_t * const global_vids
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON:
 		return _h5t_error_global_tet_id_nexist ( global_vids );
@@ -35,10 +35,10 @@ _h5t_handle_get_global_entity_id_err (
 	
 h5_err_t
 _h5t_handle_get_local_entity_id_err (
-	h5_file *f,
+	h5_file_t *f,
 	const h5_id_t * const local_vids
 	) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON:
 		return _h5t_error_local_tet_id_nexist ( local_vids );
@@ -53,7 +53,7 @@ h5_err_t
 _h5t_error_illegal_object_type (
 	h5_file_t * const f,
 	h5_oid_t oid ) {
-	struct h5t_fdata *t = &f->t;
+	struct h5t_fdata *t = f->t;
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON:
 		return h5_error_internal( __FILE__, __func__, __LINE__ );
