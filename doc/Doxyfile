@@ -82,8 +82,13 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
+INPUT			+= H5.dox
+INPUT			+= ../src/h5_core/h5_attribs.c
+INPUT			+= ../src/h5_core/h5_errorhandling.c
+INPUT			+= ../src/H5.c
 INPUT			+= ../src/H5Part.c
 INPUT			+= ../src/H5Block.c
+INPUT			+= ../src/H5Fed.c
 FILE_PATTERNS          	= 
 RECURSIVE              	= YES
 EXCLUDE                	=

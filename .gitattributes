@@ -9,6 +9,7 @@
 /autogen.sh -text
 /configure.ac -text
 doc/Doxyfile -text
+doc/H5.dox -text
 doc/H5X_File_Format.txt -text
 doc/Makefile.am -text
 doc/doxyfooter -text

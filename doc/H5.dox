@@ -1,0 +1,50 @@
+/*! \mainpage H5Part: A Portable High Performance Parallel Data Interface to HDF5
+
+Particle based simulations of accelerator beam-lines, especially in
+six dimensional phase space, generate vast amounts of data. Even
+though a subset of statistical information regarding phase space or
+analysis needs to be preserved, reading and writing such enormous
+restart files on massively parallel supercomputing systems remains
+challenging. 
+
+H5Part consists of Particles and Block structured Fields.
+
+Developed by:
+
+<UL>
+<LI> Andreas Adelmann (PSI) </LI>
+<LI> Achim Gsell (PSI) </LI>
+<LI> Benedikt Oswald (PSI) </LI>
+
+<LI> Wes Bethel (NERSC/LBNL)</LI>
+<LI> John Shalf (NERSC/LBNL)</LI>
+<LI> Cristina Siegerist (NERSC/LBNL)</LI>
+</UL>
+
+For further information contact: <a href="mailto:h5part@lists.psi.ch">h5part</a>
+
+Last modified on April 19, 2007.
+
+*/
+
+
+/*!
+  \defgroup h5_core  H5 core functions 
+*/
+
+/*!
+  \defgroup h5_c_api H5 C API
+*/
+
+/*!
+  \defgroup h5part_c_api H5Part C API
+*/
+
+/*!
+  \defgroup h5block_c_api H5Block C API
+*/
+
+/*!
+  \defgroup h5fed_c_api H5Fed C API
+*/
+
