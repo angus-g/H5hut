@@ -22,6 +22,7 @@
 #include "H5.h"
 #include "H5Fed_boundaries.h"
 #include "H5Fed_map.h"
+#include "H5Fed_store.h"
 
 /******	General routines *****************************************************/
 
@@ -37,12 +38,6 @@ H5FedOpenMesh (
 	const h5_id_t id,
 	const h5_oid_t type
 	);
-h5_id_t
-H5FedAddMesh (
-	h5_file_t * f,
-	const h5_oid_t type
-	);
-
 h5_size_t
 H5FedGetNumLevels (
 	h5_file_t * f
@@ -59,22 +54,6 @@ H5FedGetLevel (
 	h5_file_t * f
 	);
 
-h5_id_t
-H5FedAddLevel (
-	h5_file_t * f
-	);
-
-h5_err_t
-H5FedAddNumVertices (
-	h5_file_t * f,
-	const h5_size_t num
-	);
-
-h5_err_t
-H5FedAddNumEntities (
-	h5_file_t * f,
-	const h5_size_t num
-	);
 
 /******	INQUIRY routines *****************************************************/
 
@@ -139,13 +118,6 @@ H5FedGetNumTetrahedraCnode (
 
 
 /* vertices */
-h5_id_t
-H5FedStoreVertex (
-	h5_file_t * f,
-	const h5_id_t id,
-	const h5_float64_t P[3]
-	);
-
 h5_err_t
 H5FedStartTraverseVertices (
 	h5_file_t * f
@@ -164,14 +136,6 @@ H5FedGetNumTriangles (
 	h5_file_t * f
 	);
 
-h5_id_t
-H5FedStoreTriangle (
-	h5_file_t * f,
-	const h5_id_t id,
-	const h5_id_t parent_id,
-	h5_id_t vertex_ids[3]
-	);
-
 h5_err_t
 H5FedStartTraverseTriangles (
 	h5_file_t * f
@@ -186,13 +150,6 @@ H5FedTraverseTriangles (
 	);
 
 /* tetrahedra */
-h5_id_t
-H5FedStoreTetrahedron (
-	h5_file_t * f,
-	const h5_id_t id,
-	const h5_id_t parent_id,
-	const h5_id_t vertex_ids[4]
-	);
 
 h5_err_t
 H5FedStartTraverseTetrahedra (

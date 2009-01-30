@@ -1,5 +1,5 @@
 /*
-  Copyright 2007-2008
+  Copyright 2007-2009
  	Paul Scherrer Institut, Villigen, Switzerland;
  	Benedikt Oswald;
  	Achim Gsell
@@ -25,17 +25,8 @@ H5FedOpenMesh (
 	const h5_id_t id,
 	const h5_oid_t type
 	) {
-	SET_FNAME ( __func__ );
+	SET_FNAME ( f, __func__ );
 	return h5t_open_mesh ( f, id, type );
-}
-
-h5_id_t
-H5FedAddMesh (
-	h5_file_t * f,
-	const h5_oid_t type
-	) {
-	SET_FNAME ( __func__ );
-	return h5t_open_mesh ( f, -1, type );
 }
 
 h5_err_t
@@ -43,6 +34,6 @@ H5FedSetLevel (
 	h5_file_t * f,
 	const h5_id_t id
 	) {
-	SET_FNAME ( __func__ );
+	SET_FNAME ( f, __func__ );
 	return h5t_open_level ( f, id );
 }

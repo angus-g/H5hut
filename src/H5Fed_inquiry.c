@@ -27,7 +27,7 @@ H5FedGetNumMeshes (
 	h5_file_t * f,			/*!< file handle		*/
 	const h5_oid_t type
 	) {
-	SET_FNAME ( __func__ );
+	SET_FNAME ( f, __func__ );
 	return h5t_get_num_meshes ( f, type );
 }
 
@@ -41,26 +41,30 @@ H5FedGetNumMeshes (
  */
 h5_size_t
 H5FedGetNumLevels (
-	h5_file_t * fh			/*!< file handle		*/
+	h5_file_t * const f		/*!< file handle		*/
 	) {
-	SET_FNAME ( __func__ );
-	return h5t_get_num_levels ( fh );
+	SET_FNAME ( f, __func__ );
+	return h5t_get_num_levels ( f );
 }
 
 h5_id_t
 H5FedGetLevel (
-	h5_file_t * fh			/*!< file handle		*/
+	h5_file_t * const f		/*!< file handle		*/
 	) {
-	SET_FNAME ( __func__ );
-	return h5t_get_level ( fh );
+	SET_FNAME ( f, __func__ );
+	return h5t_get_level ( f );
 }
 
+/*!
+  Get number of local vertices on current level.
+*/
 h5_size_t
 H5FedGetNumVertices (
-	h5_file_t * fh			/*!< file handle		*/
+	h5_file_t * const f		/*!< file handle		*/
 	) {
-	SET_FNAME ( __func__ );
-	return h5t_get_num_vertices_on_level ( fh );
+	SET_FNAME ( f, __func__ );
+	h5_id_t cur_level = h5t_get_level( f );
+	return h5t_get_num_vertices ( f, f->myproc, cur_level );
 }
 
 /*!
@@ -74,10 +78,11 @@ H5FedGetNumVertices (
 */
 h5_size_t
 H5FedGetNumVerticesTotal(
-	h5_file_t * fh			/*!< file handle		*/
+	h5_file_t * const f			/*!< file handle		*/
 	) {
-	SET_FNAME ( __func__ );
-	return h5t_get_num_vertices_on_level ( fh );
+	SET_FNAME ( f, __func__ );
+	h5_id_t cur_level = h5t_get_level( f );
+	return h5t_get_num_vertices ( f, -1, cur_level );
 }
 
 /*!
@@ -90,19 +95,23 @@ H5FedGetNumVerticesTotal(
 q  \return \c -1	on error.
 */
 h5_size_t H5FedGetNumVerticesCnode (
-	h5_file_t * fh,			/*!< file handle		*/
+	h5_file_t * const f,		/*!< file handle		*/
 	const h5_id_t cnode		/*!< compute node		*/
 	) {
-	return -1;
+	SET_FNAME ( f, __func__ );
+	h5_id_t cur_level = h5t_get_level( f );
+	return h5t_get_num_vertices ( f, cnode, cur_level );
 }
 
 /******	TRIANGLE statistics routines *****************************************/
 
 h5_size_t
 H5FedGetNumTriangles (
-	h5_file_t * fh			/*!< file handle		*/
+	h5_file_t * const f		/*!< file handle		*/
 	) {
-	return h5t_get_num_entities_on_level ( fh );
+	SET_FNAME ( f, __func__ );
+	h5_id_t cur_level = h5t_get_level( f );
+	return h5t_get_num_entities ( f, f->myproc, cur_level );
 }
 
 /*!
@@ -116,9 +125,11 @@ H5FedGetNumTriangles (
 */
 h5_size_t
 H5FedGetNumTrianglesTotal (
-	h5_file_t * fh			/*!< file handle		*/
+	h5_file_t * const f		/*!< file handle		*/
 	) {
-	return h5t_get_num_entities_on_level ( fh );
+	SET_FNAME ( f, __func__ );
+	h5_id_t cur_level = h5t_get_level( f );
+	return h5t_get_num_entities ( f, -1, cur_level );
 }
 
 
@@ -133,10 +144,12 @@ H5FedGetNumTrianglesTotal (
 */
 h5_size_t
 H5FedGetNumTrianglesCnode (
-	h5_file_t * fh,			/*!< file handle		*/
+	h5_file_t * const f,		/*!< file handle		*/
 	const h5_id_t cnode		/*!< compute node to query	*/
 	) {
-	return -1;
+	SET_FNAME ( f, __func__ );
+	h5_id_t cur_level = h5t_get_level( f );
+	return h5t_get_num_entities ( f, cnode, cur_level );
 }
 
 /******	TETRAHEDRON statistics routines **************************************/
@@ -145,17 +158,27 @@ H5FedGetNumTrianglesCnode (
   \ingroup h5fed_mesh_inquiry
 
   Returns the number of tetrahedral elements present in the mesh at 
-  level \c level in current step summed up over all compute nodes.
+  current \c level summed up over all compute nodes.
 
   \return number of tetrahedra
   \return \c -1 on error.
 */
 h5_size_t
-H5FedGetNumTetrahedraTotal(
-	h5_file_t * fh			/*!< file handle		*/
+H5FedGetNumTetrahedra (
+	h5_file_t * const f		/*!< file handle		*/
 	) {
-	SET_FNAME ( __func__ );
-	return h5t_get_num_entities_on_level ( fh );
+	SET_FNAME ( f, __func__ );
+	h5_id_t cur_level = h5t_get_level( f );
+	return h5t_get_num_entities ( f, f->myproc, cur_level );
+}
+
+h5_size_t
+H5FedGetNumTetrahedraTotal (
+	h5_file_t * const f		/*!< file handle		*/
+	) {
+	SET_FNAME ( f, __func__ );
+	h5_id_t cur_level = h5t_get_level( f );
+	return h5t_get_num_entities ( f, -1, cur_level );
 }
 
 /*!
@@ -168,10 +191,12 @@ H5FedGetNumTetrahedraTotal(
   \return \c -1 on error.
 */
 h5_size_t H5FedGetNumTetrahedraCnode (
-	h5_file_t * fh,			/*!< file handle		*/
-	const h5_id_t level		/*!< mesh level to query	*/
+	h5_file_t * const f,		/*!< file handle		*/
+	const h5_id_t cnode		/*!< compute node to query	*/
 	) {
-	return -1;
+	SET_FNAME ( f, __func__ );
+	h5_id_t cur_level = h5t_get_level( f );
+	return h5t_get_num_entities ( f, cnode, cur_level );
 }
 
 

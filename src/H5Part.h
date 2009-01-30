@@ -279,31 +279,29 @@ H5PartSetVerbosityLevel (
 
 h5_int64_t
 H5PartSetErrorHandler (
-	const h5_error_handler handler
+	const h5_errorhandler_t handler
 	);
 
 h5_int64_t
 H5PartGetErrno (
-	void
+	h5_file_t *f
 	);
 
-h5_error_handler
+h5_errorhandler_t
 H5PartGetErrorHandler (
 	void
 	);
 
 h5_int64_t
 H5PartReportErrorHandler (
-	const char *funcname,
-	const h5_int64_t eno,
+	h5_file_t *f,
 	const char *fmt,
 	...
 	);
 
 h5_int64_t
 H5PartAbortErrorHandler (
-	const char *funcname,
-	const h5_int64_t eno,
+	h5_file_t *f,
 	const char *fmt,
 	...
 	);

@@ -1,78 +1,3 @@
-/*! \mainpage H5Part: A Portable High Performance Parallel Data Interface to HDF5
-
-Particle based simulations of accelerator beam-lines, especially in
-six dimensional phase space, generate vast amounts of data. Even
-though a subset of statistical information regarding phase space or
-analysis needs to be preserved, reading and writing such enormous
-restart files on massively parallel supercomputing systems remains
-challenging. 
-
-H5Part consists of Particles and Block structured Fields.
-
-Developed by:
-
-<UL>
-<LI> Andreas Adelmann (PSI) </LI>
-<LI> Achim Gsell (PSI) </LI>
-<LI> Benedikt Oswald (PSI) </LI>
-
-<LI> Wes Bethel (NERSC/LBNL)</LI>
-<LI> John Shalf (NERSC/LBNL)</LI>
-<LI> Cristina Siegerist (NERSC/LBNL)</LI>
-</UL>
-
-
-Papers: 
-
-<UL>
-<LI> A. Adelmann, R.D. Ryne, C. Siegerist, J. Shalf,"From Visualization to Data Mining with Large Data Sets," <i>
-<a href="http://www.sns.gov/pac05">Particle Accelerator Conference (PAC05)</a></i>, Knoxville TN., May 16-20, 2005. (LBNL-57603)
-<a href="http://vis.lbl.gov/Publications/2005/FPAT082.pdf">FPAT082.pdf</a>
-</LI>
-
-
-<LI> A. Adelmann, R.D. Ryne, J. Shalf, C. Siegerist,"H5Part: A Portable High Performance Parallel Data Interface for Particle Simulations," <i>
-<a href="http://www.sns.gov/pac05">Particle Accelerator Conference (PAC05)</a></i>, Knoxville TN., May 16-20, 2005.
-<a href="http://vis.lbl.gov/Publications/2005/FPAT083.pdf">FPAT083.pdf</a>
-</LI>
-</UL>
-
-For further information contact: <a href="mailto:h5part@lists.psi.ch">h5part</a>
-
-Last modified on April 19, 2007.
-
-*/
-
-
-/*!
-  \defgroup h5part_c_api H5Part C API
-
-*/
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_openclose	File Opening and Closing
-*/
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_write	File Writing
-*/  
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_read		File Reading
-*/  
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_attrib	Reading and Writing Attributes
-*/
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_errhandle	Error Handling
-*/
-/*!
-  \internal
-  \defgroup h5partkernel H5Part private functions 
-*/
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -102,9 +27,13 @@ Last modified on April 19, 2007.
 
 /*========== File Opening/Closing ===============*/
 
+/*!
+  \ingroup h5part_c_api
+  \defgroup h5part_c_api_openclose	File Opening and Closing
+*/
 
 /*!
-  \ingroup h5part_openclose
+  \ingroup h5part_c_api_openclose
 
   Opens file with specified filename. 
 
@@ -129,11 +58,11 @@ H5PartOpenFileParallel (
 	unsigned flags,		/*!< [in] The access mode for the file. */
 	MPI_Comm comm		/*!< [in] MPI communicator */
 ) {
-	return h5_open_file ( filename, flags, comm );
+	return h5_open_file ( filename, flags, comm, __func__ );
 }
 
 /*!
-  \ingroup  h5part_openclose
+  \ingroup  h5part_c_api_openclose
 
   Opens file with specified filename. 
 
@@ -159,15 +88,13 @@ H5PartOpenFile (
 	unsigned flags		/*!< [in] The access mode for the file. */
 	) {
 
-	SET_FNAME ( "H5PartOpenFile" );
-
 	MPI_Comm comm = 0;	/* dummy */
 
-	return h5_open_file ( filename, flags, comm );
+	return h5_open_file ( filename, flags, comm, __func__ );
 }
 
 /*!
-  \ingroup h5part_openclose
+  \ingroup h5part_c_api_openclose
 
   Closes an open file.
 
@@ -178,12 +105,17 @@ H5PartCloseFile (
 	h5_file_t *f		/*!< [in] filehandle of the file to close */
 	) {
 
-	SET_FNAME ( "H5PartCloseFile" );
+	SET_FNAME ( f, __func__ );
 
 	return h5_close_file( f );
 }
 
 /*============== File Writing Functions ==================== */
+
+/*!
+  \ingroup h5part_c_api
+  \defgroup h5part_c_api_write	File Writing
+*/  
 
 h5_int64_t
 H5PartDefineStepName (
@@ -191,13 +123,13 @@ H5PartDefineStepName (
 	const char *name,
 	const h5_int64_t width
 	) {
-	SET_FNAME ( "H5PartDefineStepName" );
+	SET_FNAME ( f, __func__ );
 
 	return h5_define_stepname_fmt( f, name, width );
 }
 
 /*!
-  \ingroup h5part_write
+  \ingroup h5part_c_api_write
 
   Set number of particles for current time-step.
 
@@ -216,13 +148,13 @@ H5PartSetNumParticles (
 	h5_int64_t nparticles	/*!< [in] Number of particles */
 	) {
 
-	SET_FNAME ( "H5PartSetNumParticles" );
+	SET_FNAME ( f, __func__ );
 
-	return H5U_set_num_elements( f, nparticles );
+	return h5u_set_num_elements( f, nparticles );
 }
 
 /*!
-  \ingroup h5part_write
+  \ingroup h5part_c_api_write
 
   Write array of 64 bit floating point data to file.
 
@@ -254,13 +186,13 @@ H5PartWriteDataFloat64 (
 	const h5_float64_t *array	/*!< [in] Array to commit to disk */
 	) {
 
-	SET_FNAME ( "H5PartWriteDataFloat64" );
+	SET_FNAME ( f, __func__ );
 
-	return H5U_write_data ( f, name, (void*)array, H5T_NATIVE_DOUBLE );
+	return h5u_write_data ( f, name, (void*)array, H5T_NATIVE_DOUBLE );
 }
 
 /*!
-  \ingroup h5part_write
+  \ingroup h5part_c_api_write
 
   Write array of 64 bit integer data to file.
 
@@ -292,9 +224,9 @@ H5PartWriteDataInt64 (
 	const h5_int64_t *array	/*!< [in] Array to commit to disk */
 	) {
 
-	SET_FNAME ( "H5PartOpenWriteDataInt64" );
+	SET_FNAME ( f, __func__ );
 
-	return H5U_write_data ( f, name, (void*)array, H5T_NATIVE_INT64 );
+	return h5u_write_data ( f, name, (void*)array, H5T_NATIVE_INT64 );
 }
 
 /********************** reading and writing attribute ************************/
@@ -305,7 +237,12 @@ H5PartWriteDataInt64 (
 /********************** attribute API ****************************************/
 
 /*!
-  \ingroup h5part_attrib
+  \ingroup h5part_c_api
+  \defgroup h5part_c_api_attrib	Reading and Writing Attributes
+*/
+
+/*!
+  \ingroup h5part_c_api_attrib
 
   Writes a string attribute bound to a file.
 
@@ -325,12 +262,13 @@ H5PartWriteFileAttribString (
 	const char *attrib_value/*!< [in] Value of attribute */ 
 	) {
 
-	SET_FNAME ( __func__ );
+	SET_FNAME ( f, __func__ );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno( f );
 
 	return h5_write_attrib (
+		f,
 		f->root_gid,
 		attrib_name,
 		H5T_NATIVE_CHAR,
@@ -339,7 +277,7 @@ H5PartWriteFileAttribString (
 }
 
 /*!
-  \ingroup h5part_attrib
+  \ingroup h5part_c_api_attrib
 
   Writes a string attribute bound to the current time-step.
 
@@ -360,12 +298,13 @@ H5PartWriteStepAttribString (
 	const char *attrib_value/*!< [in] Value of attribute */ 
 	) {
 
-	SET_FNAME ( "H5PartWriteStepAttribString" );
+	SET_FNAME ( f, __func__ );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno( f );
 
 	return h5_write_attrib (
+		f, 
 		f->step_gid,
 		attrib_name,
 		H5T_NATIVE_CHAR,
@@ -374,7 +313,7 @@ H5PartWriteStepAttribString (
 }
 
 /*!
-  \ingroup h5part_attrib
+  \ingroup h5part_c_api_attrib
 
   Writes a attribute bound to the current time-step.
 
@@ -401,12 +340,13 @@ H5PartWriteStepAttrib (
 	const h5_int64_t attrib_nelem/*!< [in] Number of elements */
 	){
 
-	SET_FNAME ( "H5PartWriteStepAttrib" );
+	SET_FNAME ( f, __func__ );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno( f );
 
 	return h5_write_attrib (
+		f,
 		f->step_gid,
 		attrib_name,
 		(const hid_t)attrib_type,
@@ -415,7 +355,7 @@ H5PartWriteStepAttrib (
 }
 
 /*!
-  \ingroup h5part_attrib
+  \ingroup h5part_c_api_attrib
 
   Writes a attribute bound to a file.
 
@@ -442,12 +382,13 @@ H5PartWriteFileAttrib (
 	const h5_int64_t attrib_nelem/*!< [in] Number of elements */
 	) {
 
-	SET_FNAME ( "H5PartWriteFileAttrib" );
+	SET_FNAME ( f, __func__ );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno( f );
 
 	return h5_write_attrib (
+		f,
 		f->root_gid,
 		attrib_name,
 		(const hid_t)attrib_type,
@@ -456,7 +397,7 @@ H5PartWriteFileAttrib (
 }
 
 /*!
-  \ingroup h5part_attrib
+  \ingroup h5part_c_api_attrib
 
   Gets the number of attributes bound to the current step.
 
@@ -467,16 +408,16 @@ H5PartGetNumStepAttribs (
 	h5_file_t *f			/*!< [in] Handle to open file */
 	) {
 
-	SET_FNAME ( "H5PartGetNumStepAttribs" );
+	SET_FNAME ( f, __func__ );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno( f );
 
 	return h5_get_num_attribs ( f, f->step_gid );
 }
 
 /*!
-  \ingroup h5part_attrib
+  \ingroup h5part_c_api_attrib
 
   Gets the number of attributes bound to the file.
 
@@ -487,16 +428,16 @@ H5PartGetNumFileAttribs (
 	h5_file_t *f			/*!< [in] Handle to open file */
 	) {
 
-	SET_FNAME ( "H5PartGetNumFileAttribs" );
+	SET_FNAME ( f, __func__ );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno( f );
 
 	return h5_get_num_attribs ( f, f->root_gid );
 }
 
 /*!
-  \ingroup h5part_attrib
+  \ingroup h5part_c_api_attrib
 
   Gets the name, type and number of elements of the step attribute
   specified by its index.
@@ -521,12 +462,13 @@ H5PartGetStepAttribInfo (
 	h5_int64_t *attrib_nelem	/*!< [out] Number of elements */
 	) {
 	
-	SET_FNAME ( "H5PartGetStepAttribInfo" );
+	SET_FNAME ( f, __func__ );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno( f );
 
 	return h5_get_attrib_info (
+		f,
 		f->step_gid,
 		attrib_idx,
 		attrib_name,
@@ -536,7 +478,7 @@ H5PartGetStepAttribInfo (
 }
 
 /*!
-  \ingroup h5part_attrib
+  \ingroup h5part_c_api_attrib
 
   Gets the name, type and number of elements of the file attribute
   specified by its index.
@@ -561,12 +503,13 @@ H5PartGetFileAttribInfo (
 	h5_int64_t *attrib_nelem	/*!< [out] Number of elements */
 	) {
 
-	SET_FNAME ( "H5PartGetFileAttribInfo" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
 	return h5_get_attrib_info (
+		f,
 		f->root_gid,
 		attrib_idx,
 		attrib_name,
@@ -576,7 +519,7 @@ H5PartGetFileAttribInfo (
 }
 
 /*!
-  \ingroup h5part_attrib
+  \ingroup h5part_c_api_attrib
 
   Reads an attribute bound to current time-step.
 
@@ -589,16 +532,16 @@ H5PartReadStepAttrib (
 	void *attrib_value		/*!< [out] Value of attribute */
 	) {
 
-	SET_FNAME ( "H5PartReadStepAttrib" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
-	return h5_read_attrib ( f->step_gid, attrib_name, attrib_value );
+	return h5_read_attrib ( f, f->step_gid, attrib_name, attrib_value );
 }
 
 /*!
-  \ingroup h5part_attrib
+  \ingroup h5part_c_api_attrib
 
   Reads an attribute bound to file \c f.
 
@@ -611,16 +554,22 @@ H5PartReadFileAttrib (
 	void *attrib_value
 	) {
 
-	SET_FNAME ( "H5PartReadFileAttrib" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
-	return h5_read_attrib ( f->root_gid, attrib_name, attrib_value );
+	return h5_read_attrib ( f, f->root_gid, attrib_name, attrib_value );
 }
 
 
 /*================== File Reading Routines =================*/
+
+/*!
+  \ingroup h5part_c_api
+  \defgroup h5part_c_api_read		File Reading
+*/  
+
 /*
   H5PartSetStep:
 
@@ -633,7 +582,7 @@ H5PartReadFileAttrib (
 */
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   Set the current time-step.
 
@@ -654,10 +603,10 @@ H5PartSetStep (
 	const h5_int64_t step	/*!< [in]  Time-step to set. */
 	) {
 
-	SET_FNAME ( "H5PartSetStep" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
 	return h5_set_step ( f, step );
 }
@@ -666,7 +615,7 @@ H5PartSetStep (
 
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   Query whether a particular step already exists in the file
   \c f.
@@ -681,16 +630,16 @@ H5PartHasStep (
 	h5_int64_t step	/*!< [in]  Step number to query */
 	) {
   
-	SET_FNAME ( "H5PartHasStep" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
 	return h5_has_step( f, step );
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   Get the number of time-steps that are currently stored in the file
   \c f.
@@ -705,12 +654,12 @@ H5PartGetNumSteps (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME ( "H5PartGetNumSteps" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
-	return h5_get_num_objects_matching_pattern (
+	return hdf5_get_num_objects_matching_pattern (
 		f->file,
 		"/",
 		H5G_UNKNOWN,
@@ -718,7 +667,7 @@ H5PartGetNumSteps (
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   Get the number of datasets that are stored at the current time-step.
 
@@ -730,16 +679,16 @@ H5PartGetNumDatasets (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME ( "H5PartGetNumDatasets" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
-	return h5_get_num_objects ( f->file, f->step_name, H5G_DATASET );
+	return hdf5_get_num_objects ( f->file, f->step_name, H5G_DATASET );
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   This reads the name of a dataset specified by it's index in the current
   time-step.
@@ -756,12 +705,12 @@ H5PartGetDatasetName (
 	const h5_int64_t len_of_name/*!< [in]  Size of buffer \c name */
 	) {
 
-	SET_FNAME ( "H5PartGetDatasetName" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
-	return h5_get_object_name (
+	return hdf5_get_object_name (
 		f->file,
 		f->step_name,
 		H5G_DATASET,
@@ -771,7 +720,7 @@ H5PartGetDatasetName (
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   Gets the name, type and number of elements of a dataset specified by it's
   index in the current time-step.
@@ -791,17 +740,17 @@ H5PartGetDatasetInfo (
 	h5_int64_t *nelem	/*!< [out] Number of elements. */
 	) {
 
-	SET_FNAME ( "H5PartGetDatasetInfo" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
-	return H5U_get_dataset_info ( f, idx,
-			      dataset_name, len_dataset_name, type, nelem );
+	return h5u_get_dataset_info (
+		f, idx, dataset_name, len_dataset_name, type, nelem );
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   This gets the number of particles stored in the current step. 
   It will arbitrarily select a time-step if you haven't already set
@@ -815,44 +764,44 @@ H5PartGetNumParticles (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME ( "H5PartGetNumParticles" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
 	if ( f->step_gid < 0 ) {
 		h5_int64_t herr = h5_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
 
-	return H5U_get_num_elems ( f );
+	return h5u_get_num_elems ( f );
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 */
 h5_int64_t
 H5PartResetView (
  	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
-	SET_FNAME ( "H5PartResetView" );
+	SET_FNAME ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno();
+		return h5_get_errno ( f );
 
 	CHECK_READONLY_MODE ( f );
 
-	return H5U_reset_view ( f );
+	return h5u_reset_view ( f );
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 */
 h5_int64_t
 H5PartHasView (
  	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
-	SET_FNAME ( __func__ );
+	SET_FNAME ( f, __func__ );
 
 	CHECK_FILEHANDLE( f );
 	CHECK_READONLY_MODE ( f );
@@ -862,7 +811,7 @@ H5PartHasView (
 
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   For parallel I/O or for subsetting operations on the datafile, the
   \c H5PartSetView() function allows you to define a subset of the total
@@ -887,7 +836,7 @@ H5PartSetView (
 	const h5_int64_t end	/*!< [in]  End particle */
 	) {
 
-	SET_FNAME ( "H5PartSetView" );
+	SET_FNAME ( f, __func__ );
 
 	CHECK_FILEHANDLE( f );
 	CHECK_READONLY_MODE ( f );
@@ -897,11 +846,11 @@ H5PartSetView (
 		if ( herr < 0 ) return herr;
 	}
 
-	return H5U_set_view ( f, start, end );
+	return h5u_set_view ( f, start, end );
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
    Allows you to query the current view. Start and End
    will be \c -1 if there is no current view established.
@@ -917,7 +866,7 @@ H5PartGetView (
 	h5_int64_t *end		/*!< [out]  End particle */
 	) {
 
-	SET_FNAME ( "H5PartGetView" );
+	SET_FNAME ( f, __func__ );
 
 	CHECK_FILEHANDLE( f );
 
@@ -925,11 +874,11 @@ H5PartGetView (
 		h5_int64_t herr = h5_set_step ( f, 0 );
 		if ( herr < 0 ) return herr;
 	}
-	return H5U_get_view( f, start, end );
+	return h5u_get_view( f, start, end );
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   If it is too tedious to manually set the start and end coordinates
   for a view, the \c H5SetCanonicalView() will automatically select an
@@ -950,7 +899,7 @@ H5PartSetCanonicalView (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME ( "H5PartSetCanonicalView" );
+	SET_FNAME ( f, __func__ );
 
 	h5_int64_t herr;
 
@@ -962,11 +911,11 @@ H5PartSetCanonicalView (
 		if ( herr < 0 ) return herr;
 	}
 
-	return H5U_set_canonical_view ( f );
+	return h5u_set_canonical_view ( f );
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   Read array of 64 bit floating point data from file.
 
@@ -984,15 +933,15 @@ H5PartReadDataFloat64 (
 	h5_float64_t *array	/*!< [out] Array of data */
 	) {
 
-	SET_FNAME ( "H5PartReadDataFloat64" );
+	SET_FNAME ( f, __func__ );
 
 	CHECK_FILEHANDLE( f );
 
-	return H5U_read_elems ( f, name, array, H5T_NATIVE_DOUBLE );
+	return h5u_read_elems ( f, name, array, H5T_NATIVE_DOUBLE );
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   Read array of 64 bit floating point data from file.
 
@@ -1010,15 +959,15 @@ H5PartReadDataInt64 (
 	h5_int64_t *array	/*!< [out] Array of data */
 	) {
 
-	SET_FNAME ( "H5PartReadDataInt64" );
+	SET_FNAME ( f, __func__ );
 
 	CHECK_FILEHANDLE( f );
 
-	return H5U_read_elems ( f, name, array, H5T_NATIVE_INT64 );
+	return h5u_read_elems ( f, name, array, H5T_NATIVE_INT64 );
 }
 
 /*!
-  \ingroup h5part_read
+  \ingroup h5part_c_api_read
 
   This is the mongo read function that pulls in all of the data for a
   given step in one shot. It also takes the step as an argument
@@ -1044,7 +993,7 @@ H5PartReadParticleStep (
 	h5_int64_t *id	/*!< [out] Buffer for dataset named "id" */
 	) {
 
-	SET_FNAME ( "H5PartReadParticleStep" );
+	SET_FNAME ( f, __func__ );
 	h5_int64_t herr;
 
 	CHECK_FILEHANDLE( f );
@@ -1052,25 +1001,25 @@ H5PartReadParticleStep (
 	herr = h5_set_step ( f, step );
 	if ( herr < 0 ) return herr;
 
-	herr = H5U_read_elems ( f, "x", (void*)x, H5T_NATIVE_DOUBLE );
+	herr = h5u_read_elems ( f, "x", (void*)x, H5T_NATIVE_DOUBLE );
 	if ( herr < 0 ) return herr;
 
-	herr = H5U_read_elems ( f, "y", (void*)y, H5T_NATIVE_DOUBLE );
+	herr = h5u_read_elems ( f, "y", (void*)y, H5T_NATIVE_DOUBLE );
 	if ( herr < 0 ) return herr;
 
-	herr = H5U_read_elems ( f, "z", (void*)z, H5T_NATIVE_DOUBLE );
+	herr = h5u_read_elems ( f, "z", (void*)z, H5T_NATIVE_DOUBLE );
 	if ( herr < 0 ) return herr;
 
-	herr = H5U_read_elems ( f, "px", (void*)px, H5T_NATIVE_DOUBLE );
+	herr = h5u_read_elems ( f, "px", (void*)px, H5T_NATIVE_DOUBLE );
 	if ( herr < 0 ) return herr;
 
-	herr = H5U_read_elems ( f, "py", (void*)py, H5T_NATIVE_DOUBLE );
+	herr = h5u_read_elems ( f, "py", (void*)py, H5T_NATIVE_DOUBLE );
 	if ( herr < 0 ) return herr;
 
-	herr = H5U_read_elems ( f, "pz", (void*)pz, H5T_NATIVE_DOUBLE );
+	herr = h5u_read_elems ( f, "pz", (void*)pz, H5T_NATIVE_DOUBLE );
 	if ( herr < 0 ) return herr;
 
-	herr = H5U_read_elems ( f, "id", (void*)id, H5T_NATIVE_INT64 );
+	herr = h5u_read_elems ( f, "id", (void*)id, H5T_NATIVE_INT64 );
 	if ( herr < 0 ) return herr;
 
 	return H5_SUCCESS;
@@ -1079,7 +1028,12 @@ H5PartReadParticleStep (
 /****************** error handling ******************/
 
 /*!
-  \ingroup h5part_errhandle
+  \ingroup h5part_c_api
+  \defgroup h5part_c_api_errhandling	Error Handling
+*/
+
+/*!
+  \ingroup h5part_c_api_errhandling
 
   Set verbosity level to \c level.
 
@@ -1094,7 +1048,7 @@ H5PartSetVerbosityLevel (
 }
 
 /*!
-  \ingroup h5part_errhandle
+  \ingroup h5part_c_api_errhandling
 
   Set error handler to \c handler.
 
@@ -1102,20 +1056,20 @@ H5PartSetVerbosityLevel (
 */
 h5_int64_t
 H5PartSetErrorHandler (
-	h5_error_handler handler
+	h5_errorhandler_t handler
 	) {
   
 	return h5_set_errorhandler( handler );
 }
 
 /*!
-  \ingroup h5part_errhandle
+  \ingroup h5part_c_api_errhandling
 
   Get current error handler.
 
   \return Pointer to error handler.
 */
-h5_error_handler
+h5_errorhandler_t
 H5PartGetErrorHandler (
 	void
 	) {
@@ -1123,7 +1077,7 @@ H5PartGetErrorHandler (
 }
 
 /*!
-  \ingroup h5part_errhandle
+  \ingroup h5part_c_api_errhandling
 
   Get last error code.
 
@@ -1131,9 +1085,9 @@ H5PartGetErrorHandler (
 */
 h5_int64_t
 H5PartGetErrno (
-	void
+	h5_file_t * const f
 	) {
-	return h5_get_errno();
+	return h5_get_errno( f );
 }
 /*! @} */
 

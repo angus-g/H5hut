@@ -32,11 +32,8 @@
 
 
 /*!
-  \defgroup h5_c_api H5Fed C API
-*/
-/*!
   \ingroup h5_c_api
-  \defgroup h5_general
+  \defgroup h5_c_api_general
 */
 
 
@@ -48,7 +45,7 @@
 /******	General routines *****************************************************/
 
 /*!
-  \ingroup h5_general
+  \ingroup h5_c_api_general
   
   Open file with name \c filename. This function is available in the paralell
   and serial version. In the serial case \c comm may have any value.
@@ -62,52 +59,51 @@
 h5_file_t *
 H5OpenFile (
 	const char * filename,		/*!< file name			*/
+	const h5_int32_t oflag,		/*!< file open flags		*/
 	const MPI_Comm comm		/*!< MPI communicator		*/
 	) {
-	SET_FNAME ( __func__ );
-	return h5_open_file( filename, H5_O_RDWR, comm ); 
+	
+	return h5_open_file( filename, H5_O_RDWR, comm, __func__ ); 
 }
 
 /*!
-  \ingroup h5_general
+  \ingroup h5_c_api_general
 
   Close file.
 
-  \return value \c >=0 on success
-  \return -1 on error
+  \return \c H5_SUCCESS or error code
 */
 h5_err_t
 H5CloseFile (
-	h5_file_t * fh			/*!< file handle		*/
+	h5_file_t * const f		/*!< file handle		*/
 	) {
-	SET_FNAME ( __func__ );
-	return h5_close_file ( fh );
+	SET_FNAME ( f, __func__ );
+	return h5_close_file ( f );
 }
 
 /*!
-  \ingroup h5_general
+  \ingroup h5_c_api_general
 
   Define format of the step names.
 
   Example: ==H5FedDefineStepNameFormat( f, "Step", 6 )== defines step names 
   like ==Step#000042==.
 
-  \return value \c >=0 on success
-  \return -1 on error
+  \return \c H5_SUCCESS or error code
 */
 h5_err_t
 H5DefineStepNameFormat (
 	h5_file_t *f,			/*!< Handle to file		*/
 	const char *name,		/*!< Prefix			*/
-	const h5_int64_t width	/*!< Width of the number	*/
+	const h5_int64_t width		/*!< Width of the number	*/
 	) {
-	SET_FNAME ( "H5PartDefineStepNameFormat" );
+	SET_FNAME ( f, __func__ );
 
 	return h5_define_stepname_fmt( f, name, width );
 }
 
 /*!
-  \ingroup h5_general
+  \ingroup h5_c_api_general
 
   Get format of the step names.
 
@@ -121,13 +117,13 @@ H5GetStepNameFormat (
 	const h5_size_t l_name,		/*!< length of buffer name	*/
 	h5_size_t *width		/*!< OUT: Width of the number	*/
 	) {
-	SET_FNAME ( "H5PartDefineStepNameFormat" );
+	SET_FNAME ( f, __func__ );
 
 	return h5_get_stepname_fmt( f, name, l_name, width );
 }
 
 /*!
-  \ingroup h5_general
+  \ingroup h5_c_api_general
 
   Set the current step.
 
@@ -139,28 +135,28 @@ H5SetStep (
 	const h5_int64_t step		/*!< [in]  Step to set. */
 	) {
 
-	SET_FNAME ( __func__ );
+	SET_FNAME ( f, __func__ );
 	return h5_set_step ( f, step );
 }
 
 /*!
-  \ingroup h5_general
+  \ingroup h5_c_api_general
 
   Get current step.
 
   \return \c H5_SUCCESS or error code 
 */
-h5_int64_t
+h5_id_t
 H5GetStep (
 	h5_file_t *f			/*!< Handle to open file */
 	) {
 
-	SET_FNAME ( __func__ );
+	SET_FNAME ( f, __func__ );
 	return h5_get_step ( f );
 }
 
 /*!
-  \ingroup h5_general
+  \ingroup h5_c_api_general
 
   Start traversing steps.
 
@@ -171,13 +167,13 @@ H5StartTraverseSteps (
 	h5_file_t *f			/*!< Handle to open file */
 	) {
 
-	SET_FNAME ( "H5FedStartTraverseSteps" );
+	SET_FNAME ( f, __func__ );
 
-	return -1;
+	return h5_start_traverse_steps( f );
 }
 
 /*!
-  \ingroup h5_general
+  \ingroup h5_c_api_general
 
   Traverse steps.
 
@@ -188,7 +184,7 @@ H5TraverseSteps (
 	h5_file_t * f			/*!< Handle to open file */
 	) {
 
-	SET_FNAME ( __func__ );
+	SET_FNAME ( f, __func__ );
 
-	return -1;
+	return h5_traverse_steps( f );
 }
