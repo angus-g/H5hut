@@ -43,7 +43,7 @@ h5t_get_num_boundaries (
 	if ( t->cur_mesh < 0 )
 		return _h5t_error_undef_mesh ( f );
 	if ( t->num_boundaries < 0 ) {
-		t->num_boundaries = h5_get_num_objects (
+		t->num_boundaries = hdf5_get_num_objects (
 			t->mesh_gid,
 			H5T_BOUNDARYMESH_GRPNAME, 
 			H5G_GROUP );
@@ -82,7 +82,7 @@ h5t_open_boundary (
 		TRY( h5t_get_num_boundaries ( f ) );
 	}
 	if ( (boundary_id < -1) || (boundary_id >= t->num_boundaries) ) {
-		return HANDLE_H5_OUT_OF_RANGE_ERR( "boundary", boundary_id );
+		return HANDLE_H5_OUT_OF_RANGE_ERR( f, "boundary", boundary_id );
 	}
 	if ( boundary_id == -1 ) {  /* append new boundary */
 		boundary->id = t->num_boundaries++;
@@ -91,7 +91,7 @@ h5t_open_boundary (
 		boundary->id = boundary_id;
 	}
 	snprintf ( boundary->name, sizeof (boundary->name),
-		   "%d", boundary->id );
+		   "%lld", boundary->id );
 	TRY( _open_boundary_group ( f ) );
 
 	return H5_SUCCESS;
@@ -115,20 +115,20 @@ _h5t_read_boundaryfaces (
 	const char * const dataset_name = "Faces";
 	hid_t dataset_id = H5Dopen ( boundary->gid, dataset_name, H5P_DEFAULT );
 	if ( dataset_id < 0 ) 
-		return HANDLE_H5D_OPEN_ERR ( dataset_name );
+		return HANDLE_H5D_OPEN_ERR ( f, dataset_name );
 
 	hid_t diskspace_id = H5Dget_space(dataset_id);
-	if ( diskspace_id < 0 ) return (hid_t)HANDLE_H5D_GET_SPACE_ERR;
+	if ( diskspace_id < 0 ) return (hid_t)HANDLE_H5D_GET_SPACE_ERR ( f );
 
 	h5_id_t num_faces = H5Sget_simple_extent_npoints ( diskspace_id );
 	if ( num_faces < 0 )
-		return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR;
+		return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR ( f );
 
 	herr_t herr = H5Sclose ( diskspace_id );
-	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR ( f );
 
 	herr = H5Dclose ( dataset_id );
-	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
+	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR ( f );
 
 	h5t_add_num_boundaryfaces ( f, num_faces );
 
@@ -142,7 +142,7 @@ _h5t_read_boundaryfaces (
 	if ( h5err < 0 ) return h5err;
 
 	herr = H5Dclose ( dataset_id );
-	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
+	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR ( f );
 
 	return H5_SUCCESS;
 }
@@ -185,7 +185,7 @@ h5t_close_boundary (
 
 	bzero ( boundary, sizeof(*boundary) );
 
-	TRY( _h5_close_group( boundary->gid ) );
+	TRY( _h5_close_group( f, boundary->gid ) );
 
 	boundary->id = -1;
 	boundary->gid = -1;
@@ -218,7 +218,7 @@ h5t_add_num_boundaryfaces (
 	     boundary->num_faces_on_level == NULL ||
 	     boundary->faces == NULL ||
 	     boundary->lfaces == NULL ) {
-		return HANDLE_H5_NOMEM_ERR;
+		return HANDLE_H5_NOMEM_ERR ( f );
 	}
 	memset ( boundary->num_faces, 
 		 0, t->num_levels*sizeof(boundary->num_faces[0]) );
@@ -260,12 +260,12 @@ h5t_store_boundaryface (
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
 		h5_id_t local_vids[3];
-		h5_err_t h5err = h5t_map_global_vertex_ids2local (
+		h5_err_t h5err = h5t_map_global_vids2local (
 			f, global_vids, 3, local_vids );
 		if ( h5err < 0 ) return h5err;
 		h5_id_t local_tid = h5t_get_local_triangle_id ( f, local_vids );
 		if ( local_tid < 0 )
-			return _h5t_error_local_triangle_id_nexist( local_vids );
+			return _h5t_error_local_triangle_id_nexist( f, local_vids );
 		return h5t_store_boundaryface_local_id ( f, local_tid );
 	}
 	default:
@@ -302,18 +302,21 @@ h5t_store_boundaryface_local_id (
 
 	if ( boundary->num_faces == NULL )
 		return HANDLE_H5_OVERFLOW_ERR (
+			f,
 			"boundary faces", 
-			-1 );
+			(h5_ssize_t)-1 );
 	if ( ++(boundary->last_accessed_face) >= boundary->num_faces[0] )
 		return HANDLE_H5_OVERFLOW_ERR (
+			f,
 			"boundary faces", 
 			boundary->num_faces[0] );
 
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
 		h5_id_t local_tet_id = local_fid & H5_TET_MASK;
-		if ( t->entities.tets[local_tet_id].parent_id != -1 ) {
+		if ( t->elems.tets[local_tet_id].parent_id != -1 ) {
 			return _h5t_error_store_boundaryface_local_id (
+				f,
 				local_fid );
 		}
 		h5_id_t global_tid = h5t_map_local_triangle_id2global(
@@ -345,7 +348,7 @@ h5t_traverse_boundary_faces (
 	h5_file_t * const f,
 	h5_id_t * const global_id,
 	h5_id_t * const parent_id,
-	h5_id_t vertex_ids[]
+	h5_id_t vids[]
 	) {
 	return -1;
 }

@@ -2,59 +2,53 @@
 #define __H5T_TYPES_PRIVATE_H
 
 
-struct h5_vertex {  /* 32Byte */
-	h5_id_t		id;
-	h5_id_t		unused;	/* for right alignment */
+struct h5_vertex {
+	h5_id_t		vid;
 	h5_float64_t	P[3];
 };
 typedef struct h5_vertex	h5_vertex_t;
 
-struct h5_edge { /* 16Bytes */
-	h5_id_t		id;
-	h5_id_t		parent_id;
-	h5_id_t		refined_on_evel; /* = 0 if not refined*/
-	h5_id_t		unused;	/* for right alignment */
-	h5_id_t		vertex_ids[2];
-};
-typedef struct h5_edge		h5_edge_t;
-
-struct h5_triangle { /*24Bytes*/
-	h5_id_t		id;
-	h5_id_t		parent_id;
-	h5_id_t		vertex_ids[3];
+struct h5_triangle {
+	h5_id_t		cid;
+	h5_id_t		parent_cid;
 	h5_id_t		refined_on_level;
+	h5_id_t		vids[3];
 };
 typedef struct h5_triangle	h5_triangle_t;
 
-struct h5_tetrahedron { /* 24Bytes */
-	h5_id_t		id;
-	h5_id_t		parent_id;
+struct h5_tetrahedron {
+	h5_id_t		cid;
+	h5_id_t		parent_cid;
 	h5_id_t		refined_on_level;
-	h5_id_t		unused;	/* for right alignment */
-	h5_id_t		vertex_ids[4];
+	h5_id_t		vids[4];
 };
+
 typedef struct h5_tetrahedron	h5_tetrahedron_t;
+typedef struct h5_tetrahedron	h5_tet_t;
 
-struct h5_ltriangle {
-	h5_id_t		vertex_ids[3];	/* local(!) vertex ids */
+struct h5_triangle_local {
+	h5_id_t		parent_cid;
+	h5_id_t		vids[3];	/* local(!) vertex ids */
+};
+typedef struct h5_triangle_local h5_triangle_local_t;
+
+struct h5_tet_local_ids {
+	h5_id_t		parent_cid;
+	h5_id_t		vids[4];	/* local(!) vertex ids */
+};
+typedef struct h5_tet_local	h5_tet_local_t;
+
+union elems {
+	h5_tet_t	*tets;
+	h5_triangle_t	*tris;
+	void		*data;
 };
 
-struct h5_ltetrahedron {
-	h5_id_t		vertex_ids[4];	/* local(!) vertex ids */
+union elems_local {
+	h5_tet_local_t	*tets;
+	h5_triangle_local_t *tris;
+	void		*data;
 };
-
-union entities {
-	struct h5_tetrahedron	*tets;
-	struct h5_triangle	*tris;
-	void			*data;
-};
-
-union lentities {
-	struct h5_ltetrahedron	*tets;
-	struct h5_ltriangle	*tris;
-	void			*data;
-};
-
 
 struct boundary {
 	char		name[16];
@@ -81,9 +75,8 @@ struct h5t_fdata {
 	h5_id_t		mesh_changed;		/* true if mesh is new or has
 						   been changed		*/
 	h5_id_t		num_meshes;
-	hid_t		entity_tid;		/* HDF5 type id: tet, triangle
+	hid_t		elem_tid;		/* HDF5 type id: tet, triangle
 						   etc			*/
-
 	h5_id_t		cur_level;
 	h5_id_t		new_level;		/* idx of the first new level
 						   or -1		*/
@@ -94,25 +87,25 @@ struct h5t_fdata {
 	h5_size_t	*num_vertices;
 	struct idmap	map_vertex_g2l;		/* map global id to local id */
 	struct smap	sorted_lvertices;
-	h5_id_t		last_retrieved_vertex_id; 
-	h5_id_t		last_stored_vertex_id; 
+	h5_id_t		last_retrieved_vid; 
+	h5_id_t		last_stored_vid; 
 
 
-	/*** Entities ***/
-	union entities	entities;
-	union lentities lentities;		/* local vertex id's of
-						   entities		*/
-	h5_size_t	*num_entities;
-	h5_size_t	*num_entities_on_level;
-	struct idmap	map_entity_g2l;		/* map global id to local id */
+	/*** Elements ***/
+	union elems	elems;
+	union elems_local elems_ldta;		/* local vertex id's of
+						   elems		*/
+	h5_size_t	*num_elems;
+	h5_size_t	*num_elems_on_level;
+	struct idmap	map_elem_g2l;		/* map global id to local id */
 
 	struct smap				/* array with geometrically */
-	sorted_lentities[H5_MAX_VERTICES_PER_ENTITY];/*  sorted local entitiy ids
+	sorted_elems_ldta[H5_MAX_VERTICES_PER_ELEM];/*  sorted local entitiy ids
 							 [0]: 0,1,2,3 sorted 
 							 [1]: 1,0,2,3 sorted */
 
-	h5_id_t		last_retrieved_entity_id; 
-	h5_id_t		last_stored_entity_id;
+	h5_id_t		last_retrieved_eid; 
+	h5_id_t		last_stored_eid;
 
 	/*** Boundary Meshes ***/
 	h5_id_t		num_boundaries;		/* number of boundaries */

@@ -2,12 +2,12 @@
 #define __U_READWRITE_H
 
 h5_int64_t
-H5U_get_num_elems (
+h5u_get_num_elems (
 	h5_file_t *f
 	);
 
 h5_int64_t
-H5U_read_elems (
+h5u_read_elems (
 	h5_file_t *f,
 	const char *name,
 	void *array,
@@ -15,13 +15,13 @@ H5U_read_elems (
 	);
 
 h5_int64_t
-H5U_set_num_elements (
+h5u_set_num_elements (
 	h5_file_t *f,
 	h5_int64_t nparticles
 	);
 
 h5_int64_t
-H5U_write_data (
+h5u_write_data (
 	h5_file_t *f,
 	const char *name,
 	const void *array,
@@ -34,31 +34,31 @@ h5u_has_view (
 	);
 
 h5_int64_t
-H5U_reset_view (
+h5u_reset_view (
 	h5_file_t *f
 	);
 
 h5_int64_t
-H5U_set_view (
+h5u_set_view (
 	h5_file_t *f,
 	h5_int64_t start,
 	h5_int64_t end
 	);
 
 h5_int64_t 
-H5U_get_view (
+h5u_get_view (
 	h5_file_t *f,
 	h5_int64_t *start,
 	h5_int64_t *end
 	);
 
 h5_int64_t
-H5U_set_canonical_view (
+h5u_set_canonical_view (
 	h5_file_t *f
 	);
 
 h5_int64_t
-H5U_get_dataset_info (
+h5u_get_dataset_info (
 	h5_file_t *f,
 	const h5_int64_t idx,
 	char *dataset_name,

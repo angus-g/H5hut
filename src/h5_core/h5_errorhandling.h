@@ -1,42 +1,35 @@
 #ifndef __ERRORHANDLING_H
 #define __ERRORHANDLING_H
 
-#define h5_debug	h5_print_debug
-#define h5_info		h5_print_info
-#define h5_warn		h5_print_warn
-#if 0
-#define h5_error	h5_print_error
-#endif
-
-#define SET_FNAME( fname )	h5_set_funcname( fname );
+#define SET_FNAME( f, fname )	h5_set_funcname( f, fname );
 #define CHECK_FILEHANDLE( f ) \
 	if ( f == NULL ) \
-		return HANDLE_H5_BADFD_ERR;
+		return HANDLE_H5_BADFD_ERR( f );
 
-#define CHECK_WRITABLE_MODE( f )  \
-	if ( f->mode==H5_O_RDONLY ) \
-		return (*h5_get_errorhandler()) (	\
-			h5_get_funcname(), \
-			H5_ERR_INVAL, \
+#define CHECK_WRITABLE_MODE( f )					\
+	if ( f->mode==H5_O_RDONLY )					\
+		return h5_error (					\
+			f,						\
+			H5_ERR_INVAL,					\
 			"Attempting to write to read-only file" );
 
-#define CHECK_READONLY_MODE( f )  \
-	if ( ! f->mode==H5_O_RDONLY ) \
-		return (*h5_get_errorhandler()) (	\
-			h5_get_funcname(), \
-			H5_ERR_INVAL, \
+#define CHECK_READONLY_MODE( f )					\
+	if ( ! f->mode==H5_O_RDONLY )					\
+		return h5_error (					\
+			f,						\
+			H5_ERR_INVAL,					\
 			"Operation is not allowed on writable files." );
 
-#define CHECK_TIMEGROUP( f ) \
-	if ( f->step_gid <= 0 ) \
-		return (*h5_get_errorhandler()) (	\
-			h5_get_funcname(), \
-			H5_ERR_INVAL, \
+#define CHECK_TIMEGROUP( f )						\
+	if ( f->step_gid <= 0 )						\
+		return h5_error (					\
+			f,						\
+			H5_ERR_INVAL,					\
 			"Internal error: step_gid <= 0.");
 
 h5_err_t
 h5_set_debuglevel (
-	h5_id_t level
+	h5_id_t debuglevel
 	);
 
 h5_err_t
@@ -46,126 +39,121 @@ h5_get_debuglevel (
 
 h5_err_t
 h5_set_errorhandler (
-	h5_error_handler handler
+	h5_errorhandler_t errorhandler
 	);
 
-h5_error_handler
+h5_errorhandler_t
 h5_get_errorhandler (
 	void
 	);
 
 h5_err_t
 h5_get_errno (
-	void
+	h5_file_t * const f
 	);
 
 void
 h5_set_errno (
+	h5_file_t * const f,
 	h5_err_t h5_errno
 	);
 
 h5_err_t
 h5_report_errorhandler (
-	const char *funcname,
-	const h5_err_t eno,
-	const char *fmt,
-	...
-	);
-
-h5_err_t
-h5_report_verrorhandler (
-	const char *funcname,
-	const h5_err_t eno,
+	h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 h5_err_t
 h5_abort_errorhandler (
-	const char *funcname,
-	const h5_err_t eno,
+	h5_file_t * const f,
 	const char *fmt,
-	...
+	va_list ap
 	) ;
 
 h5_err_t
 h5_error (
+	h5_file_t * const f,
 	h5_err_t error_no,
 	const char *fmt,
 	...
-	);
-
-void
-h5_vprint_error (
-	const char *fmt,
-	va_list ap
-	);
-
-void
-h5_print_error (
-	const char *fmt,
-	... )
+	)
 #ifdef __GNUC__
-__attribute__ ((format (printf, 1, 2)))
+	__attribute__ ((format (printf, 3, 4)))
 #endif
 ;
 
 void
-h5_vprint_warn (
+h5_verror (
+	h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 void
-h5_print_warn (
+h5_vwarn (
+	h5_file_t * const f,
+	const char *fmt,
+	va_list ap
+	);
+
+void
+h5_warn (
+	h5_file_t * const f,
 	const char *fmt,
 	...
 	)
 #ifdef __GNUC__
-__attribute__ ((format (printf, 1, 2)))
+__attribute__ ((format (printf, 2, 3)))
 #endif
 ;
 
 void
-h5_vprint_info (
+h5_vinfo (
+	h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 void
-h5_print_info (
+h5_info (
+	h5_file_t * const f,
 	const char *fmt,
 	...
 	)
 #ifdef __GNUC__
-__attribute__ ((format (printf, 1, 2)))
+__attribute__ ((format (printf, 2, 3)))
 #endif
 ;
 
 void
-h5_vprint_debug (
+h5_vdebug (
+	h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 void
-h5_print_debug (
+h5_debug (
+	h5_file_t * const f,
 	const char *fmt,
 	...
 	)
 #ifdef __GNUC__
-__attribute__ ((format (printf, 1, 2)))
+__attribute__ ((format (printf, 2, 3)))
 #endif
 ;
 
 void
 h5_set_funcname (
+	h5_file_t * const f,
 	const char  * const fname
 	);
 
 const char *
 h5_get_funcname (
-	void
+	h5_file_t * const f
 	);
 
 const char *

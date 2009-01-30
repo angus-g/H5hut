@@ -11,25 +11,27 @@
 #include "h5_core_private.h"
 
 /*!
-  \ingroup h5block_private
+  \ingroup h5_core
+  \defgroup h5_core_filehandling
+*/
 
-  \internal
+/*!
+  \ingroup h5_core_filehandling
 
   Check whether \c f points to a valid file handle.
 
   \return	H5_SUCCESS or error code
 */
-h5_int64_t
+h5_err_t
 h5_check_filehandle (
-	const h5_file_t *f	/*!< filehandle  to check validity of */
+	h5_file_t * const f	/*!< filehandle  to check validity of */
 	) {
 
 	if ( f == NULL )
-		return HANDLE_H5_BADFD_ERR;
+		return HANDLE_H5_BADFD_ERR( f );
 	if ( f->file == 0 )
-		return HANDLE_H5_BADFD_ERR;
-	if ( f->block == NULL )
-		return HANDLE_H5_BADFD_ERR;
+		return HANDLE_H5_BADFD_ERR( f );
+
 	return H5_SUCCESS;
 }
 
@@ -38,9 +40,11 @@ h5_check_filehandle (
   Initialize H5Part
 */
 static herr_t
-_h5_error_handler ( hid_t estack_id, void* unused ) {
-	
-	if ( h5_get_debuglevel() >= 5 ) {
+_h5_error_handler (
+	hid_t estack_id,
+	void* __f
+	) {
+	if ( h5_get_debuglevel () >= 5 ) {
 		H5Eprint (estack_id, stderr);
 	}
 	return 0;
@@ -80,7 +84,7 @@ _h5u_open_file (
 	f->pnparticles =
 		(h5_int64_t*) malloc (f->nprocs * sizeof (h5_int64_t));
 	if (f->pnparticles == NULL) {
-		return HANDLE_H5_NOMEM_ERR;
+		return HANDLE_H5_NOMEM_ERR( f );
 	}
 	return H5_SUCCESS;
 }
@@ -100,24 +104,24 @@ _h5b_open_file (
 	) {
 	struct h5b_fdata *b; 
 
-	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5_BADFD_ERR;
-	if ( f->block ) return H5_SUCCESS;
+	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5_BADFD_ERR( f );
+	if ( f->b ) return H5_SUCCESS;
 
-	f->block = (struct h5b_fdata*) malloc( sizeof (*f->block) );
-	if ( f->block == NULL ) {
-		return HANDLE_H5_NOMEM_ERR;
+	f->b = (struct h5b_fdata*) malloc( sizeof (*f->b) );
+	if ( f->b == NULL ) {
+		return HANDLE_H5_NOMEM_ERR( f );
 	}
-	b = f->block;
+	b = f->b;
 	memset ( b, 0, sizeof (*b) );
-	b->user_layout = (struct H5BlockPartition*) malloc (
+	b->user_layout = (struct h5b_partition*) malloc (
 		f->nprocs * sizeof (b->user_layout[0]) );
 	if ( b->user_layout == NULL ) {
-		return HANDLE_H5_NOMEM_ERR;
+		return HANDLE_H5_NOMEM_ERR( f );
 	}
-	b->write_layout = (struct H5BlockPartition*) malloc (
+	b->write_layout = (struct h5b_partition*) malloc (
 		f->nprocs * sizeof (b->write_layout[0]) );
 	if ( b->write_layout == NULL ) {
-		return HANDLE_H5_NOMEM_ERR;
+		return HANDLE_H5_NOMEM_ERR( f );
 	}
 	b->step_idx = -1;
 	b->blockgroup = -1;
@@ -130,33 +134,50 @@ _h5b_open_file (
 	return H5_SUCCESS;
 }
 
+/*!
+  \ingroup h5_core_filehandling
+  
+  Open file with name \c filename. This function is available in the paralell
+  and serial version. In the serial case \c comm may have any value.
+
+  \return File handle.
+  \return NULL on error.
+*/
  
 h5_file_t *
 h5_open_file (
-	const char *filename,	/*!< [in] The name of the data file to open. */
-	unsigned flags,		/*!< [in] The access mode for the file. */
-	MPI_Comm comm		/*!< [in] MPI communicator */
+	const char *filename,	/*!< The name of the data file to open. */
+	h5_int32_t flags,	/*!< The access mode for the file. */
+	MPI_Comm comm,		/*!< MPI communicator */
+	const char *funcname	/*!< calling function name */
 	) {
 
-	h5_info ( "Opening file %s.", filename );
 
-	if ( _init() < 0 ) {
-		HANDLE_H5_INIT_ERR;
-		return NULL;
-	}
-	h5_set_errno ( H5_SUCCESS );
 	h5_file_t *f = NULL;
 
 	f = (h5_file_t*) malloc( sizeof (h5_file_t) );
 	if( f == NULL ) {
-		HANDLE_H5_NOMEM_ERR;
-		goto error_cleanup;
+		fprintf(
+			stderr,
+			"E: %s: Can't open file %s. Not enough memory!",
+			funcname,
+			filename );
+		return NULL;
 	}
 	memset (f, 0, sizeof (h5_file_t));
 
+	if ( _init() < 0 ) {
+		HANDLE_H5_INIT_ERR( f );
+		return NULL;
+	}
+
+	f->__funcname = funcname;
+	h5_info ( f, "Opening file %s.", filename );
+
+
 	f->prefix_step_name = strdup ( H5PART_GROUPNAME_STEP );
 	if( f->prefix_step_name == NULL ) {
-		HANDLE_H5_NOMEM_ERR;
+		HANDLE_H5_NOMEM_ERR( f );
 		goto error_cleanup;
 	}
 	f->width_step_idx = 0;
@@ -225,7 +246,7 @@ h5_open_file (
 				     f->access_prop);
 		f->empty = 1;
 	}
-	else if ( flags == H5_O_APPEND || H5_O_RDWR ) {
+	else if ( flags == H5_O_APPEND || flags == H5_O_RDWR ) {
 		int fd = open (filename, O_RDONLY, 0);
 		if ( (fd == -1) && (errno == ENOENT) ) {
 			f->file = H5Fcreate(filename, H5F_ACC_TRUNC,
@@ -239,17 +260,17 @@ h5_open_file (
 		}
 	}
 	else {
-		HANDLE_H5_FILE_ACCESS_TYPE_ERR ( flags );
+		HANDLE_H5_FILE_ACCESS_TYPE_ERR ( f, flags );
 		goto error_cleanup;
 	}
 
 	if (f->file < 0) {
-		HANDLE_H5F_OPEN_ERR ( filename, flags );
+		HANDLE_H5F_OPEN_ERR ( f, filename, flags );
 		goto error_cleanup;
 	}
 	f->root_gid = H5Gopen( f->file, "/", H5P_DEFAULT );
 	if ( f->root_gid < 0 ) {
-		HANDLE_H5G_OPEN_ERR ( "", "" );
+		HANDLE_H5G_OPEN_ERR ( f, "", "" );
 		goto error_cleanup;
 	}
 	f->mode = flags;
@@ -299,29 +320,29 @@ h5_open_file (
 */
 static h5_int64_t
 _h5u_close_file (
-	h5_file_t *f		/*!< IN: file handle */
+	h5_file_t *f		/*!< file handle */
 	) {
 	herr_t herr;
-	h5_set_errno ( H5_SUCCESS );
+	f->__errno = H5_SUCCESS;
 	if( f->shape > 0 ) {
 		herr = H5Sclose( f->shape );
-		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR;
+		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR( f );
 		f->shape = 0;
 	}
 	if( f->diskshape != H5S_ALL ) {
 		herr = H5Sclose( f->diskshape );
-		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR;
+		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR( f );
 		f->diskshape = 0;
 	}
 	if( f->memshape != H5S_ALL ) {
 		herr = H5Sclose( f->memshape );
-		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR;
+		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR( f );
 		f->memshape = 0;
 	}
 	if( f->pnparticles ) {
 		free( f->pnparticles );
 	}
-	return h5_get_errno();
+	return f->__errno;
 }
 
 /*!
@@ -340,40 +361,49 @@ _h5b_close_file (
 	) {
 
 	herr_t herr;
-	struct h5b_fdata *b = f->block;
+	struct h5b_fdata *b = f->b;
 
 	if ( b->blockgroup >= 0 ) {
 		herr = H5Gclose ( b->blockgroup );
-		if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
+		if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR( f );
 		b->blockgroup = -1;
 	}
 	if ( b->shape >= 0 ) {
 		herr = H5Sclose ( b->shape );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
 		b->shape = -1;
 	}
 	if ( b->diskshape >= 0 ) {
 		herr = H5Sclose ( b->diskshape );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
 		b->diskshape = -1;
 	}
 	if ( b->memshape >= 0 ) {
 		herr = H5Sclose ( b->memshape );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
 		b->memshape = -1;
 	}
-	free ( f->block );
-	f->block = NULL;
+	free ( f->b );
+	f->b = NULL;
 
 	return H5_SUCCESS;
 }
 
+/*!
+  \ingroup h5_core_filehandling
+
+  The h5_close_file() call writes all buffered data to disk, releases 
+  all previously allocated memory and terminates access to the associated
+  HDF5 file.
+
+  \return	H5_SUCCESS or error code
+*/
 h5_int64_t
 h5_close_file (
-	h5_file_t *f
+	h5_file_t *f		/*!< file handle */
 	) {
 	herr_t r = 0;
-	h5_set_errno ( H5_SUCCESS );
+	f->__errno = H5_SUCCESS;
 
 	CHECK_FILEHANDLE ( f );
 
@@ -385,32 +415,32 @@ h5_close_file (
 
 	if( f->step_gid >= 0 ) {
 		r = H5Gclose( f->step_gid );
-		if ( r < 0 ) HANDLE_H5G_CLOSE_ERR;
+		if ( r < 0 ) HANDLE_H5G_CLOSE_ERR( f );
 		f->step_gid = -1;
 	}
 	if( f->xfer_prop != H5P_DEFAULT ) {
 		r = H5Pclose( f->xfer_prop );
-		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( "f->xfer_prop" );
+		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( f, "f->xfer_prop" );
 		f->xfer_prop = H5P_DEFAULT;
 	}
 	if( f->access_prop != H5P_DEFAULT ) {
 		r = H5Pclose( f->access_prop );
-		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( "f->access_prop" );
+		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( f, "f->access_prop" );
 		f->access_prop = H5P_DEFAULT;
 	}  
 	if( f->create_prop != H5P_DEFAULT ) {
 		r = H5Pclose( f->create_prop );
-		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( "f->create_prop" );
+		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( f, "f->create_prop" );
 		f->create_prop = H5P_DEFAULT;
 	}
 	if ( f->root_gid >= 0 ) {
 		r = H5Gclose ( f->root_gid );
-		if ( r < 0 ) HANDLE_H5G_CLOSE_ERR;
+		if ( r < 0 ) HANDLE_H5G_CLOSE_ERR( f );
 		f->root_gid = 0;
 	}
 	if ( f->file ) {
 		r = H5Fclose( f->file );
-		if ( r < 0 ) HANDLE_H5F_CLOSE_ERR;
+		if ( r < 0 ) HANDLE_H5F_CLOSE_ERR( f );
 		f->file = 0;
 	}
 	if (f->prefix_step_name) {
@@ -418,48 +448,108 @@ h5_close_file (
 	}
 	free( f );
 
-	return h5_get_errno();
+	return f->__errno;
 }
 
+/*!
+  \ingroup h5_core_filehandling
+
+  Define format of the step names.
+
+  Example: ==H5FedDefineStepNameFormat( f, "Step", 6 )== defines step names 
+  like ==Step#000042==.
+
+  \return \c H5_SUCCESS or error code
+*/
 h5_int64_t
-h5_define_stepname_fmt (
+h5_set_stepname_fmt (
 	h5_file_t *f,
 	const char *name,
 	const h5_int64_t width
 	) {
 	f->prefix_step_name = strdup ( name );
 	if( f->prefix_step_name == NULL ) {
-		return HANDLE_H5_NOMEM_ERR;
+		return HANDLE_H5_NOMEM_ERR( f );
 	}
 	f->width_step_idx = (int)width;
 	
 	return H5_SUCCESS;
 }
 
+/*!
+  \ingroup h5_core_filehandling
+
+  Get format of the step names.
+
+  \return \c H5_SUCCESS or error code
+*/
 h5_err_t
 h5_get_stepname_fmt (
-	h5_file_t * f,
-	char *name,
-	const h5_size_t l_name,
-	h5_size_t *width
+	h5_file_t *f,			/*!< Handle to file		*/
+	char *name,			/*!< OUT: Prefix		*/
+	const h5_size_t l_name,		/*!< length of buffer name	*/
+	h5_size_t *width		/*!< OUT: Width of the number	*/
 	) {
 	return -1;
 }
 
-h5_int64_t
+/*!
+  \ingroup h5_core_filehandling
+
+  Get current step number.
+
+  \return Current step number or error code
+*/
+h5_id_t
 h5_get_step (
-	h5_file_t * f
+	h5_file_t * f			/*!< file handle		*/
 	) {
 	return -1;
 }
 	
+/*!
+  \ingroup h5_core_filehandling
 
-h5_int64_t
+  Check whether step with number \c stepno exists.
+
+  \return True (value != 0) if step with \c stepno exists.
+  \return False (0) otherwise
+*/
+h5_err_t
 h5_has_step (
-	h5_file_t * f,
-	h5_int64_t step
+	h5_file_t * f,			/*!< file handle		*/
+	h5_id_t stepno			/*!< step number to check	*/
 	) {
 	char name[128];
-        sprintf ( name, "%s#%0*lld", f->prefix_step_name, f->width_step_idx, (long long) step );
-	return ( H5Gget_objinfo( f->file, name, 1, NULL ) >= 0 );
+        sprintf ( name, "%s#%0*ld",
+		  f->prefix_step_name, f->width_step_idx, (long) stepno );
+	return ( H5Gget_info_by_name( f->file, name, NULL, H5P_DEFAULT ) >= 0 );
+}
+
+/*!
+  \ingroup h5_core_filehandling
+
+  Start traversing steps.
+
+  \return \c H5_SUCCESS or error code 
+*/
+h5_err_t
+h5_start_traverse_steps (
+	h5_file_t * f			/*!< file handle		*/
+	) {
+	return -1;
+}
+
+/*!
+  \ingroup h5_core_filehandling
+
+  Go to next step.
+
+  \return \c H5_SUCCESS or error code 
+*/
+h5_err_t
+h5_traverse_steps (
+	h5_file_t * f			/*!< file handle		*/
+	) {
+	return -1;
 }

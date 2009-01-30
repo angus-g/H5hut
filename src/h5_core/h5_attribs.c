@@ -11,11 +11,26 @@
 #include "H5Part.h"
 #include "H5Block.h"
 
-h5_int64_t
+/*!
+  \ingroup h5_core
+  \defgroup h5_core_attrib	Attribute handling
+
+*/
+/*!
+  \ingroup h5_core_attrib
+
+  Read attribute of HDF5 object.
+
+  \return \c H5_SUCCESS or error code.
+
+  \sa h5_write_attrib(), h5_get_num_attribs(), h5_get_attrib_info()
+ */
+h5_err_t
 h5_read_attrib (
-	hid_t id,
-	const char *attrib_name,
-	void *attrib_value
+	h5_file_t * const f,		/*!< handle to open file */
+	const hid_t id,			/*!< id of HDF5 object */
+	const char *attrib_name,	/*!< name of HDF5 attribute to read */
+	void * const attrib_value	/*!< OUT: attribute value */
 	) {
 
 	herr_t herr;
@@ -26,41 +41,49 @@ h5_read_attrib (
 	hsize_t nelem;
 
 	attrib_id = H5Aopen_name ( id, attrib_name );
-	if ( attrib_id <= 0 ) return HANDLE_H5A_OPEN_NAME_ERR( attrib_name );
+	if ( attrib_id <= 0 ) return HANDLE_H5A_OPEN_NAME_ERR( f, attrib_name );
 
 	mytype = H5Aget_type ( attrib_id );
-	if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR;
+	if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR( f );
 
 	space_id = H5Aget_space ( attrib_id );
-	if ( space_id < 0 ) return HANDLE_H5A_GET_SPACE_ERR;
+	if ( space_id < 0 ) return HANDLE_H5A_GET_SPACE_ERR( f );
 
 	nelem = H5Sget_simple_extent_npoints ( space_id );
-	if ( nelem < 0 ) return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR;
+	if ( nelem < 0 ) return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR( f );
 
-	type_id = h5_normalize_h5_type ( mytype );
+	type_id = h5_normalize_h5_type ( f, mytype );
 
 	herr = H5Aread (attrib_id, type_id, attrib_value );
-	if ( herr < 0 ) return HANDLE_H5A_READ_ERR;
+	if ( herr < 0 ) return HANDLE_H5A_READ_ERR( f );
 
 	herr = H5Sclose ( space_id );
-	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
 
 	herr = H5Tclose ( mytype );
-	if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR;
+	if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR( f );
 
 	herr = H5Aclose ( attrib_id );
-	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR;
+	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR( f );
 
 	return H5_SUCCESS;
 }
 
-h5_int64_t
+/*!
+  \ingroup h5_core_attrib
+
+  Write attribute to HDF5 object.
+
+  \return \c H5_SUCCESS or error code.
+*/
+h5_err_t
 h5_write_attrib (
-	hid_t id,
-	const char *attrib_name,
-	const hid_t attrib_type,
-	const void *attrib_value,
-	const hsize_t attrib_nelem
+	h5_file_t * const f,		/*!< handle to open file */
+	const hid_t id,			/*!< id of HDF5 object */
+	const char *attrib_name,	/*!< name of HDF5 attribute to write */
+	const hid_t attrib_type,	/*!< HDF5 type of attribute */
+	const void *attrib_value,	/*!< value of attribute */
+	const hsize_t attrib_nelem	/*!< number of elements (dimension) */
 	) {
 
 	herr_t herr;
@@ -69,7 +92,7 @@ h5_write_attrib (
 
 	space_id = H5Screate_simple (1, &attrib_nelem, NULL);
 	if ( space_id < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( 1 );
+		return HANDLE_H5S_CREATE_SIMPLE_ERR ( f, 1 );
 
 	attrib_id = H5Acreate ( 
 		id,
@@ -77,28 +100,36 @@ h5_write_attrib (
 		attrib_type,
 		space_id,
 		H5P_DEFAULT, H5P_DEFAULT );
-	if ( attrib_id < 0 ) return HANDLE_H5A_CREATE_ERR ( attrib_name );
+	if ( attrib_id < 0 ) return HANDLE_H5A_CREATE_ERR ( f, attrib_name );
 
 	herr = H5Awrite ( attrib_id, attrib_type, attrib_value);
-	if ( herr < 0 ) return HANDLE_H5A_WRITE_ERR ( attrib_name );
+	if ( herr < 0 ) return HANDLE_H5A_WRITE_ERR ( f, attrib_name );
 
 	herr = H5Aclose ( attrib_id );
-	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR;
+	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR( f );
 
 	herr = H5Sclose ( space_id );
-	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
 
 	return H5_SUCCESS;
 }
 
-h5_int64_t
+/*!
+  \ingroup h5_core_attrib
+
+  Get information about an attribute of a HDF5 object.
+
+  \return \c H5_SUCCESS or error code.
+*/
+h5_err_t
 h5_get_attrib_info (
-	hid_t id,
-	const h5_int64_t attrib_idx,
-	char *attrib_name,
-	const h5_int64_t len_attrib_name,
-	h5_int64_t *attrib_type,
-	h5_int64_t *attrib_nelem
+	h5_file_t * const f,		/*!< handle to open file */
+	const hid_t id,			/*!< id of HDF5 object */
+	const h5_int64_t attrib_idx,	/*!< index of attribute */
+	char *attrib_name,		/*!< OUT: name of attribute */
+	const h5_int64_t len_attrib_name, /*!< buffer length */
+	h5_int64_t *attrib_type,	/*!< OUT: H5 type of attribute */
+	h5_int64_t *attrib_nelem	/*!< OUT: number of elements (dimension) */
 	) {
 
 	herr_t herr;
@@ -107,51 +138,58 @@ h5_get_attrib_info (
 	hid_t space_id;
 
 	attrib_id = H5Aopen_idx ( id, (unsigned int)attrib_idx );
-	if ( attrib_id < 0 ) return HANDLE_H5A_OPEN_IDX_ERR ( attrib_idx );
+	if ( attrib_id < 0 ) return HANDLE_H5A_OPEN_IDX_ERR ( f, attrib_idx );
 
 	if ( attrib_nelem ) {
 		space_id =  H5Aget_space ( attrib_id );
-		if ( space_id < 0 ) return HANDLE_H5A_GET_SPACE_ERR;
+		if ( space_id < 0 ) return HANDLE_H5A_GET_SPACE_ERR( f );
 
 		*attrib_nelem = H5Sget_simple_extent_npoints ( space_id );
 		if ( *attrib_nelem < 0 )
-			return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR;
+			return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR( f );
 
 		herr = H5Sclose ( space_id );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
 	}
 	if ( attrib_name ) {
 		herr = H5Aget_name (
 			attrib_id,
 			(size_t)len_attrib_name,
 			attrib_name );
-		if ( herr < 0 ) return HANDLE_H5A_GET_NAME_ERR;
+		if ( herr < 0 ) return HANDLE_H5A_GET_NAME_ERR( f );
 	}
 	if ( attrib_type ) {
 		mytype = H5Aget_type ( attrib_id );
-		if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR;
+		if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR( f );
 
-		*attrib_type = h5_normalize_h5_type ( mytype );
+		*attrib_type = h5_normalize_h5_type ( f, mytype );
 
 		herr = H5Tclose ( mytype );
-		if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR;
+		if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR( f );
 	}
 	herr = H5Aclose ( attrib_id);
-	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR;
+	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR( f );
 
 	return H5_SUCCESS;
 }
 
-h5_int64_t
+/*!
+  \ingroup h5_core_attrib
+
+  Get number of attributes of a HDF5 object.
+
+  \return number of attributes or error code.
+*/
+h5_size_t
 h5_get_num_attribs (
-	h5_file_t *f,
-	hid_t id
+	h5_file_t * const f,		/*!< handle to open file */
+	const hid_t id
 	) {
 
 	CHECK_FILEHANDLE ( f );
 
 	int nattribs = H5Aget_num_attrs ( id );
-	if ( nattribs < 0 ) HANDLE_H5A_GET_NUM_ATTRS_ERR;
+	if ( nattribs < 0 ) HANDLE_H5A_GET_NUM_ATTRS_ERR( f );
 
-	return (h5_int64_t) nattribs;
+	return (h5_size_t) nattribs;
 }

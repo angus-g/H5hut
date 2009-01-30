@@ -3,18 +3,21 @@
 
 h5_err_t
 _h5_alloc_smap (
+	h5_file_t * const f,
 	struct smap	*map,
-	h5_size_t	size
+	const h5_size_t	size
 	);
 
 h5_err_t
 _h5_alloc_idmap (
+	h5_file_t * const f,
 	struct idmap	*map,
-	h5_size_t	size
+	const h5_size_t	size
 	);
 
 h5_err_t
 _h5_insert_idmap (
+	h5_file_t * const f,
 	struct idmap *map,
 	h5_id_t global_id,
 	h5_id_t local_id

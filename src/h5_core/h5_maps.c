@@ -7,14 +7,13 @@
 
 h5_err_t
 _h5_alloc_smap (
+	h5_file_t * const f,
 	struct smap	*map,
-	h5_size_t	size
+	const h5_size_t	size
 	) {
-	int new = ( map == NULL );
-	map->items = realloc ( map->items, size * sizeof ( map->items[0] ) );
-	if ( map->items == NULL ) {
-		return HANDLE_H5_NOMEM_ERR;
-	}
+	int new = ( map->items == NULL );
+	size_t size_in_bytes = size * sizeof ( map->items[0] );
+	TRY( map->items = _h5_alloc ( f, map->items, size_in_bytes ) );
 	map->size = size;
 	if ( new ) map->num_items = 0;
 	return H5_SUCCESS;
@@ -22,14 +21,13 @@ _h5_alloc_smap (
 
 h5_err_t
 _h5_alloc_idmap (
+	h5_file_t * const f,
 	struct idmap	*map,
-	h5_size_t	size
+	const h5_size_t	size
 	) {
-	int new = ( map == NULL );
-	map->items = realloc ( map->items, size * sizeof ( map->items[0] ) );
-	if ( map->items == NULL ) {
-		return HANDLE_H5_NOMEM_ERR;
-	}
+	int new = ( map->items == NULL );
+	size_t size_in_bytes = size * sizeof ( map->items[0] );
+	TRY( map->items = _h5_alloc ( f, map->items, size_in_bytes ) );
 	map->size = size;
 	if ( new ) map->num_items = 0;
 	return H5_SUCCESS;
@@ -38,13 +36,14 @@ _h5_alloc_idmap (
 
 h5_err_t
 _h5_insert_idmap (
+	h5_file_t * const f,
 	struct idmap *map,
 	h5_id_t global_id,
 	h5_id_t local_id
 	) {
 
 	if ( map->num_items == map->size )
-		return HANDLE_H5_OVERFLOW_ERR( "g2lmap", map->size );
+		return HANDLE_H5_OVERFLOW_ERR( f, "g2lmap", map->size );
 
 	h5_id_t i = _h5_search_idmap ( map, global_id );
 	if ( i >= 0 )			/* global id already in use ? */

@@ -22,28 +22,28 @@ _create_array_types (
 	hsize_t dims[1] = { 3 };
 	hid_t hid = H5Tarray_create ( H5T_NATIVE_DOUBLE, 1, dims );
 	if ( hid < 0 ) {
-		return HANDLE_H5T_ARRAY_CREATE_ERR ( "H5T_NATIVE_DOUBLE", 1 );
+		return HANDLE_H5T_ARRAY_CREATE_ERR ( f, "H5T_NATIVE_DOUBLE", 1 );
 	}
 	t->float64_3tuple_tid = hid;
 
 	dims[0] = 2;
 	hid = H5Tarray_create ( H5T_NATIVE_INT32, 1, dims );
 	if ( hid < 0 ) {
-		return HANDLE_H5T_ARRAY_CREATE_ERR ( "H5T_NATIVE_INT32", 1 );
+		return HANDLE_H5T_ARRAY_CREATE_ERR ( f, "H5T_NATIVE_INT32", 1 );
 	}
 	t->int32_2tuple_tid = hid;
 
 	dims[0] = 3;
 	hid = H5Tarray_create ( H5T_NATIVE_INT32, 1, dims );
 	if ( hid < 0 ) {
-		return HANDLE_H5T_ARRAY_CREATE_ERR ( "H5T_NATIVE_INT32", 1 );
+		return HANDLE_H5T_ARRAY_CREATE_ERR ( f, "H5T_NATIVE_INT32", 1 );
 	}
 	t->int32_3tuple_tid = hid;
 
 	dims[0] = 4;
 	hid = H5Tarray_create ( H5T_NATIVE_INT32, 1, dims );
 	if ( hid < 0 ) {
-		return HANDLE_H5T_ARRAY_CREATE_ERR ( "H5T_NATIVE_INT32", 1 );
+		return HANDLE_H5T_ARRAY_CREATE_ERR ( f, "H5T_NATIVE_INT32", 1 );
 	}
 	t->int32_4tuple_tid = hid;
 
@@ -58,7 +58,7 @@ _create_vertex_type (
 
 	hid_t hid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_vertex) );
 	if ( hid < 0 ) {
-		return HANDLE_H5T_CREATE_ERR ( "H5T_COMPOUND", "verticies" );
+		return HANDLE_H5T_CREATE_ERR ( f, "H5T_COMPOUND", "verticies" );
 	}
 	t->vertex_tid = hid;
 
@@ -68,7 +68,7 @@ _create_vertex_type (
 		HOFFSET(struct h5_vertex, id),
 		H5T_NATIVE_INT32 );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "id", "verticies" );
+		return HANDLE_H5T_INSERT_ERR ( f, "id", "verticies" );
 	}
 
 	herr = H5Tinsert (
@@ -77,7 +77,7 @@ _create_vertex_type (
 		HOFFSET(struct h5_vertex, unused),
 		H5T_NATIVE_INT32 );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "unused", "verticies" );
+		return HANDLE_H5T_INSERT_ERR ( f, "unused", "verticies" );
 	}
 
 	herr = H5Tinsert (
@@ -86,7 +86,7 @@ _create_vertex_type (
 		HOFFSET(struct h5_vertex, P),
 		t->float64_3tuple_tid );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "P", "verticies" );
+		return HANDLE_H5T_INSERT_ERR ( f, "P", "verticies" );
 	}
 
 	return H5_SUCCESS;
@@ -100,7 +100,7 @@ _create_triangle_type (
 
 	hid_t hid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_triangle) );
 	if ( hid < 0 ) {
-		return HANDLE_H5T_CREATE_ERR ( "H5T_COMPOUND", "triangle" );
+		return HANDLE_H5T_CREATE_ERR ( f, "H5T_COMPOUND", "triangle" );
 	}
 	t->triangle_tid = hid;
 
@@ -110,7 +110,7 @@ _create_triangle_type (
 		HOFFSET(struct h5_triangle, id),
 		H5T_NATIVE_INT32 );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "id", "triangle" );
+		return HANDLE_H5T_INSERT_ERR ( f, "id", "triangle" );
 	}
 
 	herr = H5Tinsert (
@@ -119,7 +119,7 @@ _create_triangle_type (
 		HOFFSET(struct h5_triangle, parent_id),
 		H5T_NATIVE_INT32 );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "parent_id", "triangle" );
+		return HANDLE_H5T_INSERT_ERR ( f, "parent_id", "triangle" );
 	}
 
 	herr = H5Tinsert (
@@ -128,16 +128,16 @@ _create_triangle_type (
 		HOFFSET(struct h5_triangle, refined_on_level),
 		H5T_NATIVE_INT32 );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "refined_on_level", "triangle" );
+		return HANDLE_H5T_INSERT_ERR ( f, "refined_on_level", "triangle" );
 	}
 
 	herr = H5Tinsert (
 		t->triangle_tid,
-		"vertex_ids",
-		HOFFSET(struct h5_triangle, vertex_ids),
+		"vids",
+		HOFFSET(struct h5_triangle, vids),
 		t->int32_3tuple_tid );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "vertex_ids", "triangle" );
+		return HANDLE_H5T_INSERT_ERR ( f, "vids", "triangle" );
 	}
 
 	return H5_SUCCESS;
@@ -151,7 +151,7 @@ _create_tet_type (
 
 	hid_t hid = H5Tcreate ( H5T_COMPOUND, sizeof(struct h5_tetrahedron) );
 	if ( hid < 0 ) {
-		return HANDLE_H5T_CREATE_ERR ( "H5T_COMPOUND", "tetrahedra" );
+		return HANDLE_H5T_CREATE_ERR ( f, "H5T_COMPOUND", "tetrahedra" );
 	}
 	t->tet_tid = hid;
 
@@ -161,7 +161,7 @@ _create_tet_type (
 		HOFFSET(struct h5_tetrahedron, id),
 		H5T_NATIVE_INT32 );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "id", "tetrahedra" );
+		return HANDLE_H5T_INSERT_ERR ( f, "id", "tetrahedra" );
 	}
 
 	herr = H5Tinsert (
@@ -170,7 +170,7 @@ _create_tet_type (
 		HOFFSET(struct h5_tetrahedron, parent_id),
 		H5T_NATIVE_INT32 );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "parent_id", "tetrahedra" );
+		return HANDLE_H5T_INSERT_ERR ( f, "parent_id", "tetrahedra" );
 	}
 
 	herr = H5Tinsert (
@@ -179,7 +179,7 @@ _create_tet_type (
 		HOFFSET(struct h5_tetrahedron, refined_on_level),
 		H5T_NATIVE_INT32 );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "refined_on_level", "tetrahedra" );
+		return HANDLE_H5T_INSERT_ERR ( f, "refined_on_level", "tetrahedra" );
 	}
 
 	herr = H5Tinsert (
@@ -188,16 +188,16 @@ _create_tet_type (
 		HOFFSET(struct h5_tetrahedron, unused),
 		H5T_NATIVE_INT32 );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "unused", "tetrahedra" );
+		return HANDLE_H5T_INSERT_ERR ( f, "unused", "tetrahedra" );
 	}
 
 	herr = H5Tinsert (
 		t->tet_tid,
-		"vertex_ids",
-		HOFFSET(struct h5_tetrahedron, vertex_ids),
+		"vids",
+		HOFFSET(struct h5_tetrahedron, vids),
 		t->int32_4tuple_tid );
 	if ( herr < 0 ) {
-		return HANDLE_H5T_INSERT_ERR ( "vertex_ids", "tetrahedra" );
+		return HANDLE_H5T_INSERT_ERR ( f, "vids", "tetrahedra" );
 	}
 
 	return H5_SUCCESS;
@@ -215,8 +215,8 @@ _init_fdata (
 	t->num_levels = -1;
 	t->new_level = -1;
 	t->cur_level = -1;
-	t->last_stored_vertex_id = -1;
-	t->last_stored_entity_id = -1;
+	t->last_stored_vid = -1;
+	t->last_stored_eid = -1;
 	t->topo_gid = -1;
 	t->meshes_gid = -1;
 	t->mesh_gid = -1;
@@ -240,7 +240,7 @@ h5_err_t
 _h5t_open_file (
 	h5_file_t * f			/*!< IN: file handle */
 	) {
-	TRY( f->t = _h5_alloc ( NULL, sizeof(*f->t) ) );
+	TRY( f->t = _h5_alloc ( f, NULL, sizeof(*f->t) ) );
 	TRY( _init_fdata ( f ) );
 	TRY( _create_array_types ( f ) );
 	TRY( _create_vertex_type ( f ) );
@@ -352,15 +352,14 @@ h5t_open_mesh (
 	) {
 	struct h5t_fdata *t = f->t;
 
-	h5_err_t h5err = _h5t_close_mesh ( f );
-	if ( h5err < 0 ) return h5err;
+	TRY( _h5t_close_mesh ( f ) );
 
 	if ( t->num_meshes < 0 ) {
 		h5_size_t result = h5t_get_num_meshes ( f, type );
 		t->num_meshes = ( result > 0 ? result : 0 );
 	}
 	if ( (id < -1) || (id >= t->num_meshes) ) {
-		return HANDLE_H5_OUT_OF_RANGE_ERR( "mesh", id );
+		return HANDLE_H5_OUT_OF_RANGE_ERR( f, "mesh", id );
 	}
 	if ( id == -1 ) {  /* append new mesh */
 		id = t->num_meshes;
@@ -370,17 +369,16 @@ h5t_open_mesh (
 
 	switch( type ) {
 	case H5_OID_TETRAHEDRON:
-		t->entity_tid = t->tet_tid;
+		t->elem_tid = t->tet_tid;
 		break;
 	case H5_OID_TRIANGLE:
-		t->entity_tid = t->triangle_tid;
+		t->elem_tid = t->triangle_tid;
 		break;
 	default:
 		return -1;
 	}
 
-	h5err = _h5t_open_mesh_group ( f );
-	if ( h5err < 0 ) return h5err;
+	TRY( _h5t_open_mesh_group ( f ) );
 
 	t->cur_mesh = id;
 
@@ -416,35 +414,35 @@ _release_memory (
 	}
 	t->num_vertices = NULL;
 
-	if ( t->num_entities ) {
-		free ( t->num_entities );
+	if ( t->num_elems ) {
+		free ( t->num_elems );
 	}
-	t->num_entities = NULL;
+	t->num_elems = NULL;
 
-	if ( t->num_entities_on_level ) {
-		free ( t->num_entities_on_level );
+	if ( t->num_elems_on_level ) {
+		free ( t->num_elems_on_level );
 	}
-	t->num_entities_on_level = NULL;
+	t->num_elems_on_level = NULL;
 
 	if ( t->map_vertex_g2l.items ) {
 		free ( t->map_vertex_g2l.items );
 	}
 	t->map_vertex_g2l.items = NULL;
 
-	if ( t->map_entity_g2l.items ) {
-		free ( t->map_entity_g2l.items );
+	if ( t->map_elem_g2l.items ) {
+		free ( t->map_elem_g2l.items );
 	}
-	t->map_entity_g2l.items = NULL;
+	t->map_elem_g2l.items = NULL;
 
 	if ( t->vertices ) {
 		free ( t->vertices );
 	}
 	t->vertices = NULL;
 
-	if ( t->entities.data ) {
-		free ( t->entities.data );
+	if ( t->elems.data ) {
+		free ( t->elems.data );
 	}
-	t->entities.data = NULL;
+	t->elems.data = NULL;
 
 	return H5_SUCCESS;
 }
@@ -481,10 +479,10 @@ h5t_open_level (
 	struct h5t_fdata *t = f->t;
 
 	if ( (id < 0) || (id >= t->num_levels) )
-		return HANDLE_H5_OUT_OF_RANGE_ERR ( "Level", id );
+		return HANDLE_H5_OUT_OF_RANGE_ERR ( f, "Level", id );
 	t->cur_level = id;
-	t->last_retrieved_vertex_id = -1;
-	t->last_retrieved_entity_id = -1;
+	t->last_retrieved_vid = -1;
+	t->last_retrieved_eid = -1;
 
 	return H5_SUCCESS;
 }

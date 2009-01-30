@@ -3,6 +3,7 @@
 
 void *
 _h5_alloc (
+	h5_file_t * const f,
 	void *ptr,
 	const size_t size );
 

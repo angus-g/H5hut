@@ -9,12 +9,14 @@
 #include "h5_core.h"
 #include "h5_core_private.h"
 
-static h5_error_handler	_err_handler = h5_report_errorhandler;
-static h5_verror_handler _verr_handler = h5_report_verrorhandler;
-static h5_err_t		_h5_errno = H5_SUCCESS;
-static h5_id_t		_h5_debug = 0;
+static h5_errorhandler_t	_h5_errhandler = h5_report_errorhandler;
+static h5_int32_t _h5_debuglevel = 0;
 
-static char *__funcname = "NONE";
+/*!
+  \ingroup h5_core
+  \defgroup h5_core_errorhandling
+*/
+//static char *__funcname = "NONE";
 
 const char * const H5_O_MODES[] = {
 	"H5_O_RDWR",
@@ -23,128 +25,148 @@ const char * const H5_O_MODES[] = {
 	"H5_O_APPEND"
 };
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Set debug/verbosity level. On level 0 all output will be supressed (even
+  error messages). On level 1 error messages, on level 2 warning messages
+  and on level 3 informational messages will be printed. On level 4 debug
+  messages will be printed. 
+
+  Values less than 0 are equivalent to 0. Values greater than 4 are equivalent
+  to 4.
+
+  \return \c H5_SUCCESS on success.
+  \return \c H5_ERR_INVAL if debug level is invalid.
+*/
 h5_err_t
 h5_set_debuglevel (
-	h5_id_t level
+	h5_id_t debuglevel	/*!< debug level */
 	) {
-	_h5_debug = level;
+	if ( debuglevel < 0 || debuglevel > 4 ) return H5_ERR_INVAL;
+	_h5_debuglevel = debuglevel;
 	return H5_SUCCESS;
 }
 
-h5_err_t
+/*!
+  \ingroup h5_core_errorhandling
+
+  Get current debug/verbosity level.
+
+  \return current debug level
+*/
+h5_id_t
 h5_get_debuglevel (
 	void
 	) {
-	return _h5_debug;
+	return _h5_debuglevel;
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Set own error handler.
+
+  \return \c H5_SUCCESS
+*/
 h5_err_t
 h5_set_errorhandler (
-	h5_error_handler handler
+	h5_errorhandler_t handler
 	) {
-	_err_handler = handler;
+	_h5_errhandler = handler;
 	return H5_SUCCESS;
 }
 
-h5_error_handler
+/*!
+  \ingroup h5_core_errorhandling
+
+  Return pointer to current error handler.
+
+  \return \c H5_SUCCESS
+*/
+h5_errorhandler_t
 h5_get_errorhandler (
 	void
 	) {
-	return _err_handler;
+	return _h5_errhandler;
 }
 
-h5_verror_handler
-h5_get_verrorhandler (
-	void
-	) {
-	return _verr_handler;
-}
+/*!
+  \ingroup h5_core_errorhandling
 
+  Get current error number.
+
+  \return \c H5_SUCCESS
+*/
 h5_err_t
 h5_get_errno (
-	void
+	h5_file_t * const f
 	) {
-	return _h5_errno;
+	return f->__errno;
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Set error number.
+
+  \return \c H5_SUCCESS
+*/
 void
 h5_set_errno (
+	h5_file_t * const f,
 	h5_err_t h5_errno
 	) {
-	_h5_errno = h5_errno;
+	f->__errno = h5_errno;
 }
 
 
 /*!
-  \ingroup h5part_errhandle
+  \ingroup h5_core_errorhandling
 
-  This is the H5Part default error handler.  If an error occures, an
-  error message will be printed and an error number will be returned.
+  This is the H5 default error handler.  If an error occures, the
+  error message will be printed, if debug level is greater than 0.
 
-  \return value given in \c eno
+  \return \c f->__errno
 */
 h5_err_t
 h5_report_errorhandler (
-	const char *funcname,
-	const h5_err_t eno,
-	const char *fmt,
-	...
-	) {
-
-	_h5_errno = eno;
-	if ( _h5_debug > 0 ) {
-		va_list ap;
-		va_start ( ap, fmt );
-		h5_vprint_error ( fmt, ap );
-		va_end ( ap );
-	}
-	return _h5_errno;
-}
-
-h5_err_t
-h5_report_verrorhandler (
-	const char *funcname,
-	const h5_err_t eno,
+	h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	) {
 
-	_h5_errno = eno;
-	if ( _h5_debug > 0 ) {
-		h5_vprint_error ( fmt, ap );
+	if ( _h5_debuglevel > 0 ) {
+		h5_verror ( f, fmt, ap );
 	}
-	return _h5_errno;
+	return f->__errno;
 }
 
 /*!
-  \ingroup h5part_errhandle
+  \ingroup h5_core_errorhandling
 
-  If an error occures, an error message will be printed and the
-  program exists with the error code given in \c eno.
+  If an error occures, the error message will be printed and the
+  program exists with the error code given in \c f->__errno.
 */
 h5_err_t
 h5_abort_errorhandler (
-	const char *funcname,
-	const h5_err_t eno,
+	h5_file_t * const f,
 	const char *fmt,
-	...
+	va_list ap
 	) {
 
-	_h5_errno = eno;
-	if ( _h5_debug > 0 ) {
-		va_list ap;
-		va_start ( ap, fmt );
-		fprintf ( stderr, "%s: ", funcname );
+	if ( _h5_debuglevel > 0 ) {
+		fprintf ( stderr, "%s: ", f->__funcname );
 		vfprintf ( stderr, fmt, ap );
-		fprintf ( stderr, "\n" );
 	}
-	exit (-(int)_h5_errno);
+	exit (-(int)f->__errno);
 }
 
 static void
 _vprintf (
 	FILE* f,
 	const char *prefix,
+	const char *__funcname,
 	const char *fmt,
 	va_list ap
 	) {
@@ -154,140 +176,175 @@ _vprintf (
 		strlen ( __funcname ) + 16 );
 	if ( fmt2 == NULL ) return;
 	sprintf ( fmt2, "%s: %s: %s\n", prefix, __funcname, fmt ); 
-	vfprintf ( stderr, fmt2, ap );
+	vfprintf ( f, fmt2, ap );
 	free ( fmt2 );
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Print error message via error handler.
+
+  \return \c f->__errno
+*/
 h5_err_t
 h5_error (
-	h5_err_t error_no,
+	h5_file_t * const f,
+	h5_err_t __errno,
 	const char *fmt,
 	...
 	) {
+	f->__errno = __errno;
 	va_list ap;
 	va_start ( ap, fmt );
 
-	(*h5_get_verrorhandler()) ( h5_get_funcname(), error_no, fmt, ap );
+	(*_h5_errhandler)( f, fmt, ap );
 
 	va_end ( ap );
-	return error_no;
+	return f->__errno;
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Print error message to \c stderr. For use in error handlers only.
+*/
 void
-h5_vprint_error (
+h5_verror (
+	h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	) {
 
-	if ( _h5_debug < 1 ) return;
-	_vprintf ( stderr, "E", fmt, ap );
+	if ( _h5_debuglevel < 1 ) return;
+	_vprintf ( stderr, "E", f->__funcname, fmt, ap );
 }
 
-void
-h5_print_error (
-	const char *fmt,
-	...
-	) {
 
-	va_list ap;
-	va_start ( ap, fmt );
-	h5_vprint_error ( fmt, ap );
-	va_end ( ap );
-}
+/*!
+  \ingroup h5_core_errorhandling
 
+  Print a warning message to \c stderr.
+*/
 void
-h5_vprint_warn (
+h5_vwarn (
+	h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	) {
 
-	if ( _h5_debug < 2 ) return;
-	_vprintf ( stderr, "W", fmt, ap );
+	if ( _h5_debuglevel < 2 ) return;
+	_vprintf ( stderr, "W", f->__funcname, fmt, ap );
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Print a warning message to \c stderr.
+*/
 void
-h5_print_warn (
+h5_warn (
+	h5_file_t * const f,
 	const char *fmt,
 	...
 	) {
 
 	va_list ap;
 	va_start ( ap, fmt );
-	h5_vprint_warn ( fmt, ap );
+	h5_vwarn ( f, fmt, ap );
 	va_end ( ap );
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Print an informational message to \c stdout.
+*/
 void
-h5_vprint_info (
+h5_vinfo (
+	h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	) {
 
-	if ( _h5_debug < 3 ) return;
-	_vprintf ( stdout, "I", fmt, ap );
+	if ( _h5_debuglevel < 3 ) return;
+	_vprintf ( stdout, "I", f->__funcname, fmt, ap );
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Print an informational message to \c stdout.
+*/
 void
-h5_print_info (
+h5_info (
+	h5_file_t * const f,
 	const char *fmt,
 	...
 	) {
 
 	va_list ap;
 	va_start ( ap, fmt );
-	h5_vprint_info ( fmt, ap );
+	h5_vinfo ( f, fmt, ap );
 	va_end ( ap );
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Print a debug message to \c stdout.
+*/
 void
-h5_vprint_debug (
+h5_vdebug (
+	h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	) {
 
-	if ( _h5_debug < 4 ) return;
-	_vprintf ( stdout, "D", fmt, ap );
+	if ( _h5_debuglevel < 4 ) return;
+	_vprintf ( stdout, "D", f->__funcname, fmt, ap );
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Print a debug message to \c stdout.
+*/
 void
-h5_print_debug (
+h5_debug (
+	h5_file_t * const f,
 	const char *fmt,
 	...
 	) {
 
 	va_list ap;
 	va_start ( ap, fmt );
-	h5_vprint_debug ( fmt, ap );
+	h5_vdebug ( f, fmt, ap );
 	va_end ( ap );
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Set function name. This name will used as prefix to all message.
+*/
 void
 h5_set_funcname (
-	const char  * const fname
+	h5_file_t * const f,
+	const char * const fname
 	) {
-	__funcname = (char * const) fname;
+	f->__funcname = (char * const) fname;
 }
 
+/*!
+  \ingroup h5_core_errorhandling
+
+  Get function name.
+*/
 const char *
 h5_get_funcname (
-	void
+	h5_file_t * const f
 	) {
-	return __funcname;
+	return f->__funcname;
 }
 
-const char *
-h5_get_objname (
-	hid_t id
-	) {
-	static char objname[256];
-
-	memset ( objname, 0, sizeof(objname) );
-	ssize_t size = H5Iget_name ( id, objname, sizeof(objname) );
-	if ( size < 0 ) {
-		strcpy ( objname, "[error getting object name]" );
-	} else if ( size == 0 ) {
-		strcpy ( objname, "[no name associated with identifier]" );
-	}
-
-	return objname;
-}

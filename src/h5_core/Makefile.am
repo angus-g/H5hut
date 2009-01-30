@@ -47,6 +47,7 @@ include_HEADERS = \
 	h5_core.h \
 	h5_errorhandling.h \
 	h5_errorhandling_private.h \
+	h5_fcmp.h \
 	h5_hdf5.h \
 	h5_maps.h \
 	h5_openclose.h \
@@ -58,15 +59,18 @@ include_HEADERS = \
 	h5b_errorhandling_private.h \
 	h5t_boundaries.h \
 	h5t_boundaries_private.h \
+	h5t_consts_private.h \
 	h5t_errorhandling_private.h \
+	h5t_inquiry.h \
 	h5t_map.h \
 	h5t_openclose.h \
 	h5t_readwrite.h \
 	h5t_readwrite_private.h \
-	h5t_storemesh.h
-	h5t_storemesh_private.h
+	h5t_storemesh.h \
+	h5t_storemesh_private.h \
 	h5u_errorhandling_private.h \
-	h5u_readwrite.h
+	h5u_readwrite.h \
+	hdf5_misc.h
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS =
@@ -75,6 +79,7 @@ EXTRA_HEADERS =
 libH5_core_a_SOURCES = \
 	h5_attribs.c \
 	h5_errorhandling.c \
+	h5_fcmp.c \
 	h5_hdf5.c \
 	h5_maps.c \
 	h5_openclose.c \
@@ -83,12 +88,15 @@ libH5_core_a_SOURCES = \
 	h5_readwrite.c \
 	h5_syscall.c \
 	h5t_boundaries.c \
+	h5t_consts.c \
 	h5t_errorhandling.c \
+	h5t_inquiry.c \
 	h5t_map.c \
 	h5t_openclose.c \
 	h5t_readwrite.c \
 	h5t_storemesh.c \
-	h5u_readwrite.c
+	h5u_readwrite.c \
+	hdf5_misc.c
 
 all: libH5_core.a
 

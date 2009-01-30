@@ -30,7 +30,7 @@ h5t_store_tet (
 	h5_file_t * const f,
 	const h5_id_t global_id,
 	const h5_id_t parent_id,
-	const h5_id_t vertex_ids[4]
+	const h5_id_t vids[4]
 	);
 
 h5_id_t
@@ -38,6 +38,6 @@ h5t_store_triangle (
 	h5_file_t * const f,
 	const h5_id_t global_id,
 	const h5_id_t parent_id,
-	const h5_id_t vertex_ids[3]
+	const h5_id_t vids[3]
 	);
 #endif

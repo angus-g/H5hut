@@ -51,6 +51,6 @@ h5t_traverse_boundary_faces (
 	h5_file_t * const f,
 	h5_id_t * const global_id,
 	h5_id_t * const parent_id,
-	h5_id_t vertex_ids[]
+	h5_id_t vids[]
 	);
 #endif
