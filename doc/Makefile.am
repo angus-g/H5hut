@@ -9,14 +9,12 @@ DOXYGROUPS = \
 EXTRA_DIST = \
 	Doxyfile doxyfooter
 
-all: doxydoc twiki
+all:
+
+doc:	doxydoc
 
 doxydoc:
 	doxygen
-
-twiki: doxydoc
-	mkdir -p TWiki
-	for g in ${DOXYGROUPS}; do for f in ReferencePages/group__$${g}_*.html; do ./html2twiki $$f  TWiki; done; done
 
 clean:
 	${RM} -rf ReferencePages TWiki
