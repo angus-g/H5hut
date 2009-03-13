@@ -1,5 +1,5 @@
-#ifndef __T_OPENCLOSE_H
-#define __T_OPENCLOSE_H
+#ifndef __H5T_OPENCLOSE_H
+#define __H5T_OPENCLOSE_H
 
 h5_err_t
 _h5t_open_file (

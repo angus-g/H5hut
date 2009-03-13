@@ -20,7 +20,7 @@ h5_close_file (
 	);
 
 h5_int64_t
-h5_define_stepname_fmt (
+h5_set_stepname_fmt (
 	h5_file_t * const f,
 	const char *name,
 	const h5_int64_t width

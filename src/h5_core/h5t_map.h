@@ -1,5 +1,5 @@
-#ifndef __T_MAP_H
-#define __T_MAP_H
+#ifndef __H5T_MAP_H
+#define __H5T_MAP_H
 
 h5_id_t
 h5t_map_global_vid2local (

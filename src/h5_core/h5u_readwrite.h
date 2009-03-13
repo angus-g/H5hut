@@ -1,5 +1,5 @@
-#ifndef __U_READWRITE_H
-#define __U_READWRITE_H
+#ifndef __H5U_READWRITE_H
+#define __H5U_READWRITE_H
 
 h5_int64_t
 h5u_get_num_elems (

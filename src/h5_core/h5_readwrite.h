@@ -1,5 +1,5 @@
-#ifndef __READWRITE_H
-#define __READWRITE_H
+#ifndef __H5_READWRITE_H
+#define __H5_READWRITE_H
 
 h5_int64_t
 h5_write_data (
@@ -11,20 +11,6 @@ h5_write_data (
 	const hid_t memspace_id,
 	const hid_t diskspace_id
 	) ;
-
-h5_err_t
-h5_write_dataset (
-	h5_file_t * const f,
-	const hid_t group_id,
-	const char dataset_name[],
-	const hid_t type_id,
-	const hid_t memspace_id,
-	const hid_t diskspace_id,
-	const void * const data
-	) ;
-
-
-
 
 h5_int64_t
 h5_set_step (

@@ -1,16 +1,27 @@
 #ifndef __H5_TYPES_H
 #define __H5_TYPES_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
+#include <hdf5.h>
+
+/*
+  file modes:
+  H5_O_RDONLY: only reading allowed
+  H5_O_WRONLY: create new file, dataset must not exist
+  H5_O_APPEND: allows to append a new datasets to an existing file
+  H5_O_RDWR:   dataset may exist
+*/
 
 #define H5_O_RDWR		0
 #define H5_O_RDONLY		1
 #define H5_O_WRONLY		2
 #define H5_O_APPEND		3
+
+#define H5_ID_T			H5T_NATIVE_INT64
+#define H5_FLOAT64_T		H5T_NATIVE_DOUBLE
+#define H5_FLOAT32_T		H5T_NATIVE_FLOAT
+#define H5_INT64_T		H5T_NATIVE_INT64
+#define H5_INT32_T		H5T_NATIVE_INT32
+#define H5_COMPOUND_T		H5T_COMPOUND
 
 extern const char * const H5_O_MODES[];
 
@@ -86,32 +97,6 @@ struct h5_file {
 	h5_int64_t step_idx;		/* step index			*/
 	int	is_new_step;
 
-	/*
-	  BEGIN unstructured stuff,
-	  should be moved to struct h5u_fdata
-	*/
-
-	hsize_t nparticles;		/* -> u.nparticles */
-	
-	h5_int64_t viewstart; /* -1 if no view is available: A "view" looks */
-	h5_int64_t viewend;   /* at a subset of the data. */
-  
-	/**
-	   the number of particles in each processor.
-	   With respect to the "VIEW", these numbers
-	   can be regarded as non-overlapping subsections
-	   of the particle array stored in the file.
-	   So they can be used to compute the offset of
-	   the view for each processor
-	*/
-	h5_int64_t *pnparticles;
-
-	hid_t shape;
-	hid_t diskshape;
-	hid_t memshape;
-
-	/* END unstructured */
-	
 	struct h5u_fdata *u;
 	struct h5b_fdata *b;
 	struct h5t_fdata *t;
@@ -127,6 +112,6 @@ enum h5_oid {		/* enum with number of vertices(!) */
 };
 typedef enum h5_oid h5_oid_t;
 
-#define H5_MAX_VERTICES_PER_ENTITY H5_OID_TETRAHEDRON
+#define H5_MAX_VERTICES_PER_ELEM H5_OID_TETRAHEDRON
 
 #endif

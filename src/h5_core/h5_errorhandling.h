@@ -1,5 +1,5 @@
-#ifndef __ERRORHANDLING_H
-#define __ERRORHANDLING_H
+#ifndef __H5_ERRORHANDLING_H
+#define __H5_ERRORHANDLING_H
 
 #define SET_FNAME( f, fname )	h5_set_funcname( f, fname );
 #define CHECK_FILEHANDLE( f ) \
@@ -154,11 +154,6 @@ h5_set_funcname (
 const char *
 h5_get_funcname (
 	h5_file_t * const f
-	);
-
-const char *
-h5_get_objname (
-	hid_t id
 	);
 
 #endif

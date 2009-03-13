@@ -1,3 +1,4 @@
+#include <string.h>
 #include <hdf5.h>
 #include "h5_core.h"
 #include "h5_core_private.h"
@@ -103,7 +104,7 @@ hdf5_get_num_objects (
 }
 
 const char *
-hdf5_get_objname (
+h5_get_objname (
 	hid_t id
 	) {
 	static char objname[256];

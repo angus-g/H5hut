@@ -1,5 +1,5 @@
-#ifndef __ATTRIBS_H
-#define __ATTRIBS_H
+#ifndef __H5_ATTRIBS_H
+#define __H5_ATTRIBS_H
 
 h5_int64_t
 h5_read_attrib (

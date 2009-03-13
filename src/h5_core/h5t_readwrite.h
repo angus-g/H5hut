@@ -1,13 +1,8 @@
-#ifndef __T_READWRITE_H
-#define __T_READWRITE_H
+#ifndef __H5T_READWRITE_H
+#define __H5T_READWRITE_H
 
 h5_err_t
 _h5t_write_mesh (
-	h5_file_t * f
-	);
-
-h5_id_t
-h5t_add_mesh (
 	h5_file_t * f
 	);
 

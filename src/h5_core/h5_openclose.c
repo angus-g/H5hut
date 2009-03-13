@@ -50,19 +50,6 @@ _h5_error_handler (
 	return 0;
 }
 
-static h5_int64_t
-_init ( void ) {
-	static int __init = 0;
-
-	herr_t r5;
-	if ( ! __init ) {
-		r5 = H5Eset_auto ( H5E_DEFAULT, _h5_error_handler, NULL );
-		if ( r5 < 0 ) return H5_ERR_INIT;
-	}
-	__init = 1;
-	return H5_SUCCESS;
-}
-
 /*!
   \ingroup h5_private
 
@@ -76,14 +63,20 @@ static h5_int64_t
 _h5u_open_file (
 	h5_file_t *f			/*!< IN: file handle */
 	) {
- 	f->shape = 0;
-	f->diskshape = H5S_ALL;
-	f->memshape = H5S_ALL;
-	f->viewstart = -1;
-	f->viewend = -1;
-	f->pnparticles =
+	f->u = (struct h5u_fdata*) malloc( sizeof (*f->u) );
+	if ( f->u == NULL ) {
+		return HANDLE_H5_NOMEM_ERR( f );
+	}
+	struct h5u_fdata *u = f->u;
+
+ 	u->shape = 0;
+	u->diskshape = H5S_ALL;
+	u->memshape = H5S_ALL;
+	u->viewstart = -1;
+	u->viewend = -1;
+	u->pnparticles =
 		(h5_int64_t*) malloc (f->nprocs * sizeof (h5_int64_t));
-	if (f->pnparticles == NULL) {
+	if (u->pnparticles == NULL) {
 		return HANDLE_H5_NOMEM_ERR( f );
 	}
 	return H5_SUCCESS;
@@ -143,43 +136,22 @@ _h5b_open_file (
   \return File handle.
   \return NULL on error.
 */
- 
-h5_file_t *
-h5_open_file (
+
+h5_err_t
+_h5_open_file (
+	h5_file_t * const f,
 	const char *filename,	/*!< The name of the data file to open. */
 	h5_int32_t flags,	/*!< The access mode for the file. */
-	MPI_Comm comm,		/*!< MPI communicator */
-	const char *funcname	/*!< calling function name */
+	MPI_Comm comm		/*!< MPI communicator */
 	) {
-
-
-	h5_file_t *f = NULL;
-
-	f = (h5_file_t*) malloc( sizeof (h5_file_t) );
-	if( f == NULL ) {
-		fprintf(
-			stderr,
-			"E: %s: Can't open file %s. Not enough memory!",
-			funcname,
-			filename );
-		return NULL;
-	}
-	memset (f, 0, sizeof (h5_file_t));
-
-	if ( _init() < 0 ) {
-		HANDLE_H5_INIT_ERR( f );
-		return NULL;
-	}
-
-	f->__funcname = funcname;
 	h5_info ( f, "Opening file %s.", filename );
 
+	TRY ( _h5_set_errorhandler ( f, H5E_DEFAULT, _h5_error_handler, NULL ) );
 
 	f->prefix_step_name = strdup ( H5PART_GROUPNAME_STEP );
-	if( f->prefix_step_name == NULL ) {
-		HANDLE_H5_NOMEM_ERR( f );
-		goto error_cleanup;
-	}
+	if( f->prefix_step_name == NULL )
+		return HANDLE_H5_NOMEM_ERR( f );
+
 	f->width_step_idx = 0;
 
 	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
@@ -189,50 +161,38 @@ h5_open_file (
 	f->myproc = 0;
 
 #ifdef PARALLEL_IO
-		f->comm = comm;
-		if (MPI_Comm_size (comm, &f->nprocs) != MPI_SUCCESS) {
-			HANDLE_MPI_COMM_SIZE_ERR;
-			goto error_cleanup;
-		}
-		if (MPI_Comm_rank (comm, &f->myproc) != MPI_SUCCESS) {
-			HANDLE_MPI_COMM_RANK_ERR;
-			goto error_cleanup;
-		}
+	f->comm = comm;
+	if (MPI_Comm_size (comm, &f->nprocs) != MPI_SUCCESS) {
+		return HANDLE_MPI_COMM_SIZE_ERR;
+	}
+	if (MPI_Comm_rank (comm, &f->myproc) != MPI_SUCCESS) {
+		return HANDLE_MPI_COMM_RANK_ERR;
+	}
+	
+	
+	/* for the SP2... perhaps different for linux */
+	MPI_Info info = MPI_INFO_NULL;
+	
+	/* ks: IBM_large_block_io */
+	MPI_Info_create(&info);
+	MPI_Info_set(info, "IBM_largeblock_io", "true" );
+	if (H5Pset_fapl_mpio (f->access_prop, comm, info) < 0) {
+		return HANDLE_H5P_SET_FAPL_MPIO_ERR;
+	}
+	MPI_Info_free(&info);
+	
+	TRY ( f->access_prop = _h5_create_property ( f, H5P_FILE_ACCESS ) );
 
+	/*TRY ( f->create_prop = _h5_create_property ( f, H5P_FILE_CREATE) );*/
+	f->create_prop = H5P_DEFAULT;
 
-		/* for the SP2... perhaps different for linux */
-		MPI_Info info = MPI_INFO_NULL;
-
-		/* ks: IBM_large_block_io */
-		MPI_Info_create(&info);
-		MPI_Info_set(info, "IBM_largeblock_io", "true" );
-		if (H5Pset_fapl_mpio (f->access_prop, comm, info) < 0) {
-			HANDLE_H5P_SET_FAPL_MPIO_ERR;
-			goto error_cleanup;
-		}
-		MPI_Info_free(&info);
-
-		f->access_prop = H5Pcreate (H5P_FILE_ACCESS);
-		if (f->access_prop < 0) {
-			HANDLE_H5P_CREATE_ERR;
-			goto error_cleanup;
-		}
-
-		/* f->create_prop = H5Pcreate(H5P_FILE_CREATE); */
-		f->create_prop = H5P_DEFAULT;
-
-		/* xfer_prop:  also used for parallel I/O, during actual writes
-		   rather than the access_prop which is for file creation. */
-		f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
-		if (f->xfer_prop < 0) {
-			HANDLE_H5P_CREATE_ERR;
-			goto error_cleanup;
-		}
-
+	/* xfer_prop:  also used for parallel I/O, during actual writes
+	   rather than the access_prop which is for file creation. */
+	TRY ( f->xfer_prop = _h5_create_property ( f, H5P_DATASET_XFER ) );
+	
 #ifdef COLLECTIVE_IO
-		if (H5Pset_dxpl_mpio (f->xfer_prop,H5FD_MPIO_COLLECTIVE) < 0) {
-			HANDLE_H5P_SET_DXPL_MPIO_ERR;
-			goto error_cleanup;
+	if (H5Pset_dxpl_mpio (f->xfer_prop,H5FD_MPIO_COLLECTIVE) < 0) {
+		return HANDLE_H5P_SET_DXPL_MPIO_ERR;
 		}
 #endif /* COLLECTIVE_IO */
 
@@ -260,19 +220,16 @@ h5_open_file (
 		}
 	}
 	else {
-		HANDLE_H5_FILE_ACCESS_TYPE_ERR ( f, flags );
-		goto error_cleanup;
+		return HANDLE_H5_FILE_ACCESS_TYPE_ERR ( f, flags );
 	}
-
-	if (f->file < 0) {
-		HANDLE_H5F_OPEN_ERR ( f, filename, flags );
-		goto error_cleanup;
-	}
-	f->root_gid = H5Gopen( f->file, "/", H5P_DEFAULT );
-	if ( f->root_gid < 0 ) {
-		HANDLE_H5G_OPEN_ERR ( f, "", "" );
-		goto error_cleanup;
-	}
+	
+	if (f->file < 0)
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot open file \"%s\" with mode \"%d\"",
+			filename, flags );
+	TRY ( f->root_gid = _h5_open_group ( f,  f->file, "/" ) );
 	f->mode = flags;
 	f->step_gid = -1;
 
@@ -281,31 +238,47 @@ h5_open_file (
 		"%s#%0*lld",
 		f->prefix_step_name, f->width_step_idx, (long long) f->step_idx );
 
-	if ( _h5u_open_file ( f ) < 0 ) {
-		goto error_cleanup;
-	}
+	TRY ( _h5u_open_file ( f ) );
+	TRY ( _h5b_open_file ( f ) );
+	TRY ( _h5t_open_file ( f ) );
+	return H5_SUCCESS;
+}
+ 
+h5_file_t *
+h5_open_file (
+	const char *filename,	/*!< The name of the data file to open. */
+	h5_int32_t flags,	/*!< The access mode for the file. */
+	MPI_Comm comm,		/*!< MPI communicator */
+	const char *funcname	/*!< calling function name */
+	) {
 
-	if ( _h5b_open_file ( f ) < 0 ) {
-		goto error_cleanup;
-	}
 
-	if ( _h5t_open_file ( f ) < 0 ) {
-		goto error_cleanup;
-	}
+	h5_file_t *f = NULL;
 
+	f = (h5_file_t*) malloc( sizeof (h5_file_t) );
+	if( f == NULL ) {
+		fprintf(
+			stderr,
+			"E: %s: Can't open file %s. Not enough memory!",
+			funcname,
+			filename );
+		return NULL;
+	}
+	memset (f, 0, sizeof (h5_file_t));
+	f->__funcname = funcname;
+	if ( _h5_open_file( f, filename, flags, comm ) < 0 ) {
+		if (f != NULL ) {
+			if (f->prefix_step_name) {
+				free (f->prefix_step_name);
+			}
+			if (f->u->pnparticles != NULL) {
+				free (f->u->pnparticles);
+			}
+			free (f);
+		}
+		return NULL;
+	}
 	return f;
-
- error_cleanup:
-	if (f != NULL ) {
-		if (f->prefix_step_name) {
-			free (f->prefix_step_name);
-		}
-		if (f->pnparticles != NULL) {
-			free (f->pnparticles);
-		}
-		free (f);
-	}
-	return NULL;
 }
 
 /*!
@@ -322,25 +295,23 @@ static h5_int64_t
 _h5u_close_file (
 	h5_file_t *f		/*!< file handle */
 	) {
-	herr_t herr;
+	struct h5u_fdata *u = f->u;
+
 	f->__errno = H5_SUCCESS;
-	if( f->shape > 0 ) {
-		herr = H5Sclose( f->shape );
-		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR( f );
-		f->shape = 0;
+	if( u->shape > 0 ) {
+		TRY( _h5_close_dataspace( f, u->shape ) );
+		u->shape = 0;
 	}
-	if( f->diskshape != H5S_ALL ) {
-		herr = H5Sclose( f->diskshape );
-		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR( f );
-		f->diskshape = 0;
+	if( u->diskshape != H5S_ALL ) {
+		TRY( _h5_close_dataspace( f, u->diskshape ) );
+		u->diskshape = 0;
 	}
-	if( f->memshape != H5S_ALL ) {
-		herr = H5Sclose( f->memshape );
-		if ( herr < 0 ) HANDLE_H5S_CLOSE_ERR( f );
-		f->memshape = 0;
+	if( u->memshape != H5S_ALL ) {
+		TRY( _h5_close_dataspace( f, u->memshape ) );
+		u->memshape = 0;
 	}
-	if( f->pnparticles ) {
-		free( f->pnparticles );
+	if( u->pnparticles ) {
+		free( u->pnparticles );
 	}
 	return f->__errno;
 }
@@ -359,30 +330,12 @@ static h5_int64_t
 _h5b_close_file (
 	h5_file_t *f		/*!< IN: file handle */
 	) {
-
-	herr_t herr;
 	struct h5b_fdata *b = f->b;
 
-	if ( b->blockgroup >= 0 ) {
-		herr = H5Gclose ( b->blockgroup );
-		if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR( f );
-		b->blockgroup = -1;
-	}
-	if ( b->shape >= 0 ) {
-		herr = H5Sclose ( b->shape );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
-		b->shape = -1;
-	}
-	if ( b->diskshape >= 0 ) {
-		herr = H5Sclose ( b->diskshape );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
-		b->diskshape = -1;
-	}
-	if ( b->memshape >= 0 ) {
-		herr = H5Sclose ( b->memshape );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
-		b->memshape = -1;
-	}
+	TRY ( _h5_close_group( f, b->blockgroup ) );
+	TRY ( _h5_close_dataspace( f, b->shape ) );
+	TRY ( _h5_close_dataspace( f, b->diskshape ) );
+	TRY ( _h5_close_dataspace( f, b->memshape ) );
 	free ( f->b );
 	f->b = NULL;
 
@@ -398,57 +351,31 @@ _h5b_close_file (
 
   \return	H5_SUCCESS or error code
 */
-h5_int64_t
+h5_err_t
 h5_close_file (
 	h5_file_t *f		/*!< file handle */
 	) {
-	herr_t r = 0;
 	f->__errno = H5_SUCCESS;
 
 	CHECK_FILEHANDLE ( f );
 
-	_h5_close_step ( f );
+	TRY( _h5_close_step ( f ) );
+	TRY( _h5u_close_file ( f ) );
+	TRY( _h5b_close_file ( f ) );
+	TRY( _h5t_close_file ( f ) );
+	TRY( _h5_close_group( f, f->step_gid ) );
+	TRY( _h5_close_property ( f, f->xfer_prop ) );
+	TRY( _h5_close_property ( f, f->access_prop ) );
+	TRY( _h5_close_property ( f, f->create_prop ) );
+	TRY( _h5_close_group ( f, f->root_gid ) );
+	TRY( _h5_close_file ( f, f->file ) );
 
-	_h5u_close_file ( f );
-	_h5b_close_file ( f );
-	_h5t_close_file ( f );
-
-	if( f->step_gid >= 0 ) {
-		r = H5Gclose( f->step_gid );
-		if ( r < 0 ) HANDLE_H5G_CLOSE_ERR( f );
-		f->step_gid = -1;
-	}
-	if( f->xfer_prop != H5P_DEFAULT ) {
-		r = H5Pclose( f->xfer_prop );
-		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( f, "f->xfer_prop" );
-		f->xfer_prop = H5P_DEFAULT;
-	}
-	if( f->access_prop != H5P_DEFAULT ) {
-		r = H5Pclose( f->access_prop );
-		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( f, "f->access_prop" );
-		f->access_prop = H5P_DEFAULT;
-	}  
-	if( f->create_prop != H5P_DEFAULT ) {
-		r = H5Pclose( f->create_prop );
-		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( f, "f->create_prop" );
-		f->create_prop = H5P_DEFAULT;
-	}
-	if ( f->root_gid >= 0 ) {
-		r = H5Gclose ( f->root_gid );
-		if ( r < 0 ) HANDLE_H5G_CLOSE_ERR( f );
-		f->root_gid = 0;
-	}
-	if ( f->file ) {
-		r = H5Fclose( f->file );
-		if ( r < 0 ) HANDLE_H5F_CLOSE_ERR( f );
-		f->file = 0;
-	}
 	if (f->prefix_step_name) {
 		free (f->prefix_step_name);
 	}
 	free( f );
 
-	return f->__errno;
+	return H5_SUCCESS;
 }
 
 /*!

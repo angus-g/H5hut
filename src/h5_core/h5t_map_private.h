@@ -1,5 +1,5 @@
-#ifndef __T_MAP_PRIVATE_H
-#define __T_MAP_PRIVATE_H
+#ifndef __H5T_MAP_PRIVATE_H
+#define __H5T_MAP_PRIVATE_H
 
 h5_err_t
 _h5t_sort_global_vids (

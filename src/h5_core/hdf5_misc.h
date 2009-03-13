@@ -8,17 +8,17 @@ hdf5_get_num_objects (
 	const hid_t type
 	);
 
+const char *
+h5_get_objname (
+	hid_t id
+	);
+
 h5_int64_t
 hdf5_get_num_objects_matching_pattern (
 	hid_t group_id,
 	const char *group_name,
 	const hid_t type,
 	char * const pattern
-	);
-
-const char *
-hdf5_get_objname (
-	hid_t id
 	);
 
 h5_int64_t

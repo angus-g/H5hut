@@ -11,7 +11,7 @@
 
 h5_size_t
 h5t_get_num_meshes (
-	h5_file_t * f,
+	h5_file_t * const f,
 	const enum h5_oid type
 	) {
 	struct h5t_fdata *t = f->t;
@@ -24,7 +24,7 @@ h5t_get_num_meshes (
 	}
 	TRY( t->num_meshes = (h5_size_t)hdf5_get_num_objects (
 			t->topo_gid,
-			_h5t_meshes_grpnames[t->mesh_type],
+			_h5t_meshes_grpnames[type],
 			H5G_GROUP ) );
 
 	return t->num_meshes;
@@ -37,29 +37,25 @@ h5t_get_num_levels (
 	h5_file_t * f
 	) {
 	struct h5t_fdata *t = f->t;
-	h5_err_t h5err;
+	hid_t dataset_id;
+	hid_t diskspace_id;
 
 	if ( t->num_levels >= 0 ) return t->num_levels;
 	if ( t->cur_mesh < 0 ) {
 		return _h5t_error_undef_mesh ( f );
 	}
 	if ( t->mesh_gid < 0 ) {
-		h5err = _h5t_open_mesh_group ( f );
-		if ( h5err < 0 ) return h5err;
+		TRY( _h5t_open_mesh_group ( f ) );
 	}
-	hid_t dataset_id = H5Dopen ( t->mesh_gid, "NumVertices", H5P_DEFAULT );
-	if ( dataset_id < 0 )
-		return HANDLE_H5D_OPEN_ERR ( f, "NumVertices" );
-	hid_t diskspace_id = H5Dget_space( dataset_id );
-	if ( diskspace_id < 0 )
-		return HANDLE_H5D_GET_SPACE_ERR ( f );
+	TRY( dataset_id = _h5_open_dataset ( f, t->mesh_gid, "NumVertices" ) );
+	TRY( diskspace_id = _h5_get_dataset_space ( f, dataset_id ) );
+
 	hssize_t size = H5Sget_simple_extent_npoints ( diskspace_id );
 	if ( size < 0 )
 		return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR ( f );
 
-	herr_t herr = H5Sclose ( diskspace_id );
-	if ( herr < 0 )
-		return HANDLE_H5S_CLOSE_ERR ( f );
+	TRY( _h5_close_dataspace( f, diskspace_id ) );
+
 	t->num_levels = size;
 	return size;
 }

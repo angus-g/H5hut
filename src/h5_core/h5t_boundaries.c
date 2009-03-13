@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include <hdf5.h>
 
 #include "h5_core/h5_core.h"
@@ -111,40 +114,41 @@ _h5t_read_boundaryfaces (
 	) {
 	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
+	hid_t diskspace_id;
 
 	const char * const dataset_name = "Faces";
-	hid_t dataset_id = H5Dopen ( boundary->gid, dataset_name, H5P_DEFAULT );
-	if ( dataset_id < 0 ) 
-		return HANDLE_H5D_OPEN_ERR ( f, dataset_name );
-
-	hid_t diskspace_id = H5Dget_space(dataset_id);
-	if ( diskspace_id < 0 ) return (hid_t)HANDLE_H5D_GET_SPACE_ERR ( f );
+	hid_t dataset_id;
+	TRY( dataset_id = _h5_open_dataset ( f, boundary->gid, dataset_name ) );
+	TRY( diskspace_id = _h5_get_dataset_space ( f, dataset_id ) );
 
 	h5_id_t num_faces = H5Sget_simple_extent_npoints ( diskspace_id );
 	if ( num_faces < 0 )
 		return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR ( f );
 
-	herr_t herr = H5Sclose ( diskspace_id );
-	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR ( f );
-
-	herr = H5Dclose ( dataset_id );
-	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR ( f );
+	TRY( _h5_close_dataspace( f, diskspace_id ) );
+	TRY( _h5_close_dataset( f, dataset_id ) );
 
 	h5t_add_num_boundaryfaces ( f, num_faces );
 
-	h5_err_t h5err = _h5_read_dataset (
+	TRY( _h5_read_dataset (
 		f,
 		dataset_id,
 		H5T_NATIVE_INT32,
 		H5S_ALL,
 		H5S_ALL,
-		boundary->faces );
-	if ( h5err < 0 ) return h5err;
-
-	herr = H5Dclose ( dataset_id );
-	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR ( f );
+		f->xfer_prop,
+		boundary->faces ) );
+	TRY( _h5_close_dataset( f, dataset_id ) );
 
 	return H5_SUCCESS;
+}
+
+static hid_t
+_open_space_all (
+	h5_file_t * const f,
+	hid_t dataset_id
+	) {
+	return H5S_ALL;
 }
 
 h5_err_t
@@ -154,16 +158,13 @@ _h5t_write_boundary (
 	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
 
-	hsize_t maxdim = H5S_UNLIMITED;
-
-	return _h5t_write_obj (
+	return _h5_write (
 		f,
 		boundary->gid,
-		boundary->num_faces[0],
-		maxdim,
-		H5T_NATIVE_INT32,
-		(void*)boundary->faces,
-		"Faces"
+		&boundary->dsinfo,
+		_open_space_all,
+		_open_space_all,
+		(void*)boundary->faces
 		);
 }
 
@@ -314,7 +315,7 @@ h5t_store_boundaryface_local_id (
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
 		h5_id_t local_tet_id = local_fid & H5_TET_MASK;
-		if ( t->elems.tets[local_tet_id].parent_id != -1 ) {
+		if ( t->elems.tets[local_tet_id].parent_eid != -1 ) {
 			return _h5t_error_store_boundaryface_local_id (
 				f,
 				local_fid );

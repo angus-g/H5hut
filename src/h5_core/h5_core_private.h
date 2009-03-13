@@ -1,5 +1,5 @@
-#ifndef __H5_PRIVATE_H
-#define __H5_PRIVATE_H
+#ifndef __H5_CORE_PRIVATE_H
+#define __H5_CORE_PRIVATE_H
 
 #include "h5_types_private.h"
 #include "h5b_types_private.h"
@@ -8,15 +8,20 @@
 
 #include "h5_errorhandling_private.h"
 #include "h5_qsort_private.h"
+#include "h5_readwrite_private.h"
 #include "h5_syscall_private.h"
+
 #include "h5b_errorhandling_private.h"
+
 #include "h5t_boundaries_private.h"
 #include "h5t_consts_private.h"
-#include "h5t_map_private.h"
 #include "h5t_errorhandling_private.h"
+#include "h5t_map_private.h"
 #include "h5t_readwrite_private.h"
 #include "h5t_storemesh_private.h"
+
 #include "h5u_errorhandling_private.h"
+#include "h5u_types_private.h"
 
 #define H5PART_GROUPNAME_STEP	"Step"
 
@@ -45,10 +50,10 @@
 	  (eid & H5_TET_MASK))
 
 #define TRY(func)						\
-	if ( (int64_t)(ptrdiff_t)(func) == (int64_t)(-1) )	\
+	if ( (int64_t)(ptrdiff_t)(func) < (int64_t)0 )	\
 		return H5_ERR;
 #define TRY2(func,exception)			\
-	if ( (int64_t)(ptrdiff_t)(func) == (int64_t)(-1) )	\
+	if ( (int64_t)(ptrdiff_t)(func) < (int64_t)0 )	\
 		goto exception;
 
 /*!

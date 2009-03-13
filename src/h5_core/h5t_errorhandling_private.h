@@ -36,7 +36,7 @@ _h5t_error_illegal_object_type (
 		f,						\
 		H5_ERR_NOENTRY,					\
 		"%s with global id %lld does not exist!",	\
-		name, (long)id );
+		name, id );
 
 
 #define _h5t_error_global_tet_id_nexist( f, vids )			\

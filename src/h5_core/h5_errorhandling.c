@@ -43,7 +43,7 @@ h5_err_t
 h5_set_debuglevel (
 	h5_id_t debuglevel	/*!< debug level */
 	) {
-	if ( debuglevel < 0 || debuglevel > 4 ) return H5_ERR_INVAL;
+	if ( debuglevel < 0 || debuglevel > 5 ) return H5_ERR_INVAL;
 	_h5_debuglevel = debuglevel;
 	return H5_SUCCESS;
 }

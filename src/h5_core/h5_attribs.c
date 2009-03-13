@@ -32,39 +32,25 @@ h5_read_attrib (
 	const char *attrib_name,	/*!< name of HDF5 attribute to read */
 	void * const attrib_value	/*!< OUT: attribute value */
 	) {
-
-	herr_t herr;
 	hid_t attrib_id;
 	hid_t space_id;
 	hid_t type_id;
 	hid_t mytype;
 	hsize_t nelem;
 
-	attrib_id = H5Aopen_name ( id, attrib_name );
-	if ( attrib_id <= 0 ) return HANDLE_H5A_OPEN_NAME_ERR( f, attrib_name );
-
-	mytype = H5Aget_type ( attrib_id );
-	if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR( f );
-
-	space_id = H5Aget_space ( attrib_id );
-	if ( space_id < 0 ) return HANDLE_H5A_GET_SPACE_ERR( f );
+	TRY ( attrib_id = _h5_open_attribute_by_name ( f, id, attrib_name ) );
+	TRY ( mytype = _h5_get_attribute_type ( f, attrib_id ) );
+	TRY ( space_id = _h5_get_attribute_space ( f, attrib_id ) );
 
 	nelem = H5Sget_simple_extent_npoints ( space_id );
 	if ( nelem < 0 ) return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR( f );
 
 	type_id = h5_normalize_h5_type ( f, mytype );
 
-	herr = H5Aread (attrib_id, type_id, attrib_value );
-	if ( herr < 0 ) return HANDLE_H5A_READ_ERR( f );
-
-	herr = H5Sclose ( space_id );
-	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
-
-	herr = H5Tclose ( mytype );
-	if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR( f );
-
-	herr = H5Aclose ( attrib_id );
-	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR( f );
+	TRY ( _h5_read_attribute ( f, attrib_id, type_id, attrib_value ) );
+	TRY ( _h5_close_dataspace( f, space_id ) );
+	TRY ( _h5_close_type( f, mytype ) );
+	TRY ( _h5_close_attribute ( f, attrib_id ) );
 
 	return H5_SUCCESS;
 }
@@ -85,31 +71,21 @@ h5_write_attrib (
 	const void *attrib_value,	/*!< value of attribute */
 	const hsize_t attrib_nelem	/*!< number of elements (dimension) */
 	) {
-
-	herr_t herr;
 	hid_t space_id;
 	hid_t attrib_id;
 
-	space_id = H5Screate_simple (1, &attrib_nelem, NULL);
-	if ( space_id < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( f, 1 );
+	TRY ( space_id = _h5_create_dataset_space ( f, 1, &attrib_nelem, NULL) );
+	TRY ( attrib_id = _h5_create_attribute ( 
+		      f,
+		      id,
+		      attrib_name,
+		      attrib_type,
+		      space_id,
+		      H5P_DEFAULT, H5P_DEFAULT ) );
 
-	attrib_id = H5Acreate ( 
-		id,
-		attrib_name,
-		attrib_type,
-		space_id,
-		H5P_DEFAULT, H5P_DEFAULT );
-	if ( attrib_id < 0 ) return HANDLE_H5A_CREATE_ERR ( f, attrib_name );
-
-	herr = H5Awrite ( attrib_id, attrib_type, attrib_value);
-	if ( herr < 0 ) return HANDLE_H5A_WRITE_ERR ( f, attrib_name );
-
-	herr = H5Aclose ( attrib_id );
-	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR( f );
-
-	herr = H5Sclose ( space_id );
-	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
+	TRY ( _h5_write_attribute ( f, attrib_id, attrib_type, attrib_value ) );
+	TRY ( _h5_close_attribute ( f, attrib_id ) );
+	TRY ( _h5_close_dataspace ( f, space_id ) );
 
 	return H5_SUCCESS;
 }
@@ -131,8 +107,6 @@ h5_get_attrib_info (
 	h5_int64_t *attrib_type,	/*!< OUT: H5 type of attribute */
 	h5_int64_t *attrib_nelem	/*!< OUT: number of elements (dimension) */
 	) {
-
-	herr_t herr;
 	hid_t attrib_id;
 	hid_t mytype;
 	hid_t space_id;
@@ -141,34 +115,27 @@ h5_get_attrib_info (
 	if ( attrib_id < 0 ) return HANDLE_H5A_OPEN_IDX_ERR ( f, attrib_idx );
 
 	if ( attrib_nelem ) {
-		space_id =  H5Aget_space ( attrib_id );
-		if ( space_id < 0 ) return HANDLE_H5A_GET_SPACE_ERR( f );
+		TRY ( space_id = _h5_get_attribute_space ( f, attrib_id ) );
 
 		*attrib_nelem = H5Sget_simple_extent_npoints ( space_id );
 		if ( *attrib_nelem < 0 )
 			return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR( f );
 
-		herr = H5Sclose ( space_id );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR( f );
+		TRY( _h5_close_dataspace( f, space_id ) );
 	}
 	if ( attrib_name ) {
-		herr = H5Aget_name (
-			attrib_id,
-			(size_t)len_attrib_name,
-			attrib_name );
-		if ( herr < 0 ) return HANDLE_H5A_GET_NAME_ERR( f );
+		TRY ( _h5_get_attribute_name (
+			      f,
+			      attrib_id,
+			      (size_t)len_attrib_name,
+			      attrib_name ) );
 	}
 	if ( attrib_type ) {
-		mytype = H5Aget_type ( attrib_id );
-		if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR( f );
-
+		TRY ( mytype = _h5_get_attribute_type ( f, attrib_id ) );
 		*attrib_type = h5_normalize_h5_type ( f, mytype );
-
-		herr = H5Tclose ( mytype );
-		if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR( f );
+		TRY ( _h5_close_type( f, mytype ) );
 	}
-	herr = H5Aclose ( attrib_id);
-	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR( f );
+	TRY ( _h5_close_attribute ( f, attrib_id ) );
 
 	return H5_SUCCESS;
 }

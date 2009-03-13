@@ -1,5 +1,5 @@
-#ifndef __H5B_TYPES_PRIVATE_H
-#define __H5B_TYPES_PRIVATE_H
+#ifndef __H5U_TYPES_PRIVATE_H
+#define __H5U_TYPES_PRIVATE_H
 
 struct h5u_fdata {
 	hsize_t nparticles;		/* -> u.nparticles */
