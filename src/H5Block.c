@@ -546,23 +546,17 @@ h5_err_t
 _release_hyperslab (
 	h5_file_t *f			/*!< IN: file handle */
 	) {
-	herr_t herr;
+	struct h5b_fdata *b = f->b;
 
-	if ( f->b->shape > 0 ) {
-		herr = H5Sclose ( f->b->shape );
-		if ( herr < 0 ) return H5_ERR_HDF5;
-		f->b->shape = -1;
-	}
-	if ( f->b->diskshape > 0 ) {
-		herr = H5Sclose ( f->b->diskshape );
-		if ( herr < 0 ) return H5_ERR_HDF5;
-		f->b->diskshape = -1;
-	}
-	if ( f->b->memshape > 0 ) {
-		herr = H5Sclose ( f->b->memshape );
-		if ( herr < 0 ) return H5_ERR_HDF5;
-		f->b->memshape = -1;
-	}
+	TRY( _h5_close_dataspace( f, b->shape ) );
+	f->b->shape = -1;
+
+	TRY( _h5_close_dataspace( f, b->diskshape ) );
+	f->b->diskshape = -1;
+
+	TRY( _h5_close_dataspace( f, f->b->memshape ) );
+	f->b->memshape = -1;
+
 	return H5_SUCCESS;
 }
 
@@ -611,8 +605,7 @@ H5BlockDefine3DFieldLayout(
 	herr = _dissolve_ghostzones ( f );
 	if ( herr < 0 ) return HANDLE_H5_LAYOUT_ERR ( f );
 
-	herr = _release_hyperslab ( f );
-	if ( herr < 0 )	return HANDLE_H5S_CLOSE_ERR ( f );
+	TRY( _release_hyperslab ( f ) );
 
 	b->have_layout = 1;
 
@@ -785,19 +778,17 @@ _open_block_group (
 	struct h5b_fdata *b = f->b;
 
 	if ( (f->step_idx != b->step_idx) && (b->blockgroup > 0) ) {
-		herr_t herr = H5Gclose ( b->blockgroup );
-		if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR ( f );
+		TRY( _h5_close_group( f, b->blockgroup ) );
 		f->b->blockgroup = -1;
 	}
 
 	if ( b->blockgroup < 0 ) {
-		hid_t herr = H5Gopen ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK,
-				       H5P_DEFAULT );
-		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR (
-			f,
-			h5_get_objname(f->step_gid),
-			H5BLOCK_GROUPNAME_BLOCK );
-		b->blockgroup = herr;
+		TRY(
+			b->blockgroup = _h5_open_group (
+				f,
+				f->step_gid,
+				H5BLOCK_GROUPNAME_BLOCK )
+			);
 	}
 	b->step_idx = f->step_idx;
 
@@ -841,18 +832,12 @@ _open_field_group (
 
 	struct h5b_fdata *b = f->b;
 
-	h5_int64_t h5err = _open_block_group ( f );
-	if ( h5err < 0 ) return h5err;
+	TRY( _open_block_group ( f ) );
 
 	if ( ! _have_object ( b->blockgroup, name ) )
 		return HANDLE_H5_NOENT_ERR ( f, name );
 
-	herr_t herr = H5Gopen ( b->blockgroup, name, H5P_DEFAULT );
-	if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR (
-		f,
-		h5_get_objname(b->blockgroup), name );
-
-	b->field_group_id = herr;
+	TRY( b->field_group_id = _h5_open_group( f, b->blockgroup, name ) );
 
 	return H5_SUCCESS;
 }
@@ -914,8 +899,7 @@ _select_hyperslab_for_reading (
 		p->j_end - p->j_start + 1,
 		p->i_end - p->i_start + 1 };
 
-	h5_int64_t herr = _release_hyperslab ( f );
-	if ( herr < 0 )	return HANDLE_H5S_CLOSE_ERR ( f );
+	TRY( _release_hyperslab ( f ) );
 
  	b->diskshape = H5Dget_space ( dataset );
 	if ( b->diskshape < 0 ) return HANDLE_H5D_GET_SPACE_ERR ( f );
@@ -948,7 +932,7 @@ _select_hyperslab_for_reading (
 	if ( b->memshape < 0 )
 		return HANDLE_H5S_CREATE_SIMPLE_3D_ERR ( f, part_dims );
 
-	herr = H5Sselect_hyperslab (
+	herr_t herr = H5Sselect_hyperslab (
 		b->diskshape,
 		H5S_SELECT_SET,
 		start,
@@ -992,24 +976,28 @@ _read_data (
 	) {
 
 	struct h5b_fdata *b = f->b;
-
-	hid_t dataset_id = H5Dopen ( b->field_group_id, name, H5P_DEFAULT );
-	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( f, name );
-
-	h5_err_t herr = _select_hyperslab_for_reading ( f, dataset_id );
-	if ( herr < 0 ) return herr;
-
-	herr = H5Dread ( 
-		dataset_id,
-		type,
-		f->b->memshape,
-		f->b->diskshape,
-		H5P_DEFAULT,
-		data );
-	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( f, name );
-
-	herr = H5Dclose ( dataset_id );
-	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR ( f );
+	hid_t dataset_id;
+	TRY(
+		dataset_id = _h5_open_dataset (
+			f,
+			b->field_group_id, name
+			)
+		);
+	TRY( 
+		_select_hyperslab_for_reading ( f, dataset_id ) );
+	TRY( 
+		_h5_read_dataset(
+			f,
+			dataset_id,
+			type,
+			f->b->memshape,
+			f->b->diskshape,
+			H5P_DEFAULT,
+			data )
+		);
+	TRY(
+		_h5_close_dataset( f, dataset_id )
+		);
 
 	return H5_SUCCESS;
 }
@@ -1382,7 +1370,6 @@ _write_field_data (
 		data,
 		H5T_NATIVE_DOUBLE,
 		b->field_group_id,
-		b->shape,
 		b->memshape,
 		b->diskshape );
 }
@@ -1509,18 +1496,24 @@ _get_field_info (
 
 	hsize_t dims[16];
 	h5_id_t i, j;
+	hid_t group_id;
+	hid_t dataset_id;
 
-	h5_err_t herr = _open_block_group ( f );
-	if ( herr < 0 ) return herr;
-
-	hid_t group_id = H5Gopen ( f->b->blockgroup, field_name,
-				   H5P_DEFAULT );
-	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR (
-		f,
-		hdf5_get_objname(f->b->blockgroup), field_name );
-
-	hid_t dataset_id = H5Dopen ( group_id, "0", H5P_DEFAULT );
-	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( f, "0" );
+	TRY(
+		_open_block_group ( f )
+		);
+	TRY(
+		group_id = _h5_open_group(
+			f,
+			f->b->blockgroup,
+			field_name )
+		);
+	TRY(
+		dataset_id = _h5_open_dataset (
+			f,
+			group_id,
+			"0" )
+		);
 
  	hid_t dataspace_id = H5Dget_space ( dataset_id );
 	if ( dataspace_id < 0 ) return HANDLE_H5D_GET_SPACE_ERR ( f );
@@ -1537,14 +1530,9 @@ _get_field_info (
 		H5G_DATASET );
 	if ( *field_dims < 0 ) return *field_dims;
 
-	herr = H5Sclose ( dataspace_id );
-	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR ( f );
-
-	herr = H5Dclose ( dataset_id );
-	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR ( f );
-
-	herr = H5Gclose ( group_id ); 
-	if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR ( f );
+	TRY( _h5_close_dataspace( f, dataspace_id ) );
+	TRY( _h5_close_dataset( f, dataset_id ) );
+	TRY( _h5_close_group( f, group_id ) ); 
 
 	return H5_SUCCESS;
 }

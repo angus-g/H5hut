@@ -21,17 +21,20 @@
 
 h5_id_t
 H5FedAddTetMesh (
-	h5_file_t * const f
+	h5_file_t * const f,
+	const h5_size_t num_elems
 	);
 
 h5_id_t
 H5FedAddTriangleMesh (
-	h5_file_t * const f
+	h5_file_t * const f,
+	const h5_size_t num_elems
 	);
 
 h5_id_t
 H5FedAddLevel (
-	h5_file_t * f
+	h5_file_t * f,
+	const h5_size_t num_elems
 	);
 
 h5_err_t
@@ -56,8 +59,13 @@ H5FedStoreVertex (
 h5_id_t
 H5FedStoreElement (
 	h5_file_t * f,
-	h5_id_t *vertex_ids
+	const h5_id_t local_vids[]
 	);
 
+h5_id_t
+H5FedRefineElement (
+	h5_file_t * const f,
+	const h5_id_t local_eid
+	);
 
 #endif

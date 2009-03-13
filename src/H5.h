@@ -62,4 +62,25 @@ h5_err_t
 H5TraverseSteps (
 	h5_file_t *f
 	);
+
+h5_err_t
+H5SetVerbosityLevel (
+	const h5_id_t level
+	);
+
+h5_err_t
+H5SetErrorHandler (
+	h5_errorhandler_t handler
+	);
+
+h5_errorhandler_t
+H5GetErrorHandler (
+	void
+	);
+
+h5_err_t
+H5GetErrno (
+	h5_file_t * const f
+	);
+
 #endif

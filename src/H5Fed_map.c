@@ -28,7 +28,7 @@ H5FedMapTet2GlobalID (
 	h5_id_t * const global_vids
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_get_global_entity_id ( f, global_vids );
+	return h5t_get_global_eid ( f, global_vids );
 }
 
 

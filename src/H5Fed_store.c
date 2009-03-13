@@ -22,24 +22,31 @@
 h5_id_t
 H5FedAddTetMesh (
 	h5_file_t * const f,
+	const h5_size_t num_elems
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_open_mesh ( f, -1, H5_OID_TETRAHEDRON );
+	return h5t_add_mesh ( f, num_elems, H5_OID_TETRAHEDRON );
 }
 
 h5_id_t
 H5FedAddTriangleMesh (
-	h5_file_t * const f
+	h5_file_t * const f,
+	const h5_size_t num_elems
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_open_mesh ( f, -1, H5_OID_TRIANGLE );
+	return h5t_add_mesh ( f, num_elems, H5_OID_TRIANGLE );
 }
 
 
 /*!
   \ingroup h5fed_c_api
 
-  Add a new level.
+  Add a new level with \c num_elems elements. The number of elements must be the
+  real number of elements to add the level. If you want to refine \c n tetrahedra
+  \c n*8 elements must be added.
+
+  \param[in]	f		file handle
+  \param[in]	num_elems	Number of elements to add.
 
   \return ID of new level.
 
@@ -53,10 +60,12 @@ H5FedAddTriangleMesh (
 */
 h5_id_t
 H5FedAddLevel (
-	h5_file_t * const f		/*!< file handle		*/
+	h5_file_t * const f,		/*!< file handle		*/
+	const h5_size_t num_elems
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_add_level ( f );
+	h5_id_t num_vertices = (num_elems>>2)*3; /* this is an upper limit */
+	return h5t_add_level ( f, num_vertices, num_elems );
 }
 
 /*!
@@ -71,7 +80,7 @@ H5FedAddLevel (
 h5_id_t
 H5FedStoreVertex (
 	h5_file_t * const f,		/*!< file handle		*/
-	const h5_id_t id,		/*!< id from mesher or -1	*/
+	const h5_id_t vertex_id,	/*!< id from mesher or -1	*/
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
 
@@ -82,17 +91,7 @@ H5FedStoreVertex (
 			H5_ERR_INVAL,
 			"Vertices can be added to level 0 only!" );
 	}
-	return h5t_store_vertex ( f, id, P );
-}
-
-h5_err_t
-H5FedAddNumElements (
-	h5_file_t * const f,		/*!< file handle		*/
-	const h5_size_t num		/*!< number of additional
-					  tets on current level	*/
-	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_add_num_elements ( f, num );
+	return h5t_store_vertex ( f, vertex_id, P );
 }
 
 /*!
@@ -121,14 +120,14 @@ H5FedStoreElement (
 			H5_ERR_INVAL,
 			"Tetrahedra can be added to level 0 only!" );
 	}
-	return h5t_store_element ( f, -1, local_vids );
+	return h5t_store_elem ( f, -1, local_vids );
 }
 
 h5_id_t
 H5FedRefineElement (
 	h5_file_t * const f,		/*!< file handle		*/
-	const h5_id_t local_cid		/*!< local element id		*/
+	const h5_id_t local_eid		/*!< local element id		*/
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_refine_element ( f, local_cid );
+	return h5t_refine_elem ( f, local_eid );
 }

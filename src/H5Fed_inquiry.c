@@ -111,7 +111,7 @@ H5FedGetNumTriangles (
 	) {
 	SET_FNAME ( f, __func__ );
 	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_entities ( f, f->myproc, cur_level );
+	return h5t_get_num_elems ( f, f->myproc, cur_level );
 }
 
 /*!
@@ -129,7 +129,7 @@ H5FedGetNumTrianglesTotal (
 	) {
 	SET_FNAME ( f, __func__ );
 	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_entities ( f, -1, cur_level );
+	return h5t_get_num_elems ( f, -1, cur_level );
 }
 
 
@@ -149,7 +149,7 @@ H5FedGetNumTrianglesCnode (
 	) {
 	SET_FNAME ( f, __func__ );
 	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_entities ( f, cnode, cur_level );
+	return h5t_get_num_elems ( f, cnode, cur_level );
 }
 
 /******	TETRAHEDRON statistics routines **************************************/
@@ -169,7 +169,7 @@ H5FedGetNumTetrahedra (
 	) {
 	SET_FNAME ( f, __func__ );
 	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_entities ( f, f->myproc, cur_level );
+	return h5t_get_num_elems ( f, f->myproc, cur_level );
 }
 
 h5_size_t
@@ -178,7 +178,7 @@ H5FedGetNumTetrahedraTotal (
 	) {
 	SET_FNAME ( f, __func__ );
 	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_entities ( f, -1, cur_level );
+	return h5t_get_num_elems ( f, -1, cur_level );
 }
 
 /*!
@@ -196,7 +196,7 @@ h5_size_t H5FedGetNumTetrahedraCnode (
 	) {
 	SET_FNAME ( f, __func__ );
 	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_entities ( f, cnode, cur_level );
+	return h5t_get_num_elems ( f, cnode, cur_level );
 }
 
 

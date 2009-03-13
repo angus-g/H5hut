@@ -125,7 +125,7 @@ H5PartDefineStepName (
 	) {
 	SET_FNAME ( f, __func__ );
 
-	return h5_define_stepname_fmt( f, name, width );
+	return h5_set_stepname_fmt( f, name, width );
 }
 
 /*!
@@ -1027,67 +1027,4 @@ H5PartReadParticleStep (
 
 /****************** error handling ******************/
 
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_c_api_errhandling	Error Handling
-*/
-
-/*!
-  \ingroup h5part_c_api_errhandling
-
-  Set verbosity level to \c level.
-
-  \return \c H5_SUCCESS
-*/
-h5_int64_t
-H5PartSetVerbosityLevel (
-	const h5_int64_t level
-	) {
-
-	return h5_set_debuglevel ( level );
-}
-
-/*!
-  \ingroup h5part_c_api_errhandling
-
-  Set error handler to \c handler.
-
-  \return \c H5_SUCCESS
-*/
-h5_int64_t
-H5PartSetErrorHandler (
-	h5_errorhandler_t handler
-	) {
-  
-	return h5_set_errorhandler( handler );
-}
-
-/*!
-  \ingroup h5part_c_api_errhandling
-
-  Get current error handler.
-
-  \return Pointer to error handler.
-*/
-h5_errorhandler_t
-H5PartGetErrorHandler (
-	void
-	) {
-	return h5_get_errorhandler();
-}
-
-/*!
-  \ingroup h5part_c_api_errhandling
-
-  Get last error code.
-
-  \return error code
-*/
-h5_int64_t
-H5PartGetErrno (
-	h5_file_t * const f
-	) {
-	return h5_get_errno( f );
-}
-/*! @} */
 

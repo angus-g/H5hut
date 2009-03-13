@@ -1,10 +1,26 @@
-#ifndef _H5Part_H_
-#define _H5Part_H_
+/*
+  Header file for declaring the H5Fed application programming
+  interface (API) in the C language.
+  
+  Copyright 2006-2007
+ 	Paul Scherrer Institut, Villigen, Switzerland;
+ 	Benedikt Oswald;
+ 	Achim Gsell
+ 	All rights reserved.
+ 
+  Authors
+ 	Achim Gsell
+  
+  Warning
+	This code is under development.
+ 
+ */
+#ifndef __H5Part_H
+#define __H5Part_H
 
-#include <stdlib.h>
-#include <stdarg.h>
 #include <hdf5.h>
 #include "h5_core/h5_core.h"
+#include "H5.h"
 #ifdef PARALLEL_IO
 #include <mpi.h>
 #endif
@@ -270,40 +286,6 @@ H5PartReadFileAttrib (
 	h5_file_t *f,
 	const char *name,
 	void *data
-	);
-
-h5_int64_t
-H5PartSetVerbosityLevel (
-	const h5_int64_t level
-	);
-
-h5_int64_t
-H5PartSetErrorHandler (
-	const h5_errorhandler_t handler
-	);
-
-h5_int64_t
-H5PartGetErrno (
-	h5_file_t *f
-	);
-
-h5_errorhandler_t
-H5PartGetErrorHandler (
-	void
-	);
-
-h5_int64_t
-H5PartReportErrorHandler (
-	h5_file_t *f,
-	const char *fmt,
-	...
-	);
-
-h5_int64_t
-H5PartAbortErrorHandler (
-	h5_file_t *f,
-	const char *fmt,
-	...
 	);
 
 #ifdef __cplusplus

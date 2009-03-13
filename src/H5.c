@@ -62,7 +62,6 @@ H5OpenFile (
 	const h5_int32_t oflag,		/*!< file open flags		*/
 	const MPI_Comm comm		/*!< MPI communicator		*/
 	) {
-	
 	return h5_open_file( filename, H5_O_RDWR, comm, __func__ ); 
 }
 
@@ -99,7 +98,7 @@ H5DefineStepNameFormat (
 	) {
 	SET_FNAME ( f, __func__ );
 
-	return h5_define_stepname_fmt( f, name, width );
+	return h5_set_stepname_fmt( f, name, width );
 }
 
 /*!
@@ -188,3 +187,67 @@ H5TraverseSteps (
 
 	return h5_traverse_steps( f );
 }
+
+/*!
+  \ingroup h5part_c_api
+  \defgroup h5part_c_api_errhandling	Error Handling
+*/
+
+/*!
+  \ingroup h5part_c_api_errhandling
+
+  Set verbosity level to \c level.
+
+  \return \c H5_SUCCESS
+*/
+h5_err_t
+H5SetVerbosityLevel (
+	const h5_id_t level
+	) {
+
+	return h5_set_debuglevel ( level );
+}
+
+/*!
+  \ingroup h5part_c_api_errhandling
+
+  Set error handler to \c handler.
+
+  \return \c H5_SUCCESS
+*/
+h5_err_t
+H5SetErrorHandler (
+	h5_errorhandler_t handler
+	) {
+  
+	return h5_set_errorhandler( handler );
+}
+
+/*!
+  \ingroup h5part_c_api_errhandling
+
+  Get current error handler.
+
+  \return Pointer to error handler.
+*/
+h5_errorhandler_t
+H5GetErrorHandler (
+	void
+	) {
+	return h5_get_errorhandler();
+}
+
+/*!
+  \ingroup h5part_c_api_errhandling
+
+  Get last error code.
+
+  \return error code
+*/
+h5_err_t
+H5GetErrno (
+	h5_file_t * const f
+	) {
+	return h5_get_errno( f );
+}
+/*! @} */
