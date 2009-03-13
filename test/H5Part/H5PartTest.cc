@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <hdf5.h>
+
 #include "H5Part.h"
 
 /*
@@ -104,19 +104,19 @@ int main(int argc,char *argv[]){
 int main(int argc,char *argv[]){
   int sz=10;
   double *x,*y,*z;
-  h5part_int64_t *id;
-  H5PartFile *file;
+  h5_int64_t *id;
+  h5_file_t *file;
   int i,t,nt,nds,np;
-  h5part_int64_t idStart = 0;
-  h5part_int64_t idEnd = 0;
+  h5_int64_t idStart = 0;
+  h5_int64_t idEnd = 0;
 
 
   x=(double*)malloc(sz*sizeof(double));
   y=(double*)malloc(sz*sizeof(double));
   z=(double*)malloc(sz*sizeof(double));
-  id=(h5part_int64_t*)malloc(sz*sizeof(h5part_int64_t));
+  id=(h5_int64_t*)malloc(sz*sizeof(h5_int64_t));
   /* parallel file creation */
-  file=H5PartOpenFile("parttest.h5",H5PART_WRITE);
+  file=H5PartOpenFile("parttest.h5",H5_O_WRONLY);
   if(!file) {
     perror("File open failed:  exiting!");
     exit(0);
@@ -161,7 +161,7 @@ int main(int argc,char *argv[]){
   
  
   /*+++++++++++++ Reopen File for Reading +++H5PartSetStep(h5partFile,0)++++++++*/
-  file=H5PartOpenFile("parttest.h5",H5PART_READ);
+  file=H5PartOpenFile("parttest.h5",H5_O_RDONLY);
 
   
   /********************************************/
@@ -252,14 +252,14 @@ int main(int argc,char *argv[]){
   }
 
   // read dataset names
-  h5part_int64_t status = H5_SUCCESS;
-  const h5part_int64_t lenName = 64;
+  h5_int64_t status = H5_SUCCESS;
+  const h5_int64_t lenName = 64;
   char datasetName[lenName];
-  h5part_int64_t datasetType;
-  h5part_int64_t datasetNElems;
+  h5_int64_t datasetType;
+  h5_int64_t datasetNElems;
 
   H5PartSetStep(file,0);
-  for (h5part_int64_t i=0; i < nds; i++) {
+  for (h5_int64_t i=0; i < nds; i++) {
     status = H5PartGetDatasetInfo(file, i, datasetName, lenName,
 				  &datasetType, &datasetNElems);
 
@@ -269,7 +269,7 @@ int main(int argc,char *argv[]){
     else {
       printf("datasetName: %s, type: %lld, nElements: %lld   ", 
 	     datasetName, datasetType, datasetNElems);
-      if (datasetType ==  H5PART_INT64) {
+      if (datasetType ==  H5_INT64_T) {
 	printf("H5PPART_INT64 \n");
       }
       else {

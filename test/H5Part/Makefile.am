@@ -34,7 +34,7 @@ INC = $(HDFINC) $(MPIINC) $(H5INC)
 
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
-bin_PROGRAMS = @TUTARGET@
+bin_PROGRAMS = @TPTARGET@
 
 # Some useful scripts that I wish to place in the $(prefix)/bin directory.
 bin_SCRIPTS =

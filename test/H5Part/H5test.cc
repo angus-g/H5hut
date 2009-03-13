@@ -17,11 +17,11 @@ using namespace std;
 
 int ReadFile(const string fn){
   char name[64];
-  H5PartFile *file;
+  h5_file_t *file;
   int i,nt,nds;
   cout << "Open " << fn << endl;
   
-  file= H5PartOpenFile(fn.c_str(),H5PART_READ);
+  file= H5PartOpenFile(fn.c_str(),H5_O_RDONLY);
   
   nt=H5PartGetNumSteps(file);
   H5PartSetStep(file,0);
@@ -39,7 +39,7 @@ int ReadFile(const string fn){
   
   for (int steps=0; steps<nt; steps++) {
     H5PartSetStep(file,steps);
-    h5part_int64_t n = H5PartGetNumParticles(file);
+    h5_int64_t n = H5PartGetNumParticles(file);
     cout << "number of particles this step =" << n << endl;
     double *x=new double[n];
     double *y=new double[n];
@@ -47,13 +47,13 @@ int ReadFile(const string fn){
     double *px=new double[n];
     double *py=new double[n];
     double *pz=new double[n];
-    h5part_int64_t *id=new h5part_int64_t[n];
+    h5_int64_t *id=new h5_int64_t[n];
     
     H5PartReadParticleStep(file,steps,x,y,z,px,py,pz,id);
     
     double sumx = 0.0;
     double sumpz = 0.0;
-    for (h5part_int64_t i=0; i<n; i++) {    
+    for (h5_int64_t i=0; i<n; i++) {    
       sumx += x[i];
       sumpz += pz[i];
     }
@@ -74,14 +74,14 @@ int ReadFile(const string fn){
 }
 
 int WriteFile(const string fn){
-  H5PartFile *file;
+  h5_file_t *file;
   int i,t;
-  h5part_int64_t n;
+  h5_int64_t n;
   const int nt = 5;
-  const h5part_int64_t np = 1024*1024;
+  const h5_int64_t np = 1024*1024;
   cout << "Open " << fn << endl;
   
-  file= H5PartOpenFile(fn.c_str(),H5PART_WRITE);
+  file= H5PartOpenFile(fn.c_str(),H5_O_WRONLY);
   
   double *x=new double[np];
   double *y=new double[np];
@@ -89,7 +89,7 @@ int WriteFile(const string fn){
   double *px=new double[np];
   double *py=new double[np];
   double *pz=new double[np];
-  h5part_int64_t *id=new h5part_int64_t[np];
+  h5_int64_t *id=new h5_int64_t[np];
 
   H5PartSetNumParticles(file,np); // sets number of particles in simulation
   
