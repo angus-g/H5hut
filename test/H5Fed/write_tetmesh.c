@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <hdf5.h>
+#include <string.h>
+
 #include "H5Part.h"
 #include "H5Fed.h"
 
@@ -33,10 +34,6 @@ vertex_t V0[5] = {
 	{ 4, { 0.0, -1.0,  0.0} }
 };
 
-vertex_t V1[1] = {
-	{ 5, {0.0,  0.0,  0.0 } }
-};
-
 // sorted vertices: 0, 4, 5, 3, 2, 1
 
 tet_t T0[2] = {
@@ -44,88 +41,59 @@ tet_t T0[2] = {
 	{ 0, -1, { 0, 1, 3, 4 } }	// 0, 4, 3, 1
 };
 
-tet_t T1[2] = {
-	{ 2, 0, { 0, 3, 4, 5 } },	// 0, 4, 5, 3
-	{ 3, 0, { 1, 3, 4, 5 } }	// 4, 5, 3, 1
-};
 
 // sorted 0th vertex tets: 2, 1, 0, 3
-
-h5_err_t
-add_level (
-	h5_file *f,
-	vertex_t V[],
-	int num_verts,
-	tet_t T[],
-	int num_tets
+int
+main (
+	int argc,
+	char *argv[]
 	) {
+	H5SetVerbosityLevel ( 5 );
 
-	h5_err_t h5err = H5FedAddLevel ( f );
-	if ( h5err < 0 ) {
-		fprintf ( stderr, "!!! Can't add level.\n" );
+	h5_file_t *f = H5OpenFile ( "simple_tet.h5", 0 );
+	if ( f == NULL ) {
+		fprintf ( stderr, "!!! Can't open file.\n" );
 		return -1;
 	}
-	h5err = H5FedAddNumVertices ( f, num_verts );
+
+	h5_err_t h5err = H5FedAddTetMesh ( f, 2 );
 	if ( h5err < 0 ) {
-		fprintf ( stderr, "!!! Can't set number of vertices.\n" );
+		fprintf ( stderr, "!!! Can't add mesh.\n" );
 		return -1;
 	}
 
 	int i;
-	for ( i = 0; i<num_verts; i++ ) {
+	for ( i = 0; i<5; i++ ) {
 		h5err = H5FedStoreVertex (
 			f,
-			V[i].global_id,
-			V[i].P );
+			-1,
+			V0[i].P );
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Can't store vertex.\n" );
 			return -1;
 		}
 	}
-	h5err = H5FedAddNumEntities ( f, num_tets );
-	if ( h5err < 0 ) {
-		fprintf ( stderr, "!!! Can't set number of tets.\n" );
-		return -1;
-	}
-
-	for ( i = 0; i<num_tets; i++ ) {
-		h5err = H5FedStoreTetrahedron (
+	for ( i = 0; i<2; i++ ) {
+		h5err = H5FedStoreElement (
 			f,
-			T[i].global_id,
-			T[i].parent_id,
-			T[i].vids );
+			T0[i].vids );
 		
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Can't store tet.\n" );
 			return -1;
 		}
 	}
-	return 0;
-}
 
-int
-main (
-	int argc,
-	char *argv[]
-	) {
-	H5PartSetVerbosityLevel ( 4 );
-
-	h5_file *f = H5OpenFile ( "simple_tet.h5", 0 );
-	if ( f == NULL ) {
-		fprintf ( stderr, "!!! Can't open file.\n" );
+	h5_id_t level_id = H5FedAddLevel( f, 8 );
+	if ( level_id < 0 ) {
+		fprintf ( stderr, "!!! Can't add level.\n" );
 		return -1;
 	}
-
-	h5_err_t h5err = H5FedAddMesh ( f, TETRAHEDRAL_MESH );
-	if ( h5err < 0 ) {
-		fprintf ( stderr, "!!! Can't set step.\n" );
+	h5_id_t elem_id = H5FedRefineElement ( f, 0 );
+	if ( elem_id < 0 ) {
+		fprintf ( stderr, "!!! Can't refine tet.\n" );
 		return -1;
 	}
-
-	h5err = add_level ( f, V0, 5, T0, 2 );
-	if ( h5err < 0 ) return h5err;
-	h5err = add_level ( f, V1, 1, T1, 2 );
-	if ( h5err < 0 ) return h5err;
 
 	h5err = H5CloseFile ( f );
 	if ( h5err < 0 ) {

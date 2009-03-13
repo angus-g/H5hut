@@ -65,7 +65,7 @@ main (
 	) {
 	H5PartSetVerbosityLevel ( 4 );
 
-	h5_file *f = H5OpenFile ( "simple_tet.h5", 0 );
+	h5_file_t *f = H5OpenFile ( "simple_tet.h5", 0 );
 	if ( f == NULL ) {
 		fprintf ( stderr, "!!! Can't open file.\n" );
 		return -1;
