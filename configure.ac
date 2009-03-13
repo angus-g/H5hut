@@ -348,9 +348,9 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 	fi
 
 	MTARGET="libpH5Part.a"
-	TTARGET="H5PartTestP H5PartAndreasTest Bench"
-	TTARGET="${TTARGET} H5BlockTestAttributes"
-	TTARGET="${TTARGET} H5BlockParTestScalarField"
+	TPTARGET="${TPTARGET} H5PartTestP H5PartAndreasTest Bench"
+	TBTARGET="${TBTARGET} H5BlockTestAttributes"
+	TBTARGET="${TBTARGET} H5BlockParTestScalarField"
 
 	# parallel + fortran
 	if test "X$USE_FORTRAN" = "Xyes"; then
@@ -374,21 +374,21 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 		fi
 
 		MTARGET="${MTARGET} libpH5PartF.a"
-		TTARGET="${TTARGET} H5testFpar"
-		TTARGET="${TTARGET} H5BlockParTestScalarFieldF"
+		TPTARGET="${TPTARGET} H5testFpar"
+		TBTARGET="${TBTARGET} H5BlockParTestScalarFieldF"
 	fi
 
 else  # --enable-parallel=no
 	AC_MSG_RESULT([no])
 
 	MTARGET="libH5Part.a"
-	TTARGET="H5PartTest H5test"
-	TTARGET="${TTARGET} H5BlockTestAttributes"
+	TPTARGET="${TPTARGET} H5PartTest H5test"
+	TBTARGET="${TBTARGET} H5BlockTestAttributes"
 
 	if test "X$USE_FORTRAN" = "Xyes"; then
 		MTARGET="${MTARGET} libH5PartF.a"
-		TTARGET="${TTARGET} H5testF"
-		TTARGET="${TTARGET} H5BlockTestAttributesF"
+		TPTARGET="${TPTARGET} H5testF"
+		TBTARGET="${TBTARGET} H5BlockTestAttributesF"
 	fi
 fi
 
@@ -553,7 +553,9 @@ AC_SUBST(MPICC)
 AC_SUBST(MPICXX)
 AC_SUBST(MPIFC)
 AC_SUBST(MTARGET)
-AC_SUBST(TTARGET)
+AC_SUBST(TPTARGET)
+AC_SUBST(TBTARGET)
+AC_SUBST(TFTARGET)
 AC_SUBST(SZLIB)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
@@ -572,6 +574,7 @@ AC_CONFIG_FILES([
 	Makefile
 	doc/Makefile
 	src/Makefile
+	src/bindings/Makefile
 	src/h5_core/Makefile
 	test/Makefile
 	test/H5Part/Makefile
