@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <hdf5.h>
+#include <string.h>
+
 #include "H5Part.h"
 #include "H5Block.h"
 #ifndef PARALLEL_IO
@@ -9,26 +10,37 @@
 #endif
 #endif
 
-struct H5BlockPartition Layout1[1] = {
+struct h5b_partition {
+	h5_int64_t	i_start;
+	h5_int64_t	i_end;
+	h5_int64_t	j_start;
+	h5_int64_t	j_end;
+	h5_int64_t	k_start;
+	h5_int64_t	k_end;
+};
+
+typedef struct h5b_partition h5b_partition_t;
+
+h5b_partition_t Layout1[1] = {
 	{ 0, 63, 0, 63, 0, 511 }
 };
 
 #define _calc_index( i, i_dims, j, j_dims, k, k_dims ) \
 		(i + j*i_dims + k*i_dims*j_dims)
 
-static h5part_int64_t
+static h5_int64_t
 _write_data (
-	H5PartFile *f,
+	h5_file_t *f,
 	int myproc,
-	struct H5BlockPartition *layout
+	h5b_partition_t *layout
 	) {
 
-	h5part_int64_t i, j, k, idx;
-	h5part_int64_t herr;
-	h5part_float64_t *data;
-	h5part_int64_t i_dims = layout->i_end - layout->i_start + 1;
-	h5part_int64_t j_dims = layout->j_end - layout->j_start + 1;
-	h5part_int64_t k_dims = layout->k_end - layout->k_start + 1;
+	h5_int64_t i, j, k, idx;
+	h5_int64_t herr;
+	h5_float64_t *data;
+	h5_int64_t i_dims = layout->i_end - layout->i_start + 1;
+	h5_int64_t j_dims = layout->j_end - layout->j_start + 1;
+	h5_int64_t k_dims = layout->k_end - layout->k_start + 1;
 
 	printf ( "Writing Step #%lld\n", (long long)f->step_idx );
 
@@ -62,26 +74,26 @@ _write_data (
 	return 1;
 }
 
-static h5part_int64_t
+static h5_int64_t
 _write_attributes (
-	H5PartFile *f,
+	h5_file_t *f,
 	const int myproc
 	) {
 
-	h5part_int64_t herr = H5BlockWriteFieldAttribString (
+	h5_int64_t herr = H5BlockWriteFieldAttribString (
 		f,
 		"TestField",
 		"TestString",
 		"42" );
 	if ( herr < 0 ) return -1;
 
-	h5part_int64_t ival[1] = { 42 };
-	h5part_float64_t rval[1] = { 42.0 };
+	h5_int64_t ival[1] = { 42 };
+	h5_float64_t rval[1] = { 42.0 };
 	herr = H5BlockWriteFieldAttrib (
 		f,
 		"TestField",
 		"TestInt64",
-		H5PART_INT64,
+		H5_INT64_T,
 		ival, 1 );
 	if ( herr < 0 ) return -1;
 
@@ -89,7 +101,7 @@ _write_attributes (
 		f,
 		"TestField",
 		"TestFloat64",
-		H5PART_FLOAT64,
+		H5_FLOAT64_T,
 		rval, 1 );
 	if ( herr < 0 ) return -1;
 
@@ -102,17 +114,17 @@ _write_attributes (
 	return H5_SUCCESS;
 }
 
-static h5part_int64_t
+static h5_int64_t
 _write_file (
 	const char *fname,
 	const int myproc,
 	MPI_Comm comm,
-	struct H5BlockPartition *layout
+	h5b_partition_t *layout
 	) {
 	
-	H5PartFile *f;
-	h5part_int64_t timestep = 0;
-	h5part_int64_t herr;
+	h5_file_t *f;
+	h5_int64_t timestep = 0;
+	h5_int64_t herr;
 
 	printf ("PROC[%d]: Open file \"%s\" for writing ...\n",
 		myproc, fname );
@@ -120,13 +132,13 @@ _write_file (
 #ifdef PARALLEL_IO
 	f = H5PartOpenFileParallel (
 		fname,
-		H5PART_WRITE,
+		H5_O_WRONLY,
 		comm
 		);
 #else
 	f = H5PartOpenFile (
 		fname,
-		H5PART_WRITE
+		H5_O_WRONLY
 		);
 
 #endif
@@ -153,19 +165,19 @@ _write_file (
 }
 
 
-static h5part_int64_t
+static h5_int64_t
 _read_data (
-	H5PartFile *f,
+	h5_file_t *f,
 	int myproc,
-	struct H5BlockPartition *layout
+	h5b_partition_t *layout
 	) {
 
-	h5part_int64_t i, j, k, idx;
-	h5part_int64_t herr;
-	h5part_float64_t *data;
-	h5part_int64_t i_dims = layout->i_end - layout->i_start + 1;
-	h5part_int64_t j_dims = layout->j_end - layout->j_start + 1;
-	h5part_int64_t k_dims = layout->k_end - layout->k_start + 1;
+	h5_int64_t i, j, k, idx;
+	h5_int64_t herr;
+	h5_float64_t *data;
+	h5_int64_t i_dims = layout->i_end - layout->i_start + 1;
+	h5_int64_t j_dims = layout->j_end - layout->j_start + 1;
+	h5_int64_t k_dims = layout->k_end - layout->k_start + 1;
 
 	printf ( "Reading Step #%lld\n", (long long)f->step_idx );
 
@@ -195,14 +207,14 @@ _read_data (
 				  i, j, k relative to proc
 				*/
 
-				h5part_int64_t ri = i + layout->i_start;
-				h5part_int64_t rj = j + layout->j_start;
-				h5part_int64_t rk = k + layout->k_start;
+				h5_int64_t ri = i + layout->i_start;
+				h5_int64_t rj = j + layout->j_start;
+				h5_int64_t rk = k + layout->k_start;
 				int proc = (int) H5Block3dGetProcOf ( f, ri, rj, rk );
 
-				h5part_int64_t i_start, i_end;
-				h5part_int64_t j_start, j_end;
-				h5part_int64_t k_start, k_end;
+				h5_int64_t i_start, i_end;
+				h5_int64_t j_start, j_end;
+				h5_int64_t k_start, k_end;
 
  				H5Block3dGetPartitionOfProc (
 					f,
@@ -213,7 +225,7 @@ _read_data (
 				ri -= i_start;
 				rj -= j_start;
 				rk -= k_start;
-				h5part_float64_t value = rk
+				h5_float64_t value = rk
 					+ 1000*rj
 					+ 100000*ri
 					+ 10000000*proc;
@@ -256,30 +268,30 @@ _read_data (
 	return 0;
 }
 
-static h5part_int64_t
+static h5_int64_t
 _read_file (
 	const char *fname,
 	const int myproc,
 	MPI_Comm comm,
-	struct H5BlockPartition *layout
+	h5b_partition_t *layout
 	) {
 	
-	H5PartFile *f;
-	h5part_int64_t timestep = 0;
-	h5part_int64_t herr;
+	h5_file_t *f;
+	h5_int64_t timestep = 0;
+	h5_int64_t herr;
 
 	printf ("PROC[%d]: Open file \"%s\" for reading ...\n",
 		myproc, fname );
 #ifdef PARALLEL_IO
 	f = H5PartOpenFileParallel (
 		fname,
-		H5PART_READ,
+		H5_O_RDONLY,
 		comm
 		);
 #else
 	f = H5PartOpenFile (
 		fname,
-		H5PART_READ
+		H5_O_RDONLY
 		);
 #endif
 	if ( f == NULL ) return -1;
@@ -298,33 +310,33 @@ _read_file (
 	return 0;
 }
 
-static h5part_int64_t
+static h5_int64_t
 _read_attributes (
 	const char *fname,
 	const int myproc,
 	MPI_Comm comm
 	) {
-	h5part_int64_t timestep = 0;
+	h5_int64_t timestep = 0;
 
 
 	printf ("PROC[%d]: Open file \"%s\" for reading ...\n",
 		myproc, fname );
   
 #ifdef PARALLEL_IO
-	H5PartFile *f = H5PartOpenFileParallel (
+	h5_file_t *f = H5PartOpenFileParallel (
 		fname,
-		H5PART_READ,
+		H5_O_RDONLY,
 		comm
 		);
 #else
-	H5PartFile *f = H5PartOpenFile (
+	h5_file_t *f = H5PartOpenFile (
 		fname,
-		H5PART_READ
+		H5_O_RDONLY
 		);
 #endif
 	if ( f == NULL ) return -1;
 	
-	h5part_int64_t herr = H5PartSetStep ( f, timestep );
+	h5_int64_t herr = H5PartSetStep ( f, timestep );
 	if ( herr < 0 ) return herr;
 
 	char sval[16];
@@ -339,8 +351,8 @@ _read_attributes (
 			 "Value is \"%s\" and should be \"42\"\n", sval );
 	}
 
-	h5part_int64_t ival[1];
-	h5part_float64_t rval[1];
+	h5_int64_t ival[1];
+	h5_float64_t rval[1];
 	herr = H5BlockReadFieldAttrib (
 		f,
 		"TestField",
@@ -365,12 +377,12 @@ _read_attributes (
 			 rval[0] );
 	}
 
-	h5part_float64_t x_origin;
-	h5part_float64_t y_origin;
-	h5part_float64_t z_origin;
-	h5part_float64_t x_spacing;
-	h5part_float64_t y_spacing;
-	h5part_float64_t z_spacing;
+	h5_float64_t x_origin;
+	h5_float64_t y_origin;
+	h5_float64_t z_origin;
+	h5_float64_t x_spacing;
+	h5_float64_t y_spacing;
+	h5_float64_t z_spacing;
 
 	herr = H5Block3dGetFieldOrigin (
 		f, "TestField",
@@ -438,7 +450,7 @@ main (
 		}
 	}
 
-	H5PartSetVerbosityLevel ( 4 );
+	H5SetVerbosityLevel ( 4 );
 
 	if ( opt_write ) {
 		if ( _write_file ( fname, myproc, comm, Layout1 ) < 0 ) {

@@ -32,14 +32,12 @@ H5INC = -I@H5P_LIB_LOC@ -I@H5P_LIB_LOC@/h5
 
 INC = $(HDFINC) $(MPIINC) $(H5INC)
 
-
 # What to build... make install will place these files in the $(prefix)/bin directory.
 bin_PROGRAMS = @TBTARGET@
 
 # Some useful scripts that I wish to place in the $(prefix)/bin directory.
 bin_SCRIPTS =
 #bin_SCRIPTS = JAC_H5PartTestP_script.scr JAC_H5testFpar_script.scr JAC_RUN_ALL_script.scr
-
 
 # Listing of all programs that maybe built. (Has to know statically...)
 EXTRA_PROGRAMS =
