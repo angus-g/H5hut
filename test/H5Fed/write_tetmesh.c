@@ -56,13 +56,14 @@ main (
 		return -1;
 	}
 
-	h5_err_t h5err = H5FedAddMesh ( f, 2, H5_TETRAHEDRAL_MESH );
+	h5_err_t h5err = H5FedAddMesh ( f, H5_TETRAHEDRAL_MESH );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't add mesh.\n" );
 		return -1;
 	}
 
 	int i;
+	H5FedAddNumVertices ( f, 5 );
 	for ( i = 0; i<5; i++ ) {
 		h5err = H5FedStoreVertex (
 			f,
@@ -73,6 +74,7 @@ main (
 			return -1;
 		}
 	}
+	H5FedAddNumElements ( f, 2 );
 	for ( i = 0; i<2; i++ ) {
 		h5err = H5FedStoreElement (
 			f,
@@ -84,11 +86,17 @@ main (
 		}
 	}
 
-	h5_id_t level_id = H5FedAddLevel( f, 1 );
+	h5_id_t level_id = H5FedAddLevel( f );
 	if ( level_id < 0 ) {
 		fprintf ( stderr, "!!! Can't add level.\n" );
 		return -1;
 	}
+	h5err = H5FedRefineNumElements ( f, 1 );
+	if ( h5err < 0 ) {
+		fprintf ( stderr, "!!! Can't set number of elements torefine.\n" );
+		return -1;
+	}
+
 	h5_id_t elem_id = H5FedRefineElement ( f, 0 );
 	if ( elem_id < 0 ) {
 		fprintf ( stderr, "!!! Can't refine tet.\n" );
