@@ -22,11 +22,10 @@
 h5_id_t
 H5FedAddMesh (
 	h5_file_t * const f,
-	const h5_size_t num_elems,
 	const h5_oid_t mesh_type_id
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_add_mesh ( f, num_elems, mesh_type_id );
+	return h5t_add_mesh ( f, mesh_type_id );
 }
 
 /*!
@@ -51,12 +50,30 @@ H5FedAddMesh (
 */
 h5_id_t
 H5FedAddLevel (
-	h5_file_t * const f,
-	const h5_size_t num_elems_to_refine
+	h5_file_t * const f
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_add_level ( f, num_elems_to_refine );
+	return h5t_add_level ( f );
 }
+
+h5_err_t
+H5FedAddNumVertices (
+	h5_file_t * f,
+	const h5_size_t num
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_add_num_vertices ( f, num );
+}
+
+h5_err_t
+H5FedAddNumElements (
+	h5_file_t * f,
+	const h5_size_t num
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_add_num_elems ( f, num );
+}
+
 
 /*!
   \ingroup h5fed_c_api
@@ -111,6 +128,15 @@ H5FedStoreElement (
 			"Tetrahedra can be added to level 0 only!" );
 	}
 	return h5t_store_elem ( f, -1, local_vids );
+}
+
+h5_err_t
+H5FedRefineNumElements (
+	h5_file_t * const f,
+	const h5_size_t num
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_refine_num_elems ( f, num );
 }
 
 h5_id_t

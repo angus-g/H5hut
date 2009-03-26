@@ -27,14 +27,14 @@ h5_check_filehandle (
 	h5_file_t * const f	/*!< filehandle  to check validity of */
 	) {
 
-	if ( f == NULL )
-		return HANDLE_H5_BADFD_ERR( f );
-	if ( f->file == 0 )
-		return HANDLE_H5_BADFD_ERR( f );
-
+	if ( f == NULL || f->file == 0 ) {
+		return h5_error (
+			f,
+			H5_ERR_BADFD,
+			"Called with bad filehandle." );
+	}
 	return H5_SUCCESS;
 }
-
 
 /*!
   Initialize H5Part
@@ -92,7 +92,6 @@ _h5b_open_file (
 	) {
 	h5b_fdata_t *b; 
 
-	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5_BADFD_ERR( f );
 	if ( f->b ) return H5_SUCCESS;
 
 	TRY ( f->b = (h5b_fdata_t*) _h5_alloc ( f, NULL, sizeof (*f->b) ) );

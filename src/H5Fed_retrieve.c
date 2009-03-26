@@ -97,6 +97,6 @@ h5_id_t
 H5FedEndTraverseElements (
 	h5_file_t * const f
 	) {
-	h5t_end_traverse_elems ( f );
+	return h5t_end_traverse_elems ( f );
 }
 

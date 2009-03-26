@@ -3,8 +3,7 @@
 
 #define SET_FNAME( f, fname )	h5_set_funcname( f, fname );
 #define CHECK_FILEHANDLE( f ) \
-	if ( f == NULL ) \
-		return HANDLE_H5_BADFD_ERR( f );
+	TRY ( h5_check_filehandle ( f ) );
 
 #define CHECK_WRITABLE_MODE( f )					\
 	if ( f->mode==H5_O_RDONLY )					\

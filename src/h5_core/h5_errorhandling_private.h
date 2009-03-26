@@ -36,12 +36,6 @@
 
 /**************** H5 *********************/
 
-#define HANDLE_H5_BADFD_ERR( f )			\
-	h5_error(					\
-		f,					\
-		H5_ERR_BADFD,				\
-		"Called with bad filehandle." );
-
 #define _h5_handle_file_mode_error( f, mode_id )		  \
 	h5_error(						  \
 		f,						  \

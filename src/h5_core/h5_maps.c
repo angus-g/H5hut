@@ -14,7 +14,7 @@ _h5_alloc_smap (
 	) {
 	int new = ( map->items == NULL );
 	size_t size_in_bytes = size * sizeof ( map->items[0] );
-	TRY( map->items = _h5_alloc ( f, map->items, size_in_bytes ) );
+	TRY ( map->items = _h5_alloc ( f, map->items, size_in_bytes ) );
 	map->size = size;
 	if ( new ) map->num_items = 0;
 	return H5_SUCCESS;
@@ -28,7 +28,7 @@ _h5_alloc_idmap (
 	) {
 	int new = ( map->items == NULL );
 	size_t size_in_bytes = size * sizeof ( map->items[0] );
-	TRY( map->items = _h5_alloc ( f, map->items, size_in_bytes ) );
+	TRY ( map->items = _h5_alloc ( f, map->items, size_in_bytes ) );
 	map->size = size;
 	if ( new ) map->num_items = 0;
 	return H5_SUCCESS;

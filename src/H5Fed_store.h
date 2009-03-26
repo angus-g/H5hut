@@ -22,14 +22,12 @@
 h5_id_t
 H5FedAddMesh (
 	h5_file_t * const f,
-	const h5_size_t num_elems,
 	const h5_oid_t mesh_type_id
 	);
 
 h5_id_t
 H5FedAddLevel (
-	h5_file_t * f,
-	const h5_size_t num_elems
+	h5_file_t * f
 	);
 
 h5_err_t
@@ -55,6 +53,12 @@ h5_id_t
 H5FedStoreElement (
 	h5_file_t * f,
 	const h5_id_t local_vids[]
+	);
+
+h5_err_t
+H5FedRefineNumElements (
+	h5_file_t * f,
+	const h5_size_t num
 	);
 
 h5_id_t

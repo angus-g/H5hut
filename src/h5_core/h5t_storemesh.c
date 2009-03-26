@@ -15,13 +15,12 @@
 h5_id_t
 h5t_add_mesh (
 	h5_file_t * const f,
-	const h5_size_t num_elems,
 	const h5_oid_t mesh_type
 	) {
 	h5_id_t mesh_id = 0;
 
 	TRY( (mesh_id = h5t_open_mesh ( f, -1, mesh_type )) ); 
-	TRY( _h5t_add_level ( f, num_elems+3, num_elems ) );
+	TRY( h5t_add_level ( f ) );
 	
 	f->t->mesh_changed = 1;
 
@@ -82,30 +81,12 @@ _h5t_close_level (
 	return H5_SUCCESS;
 }
 
+#if 0
+
+#endif
 h5_id_t
 h5t_add_level (
-	h5_file_t * const f,
-	h5_size_t num_elems
-	) {
-	switch ( f->t->mesh_type ) {
-	case H5_OID_TETRAHEDRON:
-		num_elems += 8;
-		break;
-	case H5_OID_TRIANGLE:
-		num_elems += 4;
-		break;
-	default:
-		return h5_error_internal ( f, __FILE__, __func__, __LINE__ );
-	}
-	h5_id_t num_vertices = (num_elems>>2)*3; /* this is an upper limit */
-	return _h5t_add_level ( f, num_vertices, num_elems );
-}
-
-h5_id_t
-_h5t_add_level (
-	h5_file_t * const f,
-	const h5_size_t num_vertices,
-	const h5_size_t num_elems
+	h5_file_t * const f
 	) {
 	h5t_fdata_t *t = f->t;
 
@@ -141,9 +122,6 @@ _h5t_add_level (
 		t->last_stored_eid = -1;
 	}
 
-	TRY( _h5t_add_num_vertices ( f, num_vertices ) );
-	TRY( _h5t_add_num_elems ( f, num_elems ) );
-
 	return t->cur_level;
 }
 
@@ -166,7 +144,7 @@ _h5t_alloc_num_vertices (
   Allocate memory for (more) vertices.
 */
 h5_err_t
-_h5t_add_num_vertices (
+h5t_add_num_vertices (
 	h5_file_t * const f,
 	const h5_size_t num
 	) {
@@ -250,7 +228,7 @@ _h5t_alloc_num_elems (
 }
 
 h5_err_t
-_h5t_add_num_elems (
+h5t_add_num_elems (
 	h5_file_t * const f,
 	const h5_size_t num
 	) {
@@ -383,6 +361,28 @@ _h5t_store_triangle (
 }
 
 
+h5_err_t
+h5t_refine_num_elems (
+	h5_file_t * const f,
+	const h5_size_t num_elems_to_refine
+	) {
+	h5_size_t num_elems_to_add = 0;
+	switch ( f->t->mesh_type ) {
+	case H5_OID_TETRAHEDRON:
+		num_elems_to_add = num_elems_to_refine*8;
+		break;
+	case H5_OID_TRIANGLE:
+		num_elems_to_add = num_elems_to_refine*4;
+		break;
+	default:
+		return h5_error_internal ( f, __FILE__, __func__, __LINE__ );
+	}
+	h5_size_t num_vertices = (num_elems_to_add>>2)*3; /* this is an upper limit */
+	TRY ( h5t_add_num_vertices ( f, num_vertices ) );
+	TRY ( h5t_add_num_elems ( f, num_elems_to_add ) );
+
+	return H5_SUCCESS;
+}
 
 /*!
   Refine edge. Store vertex, if new.
