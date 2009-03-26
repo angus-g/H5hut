@@ -11,7 +11,10 @@ _h5_alloc (
 	h5_debug ( f, "Allocating %ld bytes.", size ); 
 	ptr = realloc ( ptr, size );
 	if ( ptr == NULL ) {
-		HANDLE_H5_NOMEM_ERR( f );
+		h5_error (
+			f,
+			H5_ERR_NOMEM,
+			"Out of memory." );
 		return (void*)(-1);
 	}
 	return ptr;

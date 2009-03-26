@@ -6,40 +6,56 @@ typedef h5_int64_t h5_4id_t[4];
 typedef h5_float64_t h5_coord3d_t[3];
 
 struct h5_vertex {
-	h5_id_t		vid;
+	h5_id_t		global_vid;
 	h5_coord3d_t	P;
 };
 typedef struct h5_vertex	h5_vertex_t;
 
 struct h5_triangle {
-	h5_id_t		eid;
-	h5_id_t		parent_eid;
+	h5_id_t		global_eid;
+	h5_id_t		global_parent_eid;
 	h5_id_t		refined_on_level;
-	h5_3id_t	vids;
+	h5_3id_t	global_vids;
 };
 typedef struct h5_triangle	h5_triangle_t;
 
 struct h5_tetrahedron {
-	h5_id_t		eid;
-	h5_id_t		parent_eid;
+	h5_id_t		global_eid;
+	h5_id_t		global_parent_eid;
 	h5_id_t		refined_on_level;
-	h5_4id_t	vids;
+	h5_4id_t	global_vids;
 };
+
+struct h5_element {
+	h5_id_t		global_eid;
+	h5_id_t		global_parent_eid;
+	h5_id_t		refined_on_level;
+	h5_id_t		global_vids[1];
+};
+
 
 typedef struct h5_tetrahedron	h5_tetrahedron_t;
 typedef struct h5_tetrahedron	h5_tet_t;
+typedef struct h5_element	h5_element_t;
 
-struct h5_triangle_local {
-	h5_id_t		parent_eid;
-	h5_3id_t	vids;	/* local(!) vertex ids */
+struct h5_triangle_data {
+	h5_id_t		local_parent_eid;
+	h5_3id_t	local_vids;
 };
-typedef struct h5_triangle_local h5_triangle_local_t;
+typedef struct h5_triangle_data h5_triangle_data_t;
 
-struct h5_tet_local {
-	h5_id_t		parent_eid;
-	h5_4id_t	vids;	/* local(!) vertex ids */
+struct h5_tet_data {
+	h5_id_t		local_parent_eid;
+	h5_4id_t	local_vids;
 };
-typedef struct h5_tet_local	h5_tet_local_t;
+typedef struct h5_tet_data	h5_tet_data_t;
+
+struct h5_element_data {
+	h5_id_t		local_parent_eid;
+	h5_id_t		local_vids[1];
+};
+typedef struct h5_element_data	h5_element_data_t;
+
 
 union h5_elems {
 	h5_tet_t	*tets;
@@ -49,8 +65,8 @@ union h5_elems {
 typedef union h5_elems h5_elems_t;
 
 union h5_elems_data {
-	h5_tet_local_t		*tets;
-	h5_triangle_local_t	*tris;
+	h5_tet_data_t		*tets;
+	h5_triangle_data_t	*tris;
 	void			*data;
 };
 typedef union h5_elems_data h5_elems_data_t;
@@ -106,19 +122,20 @@ struct h5t_fdata {
 	/*** book-keeping ***/
 	char		mesh_name[16];
 	char		mesh_label[256];
-	h5_oid_t	mesh_type;		/* object id of element type */
-	h5_id_t		cur_mesh;		/* id of current mesh */
-	h5_id_t		mesh_changed;		/* true if new or has been changed */
-	h5_id_t		num_meshes;		/* number of meshes */
-	hid_t		elem_tid;		/* HDF5 type id: tet, triangle etc */
-	h5_id_t		cur_level;		/* id of current level */
-	h5_id_t		new_level;		/* idx of the first new level or -1 */
-	h5_size_t	num_levels;		/* number of levels */
+	h5_oid_t	mesh_type;	/* object id of element type */
+	h5_id_t		cur_mesh;	/* id of current mesh */
+	h5_id_t		mesh_changed;	/* true if new or has been changed */
+	h5_id_t		num_meshes;	/* number of meshes */
+	hid_t		elem_tid;	/* HDF5 type id: tet, triangle etc */
+	h5_id_t		cur_level;	/* id of current level */
+	h5_id_t		new_level;	/* idx of the first new level or -1 */
+	h5_size_t	num_levels;	/* number of levels */
+	h5_id_t		level_changed;
 
 	/*** vertices ***/
 	h5_vertex_t	*vertices;
 	h5_size_t	*num_vertices;
-	struct idmap	map_vertex_g2l;		/* map global id to local id */
+	struct idmap	map_vertex_g2l;	/* map global id to local id */
 	struct smap	sorted_lvertices;
 	h5_id_t		last_retrieved_vid; 
 	h5_id_t		last_stored_vid;
@@ -128,10 +145,10 @@ struct h5t_fdata {
 
 	/*** Elements ***/
 	h5_elems_t	elems;
-	h5_elems_data_t	elems_data;		/* local, per element data */
+	h5_elems_data_t	elems_data;	/* local, per element data */
 	h5_size_t	*num_elems;
 	h5_size_t	*num_elems_on_level;
-	struct idmap	map_elem_g2l;		/* map global id to local id */
+	struct idmap	map_elem_g2l;	/* map global id to local id */
 
 	/*
 	  array with geometrically sorted local entitiy ids

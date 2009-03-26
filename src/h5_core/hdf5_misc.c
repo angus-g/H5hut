@@ -76,8 +76,13 @@ hdf5_get_num_objects_matching_pattern (
 	data.type = type;
 	data.pattern = pattern;
 
-	TRY( H5Giterate ( group_id, group_name, &idx,
-			  _iteration_operator, &data ) );
+	/* 
+	   H5Giterate return a negative value, if no matching object
+	   was found! How can we handle an error? 
+	   Anyway: H5Giterate is depricated in hdf5 >= 1.8!
+	*/
+	H5Giterate ( group_id, group_name, &idx,
+			  _iteration_operator, &data );
 	
 	return data.count;
 }

@@ -69,7 +69,7 @@ _h5_close_group (
 	h5_file_t * const f,
 	const hid_t group_id
 	) {
-	if ( group_id == 0 || group_id == -1 ) return H5_SUCCESS; 
+	if ( group_id <= 0 ) return H5_SUCCESS; 
 	const char *group_name = h5_get_objname( group_id );
 	if ( H5Gclose ( group_id ) < 0 ) {
 		return h5_error (
@@ -285,7 +285,7 @@ _h5_close_dataset (
 
  */
 hid_t 
-_h5_create_dataset_space (
+_h5_create_space (
 	h5_file_t * const f,
 	const int rank,
 	const hsize_t * dims,
@@ -300,6 +300,77 @@ _h5_create_dataset_space (
 			rank );
 	return dataspace_id;
 }
+
+herr_t
+_h5_select_hyperslab_of_space (
+	h5_file_t * const f,
+	hid_t space_id,
+	H5S_seloper_t op,
+	const hsize_t *start,
+	const hsize_t *stride,
+	const hsize_t *count,
+	const hsize_t *block
+	) {
+	herr_t herr = H5Sselect_hyperslab (
+		space_id,
+		op,
+		start,
+		stride,
+		count,
+		block );
+	if ( herr < 0 )
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot set select hyperslap region or add the "
+			"specified region" );
+	return H5_SUCCESS;
+}
+
+hssize_t
+_h5_get_selected_npoints_of_space (
+	h5_file_t * const f,
+	hid_t space_id
+	) {
+	hssize_t size = H5Sget_select_npoints ( space_id );
+	if ( size < 0 )
+		h5_error(
+			f,
+			H5_ERR_HDF5,
+			"Cannot determine number of selected elements in dataspace." );
+	return size;
+}
+
+hssize_t
+_h5_get_npoints_of_space (
+	h5_file_t * const f,
+	hid_t space_id
+	) {
+	hssize_t size = H5Sget_simple_extent_npoints ( space_id );
+	if ( size < 0 )
+		h5_error(
+			f,
+			H5_ERR_HDF5,
+			"Cannot determine number of elements in dataspace." );
+	return size;
+}
+
+int
+_h5_get_dims_of_space (
+	h5_file_t * const f,
+	hid_t space_id,
+	hsize_t *dims,
+	hsize_t *maxdims 
+	) {
+	int rank = H5Sget_simple_extent_dims ( space_id, dims, maxdims );
+	if ( rank < 0 )
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot determine rank of dataspace." );
+	return rank;
+}
+
 
 /*!
   Close space.
@@ -462,6 +533,25 @@ _h5_set_chunk_property (
 	return H5_SUCCESS;
 }
 
+#ifdef PARALLEL_IO
+h5_err_t
+_h5_set_fapl_mpio_property (
+	h5_file_t * const f,
+	hid_t fapl_id,
+	MPI_Comm comm,
+	MPI_Info info
+	) {
+	herr_t herr = H5Pset_fapl_mpio ( fapl_id, comm, info );
+	if ( herr < 0 )
+		h5_error(
+			f,
+			H5_ERR_HDF5,
+			"Cannot store IO communicator information to the "
+			"file access property list.");
+	return H5_SUCCESS;
+}
+#endif
+
 h5_err_t
 _h5_close_property (
 	h5_file_t * const f,
@@ -512,12 +602,49 @@ _h5_set_errorhandler (
 
 /****** A t t r i b u t e ****************************************************/
 hid_t
-_h5_open_attribute_by_name (
+_h5_open_attribute (
+	h5_file_t * const f,
 	hid_t loc_id,
+	const char *attr_name
+	) {
+	hid_t attr_id = H5Aopen ( loc_id, attr_name, H5P_DEFAULT );
+	if ( attr_id < 0 ) 
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot open attribute \"%s\" of \"%s\".",
+			attr_name,
+			h5_get_objname( loc_id ) );
+	return attr_id;
+}
+
+hid_t
+_h5_open_attribute_idx (
+	h5_file_t * const f,
+	hid_t loc_id,
+	unsigned int idx
+	) {
+	hid_t attr_id = H5Aopen_idx ( loc_id, idx );
+	if ( attr_id < 0 ) 
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot open attribute \"%u\" of \"%s\".",
+			idx,
+			h5_get_objname( loc_id ) );
+	return attr_id;
+}	
+
+hid_t
+_h5_open_attribute_by_name (
+	h5_file_t * const f,
+	hid_t loc_id,
+	const char *obj_name,
 	const char *attr_name
 	) {
 	hid_t attr_id = H5Aopen_by_name (
 		loc_id,
+		obj_name,
 		attr_name,
 		H5P_DEFAULT,
 		H5P_DEFAULT );
@@ -527,8 +654,9 @@ _h5_open_attribute_by_name (
 			H5_ERR_HDF5,
 			"Cannot open attribute \"%s\" of \"%s\".",
 			attr_name,
-			h5_get_objname( loc_id ) );
+			obj_name );
 	return attr_id;
+}
 
 hid_t
 _h5_create_attribute (
@@ -638,6 +766,22 @@ _h5_get_attribute_space (
 			h5_get_objname( attr_id ) );
 	return space_id;
 }
+
+int
+_h5_get_num_attributes (
+	h5_file_t * const f,
+	hid_t loc_id
+	) {
+	int num = H5Aget_num_attrs ( loc_id );
+	if ( num < 0 )
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot get number of attributes of \"%s\".",
+			h5_get_objname( loc_id ) );
+	return num;
+}
+
 
 herr_t
 _h5_close_attribute (

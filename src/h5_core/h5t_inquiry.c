@@ -39,6 +39,7 @@ h5t_get_num_levels (
 	struct h5t_fdata *t = f->t;
 	hid_t dataset_id;
 	hid_t diskspace_id;
+	hssize_t size;
 
 	if ( t->num_levels >= 0 ) return t->num_levels;
 	if ( t->cur_mesh < 0 ) {
@@ -47,14 +48,10 @@ h5t_get_num_levels (
 	if ( t->mesh_gid < 0 ) {
 		TRY( _h5t_open_mesh_group ( f ) );
 	}
-	TRY( dataset_id = _h5_open_dataset ( f, t->mesh_gid, "NumVertices" ) );
-	TRY( diskspace_id = _h5_get_dataset_space ( f, dataset_id ) );
-
-	hssize_t size = H5Sget_simple_extent_npoints ( diskspace_id );
-	if ( size < 0 )
-		return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR ( f );
-
-	TRY( _h5_close_dataspace( f, diskspace_id ) );
+	TRY ( dataset_id = _h5_open_dataset ( f, t->mesh_gid, "NumVertices" ) );
+	TRY ( diskspace_id = _h5_get_dataset_space ( f, dataset_id ) );
+	TRY ( size = _h5_get_npoints_of_space ( f, diskspace_id ) );
+	TRY ( _h5_close_dataspace( f, diskspace_id ) );
 
 	t->num_levels = size;
 	return size;

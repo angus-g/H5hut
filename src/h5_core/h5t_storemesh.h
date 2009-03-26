@@ -11,7 +11,6 @@ h5t_add_mesh (
 h5_id_t
 h5t_add_level (
 	h5_file_t * const f,
-	const h5_size_t num_vertices,
 	const h5_size_t num_elems
 	);
 

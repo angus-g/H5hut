@@ -7,6 +7,9 @@
 #include "h5u_types_private.h"
 
 #include "h5_errorhandling_private.h"
+#include "h5_fcmp_private.h"
+#include "h5_hdf5_private.h"
+#include "h5_mpi_private.h"
 #include "h5_qsort_private.h"
 #include "h5_readwrite_private.h"
 #include "h5_syscall_private.h"

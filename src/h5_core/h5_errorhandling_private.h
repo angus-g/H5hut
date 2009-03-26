@@ -42,31 +42,12 @@
 		H5_ERR_BADFD,				\
 		"Called with bad filehandle." );
 
-#define HANDLE_H5_NOMEM_ERR( f )		\
-	h5_error(				\
-		f,				\
-		H5_ERR_NOMEM,			\
-		"Out of memory." );
-
-#define HANDLE_H5_SETSTEP_ERR( f, rc, step )			\
-	h5_error(						\
-		f,						\
-		h5_get_funcname(),				\
-		rc,						\
-		"Cannont set step to %lld.", (long long)step );
-
 #define _h5_handle_file_mode_error( f, mode_id )		  \
 	h5_error(						  \
 		f,						  \
 		H5_ERR_BADF,					  \
 		"Operation not permitted in mode \"%s\"",	  \
 		H5_O_MODES[mode_id] );
-
-#define HANDLE_H5_FILE_ACCESS_TYPE_ERR( f, flags )		\
-	h5_error(						\
-		f,						\
-		H5_ERR_INVAL,					\
-		"Invalid file access mode \"%d\".", flags);
 
 #define HANDLE_H5_STEP_EXISTS_ERR( f, step )				\
 	h5_error(							\
@@ -103,96 +84,5 @@
 		H5_ERR_INVAL,				\
 		"%s id %lld out of range",		\
 		otype, oid );
-
-/**************** HDF5 *********************/
-/* H5A: Attribute */
-#define HANDLE_H5A_GET_NUM_ATTRS_ERR( f )		\
-	h5_error(					\
-		f,					\
-		H5_ERR_HDF5,				\
-		"Cannot get number of attributes." );
-
-#define HANDLE_H5A_OPEN_IDX_ERR( f, n )				      \
-	h5_error(						      \
-		f,						      \
-		H5_ERR_HDF5,					      \
-		"Cannot open attribute specified by index \"%lld\".", \
-		(long long)n );
-
-/* H5G: group */
-#define HANDLE_H5G_GET_OBJINFO_ERR( f, s )				\
-	h5_error(							\
-		f,							\
-		H5_ERR_HDF5,						\
-		"Cannot get information about object \"%s\".", s );
-
-/* H5P: property */
-#define HANDLE_H5P_SET_FAPL_MPIO_ERR( f )				\
-	h5_error(							\
-		f,							\
-		H5_ERR_HDF5,						\
-		"Cannot store IO communicator information to the "	\
-		"file access property list.");
-
-/* H5S: dataspace */
-#define HANDLE_H5S_CREATE_SIMPLE_3D_ERR( f, dims )			\
-	h5_error(							\
-		f,							\
-		H5_ERR_HDF5,						\
-		"Cannot create 3d dataspace with dimension sizes "	\
-		"\"(%lld,%lld,%lld)\".",				\
-		(long long)dims[0], (long long)dims[1], (long long)dims[2] );
-
-#define HANDLE_H5S_GET_SELECT_NPOINTS_ERR(f)				\
-	h5_error(							\
-		f,							\
-		H5_ERR_HDF5,						\
-		"Cannot determine the number of elements"		\
-		"in dataspace selection." ); 
-
-#define HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR( f )			\
-	h5_error(							\
-		f,							\
-		H5_ERR_HDF5,						\
-		"Cannot determine number of elements in dataspace." ); 
-
-#define HANDLE_H5S_SELECT_HYPERSLAB_ERR( f )				\
-	h5_error(							\
-		f,							\
-		H5_ERR_HDF5,						\
-		"Cannot set select hyperslap region or add the "	\
-		"specified region" );
-
-#define HANDLE_H5S_GET_SIMPLE_EXTENT_DIMS_ERR( f )		\
-	h5_error(						\
-		f,						\
-		H5_ERR_HDF5,				\
-		"Cannot get dimension sizes of dataset" );
-
-
-/* MPI */
-#define HANDLE_MPI_ALLGATHER_ERR( f )		\
-	h5_error(				\
-		f,				\
-		 H5_ERR_MPI,			\
-		"Cannot gather data." );
-
-#define HANDLE_MPI_COMM_SIZE_ERR( f )					\
-	h5_error(							\
-		f,							\
-		H5_ERR_MPI,						\
-		"Cannot get number of processes in my group." );
-
-#define HANDLE_MPI_COMM_RANK_ERR( f )					\
-	h5_error(							\
-		f,							\
-		H5_ERR_MPI,						\
-		"Cannot get rank of the calling process in my group." );
-
-#define HANDLE_MPI_UNAVAILABLE_ERR( f )		\
-	h5_error(				\
-		f,				\
-		H5_ERR_MPI,			\
-		"MPI not available" );
 
 #endif

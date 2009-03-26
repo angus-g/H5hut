@@ -6,8 +6,6 @@
 
 #include "h5_attribs.h"
 #include "h5_errorhandling.h"
-#include "h5_fcmp.h"
-#include "h5_hdf5.h"
 #include "h5_maps.h"
 #include "h5_openclose.h"
 #include "h5_readwrite.h"

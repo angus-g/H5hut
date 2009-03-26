@@ -9,12 +9,6 @@ _h5t_handle_get_global_eid_err (
 	);
 
 h5_err_t
-_h5t_handle_get_local_eid_err (
-	h5_file_t *f,
-	const h5_id_t * const local_vids
-	);
-
-h5_err_t
 _h5t_error_illegal_object_type (
 	h5_file_t * const f,
 	h5_oid_t oid );

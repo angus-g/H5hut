@@ -21,11 +21,9 @@ _get_diskshape_for_reading (
 	h5_file_t *f,
 	hid_t dataset
 	) {
-
-	herr_t r;
 	struct h5u_fdata *u = f->u;
-
 	hid_t space;
+
 	TRY( space = _h5_get_dataset_space ( f, dataset ) );
 
 	if ( h5u_has_view ( f ) ) {
@@ -44,17 +42,19 @@ _get_diskshape_for_reading (
 
 		/* now we select a subset */
 		if ( u->diskshape > 0 ) {
-			r = H5Sselect_hyperslab (
-				u->diskshape, H5S_SELECT_SET,
-				&start, &stride, &count, NULL);
-			if ( r < 0 )
-				return (hid_t)HANDLE_H5S_SELECT_HYPERSLAB_ERR ( f );
+			TRY ( _h5_select_hyperslab_of_space (
+				      f,
+				      u->diskshape,
+				      H5S_SELECT_SET,
+				      &start, &stride, &count,
+				      NULL ) );
 		}
-		/* now we select a subset */
-		r = H5Sselect_hyperslab (
-			space,H5S_SELECT_SET,
-			&start, &stride, &count, NULL );
-		if ( r < 0 ) return (hid_t)HANDLE_H5S_SELECT_HYPERSLAB_ERR ( f );
+		TRY ( _h5_select_hyperslab_of_space (
+			      f,
+			      space,
+			      H5S_SELECT_SET,
+			      &start, &stride, &count,
+			      NULL ) );
 
 		h5_debug (
 			f,
@@ -76,7 +76,7 @@ _get_memshape_for_reading (
 	if ( h5u_has_view ( f ) ) {
 		hsize_t dmax=H5S_UNLIMITED;
 		hsize_t len = u->viewend - u->viewstart;
-		return _h5_create_dataset_space ( f, 1, &len, &dmax );
+		return _h5_create_space ( f, 1, &len, &dmax );
 	} else {
 		return H5S_ALL;
 	}
@@ -108,13 +108,10 @@ h5u_get_num_elems (
 	TRY( space_id = _get_diskshape_for_reading ( f, dataset_id ) );
 
 	if ( h5u_has_view ( f ) ) {
-		nparticles = H5Sget_select_npoints ( space_id );
-		if ( nparticles < 0 ) return HANDLE_H5S_GET_SELECT_NPOINTS_ERR ( f );
+		TRY ( nparticles = _h5_get_selected_npoints_of_space ( f, space_id ) );
 	}
 	else {
-		nparticles = H5Sget_simple_extent_npoints ( space_id );
-		if ( nparticles < 0 )
-			return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR ( f );
+		TRY ( nparticles = _h5_get_npoints_of_space ( f, space_id ) );
 	}
 	TRY( _h5_close_dataspace( f, space_id ) );
 	TRY( _h5_close_dataset( f, dataset_id ) );
@@ -175,14 +172,14 @@ h5u_set_num_elements (
 	}
 #endif
 	TRY( _h5_close_dataspace( f, u->diskshape ) );
-	u->diskshape = H5S_ALL;
 	TRY( _h5_close_dataspace( f, u->memshape ) );
-	u->memshape = H5S_ALL;
 	TRY( _h5_close_dataspace( f, u->shape ) );
+	u->diskshape = H5S_ALL;
+	u->memshape = H5S_ALL;
 	u->shape = H5S_ALL;
 	u->nparticles =(hsize_t) nparticles;
 #ifndef PARALLEL_IO
-	TRY( u->shape = _h5_create_dataset_space (
+	TRY( u->shape = _h5_create_space (
 		     f,
 		     1,
 		     &(u->nparticles),
@@ -211,13 +208,11 @@ h5u_set_num_elements (
 	  acquire the number of particles to be written from each MPI process
 	*/
 
-	r = MPI_Allgather (
+	TRY ( _h5_mpi_allgather (
 		&nparticles, 1, MPI_LONG_LONG,
 		f->pnparticles, 1, MPI_LONG_LONG,
-		f->comm);
-	if ( r != MPI_SUCCESS) {
-		return HANDLE_MPI_ALLGATHER_ERR;
-	}
+		f->comm ) );
+
 	if ( f->myproc == 0 ) {
 		h5_debug ( "Particle offsets:" );
 		for(i=0;i<f->nprocs;i++) 
@@ -240,23 +235,22 @@ h5u_set_num_elements (
 	}
 
 	/* declare overall datasize */
-	TRY ( f->shape = _h5_create_dataset_space ( f, 1, &total, &total ) );
+	TRY ( f->shape = _h5_create_space ( f, 1, &total, &total ) );
 
 	/* declare overall data size  but then will select a subset */
-	TRY ( f->diskshape = _h5_create_dataset_space ( f, 1, &total, &total) );
+	TRY ( f->diskshape = _h5_create_space ( f, 1, &total, &total) );
 
 	/* declare local memory datasize */
-	TRY ( f->memshape = _h5_create_dataset_space (
+	TRY ( f->memshape = _h5_create_space (
 		      f, 1, &(f->nparticles), &dmax ) );
 
 	count[0] = nparticles;
-	r = H5Sselect_hyperslab (
-		f->diskshape,
-		H5S_SELECT_SET,
-		start,
-		stride,
-		count, NULL );
-	if ( r < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
+	TRY ( _h5_select_hyperslab_of_space (
+		      f,
+		      f->diskshape,
+		      H5S_SELECT_SET,
+		      start, stride, count,
+		      NULL ) );
 
 	if ( f->step_gid < 0 ) {
 		TRY ( h5_set_step ( f, 0 ) );
@@ -361,23 +355,21 @@ h5u_set_view (
 	u->nparticles = end - start + 1;
 	
 	/* declare overall datasize */
-	TRY ( u->shape = _h5_create_dataset_space ( f, 1, &total, &total ) );
+	TRY ( u->shape = _h5_create_space ( f, 1, &total, &total ) );
 
 	/* declare overall data size  but then will select a subset */
-	TRY ( u->diskshape= _h5_create_dataset_space ( f, 1, &total, &total ) );
+	TRY ( u->diskshape= _h5_create_space ( f, 1, &total, &total ) );
 
 	/* declare local memory datasize */
-	TRY ( u->memshape = _h5_create_dataset_space (
+	TRY ( u->memshape = _h5_create_space (
 		      f, 1, &(u->nparticles), &dmax ) );
 
-	herr = H5Sselect_hyperslab ( 
-		u->diskshape,
-		H5S_SELECT_SET,
-		(hsize_t*)&start,
-		&stride,
-		&total,
-		NULL );
-	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR ( f );
+	TRY ( _h5_select_hyperslab_of_space ( 
+		      f,
+		      u->diskshape,
+		      H5S_SELECT_SET,
+		      (hsize_t*)&start, &stride, &total,
+		      NULL ) );
 
 	return H5_SUCCESS;
 }

@@ -118,19 +118,15 @@ _h5t_read_boundaryfaces (
 
 	const char * const dataset_name = "Faces";
 	hid_t dataset_id;
-	TRY( dataset_id = _h5_open_dataset ( f, boundary->gid, dataset_name ) );
-	TRY( diskspace_id = _h5_get_dataset_space ( f, dataset_id ) );
+	h5_size_t num_faces;
+	TRY ( dataset_id = _h5_open_dataset ( f, boundary->gid, dataset_name ) );
+	TRY ( diskspace_id = _h5_get_dataset_space ( f, dataset_id ) );
+	TRY ( num_faces = _h5_get_npoints_of_space ( f, diskspace_id ) );
+	TRY ( _h5_close_dataspace( f, diskspace_id ) );
+	TRY ( _h5_close_dataset( f, dataset_id ) );
+	TRY ( h5t_add_num_boundaryfaces ( f, num_faces ) );
 
-	h5_id_t num_faces = H5Sget_simple_extent_npoints ( diskspace_id );
-	if ( num_faces < 0 )
-		return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR ( f );
-
-	TRY( _h5_close_dataspace( f, diskspace_id ) );
-	TRY( _h5_close_dataset( f, dataset_id ) );
-
-	h5t_add_num_boundaryfaces ( f, num_faces );
-
-	TRY( _h5_read_dataset (
+	TRY ( _h5_read_dataset (
 		f,
 		dataset_id,
 		H5T_NATIVE_INT32,
@@ -138,7 +134,7 @@ _h5t_read_boundaryfaces (
 		H5S_ALL,
 		f->xfer_prop,
 		boundary->faces ) );
-	TRY( _h5_close_dataset( f, dataset_id ) );
+	TRY ( _h5_close_dataset( f, dataset_id ) );
 
 	return H5_SUCCESS;
 }
@@ -201,37 +197,26 @@ h5t_add_num_boundaryfaces (
 	const h5_id_t num_faces
 	) {
 	struct h5t_fdata *t = f->t;
-	boundary_t *boundary = &t->boundary;
-	
-	boundary->num_faces = realloc (
-		boundary->num_faces,
-		t->num_levels*sizeof(boundary->num_faces[0]) );
-	boundary->num_faces_on_level = realloc (
-		boundary->num_faces_on_level,
-		t->num_levels*sizeof(boundary->num_faces_on_level[0]) );
-	boundary->faces = realloc (
-		boundary->faces,
-		num_faces*sizeof(boundary->faces[0]) );
-	boundary->lfaces = realloc (
-		boundary->lfaces,
-		num_faces*sizeof(boundary->lfaces[0]) );
-	if ( boundary->num_faces == NULL ||
-	     boundary->num_faces_on_level == NULL ||
-	     boundary->faces == NULL ||
-	     boundary->lfaces == NULL ) {
-		return HANDLE_H5_NOMEM_ERR ( f );
-	}
-	memset ( boundary->num_faces, 
-		 0, t->num_levels*sizeof(boundary->num_faces[0]) );
-	memset ( boundary->num_faces_on_level,
-		 0, t->num_levels*sizeof(boundary->num_faces_on_level[0]) );
-	memset ( boundary->faces,
-		 -1, num_faces*sizeof(boundary->faces[0]) );
-	memset (
-		boundary->lfaces,
-		0, num_faces*sizeof(boundary->lfaces[0]) );
-	boundary->num_faces[0] = num_faces;
-	boundary->last_accessed_face = -1;
+	boundary_t *b = &t->boundary;
+
+	size_t size = t->num_levels * sizeof(b->num_faces[0]);
+	TRY ( b->num_faces = _h5_alloc ( f, b->num_faces, size ) );
+	memset ( b->num_faces, 0, size );
+
+	size = t->num_levels * sizeof(b->num_faces_on_level[0]);
+	TRY ( b->num_faces_on_level = _h5_alloc ( f, b->num_faces_on_level, size ) );
+	memset ( b->num_faces_on_level, 0, size );
+
+	size = num_faces * sizeof(b->faces[0]);
+	TRY ( b->faces = _h5_alloc ( f, b->faces, size ) );
+	memset ( b->faces, -1, size );
+
+	size = num_faces*sizeof(b->lfaces[0]);
+	TRY ( b->lfaces = _h5_alloc ( f, b->lfaces, size ) );
+	memset ( b->lfaces, 0, size );
+
+	b->num_faces[0] = num_faces;
+	b->last_accessed_face = -1;
 
 	return H5_SUCCESS;
 }
@@ -254,8 +239,7 @@ h5t_store_boundaryface (
 	struct h5t_fdata *t = f->t;
 
 	if ( t->vertices == NULL ) {
-		h5_err_t h5err = _h5t_read_mesh ( f );
-		if ( h5err < 0 ) return h5err;
+		TRY ( _h5t_read_mesh ( f ) );
 	}
 
 	switch ( t->mesh_type ) {
@@ -315,7 +299,7 @@ h5t_store_boundaryface_local_id (
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
 		h5_id_t local_tet_id = local_fid & H5_TET_MASK;
-		if ( t->elems.tets[local_tet_id].parent_eid != -1 ) {
+		if ( t->elems.tets[local_tet_id].global_parent_eid != -1 ) {
 			return _h5t_error_store_boundaryface_local_id (
 				f,
 				local_fid );

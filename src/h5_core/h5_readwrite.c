@@ -102,23 +102,22 @@ _h5_write (
 		   extend dataset?
 		*/
 	} else {
-		TRY( (dataspace_id = _h5_create_dataset_space (
+		TRY ( dataspace_id = _h5_create_space (
 			      f,
 			      ds_info->rank,
 			      ds_info->dims,
-			      ds_info->maxdims ) ) );
-		TRY( (dataset_id = _h5_create_dataset (
+			      ds_info->maxdims ) );
+		TRY ( dataset_id = _h5_create_dataset (
 			      f,
 			      loc_id,
 			      ds_info->name,
 			      *ds_info->type_id,
 			      dataspace_id,
-			      ds_info->create_prop ) ) );
+			      ds_info->create_prop ) );
 	}
-	TRY( (memspace_id = (*set_memspace)( f, 0 ) ) );
-	TRY( (diskspace_id = (*set_diskspace)( f, dataspace_id ) ) );
-
-	TRY( _h5_write_dataset (
+	TRY ( memspace_id = (*set_memspace)( f, 0 ) );
+	TRY ( diskspace_id = (*set_diskspace)( f, dataspace_id ) );
+	TRY ( _h5_write_dataset (
 		     f,
 		     dataset_id,
 		     *ds_info->type_id,
@@ -126,8 +125,9 @@ _h5_write (
 		     diskspace_id,
 		     f->xfer_prop,
 		     data ) );
-
-	TRY( _h5_close_dataset( f, dataset_id ) );
+	TRY ( _h5_close_dataspace ( f, diskspace_id ) );
+	TRY ( _h5_close_dataspace ( f, memspace_id ) );
+	TRY ( _h5_close_dataset( f, dataset_id ) );
 
 	f->empty = 0;
 

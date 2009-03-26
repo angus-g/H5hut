@@ -1,18 +1,18 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <hdf5.h>
-#include "h5_types.h"
+#include "h5_core.h"
 
 /*!
-  Compare to floating point numbers using integers. See
+  Compare two floating point numbers using integers. See
   http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
   for a detailed explanation.
 */
-int
+h5_int64_t
 _h5_fcmp (
 	h5_float64_t A,
 	h5_float64_t B,
-	h5_int64_t maxUlps ) {
+	h5_int32_t maxUlps ) {
 
 	// Make sure maxUlps is non-negative and small enough that the
 	// default NAN won't compare as equal to anything.

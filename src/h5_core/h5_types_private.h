@@ -7,13 +7,16 @@ struct smap {
 	h5_id_t		*items;
 };
 
+struct h5_idmap_el {
+	h5_id_t	global_id;
+	h5_id_t	local_id;
+};
+typedef struct h5_idmap_el h5_idmap_el_t;
+
 struct idmap {
 	h5_size_t	size;		/* allocated space in number of items */
 	h5_size_t	num_items;	/* stored items	*/
-	struct {
-		h5_id_t	global_id;
-		h5_id_t	local_id;
-	}		*items;
+	h5_idmap_el_t	*items;
 };
 
 

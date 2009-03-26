@@ -38,15 +38,11 @@ h5_read_attrib (
 	hid_t mytype;
 	hsize_t nelem;
 
-	TRY ( attrib_id = _h5_open_attribute_by_name ( f, id, attrib_name ) );
+	TRY ( attrib_id = _h5_open_attribute ( f, id, attrib_name ) );
 	TRY ( mytype = _h5_get_attribute_type ( f, attrib_id ) );
 	TRY ( space_id = _h5_get_attribute_space ( f, attrib_id ) );
-
-	nelem = H5Sget_simple_extent_npoints ( space_id );
-	if ( nelem < 0 ) return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR( f );
-
-	type_id = h5_normalize_h5_type ( f, mytype );
-
+	TRY ( nelem = _h5_get_npoints_of_space ( f, space_id ) );
+	TRY ( type_id = h5_normalize_h5_type ( f, mytype ) );
 	TRY ( _h5_read_attribute ( f, attrib_id, type_id, attrib_value ) );
 	TRY ( _h5_close_dataspace( f, space_id ) );
 	TRY ( _h5_close_type( f, mytype ) );
@@ -74,7 +70,7 @@ h5_write_attrib (
 	hid_t space_id;
 	hid_t attrib_id;
 
-	TRY ( space_id = _h5_create_dataset_space ( f, 1, &attrib_nelem, NULL) );
+	TRY ( space_id = _h5_create_space ( f, 1, &attrib_nelem, NULL) );
 	TRY ( attrib_id = _h5_create_attribute ( 
 		      f,
 		      id,
@@ -111,16 +107,14 @@ h5_get_attrib_info (
 	hid_t mytype;
 	hid_t space_id;
 
-	attrib_id = H5Aopen_idx ( id, (unsigned int)attrib_idx );
-	if ( attrib_id < 0 ) return HANDLE_H5A_OPEN_IDX_ERR ( f, attrib_idx );
+	TRY ( attrib_id = _h5_open_attribute_idx (
+		      f,
+		      id,
+		      (unsigned int)attrib_idx ) );
 
 	if ( attrib_nelem ) {
 		TRY ( space_id = _h5_get_attribute_space ( f, attrib_id ) );
-
-		*attrib_nelem = H5Sget_simple_extent_npoints ( space_id );
-		if ( *attrib_nelem < 0 )
-			return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR( f );
-
+		TRY ( *attrib_nelem = _h5_get_npoints_of_space ( f, space_id ) );
 		TRY( _h5_close_dataspace( f, space_id ) );
 	}
 	if ( attrib_name ) {
@@ -132,7 +126,7 @@ h5_get_attrib_info (
 	}
 	if ( attrib_type ) {
 		TRY ( mytype = _h5_get_attribute_type ( f, attrib_id ) );
-		*attrib_type = h5_normalize_h5_type ( f, mytype );
+		TRY ( *attrib_type = h5_normalize_h5_type ( f, mytype ) );
 		TRY ( _h5_close_type( f, mytype ) );
 	}
 	TRY ( _h5_close_attribute ( f, attrib_id ) );
@@ -152,11 +146,6 @@ h5_get_num_attribs (
 	h5_file_t * const f,		/*!< handle to open file */
 	const hid_t id
 	) {
-
 	CHECK_FILEHANDLE ( f );
-
-	int nattribs = H5Aget_num_attrs ( id );
-	if ( nattribs < 0 ) HANDLE_H5A_GET_NUM_ATTRS_ERR( f );
-
-	return (h5_size_t) nattribs;
+	return _h5_get_num_attributes ( f, id );
 }

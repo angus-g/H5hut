@@ -85,13 +85,11 @@ struct h5_file {
 	hid_t	xfer_prop;		/* file transfer properties	*/
 	hid_t	create_prop;		/* file create properties	*/
 	hid_t	access_prop;		/* file access properties	*/
-
-
 	hid_t	root_gid;		/* id of root group		*/
 	hid_t	step_gid;		/* id of current step		*/
 
 	/* step internal data						*/
-	char	*prefix_step_name;	/* Prefix of step name		*/
+	char	prefix_step_name[256];	/* Prefix of step name		*/
 	int	width_step_idx;		/* pad step index with 0 up to this */
 	char	step_name[128];		/* full step name		*/
 	h5_int64_t step_idx;		/* step index			*/
@@ -113,5 +111,8 @@ enum h5_oid {		/* enum with number of vertices(!) */
 typedef enum h5_oid h5_oid_t;
 
 #define H5_MAX_VERTICES_PER_ELEM H5_OID_TETRAHEDRON
+
+#define H5_TRIANGLE_MESH	 (H5_OID_TRIANGLE)
+#define H5_TETRAHEDRAL_MESH	 (H5_OID_TETRAHEDRON)
 
 #endif

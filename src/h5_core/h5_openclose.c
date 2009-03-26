@@ -63,22 +63,17 @@ static h5_int64_t
 _h5u_open_file (
 	h5_file_t *f			/*!< IN: file handle */
 	) {
-	f->u = (struct h5u_fdata*) malloc( sizeof (*f->u) );
-	if ( f->u == NULL ) {
-		return HANDLE_H5_NOMEM_ERR( f );
-	}
-	struct h5u_fdata *u = f->u;
+	TRY ( f->u = (struct h5u_fdata*) _h5_alloc( f, NULL, sizeof (*f->u) ) );
+	h5u_fdata_t *u = f->u;
 
  	u->shape = 0;
 	u->diskshape = H5S_ALL;
 	u->memshape = H5S_ALL;
 	u->viewstart = -1;
 	u->viewend = -1;
-	u->pnparticles =
-		(h5_int64_t*) malloc (f->nprocs * sizeof (h5_int64_t));
-	if (u->pnparticles == NULL) {
-		return HANDLE_H5_NOMEM_ERR( f );
-	}
+	size_t size = f->nprocs * sizeof (h5_int64_t);
+	TRY ( u->pnparticles = _h5_alloc ( f, NULL, size ) ); 
+
 	return H5_SUCCESS;
 }
 
@@ -95,27 +90,21 @@ static h5_int64_t
 _h5b_open_file (
 	h5_file_t *f			/*!< IN: file handle */
 	) {
-	struct h5b_fdata *b; 
+	h5b_fdata_t *b; 
 
 	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5_BADFD_ERR( f );
 	if ( f->b ) return H5_SUCCESS;
 
-	f->b = (struct h5b_fdata*) malloc( sizeof (*f->b) );
-	if ( f->b == NULL ) {
-		return HANDLE_H5_NOMEM_ERR( f );
-	}
+	TRY ( f->b = (h5b_fdata_t*) _h5_alloc ( f, NULL, sizeof (*f->b) ) );
+
 	b = f->b;
 	memset ( b, 0, sizeof (*b) );
-	b->user_layout = (struct h5b_partition*) malloc (
-		f->nprocs * sizeof (b->user_layout[0]) );
-	if ( b->user_layout == NULL ) {
-		return HANDLE_H5_NOMEM_ERR( f );
-	}
-	b->write_layout = (struct h5b_partition*) malloc (
-		f->nprocs * sizeof (b->write_layout[0]) );
-	if ( b->write_layout == NULL ) {
-		return HANDLE_H5_NOMEM_ERR( f );
-	}
+
+	size_t size = f->nprocs * sizeof (b->user_layout[0]);
+	TRY ( b->user_layout = _h5_alloc ( f, NULL, size ) );
+	size = f->nprocs * sizeof (b->write_layout[0]);
+	TRY ( b->write_layout = _h5_alloc ( f, NULL, size ) );
+
 	b->step_idx = -1;
 	b->blockgroup = -1;
 	b->shape = -1;
@@ -147,12 +136,7 @@ _h5_open_file (
 	h5_info ( f, "Opening file %s.", filename );
 
 	TRY ( _h5_set_errorhandler ( f, H5E_DEFAULT, _h5_error_handler, NULL ) );
-
-	f->prefix_step_name = strdup ( H5PART_GROUPNAME_STEP );
-	if( f->prefix_step_name == NULL )
-		return HANDLE_H5_NOMEM_ERR( f );
-
-	f->width_step_idx = 0;
+	TRY ( h5_set_stepname_fmt ( f, H5PART_GROUPNAME_STEP, 0 ) );
 
 	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
 
@@ -162,9 +146,8 @@ _h5_open_file (
 
 #ifdef PARALLEL_IO
 	f->comm = comm;
-	if (MPI_Comm_size (comm, &f->nprocs) != MPI_SUCCESS) {
-		return HANDLE_MPI_COMM_SIZE_ERR;
-	}
+	TRY ( _h5_mpi_comm_size ( f, comm, &f->nprocs ) );
+
 	if (MPI_Comm_rank (comm, &f->myproc) != MPI_SUCCESS) {
 		return HANDLE_MPI_COMM_RANK_ERR;
 	}
@@ -176,9 +159,7 @@ _h5_open_file (
 	/* ks: IBM_large_block_io */
 	MPI_Info_create(&info);
 	MPI_Info_set(info, "IBM_largeblock_io", "true" );
-	if (H5Pset_fapl_mpio (f->access_prop, comm, info) < 0) {
-		return HANDLE_H5P_SET_FAPL_MPIO_ERR;
-	}
+	TRY ( _h5_set_fapl_mpio_property ( f->access_prop, comm, info ) );
 	MPI_Info_free(&info);
 	
 	TRY ( f->access_prop = _h5_create_property ( f, H5P_FILE_ACCESS ) );
@@ -220,7 +201,10 @@ _h5_open_file (
 		}
 	}
 	else {
-		return HANDLE_H5_FILE_ACCESS_TYPE_ERR ( f, flags );
+		return h5_error (
+			f,
+			H5_ERR_INVAL,
+			"Invalid file access mode \"%d\".", flags);
 	}
 	
 	if (f->file < 0)
@@ -268,9 +252,6 @@ h5_open_file (
 	f->__funcname = funcname;
 	if ( _h5_open_file( f, filename, flags, comm ) < 0 ) {
 		if (f != NULL ) {
-			if (f->prefix_step_name) {
-				free (f->prefix_step_name);
-			}
 			if (f->u->pnparticles != NULL) {
 				free (f->u->pnparticles);
 			}
@@ -370,9 +351,6 @@ h5_close_file (
 	TRY( _h5_close_group ( f, f->root_gid ) );
 	TRY( _h5_close_file ( f, f->file ) );
 
-	if (f->prefix_step_name) {
-		free (f->prefix_step_name);
-	}
 	free( f );
 
 	return H5_SUCCESS;
@@ -388,16 +366,16 @@ h5_close_file (
 
   \return \c H5_SUCCESS or error code
 */
-h5_int64_t
+h5_err_t
 h5_set_stepname_fmt (
 	h5_file_t *f,
 	const char *name,
 	const h5_int64_t width
 	) {
-	f->prefix_step_name = strdup ( name );
-	if( f->prefix_step_name == NULL ) {
-		return HANDLE_H5_NOMEM_ERR( f );
-	}
+	strncpy (
+		f->prefix_step_name,
+		name,
+		sizeof ( f->prefix_step_name ) - 1 );
 	f->width_step_idx = (int)width;
 	
 	return H5_SUCCESS;

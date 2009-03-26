@@ -62,8 +62,8 @@ _create_vertex_type (
 		_h5_insert_type (
 			f,
 			dtypes->h5_vertex_t,
-			"vid",
-			HOFFSET(struct h5_vertex, vid),
+			"global_vid",
+			HOFFSET(struct h5_vertex, global_vid),
 			H5_ID_T ) );
 	TRY(
 		_h5_insert_type (
@@ -91,15 +91,15 @@ _create_triangle_type (
 		_h5_insert_type (
 			f,
 			dtypes->h5_triangle_t,
-			"eid",
-			HOFFSET(struct h5_triangle, eid),
+			"global_eid",
+			HOFFSET(struct h5_triangle, global_eid),
 			H5_ID_T ) );
 	TRY(
 		_h5_insert_type (
 			f,
 			dtypes->h5_triangle_t,
-			"parent_eid",
-			HOFFSET(struct h5_triangle, parent_eid),
+			"global_parent_eid",
+			HOFFSET(struct h5_triangle, global_parent_eid),
 			H5_ID_T ) );
 	TRY(
 		_h5_insert_type (
@@ -112,8 +112,8 @@ _create_triangle_type (
 		_h5_insert_type (
 			f,
 			dtypes->h5_triangle_t,
-			"vids",
-			HOFFSET(struct h5_triangle, vids),
+			"global_vids",
+			HOFFSET(struct h5_triangle, global_vids),
 			dtypes->h5_3id_t ) );
 
 	return H5_SUCCESS;
@@ -134,15 +134,15 @@ _create_tet_type (
 		_h5_insert_type (
 			f,
 			dtypes->h5_tet_t,
-			"eid",
-			HOFFSET(struct h5_tetrahedron, eid),
+			"global_eid",
+			HOFFSET(struct h5_tetrahedron, global_eid),
 			H5_ID_T ) );
 	TRY(
 		_h5_insert_type (
 			f,
 			dtypes->h5_tet_t,
-			"parent_eid",
-			HOFFSET(struct h5_tetrahedron, parent_eid),
+			"global_parent_eid",
+			HOFFSET(struct h5_tetrahedron, global_parent_eid),
 			H5_ID_T ) );
 	TRY(
 		_h5_insert_type (
@@ -155,8 +155,8 @@ _create_tet_type (
 		_h5_insert_type (
 			f,
 			dtypes->h5_tet_t,
-			"vids",
-			HOFFSET(struct h5_tetrahedron, vids),
+			"global_vids",
+			HOFFSET(struct h5_tetrahedron, global_vids),
 			dtypes->h5_4id_t ) );
 
 	return H5_SUCCESS;
@@ -301,7 +301,7 @@ _h5t_open_file (
 	) {
 
 	TRY( (f->t = _h5_alloc ( f, NULL, sizeof(*f->t) ) ) );
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
 	t->dtypes.h5_id_t = H5_INT64_T;
 	t->dtypes.h5_float64_t = H5_FLOAT64_T;
@@ -310,9 +310,6 @@ _h5t_open_file (
 	TRY( _create_vertex_type ( f ) );
 	TRY( _create_triangle_type ( f ) );
 	TRY( _create_tet_type ( f ) );
-
-	
-
 	TRY( _init_fdata ( f ) );
 
 	return H5_SUCCESS;

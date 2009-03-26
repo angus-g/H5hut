@@ -21,25 +21,99 @@ h5t_add_mesh (
 	h5_id_t mesh_id = 0;
 
 	TRY( (mesh_id = h5t_open_mesh ( f, -1, mesh_type )) ); 
-	TRY( h5t_add_level ( f, num_elems+3, num_elems ) );
+	TRY( _h5t_add_level ( f, num_elems+3, num_elems ) );
 	
 	f->t->mesh_changed = 1;
 
 	return mesh_id;
 }
 
+/*
+
+ * Assign unique global id's to vertices. Vertices already have
+   unique id's assigned by the mesher but this id's may not be
+   consecutive numbered starting from 0.
+ * Set the global vertex id's in element definitions.
+ * Assign unique global id's to elements. This is a NOOP if we are
+   running serial.
+
+   Where are the global vertex id's stored?
+   - Vertex definitions
+
+*/
+herr_t
+_h5t_assign_global_ids (
+	h5_file_t * const f
+	) {
+	h5t_fdata_t *t = f->t;
+	h5_id_t local_id;
+
+	if ( t->cur_level < 0 ) return H5_SUCCESS; /* no level defined */
+
+	/*
+	  assign global id to vertices
+	*/
+	/*
+	  simple in serial runs: global_id = local_id
+	*/
+	for ( local_id = 0; local_id < t->num_vertices[t->num_levels-1]; local_id++ ) {
+		t->vertices[local_id].global_vid = local_id;
+	}
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
+_h5t_close_level (
+	h5_file_t * const f
+	) {
+	h5t_fdata_t *t = f->t;
+
+	if ( t->num_levels <= 0 ) return H5_SUCCESS;
+
+	t->num_vertices[t->cur_level] = t->last_stored_vid+1;
+	TRY ( _h5t_assign_global_ids ( f ) );
+
+	TRY ( _h5t_sort_vertices ( f ) );
+	TRY ( _h5t_rebuild_global_2_local_map_of_vertices ( f ) );
+	TRY ( _h5t_sort_elems ( f ) );
+	TRY ( _h5t_rebuild_global_2_local_map_of_elems ( f ) );
+
+	return H5_SUCCESS;
+}
 
 h5_id_t
 h5t_add_level (
 	h5_file_t * const f,
+	h5_size_t num_elems
+	) {
+	switch ( f->t->mesh_type ) {
+	case H5_OID_TETRAHEDRON:
+		num_elems += 8;
+		break;
+	case H5_OID_TRIANGLE:
+		num_elems += 4;
+		break;
+	default:
+		return h5_error_internal ( f, __FILE__, __func__, __LINE__ );
+	}
+	h5_id_t num_vertices = (num_elems>>2)*3; /* this is an upper limit */
+	return _h5t_add_level ( f, num_vertices, num_elems );
+}
+
+h5_id_t
+_h5t_add_level (
+	h5_file_t * const f,
 	const h5_size_t num_vertices,
 	const h5_size_t num_elems
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
 	if ( f->mode == H5_O_RDONLY ) {
 		return H5_ERR_INVAL;
 	}
+
+	TRY ( _h5t_close_level ( f ) );
 
 	/* t->num_levels will be set to zero on file creation(!) */
 	if ( t->num_levels == -1 ) {	/* unknown number of levels	*/
@@ -55,9 +129,9 @@ h5t_add_level (
 	t->num_vertices = realloc ( t->num_vertices, num_bytes );
 	t->num_vertices[t->cur_level] = -1;
 
-	t->num_elems = realloc ( t->num_elems, num_bytes );
+	TRY ( t->num_elems = _h5_alloc ( f, t->num_elems, num_bytes ) );
 	t->num_elems[t->cur_level] = -1;
-	t->num_elems_on_level = realloc ( t->num_elems_on_level, num_bytes );
+	TRY ( t->num_elems_on_level = _h5_alloc ( f, t->num_elems_on_level, num_bytes ) );
 	t->num_elems_on_level[t->cur_level] = -1;
 
 	t->new_level = t->cur_level;
@@ -78,21 +152,19 @@ _h5t_alloc_num_vertices (
 	h5_file_t * const f,
 	const h5_size_t num_vertices
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
-	ssize_t num_bytes = num_vertices*sizeof ( t->vertices[0] );
-	h5_debug ( f, "Allocating %ld bytes.", num_bytes ); 
-	t->vertices = realloc (	t->vertices, num_bytes );
-	if ( t->vertices == NULL ) {
-		return HANDLE_H5_NOMEM_ERR ( f );
-	}
-
+	ssize_t size = num_vertices * sizeof ( t->vertices[0] );
+	TRY ( t->vertices = _h5_alloc (	f, t->vertices, size ) );
 	TRY( _h5_alloc_idmap ( f, &t->map_vertex_g2l, num_vertices ) );
 	TRY( _h5_alloc_smap ( f, &t->sorted_lvertices, num_vertices ) );
 
 	return H5_SUCCESS;
 }
 
+/*!
+  Allocate memory for (more) vertices.
+*/
 h5_err_t
 _h5t_add_num_vertices (
 	h5_file_t * const f,
@@ -103,11 +175,11 @@ _h5t_add_num_vertices (
 	if ( t->cur_level < 0 ) {
 		return _h5t_error_undef_level( f );
 	}
-	ssize_t num_vertices = (t->cur_level > 0 ?
-			     t->num_vertices[t->cur_level-1] + num : num);
-	t->num_vertices[t->cur_level] = num_vertices;
-	t->dsinfo_vertices.dims[0] = num_vertices;
-	return _h5t_alloc_num_vertices ( f, num_vertices );
+	h5_size_t cur_num_vertices = ( t->cur_level > 0 ?
+				       t->num_vertices[t->cur_level-1] : 0 );
+	t->num_vertices[t->cur_level] = cur_num_vertices+num;
+	t->dsinfo_vertices.dims[0] = cur_num_vertices+num;
+	return _h5t_alloc_num_vertices ( f, cur_num_vertices+num );
 }
 
 h5_id_t
@@ -117,24 +189,24 @@ h5t_store_vertex (
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
 	struct h5t_fdata *t = f->t;
-
+	
 	/*
 	  more than allocated
 	*/
 	if ( t->last_stored_vid+1 >= t->num_vertices[t->cur_level] ) 
 		return HANDLE_H5_OVERFLOW_ERR(
 			f, "vertex", t->num_vertices[t->cur_level] );
-
+	
 	/*
 	  missing call to add the first level
 	 */
 	if ( t->cur_level < 0 )
 		return _h5t_error_undef_level( f );
 
+	t->level_changed = 1;
 	h5_id_t local_id = ++t->last_stored_vid;
 	h5_vertex_t *vertex = &t->vertices[local_id];
-	vertex->vid = global_vid;	/* global id from mesher not yet handled! */
-	vertex->vid = local_id;		/* serial case: global id == local id */
+	vertex->global_vid = global_vid;     /* global id from mesher,replaced later!*/
 	memcpy ( &vertex->P, P, sizeof ( vertex->P ) );
 
 	return local_id;
@@ -163,17 +235,12 @@ _h5t_alloc_num_elems (
 		return -1;
 	}
 
-	t->elems.data = realloc (
-		t->elems.data, new_num_elems * sizeof_elem );
-	if ( t->elems.data == NULL ) {
-		return H5_ERR_NOMEM;
-	}
+	size_t size = new_num_elems * sizeof_elem;
+	TRY ( t->elems.data = _h5_alloc ( f, t->elems.data, size ) );
 
-	t->elems_data.data = realloc (
-		t->elems_data.data, new_num_elems*sizeof_lelem );
-	if ( t->elems_data.data == NULL ) {
-		return H5_ERR_NOMEM;
-	}
+	size = new_num_elems * sizeof_lelem;
+	TRY ( t->elems_data.data = _h5_alloc ( f, t->elems_data.data, size ) );
+
 	memset (
 		t->elems_data.data+cur_num_elems*sizeof_lelem,
 		-1,
@@ -247,25 +314,32 @@ h5t_store_elem    (
 	}
 }
 
+/*!
+  Store tetrahedron. The vertices are given with there *local* id's!
+
+  \param[in]	f		File handle.
+  \param[in]	local_parent_id	Local id of the parent element or \c -1.
+  \param[in]	local_vids	Local vertex id's defining the tetrahedron.
+ */
 h5_id_t
 _h5t_store_tet (
 	h5_file_t * const f,
-	const h5_id_t local_parent_eid,	/*!< local parent id
-					     if level \c >0 else \c -1	*/
-	const h5_id_t vids[4]	/*!< tuple with local vertex id's	*/
+	const h5_id_t local_parent_eid,
+	const h5_id_t local_vids[4]
 	) {
 
 	struct h5t_fdata *t = f->t;
-	
+	t->level_changed = 1;	
 	h5_id_t local_eid = ++t->last_stored_eid;
 	h5_tetrahedron_t *tet = &t->elems.tets[local_eid];
-	tet->eid = local_eid;
-	tet->parent_eid = local_parent_eid;
+	h5_tet_data_t *tet_data = &t->elems_data.tets[local_eid];
+	tet->global_eid = local_eid;
+	tet->global_parent_eid = local_parent_eid;
 	tet->refined_on_level = -1;
 
-	memcpy ( &tet->vids, vids, sizeof ( tet->vids ) );
-
-	_h5t_sort_local_vids ( f, tet->vids, 4 );
+	memcpy ( &tet->global_vids, local_vids, sizeof ( tet->global_vids ) );
+	_h5t_sort_local_vids ( f, tet->global_vids, 4 );
+	memcpy ( &tet_data->local_vids, &tet->global_vids, sizeof ( tet->global_vids ) );
 
 	if ( local_parent_eid >= 0 ) {
 		if ( t->elems.tets[local_parent_eid].refined_on_level < 0 ) {
@@ -286,14 +360,17 @@ _h5t_store_triangle (
 	) {
 
 	struct h5t_fdata *t = f->t;
-	
+	t->level_changed = 1;
 	h5_id_t local_eid = ++t->last_stored_eid;
 	h5_triangle_t *tri = &t->elems.tris[local_eid];
-	tri->eid = local_eid;
-	tri->parent_eid = local_parent_eid;
+	h5_triangle_data_t *tri_data = &t->elems_data.tris[local_eid];
+	tri->global_eid = local_eid;
+	tri->global_parent_eid = local_parent_eid;
 	tri->refined_on_level = -1;
 
-	memcpy ( &tri->vids, vids, sizeof ( tri->vids ) );
+	memcpy ( &tri->global_vids, vids, sizeof ( tri->global_vids ) );
+	_h5t_sort_local_vids ( f, tri->global_vids, 3 );
+	memcpy ( &tri_data->local_vids, &tri->global_vids, sizeof ( tri->global_vids ) );
 
 	if ( local_parent_eid >= 0 ) {
 		if ( t->elems.tris[local_parent_eid].refined_on_level < 0 ) {
@@ -319,22 +396,20 @@ _h5t_bisect_edge (
 	h5_id_t	local_vid1
 	) {
 	struct h5t_fdata *t = f->t;
-	h5_id_t local_id = -1;
+	h5_id_t local_vid = -1;
 	h5_float64_t *P0 = t->vertices[local_vid0].P;
 	h5_float64_t *P1 = t->vertices[local_vid1].P;
+	h5_float64_t P[3];
 
-	local_id = ++t->last_stored_vid;
-	h5_vertex_t *vertex = &t->vertices[local_id];
-	vertex->vid = local_id;
-	vertex->P[0] = ( P0[0] + P1[0] ) / 2.0;
-	vertex->P[1] = ( P0[1] + P1[1] ) / 2.0;
-	vertex->P[2] = ( P0[2] + P1[2] ) / 2.0;
+	P[0] = ( P0[0] + P1[0] ) / 2.0;
+	P[1] = ( P0[1] + P1[1] ) / 2.0;
+	P[2] = ( P0[2] + P1[2] ) / 2.0;
 
-	if ( _h5t_get_local_vid( f, vertex->P ) < 0 ) {
-		t->num_vertices[t->cur_level]++;
+	/* add vertex if not already exist */
+	if ( (local_vid = _h5t_get_local_vid( f, P )) < 0 ) {
+		TRY ( local_vid = h5t_store_vertex ( f, -1, P ) );
 	}
-
-	return local_id;
+	return local_vid;
 }
 
 /*!
@@ -366,9 +441,61 @@ h5t_refine_elem (
 h5_id_t
 _h5t_refine_triangle (
 	h5_file_t * const f,
-	const h5_id_t local_eid
+	const h5_id_t local_parent_eid
 	) {
-	return -1;
+	h5t_fdata_t *t = f->t;
+	h5_id_t local_vids[3];
+	h5_id_t local_eid;
+
+	local_vids[0] = _h5t_bisect_edge(
+		f,
+		t->elems_data.tris[local_parent_eid].local_vids[0],
+		t->elems_data.tris[local_parent_eid].local_vids[1] );
+	local_vids[1] = _h5t_bisect_edge(
+		f,
+		t->elems_data.tris[local_parent_eid].local_vids[0],
+		t->elems_data.tris[local_parent_eid].local_vids[2] );
+	local_vids[2] = _h5t_bisect_edge(
+		f,
+		t->elems_data.tris[local_parent_eid].local_vids[1],
+		t->elems_data.tris[local_parent_eid].local_vids[2] );
+
+
+	h5_id_t elem_local_vids[4];
+
+	/* 0 */
+	elem_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[0];
+	elem_local_vids[1] = local_vids[0];
+	elem_local_vids[2] = local_vids[1];
+	TRY ( local_eid = _h5t_store_triangle (
+		      f,
+		      local_parent_eid, elem_local_vids ) );
+
+	/* 1 */
+	elem_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[1];
+	elem_local_vids[1] = local_vids[0];
+	elem_local_vids[2] = local_vids[2];
+	TRY ( _h5t_store_triangle (
+		      f,
+		      local_parent_eid, elem_local_vids ) );
+
+	/* 2 */
+	elem_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[2];
+	elem_local_vids[1] = local_vids[1];
+	elem_local_vids[2] = local_vids[2];
+	TRY ( _h5t_store_triangle (
+		      f,
+		      local_parent_eid, elem_local_vids ) );
+
+	/* 3 */
+	elem_local_vids[0] = local_vids[0];
+	elem_local_vids[1] = local_vids[1];
+	elem_local_vids[2] = local_vids[2];
+	TRY ( _h5t_store_triangle (
+		      f,
+		      local_parent_eid, elem_local_vids ) );
+
+	return local_eid;
 }
 
 /*!
@@ -379,35 +506,36 @@ _h5t_refine_triangle (
 h5_id_t
 _h5t_refine_tet (
 	h5_file_t * const f,
-	const h5_id_t local_eid
+	const h5_id_t local_parent_eid
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 	h5_id_t local_vids[6];
+	h5_id_t local_eid;
 
 	local_vids[0] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tets[local_eid].vids[0],
-		t->elems_data.tets[local_eid].vids[1] );
+		t->elems_data.tets[local_parent_eid].local_vids[0],
+		t->elems_data.tets[local_parent_eid].local_vids[1] );
 	local_vids[1] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tets[local_eid].vids[0],
-		t->elems_data.tets[local_eid].vids[2] );
+		t->elems_data.tets[local_parent_eid].local_vids[0],
+		t->elems_data.tets[local_parent_eid].local_vids[2] );
 	local_vids[2] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tets[local_eid].vids[0],
-		t->elems_data.tets[local_eid].vids[3] );
+		t->elems_data.tets[local_parent_eid].local_vids[0],
+		t->elems_data.tets[local_parent_eid].local_vids[3] );
 	local_vids[3] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tets[local_eid].vids[1],
-		t->elems_data.tets[local_eid].vids[2] );
+		t->elems_data.tets[local_parent_eid].local_vids[1],
+		t->elems_data.tets[local_parent_eid].local_vids[2] );
 	local_vids[4] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tets[local_eid].vids[1],
-		t->elems_data.tets[local_eid].vids[3] );
+		t->elems_data.tets[local_parent_eid].local_vids[1],
+		t->elems_data.tets[local_parent_eid].local_vids[3] );
 	local_vids[5] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tets[local_eid].vids[2],
-		t->elems_data.tets[local_eid].vids[3] );
+		t->elems_data.tets[local_parent_eid].local_vids[2],
+		t->elems_data.tets[local_parent_eid].local_vids[3] );
 
 	/* 
 	   add new tets
@@ -415,96 +543,62 @@ _h5t_refine_tet (
 	h5_id_t new_tet_local_vids[4];
 
 	/* 0 */
-	h5_id_t new_tet_local_id = h5t_get_num_elems( f, f->myproc, -1 );
-	new_tet_local_vids[0] = t->elems_data.tets[local_eid].vids[0];
+	new_tet_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[0];
 	new_tet_local_vids[1] = local_vids[0];  // (01)
 	new_tet_local_vids[2] = local_vids[1];  // (02)
 	new_tet_local_vids[3] = local_vids[2];  // (03)
-	TRY2( _h5t_store_tet (
-		f,
-		new_tet_local_id,
-		new_tet_local_vids ), fail );
+	TRY ( local_eid = _h5t_store_tet (
+		      f, local_parent_eid, new_tet_local_vids ) );
 
 	/* 1 */
-	new_tet_local_id = h5t_get_num_elems( f, f->myproc, -1 );
-	new_tet_local_vids[0] = t->elems_data.tets[local_eid].vids[1];
+	new_tet_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[1];
 	new_tet_local_vids[1] = local_vids[0];  // (01)
 	new_tet_local_vids[2] = local_vids[3];  // (12)
 	new_tet_local_vids[3] = local_vids[4];  // (13)
-	TRY2( _h5t_store_tet (
-		f,
-		new_tet_local_id,
-		new_tet_local_vids ), fail );
+	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
 
 	/* 2 */
-	new_tet_local_id = h5t_get_num_elems( f, f->myproc, -1 );
-	new_tet_local_vids[0] = t->elems_data.tets[local_eid].vids[2];
+	new_tet_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[2];
 	new_tet_local_vids[1] = local_vids[1];  // (02)
 	new_tet_local_vids[2] = local_vids[3];  // (12)
 	new_tet_local_vids[3] = local_vids[5];  // (23)
-	TRY2( _h5t_store_tet (
-		f,
-		new_tet_local_id,
-		new_tet_local_vids ), fail );
+	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
 
 	/* 3 */
-	new_tet_local_id = h5t_get_num_elems( f, f->myproc, -1 );
-	new_tet_local_vids[0] = t->elems_data.tets[local_eid].vids[3];
+	new_tet_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[3];
 	new_tet_local_vids[1] = local_vids[2];  // (03)
 	new_tet_local_vids[2] = local_vids[4];  // (13)
 	new_tet_local_vids[3] = local_vids[5];  // (23)
-	TRY2( _h5t_store_tet (
-		f,
-		new_tet_local_id,
-		new_tet_local_vids ), fail );
+	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
 
 	/* 4 */
-	new_tet_local_id = h5t_get_num_elems( f, f->myproc, -1 );
 	new_tet_local_vids[0] = local_vids[0];  // (01)
 	new_tet_local_vids[1] = local_vids[1];  // (02)
 	new_tet_local_vids[2] = local_vids[2];  // (03)
 	new_tet_local_vids[3] = local_vids[4];  // (13)
-	TRY2( _h5t_store_tet (
-		f,
-		new_tet_local_id,
-		new_tet_local_vids ), fail );
+	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
 
 	/* 5 */
-	new_tet_local_id = h5t_get_num_elems( f, f->myproc, -1 );
 	new_tet_local_vids[0] = local_vids[0];  // (01)
 	new_tet_local_vids[1] = local_vids[1];  // (02)
 	new_tet_local_vids[2] = local_vids[3];  // (12)
 	new_tet_local_vids[3] = local_vids[4];  // (13)
-	TRY2( _h5t_store_tet (
-		f,
-		new_tet_local_id,
-		new_tet_local_vids ), fail );
+	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
 
 	/* 6 */
-	new_tet_local_id = h5t_get_num_elems( f, f->myproc, -1 );
 	new_tet_local_vids[0] = local_vids[1];  // (02)
 	new_tet_local_vids[1] = local_vids[2];  // (03)
 	new_tet_local_vids[2] = local_vids[4];  // (13)
 	new_tet_local_vids[3] = local_vids[5];  // (23)
-	TRY2( _h5t_store_tet (
-		f,
-		new_tet_local_id,
-		new_tet_local_vids ), fail );
+	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
 
 	/* 7 */
-	new_tet_local_id = h5t_get_num_elems( f, f->myproc, -1 );
 	new_tet_local_vids[0] = local_vids[1];  // (02)
 	new_tet_local_vids[1] = local_vids[3];  // (12)
 	new_tet_local_vids[2] = local_vids[4];  // (13)
 	new_tet_local_vids[3] = local_vids[5];  // (23)
-	TRY2( _h5t_store_tet (
-		f,
-		new_tet_local_id,
-		new_tet_local_vids ), fail );
+	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
 
-	return H5_SUCCESS;
-
-fail:
-	return H5_ERR;
+	return local_eid;
 }
   
