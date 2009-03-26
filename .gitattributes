@@ -390,6 +390,8 @@ src/h5_core/h5_hdf5.c -text
 src/h5_core/h5_hdf5_private.h -text
 src/h5_core/h5_maps.c -text
 src/h5_core/h5_maps.h -text
+src/h5_core/h5_mpi.c -text
+src/h5_core/h5_mpi_private.h -text
 src/h5_core/h5_openclose.c -text
 src/h5_core/h5_openclose.h -text
 src/h5_core/h5_qsort.c -text
