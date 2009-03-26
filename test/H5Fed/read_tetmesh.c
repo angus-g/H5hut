@@ -25,22 +25,27 @@ typedef struct tet tet_t;
 
 h5_err_t
 read_vertices (
-	h5_file * f
+	h5_file_t * f
 	) {
 	h5_id_t id, local_id;
 	h5_float64_t P[3];
 	h5_size_t real_num = 0;
 
 	h5_size_t num = H5FedGetNumVerticesTotal ( f );
-	printf ( "    Number of vertices on level: %d\n", num );
+	printf ( "    Number of vertices on level: %lld\n", num );
+
+	h5_err_t h5err = H5FedStartTraverseVertices ( f );
+	if ( h5err < 0 ) return h5err;
 	while ( (real_num < num) &&
 		((local_id = H5FedTraverseVertices ( f, &id, P )) >= 0) ) {
-		printf ( "    Vertex[%d]: local id: %d, coords: %f %f %f \n",
+		printf ( "    Vertex[%lld]: local id: %lld, coords: %f %f %f \n",
 			 id, local_id, P[0], P[1], P[2] );
 		real_num++;
 	}
+	H5FedEndTraverseVertices ( f );
+
 	if ( real_num != num ) {
-		fprintf ( stderr, "!!! Got %d vertices, but expected %d.\n",
+		fprintf ( stderr, "!!! Got %lld vertices, but expected %lld.\n",
 			  real_num, num );
 		return -1;
 	}
@@ -49,21 +54,29 @@ read_vertices (
 
 h5_err_t
 read_tets (
-	h5_file * f
+	h5_file_t * f
 	) {
 	h5_id_t id, local_id, parent_id, vids[4];
 	h5_size_t real_num = 0;
 
-	h5_size_t num = H5FedGetNumTetrahedraTotal ( f );
-	printf ( "    Number of tetrahedra on level: %d\n", num );
+	h5_size_t num = H5FedGetNumElementsTotal ( f );
+	printf ( "    Number of tetrahedra on level: %lld\n", num );
+
+	h5_err_t h5err = H5FedStartTraverseElements ( f );
+	if ( h5err < 0 ) return h5err;
+
 	while ( (real_num < num) &&
-		((local_id = H5FedTraverseTetrahedra ( f, &id, &parent_id, vids )) >= 0) ) {
-		printf ( "    Tet[%d]: local id: %d, parent id: %d, vids: %d %d %d %d\n",
-			 id, local_id, parent_id, vids[0], vids[1], vids[2], vids[3] );
+		((local_id = H5FedTraverseElements (
+			  f, &id, &parent_id, vids )) >= 0) ) {
+		printf ( "    Tet[%lld]: local id: %lld, parent id: %lld,"
+			 " vids: %lld %lld %lld %lld\n",
+			 id, local_id, parent_id,
+			 vids[0], vids[1], vids[2], vids[3] );
 		real_num++;
 	}
+	H5FedEndTraverseElements ( f );
 	if ( real_num != num ) {
-		fprintf ( stderr, "!!! Got %d tets, but expected %d.\n",
+		fprintf ( stderr, "!!! Got %lld tets, but expected %lld.\n",
 			  real_num, num );
 		return -1;
 	}
@@ -73,7 +86,7 @@ read_tets (
 
 h5_err_t
 read_level (
-	h5_file * f
+	h5_file_t * f
 	) {
 	h5_err_t h5err = read_vertices ( f );
 	if ( h5err < 0 ) {
@@ -88,19 +101,18 @@ read_level (
 	return H5_SUCCESS;
 }
 
-
 h5_err_t
 read_mesh (
-	h5_file * f
+	h5_file_t * f
 	) {
 
 	h5_id_t level_id;
 	h5_size_t num_levels = H5FedGetNumLevels ( f );
-	printf ( "    Number of levels in mesh: %d\n", num_levels );
+	printf ( "    Number of levels in mesh: %lld\n", num_levels );
 	for ( level_id = 0; level_id < num_levels; level_id++ ) {
 		h5_err_t h5err = H5FedSetLevel ( f, level_id );
 		if ( h5err < 0 ) {
-			fprintf ( stderr, "!!! Can't set level %d.\n", level_id );
+			fprintf ( stderr, "!!! Can't set level %lld.\n", level_id );
 			return -1;
 		}
 		h5err = read_level ( f );
@@ -120,22 +132,22 @@ main (
 	char *argv[]
 	) {
 
-	H5PartSetVerbosityLevel ( 4 );
+	H5SetVerbosityLevel ( 4 );
 
-	h5_file *f = H5OpenFile ( "simple_tet.h5", 0 );
+	h5_file_t *f = H5OpenFile ( "simple_tet.h5", H5_O_RDONLY );
 	if ( f == NULL ) {
 		fprintf ( stderr, "!!! Can't open file.\n" );
 		return -1;
 	}
 
-	h5_size_t num_meshes = H5FedGetNumMeshes ( f, TETRAHEDRAL_MESH );
-	printf ( "    Number of meshes: %d\n", num_meshes );
+	h5_size_t num_meshes = H5FedGetNumMeshes ( f, H5_TETRAHEDRAL_MESH );
+	printf ( "    Number of meshes: %lld\n", num_meshes );
 
 	h5_id_t mesh_id;
 	for ( mesh_id = 0; mesh_id < num_meshes; mesh_id++ ) {
-		h5_err_t h5err = H5FedOpenMesh ( f, mesh_id, TETRAHEDRAL_MESH );
+		h5_err_t h5err = H5FedOpenMesh ( f, mesh_id, H5_TETRAHEDRAL_MESH );
 		if ( h5err < 0 ) {
-			fprintf ( stderr, "!!! Can't open mesh %d\n", mesh_id );
+			fprintf ( stderr, "!!! Can't open mesh %lld\n", mesh_id );
 			return -1;
 		}
 		h5err = read_mesh ( f );

@@ -37,11 +37,11 @@ INC = $(HDFINC) $(MPIINC) $(H5INC)
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
 bin_PROGRAMS = \
-		write_tetmesh
+		write_tetmesh \
+		read_tetmesh \
+		write_trianglemesh \
+		read_trianglemesh
 
-#		read_tetmesh \
-#		write_trianglemesh \
-#		read_trianglemesh \
 #		map_tet2globalid \
 #		map_triangle2globalid
 

@@ -48,15 +48,15 @@ main (
 	int argc,
 	char *argv[]
 	) {
-	H5SetVerbosityLevel ( 5 );
+	H5SetVerbosityLevel ( 4 );
 
-	h5_file_t *f = H5OpenFile ( "simple_tet.h5", 0 );
+	h5_file_t *f = H5OpenFile ( "simple_tet.h5", H5_O_WRONLY );
 	if ( f == NULL ) {
 		fprintf ( stderr, "!!! Can't open file.\n" );
 		return -1;
 	}
 
-	h5_err_t h5err = H5FedAddTetMesh ( f, 2 );
+	h5_err_t h5err = H5FedAddMesh ( f, 2, H5_TETRAHEDRAL_MESH );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't add mesh.\n" );
 		return -1;
@@ -84,7 +84,7 @@ main (
 		}
 	}
 
-	h5_id_t level_id = H5FedAddLevel( f, 8 );
+	h5_id_t level_id = H5FedAddLevel( f, 1 );
 	if ( level_id < 0 ) {
 		fprintf ( stderr, "!!! Can't add level.\n" );
 		return -1;
