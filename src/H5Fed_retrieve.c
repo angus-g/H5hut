@@ -46,37 +46,22 @@ H5FedTraverseVertices (
 	return h5t_traverse_vertices ( f, id, P );
 }
 
-
-
 h5_err_t
-H5FedStartTraverseTriangles (
-	h5_file_t * const f  		/*!< file handle		*/
-	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_start_traverse_triangles ( f );
-}
-
-h5_id_t
-H5FedTraverseTriangles (
-	h5_file_t * const f,		/*!< file handle		*/
-	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
-	h5_id_t * const parent_id,	/*!< OUT: parent id if level
-					     \c >0 else \c -1		*/
-	h5_id_t vertex_ids[3]		/*!< OUT: vertex id's		*/
-	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_traverse_triangles ( f, id, parent_id, vertex_ids );
-}
-
-
-h5_err_t
-H5FedStartTraverseTetrahedra (
+H5FedEndTraverseVertices (
 	h5_file_t * const f		/*!< file handle		*/
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_start_traverse_tets ( f );
+	return h5t_end_traverse_vertices ( f );
 }
 
+
+h5_err_t
+H5FedStartTraverseElements (
+	h5_file_t * const f  		/*!< file handle		*/
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_start_traverse_elems ( f );
+}
 
 /*!
   \ingroup h5fed_c_api
@@ -85,19 +70,33 @@ H5FedStartTraverseTetrahedra (
   a 4-tuple containing the specific indices of the 3-dimensional vertex
   coordinates.
 
-  \return pointer to 4-tuple of vertex id's defining the tetrahedron.
-  \return NULL-pointer on error.
+  \param[in]	f		File handle.
+  \param[out]	global_eid	The global element id.
+  \param[out]	local_parent_eid The local element id of the parent or \c -1
+  \param[in]	local_vids	Local vertex id's.
+
+  \return \c H5_SUCCESS or error code.
 */
+
 h5_id_t
-H5FedTraverseTetrahedra (
-	h5_file_t * const f,		/*!< file handle		*/
-	h5_id_t * const id,		/*!< OUT: global tetrahedron id	*/
-	h5_id_t * const parent_id,	/*!< OUT: parent id if level
-					     \c >0 else \c -1		*/
-	h5_id_t vertex_ids[4]		/*!< OUT: vertex id's		*/
+H5FedTraverseElements (
+	h5_file_t * const f,
+	h5_id_t * const global_eid,
+	h5_id_t * const local_parent_eid,
+	h5_id_t * const local_vids
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_traverse_tets ( f, id, parent_id, vertex_ids );
+	return h5t_traverse_elems (
+		f,
+		global_eid,
+		local_parent_eid,
+		local_vids );
 }
 
+h5_id_t
+H5FedEndTraverseElements (
+	h5_file_t * const f
+	) {
+	h5t_end_traverse_elems ( f );
+}
 

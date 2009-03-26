@@ -28,16 +28,17 @@
 
 h5_size_t
 H5FedGetNumMeshes (
-	h5_file_t * f,
-	const h5_oid_t type
+	h5_file_t * const f,
+	const h5_oid_t mesh_type_id
 	);
 
 h5_err_t
 H5FedOpenMesh (
-	h5_file_t * f,
-	const h5_id_t id,
-	const h5_oid_t type
+	h5_file_t * const f,
+	const h5_id_t mesh_id,
+	const h5_oid_t mesh_type_id
 	);
+
 h5_size_t
 H5FedGetNumLevels (
 	h5_file_t * f
@@ -54,15 +55,10 @@ H5FedGetLevel (
 	h5_file_t * f
 	);
 
-
-/******	INQUIRY routines *****************************************************/
-
 h5_size_t
 H5GetNumNodes (
 	h5_file_t * f
 	);
-
-/******	VERTEX statistics routines *******************************************/
 
 h5_size_t
 H5FedGetNumVertices (
@@ -80,44 +76,24 @@ H5FedGetNumVerticesCnode (
 	const h5_id_t cnode
 	);
 
-/******	TRIANGLE statistics routines *****************************************/
 h5_size_t
-H5FedGetNumTriangles (
+H5FedGetNumElements (
 	h5_file_t * f
 	);
 
 h5_size_t
-H5FedGetNumTrianglesTotal (
+H5FedGetNumElementsTotal (
 	h5_file_t * f
 	);
 
 h5_size_t
-H5FedGetNumTrianglesCnode (
-	h5_file_t * f,
-	const h5_id_t cnode
-	);
-
-/******	TETRAHEDRON statistics routines **************************************/
-h5_size_t
-H5FedGetNumTetrahedra (
-	h5_file_t * f
-	);
-
-h5_size_t
-H5FedGetNumTetrahedraTotal (
-	h5_file_t * f
-	);
-
-h5_size_t
-H5FedGetNumTetrahedraCnode (
+H5FedGetNumElementsCnode (
 	h5_file_t * f,
 	const h5_id_t cnode
 	);
 
 /******	STORE / RETRIEVAL routines ********************************************/
 
-
-/* vertices */
 h5_err_t
 H5FedStartTraverseVertices (
 	h5_file_t * f
@@ -130,38 +106,27 @@ H5FedTraverseVertices (
 	h5_float64_t P[3]
 	);
 
-
-h5_size_t
-H5FedGetNumTriangles (
+h5_err_t
+H5FedEndTraverseVertices (
 	h5_file_t * f
 	);
 
 h5_err_t
-H5FedStartTraverseTriangles (
+H5FedStartTraverseElements (
 	h5_file_t * f
 	);
 
 h5_id_t
-H5FedTraverseTriangles (
+H5FedTraverseElements (
 	h5_file_t * f,
 	h5_id_t * const id,
 	h5_id_t * const parent_id,
-	h5_id_t vertex_ids[3]
+	h5_id_t * const vertex_ids
 	);
-
-/* tetrahedra */
 
 h5_err_t
-H5FedStartTraverseTetrahedra (
+H5FedEndTraverseElements (
 	h5_file_t * f
-	);
-
-h5_id_t
-H5FedTraverseTetrahedra (
-	h5_file_t * f,
-	h5_id_t * const id,
-	h5_id_t * const parent_id,
-	h5_id_t vertex_ids[4]
 	);
 
 #endif

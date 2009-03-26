@@ -21,19 +21,19 @@
 
 h5_err_t
 H5FedOpenMesh (
-	h5_file_t * f,
-	const h5_id_t id,
-	const h5_oid_t type
+	h5_file_t * const f,
+	const h5_id_t mesh_id,
+	const h5_oid_t mesh_type_id
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_open_mesh ( f, id, type );
+	return h5t_open_mesh ( f, mesh_id, mesh_type_id );
 }
 
 h5_err_t
 H5FedSetLevel (
-	h5_file_t * f,
-	const h5_id_t id
+	h5_file_t * const f,
+	const h5_id_t level_id
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_open_level ( f, id );
+	return h5t_open_level ( f, level_id );
 }

@@ -20,15 +20,10 @@
 #define __H5FED_STORE_H
 
 h5_id_t
-H5FedAddTetMesh (
+H5FedAddMesh (
 	h5_file_t * const f,
-	const h5_size_t num_elems
-	);
-
-h5_id_t
-H5FedAddTriangleMesh (
-	h5_file_t * const f,
-	const h5_size_t num_elems
+	const h5_size_t num_elems,
+	const h5_oid_t mesh_type_id
 	);
 
 h5_id_t

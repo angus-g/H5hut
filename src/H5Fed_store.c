@@ -20,23 +20,14 @@
 
 
 h5_id_t
-H5FedAddTetMesh (
+H5FedAddMesh (
 	h5_file_t * const f,
-	const h5_size_t num_elems
+	const h5_size_t num_elems,
+	const h5_oid_t mesh_type_id
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_add_mesh ( f, num_elems, H5_OID_TETRAHEDRON );
+	return h5t_add_mesh ( f, num_elems, mesh_type_id );
 }
-
-h5_id_t
-H5FedAddTriangleMesh (
-	h5_file_t * const f,
-	const h5_size_t num_elems
-	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_add_mesh ( f, num_elems, H5_OID_TRIANGLE );
-}
-
 
 /*!
   \ingroup h5fed_c_api
@@ -45,8 +36,8 @@ H5FedAddTriangleMesh (
   real number of elements to add the level. If you want to refine \c n tetrahedra
   \c n*8 elements must be added.
 
-  \param[in]	f		file handle
-  \param[in]	num_elems	Number of elements to add.
+  \param[in]	f			File handle.
+  \param[in]	num_elems_to_refine	Number of elements which will be refined.
 
   \return ID of new level.
 
@@ -60,12 +51,11 @@ H5FedAddTriangleMesh (
 */
 h5_id_t
 H5FedAddLevel (
-	h5_file_t * const f,		/*!< file handle		*/
-	const h5_size_t num_elems
+	h5_file_t * const f,
+	const h5_size_t num_elems_to_refine
 	) {
 	SET_FNAME ( f, __func__ );
-	h5_id_t num_vertices = (num_elems>>2)*3; /* this is an upper limit */
-	return h5t_add_level ( f, num_vertices, num_elems );
+	return h5t_add_level ( f, num_elems_to_refine );
 }
 
 /*!

@@ -24,11 +24,11 @@
 
 h5_size_t
 H5FedGetNumMeshes (
-	h5_file_t * f,			/*!< file handle		*/
-	const h5_oid_t type
+	h5_file_t * const f,
+	const h5_oid_t mesh_type_id
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_get_num_meshes ( f, type );
+	return h5t_get_num_meshes ( f, mesh_type_id );
 }
 
 /*!
@@ -103,57 +103,6 @@ h5_size_t H5FedGetNumVerticesCnode (
 	return h5t_get_num_vertices ( f, cnode, cur_level );
 }
 
-/******	TRIANGLE statistics routines *****************************************/
-
-h5_size_t
-H5FedGetNumTriangles (
-	h5_file_t * const f		/*!< file handle		*/
-	) {
-	SET_FNAME ( f, __func__ );
-	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_elems ( f, f->myproc, cur_level );
-}
-
-/*!
-  \ingroup h5fed_mesh_inquiry
-
-  Get the number of triangles present in the mesh at level \c level in 
-  current time step summed up over all compute notes.
-
-  \return Number of triangles
-  \return \c -1 on error.
-*/
-h5_size_t
-H5FedGetNumTrianglesTotal (
-	h5_file_t * const f		/*!< file handle		*/
-	) {
-	SET_FNAME ( f, __func__ );
-	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_elems ( f, -1, cur_level );
-}
-
-
-/*!
-  \ingroup h5fed_mesh_inquiry
-
-  Get the number of triangles present in the mesh at level \c level in 
-  current time step on compute node \c cnode.
-
-  \return Number of triangles
-  \return \c -1 on error.
-*/
-h5_size_t
-H5FedGetNumTrianglesCnode (
-	h5_file_t * const f,		/*!< file handle		*/
-	const h5_id_t cnode		/*!< compute node to query	*/
-	) {
-	SET_FNAME ( f, __func__ );
-	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_elems ( f, cnode, cur_level );
-}
-
-/******	TETRAHEDRON statistics routines **************************************/
-
 /*!
   \ingroup h5fed_mesh_inquiry
 
@@ -164,7 +113,7 @@ H5FedGetNumTrianglesCnode (
   \return \c -1 on error.
 */
 h5_size_t
-H5FedGetNumTetrahedra (
+H5FedGetNumElements (
 	h5_file_t * const f		/*!< file handle		*/
 	) {
 	SET_FNAME ( f, __func__ );
@@ -173,7 +122,7 @@ H5FedGetNumTetrahedra (
 }
 
 h5_size_t
-H5FedGetNumTetrahedraTotal (
+H5FedGetNumElementsTotal (
 	h5_file_t * const f		/*!< file handle		*/
 	) {
 	SET_FNAME ( f, __func__ );
@@ -190,48 +139,11 @@ H5FedGetNumTetrahedraTotal (
   \return number of tetrahedra
   \return \c -1 on error.
 */
-h5_size_t H5FedGetNumTetrahedraCnode (
+h5_size_t H5FedGetNumElementsCnode (
 	h5_file_t * const f,		/*!< file handle		*/
 	const h5_id_t cnode		/*!< compute node to query	*/
 	) {
 	SET_FNAME ( f, __func__ );
 	h5_id_t cur_level = h5t_get_level( f );
 	return h5t_get_num_elems ( f, cnode, cur_level );
-}
-
-
-/******	BOUNDARY statistics routines ****************************************/
-
-
-/*!
-  \ingroup h5fed_mesh_inquiry
-
-  Get the number of boundary triangles present in the mesh at
-  level \c level in current step summed up over all compute nodes.
-
-  \return number of tetrahedras
-  \return \c -1 on error.
-*/
-h5_size_t H5FedGetNumBoundaryTrianglesTotal (
-	h5_file_t * fh,			/*!< file handle		*/
-	const h5_id_t level		/*!< mesh level to query	*/
-	) {
-	return -1;
-}
-
-/*!
-  \ingroup h5fed_mesh_inquiry
-
-  Get the number of boundary triangles present in the mesh at
-  level \c level in current step on compute node \c cnode.
-
-  \return number of tetrahedras
-  \return \c -1 on error.
-*/
-h5_size_t H5FedGetNumBoundaryTrianglesCnode (
-	h5_file_t * fh,			/*!< file handle		*/
-	const h5_id_t level,		/*!< mesh level to query	*/
-	const h5_id_t cnode		/*!< compute node		*/
-	) {
-	return -1;
 }
