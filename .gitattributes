@@ -406,6 +406,9 @@ src/h5_core/h5_types.h -text
 src/h5_core/h5_types_private.h -text
 src/h5_core/h5b_errorhandling_private.h -text
 src/h5_core/h5b_types_private.h -text
+src/h5_core/h5t_adjacencies.c -text
+src/h5_core/h5t_adjacencies.h -text
+src/h5_core/h5t_adjacencies_private.h -text
 src/h5_core/h5t_boundaries.c -text
 src/h5_core/h5t_boundaries.h -text
 src/h5_core/h5t_boundaries_private.h -text
