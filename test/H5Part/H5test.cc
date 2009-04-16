@@ -23,7 +23,7 @@ int ReadFile(const string fn){
   
   file= H5PartOpenFile(fn.c_str(),H5_O_RDONLY);
   
-  nt=H5PartGetNumSteps(file);
+  nt=H5GetNumSteps(file);
   H5PartSetStep(file,0);
   nds=H5PartGetNumDatasets(file);
   

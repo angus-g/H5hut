@@ -15,8 +15,8 @@
 int main(int argc,char *argv[]){
   int sz=5;
   double *x,*y,*z;
-  h5part_int64_t *id;
-  H5PartFile *file;
+  h5_int64_t *id;
+  h5_file_t *file;
   int i,t,nt,nds;
   int nprocs,myproc;
   MPI_Comm comm=MPI_COMM_WORLD;
@@ -73,7 +73,7 @@ int main(int argc,char *argv[]){
   H5PartSetStep(file,0);
  // unsigned int np = 0;
   unsigned int np = (int)H5PartGetNumParticles(file);
-  nt=H5PartGetNumSteps(file); /* get number of steps in file */
+  nt=H5GetNumSteps(file); /* get number of steps in file */
   nds=H5PartGetNumDatasets(file); /* get number of datasets in timestep 0 */
 
   MPI_Barrier(comm);
@@ -166,7 +166,7 @@ int main(int argc,char *argv[]){
   
   /********************************************/
   H5PartSetStep(file,0);
-  nt=H5PartGetNumSteps(file); /* get number of steps in file */
+  nt=H5GetNumSteps(file); /* get number of steps in file */
   nds=H5PartGetNumDatasets(file); /* get number of datasets in timestep 0 */
   np=H5PartGetNumParticles(file);
   
