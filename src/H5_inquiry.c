@@ -19,39 +19,55 @@
 
 #include <stdarg.h>
 #include <hdf5.h>
-#include "h5/h5.h"
-#include "h5/h5_private.h"
-#include "H5Fed.h"
+#include "h5_core/h5_core.h"
+#include "h5_core/h5_core_private.h"
+#include "H5.h"
 
 /*!
   \ingroup h5_inquiry
 
   Get the number of compute nodes.
 
+  \param[in]	f	File handle.
+
   \return Number of compute notes.
   \return \c -1 on error.
  */
 h5_size_t
 H5GetNumNodes (
-	h5_file_t * f			/*!< file handle		*/
+	h5_file_t * const f
 	) {
-	SET_FNAME ( __func__ );
-	return (h5_size_t)fh->nprocs;
+	SET_FNAME ( f, __func__ );
+	CHECK_FILEHANDLE ( f );
+	return (h5_size_t)f->nprocs;
 }
 
-/*`
-  \ingroup h5_inquiry
+/*!
+  \ingroup h5part_c_api_read
 
-  Get the number of steps that are currently stored in the file.
+  Get the number of time-steps that are currently stored in the file
+  \c f.
 
-  \return	number of steps or error code
+  It works for both reading and writing of files, but is probably
+  only typically used when you are reading.
+
+  \param[in]	f	File handle.
+
+  \return	number of time-steps or error code
 */
-h5_id_t
+h5_size_t
 H5GetNumSteps (
-	h5_file_t * fh			/*!< file handle		*/
+	h5_file_t * const f
 	) {
-	SET_FNAME ( __func__ );
-	return h5_get_num_steps( fh );
+
+	SET_FNAME ( f, __func__ );
+	CHECK_FILEHANDLE ( f );
+
+	return hdf5_get_num_objects_matching_pattern (
+		f->file,
+		"/",
+		H5G_UNKNOWN,
+		f->prefix_step_name );
 }
 
 /*!
@@ -59,17 +75,21 @@ H5GetNumSteps (
 
   Query whether a particular step already exists in the file.
 
+  \param[in]	f	File handle.
+  \param[in]	stepno	Step number to query for existence
+
   \return      true or false
 */
 h5_err_t
 H5HasStep (
-	h5_file_t *f,		/*!< [in]  Handle to open file */
-	h5part_int64_t step	/*!< [in]  Step number to query */
+	h5_file_t *f,
+	h5_id_t stepno
 	) {
   
-	SET_FNAME ( __func__ );
+	SET_FNAME ( f, __func__ );
+	CHECK_FILEHANDLE ( f );
 
-	return h5_has_step( f, step );
+	return h5_has_step( f, stepno );
 }
 
 

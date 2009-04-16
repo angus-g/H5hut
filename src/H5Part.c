@@ -613,59 +613,6 @@ H5PartSetStep (
 
 /********************** query file structure *********************************/
 
-
-/*!
-  \ingroup h5part_c_api_read
-
-  Query whether a particular step already exists in the file
-  \c f.
-
-  It works for both reading and writing of files
-
-  \return      true or false
-*/
-h5_int64_t
-H5PartHasStep (
-	h5_file_t *f,		/*!< [in]  Handle to open file */
-	h5_int64_t step	/*!< [in]  Step number to query */
-	) {
-  
-	SET_FNAME ( f, __func__ );
-
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
-
-	return h5_has_step( f, step );
-}
-
-/*!
-  \ingroup h5part_c_api_read
-
-  Get the number of time-steps that are currently stored in the file
-  \c f.
-
-  It works for both reading and writing of files, but is probably
-  only typically used when you are reading.
-
-  \return	number of time-steps or error code
-*/
-h5_int64_t
-H5PartGetNumSteps (
-	h5_file_t *f			/*!< [in]  Handle to open file */
-	) {
-
-	SET_FNAME ( f, __func__ );
-
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
-
-	return hdf5_get_num_objects_matching_pattern (
-		f->file,
-		"/",
-		H5G_UNKNOWN,
-		f->prefix_step_name );
-}
-
 /*!
   \ingroup h5part_c_api_read
 
@@ -680,9 +627,7 @@ H5PartGetNumDatasets (
 	) {
 
 	SET_FNAME ( f, __func__ );
-
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
+	CHECK_FILEHANDLE ( f );
 
 	return hdf5_get_num_objects ( f->file, f->step_name, H5G_DATASET );
 }
@@ -960,7 +905,6 @@ H5PartReadDataInt64 (
 	) {
 
 	SET_FNAME ( f, __func__ );
-
 	CHECK_FILEHANDLE( f );
 
 	return h5u_read_elems ( f, name, array, H5T_NATIVE_INT64 );

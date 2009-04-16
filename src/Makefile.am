@@ -43,11 +43,13 @@ EXTRA_LIBRARIES = libH5.a
 
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS = \
-	H5Part.h \
+	H5.h \
 	H5Block.h \
 	H5Fed.h \
 	H5Fed_boundaries.h \
-	H5Fed_map.h
+	H5Fed_map.h \
+	H5Fed_store.h \
+	H5Part.h
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS =
@@ -55,6 +57,7 @@ EXTRA_HEADERS =
 # Listing of sources
 libH5_a_SOURCES = \
 	H5.c \
+	H5_inquiry.c \
 	H5Block.c \
 	H5Fed.c \
 	H5Fed_adjacency.c \

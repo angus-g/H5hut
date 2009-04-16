@@ -19,14 +19,15 @@
 #define __H5Part_H
 
 #include <hdf5.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "h5_core/h5_core.h"
 #include "H5.h"
 #ifdef PARALLEL_IO
 #include <mpi.h>
-#endif
-
-#ifdef __cplusplus
-extern "C" {
 #endif
 
 // #define H5PART_SUCCESS		H5_SUCCESS
@@ -106,17 +107,6 @@ h5_int64_t
 H5PartSetStep (
 	h5_file_t *f,
 	const h5_int64_t step
-	);
-
-h5_int64_t
-H5PartHasStep (
-	h5_file_t *f,
-	const h5_int64_t step
-	);
-
-h5_int64_t
-H5PartGetNumSteps (
-	h5_file_t *f
 	);
 
 h5_int64_t

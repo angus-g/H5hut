@@ -57,23 +57,13 @@ H5FedAddLevel (
 }
 
 h5_err_t
-H5FedAddNumVertices (
-	h5_file_t * f,
+H5FedBeginStoreVertices (
+	h5_file_t * const f,
 	const h5_size_t num
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_add_num_vertices ( f, num );
+	return h5t_begin_store_vertices ( f, num );
 }
-
-h5_err_t
-H5FedAddNumElements (
-	h5_file_t * f,
-	const h5_size_t num
-	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_add_num_elems ( f, num );
-}
-
 
 /*!
   \ingroup h5fed_c_api
@@ -99,6 +89,22 @@ H5FedStoreVertex (
 			"Vertices can be added to level 0 only!" );
 	}
 	return h5t_store_vertex ( f, vertex_id, P );
+}
+
+h5_err_t
+H5FedEndStoreVertices (
+	h5_file_t * const f
+	) {
+	return h5t_end_store_vertices ( f );
+}
+
+h5_err_t
+H5FedBeginStoreElements (
+	h5_file_t * f,
+	const h5_size_t num
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_begin_store_elems ( f, num );
 }
 
 /*!
@@ -131,12 +137,20 @@ H5FedStoreElement (
 }
 
 h5_err_t
-H5FedRefineNumElements (
+H5FedEndStoreElements (
+	h5_file_t * const f
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_end_store_elems ( f );
+}
+
+h5_err_t
+H5FedBeginRefineElements (
 	h5_file_t * const f,
 	const h5_size_t num
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_refine_num_elems ( f, num );
+	return h5t_begin_refine_elems ( f, num );
 }
 
 h5_id_t
@@ -146,4 +160,12 @@ H5FedRefineElement (
 	) {
 	SET_FNAME ( f, __func__ );
 	return h5t_refine_elem ( f, local_eid );
+}
+
+h5_err_t
+H5FedEndRefineElements (
+	h5_file_t * const f
+	) {
+	SET_FNAME ( f, __func__ );
+	return H5_SUCCESS;
 }

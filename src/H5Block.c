@@ -107,11 +107,12 @@ _normalize_partition (
   \return	H5_SUCCESS or error code
 */
 #ifdef PARALLEL_IO
+jfsdjk fjksdhf jkdsfjksdhfjkds kjf
 static h5_err_t
 _allgather (
-	const h5_file *f		/*!< IN: file handle */
+	h5_file_t * const f		/*!< IN: file handle */
 	) {
-	struct h5b_partition *partition = &f->block->user_layout[f->myproc];
+	struct h5b_partition *partition = &f->b->user_layout[f->myproc];
 	struct h5b_partition *layout = f->b->user_layout;
 
 	MPI_Datatype    partition_m;
@@ -122,6 +123,7 @@ _allgather (
         mpi_err = MPI_Type_commit ( &partition_m );
 	if ( mpi_err != MPI_SUCCESS ) return H5_ERR_MPI;
 	TRY ( _h5_mpi_allgather (
+		      f,
 		      partition,
 		      1,
 		      partition_m,

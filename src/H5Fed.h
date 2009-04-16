@@ -56,11 +56,6 @@ H5FedGetLevel (
 	);
 
 h5_size_t
-H5GetNumNodes (
-	h5_file_t * f
-	);
-
-h5_size_t
 H5FedGetNumVertices (
 	h5_file_t * f
 	);

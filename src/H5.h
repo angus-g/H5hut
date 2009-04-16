@@ -16,15 +16,18 @@
 #ifndef __H5_H
 #define __H5_H
 
+#include "H5_inquiry.h"
+
 h5_file_t *
 H5OpenFile (
 	const char * filename,
+	const h5_int32_t oflag,
 	const MPI_Comm comm
 	);
 
 h5_err_t
 H5CloseFile (
-	h5_file_t * fh
+	h5_file_t * f
 	);
 
 h5_err_t
