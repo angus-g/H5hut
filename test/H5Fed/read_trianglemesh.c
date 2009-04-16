@@ -136,7 +136,7 @@ main (
 
 	H5SetVerbosityLevel ( 4 );
 
-	h5_file_t *f = H5OpenFile ( "simple_triangle.h5", H5_O_RDONLY );
+	h5_file_t *f = H5OpenFile ( "simple_triangle.h5", H5_O_RDONLY, 0 );
 	if ( f == NULL ) {
 		fprintf ( stderr, "!!! Can't open file.\n" );
 		return -1;

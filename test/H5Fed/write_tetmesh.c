@@ -50,7 +50,7 @@ main (
 	) {
 	H5SetVerbosityLevel ( 4 );
 
-	h5_file_t *f = H5OpenFile ( "simple_tet.h5", H5_O_WRONLY );
+	h5_file_t *f = H5OpenFile ( "simple_tet.h5", H5_O_WRONLY, 0 );
 	if ( f == NULL ) {
 		fprintf ( stderr, "!!! Can't open file.\n" );
 		return -1;
@@ -63,7 +63,7 @@ main (
 	}
 
 	int i;
-	H5FedAddNumVertices ( f, 5 );
+	H5FedBeginStoreVertices ( f, 5 );
 	for ( i = 0; i<5; i++ ) {
 		h5err = H5FedStoreVertex (
 			f,
@@ -74,7 +74,9 @@ main (
 			return -1;
 		}
 	}
-	H5FedAddNumElements ( f, 2 );
+	H5FedEndStoreVertices ( f );
+
+	H5FedBeginStoreElements ( f, 2 );
 	for ( i = 0; i<2; i++ ) {
 		h5err = H5FedStoreElement (
 			f,
@@ -85,13 +87,14 @@ main (
 			return -1;
 		}
 	}
+	H5FedEndStoreElements ( f );
 
 	h5_id_t level_id = H5FedAddLevel( f );
 	if ( level_id < 0 ) {
 		fprintf ( stderr, "!!! Can't add level.\n" );
 		return -1;
 	}
-	h5err = H5FedRefineNumElements ( f, 1 );
+	h5err = H5FedBeginRefineElements ( f, 1 );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Can't set number of elements torefine.\n" );
 		return -1;
@@ -102,6 +105,7 @@ main (
 		fprintf ( stderr, "!!! Can't refine tet.\n" );
 		return -1;
 	}
+	H5FedEndRefineElements ( f );
 
 	h5err = H5CloseFile ( f );
 	if ( h5err < 0 ) {
