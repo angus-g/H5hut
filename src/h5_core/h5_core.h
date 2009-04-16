@@ -9,6 +9,7 @@
 #include "h5_maps.h"
 #include "h5_openclose.h"
 #include "h5_readwrite.h"
+#include "h5t_adjacencies.h"
 #include "h5t_boundaries.h"
 #include "h5t_inquiry.h"
 #include "h5t_map.h"

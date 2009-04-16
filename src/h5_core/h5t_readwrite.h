@@ -46,7 +46,7 @@ h5t_add_num_triangles (
 	) ;
 
 h5_size_t
-h5t_add_num_elems (
+h5t_begin_store_elems (
 	h5_file_t * f,
 	const h5_size_t num
 	) ;

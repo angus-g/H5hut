@@ -2,8 +2,10 @@
 #define __H5_ERRORHANDLING_H
 
 #define SET_FNAME( f, fname )	h5_set_funcname( f, fname );
-#define CHECK_FILEHANDLE( f ) \
-	TRY ( h5_check_filehandle ( f ) );
+#define CHECK_FILEHANDLE( f )					\
+	if ( h5_check_filehandle ( f ) != H5_SUCCESS )		\
+		return h5_get_errno( f );
+
 
 #define CHECK_WRITABLE_MODE( f )					\
 	if ( f->mode==H5_O_RDONLY )					\

@@ -282,7 +282,8 @@ _qsort_cmp_elems1 (
 }
 
 /*!
-  Sort elems geometrically.
+  Sort elements. Store local id's in a sorted array so we can run a
+  binary search. 
 */
 h5_err_t
 _h5t_sort_elems (
@@ -296,7 +297,7 @@ _h5t_sort_elems (
 	int k;
 	h5_id_t i;
 	for ( k = 0; k < 2; k++ ) {
-		TRY( _h5_alloc_smap ( f, &t->sorted_elems[k], num_elems ) );
+		TRY( _h5_alloc_idlist ( f, &t->sorted_elems[k], num_elems ) );
 		for ( i = local_eid; i < num_elems; i++ ) {
 			t->sorted_elems[k].items[i] = i;
 		}
@@ -518,16 +519,14 @@ h5t_get_global_eid (
 	if ( t->vertices == NULL ) {
 		TRY ( _h5t_read_mesh ( f ) );
 	}
-	TRY2 ( h5t_map_global_vids2local (
+	TRY ( h5t_map_global_vids2local (
 		f,
 		global_vids,
 		t->mesh_type,
-		local_vids ), fail );
+		local_vids ) );
 	h5_id_t local_eid;
-	TRY2 ( local_eid = h5t_get_local_eid ( f, local_vids ), fail );
+	TRY ( local_eid = h5t_get_local_eid ( f, local_vids ) );
 	return h5t_map_local_eid2global ( f, local_eid );
-fail:
-	return _h5t_handle_get_global_eid_err ( f, global_vids );
 }
 
 static int
@@ -695,10 +694,11 @@ h5t_get_local_triangle_id  (
 	h5_id_t * const local_vids
 	) {
 	struct h5t_fdata *t = f->t;
-	
+	if ( t->vertices == NULL ) {
+		TRY ( _h5t_read_mesh ( f ) );
+	}
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
-		TRY ( _h5t_read_mesh ( f ) );
 		h5_id_t local_tid = _tetm_search_triangle ( f, local_vids );
 		if ( local_tid == -1 ) {
 			return _h5t_error_local_triangle_id_nexist( f, local_vids );
@@ -841,6 +841,82 @@ _h5t_rebuild_global_2_local_map_of_elems (
 		return h5_error_internal( f, __FILE__, __func__, __LINE__ );
 	}
 	_h5_sort_idmap ( &t->map_elem_g2l );
+
+	return H5_SUCCESS;
+}
+
+/*
+  setup structure "elems_data" with local ids for each element:
+  - translate the global vertex id's of each element to their
+    local id's
+  - translate the global parent id of each element to the
+    corresponding local id.
+*/
+h5_err_t
+_h5t_rebuild_elems_data (
+	h5_file_t * const f
+	) {
+	h5t_fdata_t *t = f->t;
+	h5_id_t local_eid = 0;
+	h5_id_t num_elems = t->num_elems[t->num_levels-1];
+	h5_id_t level_id = 0;
+	switch ( t->mesh_type ) {
+	case H5_OID_TETRAHEDRON: {
+		h5_tet_t *el;
+		h5_tet_data_t *el_data;
+
+		for ( local_eid=0, el=t->elems.tets, el_data=t->elems_data.tets;
+		      local_eid < num_elems;
+		      local_eid++, el++, el_data++ ) {
+			
+			TRY( h5t_map_global_vids2local (
+				     f,
+				     el->global_vids,
+				     t->mesh_type,
+				     el_data->local_vids
+				     ) );
+			if ( el->global_parent_eid >= 0 )
+				TRY ( el_data->local_parent_eid =
+				      h5t_map_global_eid2local (
+					      f,
+					      el->global_parent_eid ) );
+			if ( local_eid > t->num_elems_on_level[level_id] ) {
+				level_id++;
+			}
+			el_data->level_id = level_id;
+		}
+		break;
+	}
+	case H5_OID_TRIANGLE: {
+		h5_triangle_t *el;
+		h5_triangle_data_t *el_data;
+
+		for ( local_eid=0, el=t->elems.tris, el_data=t->elems_data.tris;
+		      local_eid < num_elems;
+		      local_eid++, el++, el_data++ ) {
+
+			TRY( h5t_map_global_vids2local (
+				     f,
+				     el->global_vids,
+				     t->mesh_type,
+				     el_data->local_vids
+				     ) );
+			if ( el->global_parent_eid >= 0 )
+				TRY ( el_data->local_parent_eid =
+				      h5t_map_global_eid2local (
+					      f,
+					      el->global_parent_eid ) );
+			if ( local_eid > t->num_elems_on_level[level_id] ) {
+				level_id++;
+			}
+			el_data->level_id = level_id;
+		}
+		break;
+	}
+	default:
+		return h5_error_internal (
+			f, __FILE__, __func__, __LINE__ );
+	}
 
 	return H5_SUCCESS;
 }

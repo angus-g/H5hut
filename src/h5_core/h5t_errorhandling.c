@@ -8,22 +8,6 @@
 
 #include "h5_core.h"
 #include "h5_core_private.h"
-
-h5_err_t
-_h5t_handle_get_global_eid_err (
-	h5_file_t *f,
-	const h5_id_t * const global_vids
-	) {
-	struct h5t_fdata *t = f->t;
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON:
-		return _h5t_error_global_tet_id_nexist ( f, global_vids );
-	case H5_OID_TRIANGLE:
-		return _h5t_error_global_tri_id_nexist ( f, global_vids );
-	default:
-		return h5_error_internal( f, __FILE__, __func__, __LINE__ );
-	}
-}
 	
 h5_err_t
 _h5t_error_illegal_object_type (

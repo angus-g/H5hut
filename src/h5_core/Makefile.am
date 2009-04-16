@@ -29,20 +29,7 @@ HDFLIB = -L$(HDF5ROOT)/lib -lhdf5 -lz $(SZLIB) @LDFLAGS@
 # SZ LIBRARY
 SZLIB = @SZLIB@
 
-# Extra files that I wish to include in the dist tar ball.
-EXTRA_DIST = $(EXTRA_HEADERS)
-
-# Files that I don't want to include in the dist tar ball
-nodist_include_HEADERS =
-
-# What to build... Will be determined by configure script.
-lib_LIBRARIES = libH5_core.a
-
-# Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = libH5_core.a
-
-# Header files that I wish to install in $(prefix)/include
-include_HEADERS = \
+EXTRA_HEADERS = \
 	h5_attribs.h \
 	h5_core.h \
 	h5_errorhandling.h \
@@ -58,6 +45,8 @@ include_HEADERS = \
 	h5_syscall_private.h \
 	h5_types.h \
 	h5b_errorhandling_private.h \
+	h5t_adjacencies.h \
+	h5t_adjacencies_private.h \
 	h5t_boundaries.h \
 	h5t_boundaries_private.h \
 	h5t_consts_private.h \
@@ -73,8 +62,20 @@ include_HEADERS = \
 	h5u_readwrite.h \
 	hdf5_misc.h
 
-# Listing of all possible headers that I may include
-EXTRA_HEADERS =
+# Extra files that I wish to include in the dist tar ball.
+EXTRA_DIST = $(EXTRA_HEADERS)
+
+# Files that I don't want to include in the dist tar ball
+nodist_include_HEADERS =
+
+# What to build... Will be determined by configure script.
+lib_LIBRARIES = libH5_core.a
+
+# Listing of all possible targets that I may build.
+EXTRA_LIBRARIES = libH5_core.a
+
+# Header files that I wish to install in $(prefix)/include
+include_HEADERS =
 
 # Listing of sources
 libH5_core_a_SOURCES = \
@@ -89,6 +90,7 @@ libH5_core_a_SOURCES = \
 	h5_qsort_r.c \
 	h5_readwrite.c \
 	h5_syscall.c \
+	h5t_adjacencies.c \
 	h5t_boundaries.c \
 	h5t_consts.c \
 	h5t_errorhandling.c \
@@ -100,6 +102,8 @@ libH5_core_a_SOURCES = \
 	h5u_readwrite.c \
 	hdf5_misc.c
 
+libH5_core_a_DEPENDENCIES = $(EXTRA_HEADERS)
+
 all: libH5_core.a
 
 libH5_core.a: $(libH5_core_a_OBJECTS)
@@ -109,7 +113,7 @@ libH5_core.a: $(libH5_core_a_OBJECTS)
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
 
-$(libH5_core_a_OBJECTS): h5_core.h
+$(libH5_core_a_OBJECTS): $(libH5_core_a_DEPENDENCIES)
 
 #errorhandling.o: errorhandling.c
 

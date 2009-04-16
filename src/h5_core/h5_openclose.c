@@ -63,7 +63,7 @@ static h5_int64_t
 _h5u_open_file (
 	h5_file_t *f			/*!< IN: file handle */
 	) {
-	TRY ( f->u = (struct h5u_fdata*) _h5_alloc( f, NULL, sizeof (*f->u) ) );
+	TRY ( f->u = (h5u_fdata_t*) _h5_alloc( f, NULL, sizeof (*f->u) ) );
 	h5u_fdata_t *u = f->u;
 
  	u->shape = 0;
@@ -146,11 +146,7 @@ _h5_open_file (
 #ifdef PARALLEL_IO
 	f->comm = comm;
 	TRY ( _h5_mpi_comm_size ( f, comm, &f->nprocs ) );
-
-	if (MPI_Comm_rank (comm, &f->myproc) != MPI_SUCCESS) {
-		return HANDLE_MPI_COMM_RANK_ERR;
-	}
-	
+	TRY ( _h5_mpi_comm_rank ( f, comm, &f->myproc ) );
 	
 	/* for the SP2... perhaps different for linux */
 	MPI_Info info = MPI_INFO_NULL;
@@ -158,7 +154,7 @@ _h5_open_file (
 	/* ks: IBM_large_block_io */
 	MPI_Info_create(&info);
 	MPI_Info_set(info, "IBM_largeblock_io", "true" );
-	TRY ( _h5_set_fapl_mpio_property ( f->access_prop, comm, info ) );
+	TRY ( _h5_set_fapl_mpio_property ( f, f->access_prop, comm, info ) );
 	MPI_Info_free(&info);
 	
 	TRY ( f->access_prop = _h5_create_property ( f, H5P_FILE_ACCESS ) );

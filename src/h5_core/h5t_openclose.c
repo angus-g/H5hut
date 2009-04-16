@@ -474,40 +474,23 @@ _release_memory (
 	) {
 	struct h5t_fdata *t = f->t;
 
-	if ( t->num_vertices ) {
-		free ( t->num_vertices );
-	}
-	t->num_vertices = NULL;
-
-	if ( t->num_elems ) {
-		free ( t->num_elems );
-	}
-	t->num_elems = NULL;
-
-	if ( t->num_elems_on_level ) {
-		free ( t->num_elems_on_level );
-	}
-	t->num_elems_on_level = NULL;
-
-	if ( t->map_vertex_g2l.items ) {
-		free ( t->map_vertex_g2l.items );
-	}
-	t->map_vertex_g2l.items = NULL;
-
-	if ( t->map_elem_g2l.items ) {
-		free ( t->map_elem_g2l.items );
-	}
-	t->map_elem_g2l.items = NULL;
-
-	if ( t->vertices ) {
-		free ( t->vertices );
-	}
+	_h5_free ( f, t->vertices );
 	t->vertices = NULL;
+	_h5_free ( f, t->vertices_data );
+	t->vertices_data = NULL;
+	_h5_free ( f, t->num_vertices );
+	t->num_vertices = NULL;
+	_h5_free ( f, t->map_vertex_g2l.items );
 
-	if ( t->elems.data ) {
-		free ( t->elems.data );
-	}
+	_h5_free ( f, t->elems.data );
 	t->elems.data = NULL;
+	_h5_free ( f, t->num_elems );
+	_h5_free ( f, t->elems_data.data );
+	t->elems_data.data = NULL;
+	_h5_free ( f, t->num_elems_on_level );
+	t->num_elems_on_level = NULL;
+	_h5_free ( f, t->map_elem_g2l.items );
+	t->map_elem_g2l.items = NULL;
 
 	return H5_SUCCESS;
 }

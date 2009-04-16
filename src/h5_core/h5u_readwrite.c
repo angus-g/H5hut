@@ -209,15 +209,17 @@ h5u_set_num_elements (
 	*/
 
 	TRY ( _h5_mpi_allgather (
-		&nparticles, 1, MPI_LONG_LONG,
-		f->pnparticles, 1, MPI_LONG_LONG,
-		f->comm ) );
+		      f,
+		      &nparticles, 1, MPI_LONG_LONG,
+		      f->u->pnparticles, 1, MPI_LONG_LONG,
+		      f->comm ) );
 
 	if ( f->myproc == 0 ) {
-		h5_debug ( "Particle offsets:" );
+		h5_debug ( f, "Particle offsets:" );
 		for(i=0;i<f->nprocs;i++) 
-			h5_debug ( "\tnp=%lld",
-					      (long long) f->pnparticles[i] );
+			h5_debug ( f, 
+				   "\tnp=%lld",
+				   (long long) f->u->pnparticles[i] );
 	}
 	/* should I create a selection here? */
 
@@ -225,29 +227,29 @@ h5u_set_num_elements (
 	stride[0] = 1;
 	start[0] = 0;
 	for (i=0; i<f->myproc; i++) {
-		start[0] += f->pnparticles[i];
+		start[0] += f->u->pnparticles[i];
 	}
 	
         /* compute total nparticles */
 	total = 0;
 	for (i=0; i < f->nprocs; i++) {
-		total += f->pnparticles[i];
+		total += f->u->pnparticles[i];
 	}
 
 	/* declare overall datasize */
-	TRY ( f->shape = _h5_create_space ( f, 1, &total, &total ) );
+	TRY ( f->u->shape = _h5_create_space ( f, 1, &total, &total ) );
 
 	/* declare overall data size  but then will select a subset */
-	TRY ( f->diskshape = _h5_create_space ( f, 1, &total, &total) );
+	TRY ( f->u->diskshape = _h5_create_space ( f, 1, &total, &total) );
 
 	/* declare local memory datasize */
-	TRY ( f->memshape = _h5_create_space (
-		      f, 1, &(f->nparticles), &dmax ) );
+	TRY ( f->u->memshape = _h5_create_space (
+		      f, 1, &(f->u->nparticles), &dmax ) );
 
 	count[0] = nparticles;
 	TRY ( _h5_select_hyperslab_of_space (
 		      f,
-		      f->diskshape,
+		      f->u->diskshape,
 		      H5S_SELECT_SET,
 		      start, stride, count,
 		      NULL ) );
@@ -330,8 +332,7 @@ h5u_set_view (
 	  For now, we interpret start=-1 to mean 0 and 
 	  end==-1 to mean end of file
 	*/
-	total = (hsize_t) h5u_get_num_elems ( f );
-	if ( total < 0 ) return HANDLE_H5_GET_NUM_PARTICLES_ERR ( f, total );
+	TRY ( total = (hsize_t) h5u_get_num_elems ( f ) );
 
 	if ( start == -1 ) start = 0;
 	if ( end == -1 )   end = total;
@@ -415,32 +416,31 @@ h5u_set_canonical_view (
 	h5_int64_t n = 0;
 	int i = 0;
 	
-	n = h5u_get_num_elems ( f );
-	if ( n < 0 ) return HANDLE_H5_GET_NUM_PARTICLES_ERR ( n );
+	TRY ( n = h5u_get_num_elems ( f ) );
 	/* 
 	   now lets query the attributes for this group to see if there
 	   is a 'pnparticles' group that contains the offsets for the
 	   processors.
 	*/
 	if ( h5_read_attrib (
+		     f,
 		     f->step_gid,
-		     "pnparticles", f->pnparticles ) < 0) {
+		     "pnparticles", f->u->pnparticles ) < 0) {
 		/*
 		  Attribute "pnparticles" is not available.  So
 		  subdivide the view into NP mostly equal pieces
 		*/
 		n /= f->nprocs;
 		for ( i=0; i<f->nprocs; i++ ) {
-			f->pnparticles[i] = n;
+			f->u->pnparticles[i] = n;
 		}
 	}
 
 	for ( i = 0; i < f->myproc; i++ ){
-		start += f->pnparticles[i];
+		start += f->u->pnparticles[i];
 	}
-	end = start + f->pnparticles[f->myproc] - 1;
-	herr = h5u_set_view ( f, start, end );
-	if ( herr < 0 ) return HANDLE_H5_SET_VIEW_ERR ( herr, start, end );
+	end = start + f->u->pnparticles[f->myproc] - 1;
+	TRY ( h5u_set_view ( f, start, end ) );
 
 #endif
 

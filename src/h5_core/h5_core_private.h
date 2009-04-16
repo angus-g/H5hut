@@ -16,6 +16,7 @@
 
 #include "h5b_errorhandling_private.h"
 
+#include "h5t_adjacencies_private.h"
 #include "h5t_boundaries_private.h"
 #include "h5t_consts_private.h"
 #include "h5t_errorhandling_private.h"
@@ -47,17 +48,14 @@
    2E TT TT TT TT TT TT
 */
 #define H5_TET_MASK		( (h5_id_t) (ULLONG_MAX >> 8) )
-#define _h5t_build_triangle_id( idx, eid ) \
+#define _h5t_build_triangle_id( idx, eid )	 \
 	( (  1ull << (sizeof(eid)*8-4)) |	 \
-	  (idx << (sizeof(eid)*7)) |	 \
+	  (idx << (sizeof(eid)*7)) |		 \
 	  (eid & H5_TET_MASK))
 
-#define TRY(func)						\
+#define TRY( func )					\
 	if ( (int64_t)(ptrdiff_t)(func) < (int64_t)0 )	\
 		return H5_ERR;
-#define TRY2(func,exception)			\
-	if ( (int64_t)(ptrdiff_t)(func) < (int64_t)0 )	\
-		goto exception;
 
 /*!
   The functions declared here are not part of the API, but may be used

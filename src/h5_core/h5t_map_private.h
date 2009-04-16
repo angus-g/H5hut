@@ -34,4 +34,10 @@ h5_err_t
 _h5t_rebuild_global_2_local_map_of_elems (
 	h5_file_t * const f
 	);
+
+h5_err_t
+_h5t_rebuild_elems_data (
+	h5_file_t * const f
+	);
+
 #endif

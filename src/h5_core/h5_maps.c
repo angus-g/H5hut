@@ -7,23 +7,43 @@
 #include "h5_core_private.h"
 
 h5_err_t
-_h5_alloc_smap (
+_h5_alloc_idlist (
 	h5_file_t * const f,
-	struct smap	*map,
+	h5_idlist_t	*list,
 	const h5_size_t	size
 	) {
-	int new = ( map->items == NULL );
-	size_t size_in_bytes = size * sizeof ( map->items[0] );
-	TRY ( map->items = _h5_alloc ( f, map->items, size_in_bytes ) );
-	map->size = size;
-	if ( new ) map->num_items = 0;
+	int new = ( list->items == NULL );
+	size_t size_in_bytes = size * sizeof ( list->items[0] );
+	TRY ( list->items = _h5_alloc ( f, list->items, size_in_bytes ) );
+	list->size = size;
+	if ( new ) list->num_items = 0;
 	return H5_SUCCESS;
 }
 
 h5_err_t
+_h5_append_to_idlist (
+	h5_file_t * const f,
+	h5_idlist_t *list,
+	h5_id_t id
+	) {
+	if ( list->num_items == list->size ) {
+		h5_size_t size = list->size;
+		if ( size == 0 ) {
+			size = 16 * sizeof(list->items[0]);
+		} else {
+			size *= 2;
+		}
+		TRY ( list->items = _h5_alloc ( f, list->items, size ) );
+	}
+	list->items[list->num_items++] = id;
+	return H5_SUCCESS;
+}
+
+
+h5_err_t
 _h5_alloc_idmap (
 	h5_file_t * const f,
-	struct idmap	*map,
+	h5_idmap_t	*map,
 	const h5_size_t	size
 	) {
 	int new = ( map->items == NULL );
@@ -38,7 +58,7 @@ _h5_alloc_idmap (
 h5_err_t
 _h5_insert_idmap (
 	h5_file_t * const f,
-	struct idmap *map,
+	h5_idmap_t *map,
 	h5_id_t global_id,
 	h5_id_t local_id
 	) {
@@ -75,7 +95,7 @@ _h5_insert_idmap (
  */
 h5_id_t
 _h5_search_idmap (
-	struct idmap *map,
+	h5_idmap_t *map,
 	h5_id_t value
 	) {
 
@@ -105,7 +125,7 @@ _cmp_idmap (
 
 h5_err_t
 _h5_sort_idmap (
-	struct idmap *map
+	h5_idmap_t *map
 	) {
 	qsort ( map->items, map->num_items, sizeof(map->items[0]), _cmp_idmap );
 	return H5_SUCCESS;

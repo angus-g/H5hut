@@ -101,9 +101,6 @@ _h5t_write_mesh (
 	) {
 	h5t_fdata_t *t = f->t;
 	if ( ! t->mesh_changed ) return 0;
-	if ( t->level_changed ) {
-		TRY ( _h5t_close_level ( f ) );
-	}
 
 	TRY( _write_vertices( f ) );
 	TRY( _write_elems( f ) );
@@ -292,63 +289,10 @@ _h5t_read_elems (
 
 	TRY ( _h5t_sort_elems ( f ) );
 	TRY ( _h5t_rebuild_global_2_local_map_of_elems ( f ) );
-	/*
-	  setup structure with local vertex ids
-	 */
-	h5_id_t local_eid = 0;
-	h5_id_t num_elems = t->num_elems[t->num_levels-1];
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON: {
-		h5_tet_t *el;
-		h5_tet_data_t *el_data;
-
-		for ( local_eid = 0, el = t->elems.tets, el_data = t->elems_data.tets;
-		      local_eid < num_elems;
-		      local_eid++, el++, el_data++ ) {
-
-			TRY( h5t_map_global_vids2local (
-				     f,
-				     el->global_vids,
-				     t->mesh_type,
-				     el_data->local_vids
-				     ) );
-			if ( el->global_parent_eid >= 0 )
-				TRY ( el_data->local_parent_eid =
-				      h5t_map_global_eid2local (
-					      f,
-					      el->global_parent_eid ) );
-		}
-		break;
-	}
-	case H5_OID_TRIANGLE: {
-		h5_triangle_t *el;
-		h5_triangle_data_t *el_data;
-
-		for ( local_eid = 0, el = t->elems.tris, el_data = t->elems_data.tris;
-		      local_eid < num_elems;
-		      local_eid++, el++, el_data++ ) {
-
-			TRY( h5t_map_global_vids2local (
-				     f,
-				     el->global_vids,
-				     t->mesh_type,
-				     el_data->local_vids
-				     ) );
-			if ( el->global_parent_eid >= 0 )
-				TRY ( el_data->local_parent_eid =
-				      h5t_map_global_eid2local (
-					      f,
-					      el->global_parent_eid ) );
-		}
-		break;
-	}
-	default:
-		return -1;
-	}
-	
+	TRY ( _h5t_rebuild_elems_data ( f ) );
+	TRY ( _h5t_rebuild_adj_data ( f ) );
 	return H5_SUCCESS;
 }
-
 
 h5_err_t
 h5t_start_traverse_elems (
@@ -442,19 +386,10 @@ h5_err_t
 _h5t_read_mesh (
 	h5_file_t *f
 	) {
-	struct h5t_fdata *t = f->t;
 
-	if ( t->vertices == NULL ) {
-		TRY ( _h5t_read_vertices ( f ) );
-	}
+	TRY ( _h5t_read_vertices ( f ) );
+	TRY ( _h5t_read_elems ( f ) );
 
-	if ( t->elems.data == NULL ) {
-		TRY ( _h5t_read_elems ( f ) );
-	}
-
-	if ( t->sorted_elems[0].items == NULL ) {
-		_h5t_sort_elems ( f );
-	}
 	return H5_SUCCESS;
 }
 

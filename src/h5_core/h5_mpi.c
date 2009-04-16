@@ -7,7 +7,7 @@
 h5_err_t
 _h5_mpi_allgather (
 	h5_file_t * const f,
-	const void * sendbuf,
+	void * sendbuf,
 	const int sendcount,
 	const MPI_Datatype sendtype,
 	void * recvbuf,
@@ -34,7 +34,7 @@ _h5_mpi_allgather (
 h5_err_t
 _h5_mpi_comm_size (
 	h5_file_t * const f,
-	MPI_comm comm,
+	MPI_Comm comm,
 	int *size
 	) {
 	int err = MPI_Comm_size ( comm, size );
@@ -51,7 +51,7 @@ _h5_mpi_comm_size (
 h5_err_t
 _h5_mpi_comm_rank (
 	h5_file_t * const f,
-	MPI_comm comm,
+	MPI_Comm comm,
 	int *rank
 	) {
 	int err = MPI_Comm_rank ( comm, rank );

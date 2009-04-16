@@ -54,9 +54,10 @@ typedef h5_err_t (*h5_errorhandler_t)(
 typedef unsigned long		MPI_Comm;
 #endif
 
-struct smap;
-typedef struct smap smap_t;
-struct idmap;
+struct h5_idlist;
+typedef struct h5_idlist h5_idlist_t;
+struct h5_idmap;
+typedef struct h5_idmap h5_idmap_t;
 
 /**
    \struct h5_file

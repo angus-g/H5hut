@@ -13,13 +13,7 @@ h5t_add_level (
 	);
 
 h5_size_t
-h5t_add_num_vertices (
-	h5_file_t * const f,
-	const h5_size_t num
-	);
-
-h5_err_t
-h5t_add_num_elems (
+h5t_begin_store_vertices (
 	h5_file_t * const f,
 	const h5_size_t num
 	);
@@ -31,6 +25,17 @@ h5t_store_vertex (
 	const h5_float64_t P[3]
 	);
 
+h5_err_t
+h5t_end_store_vertices (
+	h5_file_t * const f
+	);
+
+h5_err_t
+h5t_begin_store_elems (
+	h5_file_t * const f,
+	const h5_size_t num
+	);
+
 h5_id_t
 h5t_store_elem    (
 	h5_file_t * const f,
@@ -39,7 +44,12 @@ h5t_store_elem    (
 	);
 
 h5_err_t
-h5t_refine_num_elems (
+h5t_end_store_elems (
+	h5_file_t * const f
+	);
+
+h5_err_t
+h5t_begin_refine_elems (
 	h5_file_t * const f,
 	const h5_size_t num_elems_to_refine
 	);
@@ -49,5 +59,6 @@ h5t_refine_elem (
 	h5_file_t * const f,
 	const h5_id_t local_eid
 	);
+
 
 #endif

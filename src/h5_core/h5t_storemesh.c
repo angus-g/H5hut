@@ -19,8 +19,8 @@ h5t_add_mesh (
 	) {
 	h5_id_t mesh_id = 0;
 
-	TRY( (mesh_id = h5t_open_mesh ( f, -1, mesh_type )) ); 
-	TRY( h5t_add_level ( f ) );
+	TRY ( (mesh_id = h5t_open_mesh ( f, -1, mesh_type )) ); 
+	TRY ( h5t_add_level ( f ) );
 	
 	f->t->mesh_changed = 1;
 
@@ -33,15 +33,9 @@ h5t_add_mesh (
    unique id's assigned by the mesher but this id's may not be
    consecutive numbered starting from 0.
  * Set the global vertex id's in element definitions.
- * Assign unique global id's to elements. This is a NOOP if we are
-   running serial.
-
-   Where are the global vertex id's stored?
-   - Vertex definitions
-
 */
-herr_t
-_h5t_assign_global_ids (
+h5_err_t
+_h5t_assign_global_vertex_ids (
 	h5_file_t * const f
 	) {
 	h5t_fdata_t *t = f->t;
@@ -50,40 +44,29 @@ _h5t_assign_global_ids (
 	if ( t->cur_level < 0 ) return H5_SUCCESS; /* no level defined */
 
 	/*
-	  assign global id to vertices
-	*/
-	/*
 	  simple in serial runs: global_id = local_id
 	*/
-	for ( local_id = 0; local_id < t->num_vertices[t->num_levels-1]; local_id++ ) {
+	for ( local_id = 0;
+	      local_id < t->num_vertices[t->num_levels-1];
+	      local_id++ ) {
 		t->vertices[local_id].global_vid = local_id;
 	}
 
 	return H5_SUCCESS;
 }
 
+/*!
+ Assign unique global id's to elements.
+
+ Nothing to do in serial case.
+*/
 h5_err_t
-_h5t_close_level (
+_h5t_assign_global_elem_ids (
 	h5_file_t * const f
 	) {
-	h5t_fdata_t *t = f->t;
-
-	if ( t->num_levels <= 0 ) return H5_SUCCESS;
-
-	t->num_vertices[t->cur_level] = t->last_stored_vid+1;
-	TRY ( _h5t_assign_global_ids ( f ) );
-
-	TRY ( _h5t_sort_vertices ( f ) );
-	TRY ( _h5t_rebuild_global_2_local_map_of_vertices ( f ) );
-	TRY ( _h5t_sort_elems ( f ) );
-	TRY ( _h5t_rebuild_global_2_local_map_of_elems ( f ) );
-
 	return H5_SUCCESS;
 }
 
-#if 0
-
-#endif
 h5_id_t
 h5t_add_level (
 	h5_file_t * const f
@@ -93,8 +76,6 @@ h5t_add_level (
 	if ( f->mode == H5_O_RDONLY ) {
 		return H5_ERR_INVAL;
 	}
-
-	TRY ( _h5t_close_level ( f ) );
 
 	/* t->num_levels will be set to zero on file creation(!) */
 	if ( t->num_levels == -1 ) {	/* unknown number of levels	*/
@@ -134,8 +115,10 @@ _h5t_alloc_num_vertices (
 
 	ssize_t size = num_vertices * sizeof ( t->vertices[0] );
 	TRY ( t->vertices = _h5_alloc (	f, t->vertices, size ) );
+	size = num_vertices * sizeof ( t->vertices_data[0] );
+	TRY ( t->vertices_data = _h5_alloc (	f, t->vertices_data, size ) );
 	TRY( _h5_alloc_idmap ( f, &t->map_vertex_g2l, num_vertices ) );
-	TRY( _h5_alloc_smap ( f, &t->sorted_lvertices, num_vertices ) );
+	TRY( _h5_alloc_idlist ( f, &t->sorted_lvertices, num_vertices ) );
 
 	return H5_SUCCESS;
 }
@@ -144,15 +127,16 @@ _h5t_alloc_num_vertices (
   Allocate memory for (more) vertices.
 */
 h5_err_t
-h5t_add_num_vertices (
+h5t_begin_store_vertices (
 	h5_file_t * const f,
 	const h5_size_t num
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
 	if ( t->cur_level < 0 ) {
 		return _h5t_error_undef_level( f );
 	}
+	t->storing_data = 1;
 	h5_size_t cur_num_vertices = ( t->cur_level > 0 ?
 				       t->num_vertices[t->cur_level-1] : 0 );
 	t->num_vertices[t->cur_level] = cur_num_vertices+num;
@@ -191,12 +175,27 @@ h5t_store_vertex (
 }
 
 h5_err_t
+h5t_end_store_vertices (
+	h5_file_t * const f
+	) {
+	h5t_fdata_t *t = f->t;
+	t->storing_data = 0;
+
+	t->num_vertices[t->cur_level] = t->last_stored_vid+1;
+	TRY ( _h5t_assign_global_vertex_ids ( f ) );
+	TRY ( _h5t_sort_vertices ( f ) );
+	TRY ( _h5t_rebuild_global_2_local_map_of_vertices ( f ) );
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
 _h5t_alloc_num_elems (
 	h5_file_t * const f,
 	const size_t cur_num_elems,
 	const size_t new_num_elems
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 	size_t sizeof_elem = 0;
 	size_t sizeof_lelem = 0;
 
@@ -228,12 +227,13 @@ _h5t_alloc_num_elems (
 }
 
 h5_err_t
-h5t_add_num_elems (
+h5t_begin_store_elems (
 	h5_file_t * const f,
 	const h5_size_t num
 	) {
 	struct h5t_fdata *t = f->t;
 
+	t->storing_data = 1;
 	size_t cur_num_elems = t->cur_level > 0 ?
 		t->num_elems[t->cur_level-1] : 0;
 	size_t new_num_elems = t->cur_level > 0 ?
@@ -257,7 +257,7 @@ h5t_store_elem    (
 	const h5_id_t local_parent_eid,
 	const h5_id_t local_vids[]
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
 	/* level set? */
 	if ( t->cur_level < 0 )
@@ -317,7 +317,8 @@ _h5t_store_tet (
 
 	memcpy ( &tet->global_vids, local_vids, sizeof ( tet->global_vids ) );
 	_h5t_sort_local_vids ( f, tet->global_vids, 4 );
-	memcpy ( &tet_data->local_vids, &tet->global_vids, sizeof ( tet->global_vids ) );
+	memcpy ( &tet_data->local_vids, &tet->global_vids,
+		 sizeof ( tet->global_vids ) );
 
 	if ( local_parent_eid >= 0 ) {
 		if ( t->elems.tets[local_parent_eid].refined_on_level < 0 ) {
@@ -348,7 +349,8 @@ _h5t_store_triangle (
 
 	memcpy ( &tri->global_vids, vids, sizeof ( tri->global_vids ) );
 	_h5t_sort_local_vids ( f, tri->global_vids, 3 );
-	memcpy ( &tri_data->local_vids, &tri->global_vids, sizeof ( tri->global_vids ) );
+	memcpy ( &tri_data->local_vids, &tri->global_vids,
+		 sizeof ( tri->global_vids ) );
 
 	if ( local_parent_eid >= 0 ) {
 		if ( t->elems.tris[local_parent_eid].refined_on_level < 0 ) {
@@ -360,14 +362,33 @@ _h5t_store_triangle (
 	return local_eid;
 }
 
+h5_err_t
+h5t_end_store_elems (
+	h5_file_t * const f
+	) {
+	h5t_fdata_t *t = f->t;
+	t->storing_data = 0;
+
+	t->num_elems[t->cur_level] = t->last_stored_eid+1;
+	TRY ( _h5t_assign_global_elem_ids ( f ) );
+	TRY ( _h5t_sort_elems ( f ) );
+	TRY ( _h5t_rebuild_global_2_local_map_of_elems ( f ) );
+	TRY ( _h5t_rebuild_elems_data ( f ) );
+
+	return H5_SUCCESS;
+}
+
 
 h5_err_t
-h5t_refine_num_elems (
+h5t_begin_refine_elems (
 	h5_file_t * const f,
 	const h5_size_t num_elems_to_refine
 	) {
 	h5_size_t num_elems_to_add = 0;
-	switch ( f->t->mesh_type ) {
+	h5t_fdata_t *t = f->t;
+
+	t->storing_data = 1;
+	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON:
 		num_elems_to_add = num_elems_to_refine*8;
 		break;
@@ -378,8 +399,21 @@ h5t_refine_num_elems (
 		return h5_error_internal ( f, __FILE__, __func__, __LINE__ );
 	}
 	h5_size_t num_vertices = (num_elems_to_add>>2)*3; /* this is an upper limit */
-	TRY ( h5t_add_num_vertices ( f, num_vertices ) );
-	TRY ( h5t_add_num_elems ( f, num_elems_to_add ) );
+	TRY ( h5t_begin_store_vertices ( f, num_vertices ) );
+	TRY ( h5t_begin_store_elems ( f, num_elems_to_add ) );
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5t_end_refine_elems (
+	h5_file_t * const f
+	) {
+	h5t_fdata_t *t = f->t;
+	t->storing_data = 0;
+
+	TRY ( h5t_end_store_vertices ( f ) );
+	TRY ( h5t_end_store_elems ( f ) );
 
 	return H5_SUCCESS;
 }

@@ -1,13 +1,6 @@
 #ifndef __H5T_ERRORHANDLING_PRIVATE_H
 #define __H5T_ERRORHANDLING_PRIVATE_H
 
-
-h5_err_t
-_h5t_handle_get_global_eid_err (
-	h5_file_t *f,
-	const h5_id_t * const global_vids
-	);
-
 h5_err_t
 _h5t_error_illegal_object_type (
 	h5_file_t * const f,
