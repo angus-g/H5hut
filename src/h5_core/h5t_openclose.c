@@ -105,8 +105,8 @@ _create_triangle_type (
 		_h5_insert_type (
 			f,
 			dtypes->h5_triangle_t,
-			"refined_on_level",
-			HOFFSET(struct h5_triangle, refined_on_level),
+			"global_child_eid",
+			HOFFSET(struct h5_triangle, global_child_eid),
 			H5_ID_T ) );
 	TRY(
 		_h5_insert_type (
@@ -148,8 +148,8 @@ _create_tet_type (
 		_h5_insert_type (
 			f,
 			dtypes->h5_tet_t,
-			"refined_on_level",
-			HOFFSET(struct h5_tetrahedron, refined_on_level),
+			"global_child_eid",
+			HOFFSET(struct h5_tetrahedron, global_child_eid),
 			H5T_NATIVE_INT32 ) );
 	TRY(
 		_h5_insert_type (
