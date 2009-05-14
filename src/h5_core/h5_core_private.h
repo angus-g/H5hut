@@ -47,11 +47,25 @@
    00100eee tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt
    2E TT TT TT TT TT TT
 */
-#define H5_TET_MASK		( (h5_id_t) (ULLONG_MAX >> 8) )
-#define _h5t_build_triangle_id( idx, eid )	 \
-	( (  1ull << (sizeof(eid)*8-4)) |	 \
-	  (idx << (sizeof(eid)*7)) |		 \
-	  (eid & H5_TET_MASK))
+#define H5T_ELEM_MASK		( (h5_id_t) (ULLONG_MAX >> 8) )
+#define H5T_ETYPE_MASK		( 7ull << (sizeof(h5_id_t)*8-4) )
+#define H5T_FACE_MASK		(15ull << (sizeof(h5_id_t)*7) )
+
+#define _h5t_build_triangle_id( face_id, elem_id )	 \
+	( ((h5_id_t)1 << (sizeof(elem_id)*8-4)) |	 \
+	  ((h5_id_t)(face_id) << (sizeof(elem_id)*7)) |	 \
+	  ((elem_id) & H5T_ELEM_MASK))
+
+#define _h5t_build_edge_id( face_id, elem_id )		 \
+	( ((h5_id_t)1 << (sizeof(elem_id)*8-3)) |	 \
+	  ((h5_id_t)(face_id) << (sizeof(elem_id)*7)) |	 \
+	  ((elem_id) & H5T_ELEM_MASK))
+
+#define _h5t_get_face_id( entity_id )				\
+	( (entity_id & H5T_FACE_MASK) >> (sizeof(h5_id_t)*7) )
+
+#define _h5t_get_elem_id( entity_id )		\
+	(  entity_id & H5T_ELEM_MASK )
 
 #define TRY( func )					\
 	if ( (int64_t)(ptrdiff_t)(func) < (int64_t)0 )	\
