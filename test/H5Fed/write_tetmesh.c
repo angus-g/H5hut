@@ -89,6 +89,7 @@ main (
 	}
 	H5FedEndStoreElements ( f );
 
+	/* add 1. Level */
 	h5_id_t level_id = H5FedAddLevel( f );
 	if ( level_id < 0 ) {
 		fprintf ( stderr, "!!! Can't add level.\n" );
@@ -101,6 +102,25 @@ main (
 	}
 
 	h5_id_t elem_id = H5FedRefineElement ( f, 0 );
+	if ( elem_id < 0 ) {
+		fprintf ( stderr, "!!! Can't refine tet.\n" );
+		return -1;
+	}
+	H5FedEndRefineElements ( f );
+
+	/* add 2. Level */
+	level_id = H5FedAddLevel( f );
+	if ( level_id < 0 ) {
+		fprintf ( stderr, "!!! Can't add level.\n" );
+		return -1;
+	}
+	h5err = H5FedBeginRefineElements ( f, 1 );
+	if ( h5err < 0 ) {
+		fprintf ( stderr, "!!! Can't set number of elements torefine.\n" );
+		return -1;
+	}
+
+	elem_id = H5FedRefineElement ( f, 2 );
 	if ( elem_id < 0 ) {
 		fprintf ( stderr, "!!! Can't refine tet.\n" );
 		return -1;

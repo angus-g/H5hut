@@ -122,7 +122,6 @@ read_mesh (
 		}
 	}
 
-
 	return H5_SUCCESS;
 }
 
