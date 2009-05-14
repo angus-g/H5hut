@@ -319,6 +319,8 @@ h5t_traverse_elems (
 	h5t_fdata_t *t = f->t;
 	h5_element_t *elem;
 	h5_element_data_t *elem_data;
+	h5_id_t local_child_eid;
+	h5_id_t refined_on_level = -1;
 
 	if ( t->elems.data == NULL ) {
 		TRY ( _h5t_read_elems ( f ) );
@@ -327,15 +329,31 @@ h5t_traverse_elems (
 		h5_debug ( f, "Traversing done!" );
 		return 0;
 	}
+
+	/*
+	  Skip elements which have been refined on a level less than the current one.
+	*/
 	do {
 		switch ( t->mesh_type ) {
 		case H5_OID_TETRAHEDRON:
 			elem = (h5_element_t*)
 				&t->elems.tets[++t->last_retrieved_eid];
+			elem_data = (h5_element_data_t*)
+				&t->elems_data.tets[t->last_retrieved_eid];
+			local_child_eid = elem_data->local_child_eid;
+			refined_on_level = ( elem_data->local_child_eid >= 0 ) ?
+				t->elems_data.tets[local_child_eid].level_id :
+				t->cur_level+1;   /* this means "not refined" */
 			break;
 		case H5_OID_TRIANGLE:
 			elem = (h5_element_t*)
 				&t->elems.tris[++t->last_retrieved_eid];
+			elem_data = (h5_element_data_t*)
+				&t->elems_data.tris[t->last_retrieved_eid];
+			local_child_eid = elem_data->local_child_eid;
+			refined_on_level = ( elem_data->local_child_eid >= 0 ) ?
+				t->elems_data.tris[local_child_eid].level_id :
+				t->cur_level+1;   /* this means "not refined" */
 			break;
 		default:
 			return h5_error_internal (
@@ -346,22 +364,7 @@ h5t_traverse_elems (
 				f, __FILE__, __func__, __LINE__ );
 		}
 	}
-	while ( (elem->refined_on_level != -1) &&
-		(elem->refined_on_level <= t->cur_level) );
-
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON:
-		elem_data = (h5_element_data_t*)
-			&t->elems_data.tets[t->last_retrieved_eid];
-		break;
-	case H5_OID_TRIANGLE:
-		elem_data = (h5_element_data_t*)
-			&t->elems_data.tris[t->last_retrieved_eid];
-		break;
-	default:
-		return h5_error_internal (
-			f, __FILE__, __func__, __LINE__ );
-	}
+	while ( refined_on_level <= t->cur_level );
 
 	*global_eid = elem->global_eid;
 	*local_parent_id = elem_data->local_parent_eid;
