@@ -745,13 +745,13 @@ h5t_map_global_triangle_id2local (
 	struct h5t_fdata *t = f->t;
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
-		h5_id_t global_tet_id = global_tri_id & H5_TET_MASK;
+		h5_id_t global_tet_id = _h5t_get_elem_id ( global_tri_id );
 		h5_id_t local_tet_id = h5t_map_global_eid2local (
 			f, global_tet_id );
 		if ( local_tet_id < 0 ) 
 			return _h5t_error_global_id_nexist (
 				f, "triangle", global_tri_id );
-		return local_tet_id | (global_tri_id & ~H5_TET_MASK);
+		return local_tet_id | (global_tri_id & ~H5T_ELEM_MASK);
 	}
 	case H5_OID_TRIANGLE:
 		return h5t_map_global_eid2local ( f, global_tri_id );
@@ -773,13 +773,13 @@ h5t_map_local_triangle_id2global (
 	struct h5t_fdata *t = f->t;
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
-		h5_id_t local_tet_id = local_tri_id & H5_TET_MASK;
+		h5_id_t local_tet_id = _h5t_get_elem_id ( local_tri_id );
 		h5_id_t global_tet_id = h5t_map_local_eid2global (
 			f, local_tet_id );
 		if ( global_tet_id < 0 )
 			return HANDLE_H5_OUT_OF_RANGE_ERR(
 				f, "triangle", local_tri_id );
-		return global_tet_id | (local_tri_id & ~H5_TET_MASK); 
+		return global_tet_id | (local_tri_id & ~H5T_ELEM_MASK); 
 	}
 	case H5_OID_TRIANGLE:
 		return h5t_map_local_eid2global ( f, local_tri_id );
@@ -880,6 +880,13 @@ _h5t_rebuild_elems_data (
 				      h5t_map_global_eid2local (
 					      f,
 					      el->global_parent_eid ) );
+
+			if ( el->global_child_eid >= 0 )
+				TRY ( el_data->local_child_eid =
+				      h5t_map_global_eid2local (
+					      f,
+					      el->global_child_eid ) );
+
 			if ( local_eid > t->num_elems_on_level[level_id] ) {
 				level_id++;
 			}
