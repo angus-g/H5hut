@@ -313,20 +313,13 @@ _h5t_store_tet (
 	h5_tet_data_t *tet_data = &t->elems_data.tets[local_eid];
 	tet->global_eid = local_eid;
 	tet->global_parent_eid = local_parent_eid;
-	tet->refined_on_level = -1;
+	tet->global_child_eid = -1;
 
 	memcpy ( &tet->global_vids, local_vids, sizeof ( tet->global_vids ) );
 	_h5t_sort_local_vids ( f, tet->global_vids, 4 );
 	memcpy ( &tet_data->local_vids, &tet->global_vids,
 		 sizeof ( tet->global_vids ) );
 
-	if ( local_parent_eid >= 0 ) {
-		if ( t->elems.tets[local_parent_eid].refined_on_level < 0 ) {
-			t->elems.tets[local_parent_eid].refined_on_level =
-				t->cur_level;
-			t->num_elems_on_level[t->cur_level]--;
-		}
-	}
 	return local_eid;
 }
 
@@ -345,20 +338,13 @@ _h5t_store_triangle (
 	h5_triangle_data_t *tri_data = &t->elems_data.tris[local_eid];
 	tri->global_eid = local_eid;
 	tri->global_parent_eid = local_parent_eid;
-	tri->refined_on_level = -1;
+	tri->global_child_eid = -1;
 
 	memcpy ( &tri->global_vids, vids, sizeof ( tri->global_vids ) );
 	_h5t_sort_local_vids ( f, tri->global_vids, 3 );
 	memcpy ( &tri_data->local_vids, &tri->global_vids,
 		 sizeof ( tri->global_vids ) );
 
-	if ( local_parent_eid >= 0 ) {
-		if ( t->elems.tris[local_parent_eid].refined_on_level < 0 ) {
-			t->elems.tris[local_parent_eid].refined_on_level =
-				t->cur_level;
-			t->num_elems_on_level[t->cur_level]--;
-		}
-	}
 	return local_eid;
 }
 
@@ -475,51 +461,56 @@ h5t_refine_elem (
 h5_id_t
 _h5t_refine_triangle (
 	h5_file_t * const f,
-	const h5_id_t local_parent_eid
+	const h5_id_t local_eid
 	) {
 	h5t_fdata_t *t = f->t;
 	h5_id_t local_vids[3];
-	h5_id_t local_eid;
+	h5_id_t local_child_eid;
 
 	local_vids[0] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tris[local_parent_eid].local_vids[0],
-		t->elems_data.tris[local_parent_eid].local_vids[1] );
+		t->elems_data.tris[local_eid].local_vids[0],
+		t->elems_data.tris[local_eid].local_vids[1] );
 	local_vids[1] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tris[local_parent_eid].local_vids[0],
-		t->elems_data.tris[local_parent_eid].local_vids[2] );
+		t->elems_data.tris[local_eid].local_vids[0],
+		t->elems_data.tris[local_eid].local_vids[2] );
 	local_vids[2] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tris[local_parent_eid].local_vids[1],
-		t->elems_data.tris[local_parent_eid].local_vids[2] );
+		t->elems_data.tris[local_eid].local_vids[1],
+		t->elems_data.tris[local_eid].local_vids[2] );
 
 
 	h5_id_t elem_local_vids[4];
 
 	/* 0 */
-	elem_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[0];
+	elem_local_vids[0] = t->elems_data.tets[local_eid].local_vids[0];
 	elem_local_vids[1] = local_vids[0];
 	elem_local_vids[2] = local_vids[1];
-	TRY ( local_eid = _h5t_store_triangle (
+	TRY ( local_child_eid = _h5t_store_triangle (
 		      f,
-		      local_parent_eid, elem_local_vids ) );
+		      local_eid, elem_local_vids ) );
+	if ( local_eid >= 0 ) {
+		t->elems.tris[local_eid].global_child_eid = local_child_eid;
+		t->elems_data.tris[local_eid].local_child_eid = local_child_eid;
+		t->num_elems_on_level[t->cur_level]--;
+	}
 
 	/* 1 */
-	elem_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[1];
+	elem_local_vids[0] = t->elems_data.tets[local_eid].local_vids[1];
 	elem_local_vids[1] = local_vids[0];
 	elem_local_vids[2] = local_vids[2];
 	TRY ( _h5t_store_triangle (
 		      f,
-		      local_parent_eid, elem_local_vids ) );
+		      local_eid, elem_local_vids ) );
 
 	/* 2 */
-	elem_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[2];
+	elem_local_vids[0] = t->elems_data.tets[local_eid].local_vids[2];
 	elem_local_vids[1] = local_vids[1];
 	elem_local_vids[2] = local_vids[2];
 	TRY ( _h5t_store_triangle (
 		      f,
-		      local_parent_eid, elem_local_vids ) );
+		      local_eid, elem_local_vids ) );
 
 	/* 3 */
 	elem_local_vids[0] = local_vids[0];
@@ -527,9 +518,9 @@ _h5t_refine_triangle (
 	elem_local_vids[2] = local_vids[2];
 	TRY ( _h5t_store_triangle (
 		      f,
-		      local_parent_eid, elem_local_vids ) );
+		      local_eid, elem_local_vids ) );
 
-	return local_eid;
+	return local_child_eid;
 }
 
 /*!
@@ -540,36 +531,46 @@ _h5t_refine_triangle (
 h5_id_t
 _h5t_refine_tet (
 	h5_file_t * const f,
-	const h5_id_t local_parent_eid
+	const h5_id_t local_eid
 	) {
 	h5t_fdata_t *t = f->t;
-	h5_id_t local_vids[6];
-	h5_id_t local_eid;
+	h5_id_t local_vids[10];
+	h5_id_t local_child_eid;
 
-	local_vids[0] = _h5t_bisect_edge(
-		f,
-		t->elems_data.tets[local_parent_eid].local_vids[0],
-		t->elems_data.tets[local_parent_eid].local_vids[1] );
-	local_vids[1] = _h5t_bisect_edge(
-		f,
-		t->elems_data.tets[local_parent_eid].local_vids[0],
-		t->elems_data.tets[local_parent_eid].local_vids[2] );
-	local_vids[2] = _h5t_bisect_edge(
-		f,
-		t->elems_data.tets[local_parent_eid].local_vids[0],
-		t->elems_data.tets[local_parent_eid].local_vids[3] );
-	local_vids[3] = _h5t_bisect_edge(
-		f,
-		t->elems_data.tets[local_parent_eid].local_vids[1],
-		t->elems_data.tets[local_parent_eid].local_vids[2] );
+	if ( t->elems.tets[local_eid].global_child_eid >= 0 )
+		return h5_error (
+			f,
+			H5_ERR_INVAL,
+			"Tetrahedron %lld already refined.",
+			local_eid );
+	local_vids[0] = t->elems_data.tets[local_eid].local_vids[0];
+	local_vids[1] = t->elems_data.tets[local_eid].local_vids[1];
+	local_vids[2] = t->elems_data.tets[local_eid].local_vids[2];
+	local_vids[3] = t->elems_data.tets[local_eid].local_vids[3];
 	local_vids[4] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tets[local_parent_eid].local_vids[1],
-		t->elems_data.tets[local_parent_eid].local_vids[3] );
+		t->elems_data.tets[local_eid].local_vids[0],
+		t->elems_data.tets[local_eid].local_vids[1] );
 	local_vids[5] = _h5t_bisect_edge(
 		f,
-		t->elems_data.tets[local_parent_eid].local_vids[2],
-		t->elems_data.tets[local_parent_eid].local_vids[3] );
+		t->elems_data.tets[local_eid].local_vids[0],
+		t->elems_data.tets[local_eid].local_vids[2] );
+	local_vids[6] = _h5t_bisect_edge(
+		f,
+		t->elems_data.tets[local_eid].local_vids[0],
+		t->elems_data.tets[local_eid].local_vids[3] );
+	local_vids[7] = _h5t_bisect_edge(
+		f,
+		t->elems_data.tets[local_eid].local_vids[1],
+		t->elems_data.tets[local_eid].local_vids[2] );
+	local_vids[8] = _h5t_bisect_edge(
+		f,
+		t->elems_data.tets[local_eid].local_vids[1],
+		t->elems_data.tets[local_eid].local_vids[3] );
+	local_vids[9] = _h5t_bisect_edge(
+		f,
+		t->elems_data.tets[local_eid].local_vids[2],
+		t->elems_data.tets[local_eid].local_vids[3] );
 
 	/* 
 	   add new tets
@@ -577,62 +578,66 @@ _h5t_refine_tet (
 	h5_id_t new_tet_local_vids[4];
 
 	/* 0 */
-	new_tet_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[0];
-	new_tet_local_vids[1] = local_vids[0];  // (01)
-	new_tet_local_vids[2] = local_vids[1];  // (02)
-	new_tet_local_vids[3] = local_vids[2];  // (03)
-	TRY ( local_eid = _h5t_store_tet (
-		      f, local_parent_eid, new_tet_local_vids ) );
+	new_tet_local_vids[0] = local_vids[0];
+	new_tet_local_vids[1] = local_vids[6];  // (03)
+	new_tet_local_vids[2] = local_vids[5];  // (02)
+	new_tet_local_vids[3] = local_vids[4];  // (01)
+	TRY ( local_child_eid = _h5t_store_tet (
+		      f, local_eid, new_tet_local_vids ) );
 
 	/* 1 */
-	new_tet_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[1];
-	new_tet_local_vids[1] = local_vids[0];  // (01)
-	new_tet_local_vids[2] = local_vids[3];  // (12)
-	new_tet_local_vids[3] = local_vids[4];  // (13)
-	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
+	new_tet_local_vids[0] = local_vids[4];  // (01)
+	new_tet_local_vids[1] = local_vids[8];  // (13)
+	new_tet_local_vids[2] = local_vids[7];  // (12)
+	new_tet_local_vids[3] = local_vids[1];
+	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 2 */
-	new_tet_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[2];
-	new_tet_local_vids[1] = local_vids[1];  // (02)
-	new_tet_local_vids[2] = local_vids[3];  // (12)
-	new_tet_local_vids[3] = local_vids[5];  // (23)
-	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
+	new_tet_local_vids[0] = local_vids[5];  // (02)
+	new_tet_local_vids[1] = local_vids[9];  // (23)
+	new_tet_local_vids[2] = local_vids[2];
+	new_tet_local_vids[3] = local_vids[7];  // (12)
+	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 3 */
-	new_tet_local_vids[0] = t->elems_data.tets[local_parent_eid].local_vids[3];
-	new_tet_local_vids[1] = local_vids[2];  // (03)
-	new_tet_local_vids[2] = local_vids[4];  // (13)
-	new_tet_local_vids[3] = local_vids[5];  // (23)
-	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
+	new_tet_local_vids[0] = local_vids[6];  // (03)
+	new_tet_local_vids[1] = local_vids[3];
+	new_tet_local_vids[2] = local_vids[9];  // (23)
+	new_tet_local_vids[3] = local_vids[8];  // (13)
+	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 4 */
-	new_tet_local_vids[0] = local_vids[0];  // (01)
-	new_tet_local_vids[1] = local_vids[1];  // (02)
-	new_tet_local_vids[2] = local_vids[2];  // (03)
-	new_tet_local_vids[3] = local_vids[4];  // (13)
-	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
+	new_tet_local_vids[0] = local_vids[6];  // (03)
+	new_tet_local_vids[1] = local_vids[5];  // (02)
+	new_tet_local_vids[2] = local_vids[4];  // (01)
+	new_tet_local_vids[3] = local_vids[8];  // (13)
+	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 5 */
-	new_tet_local_vids[0] = local_vids[0];  // (01)
-	new_tet_local_vids[1] = local_vids[1];  // (02)
-	new_tet_local_vids[2] = local_vids[3];  // (12)
-	new_tet_local_vids[3] = local_vids[4];  // (13)
-	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
+	new_tet_local_vids[0] = local_vids[5];  // (02)
+	new_tet_local_vids[1] = local_vids[4];  // (01)
+	new_tet_local_vids[2] = local_vids[8];  // (13)
+	new_tet_local_vids[3] = local_vids[7];  // (12)
+	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 6 */
-	new_tet_local_vids[0] = local_vids[1];  // (02)
-	new_tet_local_vids[1] = local_vids[2];  // (03)
-	new_tet_local_vids[2] = local_vids[4];  // (13)
-	new_tet_local_vids[3] = local_vids[5];  // (23)
-	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
+	new_tet_local_vids[0] = local_vids[6];  // (03)
+	new_tet_local_vids[1] = local_vids[5];  // (02)
+	new_tet_local_vids[2] = local_vids[9];  // (23)
+	new_tet_local_vids[3] = local_vids[8];  // (13)
+	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 7 */
-	new_tet_local_vids[0] = local_vids[1];  // (02)
-	new_tet_local_vids[1] = local_vids[3];  // (12)
-	new_tet_local_vids[2] = local_vids[4];  // (13)
-	new_tet_local_vids[3] = local_vids[5];  // (23)
-	TRY ( _h5t_store_tet ( f, local_parent_eid, new_tet_local_vids ) );
+	new_tet_local_vids[0] = local_vids[5];  // (02)
+	new_tet_local_vids[1] = local_vids[9];  // (23)
+	new_tet_local_vids[2] = local_vids[8];  // (13)
+	new_tet_local_vids[3] = local_vids[7];  // (12)
+	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
 
-	return local_eid;
+	t->elems.tets[local_eid].global_child_eid = local_child_eid;
+	t->elems_data.tets[local_eid].local_child_eid = local_child_eid;
+	t->num_elems_on_level[t->cur_level]--;
+
+	return local_child_eid;
 }
   

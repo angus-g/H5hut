@@ -60,5 +60,8 @@ h5t_refine_elem (
 	const h5_id_t local_eid
 	);
 
-
+h5_err_t
+h5t_end_refine_elems (
+	h5_file_t * const f
+	);
 #endif
