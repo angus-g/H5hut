@@ -1,8 +1,9 @@
 #ifndef __H5T_TYPES_PRIVATE_H
 #define __H5T_TYPES_PRIVATE_H
 
-typedef h5_int64_t h5_3id_t[3];
-typedef h5_int64_t h5_4id_t[4];
+typedef h5_id_t h5_2id_t[2];
+typedef h5_id_t h5_3id_t[3];
+typedef h5_id_t h5_4id_t[4];
 typedef h5_float64_t h5_coord3d_t[3];
 
 struct h5_vertex {
@@ -19,7 +20,7 @@ typedef struct h5_vertex_data h5_vertex_data_t;
 struct h5_triangle {
 	h5_id_t		global_eid;
 	h5_id_t		global_parent_eid;
-	h5_id_t		refined_on_level;
+	h5_id_t		global_child_eid;
 	h5_3id_t	global_vids;
 };
 typedef struct h5_triangle	h5_triangle_t;
@@ -27,17 +28,16 @@ typedef struct h5_triangle	h5_triangle_t;
 struct h5_tetrahedron {
 	h5_id_t		global_eid;
 	h5_id_t		global_parent_eid;
-	h5_id_t		refined_on_level;
+	h5_id_t		global_child_eid;
 	h5_4id_t	global_vids;
 };
 
 struct h5_element {
 	h5_id_t		global_eid;
 	h5_id_t		global_parent_eid;
-	h5_id_t		refined_on_level;
+	h5_id_t		global_child_eid;
 	h5_id_t		global_vids[1];
 };
-
 
 typedef struct h5_tetrahedron	h5_tetrahedron_t;
 typedef struct h5_tetrahedron	h5_tet_t;
@@ -45,6 +45,7 @@ typedef struct h5_element	h5_element_t;
 
 struct h5_triangle_data {
 	h5_id_t		local_parent_eid;
+	h5_id_t		local_child_eid;
 	h5_id_t		level_id;
 	h5_3id_t	local_vids;
 };
@@ -52,6 +53,7 @@ typedef struct h5_triangle_data h5_triangle_data_t;
 
 struct h5_tet_data {
 	h5_id_t		local_parent_eid;
+	h5_id_t		local_child_eid;
 	h5_id_t		level_id;
 	h5_4id_t	local_vids;
 };
@@ -59,6 +61,8 @@ typedef struct h5_tet_data	h5_tet_data_t;
 
 struct h5_element_data {
 	h5_id_t		local_parent_eid;
+	h5_id_t		local_child_eid;
+	h5_id_t		level_id;
 	h5_id_t		local_vids[1];
 };
 typedef struct h5_element_data	h5_element_data_t;
@@ -126,8 +130,7 @@ struct h5_dtypes {
 typedef struct h5_dtypes h5_dtypes_t;
 
 struct h5_te_node_key {
-	h5_id_t vid0;
-	h5_id_t vid1;
+	h5_id_t vids[2];
 };
 typedef struct h5_te_node_key h5_te_node_key_t;
 
@@ -138,9 +141,7 @@ struct h5_te_node {
 typedef struct h5_te_node h5_te_node_t;
 
 struct h5_td_node_key {
-	h5_id_t vid0;
-	h5_id_t vid1;
-	h5_id_t vid2;
+	h5_id_t vids[3];
 };
 typedef struct h5_td_node_key h5_td_node_key_t;
 
