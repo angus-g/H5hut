@@ -298,7 +298,7 @@ h5t_store_boundaryface_local_id (
 
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
-		h5_id_t local_tet_id = local_fid & H5_TET_MASK;
+		h5_id_t local_tet_id = _h5t_get_elem_id ( local_fid );
 		if ( t->elems.tets[local_tet_id].global_parent_eid != -1 ) {
 			return _h5t_error_store_boundaryface_local_id (
 				f,
