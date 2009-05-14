@@ -167,5 +167,5 @@ H5FedEndRefineElements (
 	h5_file_t * const f
 	) {
 	SET_FNAME ( f, __func__ );
-	return H5_SUCCESS;
+	return h5t_end_refine_elems ( f );
 }
