@@ -29,16 +29,15 @@ _h5_append_to_idlist (
 	if ( list->num_items == list->size ) {
 		h5_size_t size = list->size;
 		if ( size == 0 ) {
-			size = 16 * sizeof(list->items[0]);
+			size = 16;
 		} else {
 			size *= 2;
 		}
-		TRY ( list->items = _h5_alloc ( f, list->items, size ) );
+		TRY ( _h5_alloc_idlist ( f, list, size ) );
 	}
 	list->items[list->num_items++] = id;
 	return H5_SUCCESS;
 }
-
 
 h5_err_t
 _h5_alloc_idmap (
