@@ -354,7 +354,6 @@ src/H5Fed.h -text
 src/H5Fed_adjacency.c -text
 src/H5Fed_boundaries.c -text
 src/H5Fed_boundaries.h -text
-src/H5Fed_dof.c -text
 src/H5Fed_inquiry.c -text
 src/H5Fed_map.c -text
 src/H5Fed_map.h -text
