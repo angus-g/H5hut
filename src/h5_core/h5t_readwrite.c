@@ -341,7 +341,7 @@ h5t_traverse_elems (
 			elem_data = (h5_element_data_t*)
 				&t->elems_data.tets[t->last_retrieved_eid];
 			local_child_eid = elem_data->local_child_eid;
-			refined_on_level = ( elem_data->local_child_eid >= 0 ) ?
+			refined_on_level = ( local_child_eid >= 0 ) ?
 				t->elems_data.tets[local_child_eid].level_id :
 				t->cur_level+1;   /* this means "not refined" */
 			break;

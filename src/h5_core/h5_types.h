@@ -54,7 +54,11 @@ typedef h5_err_t (*h5_errorhandler_t)(
 typedef unsigned long		MPI_Comm;
 #endif
 
-struct h5_idlist;
+struct h5_idlist {
+	h5_size_t	size;		/* allocated space in number of items */
+	h5_size_t	num_items;	/* stored items	*/
+	h5_id_t		*items;
+};
 typedef struct h5_idlist h5_idlist_t;
 struct h5_idmap;
 typedef struct h5_idmap h5_idmap_t;

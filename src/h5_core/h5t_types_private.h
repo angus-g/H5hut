@@ -130,7 +130,7 @@ struct h5_dtypes {
 typedef struct h5_dtypes h5_dtypes_t;
 
 struct h5_te_node_key {
-	h5_id_t vids[2];
+	h5_2id_t vids;
 };
 typedef struct h5_te_node_key h5_te_node_key_t;
 
@@ -141,7 +141,7 @@ struct h5_te_node {
 typedef struct h5_te_node h5_te_node_t;
 
 struct h5_td_node_key {
-	h5_id_t vids[3];
+	h5_3id_t vids;
 };
 typedef struct h5_td_node_key h5_td_node_key_t;
 

@@ -7,9 +7,9 @@
 #include "h5_core_private.h"
 
 h5_err_t
-_h5_alloc_idlist (
+_h5_alloc_idlist_items (
 	h5_file_t * const f,
-	h5_idlist_t	*list,
+	h5_idlist_t *list,
 	const h5_size_t	size
 	) {
 	int new = ( list->items == NULL );
@@ -17,6 +17,44 @@ _h5_alloc_idlist (
 	TRY ( list->items = _h5_alloc ( f, list->items, size_in_bytes ) );
 	list->size = size;
 	if ( new ) list->num_items = 0;
+	return H5_SUCCESS;
+}
+
+h5_err_t
+_h5_free_idlist_items (
+	h5_file_t * const f,
+	h5_idlist_t *list
+	) {
+	if ( list->items != NULL ) free ( list->items );
+	list->items = NULL;
+	list->size = 0;
+	list->num_items = 0;
+	return H5_SUCCESS;
+}
+
+h5_err_t
+_h5_alloc_idlist (
+	h5_file_t * const f,
+	h5_idlist_t **list,
+	const h5_size_t	size
+	) {
+	TRY ( ( *list = _h5_alloc ( f, NULL, sizeof (**list) ) ) );
+	memset ( *list, 0, sizeof(**list) );
+	size_t size_in_bytes = size * sizeof ( (*list)->items[0] );
+	TRY ( (*list)->items = _h5_alloc ( f, (*list)->items, size_in_bytes ) );
+	(*list)->size = size;
+	return H5_SUCCESS;
+}
+
+h5_err_t
+_h5_free_idlist (
+	h5_file_t * const f,
+	h5_idlist_t **list
+	) {
+	if ( *list == NULL ) return H5_SUCCESS;
+	TRY ( _h5_free_idlist_items ( f, *list ) );
+	TRY ( _h5_free( f, *list ) );
+	*list = NULL;
 	return H5_SUCCESS;
 }
 
@@ -29,14 +67,114 @@ _h5_append_to_idlist (
 	if ( list->num_items == list->size ) {
 		h5_size_t size = list->size;
 		if ( size == 0 ) {
+			size = 2;
+		} else {
+			size *= 2;
+		}
+		TRY ( _h5_alloc_idlist_items ( f, list, size ) );
+	}
+	list->items[list->num_items++] = id;
+	return H5_SUCCESS;
+}
+
+int
+_h5_cmp_ids_by_eid (
+	const void *_id1,
+	const void *_id2
+	) {
+	h5_id_t	id1 = _h5t_get_elem_id ( *(h5_id_t*)_id1 ); 
+	h5_id_t	id2 = _h5t_get_elem_id ( *(h5_id_t*)_id2 ); 
+	
+	if ( id1 < id2 ) return -1;
+	if ( id1 > id2 ) return 1;
+	return 0;
+}
+
+int
+_h5_cmp_ids (
+	const void *_id1,
+	const void *_id2
+	) {
+	h5_id_t	*id1 = (h5_id_t*)_id1;
+	h5_id_t	*id2 = (h5_id_t*)_id2;
+	
+	if ( *id1 < *id2 ) return -1;
+	if ( *id1 > *id2 ) return 1;
+	return 0;
+}
+
+h5_err_t
+_h5_sort_idlist_by_eid (
+	h5_file_t * const f,
+	h5_idlist_t *list
+	) {
+	qsort (
+		list->items,
+		list->num_items,
+		sizeof(list->items[0]),
+		_h5_cmp_ids_by_eid );
+	
+	return H5_SUCCESS;
+}
+
+h5_id_t
+_h5_find_idlist (
+	h5_file_t * const f,
+	h5_idlist_t *list,
+	h5_id_t	item
+	) {
+	register h5_id_t low = 0;
+	register h5_id_t high = list->num_items - 1;
+	while (low <= high) {
+		register h5_id_t mid = (low + high) / 2;
+		register h5_id_t diff = list->items[mid] - item;
+           	if ( diff > 0 )
+               		high = mid - 1;
+           	else if ( diff < 0 )
+               		low = mid + 1;
+           	else
+               		return mid; // found
+       	}
+       	return -(low+1);  // not found
+}
+
+h5_id_t
+_h5_insert_idlist (
+	h5_file_t * const f,
+	h5_idlist_t *list,
+	h5_id_t	item,
+	h5_id_t idx
+	) {
+	if ( list->num_items == list->size ) {
+		h5_size_t size = list->size;
+		if ( size == 0 ) {
 			size = 16;
 		} else {
 			size *= 2;
 		}
-		TRY ( _h5_alloc_idlist ( f, list, size ) );
+		TRY ( _h5_alloc_idlist_items ( f, list, size ) );
 	}
-	list->items[list->num_items++] = id;
-	return H5_SUCCESS;
+	memmove ( 
+		&list->items[idx+1],
+		&list->items[idx],
+		(list->num_items - idx) * sizeof(list->items[0]) );
+	list->items[idx] = item;
+	list->num_items++;
+	return idx;
+}
+
+h5_id_t
+_h5_search_idlist (
+	h5_file_t * const f,
+	h5_idlist_t *list,
+	h5_id_t	item
+	) {
+	h5_id_t idx = _h5_find_idlist ( f, list, item );
+	if ( idx < 0 ) {
+		idx = -(idx+1);
+		idx = _h5_insert_idlist ( f, list, item, idx );
+	}
+	return idx;
 }
 
 h5_err_t
@@ -52,7 +190,6 @@ _h5_alloc_idmap (
 	if ( new ) map->num_items = 0;
 	return H5_SUCCESS;
 }
-
 
 h5_err_t
 _h5_insert_idmap (
@@ -74,7 +211,7 @@ _h5_insert_idmap (
 	memmove ( 
 		&map->items[i+1],
 		&map->items[i],
-		map->num_items - i );
+		(map->num_items - i) * sizeof(map->items[0]) );
 	map->items[i].global_id = global_id;
 	map->items[i].local_id = local_id;
 	map->num_items++;
@@ -114,18 +251,27 @@ _h5_search_idmap (
 }
 
 int
-_cmp_idmap (
-	const void *id1,
-	const void *id2
+_cmp_idmap_items (
+	const void *_item1,
+	const void *_item2
 	) {
+	h5_idmap_el_t	*item1 = (h5_idmap_el_t*)_item1;
+	h5_idmap_el_t	*item2 = (h5_idmap_el_t*)_item2;
+
+	if ( item1->global_id < item2->global_id ) return -1;
+	if ( item1->global_id > item2->global_id ) return 1;
 	
-	return *(h5_id_t*)id1 - *(h5_id_t*)id2;
+	return 0;
 }
 
 h5_err_t
 _h5_sort_idmap (
 	h5_idmap_t *map
 	) {
-	qsort ( map->items, map->num_items, sizeof(map->items[0]), _cmp_idmap );
+	qsort (
+		map->items,
+		map->num_items,
+		sizeof(map->items[0]),
+		_cmp_idmap_items );
 	return H5_SUCCESS;
 }

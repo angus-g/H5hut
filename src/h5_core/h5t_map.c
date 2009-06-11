@@ -1,3 +1,4 @@
+#include <string.h>
 #include <hdf5.h>
 
 #include "h5_core/h5_core.h"
@@ -46,8 +47,7 @@ _qsort_cmp_vertices (
 
 
 /*!
-  Sort vertices. Store local id's in a sorted array so we can run a
-  binary search. 
+  Sort vertices. Store local id's in a sorted array for binary search. 
 */
 h5_err_t
 _h5t_sort_vertices (
@@ -297,7 +297,7 @@ _h5t_sort_elems (
 	int k;
 	h5_id_t i;
 	for ( k = 0; k < 2; k++ ) {
-		TRY( _h5_alloc_idlist ( f, &t->sorted_elems[k], num_elems ) );
+		TRY( _h5_alloc_idlist_items ( f, &t->sorted_elems[k], num_elems ) );
 		for ( i = local_eid; i < num_elems; i++ ) {
 			t->sorted_elems[k].items[i] = i;
 		}
@@ -887,7 +887,7 @@ _h5t_rebuild_elems_data (
 					      f,
 					      el->global_child_eid ) );
 
-			if ( local_eid > t->num_elems_on_level[level_id] ) {
+			if ( local_eid >= t->num_elems[level_id] ) {
 				level_id++;
 			}
 			el_data->level_id = level_id;
@@ -925,5 +925,51 @@ _h5t_rebuild_elems_data (
 			f, __FILE__, __func__, __LINE__ );
 	}
 
+	return H5_SUCCESS;
+}
+
+/*!
+  \param[in]	f		file handle
+  \param[in]	local_id	local ID of entity
+  \param[out]	local_vids	array of local vertex IDs of entity
+ */
+h5_err_t
+h5t_get_local_vids_of_entity (
+	h5_file_t * const f,
+	h5_id_t local_id,
+	h5_id_t *local_vids
+	) {
+	h5t_fdata_t *t = f->t;
+	h5_id_t face_id = _h5t_get_face_id ( local_id );
+	h5_id_t local_eid = _h5t_get_elem_id ( local_id );
+	h5_tet_data_t	*tet_dta = &t->elems_data.tets[local_eid];
+
+	switch ( _h5t_get_entity_type ( local_id ) ) {
+	case H5T_ELEM_TYPE_VERTEX: {
+		local_vids[0] = tet_dta->local_vids[face_id];
+		break;
+	}
+	case H5T_ELEM_TYPE_EDGE: {
+		int map[6][2] = { { 0,1 }, {1,2}, {0,2}, {0,3}, {1,3}, {2,3} };
+		local_vids[0] = tet_dta->local_vids[map[face_id][0]];
+		local_vids[1] = tet_dta->local_vids[map[face_id][1]];
+		break;
+	}
+	case H5T_ELEM_TYPE_TRIANGLE: {
+		int map[4][3] = { { 1,2,3 }, {0,2,3}, {0,1,3}, {0,1,2} };
+		local_vids[0] = tet_dta->local_vids[map[face_id][0]];
+		local_vids[1] = tet_dta->local_vids[map[face_id][1]];
+		local_vids[2] = tet_dta->local_vids[map[face_id][2]];
+		break;
+	}
+	case 0:
+	case H5T_ELEM_TYPE_TET: {
+		memcpy ( local_vids, tet_dta->local_vids, sizeof(h5_id_t)*4 );
+		break;
+	}
+	default:
+		return h5_error_internal (
+			f, __FILE__, __func__, __LINE__ );
+	}
 	return H5_SUCCESS;
 }

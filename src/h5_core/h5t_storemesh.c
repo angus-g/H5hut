@@ -118,7 +118,7 @@ _h5t_alloc_num_vertices (
 	size = num_vertices * sizeof ( t->vertices_data[0] );
 	TRY ( t->vertices_data = _h5_alloc (	f, t->vertices_data, size ) );
 	TRY( _h5_alloc_idmap ( f, &t->map_vertex_g2l, num_vertices ) );
-	TRY( _h5_alloc_idlist ( f, &t->sorted_lvertices, num_vertices ) );
+	TRY( _h5_alloc_idlist_items ( f, &t->sorted_lvertices, num_vertices ) );
 
 	return H5_SUCCESS;
 }

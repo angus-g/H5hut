@@ -37,29 +37,51 @@
 
 /*
  ID's: 64bit
- Tets:
-   00000000 tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt
-   00 TT TT TT TT TT TT
- Trinagles:
-   000100dd tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt
-   1D TT TT TT TT TT TT
+
+ Vertices:
+   000100vv tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt
+   3V TT TT TT TT TT TT
+
  Edges:
    00100eee tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt
    2E TT TT TT TT TT TT
+
+ Trinagles:
+   001100dd tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt
+   1D TT TT TT TT TT TT
+
+ Tets:
+   01000000 tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt tttttttt
+   00 TT TT TT TT TT TT
+
 */
 #define H5T_ELEM_MASK		( (h5_id_t) (ULLONG_MAX >> 8) )
-#define H5T_ETYPE_MASK		( 7ull << (sizeof(h5_id_t)*8-4) )
+#define H5T_ELEM_TYPE_MASK	( 7ull << (sizeof(h5_id_t)*8-4) )
 #define H5T_FACE_MASK		(15ull << (sizeof(h5_id_t)*7) )
 
-#define _h5t_build_triangle_id( face_id, elem_id )	 \
-	( ((h5_id_t)1 << (sizeof(elem_id)*8-4)) |	 \
-	  ((h5_id_t)(face_id) << (sizeof(elem_id)*7)) |	 \
+#define H5T_ELEM_TYPE_VERTEX	((h5_id_t)1 << (sizeof(h5_id_t)*8-4))
+#define H5T_ELEM_TYPE_EDGE	((h5_id_t)2 << (sizeof(h5_id_t)*8-4))
+#define H5T_ELEM_TYPE_TRIANGLE	((h5_id_t)3 << (sizeof(h5_id_t)*8-4))
+#define H5T_ELEM_TYPE_TET	((h5_id_t)4 << (sizeof(h5_id_t)*8-4))
+
+
+#define _h5t_build_vertex_id( face_id, elem_id )	 \
+	( H5T_ELEM_TYPE_VERTEX |			 \
+	  ((h5_id_t)(face_id) << (sizeof(h5_id_t)*7)) |	 \
 	  ((elem_id) & H5T_ELEM_MASK))
 
 #define _h5t_build_edge_id( face_id, elem_id )		 \
-	( ((h5_id_t)1 << (sizeof(elem_id)*8-3)) |	 \
-	  ((h5_id_t)(face_id) << (sizeof(elem_id)*7)) |	 \
+	( H5T_ELEM_TYPE_EDGE |				 \
+	  ((h5_id_t)(face_id) << (sizeof(h5_id_t)*7)) |	 \
 	  ((elem_id) & H5T_ELEM_MASK))
+
+#define _h5t_build_triangle_id( face_id, elem_id )	 \
+	( H5T_ELEM_TYPE_TRIANGLE |			 \
+	  ((h5_id_t)(face_id) << (sizeof(h5_id_t)*7)) |	 \
+	  ((elem_id) & H5T_ELEM_MASK))
+
+#define _h5t_get_entity_type( entity_id )			\
+	( entity_id & H5T_ELEM_TYPE_MASK ) 
 
 #define _h5t_get_face_id( entity_id )				\
 	( (entity_id & H5T_FACE_MASK) >> (sizeof(h5_id_t)*7) )

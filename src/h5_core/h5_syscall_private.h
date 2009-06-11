@@ -8,7 +8,7 @@ _h5_alloc (
 	const size_t size
 	);
 
-void
+h5_err_t
 _h5_free (
 	h5_file_t * const f,
 	void *ptr

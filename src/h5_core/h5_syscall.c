@@ -21,12 +21,13 @@ _h5_alloc (
 	return ptr;
 }
 
-void
+h5_err_t
 _h5_free (
 	h5_file_t * const f,
 	void *ptr
 	) {
 	if ( ptr ) free ( ptr );
+	return H5_SUCCESS;
 }
 	
 void *

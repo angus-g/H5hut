@@ -75,4 +75,10 @@ h5t_get_global_triangle_id (
 	h5_id_t * const global_vids
 	);
 
+h5_err_t
+h5t_get_local_vids_of_entity (
+	h5_file_t * const f,
+	h5_id_t local_id,
+	h5_id_t *local_vids
+	);
 #endif
