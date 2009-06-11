@@ -34,7 +34,7 @@ read_vertices (
 	h5_id_t level_id = H5FedGetLevel ( f );
 	h5_size_t num = H5FedGetNumVertices ( f );
 	printf ( "    Number of vertices on level %lld: %lld\n", level_id, num );
-	h5_err_t h5err = H5FedStartTraverseVertices ( f );
+	h5_err_t h5err = H5FedBeginTraverseVertices ( f );
 	if ( h5err < 0 ) return h5err;
 	while ( (real_num < num) &&
 		((local_id = H5FedTraverseVertices ( f, &id, P )) >= 0) ) {
@@ -61,7 +61,7 @@ read_entities (
 	h5_size_t num = H5FedGetNumElements ( f );
 	printf ( "    Number of triangles on level %lld: %lld\n", level_id, num );
 
-	h5_err_t h5err = H5FedStartTraverseElements ( f );
+	h5_err_t h5err = H5FedBeginTraverseElements ( f );
 	if ( h5err < 0 ) return h5err;
 	while ( (real_num < num) &&
 		((local_id = H5FedTraverseElements (

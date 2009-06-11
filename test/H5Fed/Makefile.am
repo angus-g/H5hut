@@ -40,7 +40,8 @@ bin_PROGRAMS = \
 		write_tetmesh \
 		read_tetmesh \
 		write_trianglemesh \
-		read_trianglemesh
+		read_trianglemesh \
+		tetmesh_adjacencies
 
 #		map_tet2globalid \
 #		map_triangle2globalid

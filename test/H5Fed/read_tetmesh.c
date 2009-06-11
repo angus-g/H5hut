@@ -34,7 +34,7 @@ read_vertices (
 	h5_size_t num = H5FedGetNumVerticesTotal ( f );
 	printf ( "    Number of vertices on level: %lld\n", num );
 
-	h5_err_t h5err = H5FedStartTraverseVertices ( f );
+	h5_err_t h5err = H5FedBeginTraverseVertices ( f );
 	if ( h5err < 0 ) return h5err;
 	while ( (real_num < num) &&
 		((local_id = H5FedTraverseVertices ( f, &id, P )) >= 0) ) {
@@ -62,7 +62,7 @@ read_tets (
 	h5_size_t num = H5FedGetNumElementsTotal ( f );
 	printf ( "    Number of tetrahedra on level: %lld\n", num );
 
-	h5_err_t h5err = H5FedStartTraverseElements ( f );
+	h5_err_t h5err = H5FedBeginTraverseElements ( f );
 	if ( h5err < 0 ) return h5err;
 
 	while ( (real_num < num) &&
