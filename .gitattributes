@@ -352,12 +352,15 @@ src/H5Block.h -text
 src/H5Fed.c -text
 src/H5Fed.h -text
 src/H5Fed_adjacency.c -text
+src/H5Fed_adjacency.h -text
 src/H5Fed_boundaries.c -text
 src/H5Fed_boundaries.h -text
 src/H5Fed_inquiry.c -text
+src/H5Fed_inquiry.h -text
 src/H5Fed_map.c -text
 src/H5Fed_map.h -text
 src/H5Fed_retrieve.c -text
+src/H5Fed_retrieve.h -text
 src/H5Fed_store.c -text
 src/H5Fed_store.h -text
 src/H5Part.c -text
