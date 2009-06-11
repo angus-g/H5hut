@@ -30,10 +30,25 @@ H5FedOpenMesh (
 }
 
 h5_err_t
+H5FedCloseMesh (
+	h5_file_t * const f
+	) {
+	return -1;
+}
+
+h5_err_t
 H5FedSetLevel (
 	h5_file_t * const f,
 	const h5_id_t level_id
 	) {
 	SET_FNAME ( f, __func__ );
 	return h5t_open_level ( f, level_id );
+}
+
+h5_err_t
+H5FedLinkMeshToStep (
+	h5_file_t * f,
+	const h5_id_t mesh_id
+	) {
+	return -1;
 }

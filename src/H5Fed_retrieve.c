@@ -20,7 +20,7 @@
 #include "H5Fed.h"
 
 h5_err_t
-H5FedStartTraverseVertices (
+H5FedBeginTraverseVertices (
 	h5_file_t * const f		/*!< file handle		*/
 	) {
 	SET_FNAME ( f, __func__ );
@@ -56,7 +56,7 @@ H5FedEndTraverseVertices (
 
 
 h5_err_t
-H5FedStartTraverseElements (
+H5FedBeginTraverseElements (
 	h5_file_t * const f  		/*!< file handle		*/
 	) {
 	SET_FNAME ( f, __func__ );

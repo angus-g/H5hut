@@ -31,7 +31,7 @@ H5CloseFile (
 	);
 
 h5_err_t
-H5DefineStepNameFormat (
+H5SetStepNameFormat (
 	h5_file_t *f,
 	const char *name,
 	const h5_int64_t width
@@ -61,8 +61,13 @@ H5StartTraverseSteps (
 	h5_file_t *f
 	);
 
-h5_err_t
+h5_id_t
 H5TraverseSteps (
+	h5_file_t *f
+	);
+
+h5_err_t
+H5EndTraverseSteps (
 	h5_file_t *f
 	);
 

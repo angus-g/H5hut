@@ -1,5 +1,5 @@
 /*
-  Copyright 2007-2008
+  Copyright 2007-2009
  	Paul Scherrer Institut, Villigen, Switzerland;
  	Benedikt Oswald;
  	Achim Gsell
@@ -39,4 +39,14 @@ H5FedMapTriangle2GlobalID (
 	) {
 	SET_FNAME ( f, __func__ );
 	return h5t_get_global_triangle_id ( f, global_vids );
+}
+
+h5_err_t
+H5FedMapEntityID2LocalVids (
+	h5_file_t * const f,
+	h5_id_t local_id,
+	h5_id_t *local_vids
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_get_local_vids_of_entity ( f, local_id, local_vids );
 }

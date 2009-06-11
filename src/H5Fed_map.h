@@ -31,5 +31,11 @@ H5FedMapTriangle2GlobalID (
 	h5_id_t * const global_vids
 	);
 
+h5_err_t
+H5FedMapEntityID2LocalVids (
+	h5_file_t * const f,
+	h5_id_t local_id,
+	h5_id_t *localvids
+	);
 #endif
 

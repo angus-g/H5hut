@@ -62,7 +62,6 @@ libH5_a_SOURCES = \
 	H5Fed.c \
 	H5Fed_adjacency.c \
 	H5Fed_boundaries.c \
-	H5Fed_dof.c \
 	H5Fed_inquiry.c \
 	H5Fed_map.c \
 	H5Fed_retrieve.c \
