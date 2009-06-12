@@ -24,7 +24,7 @@ struct tet {
 typedef struct tet tet_t;
 
 h5_err_t
-read_vertices (
+traverse_vertices (
 	h5_file_t * f
 	) {
 	h5_id_t id, local_id;
@@ -45,7 +45,7 @@ read_vertices (
 		H5FedGetEdgesUpAdjacentToVertex ( f, local_id, &list );
 		for ( i = 0; i < list->num_items; i++ ) {
 			h5_id_t local_vids[2];
-			H5FedMapEntityID2LocalVids ( f, list->items[i], local_vids );
+			H5FedMapEntity2LocalVids ( f, list->items[i], local_vids );
 			printf ( "      Edge ID: %llx = (%lld,%lld)\n",
 				 list->items[i],
 				 local_vids[0],
@@ -55,12 +55,24 @@ read_vertices (
 		H5FedGetTrianglesUpAdjacentToVertex ( f, local_id, &list );
 		for ( i = 0; i < list->num_items; i++ ) {
 			h5_id_t local_vids[2];
-			H5FedMapEntityID2LocalVids ( f, list->items[i], local_vids );
+			H5FedMapEntity2LocalVids ( f, list->items[i], local_vids );
 			printf ( "      Triangle ID: %llx = (%lld,%lld,%lld)\n",
 				 list->items[i],
 				 local_vids[0],
 				 local_vids[1],
 				 local_vids[2] );
+		}
+		H5FedReleaseListOfAdjacencies ( f, &list );
+		H5FedGetTetsUpAdjacentToVertex ( f, local_id, &list );
+		for ( i = 0; i < list->num_items; i++ ) {
+			h5_id_t local_vids[2];
+			H5FedMapEntity2LocalVids ( f, list->items[i], local_vids );
+			printf ( "      Tet ID: %llx = (%lld,%lld,%lld,%lld)\n",
+				 list->items[i],
+				 local_vids[0],
+				 local_vids[1],
+				 local_vids[2],
+				 local_vids[3] );
 		}
 		H5FedReleaseListOfAdjacencies ( f, &list );
 
@@ -76,8 +88,25 @@ read_vertices (
 	return H5_SUCCESS;
 }
 
+
 h5_err_t
-read_tets (
+traverse_edges (
+	h5_file_t * f
+	) {
+	h5_id_t local_id, vids[4];
+
+	h5_err_t h5err = H5FedBeginTraverseEdges ( f );
+	if ( h5err < 0 ) return h5err;
+	while ( (local_id = H5FedTraverseEdges ( f, vids )) >= 0 ) {
+		printf ( "    Edge[%lld]: (%lld,%lld)\n",
+			 local_id, vids[0], vids[1] );
+	}
+	h5err = H5FedEndTraverseEdges ( f );
+	return h5err;
+}
+
+h5_err_t
+travers_tets (
 	h5_file_t * f
 	) {
 	h5_id_t id, local_id, parent_id, vids[4];
@@ -109,16 +138,21 @@ read_tets (
 }
 
 h5_err_t
-read_level (
+traverse_level (
 	h5_file_t * f
 	) {
-	h5_err_t h5err = read_vertices ( f );
+	h5_err_t h5err = traverse_vertices ( f );
+	if ( h5err < 0 ) {
+		fprintf ( stderr, "!!! Oops ...\n" );
+		return -1;
+	}
+	h5err = traverse_edges ( f );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Oops ...\n" );
 		return -1;
 	}
 #if 0
-	h5err = read_tets ( f );
+	h5err = traverse_tets ( f );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Oops ...\n" );
 		return -1;
@@ -128,7 +162,7 @@ read_level (
 }
 
 h5_err_t
-read_mesh (
+traverse_mesh (
 	h5_file_t * f
 	) {
 
@@ -141,7 +175,7 @@ read_mesh (
 			fprintf ( stderr, "!!! Can't set level %lld.\n", level_id );
 			return -1;
 		}
-		h5err = read_level ( f );
+		h5err = traverse_level ( f );
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Oops ...\n" );
 			return -1;
@@ -175,7 +209,7 @@ main (
 			fprintf ( stderr, "!!! Can't open mesh %lld\n", mesh_id );
 			return -1;
 		}
-		h5err = read_mesh ( f );
+		h5err = traverse_mesh ( f );
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Oops ...\n" );
 			return 1;
