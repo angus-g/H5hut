@@ -80,7 +80,9 @@ h5t_add_level (
 	/* t->num_levels will be set to zero on file creation(!) */
 	if ( t->num_levels == -1 ) {	/* unknown number of levels	*/
 		/* determine number of levels */
-		return -1;		/* not implemented		*/
+		return h5_error_not_implemented (
+			f, __FILE__, __func__, __LINE__ );
+	
 	}
 	t->cur_level = t->num_levels++;
 	t->dsinfo_num_vertices.dims[0] = t->num_levels;
@@ -209,7 +211,8 @@ _h5t_alloc_num_elems (
 		sizeof_lelem = sizeof ( t->elems_data.tris[0] );
 		break;
 	default:
-		return -1;
+		return h5_error_internal (
+			f, __FILE__, __func__, __LINE__ );
 	}
 
 	size_t size = new_num_elems * sizeof_elem;
@@ -288,7 +291,8 @@ h5t_store_elem    (
 	case H5_OID_TRIANGLE:
 		return _h5t_store_triangle ( f, local_parent_eid, local_vids );
 	default:
-		return -1;
+		return h5_error_internal (
+			f, __FILE__, __func__, __LINE__ );
 	}
 }
 
@@ -449,7 +453,8 @@ h5t_refine_elem (
 	case H5_OID_TRIANGLE:
 		return _h5t_refine_triangle ( f, local_eid );
 	default:
-		return -1;
+		return h5_error_internal (
+			f, __FILE__, __func__, __LINE__ );
 	}
 }
 

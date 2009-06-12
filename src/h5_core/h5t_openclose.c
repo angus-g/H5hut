@@ -440,7 +440,8 @@ h5t_open_mesh (
 		t->elem_tid = t->dtypes.h5_triangle_t;
 		break;
 	default:
-		return -1;
+		return h5_error_internal (
+			f, __FILE__, __func__, __LINE__ );
 	}
 
 	TRY( _h5t_open_mesh_group ( f ) );
@@ -518,8 +519,6 @@ h5t_open_level (
 	if ( (id < 0) || (id >= t->num_levels) )
 		return HANDLE_H5_OUT_OF_RANGE_ERR ( f, "Level", id );
 	t->cur_level = id;
-	t->last_retrieved_vid = -1;
-	t->last_retrieved_eid = -1;
 
 	return H5_SUCCESS;
 }

@@ -42,11 +42,21 @@ H5FedMapTriangle2GlobalID (
 }
 
 h5_err_t
-H5FedMapEntityID2LocalVids (
+H5FedMapEntity2LocalVids (
 	h5_file_t * const f,
 	h5_id_t local_id,
 	h5_id_t *local_vids
 	) {
 	SET_FNAME ( f, __func__ );
 	return h5t_get_local_vids_of_entity ( f, local_id, local_vids );
+}
+
+h5_id_t
+H5FedMapLocalVids2Entity (
+	h5_file_t * const f,
+	h5_id_t *local_vids,
+	h5_oid_t etype
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_map_local_vids_to_entity_id ( f, local_vids, etype );
 }

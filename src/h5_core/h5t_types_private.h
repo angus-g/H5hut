@@ -157,6 +157,31 @@ struct h5t_adjacencies {
 };
 typedef struct h5t_adjacencies h5t_adjacencies_t;
 
+struct h5t_elem_iterator {
+	h5_id_t	cur_eid;
+};
+typedef struct h5t_elem_iterator h5t_elem_iterator_t;
+
+struct h5t_vertex_iterator {
+	h5_id_t	cur_vid;
+};
+typedef struct h5t_vertex_iterator h5t_vertex_iterator_t;
+
+struct h5t_entity_iterator {
+	h5_id_t	cur_fid;
+	h5_id_t cur_eid;
+};
+typedef struct h5t_entity_iterator h5t_entity_iterator_t;
+
+struct h5t_iterators {
+	h5t_vertex_iterator_t	vertex;
+	h5t_entity_iterator_t	edge;
+	h5t_entity_iterator_t	triangle;
+	h5t_elem_iterator_t	elem;
+};
+
+typedef struct h5t_iterators h5t_iterators_t;
+
 struct h5t_fdata {
 	/*** book-keeping ***/
 	char		mesh_name[16];
@@ -172,13 +197,22 @@ struct h5t_fdata {
 	h5_id_t		level_changed;
 	h5_id_t		storing_data;
 
+	hid_t		topo_gid;		/* grp id of mesh in current
+						   level		*/
+	hid_t		meshes_gid;
+	hid_t		mesh_gid;
+
+	/*** type ids' for base & compound data types ***/
+	h5_dtypes_t	dtypes;
+
+	h5t_iterators_t	iters;
+
 	/*** vertices ***/
 	h5_vertex_t	*vertices;
 	h5_vertex_data_t *vertices_data;
 	h5_size_t	*num_vertices;
 	h5_idmap_t	map_vertex_g2l;	/* map global id to local id */
 	h5_idlist_t	sorted_lvertices;
-	h5_id_t		last_retrieved_vid; 
 	h5_id_t		last_stored_vid;
 	h5_dataset_info_t	dsinfo_vertices;
 	h5_dataset_info_t	dsinfo_num_vertices;
@@ -199,7 +233,6 @@ struct h5t_fdata {
 	*/
 	h5_idlist_t	sorted_elems[H5_MAX_VERTICES_PER_ELEM];
 
-	h5_id_t		last_retrieved_eid; 
 	h5_id_t		last_stored_eid;
 	h5_dataset_info_t	dsinfo_elems;
 	h5_dataset_info_t	dsinfo_num_elems;
@@ -212,14 +245,7 @@ struct h5t_fdata {
 	boundary_t	boundary;
 	h5t_adjacencies_t adjacencies;
 
-	/*** HDF5 objects ***/
-	hid_t		topo_gid;		/* grp id of mesh in current
-						   level		*/
-	hid_t		meshes_gid;
-	hid_t		mesh_gid;
 
-	/*** type ids' for base & compound data types ***/
-	h5_dtypes_t	dtypes;
 };
 typedef struct h5t_fdata h5t_fdata_t;
 

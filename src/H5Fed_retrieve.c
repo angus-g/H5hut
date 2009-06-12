@@ -24,7 +24,7 @@ H5FedBeginTraverseVertices (
 	h5_file_t * const f		/*!< file handle		*/
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_start_traverse_vertices ( f );
+	return h5t_begin_traverse_vertices ( f );
 }
 
 /*!
@@ -54,13 +54,37 @@ H5FedEndTraverseVertices (
 	return h5t_end_traverse_vertices ( f );
 }
 
+h5_err_t
+H5FedBeginTraverseEdges (
+	h5_file_t * const f  		/*!< file handle		*/
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_begin_traverse_edges ( f );
+}
+
+h5_id_t
+H5FedTraverseEdges (
+	h5_file_t * const f,
+	h5_id_t * const local_vids
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_traverse_edges ( f, local_vids );
+}
+
+h5_err_t
+H5FedEndTraverseEdges (
+	h5_file_t * const f		/*!< file handle		*/
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_end_traverse_edges ( f );
+}
 
 h5_err_t
 H5FedBeginTraverseElements (
 	h5_file_t * const f  		/*!< file handle		*/
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_start_traverse_elems ( f );
+	return h5t_begin_traverse_elems ( f );
 }
 
 /*!

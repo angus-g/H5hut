@@ -2,7 +2,9 @@
 #define __H5_ERRNO_H
 
 #define H5_SUCCESS		0
-#define H5_ERR			-1
+#define H5_OK			H5_SUCCESS
+#define H5_NOK			-1
+#define H5_ERR			-2
 #define H5_ERR_BADF		-9
 #define H5_ERR_NOMEM		-12
 #define H5_ERR_INVAL		-22

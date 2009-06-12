@@ -81,4 +81,11 @@ h5t_get_local_vids_of_entity (
 	h5_id_t local_id,
 	h5_id_t *local_vids
 	);
+
+h5_id_t
+h5t_map_local_vids_to_entity_id (
+	h5_file_t * const f,
+	h5_id_t *local_vids,
+	h5_oid_t etype
+	);
 #endif

@@ -16,7 +16,7 @@ _h5_alloc (
 			f,
 			H5_ERR_NOMEM,
 			"Out of memory." );
-		return (void*)(-1);
+		return (void*)(H5_ERR);
 	}
 	return ptr;
 }
@@ -43,7 +43,7 @@ _h5_tsearch (
 			f,
 			H5_ERR_NOMEM,
 			"Out of memory." );
-		return (void*)(-1);
+		return (void*)(H5_ERR);
 	}
 	return ptr;
 }
@@ -57,7 +57,7 @@ _h5_tfind (
 	) {
 	void *ptr = tfind ( key, rootp, compar );
 	if ( ptr == NULL ) {
-		return (void*)(-1);
+		return (void*)(H5_ERR);
 	}
 	return ptr;
 }

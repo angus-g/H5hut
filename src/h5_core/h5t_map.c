@@ -566,7 +566,7 @@ _tetm_contain_triangle (
 	int i,
 	h5_id_t local_eid
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
 	h5_id_t *local_vids_of_elem = t->elems_data.tets[local_eid].local_vids;
 	if ( i == 0 && 
@@ -585,7 +585,7 @@ _tetm_contain_triangle (
 	     local_vids[1] == local_vids_of_elem[2] && 
 	     local_vids[2] == local_vids_of_elem[3]
 		) return 3;
-	return -1;
+	return H5_NOK;
 }
 
 /*!
@@ -972,4 +972,13 @@ h5t_get_local_vids_of_entity (
 			f, __FILE__, __func__, __LINE__ );
 	}
 	return H5_SUCCESS;
+}
+
+h5_id_t
+h5t_map_local_vids_to_entity_id (
+	h5_file_t * const f,
+	h5_id_t *local_vids,
+	h5_oid_t etype
+	) {
+	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
 }

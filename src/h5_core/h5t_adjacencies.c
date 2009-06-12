@@ -18,12 +18,6 @@
 #include "h5_core/h5_core.h"
 #include "h5_core/h5_core_private.h"
 
-static h5_err_t
-_compute_children_of_edge (
-	h5_file_t * const f,
-	h5_id_t local_kid,
-	h5_idlist_t *children
-	);
 
 /*
   compute T(V)
@@ -140,17 +134,8 @@ _find_te (
 	return H5_SUCCESS;
 }
 
-/*
-  pass edge by:
-  edge ID
-  vertices
-  face and element ID
-
-  
-*/
-
-static h5_err_t
-_find_te2 (
+h5_err_t
+_h5t_find_te2 (
 	h5_file_t * const f,
 	h5_te_node_t **rnode,
 	h5_id_t face_id,
@@ -521,7 +506,7 @@ _compute_children_of_edge (
 	h5_te_node_t *te;
 	int i,k;
 
-	TRY ( _find_te2 (
+	TRY ( _h5t_find_te2 (
 		      f,
 		      &te,
 		      _h5t_get_face_id ( local_kid ),
@@ -686,28 +671,6 @@ _add_edge (
 	return H5_SUCCESS;
 }
 
-h5_err_t
-_h5t_tet_is_on_level (
-	h5_file_t * const f,
-	h5_tet_data_t *tet_dta 
-	) {
-	h5t_fdata_t *t = f->t;
-
-	if ( tet_dta->level_id > t->cur_level ) {
-		/* No. Tetrahedron has been defined on higher level */
-		return H5_ERR;
-	}
-
-	h5_id_t local_child_eid = tet_dta->local_child_eid;
-	if ( ( local_child_eid >= 0 ) &&
-	     ( t->elems_data.tets[local_child_eid].level_id <= t->cur_level ) ) {
-		/* No. Tetrahedron has children an a level <= current level */
-		return H5_ERR;
-	}
-
-	return H5_SUCCESS;
-}
-
 h5_id_t *
 _h5t_get_edge_of_tet (
 	const h5_tet_data_t *tet,
@@ -738,7 +701,7 @@ h5t_get_edges_upadjacent_to_vertex (
 		h5_id_t vertex_id = _h5t_get_face_id ( tv->items[i] );
 		h5_tet_data_t *tet = &t->elems_data.tets[local_eid];
 
-		if ( _h5t_tet_is_on_level ( f, tet ) == H5_ERR ) {
+		if ( _h5t_elem_is_on_cur_level ( f, (h5_element_data_t*)tet ) == H5_NOK ) {
 			continue;
 		}
 		int map[4][3] = { { 0, 2, 3 }, { 0, 1, 4 }, { 2, 1, 5 }, { 3, 4, 5} };
@@ -783,7 +746,7 @@ h5t_get_triangles_upadjacent_to_vertex (
 		h5_id_t vertex_id = _h5t_get_face_id ( tv->items[i] );
 		h5_tet_data_t *tet = &t->elems_data.tets[local_eid];
 
-		if ( _h5t_tet_is_on_level ( f, tet ) == H5_ERR ) {
+		if ( _h5t_elem_is_on_cur_level ( f, (h5_element_data_t*)tet ) == H5_NOK ) {
 			continue;
 		}
 		int map[4][3] = { { 1, 2, 3 }, { 0, 2, 3 }, { 0, 1, 3 }, { 0, 1, 2} };
@@ -817,9 +780,27 @@ h5t_get_tets_upadjacent_to_vertex (
 		h5_id_t local_eid = _h5t_get_elem_id ( tv->items[i] );
 		h5_tet_data_t *tet = &t->elems_data.tets[local_eid];
 
-		if ( _h5t_tet_is_on_level ( f, tet ) == H5_ERR ) {
+		if ( _h5t_elem_is_on_cur_level ( f, (h5_element_data_t*)tet ) == H5_NOK ) {
 			continue;
 		}
+		TRY ( _h5_search_idlist ( f, *list, local_eid ) );
+	}
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5t_get_tets_upadjacent_to_edge (
+	h5_file_t * const f,
+	const h5_id_t local_kid,
+	h5_idlist_t **list
+	) {
+	h5_idlist_t children;
+	memset ( &children, 0, sizeof(children) );
+	TRY ( _h5_alloc_idlist ( f, list, 8 ) );
+	TRY( _compute_children_of_edge ( f, local_kid, &children ) );
+	int i;
+	for ( i = 0; i < children.num_items; i++ ) {
+		h5_id_t local_eid = _h5t_get_elem_id ( children.items[i] );
 		TRY ( _h5_search_idlist ( f, *list, local_eid ) );
 	}
 	return H5_SUCCESS;

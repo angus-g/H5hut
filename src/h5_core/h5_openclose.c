@@ -390,7 +390,7 @@ h5_get_stepname_fmt (
 	const h5_size_t l_name,		/*!< length of buffer name	*/
 	h5_size_t *width		/*!< OUT: Width of the number	*/
 	) {
-	return -1;
+	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
 }
 
 /*!
@@ -404,7 +404,7 @@ h5_id_t
 h5_get_step (
 	h5_file_t * f			/*!< file handle		*/
 	) {
-	return -1;
+	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
 }
 	
 /*!
@@ -437,7 +437,7 @@ h5_err_t
 h5_start_traverse_steps (
 	h5_file_t * f			/*!< file handle		*/
 	) {
-	return -1;
+	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
 }
 
 /*!
@@ -451,5 +451,5 @@ h5_err_t
 h5_traverse_steps (
 	h5_file_t * f			/*!< file handle		*/
 	) {
-	return -1;
+	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
 }

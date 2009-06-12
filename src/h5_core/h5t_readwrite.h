@@ -12,89 +12,8 @@ _h5t_read_vertices (
 	);
 
 h5_err_t
-h5t_start_traverse_vertices (
-	h5_file_t * f
-	);
-
-h5_id_t
-h5t_traverse_vertices (
-	h5_file_t * f,
-	h5_id_t * const  id,
-	h5_float64_t P[3]
-	);
-
-h5_err_t
-h5t_end_traverse_vertices (
-	h5_file_t * f
-	);
-
-h5_err_t
-h5t_end_traverse_elems (
-	h5_file_t * const f
-	);
-
-h5_size_t
-h5t_add_num_tets (
-	h5_file_t * f,
-	const h5_size_t num
-	) ;
-
-h5_size_t
-h5t_add_num_triangles (
-	h5_file_t * f,
-	const h5_size_t num
-	) ;
-
-h5_size_t
-h5t_begin_store_elems (
-	h5_file_t * f,
-	const h5_size_t num
-	) ;
-
-h5_err_t
 _h5t_read_elems (
 	h5_file_t * f
-	);
-
-h5_err_t
-h5t_start_traverse_elems (
-	h5_file_t * f
-	);
-
-h5_id_t
-h5t_traverse_elems (
-	h5_file_t * f,
-	h5_id_t * const id,
-	h5_id_t * const parent_id,
-	h5_id_t * vids
-	);
-
-
-h5_err_t
-h5t_start_traverse_tets (
-	h5_file_t * f
-	);
-
-h5_id_t
-h5t_traverse_tets (
-	h5_file_t * f,
-	h5_id_t * const id,
-	h5_id_t * const parent_id,
-	h5_id_t vids[4]
-	);
-
-
-h5_err_t
-h5t_start_traverse_triangles (
-	h5_file_t * f
-	);
-
-h5_id_t
-h5t_traverse_triangles (
-	h5_file_t * f,
-	h5_id_t * const id,
-	h5_id_t * const parent_id,
-	h5_id_t vids[3]
 	);
 
 #endif

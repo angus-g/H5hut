@@ -60,15 +60,16 @@ h5t_set_boundary_label (
 	h5_file_t * const f,
 	const char * const bname
 	) {
-	return -1;
+	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
 }
+
 h5_err_t
 h5t_get_boundary_label (
 	h5_file_t * const f,
 	char * const boundary_name,
 	const size_t size
 	) {
-	return -1;
+	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
 }
 
 h5_err_t
@@ -105,7 +106,7 @@ h5t_open_boundary_with_label (
 	h5_file_t * const f,
 	const char * const boundary_label
 	) {
-	return -1;
+	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
 }
 
 h5_err_t
@@ -228,7 +229,7 @@ h5_id_t
 h5t_get_num_boundaryfaces (
 	h5_file_t * const f
 	) {
-	return -1;
+	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
 }
 
 h5_id_t
@@ -254,7 +255,8 @@ h5t_store_boundaryface (
 		return h5t_store_boundaryface_local_id ( f, local_tid );
 	}
 	default:
-		return -1;
+		return h5_error_not_implemented (
+			f, __FILE__, __func__, __LINE__ );
 	}
 }
 
@@ -273,7 +275,8 @@ h5t_store_boundaryface_global_id (
 		return h5t_store_boundaryface_local_id ( f, local_tid );
 	}
 	default:
-		return -1;
+		return h5_error_not_implemented (
+			f, __FILE__, __func__, __LINE__ );
 	}
 }
 
@@ -310,7 +313,8 @@ h5t_store_boundaryface_local_id (
 		return H5_SUCCESS;
 	}
 	default:
-		return -1;
+		return h5_error_not_implemented (
+			f, __FILE__, __func__, __LINE__ );
 	}
 }
 
@@ -335,5 +339,5 @@ h5t_traverse_boundary_faces (
 	h5_id_t * const parent_id,
 	h5_id_t vids[]
 	) {
-	return -1;
+	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
 }
