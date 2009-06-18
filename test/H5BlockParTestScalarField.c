@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <hdf5.h>
 #include "H5Part.h"
 #include "H5Block.h"
@@ -200,7 +201,7 @@ _write_data (
 		layout->k_start, layout->k_end );
 	if ( herr < 0 ) return herr;
 
-	herr = H5Block3dWriteScalarField ( f, "TestField", data );
+	herr = H5Block3dWriteScalarFieldFloat64 ( f, "TestField", data );
 	if ( herr < 0 ) return herr;
 
 	free ( data );
@@ -264,7 +265,7 @@ _read_data (
 		layout->k_start, layout->k_end );
 	if ( herr < 0 ) return herr;
 
-	herr = H5Block3dReadScalarField ( f, "TestField", data );
+	herr = H5Block3dReadScalarFieldFloat64 ( f, "TestField", data );
 	if ( herr < 0 ) return herr;
 
 	for ( i = 0; i < i_dims; i++ ) {

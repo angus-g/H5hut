@@ -216,7 +216,7 @@ int main(int argc,char *argv[]){
 		if (status != H5PART_SUCCESS) {
 			perror("Could not retrieve dataset names!");
 		} else {
-			printf("datasetName: %s, type: %lld, nElements: %lld   ", 
+			printf("datasetName: %s, type: %ld, nElements: %ld   ", 
 			       datasetName, datasetType, datasetNElems);
 			if (datasetType ==  H5PART_INT64) {
 				printf("H5PPART_INT64 \n");

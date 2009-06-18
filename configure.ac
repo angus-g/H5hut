@@ -1,6 +1,6 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5Part], [1.4.0], [h5part@lists.psi.ch], H5Part)
+AC_INIT([H5Part], [1.5], [h5part@lists.psi.ch], H5Part)
 
 
 # Ensure that a recent enough version of Autoconf is being used. 
@@ -245,7 +245,15 @@ if test "X$USE_FORTRAN" = "Xyes"; then
     fi
 
     if test ! $uname = "AIX"; then
-        FFLAGS="${FFLAGS} -fPIC -fno-second-underscore"
+        FFLAGS="${FFLAGS} -fPIC"
+    fi
+
+    if test $FC = "g90"; then
+	FFLAGS="${FFLAGS} -fno-second-underscore"
+    fi
+
+    if test $FC = "g95"; then
+	FFLAGS="${FFLAGS} -fno-second-underscore"
     fi
 
     AC_MSG_CHECKING([symbol convention in object files])

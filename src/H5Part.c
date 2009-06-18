@@ -119,6 +119,9 @@ _file_is_valid (
 */
 static herr_t
 _h5_error_handler (
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	hid_t,
+#endif
 	void *
 	);
 
@@ -129,7 +132,10 @@ _H5Part_open_file (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	unsigned flags,		/*!< [in] The access mode for the file. */
 	MPI_Comm comm,		/*!< [in] MPI communicator */
-	int f_parallel		/*!< [in] 0 for serial io otherwise parallel */
+	int f_parallel,		/*!< [in] 0 for serial io otherwise parallel */
+	h5part_int64_t align	/*!< [in] Number of bytes for setting alignment,
+					  metadata block size, etc.
+					  Set to 0 to disable. */
 	) {
 	if ( _init() < 0 ) {
 		HANDLE_H5PART_INIT_ERR;
@@ -152,16 +158,18 @@ _H5Part_open_file (
 	}
 	f->stepno_width = 0;
 
-	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
+	f->xfer_prop = f->create_prop = H5P_DEFAULT;
+
+	f->access_prop = H5Pcreate (H5P_FILE_ACCESS);
+	if (f->access_prop < 0) {
+		HANDLE_H5P_CREATE_ERR;
+		goto error_cleanup;
+	}
 
 	if ( f_parallel ) {
 #ifdef PARALLEL_IO
-		/* for the SP2... perhaps different for linux */
 		MPI_Info info = MPI_INFO_NULL;
-
-		/* ks: IBM_large_block_io */
 		MPI_Info_create(&info);
-		MPI_Info_set(info, "IBM_largeblock_io", "true" );
 
 		if (MPI_Comm_size (comm, &f->nprocs) != MPI_SUCCESS) {
 			HANDLE_MPI_COMM_SIZE_ERR;
@@ -178,38 +186,73 @@ _H5Part_open_file (
 			HANDLE_H5PART_NOMEM_ERR;
 			goto error_cleanup;
 		}
-		
-		f->access_prop = H5Pcreate (H5P_FILE_ACCESS);
-		if (f->access_prop < 0) {
-			HANDLE_H5P_CREATE_ERR;
-			goto error_cleanup;
+
+		/* set IBM_largeblock_io for GPFS filesystems */
+		if (flags & H5PART_FS_GPFS) {
+			if (f->myproc == 0) {
+				_H5Part_print_info ( "Setting IBM_largeblock_io hint." );
+			}
+			MPI_Info_set ( info, "IBM_largeblock_io", "true" );
 		}
 
-		if (H5Pset_fapl_mpio (f->access_prop, comm, info) < 0) {
-			HANDLE_H5P_SET_FAPL_MPIO_ERR;
-			goto error_cleanup;
+		/* select the HDF5 VFD */
+		if (flags & H5PART_VFD_MPIPOSIX) {
+			if (f->myproc == 0) {
+				_H5Part_print_info ( "Selecting MPI-POSIX VFD" );
+			}
+			if (H5Pset_fapl_mpiposix ( f->access_prop, comm, 0 ) < 0) {
+				HANDLE_H5P_SET_FAPL_ERR;
+				goto error_cleanup;
+			}
 		}
-		
-		/* f->create_prop = H5Pcreate(H5P_FILE_CREATE); */
-		f->create_prop = H5P_DEFAULT;
-
-		/* currently create_prop is empty */
-		/* xfer_prop:  also used for parallel I/O, during actual writes
-		   rather than the access_prop which is for file creation. */
-		f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
-		if (f->xfer_prop < 0) {
-			HANDLE_H5P_CREATE_ERR;
-			goto error_cleanup;
+		else {
+			if (f->myproc == 0) {
+				_H5Part_print_info ( "Selecting MPI-IO VFD" );
+			}
+			if (H5Pset_fapl_mpio ( f->access_prop, comm, info ) < 0) {
+				HANDLE_H5P_SET_FAPL_ERR;
+				goto error_cleanup;
+			}
+			f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
+			if (f->xfer_prop < 0) {
+				HANDLE_H5P_CREATE_ERR;
+				goto error_cleanup;
+			}
+			if (H5Pset_dxpl_mpio ( f->xfer_prop, H5FD_MPIO_COLLECTIVE ) < 0) {
+				HANDLE_H5P_SET_DXPL_MPIO_ERR;
+				goto error_cleanup;
+			}
 		}
 
-		if (H5Pset_dxpl_mpio (f->xfer_prop,H5FD_MPIO_COLLECTIVE) < 0) {
-			HANDLE_H5P_SET_DXPL_MPIO_ERR;
-			goto error_cleanup;
+		if (flags & H5PART_FS_LUSTRE) {
+			/* extend the btree size so that metadata pieces are
+			 * close to the 1MB stripe width */
+			if (f->myproc == 0) {
+				_H5Part_print_info (
+					"Setting HDF5 btree parameter to %d",
+					H5PART_BTREE_IK );
+				_H5Part_print_info (
+					"Extending HDF5 btree size to %d bytes at rank 3",
+					24+16*H5PART_BTREE_IK+40*(2*H5PART_BTREE_IK + 1) );
+			}
+			f->create_prop = H5Pcreate(H5P_FILE_CREATE);
+			H5Pset_istore_k (f->create_prop, H5PART_BTREE_IK);
+			/* defer metadata cache flushing until file close */
+			H5AC_cache_config_t cache_config;
+			cache_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
+			H5Pget_mdc_config (f->access_prop, &cache_config);
+			cache_config.set_initial_size = 1;
+			cache_config.initial_size = 16 * 1024 * 1024;
+			cache_config.evictions_enabled = 0;
+			cache_config.incr_mode = H5C_incr__off;
+			cache_config.flash_incr_mode = H5C_flash_incr__off;
+			cache_config.decr_mode = H5C_decr__off;
+			H5Pset_mdc_config (f->access_prop, &cache_config);
 		}
-
-		f->comm = comm;
 
 		MPI_Info_free(&info);
+
+		f->comm = comm;
 #endif
 	} else {
 		f->comm = 0;
@@ -218,15 +261,40 @@ _H5Part_open_file (
 		f->pnparticles = 
 			(h5part_int64_t*) malloc (f->nprocs * sizeof (h5part_int64_t));
 	}
-	if ( flags == H5PART_READ ) {
+
+	if ( align != 0 ) {
+		if (f->myproc == 0) {
+			_H5Part_print_info ( "Setting HDF5 alignment to %ld bytes", align );
+		}
+		if (H5Pset_alignment ( f->access_prop, 0, align ) < 0) {
+			HANDLE_H5P_SET_FAPL_ERR;
+			goto error_cleanup;
+		}
+		if (f->myproc == 0) {
+			_H5Part_print_info ( "Setting HDF5 meta block to %ld bytes", align );
+		}
+		if (H5Pset_meta_block_size ( f->access_prop, align ) < 0) {
+			HANDLE_H5P_SET_FAPL_ERR;
+			goto error_cleanup;
+		}
+		/*if (f->myproc == 0) {
+			_H5Part_print_info ( "Setting HDF5 sieve buffer to %ld bytes", align );
+		}
+		if (H5Pset_sieve_buf_size ( f->access_prop, align ) < 0) {
+			HANDLE_H5P_SET_FAPL_ERR;
+			goto error_cleanup;
+		}*/
+	}
+
+	if ( flags & H5PART_READ ) {
 		f->file = H5Fopen (filename, H5F_ACC_RDONLY, f->access_prop);
 	}
-	else if ( flags == H5PART_WRITE ){
+	else if ( flags & H5PART_WRITE ){
 		f->file = H5Fcreate (filename, H5F_ACC_TRUNC, f->create_prop,
 				     f->access_prop);
 		f->empty = 1;
 	}
-	else if ( flags == H5PART_APPEND ) {
+	else if ( flags & H5PART_APPEND ) {
 		int fd = open (filename, O_RDONLY, 0);
 		if ( (fd == -1) && (errno == ENOENT) ) {
 			f->file = H5Fcreate(filename, H5F_ACC_TRUNC,
@@ -310,10 +378,37 @@ H5PartOpenFileParallel (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	unsigned flags,		/*!< [in] The access mode for the file. */
 	MPI_Comm comm		/*!< [in] MPI communicator */
-) {
+	) {
+
+	SET_FNAME ( "H5PartOpenFileParallel" );
+
+	int f_parallel = 1;	/* parallel i/o */
+	int align = 0;		/* no tuning parameters */
+
+	return _H5Part_open_file ( filename, flags, comm, f_parallel, align );
+}
+
+/*!
+  \ingroup h5part_openclose
+
+  Opens file with specified filename, and also specifices an alignment
+  value used for HDF5 tuning parameters.
+
+  \return	File handle or \c NULL
+ */
+H5PartFile*
+H5PartOpenFileParallelAlign (
+	const char *filename,	/*!< [in] The name of the data file to open. */
+	unsigned flags,		/*!< [in] The access mode for the file. */
+	MPI_Comm comm,		/*!< [in] MPI communicator */
+	h5part_int64_t align	/*!< [in] Alignment size in bytes. */
+	) {
+
+	SET_FNAME ( "H5PartOpenFileParallel" );
+
 	int f_parallel = 1;	/* parallel i/o */
 
-	return _H5Part_open_file ( filename, flags, comm, f_parallel );
+	return _H5Part_open_file ( filename, flags, comm, f_parallel, align );
 }
 #endif
 
@@ -348,8 +443,31 @@ H5PartOpenFile (
 
 	MPI_Comm comm = 0;	/* dummy */
 	int f_parallel = 0;	/* serial open */
+	int align = 0;		/* no tuning parameters */
 
-	return _H5Part_open_file ( filename, flags, comm, f_parallel );
+	return _H5Part_open_file ( filename, flags, comm, f_parallel, align );
+}
+
+/*!
+  \ingroup h5part_openclose
+
+  Opens file with specified filename, and also specifices an alignment
+  value used for HDF5 tuning parameters.
+
+  \return	File handle or \c NULL
+ */
+H5PartFile*
+H5PartOpenFileAlign (
+	const char *filename,	/*!< [in] The name of the data file to open. */
+	unsigned flags,		/*!< [in] The access mode for the file. */
+	h5part_int64_t align	/*!< [in] Alignment size in bytes. */
+) {
+	SET_FNAME ( "H5PartOpenFile" );
+
+	MPI_Comm comm = 0;	/* dummy */
+	int f_parallel = 0;	/* serial open */
+
+	return _H5Part_open_file ( filename, flags, comm, f_parallel, align );
 }
 
 /*!
@@ -565,7 +683,7 @@ H5PartSetNumParticles (
 		start[0] += f->pnparticles[i];
 	}
 	
-        /* compute total nparticles */
+	/* compute total nparticles */
 	total = 0;
 	for (i=0; i < f->nprocs; i++) {
 		total += f->pnparticles[i];
@@ -617,12 +735,23 @@ _write_data (
 			      "timestep %lld",
 			      name, (long long)f->timestep );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	dataset_id = H5Dcreate2 ( 
+		f->timegroup,
+		name,
+		type,
+		f->shape,
+		H5P_DEFAULT,
+		H5P_DEFAULT,
+		H5P_DEFAULT );
+#else
 	dataset_id = H5Dcreate ( 
 		f->timegroup,
 		name,
 		type,
 		f->shape,
 		H5P_DEFAULT );
+#endif
 	if ( dataset_id < 0 )
 		return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
 
@@ -703,6 +832,52 @@ H5PartWriteDataFloat64 (
 /*!
   \ingroup h5part_write
 
+  Write array of 32 bit floating point data to file.
+
+  After setting the number of particles with \c H5PartSetNumParticles() and
+  the current timestep using \c H5PartSetStep(), you can start writing datasets
+  into the file. Each dataset has a name associated with it (chosen by the
+  user) in order to facilitate later retrieval. The name of the dataset is
+  specified in the parameter \c name, which must be a null-terminated string.
+
+  There are no restrictions on naming of datasets, but it is useful to arrive
+  at some common naming convention when sharing data with other groups.
+
+  The writing routines also implicitly store the datatype of the array so that
+  the array can be reconstructed properly on other systems with incompatible
+  type representations.
+
+  All data that is written after setting the timestep is associated with that
+  timestep. While the number of particles can change for each timestep, you
+  cannot change the number of particles in the middle of a given timestep.
+
+  The data is committed to disk before the routine returns.
+
+  \return	\c H5PART_SUCCESS or error code
+ */
+h5part_int64_t
+H5PartWriteDataFloat32 (
+	H5PartFile *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5part_float32_t *array	/*!< [in] Array to commit to disk */
+	) {
+
+	SET_FNAME ( "H5PartWriteDataFloat32" );
+	h5part_int64_t herr;
+
+	CHECK_FILEHANDLE ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	herr = _write_data ( f, name, (void*)array, H5T_NATIVE_FLOAT );
+	if ( herr < 0 ) return herr;
+
+	return H5PART_SUCCESS;
+}
+
+/*!
+  \ingroup h5part_write
+
   Write array of 64 bit integer data to file.
 
   After setting the number of particles with \c H5PartSetNumParticles() and
@@ -733,7 +908,7 @@ H5PartWriteDataInt64 (
 	const h5part_int64_t *array	/*!< [in] Array to commit to disk */
 	) {
 
-	SET_FNAME ( "H5PartOpenWriteDataInt64" );
+	SET_FNAME ( "H5PartWriteDataInt64" );
 
 	h5part_int64_t herr;
 
@@ -742,6 +917,53 @@ H5PartWriteDataInt64 (
 	CHECK_TIMEGROUP( f );
 
 	herr = _write_data ( f, name, (void*)array, H5T_NATIVE_INT64 );
+	if ( herr < 0 ) return herr;
+
+	return H5PART_SUCCESS;
+}
+
+/*!
+  \ingroup h5part_write
+
+  Write array of 32 bit integer data to file.
+
+  After setting the number of particles with \c H5PartSetNumParticles() and
+  the current timestep using \c H5PartSetStep(), you can start writing datasets
+  into the file. Each dataset has a name associated with it (chosen by the
+  user) in order to facilitate later retrieval. The name of the dataset is
+  specified in the parameter \c name, which must be a null-terminated string.
+
+  There are no restrictions on naming of datasets, but it is useful to arrive
+  at some common naming convention when sharing data with other groups.
+
+  The writing routines also implicitly store the datatype of the array so that
+  the array can be reconstructed properly on other systems with incompatible
+  type representations.
+
+  All data that is written after setting the timestep is associated with that
+  timestep. While the number of particles can change for each timestep, you
+  cannot change the number of particles in the middle of a given timestep.
+
+  The data is committed to disk before the routine returns.
+
+  \return	\c H5PART_SUCCESS or error code
+ */
+h5part_int64_t
+H5PartWriteDataInt32 (
+	H5PartFile *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5part_int32_t *array	/*!< [in] Array to commit to disk */
+	) {
+
+	SET_FNAME ( "H5PartWriteDataInt32" );
+
+	h5part_int64_t herr;
+
+	CHECK_FILEHANDLE ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	herr = _write_data ( f, name, (void*)array, H5T_NATIVE_INT32 );
 	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
@@ -768,20 +990,26 @@ _H5Part_normalize_h5_type (
 
 	switch ( tclass ){
 	case H5T_INTEGER:
-		if ( size==8 ) {
-			return H5T_NATIVE_INT64;
-		}
-		else if ( size==1 ) {
-			return H5T_NATIVE_CHAR;
-		}
-		break;
+	  if ( size==8 ) {
+	    return H5T_NATIVE_INT64;
+	  }
+	  else if ( size==1 ) {
+	    return H5T_NATIVE_CHAR;
+	  }
+	  break;
 	case H5T_FLOAT:
-		return H5T_NATIVE_DOUBLE;
+	  if ( size==8 ) {
+	    return H5T_NATIVE_DOUBLE;
+	  }
+	  else if ( size==4 ) {
+	    return H5T_NATIVE_FLOAT;
+	  }
+	  break;
 	default:
-		; /* NOP */
+	  ; /* NOP */
 	}
 	_H5Part_print_warn ( "Unknown type %d", (int)type );
-
+	
 	return -1;
 }
 
@@ -799,7 +1027,14 @@ _H5Part_read_attrib (
 	hid_t mytype;
 	hsize_t nelem;
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	if (! H5Aexists ( id, attrib_name )) {
+	    _H5Part_print_warn ( "Attribute does not exist!" );
+	}
+	attrib_id = H5Aopen ( id, attrib_name, H5P_DEFAULT );
+#else
 	attrib_id = H5Aopen_name ( id, attrib_name );
+#endif
 	if ( attrib_id <= 0 ) return HANDLE_H5A_OPEN_NAME_ERR( attrib_name );
 
 	mytype = H5Aget_type ( attrib_id );
@@ -845,12 +1080,22 @@ _H5Part_write_attrib (
 	if ( space_id < 0 )
 		return HANDLE_H5S_CREATE_SIMPLE_ERR ( attrib_nelem );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	attrib_id = H5Acreate2 ( 
+		id,
+		attrib_name,
+		attrib_type,
+		space_id,
+		H5P_DEFAULT,
+		H5P_DEFAULT );
+#else
 	attrib_id = H5Acreate ( 
 		id,
 		attrib_name,
 		attrib_type,
 		space_id,
 		H5P_DEFAULT );
+#endif
 	if ( attrib_id < 0 ) return HANDLE_H5A_CREATE_ERR ( attrib_name );
 
 	herr = H5Awrite ( attrib_id, attrib_type, attrib_value);
@@ -944,7 +1189,11 @@ H5PartWriteFileAttribString (
 	CHECK_FILEHANDLE ( f );
 	CHECK_WRITABLE_MODE( f );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	hid_t group_id = H5Gopen2(f->file,"/",H5P_DEFAULT);
+#else
 	hid_t group_id = H5Gopen(f->file,"/");
+#endif
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR( "/" );
 
 	h5part_int64_t herr = _H5Part_write_attrib (
@@ -1083,7 +1332,11 @@ H5PartWriteFileAttrib (
 	CHECK_FILEHANDLE ( f );
 	CHECK_WRITABLE_MODE ( f );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	group_id = H5Gopen2(f->file,"/",H5P_DEFAULT);
+#else
 	group_id = H5Gopen(f->file,"/");
+#endif
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR( "/" );
 
 	herr = _H5Part_write_attrib (
@@ -1141,7 +1394,11 @@ H5PartGetNumFileAttribs (
 
 	CHECK_FILEHANDLE ( f );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	hid_t group_id = H5Gopen2 ( f->file, "/", H5P_DEFAULT );
+#else
 	hid_t group_id = H5Gopen ( f->file, "/" );
+#endif
 	if ( group_id < 0 ) HANDLE_H5G_OPEN_ERR ( "/" );
 
 	nattribs = H5Aget_num_attrs ( group_id );
@@ -1170,7 +1427,7 @@ h5part_int64_t
 H5PartGetStepAttribInfo (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
 	const h5part_int64_t attrib_idx,/*!< [in]  Index of attribute to
-					           get infos about */
+						   get infos about */
 	char *attrib_name,		/*!< [out] Name of attribute */
 	const h5part_int64_t len_of_attrib_name,
 					/*!< [in]  length of buffer \c name */
@@ -1213,7 +1470,7 @@ h5part_int64_t
 H5PartGetFileAttribInfo (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
 	const h5part_int64_t attrib_idx,/*!< [in]  Index of attribute to get
-					           infos about */
+						   infos about */
 	char *attrib_name,		/*!< [out] Name of attribute */
 	const h5part_int64_t len_of_attrib_name,
 					/*!< [in]  length of buffer \c name */
@@ -1227,7 +1484,11 @@ H5PartGetFileAttribInfo (
 
 	CHECK_FILEHANDLE( f );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	group_id = H5Gopen2(f->file,"/",H5P_DEFAULT);
+#else
 	group_id = H5Gopen(f->file,"/");
+#endif
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR( "/" );
 
 	herr = _H5Part_get_attrib_info (
@@ -1292,7 +1553,11 @@ H5PartReadFileAttrib (
 
 	CHECK_FILEHANDLE( f );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	group_id = H5Gopen2(f->file,"/",H5P_DEFAULT);
+#else
 	group_id = H5Gopen(f->file,"/");
+#endif
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR( "/" );
 
 	herr = _H5Part_read_attrib ( group_id, attrib_name, attrib_value );
@@ -1325,17 +1590,25 @@ _H5Part_set_step (
 
 	char name[128];
 
-	sprintf (
-		name,
-		"%s#%0*lld",
-		f->groupname_step, f->stepno_width, (long long) step );
-	herr_t herr = H5Gget_objinfo( f->file, name, 1, NULL );
-	if ( (f->mode != H5PART_READ) && ( herr >= 0 ) ) {
+	/* Work around sprintf bug on older systems */
+	if (f->stepno_width == 0 && step == 0) {
+	    sprintf (
+		    name,
+		    "%s#%0*lld",
+		    f->groupname_step, 1, (long long) step );
+	}
+	else {
+	    sprintf (
+		    name,
+		    "%s#%0*lld",
+		    f->groupname_step, f->stepno_width, (long long) step );
+	}
+	if ( (f->mode != H5PART_READ) && _H5Part_have_group ( f->file, name ) ) {
 		return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
 	}
 
 	if ( f->timegroup >= 0 ) {
-		herr = H5Gclose ( f->timegroup );
+		herr_t herr = H5Gclose ( f->timegroup );
 		if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
 	}
 	f->timegroup = -1;
@@ -1348,7 +1621,11 @@ _H5Part_set_step (
 			(long long)step,
 			(long long)(size_t) f );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+		f->timegroup = H5Gopen2 ( f->file, name, H5P_DEFAULT ); 
+#else
 		f->timegroup = H5Gopen ( f->file, name ); 
+#endif
 		if ( f->timegroup < 0 ) return HANDLE_H5G_OPEN_ERR( name );
 	}
 	else {
@@ -1358,7 +1635,16 @@ _H5Part_set_step (
 			(long long)step,
 			(long long)(size_t) f );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+		f->timegroup = H5Gcreate2 (
+			f->file,
+			name,
+			0,
+			H5P_DEFAULT,
+			H5P_DEFAULT );
+#else
 		f->timegroup = H5Gcreate ( f->file, name, 0 );
+#endif
 		if ( f->timegroup < 0 ) return HANDLE_H5G_CREATE_ERR ( name );
 	}
 
@@ -1399,6 +1685,23 @@ H5PartSetStep (
 /*!
   \ingroup h5part_kernel
 
+  Test whether a group named \c name exists at location \c id.
+*/
+h5part_int64_t
+_H5Part_have_group (
+	const hid_t id,
+	const char *name
+	) {
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	return (H5Lexists( id, name, H5P_DEFAULT ) ? 1 : 0);
+#else
+	return (H5Gget_objinfo( id, name, 1, NULL ) >= 0 ? 1 : 0);
+#endif
+}
+
+/*!
+  \ingroup h5part_kernel
+
   Iterator for \c H5Giterate().
 */
 herr_t
@@ -1410,12 +1713,20 @@ _H5Part_iteration_operator (
 
 	struct _iter_op_data *data = (struct _iter_op_data*)operator_data;
 	herr_t herr;
-	H5G_stat_t objinfo;
 
 	if ( data->type != H5G_UNKNOWN ) {
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+                H5O_info_t objinfo;
+                hid_t member_id;
+                member_id = H5Gopen2 ( group_id, member_name, H5P_DEFAULT );
+		herr = H5Oget_info ( member_id, &objinfo );
+		if ( herr < 0 ) return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+                H5Gclose (member_id);
+#else
+	        H5G_stat_t objinfo;
 		herr = H5Gget_objinfo ( group_id, member_name, 1, &objinfo );
 		if ( herr < 0 ) return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
-
+#endif
 		if ( objinfo.type != data->type )
 			return 0;/* don't count, continue iteration */
 	}
@@ -1541,10 +1852,14 @@ H5PartHasStep (
 	CHECK_FILEHANDLE( f );
 
 	char name[128];
-	sprintf ( name, "%s#%0*lld", f->groupname_step, f->stepno_width, (long long) step );
-	herr_t herr = H5Gget_objinfo( f->file, name, 1, NULL );
-
-	return ( herr >= 0 );
+	/* Work around sprintf bug on older systems */
+	if (f->stepno_width == 0 && step == 0) {
+	    sprintf ( name, "%s#%0*lld", f->groupname_step, 1, (long long) step );
+	}
+	else {
+	    sprintf ( name, "%s#%0*lld", f->groupname_step, f->stepno_width, (long long) step );
+	}
+        return _H5Part_have_group ( f->file, name );
 }
 
 
@@ -1594,10 +1909,19 @@ H5PartGetNumDatasets (
 
 	CHECK_FILEHANDLE( f );
 
-	sprintf (
-		stepname,
-		"%s#%0*lld",
-		f->groupname_step, f->stepno_width, (long long) f->timestep );
+	/* Work around sprintf bug on older systems */
+	if (f->stepno_width == 0 && f->timestep == 0) {
+	    sprintf (
+		    stepname,
+		    "%s#%0*lld",
+		    f->groupname_step, 1, (long long) f->timestep );
+	}
+	else {
+	    sprintf (
+		    stepname,
+		    "%s#%0*lld",
+		    f->groupname_step, f->stepno_width, (long long) f->timestep );
+	}
 
 	return _H5Part_get_num_objects ( f->file, stepname, H5G_DATASET );
 }
@@ -1627,10 +1951,19 @@ H5PartGetDatasetName (
 	CHECK_FILEHANDLE ( f );
 	CHECK_TIMEGROUP ( f );
 
-	sprintf (
-		stepname,
-		"%s#%0*lld",
-		f->groupname_step, f->stepno_width, (long long) f->timestep );
+	/* Work around sprintf bug on older systems */
+	if (f->stepno_width == 0 && f->timestep == 0) {
+	    sprintf (
+		    stepname,
+		    "%s#%0*lld",
+		    f->groupname_step, 1, (long long) f->timestep );
+	}
+	else {
+	    sprintf (
+		    stepname,
+		    "%s#%0*lld",
+		    f->groupname_step, f->stepno_width, (long long) f->timestep );
+	}
 
 	return _H5Part_get_object_name (
 		f->file,
@@ -1672,10 +2005,19 @@ H5PartGetDatasetInfo (
 	CHECK_FILEHANDLE ( f );
 	CHECK_TIMEGROUP ( f );
 
-	sprintf (
-		step_name,
-		"%s#%0*lld",
-		f->groupname_step, f->stepno_width, (long long) f->timestep );
+	/* Work around sprintf bug on older systems */
+	if (f->stepno_width == 0 && f->timestep == 0) {
+	    sprintf (
+		    step_name,
+		    "%s#%0*lld",
+		    f->groupname_step, 1, (long long) f->timestep );
+	}
+	else {
+	    sprintf (
+		    step_name,
+		    "%s#%0*lld",
+		    f->groupname_step, f->stepno_width, (long long) f->timestep );
+	}
 
 	herr = _H5Part_get_object_name (
 		f->file,
@@ -1689,7 +2031,11 @@ H5PartGetDatasetInfo (
 	*nelem = _H5Part_get_num_particles ( f );
 	if ( *nelem < 0 ) return *nelem;
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	dataset_id = H5Dopen2 ( f->timegroup, dataset_name, H5P_DEFAULT );
+#else
 	dataset_id = H5Dopen ( f->timegroup, dataset_name );
+#endif
 	if ( dataset_id < 0 ) HANDLE_H5D_OPEN_ERR ( dataset_name );
 
 	mytype = H5Dget_type ( dataset_id );
@@ -1788,10 +2134,18 @@ _H5Part_get_num_particles (
 	hsize_t nparticles;
 
 	/* Get first dataset in current time-step */
-	sprintf (
-		step_name,
-		"%s#%0*lld",
-		f->groupname_step, f->stepno_width, (long long) f->timestep );
+	if (f->stepno_width == 0 && f->timestep == 0) {
+		sprintf (
+			step_name,
+			"%s#%0*lld",
+			f->groupname_step, 1, (long long) f->timestep );
+	}
+	else {
+		sprintf (
+			step_name,
+			"%s#%0*lld",
+			f->groupname_step, f->stepno_width, (long long) f->timestep );
+	}
 
 	herr = _H5Part_get_object_name (
 		f->file,
@@ -1801,7 +2155,11 @@ _H5Part_get_num_particles (
 		dataset_name, sizeof (dataset_name) );
 	if ( herr < 0 ) return herr;
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	dataset_id = H5Dopen2 ( f->timegroup, dataset_name, H5P_DEFAULT );
+#else
 	dataset_id = H5Dopen ( f->timegroup, dataset_name );
+#endif
 	if ( dataset_id < 0 ) 
 		return HANDLE_H5D_OPEN_ERR ( dataset_name );
 
@@ -2166,7 +2524,11 @@ _read_data (
 		h5part_int64_t h5err = _H5Part_set_step ( f, f->timestep );
 		if ( h5err < 0 ) return h5err;
 	}
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	dataset_id = H5Dopen2 ( f->timegroup, name, H5P_DEFAULT );
+#else
 	dataset_id = H5Dopen ( f->timegroup, name );
+#endif
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
 
 	space_id = _get_diskshape_for_reading ( f, dataset_id );
@@ -2248,7 +2610,38 @@ H5PartReadDataFloat64 (
 /*!
   \ingroup h5part_read
 
-  Read array of 64 bit floating point data from file.
+  Read array of 32 bit floating point data from file.
+
+  When retrieving datasets from disk, you ask for them
+  by name. There are no restrictions on naming of arrays,
+  but it is useful to arrive at some common naming
+  convention when sharing data with other groups.
+
+  \return	\c H5PART_SUCCESS or error code
+*/
+h5part_int64_t
+H5PartReadDataFloat32 (
+	H5PartFile *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate dataset with */
+	h5part_float32_t *array	/*!< [out] Array of data */
+	) {
+
+	SET_FNAME ( "H5PartReadDataFloat32" );
+
+	h5part_int64_t herr;
+
+	CHECK_FILEHANDLE( f );
+
+	herr = _read_data ( f, name, array, H5T_NATIVE_FLOAT );
+	if ( herr < 0 ) return herr;
+
+	return H5PART_SUCCESS;
+}
+
+/*!
+  \ingroup h5part_read
+
+  Read array of 64 bit integer data from file.
 
   When retrieving datasets from disk, you ask for them
   by name. There are no restrictions on naming of arrays,
@@ -2271,6 +2664,37 @@ H5PartReadDataInt64 (
 	CHECK_FILEHANDLE( f );
 
 	herr = _read_data ( f, name, array, H5T_NATIVE_INT64 );
+	if ( herr < 0 ) return herr;
+
+	return H5PART_SUCCESS;
+}
+
+/*!
+  \ingroup h5part_read
+
+  Read array of 32 bit integer data from file.
+
+  When retrieving datasets from disk, you ask for them
+  by name. There are no restrictions on naming of arrays,
+  but it is useful to arrive at some common naming
+  convention when sharing data with other groups.
+
+  \return	\c H5PART_SUCCESS or error code
+*/
+h5part_int64_t
+H5PartReadDataInt32 (
+	H5PartFile *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate dataset with */
+	h5part_int32_t *array	/*!< [out] Array of data */
+	) {
+
+	SET_FNAME ( "H5PartReadDataInt64" );
+
+	h5part_int64_t herr;
+
+	CHECK_FILEHANDLE( f );
+
+	herr = _read_data ( f, name, array, H5T_NATIVE_INT32 );
 	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
@@ -2456,7 +2880,11 @@ _init ( void ) {
 
 	herr_t r5;
 	if ( ! __init ) {
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+		r5 = H5Eset_auto2 ( H5E_DEFAULT, _h5_error_handler, NULL );
+#else
 		r5 = H5Eset_auto ( _h5_error_handler, NULL );
+#endif
 		if ( r5 < 0 ) return H5PART_ERR_INIT;
 	}
 	__init = 1;
@@ -2465,10 +2893,18 @@ _init ( void ) {
 /*! @} */
 
 static herr_t
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+_h5_error_handler ( hid_t estack, void* unused ) {
+#else
 _h5_error_handler ( void* unused ) {
+#endif
 	
-	if ( _debug >= 5 ) {
+	if ( _debug >= 1 ) {
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+		H5Eprint2 (H5E_DEFAULT,stderr);
+#else
 		H5Eprint (stderr);
+#endif
 	}
 	return 0;
 }
@@ -2572,6 +3008,28 @@ _H5Part_print_debug (
 	va_list ap;
 	va_start ( ap, fmt );
 	_H5Part_vprint_debug ( fmt, ap );
+	va_end ( ap );
+}
+
+void
+_H5Part_vprint_debug_detail (
+	const char *fmt,
+	va_list ap
+	) {
+
+	if ( _debug < 5 ) return;
+	_vprint ( stdout, "DD", fmt, ap );
+}
+
+void
+_H5Part_print_debug_detail (
+	const char *fmt,
+	...
+	) {
+
+	va_list ap;
+	va_start ( ap, fmt );
+	_H5Part_vprint_debug_detail ( fmt, ap );
 	va_end ( ap );
 }
 

@@ -5,11 +5,18 @@
 extern "C" {
 #endif
 
-/*! 
-  Interface for block structured field data
-
+/*!
+  Include read/write call variants for different data types and
+  field dimensions.
 */
+#include "H5BlockReadWrite.h"
 
+#define H5BLOCK_FIELD_ORIGIN_NAME	"__Origin__"
+#define H5BLOCK_FIELD_SPACING_NAME	"__Spacing__"
+
+/*! 
+  Interface for block structured field data.
+*/
 h5part_int64_t
 H5BlockDefine3DFieldLayout (
 	H5PartFile *f,
@@ -19,6 +26,21 @@ H5BlockDefine3DFieldLayout (
 	const h5part_int64_t j_end,
 	const h5part_int64_t k_start,
 	const h5part_int64_t k_end
+	);
+
+h5part_int64_t
+H5BlockDefine3DChunkDims (
+	H5PartFile *f,
+	const h5part_int64_t i,
+	const h5part_int64_t j,
+	const h5part_int64_t k
+	);
+
+h5part_int64_t
+H5BlockGet3DChunkDims(
+	H5PartFile *f,
+        const char *field_name,
+	h5part_int64_t *dims
 	);
 
 h5part_int64_t
@@ -54,20 +76,6 @@ H5Block3dGetProcOf (
 	);
 
 h5part_int64_t
-H5Block3dWriteScalarField (
-	H5PartFile *f,
-	const char *name,
-	const h5part_float64_t *data
-	);
-
-h5part_int64_t
-H5Block3dReadScalarField (
-	H5PartFile *f,
-	const char *name,
-	h5part_float64_t *data
-	);
-
-h5part_int64_t
 H5BlockGetNumFields (
 	H5PartFile *f
 	);
@@ -80,7 +88,7 @@ H5BlockGetFieldInfo (
 	const h5part_int64_t len_name,
 	h5part_int64_t *grid_rank,
 	h5part_int64_t *grid_dims,
-	h5part_int64_t *field_dims
+	h5part_int64_t *field_rank
 	);
 
 h5part_int64_t
@@ -89,7 +97,7 @@ H5BlockGetFieldInfoByName (
 	const char *field_name,
 	h5part_int64_t *grid_rank,
 	h5part_int64_t *grid_dims,
-	h5part_int64_t *field_dims
+	h5part_int64_t *field_rank
 	);
 
 h5part_int64_t
@@ -126,26 +134,6 @@ H5Block3dSetFieldSpacing (
 	const h5part_float64_t x_spacing,
 	const h5part_float64_t y_spacing,
 	const h5part_float64_t z_spacing
-	);
-
-
-
-h5part_int64_t
-H5Block3dWrite3dVectorField (
-	H5PartFile *f,
-	const char *name,
-	const h5part_float64_t *xval,
-	const h5part_float64_t *yval,
-	const h5part_float64_t *zval
-	);	
-
-h5part_int64_t
-H5Block3dRead3dVectorField (
-	H5PartFile *f,
-	const char *name,
-	h5part_float64_t *xval,
-	h5part_float64_t *yval,
-	h5part_float64_t *zval
 	);
 
 h5part_int64_t

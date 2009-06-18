@@ -1,5 +1,6 @@
 #include "H5Part.h"
 #include "Underscore.h"
+#include <string.h>
 #include <hdf5.h>
 
 #if defined(F77_SINGLE_UNDERSCORE)
@@ -32,6 +33,25 @@
 #define h5pt_opena_par F77NAME (					\
 					h5pt_opena_par_,		\
 					H5PT_OPENA_PAR )
+#define h5pt_openr_align F77NAME (					\
+					h5pt_openr_align_,		\
+					H5PT_OPENR_ALIGN )
+#define h5pt_openw_align F77NAME (					\
+					h5pt_openw_align_,		\
+					H5PT_OPENW_ALIGN )
+#define h5pt_opena_align F77NAME (					\
+					h5pt_opena_align_,		\
+					H5PT_OPENA_ALIGN )
+#define h5pt_openr_par_align F77NAME (					\
+					h5pt_openr_par_align,		\
+					H5PT_OPENR_PAR_ALIGN )
+#define h5pt_openw_par_align F77NAME (					\
+					h5pt_openw_par_align_,		\
+					H5PT_OPENW_PAR_ALIGN )
+#define h5pt_opena_par_align F77NAME (					\
+					h5pt_opena_par_align_,		\
+					H5PT_OPENA_PAR_ALIGN )
+
 #define h5pt_close F77NAME (						\
 					h5pt_close_,			\
 					H5PT_CLOSE) 
@@ -46,9 +66,15 @@
 #define h5pt_writedata_r8 F77NAME (					\
 					h5pt_writedata_r8_,		\
 					H5PT_WRITEDATA_R8 )
+#define h5pt_writedata_r4 F77NAME (					\
+					h5pt_writedata_r4_,		\
+					H5PT_WRITEDATA_R4 )
 #define h5pt_writedata_i8 F77NAME (					\
 					h5pt_writedata_i8_,		\
 					H5PT_WRITEDATA_I8 )
+#define h5pt_writedata_i4 F77NAME (					\
+					h5pt_writedata_i4_,		\
+					H5PT_WRITEDATA_I4 )
 
 /* Reading interface  (define dataset, step, particles, attributes) */
 #define h5pt_getnsteps F77NAME (					\
@@ -85,12 +111,15 @@
 #define h5pt_readdata_r8 F77NAME (					\
 					h5pt_readdata_r8_,		\
 					H5PT_READDATA_R8 )
+#define h5pt_readdata_r4 F77NAME (					\
+					h5pt_readdata_r4_,		\
+					H5PT_READDATA_R4 )
 #define h5pt_readdata_i8 F77NAME (					\
 					h5pt_readdata_i8_,		\
 					H5PT_READDATA_I8 )
-#define h5pt_readdata F77NAME (						\
-					h5pt_readdata_,			\
-					H5PT_READDATA )
+#define h5pt_readdata_i4 F77NAME (					\
+					h5pt_readdata_i4_,		\
+					H5PT_READDATA_I4 )
 
 /* Writing attributes */
 #define h5pt_writefileattrib_r8 F77NAME (				\
@@ -227,6 +256,51 @@ h5pt_opena (
 	return (h5part_int64_t)(size_t)f;
 }
 
+h5part_int64_t
+h5pt_openr_align (
+	const char *file_name,
+	const h5part_int64_t *align,
+	const int l_file_name
+	) {
+
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+
+	H5PartFile* f = H5PartOpenFileAlign ( file_name2, H5PART_READ, *align );
+
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f; 
+}
+
+h5part_int64_t
+h5pt_openw_align (
+	const char *file_name,
+	const h5part_int64_t *align,
+	const int l_file_name
+	) {
+
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+
+	H5PartFile* f = H5PartOpenFileAlign ( file_name2, H5PART_WRITE, *align );
+
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f; 
+}
+
+h5part_int64_t
+h5pt_opena_align (
+	const char *file_name,
+	const h5part_int64_t *align,
+	const int l_file_name
+	) {
+	
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+
+	H5PartFile* f = H5PartOpenFileAlign ( file_name2, H5PART_APPEND, *align );
+
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f;
+}
+
 #ifdef PARALLEL_IO
 h5part_int64_t
 h5pt_openr_par (
@@ -271,6 +345,57 @@ h5pt_opena_par (
        
        H5PartFile* f = H5PartOpenFileParallel (
                file_name2, H5PART_APPEND, *comm );
+       
+       free ( file_name2 );
+       return (h5part_int64_t)(size_t)f;
+}
+
+h5part_int64_t
+h5pt_openr_par_align (
+	const char *file_name,
+	MPI_Comm *comm,
+	const h5part_int64_t *align,
+	const int l_file_name
+	) {
+
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+
+	H5PartFile* f = H5PartOpenFileParallelAlign (
+		file_name2, H5PART_READ, *comm, *align );
+
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f; 
+}
+
+h5part_int64_t
+h5pt_openw_par_align (
+	const char *file_name,
+	MPI_Comm *comm,
+	const h5part_int64_t *align,
+	const int l_file_name
+	) {
+
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+
+	H5PartFile* f = H5PartOpenFileParallelAlign (
+		file_name2, H5PART_WRITE, *comm, *align );
+
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f; 
+}
+
+h5part_int64_t
+h5pt_opena_par_align (
+	const char *file_name,
+	MPI_Comm *comm,
+	const h5part_int64_t *align,
+	const int l_file_name
+	) {
+	
+	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+       
+       H5PartFile* f = H5PartOpenFileParallelAlign (
+               file_name2, H5PART_APPEND, *comm, *align );
        
        free ( file_name2 );
        return (h5part_int64_t)(size_t)f;
@@ -349,6 +474,25 @@ h5pt_writedata_r8 (
 }
 
 h5part_int64_t
+h5pt_writedata_r4 (
+	const h5part_int64_t *f,
+	const char *name,
+	const h5part_float32_t *data,
+	const int l_name ) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
+
+	h5part_int64_t herr = H5PartWriteDataFloat32 (
+		filehandle, name2, data );
+
+	free ( name2 );
+
+	return herr;
+}
+
+h5part_int64_t
 h5pt_writedata_i8 (
 	const h5part_int64_t *f,
 	const char *name,
@@ -360,6 +504,25 @@ h5pt_writedata_i8 (
 	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 
 	h5part_int64_t herr = H5PartWriteDataInt64 (
+		filehandle, name2, data );
+
+	free ( name2 );
+
+	return herr;
+}
+
+h5part_int64_t
+h5pt_writedata_i4 (
+	const h5part_int64_t *f,
+	const char *name,
+	const h5part_int32_t *data,
+	const int l_name ) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
+
+	h5part_int64_t herr = H5PartWriteDataInt32 (
 		filehandle, name2, data );
 
 	free ( name2 );
@@ -492,6 +655,25 @@ h5pt_readdata_r8 (
 }
 
 h5part_int64_t
+h5pt_readdata_r4 (
+	const h5part_int64_t *f,
+	const char *name,
+	h5part_float32_t *array,
+	const int l_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
+
+	h5part_int64_t herr = H5PartReadDataFloat32 (
+		filehandle, name2, array );
+
+	free ( name2 );
+	return herr;
+}
+
+h5part_int64_t
 h5pt_readdata_i8 (
 	const h5part_int64_t *f,
 	const char *name,
@@ -504,6 +686,25 @@ h5pt_readdata_i8 (
 	char *name2 = _H5Part_strdupfor2c ( name, l_name );
 
 	h5part_int64_t herr = H5PartReadDataInt64 (
+		filehandle, name2, array );
+
+	free ( name2 );
+	return herr;
+}
+
+h5part_int64_t
+h5pt_readdata_i4 (
+	const h5part_int64_t *f,
+	const char *name,
+	h5part_int32_t *array,
+	const int l_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *name2 = _H5Part_strdupfor2c ( name, l_name );
+
+	h5part_int64_t herr = H5PartReadDataInt32 (
 		filehandle, name2, array );
 
 	free ( name2 );

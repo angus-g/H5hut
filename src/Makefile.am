@@ -40,14 +40,14 @@ lib_LIBRARIES = @MTARGET@
 EXTRA_LIBRARIES = libH5Part.a libH5PartF.a
 
 # Header files that I wish to install in $(prefix)/include
-include_HEADERS = H5Part.h H5PartTypes.h H5PartErrors.h H5Block.h H5BlockTypes.h H5BlockErrors.h H5Part.inc H5PartF90.inc H5BlockF90.inc @UNDERSCORE_H@
+include_HEADERS = H5Part.h H5PartTypes.h H5PartErrors.h H5Block.h H5BlockReadWrite.h H5BlockTypes.h H5BlockErrors.h H5Part.inc H5PartF90.inc H5BlockF90.inc H5BlockReadWriteF90.inc @UNDERSCORE_H@
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS = H5PartPrivate.h H5BlockPrivate.h
 
 # Listing of sources
-libH5Part_a_SOURCES = H5Part.c H5Block.c
-libH5PartF_a_SOURCES = H5PartF.c H5BlockF.c
+libH5Part_a_SOURCES = H5Part.c H5Block.c H5BlockReadWrite.c
+libH5PartF_a_SOURCES = H5PartF.c H5BlockF.c H5BlockReadWriteF.c
 
 
 H5Part.inc:	H5PartF90.inc
@@ -55,10 +55,10 @@ H5Part.inc:	H5PartF90.inc
 
 # Specific building instruction (What compilers to use...)
 # ------------ Serial Lib build commands ------------
-libH5Part.a: H5Part.o H5Block.o
+libH5Part.a: H5Part.o H5Block.o H5BlockReadWrite.o
 	${AR} rucs $@ $^
  
-libH5PartF.a: H5Part.o H5PartF.o H5Block.o H5BlockF.o
+libH5PartF.a: H5Part.o H5PartF.o H5Block.o H5BlockF.o H5BlockReadWrite.o H5BlockReadWriteF.o
 	${AR} rucs $@ $^
 
 %.o : %.c
@@ -68,7 +68,8 @@ H5Part.o: H5Part.c H5Part.h H5PartPrivate.h H5PartTypes.h
 H5PartF.o: H5PartF.c Underscore.h H5Part.h
 H5Block.o: H5Block.c H5Part.h H5PartPrivate.h H5PartTypes.h H5Block.h H5BlockTypes.h
 H5BlockF.o: H5BlockF.c Underscore.h H5Block.h
-
+H5BlockReadWrite.o: H5BlockReadWrite.c H5Part.h H5PartPrivate.h H5PartTypes.h H5Block.h H5BlockPrivate.h H5BlockReadWrite.h H5BlockTypes.h
+H5BlockReadWriteF.o: H5BlockF.c Underscore.h H5Block.h H5BlockReadWrite.h
 
 # ----------- Build Parallel H5Part Stuff ------------
 

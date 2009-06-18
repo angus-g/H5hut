@@ -30,6 +30,40 @@
         END FUNCTION
 
 
+        INTEGER*8 FUNCTION h5pt_openr_align ( filename, align )
+          CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for reading
+          INTEGER*8, INTENT(IN) :: align                ! alignment value in bytes
+        END FUNCTION
+
+        INTEGER*8 FUNCTION h5pt_openw_align ( filename, align )
+          CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for writing
+          INTEGER*8, INTENT(IN) :: align                ! alignment value in bytes
+        END FUNCTION
+
+        INTEGER*8 FUNCTION h5pt_opena_align ( filename, align )
+          CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for appending
+          INTEGER*8, INTENT(IN) :: align                ! alignment value in bytes
+        END FUNCTION
+
+        INTEGER*8 FUNCTION h5pt_openr_par_align ( filename, mpi_communicator, align )
+          CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for reading
+          INTEGER, INTENT(IN) :: mpi_communicator       ! the MPI_Communicator used by the program
+          INTEGER*8, INTENT(IN) :: align                ! alignment value in bytes
+        END FUNCTION
+
+        INTEGER*8 FUNCTION h5pt_openw_par_align ( filename, mpi_communicator, align )
+          CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for writing
+          INTEGER, INTENT(IN) :: mpi_communicator       ! the MPI_Communicator used by the program
+          INTEGER*8, INTENT(IN) :: align                ! alignment value in bytes
+        END FUNCTION
+
+        INTEGER*8 FUNCTION h5pt_opena_par_align ( filename, mpi_communicator, align )
+          CHARACTER(LEN=*), INTENT(IN) :: filename      ! the filename to open for appending
+          INTEGER, INTENT(IN) :: mpi_communicator       ! the MPI_Communicator used by the program
+          INTEGER*8, INTENT(IN) :: align                ! alignment value in bytes
+        END FUNCTION
+
+
         INTEGER*8 FUNCTION h5pt_close ( filehandle )
           INTEGER*8, INTENT(IN) :: filehandle           ! close this open filehandle
         END FUNCTION
@@ -54,10 +88,24 @@
                                                         ! h5pt_setnpoints(f,npoints)
         END FUNCTION
 
+        INTEGER*8 FUNCTION h5pt_writedata_r4 ( filehandle, name, data )
+          INTEGER*8, INTENT(IN) :: filehandle
+          CHARACTER(LEN=*), INTENT(IN) :: name          ! The name of the data we are writing
+          REAL, INTENT(IN) :: data(*)                 ! The dataarray to write.  The number of
+                                                        ! elements is presumably set earlier with
+                                                        ! h5pt_setnpoints(f,npoints)
+        END FUNCTION
+
         INTEGER*8 FUNCTION h5pt_writedata_i8 ( filehandle, name, data )
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name          ! The name of the data we are writing
           INTEGER*8, INTENT(IN) :: data(*)
+        END FUNCTION
+
+        INTEGER*8 FUNCTION h5pt_writedata_i4 ( filehandle, name, data )
+          INTEGER*8, INTENT(IN) :: filehandle
+          CHARACTER(LEN=*), INTENT(IN) :: name          ! The name of the data we are writing
+          INTEGER, INTENT(IN) :: data(*)
         END FUNCTION
 
 !==============Reading Data Characteristics============
@@ -116,10 +164,28 @@
                                                         ! number of particles in the file.
         END FUNCTION
 
+        INTEGER*8 FUNCTION h5pt_readdata_r4 (filehandle,name,data)
+          INTEGER*8, INTENT(IN) :: filehandle
+          CHARACTER(LEN=*), INTENT(IN) :: name          ! The name of the data we are writing
+          REAL, INTENT(OUT) :: data(*)                ! The dataarray to read. Number of points
+                                                        ! read is either the number within the view set
+                                                        ! by h5pt_setview() or the default (the total
+                                                        ! number of particles in the file.
+        END FUNCTION
+
         INTEGER*8 FUNCTION h5pt_readdata_i8 (filehandle,name,data)
           INTEGER*8, INTENT(IN) :: filehandle
           CHARACTER(LEN=*), INTENT(IN) :: name          ! The name of the data we are writing
           INTEGER*8, INTENT(OUT) :: data(*)             ! The dataarray to read. Number of points
+                                                        ! read is either the number within the view set
+                                                        ! by h5pt_setview() or the default (the total
+                                                        ! number of particles in the file.
+        END FUNCTION
+
+        INTEGER*8 FUNCTION h5pt_readdata_i4 (filehandle,name,data)
+          INTEGER*8, INTENT(IN) :: filehandle
+          CHARACTER(LEN=*), INTENT(IN) :: name          ! The name of the data we are writing
+          INTEGER, INTENT(OUT) :: data(*)             ! The dataarray to read. Number of points
                                                         ! read is either the number within the view set
                                                         ! by h5pt_setview() or the default (the total
                                                         ! number of particles in the file.

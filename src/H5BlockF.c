@@ -17,6 +17,9 @@
 #define h5bl_define3dlayout F77NAME (					\
 					h5bl_define3dlayout_,		\
 					H5BL_DEFINE3DLAYOUT )
+#define h5bl_define3dchunkdims F77NAME (				\
+					h5bl_define3dchunkdims_,	\
+					H5BL_DEFINE3DCHUNKDIMS )
 #define h5bl_get_partition_of_proc F77NAME (				\
 					h5bl_get_partition_of_proc_,	\
 					H5BL_GET_PARTITION_OF_PROC )
@@ -26,18 +29,6 @@
 #define h5bl_get_proc_of F77NAME (					\
 					h5bl_get_proc_of_,		\
 					H5BL_GET_PROC_OF )
-#define h5bl_3d_read_scalar_field F77NAME (				\
-					h5bl_3d_read_scalar_field_,	\
-					H5BL_3D_READ_SCALAR_FIELD )
-#define h5bl_3d_write_scalar_field F77NAME (				\
-					h5bl_3d_write_scalar_field_,	\
-					H5BL_3D_WRITE_SCALAR_FIELD )
-#define h5bl_3d_read_3dvector_field F77NAME (				\
-					h5bl_3d_read_3dvector_field_,	\
-					H5BL_3D_READ_3DVECTOR_FIELD )
-#define h5bl_3d_write_3dvector_field F77NAME (			\
-					h5bl_3d_write_3dvector_field_,	\
-					H5BL_3D_WRITE_3DVECTOR_FIELD )
 #define h5bl_getnumfields F77NAME (					\
 					h5bl_getnumfields_,		\
 					H5BL_GETNUMFIELDS )
@@ -103,6 +94,19 @@ h5bl_define3dlayout (
 		*i_start-1, *i_end-1,
 		*j_start-1, *j_end-1,
 		*k_start-1, *k_end-1 );
+}
+
+h5part_int64_t
+h5bl_define3dchunkdims (
+	h5part_int64_t *f,
+	const h5part_int64_t i,
+	const h5part_int64_t j,
+	const h5part_int64_t k
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5BlockDefine3DChunkDims ( filehandle, i, j, k );
 }
 
 h5part_int64_t
@@ -176,86 +180,6 @@ h5bl_get_proc_of (
 	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
 	return H5Block3dGetProcOf ( filehandle, (*i)-1, (*j)-1, (*k)-1 );
-}
-
-h5part_int64_t
-h5bl_3d_read_scalar_field (
-	h5part_int64_t *f,
-	const char *field_name,
-	h5part_float64_t *data,
-	const int l_field_name
-	) {
-
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
-
-	char *field_name2 =  _H5Part_strdupfor2c ( field_name,  l_field_name );
-
-	h5part_int64_t herr = H5Block3dReadScalarField (
-		filehandle, field_name2, data );
-
-	free ( field_name2 );
-	return herr;
-}
-
-h5part_int64_t
-h5bl_3d_write_scalar_field (
-	h5part_int64_t *f,
-	const char *field_name,
-	const h5part_float64_t *data,
-	const int l_field_name
-	) {
-
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
-
-	char *field_name2 =  _H5Part_strdupfor2c ( field_name,  l_field_name );
-
-	h5part_int64_t herr = H5Block3dWriteScalarField (
-		filehandle, field_name2, data );
-
-	free ( field_name2 );
-	return herr;
-}
-
-h5part_int64_t
-h5bl_3d_read_3dvector_field (
-	h5part_int64_t *f,		/*!< file handle */
-	const char *field_name,		/*!< name of the data set */
-	h5part_float64_t *xval,		/*!< array of x component data */
-	h5part_float64_t *yval,		/*!< array of y component data */
-	h5part_float64_t *zval,		/*!< array of z component data */
-	const int l_field_name
-	) {
-
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
-
-	char *field_name2 =  _H5Part_strdupfor2c ( field_name,  l_field_name );
-
-	h5part_int64_t herr = H5Block3dRead3dVectorField (
-		filehandle, field_name2, xval, yval, zval );
-
-	free ( field_name2 );
-	return herr;
-}
-
-h5part_int64_t
-h5bl_3d_write_3dvector_field (
-	h5part_int64_t *f,		/*!< file handle */
-	const char *field_name,		/*!< name of the data set */
-	const h5part_float64_t *xval,	/*!< array of x component data */
-	const h5part_float64_t *yval,	/*!< array of y component data */
-	const h5part_float64_t *zval,	/*!< array of z component data */
-	const int l_field_name
-	) {
-
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
-
-	char *field_name2 =  _H5Part_strdupfor2c ( field_name,  l_field_name );
-
-	h5part_int64_t herr = H5Block3dWrite3dVectorField (
-		filehandle, field_name2, xval, yval, zval );
-
-	free ( field_name2 );
-	return herr;
 }
 
 h5part_int64_t

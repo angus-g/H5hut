@@ -3,6 +3,8 @@
 
 #define H5PART_GROUPNAME_STEP	"Step"
 
+#define H5PART_BTREE_IK 10000
+
 /*!
   The functions declared here are not part of the API, but may be used
   in extensions like H5Block. We name these functions "private".
@@ -108,6 +110,12 @@ _H5Part_get_object_name (
 	const h5part_int64_t len_obj_name
 	);
 
+h5part_int64_t
+_H5Part_have_group (
+	const hid_t id,
+	const char *name
+	);
+
 void
 _H5Part_vprint_error (
 	const char *fmt,
@@ -163,6 +171,22 @@ _H5Part_vprint_debug (
 
 void
 _H5Part_print_debug (
+	const char *fmt,
+	...
+	)
+#ifdef __GNUC__
+__attribute__ ((format (printf, 1, 2)))
+#endif
+;
+
+void
+_H5Part_vprint_debug_detail (
+	const char *fmt,
+	va_list ap
+	);
+
+void
+_H5Part_print_debug_detail (
 	const char *fmt,
 	...
 	)

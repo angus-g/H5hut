@@ -18,12 +18,14 @@ struct H5BlockStruct {
 	struct H5BlockPartition *user_layout;
 	struct H5BlockPartition *write_layout;
 	int have_layout;
+	hsize_t chunk[3];
 
 	hid_t shape;
 	hid_t memshape;
 	hid_t diskshape;
 	hid_t blockgroup;
 	hid_t field_group_id;
+	hid_t create_prop;
 };
 
 #define H5PART_ERR_LAYOUT	-100

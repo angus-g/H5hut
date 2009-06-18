@@ -243,7 +243,7 @@ PROGRAM H5BlockParTestScalarFieldF
      INTEGER*8 :: file
      INTEGER*8 :: timestep = 1
 
-     PRINT "('PROC[',I,']: Open file ',A,' for writing ...')", myproc, fname
+     PRINT "('PROC[',I5,']: Open file ',A,' for writing ...')", myproc, fname
 
      file = h5pt_openw_par ( fname, comm )
      if ( file == 0 ) THEN
@@ -327,7 +327,7 @@ PROGRAM H5BlockParTestScalarFieldF
      END DO
 
      PRINT *, "Writing field ..."
-     h5pt_err = h5bl_3d_write_scalar_field ( file, "TestField", data )
+     h5pt_err = h5bl_3d_write_scalar_field_r8 ( file, "TestField", data )
      IF ( h5pt_err < 0 ) THEN
         write_field = h5pt_err
         RETURN
@@ -424,7 +424,7 @@ PROGRAM H5BlockParTestScalarFieldF
      END IF
 
      PRINT *, "Reading field ..."
-     h5pt_err = h5bl_3d_read_scalar_field ( file, "TestField", data )
+     h5pt_err = h5bl_3d_read_scalar_field_r8 ( file, "TestField", data )
      IF ( h5pt_err < 0 ) THEN
         read_field = -1
         RETURN
@@ -446,7 +446,7 @@ PROGRAM H5BlockParTestScalarFieldF
 
               value = rk + 1000*rj + 100000*ri + 10000000*proc
               if ( data(i,j,k) /= value ) THEN
-                 PRINT "('data(',I3,',',I3,',',I3,') = ',F,' /= ',F)", i, j, k, data(i,j,k), value
+                 PRINT "('data(',I3,',',I3,',',I3,') = ',F5.2,' /= ',F5.2)", i, j, k, data(i,j,k), value
                  PRINT "('proc: ', I2)", proc
                  PRINT "('i_start: ', I3, '  i_end: ', I3)", i_start, i_end
                  PRINT "('j_start: ', I3, '  j_end: ', I3)", j_start, j_end

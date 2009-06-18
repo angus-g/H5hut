@@ -23,17 +23,21 @@ extern "C" {
 #define H5PART_ERR_INIT         -200
 #define H5PART_ERR_NOENTRY	-201
 
-#define H5PART_ERR_MPI		-201
-#define H5PART_ERR_HDF5		-202
+#define H5PART_ERR_MPI		-300
+#define H5PART_ERR_HDF5		-400
 
-
+/* flags used during file open */
 #define H5PART_READ		0x01
 #define H5PART_WRITE		0x02
-#define H5PART_APPEND		0x03
+#define H5PART_APPEND		0x04
+#define H5PART_VFD_MPIPOSIX     0x08
+#define H5PART_FS_LUSTRE        0x10
+#define H5PART_FS_GPFS          0x20
 
 
 #define H5PART_INT64		((h5part_int64_t)H5T_NATIVE_INT64)
 #define H5PART_FLOAT64		((h5part_int64_t)H5T_NATIVE_DOUBLE)
+#define H5PART_FLOAT32		((h5part_int64_t)H5T_NATIVE_FLOAT)
 #define H5PART_CHAR		((h5part_int64_t)H5T_NATIVE_CHAR)
 
 /*========== File Opening/Closing ===============*/
@@ -43,7 +47,15 @@ H5PartOpenFile(
 	const unsigned flags
 	);
 
+H5PartFile*
+H5PartOpenFileAlign(
+	const char *filename,
+	const unsigned flags,
+	h5part_int64_t align
+	);
+
 #define H5PartOpenFileSerial(x,y) H5PartOpenFile(x,y)
+#define H5PartOpenFileSerialAlign(x,y,z) H5PartOpenFileAlign(x,y,z)
 
 #ifdef PARALLEL_IO
 H5PartFile*
@@ -51,6 +63,14 @@ H5PartOpenFileParallel (
 	const char *filename,
 	const unsigned flags,
 	MPI_Comm communicator
+	);
+
+H5PartFile*
+H5PartOpenFileParallelAlign (
+	const char *filename,
+	const unsigned flags,
+	MPI_Comm communicator,
+	h5part_int64_t align
 	);
 #endif
 
@@ -83,10 +103,24 @@ H5PartWriteDataFloat64 (
 	);
 
 h5part_int64_t
+H5PartWriteDataFloat32 (
+	H5PartFile *f,
+	const char *name,
+	const h5part_float32_t *array
+	);
+
+h5part_int64_t
 H5PartWriteDataInt64 (
 	H5PartFile *f,
 	const char *name,
 	const h5part_int64_t *array
+	);
+
+h5part_int64_t
+H5PartWriteDataInt32 (
+	H5PartFile *f,
+	const char *name,
+	const h5part_int32_t *array
 	);
 
 /*================== File Reading Routines =================*/
@@ -173,10 +207,24 @@ H5PartReadDataFloat64(
 	);
 
 h5part_int64_t
+H5PartReadDataFloat32(
+	H5PartFile *f,
+	const char *name,
+	h5part_float32_t *array
+	);
+
+h5part_int64_t
 H5PartReadDataInt64 (
 	H5PartFile *f,
 	const char *name,
 	h5part_int64_t *array
+	);
+
+h5part_int64_t
+H5PartReadDataInt32 (
+	H5PartFile *f,
+	const char *name,
+	h5part_int32_t *array
 	);
 
 h5part_int64_t

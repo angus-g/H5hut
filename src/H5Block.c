@@ -52,17 +52,8 @@
 #include "H5BlockPrivate.h"
 #include "H5BlockErrors.h"
 
-#define INIT( f ) { \
-	h5part_int64_t herr = _init ( f ); \
-	if ( herr < 0 ) return herr; \
-}
-
 /********************** declarations *****************************************/
 
-static h5part_int64_t
-_close (
-	H5PartFile *f
-	);
 
 /********************** misc *************************************************/
 
@@ -102,10 +93,11 @@ _file_is_valid (
 
   \return	H5PART_SUCCESS or error code
 */
-static h5part_int64_t
-_init (
+h5part_int64_t
+_H5Block_init (
 	H5PartFile *f			/*!< IN: file handle */
 	) {
+
 	h5part_int64_t herr;
 	struct H5BlockStruct *b; 
 
@@ -141,9 +133,13 @@ _init (
 	b->diskshape = -1;
 	b->memshape = -1;
 	b->field_group_id = -1;
+	b->create_prop = H5P_DEFAULT;
 	b->have_layout = 0;
+	b->chunk[0] = 0;
+	b->chunk[1] = 0;
+	b->chunk[2] = 0;
 
-	f->close_block = _close;
+	f->close_block = _H5Block_close;
 
 	return H5PART_SUCCESS;
 }
@@ -158,8 +154,8 @@ _init (
 
   \return	H5PART_SUCCESS or error code
 */
-static h5part_int64_t
-_close (
+h5part_int64_t
+_H5Block_close (
 	H5PartFile *f		/*!< IN: file handle */
 	) {
 
@@ -260,7 +256,7 @@ _allgather (
 	size_t n = sizeof (struct H5BlockPartition) / sizeof (h5part_int64_t);
 
 	MPI_Type_contiguous ( n, MPI_LONG_LONG, &partition_m );
-        MPI_Type_commit ( &partition_m );
+	  MPI_Type_commit ( &partition_m );
 
 	MPI_Allgather ( partition, 1, partition_m, layout, 1, partition_m,
 			f->comm );
@@ -305,8 +301,8 @@ _get_dimension_sizes (
 }
 
 #define _NO_GHOSTZONE(p,q) ( (p->i_end < q->i_start) \
-  		        ||   (p->j_end < q->j_start) \
-		        ||   (p->k_end < q->k_start) )
+  			  ||   (p->j_end < q->j_start) \
+			  ||   (p->k_end < q->k_start) )
 
 
 /*!
@@ -577,11 +573,11 @@ _dissolve_ghostzones (
 	memset ( p_begin, 0, sizeof ( *p_begin ) );
 
 	for ( proc_p = 0, p = b->write_layout;
-	      proc_p < f->nprocs-1;
-	      proc_p++, p++ ) {
+		proc_p < f->nprocs-1;
+		proc_p++, p++ ) {
 		for ( proc_q = proc_p+1, q = &b->write_layout[proc_q];
-		      proc_q < f->nprocs;
-		      proc_q++, q++ ) {
+			proc_q < f->nprocs;
+			proc_q++, q++ ) {
 
 			if ( _have_ghostzone ( p, q ) ) {
 				p_el = (struct list*) malloc ( sizeof ( *p_el ) );
@@ -630,24 +626,40 @@ _dissolve_ghostzones (
 	}
 	free ( p_begin );
 
-	_H5Part_print_debug ("Layout defined by user:");
+	p = b->user_layout;
+	_H5Part_print_debug (
+		"PROC[%d]: User layout: %lld:%lld, %lld:%lld, %lld:%lld",
+		f->myproc,
+		(long long)p->i_start, (long long)p->i_end,
+		(long long)p->j_start, (long long)p->j_end,
+		(long long)p->k_start, (long long)p->k_end );
+	/* more detailed debug output: all procs report their view
+	   of all other procs */
 	for ( proc_p = 0, p = b->user_layout;
-	      proc_p < f->nprocs;
-	      proc_p++, p++ ) {
-		_H5Part_print_debug (
-			"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
+		proc_p < f->nprocs;
+		proc_p++, p++ ) {
+		_H5Part_print_debug_detail (
+			"PROC[%d]: proc[%d]: User layout: %lld:%lld, %lld:%lld, %lld:%lld  ",
 			f->myproc, proc_p,
 			(long long)p->i_start, (long long)p->i_end,
 			(long long)p->j_start, (long long)p->j_end,
 			(long long)p->k_start, (long long)p->k_end );
 	}
 
-	_H5Part_print_debug ("Layout after dissolving ghost-zones:");
+	p = b->write_layout;
+	_H5Part_print_debug (
+		"PROC[%d]: Ghost-zone layout: %lld:%lld, %lld:%lld, %lld:%lld",
+		f->myproc,
+		(long long)p->i_start, (long long)p->i_end,
+		(long long)p->j_start, (long long)p->j_end,
+		(long long)p->k_start, (long long)p->k_end );
+	/* more detailed debug output: all procs report their view
+	   of all other procs */
 	for ( proc_p = 0, p = b->write_layout;
-	      proc_p < f->nprocs;
-	      proc_p++, p++ ) {
-		_H5Part_print_debug (
-			"PROC[%d]: proc[%d]: %lld:%lld, %lld:%lld, %lld:%lld  ",
+		proc_p < f->nprocs;
+		proc_p++, p++ ) {
+		_H5Part_print_debug_detail (
+			"PROC[%d]: proc[%d]: Ghost-zone layout: %lld:%lld, %lld:%lld, %lld:%lld  ",
 			f->myproc, proc_p,
 			(long long)p->i_start, (long long)p->i_end,
 			(long long)p->j_start, (long long)p->j_end,
@@ -658,7 +670,7 @@ _dissolve_ghostzones (
 
 /*!
   \ingroup h5block_private
-1
+
   \internal
 
 */
@@ -699,12 +711,12 @@ _release_hyperslab (
 h5part_int64_t
 H5BlockDefine3DFieldLayout(
 	H5PartFile *f,			/*!< IN: File handle		*/
-	const h5part_int64_t i_start,	/*!< OUT: start index of \c i	*/ 
-	const h5part_int64_t i_end,	/*!< OUT: end index of \c i	*/  
-	const h5part_int64_t j_start,	/*!< OUT: start index of \c j	*/ 
-	const h5part_int64_t j_end,	/*!< OUT: end index of \c j	*/ 
-	const h5part_int64_t k_start,	/*!< OUT: start index of \c j	*/ 
-	const h5part_int64_t k_end	/*!< OUT: end index of \c j	*/
+	const h5part_int64_t i_start,	/*!< IN: start index of \c i	*/ 
+	const h5part_int64_t i_end,	/*!< IN: end index of \c i	*/  
+	const h5part_int64_t j_start,	/*!< IN: start index of \c j	*/ 
+	const h5part_int64_t j_end,	/*!< IN: end index of \c j	*/ 
+	const h5part_int64_t k_start,	/*!< IN: start index of \c k	*/ 
+	const h5part_int64_t k_end	/*!< IN: end index of \c k	*/
 	) {
 
 	SET_FNAME ( "H5BlockDefine3DFieldLayout" );
@@ -733,6 +745,104 @@ H5BlockDefine3DFieldLayout(
 	if ( herr < 0 )	return HANDLE_H5S_CLOSE_ERR;
 
 	b->have_layout = 1;
+
+	return H5PART_SUCCESS;
+}
+
+/*!
+  \ingroup h5block_c_api
+
+  Define the chunk dimensions and enable chunking in the underlying
+  HDF5 dataset.
+
+  \return \c H5PART_SUCCESS on success
+*/
+h5part_int64_t
+H5BlockDefine3DChunkDims(
+	H5PartFile *f,			/*!< IN: File handle */
+	const h5part_int64_t i,	 /*!< IN: size of \c i */ 
+	const h5part_int64_t j,	 /*!< IN: size of \c j */  
+	const h5part_int64_t k   	/*!< IN: size of \c k */ 
+	) {
+
+	SET_FNAME ( "H5BlockDefine3DChunkDims" );
+	INIT( f );
+
+	struct H5BlockStruct *b = f->block;
+
+	b->chunk[0] = (hsize_t)k;
+	b->chunk[1] = (hsize_t)j;
+	b->chunk[2] = (hsize_t)i;
+
+	_H5Part_print_debug (
+		"PROC[%d]: Chunk dimensions: (%lld,%lld,%lld)",
+		f->myproc,
+		(long long)b->chunk[2],
+		(long long)b->chunk[1],
+		(long long)b->chunk[0] );
+
+	b->create_prop = H5Pcreate (H5P_DATASET_CREATE);
+	herr_t herr = H5Pset_chunk ( b->create_prop, 3, b->chunk );
+	if ( herr < 0 ) return HANDLE_H5P_SET_CHUNK_ERR;
+
+	return H5PART_SUCCESS;
+}
+
+/*!
+  \ingroup h5block_c_api
+
+  Lookup the chunk dimensions of the underlying HDF5 dataset.
+
+  \return \c H5PART_SUCCESS on success
+*/
+h5part_int64_t
+H5BlockGet3DChunkDims(
+	H5PartFile *f,			/*!< IN: File handle */
+	const char *field_name, 	/*!< IN: name of dataset */
+	h5part_int64_t *dims    	/*!< OUT: array containing
+						  the chunk dimensions */
+	) {
+
+	SET_FNAME ( "H5BlockGet3DChunkDims" );
+	INIT( f );
+
+	struct H5BlockStruct *b = f->block;
+
+	CHECK_TIMEGROUP ( f );
+
+	h5part_int64_t herr = _H5Block_open_field_group ( f, field_name );
+	if ( herr < 0 ) return herr;
+
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	hid_t dataset_id = H5Dopen2 ( b->field_group_id, "0", H5P_DEFAULT );
+#else
+	hid_t dataset_id = H5Dopen ( b->field_group_id, "0" );
+#endif
+	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( field_name );
+
+	hid_t plist_id = H5Dget_create_plist (dataset_id);
+	if ( plist_id < 0 ) return HANDLE_H5D_GET_PLIST_ERR;
+
+	hsize_t cdims[3];
+	int ndim = H5Pget_chunk ( plist_id, 3, cdims );
+	if ( ndim != 3 ) return HANDLE_H5P_GET_CHUNK_ERR;
+
+	H5Dclose (dataset_id);
+	H5Pclose (plist_id);
+
+	_H5Part_print_debug (
+		"PROC[%d]: Chunk dimensions: (%lld,%lld,%lld)",
+		f->myproc,
+		(long long)cdims[2],
+		(long long)cdims[1],
+		(long long)cdims[0] );
+
+	dims[0] = cdims[2];
+	dims[1] = cdims[1];
+	dims[2] = cdims[0];
+
+	herr = _H5Block_close_field_group ( f );
+	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
 }
@@ -874,7 +984,14 @@ _open_block_group (
 	}
 
 	if ( b->blockgroup < 0 ) {
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+		hid_t herr = H5Gopen2 (
+				f->timegroup,
+				H5BLOCK_GROUPNAME_BLOCK,
+				H5P_DEFAULT );
+#else
 		hid_t herr = H5Gopen ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK );
+#endif
 		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 		b->blockgroup = herr;
 	}
@@ -890,24 +1007,10 @@ _open_block_group (
 
   \internal
 
-*/
-static h5part_int64_t
-_have_object (
-	const hid_t id,
-	const char *name
-	) {
-	return (H5Gget_objinfo( id, name, 1, NULL ) >= 0 ? 1 : 0);
-}
-
-/*!
-  \ingroup h5block_private
-
-  \internal
-
   \return \c H5PART_SUCCESS or error code
 */
-static h5part_int64_t
-_open_field_group (
+h5part_int64_t
+_H5Block_open_field_group (
 	H5PartFile *f,			/*!< IN: file handle */
 	const char *name
 	) {
@@ -917,10 +1020,14 @@ _open_field_group (
 	h5part_int64_t h5err = _open_block_group ( f );
 	if ( h5err < 0 ) return h5err;
 
-	if ( ! _have_object ( b->blockgroup, name ) )
+	if ( ! _H5Part_have_group ( b->blockgroup, name ) )
 		return HANDLE_H5PART_NOENT_ERR ( name );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	herr_t herr = H5Gopen2 ( b->blockgroup, name, H5P_DEFAULT );
+#else
 	herr_t herr = H5Gopen ( b->blockgroup, name );
+#endif
 	if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( name );
 
 	b->field_group_id = herr;
@@ -936,7 +1043,7 @@ _open_field_group (
   \return \c H5PART_SUCCESS or error code
 */
 h5part_int64_t
-_close_field_group (
+_H5Block_close_field_group (
 	H5PartFile *f			/*!< IN: file handle */
 	) {
 
@@ -991,8 +1098,7 @@ _select_hyperslab_for_reading (
 	     (field_dims[2] < (hsize_t)b->i_max) ) return HANDLE_H5PART_LAYOUT_ERR;
 
 	_H5Part_print_debug (
-		"PROC[%d]: \n"
-		"\tfield_dims: (%lld,%lld,%lld)",
+		"PROC[%d]: field_dims: (%lld,%lld,%lld)",
 		f->myproc,
 		(long long)field_dims[2],
 		(long long)field_dims[1],
@@ -1042,15 +1148,20 @@ _select_hyperslab_for_reading (
   \return \c H5PART_SUCCESS or error code
 */
 h5part_int64_t
-_read_data (
+_H5Block_read_data (
 	H5PartFile *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to read */
-	h5part_float64_t *data		/*!< OUT: ptr to read buffer */
+	void *data,			/*!< OUT: ptr to read buffer */
+	hid_t type      		/*!< IN: data type */
 	) {
 
 	struct H5BlockStruct *b = f->block;
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	hid_t dataset_id = H5Dopen2 ( b->field_group_id, name, H5P_DEFAULT );
+#else
 	hid_t dataset_id = H5Dopen ( b->field_group_id, name );
+#endif
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
 
 	h5part_int64_t herr = _select_hyperslab_for_reading ( f, dataset_id );
@@ -1058,7 +1169,7 @@ _read_data (
 
 	herr = H5Dread ( 
 		dataset_id,
-		H5T_NATIVE_DOUBLE,
+		type,
 		f->block->memshape,
 		f->block->diskshape,
 		H5P_DEFAULT,
@@ -1067,83 +1178,6 @@ _read_data (
 
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
-
-	return H5PART_SUCCESS;
-}
-
-/*!
-  \ingroup h5block_c_api
-
-  Read a 3-dimensional field \c name into the buffer starting at \c data from
-  the current time-step using the defined field layout. Values are real valued
-  scalars.
-
-  You must use the FORTRAN indexing scheme to access items in \c data.
-
-  \return \c H5PART_SUCCESS or error code
-*/
-h5part_int64_t
-H5Block3dReadScalarField (
-	H5PartFile *f,			/*!< IN: file handle */
-	const char *name,		/*!< IN: name of dataset to read */
-	h5part_float64_t *data		/*!< OUT: ptr to read buffer */
-	) {
-
-	SET_FNAME ( "H5Block3dReadScalarField" );
-	INIT ( f );
-	CHECK_TIMEGROUP ( f );
-	CHECK_LAYOUT ( f );
-
-	h5part_int64_t herr = _open_field_group ( f, name );
-	if ( herr < 0 ) return herr;
-
-	herr = _read_data ( f, "0", data );
-	if ( herr < 0 ) return herr;
-
-	herr = _close_field_group ( f );
-	if ( herr < 0 ) return herr;
-
-	return H5PART_SUCCESS;
-}
-
-/*!
-  \ingroup h5block_c_api
-
-  Read a 3-dimensional field \c name with 3-dimensional vectors as values 
-  into the buffers starting at \c x_data, \c y_data and \c z_data from the
-  current time-step using the defined field layout. Values are 3-dimensional
-  vectors with real values.
-
-  You must use the FORTRAN indexing scheme to access items in the buffers.
-
-  \return \c H5PART_SUCCESS or error code
-*/
-h5part_int64_t
-H5Block3dRead3dVectorField (
-	H5PartFile *f,			/*!< IN: file handle */
-	const char *name,		/*!< IN: name of dataset to read */
-	h5part_float64_t *x_data,	/*!< OUT: ptr to read buffer X axis */
-	h5part_float64_t *y_data,	/*!< OUT: ptr to read buffer Y axis */
-	h5part_float64_t *z_data	/*!< OUT: ptr to read buffer Z axis */
-	) {
-
-	SET_FNAME ( "H5Block3dRead3dVectorField" );
-	INIT ( f );
-	CHECK_TIMEGROUP ( f );
-	CHECK_LAYOUT ( f );
-
-	h5part_int64_t herr = _open_field_group ( f, name );
-	if ( herr < 0 ) return herr;
-
-	herr = _read_data ( f, "0", x_data );
-	if ( herr < 0 ) return herr;
-	herr = _read_data ( f, "1", y_data );
-	if ( herr < 0 ) return herr;
-	herr = _read_data ( f, "2", z_data );
-	if ( herr < 0 ) return herr;
-
-	herr = _close_field_group ( f );
-	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
 }
@@ -1287,7 +1321,16 @@ _create_block_group (
 		f->block->blockgroup = -1;
 	}
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	herr = H5Gcreate2 (
+		    f->timegroup,
+		    H5BLOCK_GROUPNAME_BLOCK,
+		    H5P_DEFAULT,
+		    H5P_DEFAULT,
+		    H5P_DEFAULT );
+#else
 	herr = H5Gcreate ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK, 0 );
+#endif
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 
 	f->block->blockgroup = herr;
@@ -1301,8 +1344,8 @@ _create_block_group (
 
   \return \c H5PART_SUCCESS or error code
 */
-static h5part_int64_t
-_create_field_group (
+h5part_int64_t
+_H5Block_create_field_group (
 	H5PartFile *f,			/*!< IN: file handle */
 	const char *name		/*!< IN: name of field group to create */
 	) {
@@ -1311,7 +1354,7 @@ _create_field_group (
 	struct H5BlockStruct *b = f->block;
 
 
-	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) ) {
+	if ( ! _H5Part_have_group ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) ) {
 		h5err = _create_block_group ( f );
 	} else {
 		h5err = _open_block_group ( f );
@@ -1321,10 +1364,19 @@ _create_field_group (
 	h5err = _select_hyperslab_for_writing ( f );
 	if ( h5err < 0 ) return h5err;
 
-	if ( _have_object ( b->blockgroup, name ) )
+	if ( _H5Part_have_group ( b->blockgroup, name ) )
 		return  HANDLE_H5PART_GROUP_EXISTS_ERR ( name );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	herr_t herr = H5Gcreate2 (
+		    b->blockgroup,
+		    name,
+		    H5P_DEFAULT,
+		    H5P_DEFAULT,
+		    H5P_DEFAULT );
+#else
 	herr_t herr = H5Gcreate ( b->blockgroup, name, 0 );
+#endif
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( name );
 	b->field_group_id = herr;
 
@@ -1339,115 +1391,54 @@ _create_field_group (
   \return \c H5PART_SUCCESS or error code
 */
 h5part_int64_t
-_write_data (
+_H5Block_write_data (
 	H5PartFile *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
-	const h5part_float64_t *data	/*!< IN: data to write */
+	const void *data,		/*!< IN: data to write */
+	const hid_t type		/*!< IN: data type */
 	) {
 
 	herr_t herr;
 	hid_t dataset;
+	hid_t create_prop = H5P_DEFAULT;
 	struct H5BlockStruct *b = f->block;
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	dataset = H5Dcreate2 (
+		b->field_group_id,
+		name,
+		type,
+		b->shape,
+		H5P_DEFAULT,
+		b->create_prop,
+		H5P_DEFAULT );
+#else
 	dataset = H5Dcreate (
 		b->field_group_id,
 		name,
-		H5T_NATIVE_DOUBLE,
+		type,
 		b->shape, 
-		H5P_DEFAULT );
+		b->create_prop );
+#endif
+
 	if ( dataset < 0 ) return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
 
 	herr = H5Dwrite ( 
 		dataset,
-		H5T_NATIVE_DOUBLE,
+		type,
 		b->memshape,
 		b->diskshape,
-		H5P_DEFAULT,
+		f->xfer_prop,
 		data );
 	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
 
 	herr = H5Dclose ( dataset );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
 
-	return H5PART_SUCCESS;
-}
-
-/*!
-  \ingroup h5block_c_api
-
-  Write a 3-dimensional field \c name from the buffer starting at \c data 
-  to the current time-step using the defined field layout. Values are real 
-  valued scalars.
-
-  You must use the FORTRAN indexing scheme to access items in \c data.
-
-  \return \c H5PART_SUCCESS or error code
-*/
-h5part_int64_t
-H5Block3dWriteScalarField (
-	H5PartFile *f,			/*!< IN: file handle */
-	const char *name,		/*!< IN: name of dataset to write */
-	const h5part_float64_t *data	/*!< IN: scalar data to write */
-	) {
-
-	SET_FNAME ( "H5Block3dWriteScalarField" );
-	INIT ( f );
-	CHECK_WRITABLE_MODE ( f );
-	CHECK_TIMEGROUP ( f );
-	CHECK_LAYOUT ( f );
-
-	h5part_int64_t herr = _create_field_group ( f, name );
-	if ( herr < 0 ) return herr;
-
-	herr = _write_data ( f, "0", data );
-	if ( herr < 0 ) return herr;
-
-	herr = _close_field_group ( f );
-	if ( herr < 0 ) return herr;
-
-	return H5PART_SUCCESS;
-}
-
-/*!
-  \ingroup h5block_c_api
-*/
-/*!
-  Write a 3-dimensional field \c name with 3-dimensional vectors as values 
-  from the buffers starting at \c x_data, \c y_data and \c z_data to the
-  current time-step using the defined field layout. Values are 3-dimensional
-  vectors with real values.
-
-  You must use the FORTRAN indexing scheme to access items in \c data.
-
-  \return \c H5PART_SUCCESS or error code
-*/
-h5part_int64_t
-H5Block3dWrite3dVectorField (
-	H5PartFile *f,			/*!< IN: file handle */
-	const char *name,		/*!< IN: name of dataset to write */
-	const h5part_float64_t *x_data,	/*!< IN: X axis data */
-	const h5part_float64_t *y_data,	/*!< IN: Y axis data */
-	const h5part_float64_t *z_data	/*!< IN: Z axis data */
-	) {
-
-	SET_FNAME ( "H5Block3dWrite3dVectorField" );
-	INIT ( f );
-	CHECK_WRITABLE_MODE ( f );
-	CHECK_TIMEGROUP ( f );
-	CHECK_LAYOUT ( f );
-
-	h5part_int64_t herr = _create_field_group ( f, name );
-	if ( herr < 0 ) return herr;
-
-	herr = _write_data ( f, "0", x_data );
-	if ( herr < 0 ) return herr;
-	herr = _write_data ( f, "1", y_data );
-	if ( herr < 0 ) return herr;
-	herr = _write_data ( f, "2", z_data );
-	if ( herr < 0 ) return herr;
-
-	herr = _close_field_group ( f );
-	if ( herr < 0 ) return herr;
+	if ( create_prop != H5P_DEFAULT ) {
+		herr = H5Pclose ( create_prop );
+		if ( herr < 0 ) return HANDLE_H5P_CLOSE_ERR ( "create_prop" );
+	}
 
 	return H5PART_SUCCESS;
 }
@@ -1470,7 +1461,7 @@ H5BlockGetNumFields (
 	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
-	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) )
+	if ( ! _H5Part_have_group ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) )
 		return 0;
 
 	return _H5Part_get_num_objects ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK, H5G_GROUP );
@@ -1489,7 +1480,7 @@ _get_field_info (
 	const char *field_name,		/*!< IN: field name to get info about */
 	h5part_int64_t *grid_rank,	/*!< OUT: rank of grid */
 	h5part_int64_t *grid_dims,	/*!< OUT: dimensions of grid */
-	h5part_int64_t *field_dims	/*!< OUT: rank of field  (1 or 3) */
+	h5part_int64_t *field_rank	/*!< OUT: rank of field  (1 or 3) */
 	) {
 
 	hsize_t dims[16];
@@ -1498,10 +1489,21 @@ _get_field_info (
 	h5part_int64_t herr = _open_block_group ( f );
 	if ( herr < 0 ) return herr;
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	hid_t group_id = H5Gopen2 (
+		    f->block->blockgroup,
+		    field_name,
+		    H5P_DEFAULT );
+#else
 	hid_t group_id = H5Gopen ( f->block->blockgroup, field_name );
+#endif
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR ( field_name );
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	hid_t dataset_id = H5Dopen2 ( group_id, "0", H5P_DEFAULT );
+#else
 	hid_t dataset_id = H5Dopen ( group_id, "0" );
+#endif
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( "0" );
 
  	hid_t dataspace_id = H5Dget_space ( dataset_id );
@@ -1513,11 +1515,11 @@ _get_field_info (
 	for ( i = 0, j = *grid_rank-1; i < *grid_rank; i++, j-- )
 		grid_dims[i] = (h5part_int64_t)dims[j];
 
-	*field_dims = _H5Part_get_num_objects (
+	*field_rank = _H5Part_get_num_objects (
 		f->block->blockgroup,
 		field_name,
 		H5G_DATASET );
-	if ( *field_dims < 0 ) return *field_dims;
+	if ( *field_rank < 0 ) return *field_rank;
 
 	herr = H5Sclose ( dataspace_id );
 	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
@@ -1552,7 +1554,7 @@ H5BlockGetFieldInfo (
 	const h5part_int64_t len_field_name,	/*!< IN: buffer size */
 	h5part_int64_t *grid_rank,		/*!< OUT: grid rank */
 	h5part_int64_t *grid_dims,		/*!< OUT: grid dimensions */
-	h5part_int64_t *field_dims		/*!< OUT: field rank */
+	h5part_int64_t *field_rank		/*!< OUT: field rank */
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
@@ -1569,7 +1571,7 @@ H5BlockGetFieldInfo (
 	if ( herr < 0 ) return herr;
 
 	return _get_field_info (
-		f, field_name, grid_rank, grid_dims, field_dims );
+		f, field_name, grid_rank, grid_dims, field_rank );
 }
 
 /*!
@@ -1585,7 +1587,7 @@ H5BlockGetFieldInfoByName (
 	const char *field_name,			/*!< IN: field name */
 	h5part_int64_t *grid_rank,		/*!< OUT: grid rank */
 	h5part_int64_t *grid_dims,		/*!< OUT: grid dimensions */
-	h5part_int64_t *field_dims		/*!< OUT: field rank */
+	h5part_int64_t *field_rank		/*!< OUT: field rank */
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
@@ -1593,7 +1595,7 @@ H5BlockGetFieldInfoByName (
 	CHECK_TIMEGROUP( f );
 
 	return _get_field_info (
-		f, field_name, grid_rank, grid_dims, field_dims );
+		f, field_name, grid_rank, grid_dims, field_rank );
 }
 
 /********************** reading and writing attribute ************************/
@@ -1615,7 +1617,7 @@ _write_field_attrib (
 	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
 	) {
 
-	h5part_int64_t herr = _open_field_group ( f, field_name );
+	h5part_int64_t herr = _H5Block_open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	_H5Part_write_attrib (
@@ -1626,7 +1628,7 @@ _write_field_attrib (
 		attrib_nelem );
 	if ( herr < 0 ) return herr;
 
-	herr = _close_field_group ( f );
+	herr = _H5Block_close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
@@ -1707,14 +1709,14 @@ H5BlockGetNumFieldAttribs (
 	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
-	h5part_int64_t herr = _open_field_group ( f, field_name );
+	h5part_int64_t herr = _H5Block_open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	h5part_int64_t nattribs = H5Aget_num_attrs (
 		f->block->field_group_id );
 	if ( nattribs < 0 ) HANDLE_H5A_GET_NUM_ATTRS_ERR;
 
-	herr = _close_field_group ( f );
+	herr = _H5Block_close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
 	return nattribs;
@@ -1745,7 +1747,7 @@ H5BlockGetFieldAttribInfo (
 	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
-	h5part_int64_t herr = _open_field_group ( f, field_name );
+	h5part_int64_t herr = _H5Block_open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	herr = _H5Part_get_attrib_info (
@@ -1757,7 +1759,7 @@ H5BlockGetFieldAttribInfo (
 		attrib_nelem );
 	if ( herr < 0 ) return herr;
 
-	herr = _close_field_group ( f );
+	herr = _H5Block_close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
@@ -1782,7 +1784,7 @@ _read_field_attrib (
 
 	struct H5BlockStruct *b = f->block;
 
-	h5part_int64_t herr = _open_field_group ( f, field_name );
+	h5part_int64_t herr = _H5Block_open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
 	herr = _H5Part_read_attrib (
@@ -1791,7 +1793,7 @@ _read_field_attrib (
 		attrib_value );
 	if ( herr < 0 ) return herr;
 
-	herr = _close_field_group ( f );
+	herr = _H5Block_close_field_group ( f );
 	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
@@ -1820,9 +1822,6 @@ H5BlockReadFieldAttrib (
 		f, field_name, attrib_name, attrib_value );
 }
 
-
-#define H5BLOCK_FIELD_ORIGIN_NAME	"__Origin__"
-#define H5BLOCK_FIELD_SPACING_NAME	"__Spacing__"
 
 /*!
   \ingroup h5block_c_api
@@ -1974,7 +1973,7 @@ H5BlockHasFieldData (
 	INIT ( f );
 	CHECK_TIMEGROUP( f );
 
-	if ( ! _have_object ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) ) {
+	if ( ! _H5Part_have_group ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK ) ) {
 		return H5PART_ERR_NOENTRY;
 	}
 	return H5PART_SUCCESS;

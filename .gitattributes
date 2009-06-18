@@ -1,8 +1,9 @@
 * text=auto !eol
 /AUTHORS -text
-/COPYRIGHT -text
+/COPYING -text
 /ChangeLog -text
 /GNUmakefile.orig -text
+/INSTALL -text
 /Makefile.am -text
 /Makefile.orig -text
 /NEWS -text
@@ -27,6 +28,10 @@ src/H5BlockErrors.h -text
 src/H5BlockF.c -text
 src/H5BlockF90.inc -text
 src/H5BlockPrivate.h -text
+src/H5BlockReadWrite.c -text
+src/H5BlockReadWrite.h -text
+src/H5BlockReadWriteF.c -text
+src/H5BlockReadWriteF90.inc -text
 src/H5BlockTypes.h -text
 src/H5Part.c -text
 src/H5Part.h -text
@@ -38,6 +43,7 @@ src/H5PartTypes.h -text
 src/Makefile.am -text
 src/TestUnderscore.f -text
 src/TestUnderscoreC.c -text
+src/generate-h5bl-readwrite.py -text
 test/Bench.c -text
 test/BlockTestSpecs.txt -text
 test/H5BlockDissolveGhosts.c -text

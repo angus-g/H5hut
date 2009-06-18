@@ -38,7 +38,7 @@
 		"Called with bad filehandle." );
 
 #define HANDLE_H5PART_INIT_ERR \
-        (*_err_handler) ( \
+	(*_err_handler) ( \
 		_H5Part_get_funcname(), \
 		H5PART_ERR_INIT, \
 		"Cannot initialize H5Part." );
@@ -171,6 +171,12 @@
 		H5PART_ERR_HDF5, \
 		"Cannot get dataspace identifier.");
 
+#define HANDLE_H5D_GET_PLIST_ERR \
+	 (*_err_handler) ( \
+		_H5Part_get_funcname(), \
+		H5PART_ERR_HDF5, \
+		"Cannot get dataspace property list.");
+
 #define HANDLE_H5D_GET_TYPE_ERR \
 	 (*_err_handler) ( \
 		_H5Part_get_funcname(), \
@@ -258,12 +264,24 @@
 			"MPI: Cannot set data transfer mode." );
 
 
-#define HANDLE_H5P_SET_FAPL_MPIO_ERR \
+#define HANDLE_H5P_SET_FAPL_ERR \
 		(*_err_handler) ( \
 			_H5Part_get_funcname(), \
 			H5PART_ERR_HDF5, \
 			"Cannot store IO communicator information to the " \
-			"file access property list.");
+			"file access property list." );
+
+#define HANDLE_H5P_SET_CHUNK_ERR \
+		(*_err_handler) ( \
+			_H5Part_get_funcname(), \
+			H5PART_ERR_HDF5, \
+			"Cannot set chunk dimensions." );
+
+#define HANDLE_H5P_GET_CHUNK_ERR \
+		(*_err_handler) ( \
+			_H5Part_get_funcname(), \
+			H5PART_ERR_HDF5, \
+			"Cannot get chunk dimensions." );
 
 /* H5S: dataspace */
 #define HANDLE_H5S_CREATE_SIMPLE_ERR( n ) \
