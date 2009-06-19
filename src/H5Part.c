@@ -1604,7 +1604,7 @@ _H5Part_set_step (
 		    f->groupname_step, f->stepno_width, (long long) step );
 	}
 
-	if ( (f->mode != H5PART_READ) && _H5Part_have_group ( f->file, name ) ) {
+	if ( (!(f->mode & H5PART_READ)) && _H5Part_have_group ( f->file, name ) ) {
 		return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
 	}
 
@@ -1615,7 +1615,7 @@ _H5Part_set_step (
 	f->timegroup = -1;
 	f->timestep = step;
 
-	if( f->mode == H5PART_READ ) {
+	if( f->mode & H5PART_READ ) {
 		_H5Part_print_info (
 			"Proc[%d]: Set step to #%lld for file %lld",
 			f->myproc,
