@@ -1603,6 +1603,7 @@ _H5Part_set_step (
 		    "%s#%0*lld",
 		    f->groupname_step, f->stepno_width, (long long) step );
 	}
+
 	if ( (f->mode != H5PART_READ) && _H5Part_have_group ( f->file, name ) ) {
 		return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
 	}
@@ -1717,11 +1718,8 @@ _H5Part_iteration_operator (
 	if ( data->type != H5G_UNKNOWN ) {
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
                 H5O_info_t objinfo;
-                hid_t member_id;
-                member_id = H5Gopen2 ( group_id, member_name, H5P_DEFAULT );
-		herr = H5Oget_info ( member_id, &objinfo );
+		herr = H5Oget_info ( group_id, &objinfo );
 		if ( herr < 0 ) return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
-                H5Gclose (member_id);
 #else
 	        H5G_stat_t objinfo;
 		herr = H5Gget_objinfo ( group_id, member_name, 1, &objinfo );

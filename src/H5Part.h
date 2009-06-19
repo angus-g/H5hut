@@ -14,7 +14,7 @@ extern "C" {
 
 #include "H5PartTypes.h"
 
-
+/* error values */
 #define H5PART_SUCCESS		0
 #define H5PART_ERR_NOMEM	-12
 #define H5PART_ERR_INVAL	-22
@@ -26,15 +26,23 @@ extern "C" {
 #define H5PART_ERR_MPI		-300
 #define H5PART_ERR_HDF5		-400
 
-/* flags used during file open */
+/* file open flags */
 #define H5PART_READ		0x01
 #define H5PART_WRITE		0x02
 #define H5PART_APPEND		0x04
-#define H5PART_VFD_MPIPOSIX     0x08
-#define H5PART_FS_LUSTRE        0x10
-#define H5PART_FS_GPFS          0x20
+#define H5PART_VFD_MPIPOSIX	0x08
+#define H5PART_FS_LUSTRE	0x10
+#define H5PART_FS_GPFS		0x20
 
+/* verbosity level flags */
+#define H5PART_VERB_NONE	0
+#define H5PART_VERB_ERROR	1
+#define H5PART_VERB_WARN	2
+#define H5PART_VERB_INFO	3
+#define H5PART_VERB_DEBUG	4
+#define H5PART_VERB_DETAIL	5
 
+/* data types */
 #define H5PART_INT64		((h5part_int64_t)H5T_NATIVE_INT64)
 #define H5PART_FLOAT64		((h5part_int64_t)H5T_NATIVE_DOUBLE)
 #define H5PART_FLOAT32		((h5part_int64_t)H5T_NATIVE_FLOAT)
