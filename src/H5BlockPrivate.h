@@ -3,7 +3,7 @@
 
 #define H5BLOCK_GROUPNAME_BLOCK	"Block"
 
-#define INIT( f ) { \
+#define BLOCK_INIT( f ) { \
 	h5part_int64_t herr = _H5Block_init ( f ); \
 	if ( herr < 0 ) return herr; \
 }
@@ -33,6 +33,12 @@ h5part_int64_t
 _H5Block_create_field_group (
 	H5PartFile *f,
 	const char *name
+	);
+ 
+h5part_int64_t
+_H5Block_select_hyperslab_for_reading (
+	H5PartFile *f,
+	hid_t dataset
 	);
 
 h5part_int64_t

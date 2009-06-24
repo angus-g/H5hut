@@ -81,6 +81,11 @@ struct H5PartFile {
 
 	struct H5BlockStruct *block;
 	h5part_int64_t (*close_block)(struct H5PartFile *f);
+
+#ifdef PARALLEL_IO
+	struct H5MultiBlockStruct *multiblock;
+	h5part_int64_t (*close_multiblock)(struct H5PartFile *f);
+#endif
 };
 
 typedef struct H5PartFile H5PartFile;
@@ -88,7 +93,5 @@ typedef struct H5PartFile H5PartFile;
 #ifdef IPL_XT3
 # define SEEK_END 2 
 #endif
-
-
 
 #endif

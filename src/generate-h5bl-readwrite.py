@@ -97,7 +97,7 @@ H5Block#DIM#dWriteScalarField#TYPE_ABV# (
 	) {
 
 	SET_FNAME ( "H5Block#DIM#dWriteScalarField#TYPE_ABV#" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -135,7 +135,7 @@ H5Block#DIM#dReadScalarField#TYPE_ABV# (
 	) {
 
 	SET_FNAME ( "H5Block#DIM#dReadScalarField#TYPE_ABV#" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
@@ -268,7 +268,7 @@ H5Block#DIM#dWrite3dVectorField#TYPE_ABV# (
 	) {
 
 	SET_FNAME ( "H5Block#DIM#dWrite3dVectorField#TYPE_ABV#" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -314,7 +314,7 @@ H5Block#DIM#dRead3dVectorField#TYPE_ABV# (
 	) {
 
 	SET_FNAME ( "H5Block#DIM#dRead3dVectorField#TYPE_ABV#" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 

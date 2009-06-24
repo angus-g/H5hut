@@ -47,7 +47,7 @@ _H5Part_set_funcname (
 	char * const fname
 	);
 
-const char *
+char * const
 _H5Part_get_funcname (
 	void
 	);

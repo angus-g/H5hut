@@ -14,6 +14,11 @@ extern "C" {
 
 #include "H5PartTypes.h"
 
+#include "H5Block.h"
+#ifdef PARALLEL_IO
+#include "H5MultiBlock.h"
+#endif
+
 /* error values */
 #define H5PART_SUCCESS		0
 #define H5PART_ERR_NOMEM	-12

@@ -31,7 +31,7 @@ H5Block3dWriteScalarFieldFloat64 (
 	) {
 
 	SET_FNAME ( "H5Block3dWriteScalarFieldFloat64" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -67,7 +67,7 @@ H5Block3dReadScalarFieldFloat64 (
 	) {
 
 	SET_FNAME ( "H5Block3dReadScalarFieldFloat64" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
@@ -106,7 +106,7 @@ H5Block3dWrite3dVectorFieldFloat64 (
 	) {
 
 	SET_FNAME ( "H5Block3dWrite3dVectorFieldFloat64" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -150,7 +150,7 @@ H5Block3dRead3dVectorFieldFloat64 (
 	) {
 
 	SET_FNAME ( "H5Block3dRead3dVectorFieldFloat64" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
@@ -189,7 +189,7 @@ H5Block3dWriteScalarFieldFloat32 (
 	) {
 
 	SET_FNAME ( "H5Block3dWriteScalarFieldFloat32" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -225,7 +225,7 @@ H5Block3dReadScalarFieldFloat32 (
 	) {
 
 	SET_FNAME ( "H5Block3dReadScalarFieldFloat32" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
@@ -264,7 +264,7 @@ H5Block3dWrite3dVectorFieldFloat32 (
 	) {
 
 	SET_FNAME ( "H5Block3dWrite3dVectorFieldFloat32" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -308,7 +308,7 @@ H5Block3dRead3dVectorFieldFloat32 (
 	) {
 
 	SET_FNAME ( "H5Block3dRead3dVectorFieldFloat32" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
@@ -347,7 +347,7 @@ H5Block3dWriteScalarFieldInt64 (
 	) {
 
 	SET_FNAME ( "H5Block3dWriteScalarFieldInt64" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -383,7 +383,7 @@ H5Block3dReadScalarFieldInt64 (
 	) {
 
 	SET_FNAME ( "H5Block3dReadScalarFieldInt64" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
@@ -422,7 +422,7 @@ H5Block3dWrite3dVectorFieldInt64 (
 	) {
 
 	SET_FNAME ( "H5Block3dWrite3dVectorFieldInt64" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -466,7 +466,7 @@ H5Block3dRead3dVectorFieldInt64 (
 	) {
 
 	SET_FNAME ( "H5Block3dRead3dVectorFieldInt64" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
@@ -505,7 +505,7 @@ H5Block3dWriteScalarFieldInt32 (
 	) {
 
 	SET_FNAME ( "H5Block3dWriteScalarFieldInt32" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -541,7 +541,7 @@ H5Block3dReadScalarFieldInt32 (
 	) {
 
 	SET_FNAME ( "H5Block3dReadScalarFieldInt32" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 
@@ -580,7 +580,7 @@ H5Block3dWrite3dVectorFieldInt32 (
 	) {
 
 	SET_FNAME ( "H5Block3dWrite3dVectorFieldInt32" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_WRITABLE_MODE ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
@@ -624,7 +624,7 @@ H5Block3dRead3dVectorFieldInt32 (
 	) {
 
 	SET_FNAME ( "H5Block3dRead3dVectorFieldInt32" );
-	INIT ( f );
+	BLOCK_INIT ( f );
 	CHECK_TIMEGROUP ( f );
 	CHECK_LAYOUT ( f );
 

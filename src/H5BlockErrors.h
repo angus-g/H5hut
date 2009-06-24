@@ -34,6 +34,7 @@
 			_H5Part_get_funcname(), \
 			H5PART_ERR_INVAL, \
 			"Group \"%s\" already exists", name )
+
 #define HANDLE_H5S_CREATE_SIMPLE_3D_ERR( dims ) \
 	 (*_err_handler) ( \
 		_H5Part_get_funcname(), \

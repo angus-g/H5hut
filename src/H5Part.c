@@ -100,7 +100,7 @@ Last modified on April 19, 2007.
 static unsigned			_debug = 0;
 static h5part_int64_t		_h5part_errno = H5PART_SUCCESS;
 static h5part_error_handler	_err_handler = H5PartReportErrorHandler;
-static char *__funcname = "NONE";
+static char *__funcname;
 
 /********** Declaration of private functions ******/
 
@@ -511,6 +511,14 @@ H5PartCloseFile (
 		f->block = NULL;
 		f->close_block = NULL;
 	}
+
+#ifdef PARALLEL_IO
+	if ( f->multiblock && f->close_multiblock ) {
+		(*f->close_multiblock) ( f );
+		f->multiblock = NULL;
+		f->close_multiblock = NULL;
+	}
+#endif
 
 	if( f->shape > 0 ) {
 		r = H5Sclose( f->shape );
@@ -2878,6 +2886,7 @@ _init ( void ) {
 
 	herr_t r5;
 	if ( ! __init ) {
+		_H5Part_set_funcname ( "NONE" );
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
 		r5 = H5Eset_auto2 ( H5E_DEFAULT, _h5_error_handler, NULL );
 #else
@@ -3033,14 +3042,15 @@ _H5Part_print_debug_detail (
 
 void
 _H5Part_set_funcname (
-	char  * const fname
+	char * const fname
 	) {
 	__funcname = fname;
 }
 
-const char *
+char * const
 _H5Part_get_funcname (
 	void
 	) {
 	return __funcname;
 }
+

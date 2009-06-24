@@ -99,14 +99,14 @@ h5bl_define3dlayout (
 h5part_int64_t
 h5bl_define3dchunkdims (
 	h5part_int64_t *f,
-	const h5part_int64_t i,
-	const h5part_int64_t j,
-	const h5part_int64_t k
+	const h5part_int64_t *i,
+	const h5part_int64_t *j,
+	const h5part_int64_t *k
 	) {
 
 	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
-	return H5BlockDefine3DChunkDims ( filehandle, i, j, k );
+	return H5BlockDefine3DChunkDims ( filehandle, *i, *j, *k );
 }
 
 h5part_int64_t
