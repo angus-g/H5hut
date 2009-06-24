@@ -631,7 +631,7 @@ _dissolve_ghostzones (
 	}
 	free ( p_begin );
 
-	p = b->user_layout;
+	p = &b->user_layout[f->myproc];
 	_H5Part_print_debug (
 		"PROC[%d]: User layout: %lld:%lld, %lld:%lld, %lld:%lld",
 		f->myproc,
@@ -651,7 +651,7 @@ _dissolve_ghostzones (
 			(long long)p->k_start, (long long)p->k_end );
 	}
 
-	p = b->write_layout;
+	p = &b->write_layout[f->myproc];
 	_H5Part_print_debug (
 		"PROC[%d]: Ghost-zone layout: %lld:%lld, %lld:%lld, %lld:%lld",
 		f->myproc,
