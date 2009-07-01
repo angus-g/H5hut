@@ -80,8 +80,33 @@ H5FedEndTraverseEdges (
 }
 
 h5_err_t
+H5FedBeginTraverseTriangles (
+	h5_file_t * const f
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_begin_traverse_triangles ( f );
+}
+
+h5_id_t
+H5FedTraverseTriangles (
+	h5_file_t * const f,
+	h5_id_t * const local_vids
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_traverse_triangles ( f, local_vids );
+}
+
+h5_err_t
+H5FedEndTraverseTriangles (
+	h5_file_t * const f
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_end_traverse_triangles ( f );
+}
+
+h5_err_t
 H5FedBeginTraverseElements (
-	h5_file_t * const f  		/*!< file handle		*/
+	h5_file_t * const f
 	) {
 	SET_FNAME ( f, __func__ );
 	return h5t_begin_traverse_elems ( f );

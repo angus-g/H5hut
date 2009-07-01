@@ -49,6 +49,22 @@ H5FedEndTraverseEdges (
 	);
 
 h5_err_t
+H5FedBeginTraverseTriangles (
+	h5_file_t * const f
+	);
+
+h5_id_t
+H5FedTraverseTriangles (
+	h5_file_t * const f,
+	h5_id_t * const local_vids
+	);
+
+h5_err_t
+H5FedEndTraverseTriangles (
+	h5_file_t * const f
+	);
+
+h5_err_t
 H5FedEndTraverseElements (
 	h5_file_t * const f
 	);
