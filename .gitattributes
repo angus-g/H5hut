@@ -429,6 +429,9 @@ src/h5_core/h5t_openclose.h -text
 src/h5_core/h5t_readwrite.c -text
 src/h5_core/h5t_readwrite.h -text
 src/h5_core/h5t_readwrite_private.h -text
+src/h5_core/h5t_retrieve.c -text
+src/h5_core/h5t_retrieve.h -text
+src/h5_core/h5t_retrieve_private.h -text
 src/h5_core/h5t_storemesh.c -text
 src/h5_core/h5t_storemesh.h -text
 src/h5_core/h5t_storemesh_private.h -text
