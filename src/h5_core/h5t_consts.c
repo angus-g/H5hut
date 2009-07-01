@@ -1,4 +1,6 @@
 #include "h5_types.h"
+#include "h5_types_private.h"
+#include "h5t_types_private.h"
 
 const char * _h5t_oid_names[] = {
 	"N.N.",
@@ -14,6 +16,14 @@ const char * _h5t_meshes_grpnames[] = {
 	"N.N.",
 	"TriangleMeshes",
 	"TetMeshes"
+};
+
+const size_t _h5t_sizeof_elem[] = {
+	0,
+	0,
+	0,
+	sizeof(h5_triangle_t),
+	sizeof(h5_tetrahedron_t)
 };
 
 const char *

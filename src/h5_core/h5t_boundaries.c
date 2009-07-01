@@ -237,27 +237,9 @@ h5t_store_boundaryface (
 	h5_file_t * const f,
 	h5_id_t * const global_vids
 	) {
-	struct h5t_fdata *t = f->t;
 
-	if ( t->vertices == NULL ) {
-		TRY ( _h5t_read_mesh ( f ) );
-	}
-
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON: {
-		h5_id_t local_vids[3];
-		h5_err_t h5err = h5t_map_global_vids2local (
-			f, global_vids, 3, local_vids );
-		if ( h5err < 0 ) return h5err;
-		h5_id_t local_tid = h5t_get_local_triangle_id ( f, local_vids );
-		if ( local_tid < 0 )
-			return _h5t_error_local_triangle_id_nexist( f, local_vids );
-		return h5t_store_boundaryface_local_id ( f, local_tid );
-	}
-	default:
-		return h5_error_not_implemented (
-			f, __FILE__, __func__, __LINE__ );
-	}
+	return h5_error_not_implemented (
+		f, __FILE__, __func__, __LINE__ );
 }
 
 h5_id_t

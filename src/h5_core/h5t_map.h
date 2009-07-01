@@ -70,6 +70,13 @@ h5t_get_local_triangle_id  (
 	);
 
 h5_id_t
+h5t_get_local_triangle_id2 (
+	h5_file_t * const f,
+	h5_id_t face_id,
+	h5_id_t local_eid
+	);
+
+h5_id_t
 h5t_get_global_triangle_id (
 	h5_file_t * const f,
 	h5_id_t * const global_vids

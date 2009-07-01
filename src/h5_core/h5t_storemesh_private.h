@@ -15,17 +15,10 @@ _h5t_alloc_num_elems (
 	);
 
 h5_id_t
-_h5t_store_triangle (
+_h5t_store_elem (
 	h5_file_t * const f,
 	const h5_id_t local_parent_eid,
-	const h5_id_t vids[3]
-	);
-
-h5_id_t
-_h5t_store_tet (
-	h5_file_t * const f,
-	const h5_id_t local_parent_eid,
-	const h5_id_t vids[4]
+	const h5_id_t vids[]
 	);
 
 

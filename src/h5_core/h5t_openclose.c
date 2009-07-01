@@ -373,37 +373,33 @@ h5_err_t
 _h5t_open_meshes_group (
 	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
 	if ( t->topo_gid < 0 ) {
-		h5_err_t h5err = _h5t_open_topo_group ( f );
-		if ( h5err < 0 ) return h5err;
+		TRY ( _h5t_open_topo_group ( f ) );
 	}
-	switch ( t->mesh_type) {
-	case H5_OID_TETRAHEDRON:
-		t->meshes_gid = _h5_open_group ( f, t->topo_gid, "TetMeshes" );
-		break;
-	case H5_OID_TRIANGLE:
-		t->meshes_gid = _h5_open_group ( f, t->topo_gid, "TriangleMeshes" );
-		break;
-	default:
-		t->meshes_gid = -1;
-	}
-	return (h5_err_t)t->meshes_gid;
+	TRY ( (t->meshes_gid = _h5_open_group (
+		       f,
+		       t->topo_gid,
+		       _h5t_meshes_grpnames[t->mesh_type] ) ) );
+
+	return H5_SUCCESS;
 }
 
 h5_err_t
 _h5t_open_mesh_group (
 	h5_file_t * const f
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
 	if ( t->meshes_gid < 0 ) {
-		h5_err_t h5err = _h5t_open_meshes_group ( f );
-		if ( h5err < 0 ) return h5err;
+		TRY ( _h5t_open_meshes_group ( f ) );
 	}
-	t->mesh_gid = _h5_open_group ( f, t->meshes_gid, t->mesh_name );
-	return (h5_err_t)t->mesh_gid;
+	TRY ( ( t->mesh_gid = _h5_open_group (
+			f,
+			t->meshes_gid,
+			t->mesh_name ) ) );
+	return H5_SUCCESS;
 }
 
 /*
@@ -415,7 +411,7 @@ h5t_open_mesh (
 	h5_id_t id,
 	const h5_oid_t type
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
 	TRY( _h5t_close_mesh ( f ) );
 
@@ -449,8 +445,8 @@ h5t_open_mesh (
 	t->cur_mesh = id;
 
 	if ( id != t->num_meshes ) {	/* open existing */
-		t->num_levels = h5t_get_num_levels ( f );
-		if ( t->num_levels < 0 ) return t->num_levels;
+		TRY ( _h5t_read_mesh ( f ) );
+
 	} else {			/* append new */
 		t->num_meshes++;
 		t->mesh_changed = id;
@@ -486,8 +482,8 @@ _release_memory (
 	_h5_free ( f, t->elems.data );
 	t->elems.data = NULL;
 	_h5_free ( f, t->num_elems );
-	_h5_free ( f, t->elems_data.data );
-	t->elems_data.data = NULL;
+	_h5_free ( f, t->elems_ldta );
+	t->elems_ldta = NULL;
 	_h5_free ( f, t->num_elems_on_level );
 	t->num_elems_on_level = NULL;
 	_h5_free ( f, t->map_elem_g2l.items );

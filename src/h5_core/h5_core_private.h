@@ -91,7 +91,7 @@
 	(  entity_id & H5T_ELEM_MASK )
 
 #define TRY( func )					\
-	if ( (int64_t)(ptrdiff_t)(func) < (int64_t)0 )	\
+	if ( (int64_t)(ptrdiff_t)(func) <= (int64_t)H5_ERR )	\
 		return H5_ERR;
 
 /*!

@@ -16,7 +16,7 @@ h5t_get_num_meshes (
 	) {
 	struct h5t_fdata *t = f->t;
 
-	if ( t->num_meshes != -1 ) {
+	if ( t->num_meshes >= 0 ) {
 		return t->num_meshes;
 	}
 	if ( t->topo_gid < 0 ) {
@@ -36,25 +36,12 @@ h5_size_t
 h5t_get_num_levels (
 	h5_file_t * f
 	) {
-	struct h5t_fdata *t = f->t;
-	hid_t dataset_id;
-	hid_t diskspace_id;
-	hssize_t size;
+	h5t_fdata_t *t = f->t;
 
-	if ( t->num_levels >= 0 ) return t->num_levels;
 	if ( t->cur_mesh < 0 ) {
 		return _h5t_error_undef_mesh ( f );
 	}
-	if ( t->mesh_gid < 0 ) {
-		TRY( _h5t_open_mesh_group ( f ) );
-	}
-	TRY ( dataset_id = _h5_open_dataset ( f, t->mesh_gid, "NumVertices" ) );
-	TRY ( diskspace_id = _h5_get_dataset_space ( f, dataset_id ) );
-	TRY ( size = _h5_get_npoints_of_space ( f, diskspace_id ) );
-	TRY ( _h5_close_dataspace( f, diskspace_id ) );
-
-	t->num_levels = size;
-	return size;
+	return t->num_levels;
 }
 
 
@@ -107,27 +94,18 @@ h5t_get_num_levels (
 h5_size_t
 h5t_get_num_elems (
 	h5_file_t * f,
-	hid_t cnode_id,
-	hid_t level_id
+	h5_id_t cnode_id,
+	h5_id_t level_id
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
-	if ( cnode_id < 0 ) {
-		cnode_id = f->nprocs;
-	}
-	if ( level_id < 0 ) {
-		level_id = f->t->num_levels-1;
-	}
 	if ( t->cur_mesh < 0 ) {
 		return _h5t_error_undef_mesh ( f );
 	}
-	if ( t->cur_level < 0 ) {
-		return _h5t_error_undef_level( f );
+	if ( level_id < 0 || level_id >= t->num_levels ) {
+		return HANDLE_H5_OUT_OF_RANGE_ERR ( f, "Level", level_id );
 	}
-	if ( t->num_elems_on_level == NULL ) {
-		TRY( _h5t_read_num_elems ( f ) );
-	}
-	return t->num_elems_on_level[t->cur_level];
+	return t->num_elems_on_level[level_id];
 }
 
 /*!
@@ -140,22 +118,15 @@ h5t_get_num_elems (
 h5_size_t
 h5t_get_num_elems_total (
 	h5_file_t * f,
-	hid_t cnode_id,
-	hid_t level_id
+	h5_id_t cnode_id,
+	h5_id_t level_id
 	) {
-	struct h5t_fdata *t = f->t;
-
-	if ( cnode_id < 0 ) {
-		cnode_id = f->nprocs;
-	}
-	if ( level_id < 0 ) {
-		level_id = f->t->num_levels-1;
-	}
+	h5t_fdata_t *t = f->t;
 	if ( t->cur_mesh < 0 ) {
 		return _h5t_error_undef_mesh ( f );
 	}
-	if ( t->num_elems == NULL ) {
-		TRY( _h5t_read_num_elems ( f ) );
+	if ( level_id < 0 || level_id >= t->num_levels ) {
+		return HANDLE_H5_OUT_OF_RANGE_ERR ( f, "Level", level_id );
 	}
 	return t->num_elems[level_id];
 }
@@ -172,25 +143,16 @@ h5t_get_num_elems_total (
 h5_size_t
 h5t_get_num_vertices (
 	h5_file_t * f,
-	hid_t cnode_id,
-	hid_t level_id
+	h5_id_t cnode_id,
+	h5_id_t level_id
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
-	if ( cnode_id < 0 ) {
-		cnode_id = f->nprocs;
-	}
-	if ( level_id < 0 ) {
-		level_id = f->t->num_levels-1;
-	}
 	if ( t->cur_mesh < 0 ) {
 		return _h5t_error_undef_mesh ( f );
 	}
-	if ( t->cur_level < 0 ) {
-		return _h5t_error_undef_level( f );
-	}
-	if ( t->num_vertices == NULL ) {
-		TRY( _h5t_read_num_vertices ( f ) );
+	if ( level_id < 0 || level_id >= t->num_levels ) {
+		return HANDLE_H5_OUT_OF_RANGE_ERR ( f, "Level", level_id );
 	}
 	return t->num_vertices[level_id];
 }
@@ -199,6 +161,5 @@ h5_id_t
 h5t_get_level (
 	h5_file_t * f
 	) {
-	struct h5t_fdata *t = f->t;
-	return t->cur_level;
+	return f->t->cur_level;
 }

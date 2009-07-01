@@ -32,7 +32,7 @@ struct h5_tetrahedron {
 	h5_4id_t	global_vids;
 };
 
-struct h5_element {
+struct h5_elem {
 	h5_id_t		global_eid;
 	h5_id_t		global_parent_eid;
 	h5_id_t		global_child_eid;
@@ -41,31 +41,15 @@ struct h5_element {
 
 typedef struct h5_tetrahedron	h5_tetrahedron_t;
 typedef struct h5_tetrahedron	h5_tet_t;
-typedef struct h5_element	h5_element_t;
+typedef struct h5_elem		h5_elem_t;
 
-struct h5_triangle_data {
+struct h5_elem_ldta {
 	h5_id_t		local_parent_eid;
 	h5_id_t		local_child_eid;
 	h5_id_t		level_id;
-	h5_3id_t	local_vids;
+	h5_id_t		*local_vids;
 };
-typedef struct h5_triangle_data h5_triangle_data_t;
-
-struct h5_tet_data {
-	h5_id_t		local_parent_eid;
-	h5_id_t		local_child_eid;
-	h5_id_t		level_id;
-	h5_4id_t	local_vids;
-};
-typedef struct h5_tet_data	h5_tet_data_t;
-
-struct h5_element_data {
-	h5_id_t		local_parent_eid;
-	h5_id_t		local_child_eid;
-	h5_id_t		level_id;
-	h5_id_t		local_vids[1];
-};
-typedef struct h5_element_data	h5_element_data_t;
+typedef struct h5_elem_ldta	h5_elem_ldta_t;
 
 
 union h5_elems {
@@ -75,12 +59,6 @@ union h5_elems {
 };
 typedef union h5_elems h5_elems_t;
 
-union h5_elems_data {
-	h5_tet_data_t		*tets;
-	h5_triangle_data_t	*tris;
-	void			*data;
-};
-typedef union h5_elems_data h5_elems_data_t;
 
 /*
   information about HDF5 dataset
@@ -220,7 +198,8 @@ struct h5t_fdata {
 
 	/*** Elements ***/
 	h5_elems_t	elems;
-	h5_elems_data_t	elems_data;	/* local, per element data */
+	h5_elem_ldta_t	*elems_ldta;	/* local, per element data */
+	h5_id_t		*elems_lvids;
 	h5_size_t	*num_elems;
 	h5_size_t	*num_elems_on_level;
 	h5_idmap_t	map_elem_g2l;	/* map global id to local id */

@@ -108,6 +108,28 @@ _h5t_write_mesh (
 	return H5_SUCCESS;
 }
 
+static h5_size_t
+_read_num_levels (
+	h5_file_t * f
+	) {
+	h5t_fdata_t *t = f->t;
+	hid_t dataset_id;
+	hid_t diskspace_id;
+	hssize_t size;
+
+	if ( t->cur_mesh < 0 ) {
+		return _h5t_error_undef_mesh ( f );
+	}
+	TRY ( dataset_id = _h5_open_dataset ( f, t->mesh_gid, "NumVertices" ) );
+	TRY ( diskspace_id = _h5_get_dataset_space ( f, dataset_id ) );
+	TRY ( size = _h5_get_npoints_of_space ( f, diskspace_id ) );
+	TRY ( _h5_close_dataspace( f, diskspace_id ) );
+
+	t->num_levels = size;
+	return size;
+}
+
+
 static hid_t
 _open_mem_space_vertices (
 	h5_file_t * const f,
@@ -124,8 +146,8 @@ _open_file_space_vertices (
 	return H5S_ALL;
 }
 
-h5_err_t
-_h5t_read_num_vertices (
+static h5_err_t
+_read_num_vertices (
 	h5_file_t * const f
 	) {
 	struct h5t_fdata *t = f->t;
@@ -146,18 +168,12 @@ _h5t_read_num_vertices (
 	return H5_SUCCESS;
 }
 
-h5_err_t
-_h5t_read_vertices (
+static h5_err_t
+_read_vertices (
 	h5_file_t * f
 	) {
 	struct h5t_fdata *t = f->t;
 
- 	if ( t->mesh_gid < 0 ) {
-		TRY( _h5t_open_mesh_group ( f ) );
-	}
-	if ( t->num_vertices == NULL ) {
-		TRY( _h5t_read_num_vertices ( f ) );
-	}
 
 	TRY( _h5t_alloc_num_vertices ( f, t->num_vertices[t->num_levels-1] ) );
 	TRY( _h5_read (
@@ -175,8 +191,8 @@ _h5t_read_vertices (
 
 
 
-h5_err_t
-_h5t_read_num_elems (
+static h5_err_t
+_read_num_elems (
 	h5_file_t * const f
 	) {
 	struct h5t_fdata *t = f->t;
@@ -222,19 +238,62 @@ _open_file_space_elems (
 	return H5S_ALL;
 }
 
-h5_err_t
-_h5t_read_elems (
+/*
+  setup structure "elems_data" with local ids for each element:
+  - translate the global vertex id's of each element to their
+    local id's
+  - translate the global parent id of each element to the
+    corresponding local id.
+*/
+static h5_err_t
+_build_elems_ldta (
+	h5_file_t * const f
+	) {
+	h5t_fdata_t *t = f->t;
+	h5_id_t local_eid = 0;
+	h5_id_t num_elems = t->num_elems[t->num_levels-1];
+	h5_id_t level_id = 0;
+
+	void *elp = t->elems.data;
+	h5_elem_t *el;
+	h5_elem_ldta_t *el_data = t->elems_ldta;
+	
+	for ( local_eid=0;
+	      local_eid < num_elems;
+	      local_eid++, elp+=_h5t_sizeof_elem[t->mesh_type], el_data++ ) {
+		el = (h5_elem_t*)elp;
+		TRY( h5t_map_global_vids2local (
+			     f,
+			     el->global_vids,
+			     t->mesh_type,
+			     el_data->local_vids
+			     ) );
+		if ( el->global_parent_eid >= 0 )
+			TRY ( el_data->local_parent_eid =
+			      h5t_map_global_eid2local (
+				      f,
+				      el->global_parent_eid ) );
+		
+		if ( el->global_child_eid >= 0 )
+			TRY ( el_data->local_child_eid =
+			      h5t_map_global_eid2local (
+				      f,
+				      el->global_child_eid ) );
+		
+		if ( local_eid >= t->num_elems[level_id] ) {
+			level_id++;
+		}
+		el_data->level_id = level_id;
+	}
+
+	return H5_SUCCESS;
+}
+
+static h5_err_t
+_read_elems (
 	h5_file_t * f
 	) {
-	struct h5t_fdata *t = f->t;
-
- 	if ( t->mesh_gid < 0 ) {
-		TRY( _h5t_open_mesh_group ( f ) );
-	}
-
-	if ( t->num_elems == NULL ) {
-		TRY( _h5t_read_num_elems ( f ) );
-	}
+	h5t_fdata_t *t = f->t;
 
 	TRY( _h5t_alloc_num_elems ( f, 0, t->num_elems[t->num_levels-1] ) );
 	TRY( _h5_read (
@@ -247,7 +306,7 @@ _h5t_read_elems (
 
 	TRY ( _h5t_sort_elems ( f ) );
 	TRY ( _h5t_rebuild_global_2_local_map_of_elems ( f ) );
-	TRY ( _h5t_rebuild_elems_data ( f ) );
+	TRY ( _build_elems_ldta ( f ) );
 	TRY ( _h5t_rebuild_adj_data ( f ) );
 	return H5_SUCCESS;
 }
@@ -256,10 +315,14 @@ h5_err_t
 _h5t_read_mesh (
 	h5_file_t *f
 	) {
-
-	TRY ( _h5t_read_vertices ( f ) );
-	TRY ( _h5t_read_elems ( f ) );
-
+ 	if ( f->t->mesh_gid < 0 ) {
+		TRY( _h5t_open_mesh_group ( f ) );
+	}
+	TRY ( _read_num_levels ( f ) );
+	TRY ( _read_num_vertices ( f ) );
+	TRY ( _read_num_elems ( f ) );
+	TRY ( _read_vertices ( f ) );
+	TRY ( _read_elems ( f ) );
 	return H5_SUCCESS;
 }
 

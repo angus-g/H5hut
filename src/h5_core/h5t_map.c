@@ -75,20 +75,19 @@ _h5t_sort_vertices (
 	return H5_SUCCESS;
 }
 
+
 /*!
-  Search vertex in the sorted array of vertices. The vertex is given by its 
-  coordinates.
+  Return local vertex id of a vertex given by its coordinates.
 
-  \return	index of vertex in the sorted array or the negative value 
-		of the index where it should be inserted.
-*/
-static h5_id_t
-_search_vertex (
+  \return	local vertex id if found
+  \return	else negativ value
+ */
+h5_id_t
+_h5t_get_local_vid (
 	h5_file_t * const f,
-	h5_float64_t P0[3]
+	h5_float64_t P[3]
 	) {
-	struct h5t_fdata *t = f->t;
-
+	h5t_fdata_t *t = f->t;
 	register h5_id_t low = 0;
 	register h5_id_t high = t->sorted_lvertices.num_items - 1;
 	while (low <= high) {
@@ -96,101 +95,26 @@ _search_vertex (
 
 		h5_id_t local_vid = t->sorted_lvertices.items[mid];
 		h5_float64_t *P1 = t->vertices[local_vid].P;
-	        int diff = _cmp_vertices ( P0, P1 );
+	        int diff = _cmp_vertices ( P, P1 );
            	if ( diff < 0 )
                		high = mid - 1;
            	else if ( diff > 0 )
                		low = mid + 1;
            	else
-               		return mid; // found
+               		return t->sorted_lvertices.items[mid]; // found
        	}
        	return -(low+1);  // not found
-}
-
-/*!
-  Return local vertex id of a vertex given by its coordinates.
-
-  \return	local vertex id if found
-  \return	negativ value
- */
-h5_id_t
-_h5t_get_local_vid (
-	h5_file_t * const f,
-	h5_float64_t P[3]
-	) {
-	struct h5t_fdata *t = f->t;
-
-	h5_id_t idx;
-	idx = _search_vertex ( f, P );
-	if ( idx < 0 ) return idx;
-	return t->sorted_lvertices.items[idx];
-}
-
-/*!
-  Returns the local vertex id of the i-th vertex of an element. For triangles
-  i is in [0,1,2], for tetraheda i is in [0,1,2,3].
-*/
-static h5_id_t 
-_get_local_vid_of_elem (
-	h5_file_t * f,
-	int  ith_vertex,
-	h5_id_t local_eid
-	) {
-	struct h5t_fdata *t = f->t;
-
-	h5_id_t local_vid = -1;
-	h5_id_t global_vid = -1;
-
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON: {
-		local_vid = t->elems_data.tets[local_eid].local_vids[ith_vertex];
-		if ( local_vid == -1 ) {
-			global_vid =
-				t->elems.tets[local_eid].global_vids[ith_vertex];
-			local_vid = _h5_search_idmap (
-				&t->map_vertex_g2l, global_vid );
-			t->elems_data.tets[local_eid].local_vids[ith_vertex] =
-				local_vid;
-		}
-		break;
-	}
-	case H5_OID_TRIANGLE: {
-		local_vid = t->elems_data.tris[local_eid].local_vids[ith_vertex];
-		if ( local_vid == -1 ) {
-			global_vid =
-				t->elems.tris[local_eid].global_vids[ith_vertex];
-			local_vid = _h5_search_idmap (
-				&t->map_vertex_g2l, global_vid );
-			t->elems_data.tris[local_eid].local_vids[ith_vertex] =
-				local_vid;
-		}
-		break;
-	}
-	default:
-		return  h5_error_internal ( f, __FILE__, __func__, __LINE__ ); 
-	}
-	return local_vid;
 }
 
 /*!
   Return the coordinates of the i-th vertex of the element given by its local 
   element id. For triangles \c i is in \c [0,1,2], for tetraheda \c i is in
   \c [0,1,2,3].
-*/
-static h5_float64_t*
-_get_vertex_of_elem (
-	h5_file_t * f,
-	int  ith_vertex,
-	h5_id_t local_eid
-	) {
-	struct h5t_fdata *t = f->t;
 
-	h5_id_t local_vid = _get_local_vid_of_elem (
-		f, ith_vertex, local_eid );
-	if ( local_vid == -1 ) 
-		return NULL;
-	return t->vertices[local_vid].P;
-}
+  t->elems_ldta[local_eid].local_vids[i]
+*/
+#define _get_vertex_of_elem( f, i, local_eid ) \
+	(f->t->vertices[ f->t->elems_ldta[local_eid].local_vids[i] ].P)
 
 
 
@@ -385,7 +309,7 @@ _search_elem (
 	h5_file_t *f,
 	h5_id_t * const local_vids	/* local vertex ids */
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
 	_h5t_sort_local_vids ( f, local_vids, t->mesh_type );
 
@@ -396,7 +320,7 @@ _search_elem (
 		register int mid = (low + high) / 2;
 
 		h5_id_t local_eid = t->sorted_elems[0].items[mid];
-		h5_id_t *elem2 = t->elems_data.tets[local_eid].local_vids;
+		h5_id_t *elem2 = t->elems_ldta[local_eid].local_vids;
 		int diff = _vcmp_elems ( f, elem1, elem2 );
            	if ( diff < 0 )
                		high = mid - 1;
@@ -405,15 +329,7 @@ _search_elem (
            	else
                		return mid; // found
        	}
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON:
-		return _h5t_error_local_tet_id_nexist ( f, local_vids );
-	case H5_OID_TRIANGLE:
-		return _h5t_error_local_triangle_id_nexist ( f, local_vids );
-	default:
-		return h5_error_internal( f, __FILE__, __func__, __LINE__ );
-	}
-       	return -(low+1);  // not found
+	return _h5t_error_local_elem_nexist ( f, local_vids );
 }
 
  /*!
@@ -425,7 +341,7 @@ h5t_get_local_eid (
 	h5_file_t *f,
 	h5_id_t * const local_vids	/* IN/OUT: local vertex id's */
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
 
 	h5_id_t local_eid;
 	TRY ( local_eid = _search_elem ( f, local_vids ) );
@@ -488,17 +404,16 @@ h5t_map_local_eid2global (
 	h5_file_t *f,
 	const h5_id_t local_eid
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t *t = f->t;
+
+	if ( local_eid < 0 || local_eid > t->num_elems[t->num_levels-1] )
+		return HANDLE_H5_OUT_OF_RANGE_ERR (
+			f, _h5t_oid_names[t->mesh_type], local_eid );
 
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON:
-		if ( local_eid < 0 || local_eid > t->num_elems[t->num_levels-1] )
-			return HANDLE_H5_OUT_OF_RANGE_ERR ( f, "tet", local_eid );
 		return t->elems.tets[local_eid].global_eid;
 	case H5_OID_TRIANGLE:
-		if ( local_eid < 0 || local_eid > t->num_elems[t->num_levels-1] )
-			return HANDLE_H5_OUT_OF_RANGE_ERR (
-				f, "triangle", local_eid );
 		return t->elems.tris[local_eid].global_eid;
 	default:
 		return  h5_error_internal ( f, __FILE__, __func__, __LINE__ ); 
@@ -516,9 +431,6 @@ h5t_get_global_eid (
 	struct h5t_fdata *t = f->t;
 	h5_id_t local_vids[H5_MAX_VERTICES_PER_ELEM];
 
-	if ( t->vertices == NULL ) {
-		TRY ( _h5t_read_mesh ( f ) );
-	}
 	TRY ( h5t_map_global_vids2local (
 		f,
 		global_vids,
@@ -527,130 +439,6 @@ h5t_get_global_eid (
 	h5_id_t local_eid;
 	TRY ( local_eid = h5t_get_local_eid ( f, local_vids ) );
 	return h5t_map_local_eid2global ( f, local_eid );
-}
-
-static int
-_search_ith_vertex_in_elem (
-	h5_file_t * const f,
-	const int i,
-	h5_id_t	local_vid
-	) {
-	struct h5t_fdata *t = f->t;
-
-	register h5_id_t low = 0;
-	register h5_id_t high = t->sorted_elems[i].num_items - 1;
-	register h5_float64_t *vertex1 = t->vertices[local_vid].P;
-
-	while (low <= high) {
-		register int mid = (low + high) / 2;
-
-		h5_id_t local_eid = t->sorted_elems[i].items[mid];
-		h5_id_t local_vid2 = t->elems_data.tets[local_eid].local_vids[i];
-		h5_float64_t *vertex2 = t->vertices[local_vid2].P;
-		int diff = _cmp_vertices ( vertex1, vertex2 );
-
-           	if ( diff < 0 )
-               		high = mid - 1;
-           	else if ( diff > 0 )
-               		low = mid + 1;
-           	else
-               		return mid; // found
-       	}
-       	return -(low+1);  // not found
-}
-
-static h5_id_t
-_tetm_contain_triangle (
-	h5_file_t *f,
-	const h5_id_t * const local_vids,
-	int i,
-	h5_id_t local_eid
-	) {
-	h5t_fdata_t *t = f->t;
-
-	h5_id_t *local_vids_of_elem = t->elems_data.tets[local_eid].local_vids;
-	if ( i == 0 && 
-	     local_vids[1] == local_vids_of_elem[1] && 
-	     local_vids[2] == local_vids_of_elem[2]
-		) return 0;
-	else if ( i == 0 && 
-	     local_vids[1] == local_vids_of_elem[1] && 
-	     local_vids[2] == local_vids_of_elem[3]
-		) return 1;
-	else if ( i == 0 && 
-	     local_vids[1] == local_vids_of_elem[2] && 
-	     local_vids[2] == local_vids_of_elem[3]
-		) return 2;
-	else if ( i == 1 && 
-	     local_vids[1] == local_vids_of_elem[2] && 
-	     local_vids[2] == local_vids_of_elem[3]
-		) return 3;
-	return H5_NOK;
-}
-
-/*!
-  Search for triangle given by local vertex id in tetrahdral mesh.
-
-  \return unique local triangle id
- */
-h5_id_t
-_tetm_search_triangle (
-	h5_file_t *f,
-	h5_id_t * const local_vids
-	) {
-	struct h5t_fdata *t = f->t;
-
-	_h5t_sort_local_vids ( f, local_vids, 3 );
-
-	/*
-	  search for vid(tri,0) in the tuple of all 0th vertices of all tets
-	  if there is one:
-		take the smallest tet with vid(tri,0) == vid(tet,0)
-		loop over all tets with vid(tri,0) == vid(tet,0)
-		until we find a tet the triangle is belonging to.
-	  else
-		search for vid(tri,0) in the tuple of all 1st vertices of
-		all tets
-		if there is one:
-			take the smallest tet with
-			vid(tri,0) == vid(tet,0)
-			loop over all tets with
-			vid(tri,0) == vid(tet,0)
-			until we find a tet the triangle is belonging to.
-	*/
-
-	int i;
-	h5_id_t idx[2];
-	h5_id_t local_eid[2];
-	h5_id_t tidx[2];
-	for ( i = 0; i < 2; i++ ) {
-		idx[i] = _search_ith_vertex_in_elem ( f, i, local_vids[0] );
-
-		while ( idx[i] > 0 &&		/* get leftmost */
-			local_vids[0] == _get_local_vid_of_elem (
-				f, i, t->sorted_elems[0].items[idx[i]-1] ) )
-			idx[i]--;
-
-		do {
-			/* check whether triangle is in elem given by local id */
-			local_eid[i] = t->sorted_elems[i].items[idx[i]];
-			tidx[i] = _tetm_contain_triangle (
-				f, local_vids, i, local_eid[i] );
-			if ( tidx[i] >= 0 ) break;
-			idx[i]++;
-		} while ( local_vids[0] == _get_local_vid_of_elem (
-				  f, i, local_eid[i] ) );
-	}
-	if ( idx[0] < 0 && idx[1] < 0 ) return -1;
-	if ( idx[0] < 0 ) return _h5t_build_triangle_id ( tidx[1], local_eid[1] );
-	if ( idx[1] < 0 ) return _h5t_build_triangle_id ( tidx[0], local_eid[0] );
-
-	if ( _cmp_elems( f, local_eid[0], local_eid[1] ) < 0 )
-		return _h5t_build_triangle_id ( tidx[0], local_eid[0] );
-	else
-		return _h5t_build_triangle_id ( tidx[1], local_eid[1] );
-
-	return -1;
 }
 
 /*!
@@ -662,10 +450,6 @@ h5t_get_global_triangle_id  (
 	h5_id_t * const global_vids
 	) {
 	struct h5t_fdata *t = f->t;
-
-	if ( t->vertices == NULL ) {
-		TRY ( _h5t_read_mesh ( f ) );
-	}
 
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
@@ -693,20 +477,44 @@ h5t_get_local_triangle_id  (
 	h5_file_t * const f,
 	h5_id_t * const local_vids
 	) {
-	struct h5t_fdata *t = f->t;
-	if ( t->vertices == NULL ) {
-		TRY ( _h5t_read_mesh ( f ) );
-	}
+	h5t_fdata_t *t = f->t;
+
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
-		h5_id_t local_tid = _tetm_search_triangle ( f, local_vids );
-		if ( local_tid == -1 ) {
-			return _h5t_error_local_triangle_id_nexist( f, local_vids );
-		}
-		return local_tid;
+		h5_td_node_t *td;
+		TRY ( _h5t_find_td (
+			      f,
+			      &td,
+			      local_vids ) );
+		return td->value.items[0];
 	}
 	case H5_OID_TRIANGLE:
 		return h5t_get_local_eid ( f, local_vids );
+	default:
+		return h5_error_internal ( f, __FILE__, __func__, __LINE__ ); 
+	}
+}
+
+h5_id_t
+h5t_get_local_triangle_id2 (
+	h5_file_t * const f,
+	h5_id_t face_id,
+	h5_id_t local_eid
+	) {
+	h5t_fdata_t *t = f->t;
+
+	switch ( t->mesh_type ) {
+	case H5_OID_TETRAHEDRON: {
+		h5_td_node_t *td;
+		TRY ( _h5t_find_td2 (
+			      f,
+			      &td,
+			      face_id,
+			      local_eid) );
+		return td->value.items[0];
+	}
+	case H5_OID_TRIANGLE:
+		return local_eid;
 	default:
 		return h5_error_internal ( f, __FILE__, __func__, __LINE__ ); 
 	}
@@ -817,113 +625,20 @@ _h5t_rebuild_global_2_local_map_of_elems (
 	h5_id_t local_eid = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
 	h5_id_t num_elems = t->num_elems[t->num_levels-1];
 	h5_idmap_el_t *item = &t->map_elem_g2l.items[local_eid];
-
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON: {
-		h5_tet_t *elem = &t->elems.tets[local_eid];
-		for ( ; local_eid < num_elems; local_eid++, item++, elem++ ) {
-			item->global_id = elem->global_eid; 
-			item->local_id = local_eid;
-			t->map_elem_g2l.num_items++;
-		}
-		break;
-	}
-	case H5_OID_TRIANGLE: {
-		h5_triangle_t *elem = &t->elems.tris[local_eid];
-		for ( ; local_eid < num_elems; local_eid++, item++, elem++ ) {
-			item->global_id = elem->global_eid; 
-			item->local_id = local_eid;
-			t->map_elem_g2l.num_items++;
-		}
-		break;
-	}
-	default:
-		return h5_error_internal( f, __FILE__, __func__, __LINE__ );
+	size_t offset = _h5t_sizeof_elem[t->mesh_type];
+	void *elemp = t->elems.data + local_eid*offset;
+	for ( ;
+	      local_eid < num_elems;
+	      local_eid++,
+		      item++,
+		      elemp+=offset ) {
+		h5_elem_t *elem = (h5_elem_t*)elemp;
+		
+		item->global_id = elem->global_eid; 
+		item->local_id = local_eid;
+		t->map_elem_g2l.num_items++;
 	}
 	_h5_sort_idmap ( &t->map_elem_g2l );
-
-	return H5_SUCCESS;
-}
-
-/*
-  setup structure "elems_data" with local ids for each element:
-  - translate the global vertex id's of each element to their
-    local id's
-  - translate the global parent id of each element to the
-    corresponding local id.
-*/
-h5_err_t
-_h5t_rebuild_elems_data (
-	h5_file_t * const f
-	) {
-	h5t_fdata_t *t = f->t;
-	h5_id_t local_eid = 0;
-	h5_id_t num_elems = t->num_elems[t->num_levels-1];
-	h5_id_t level_id = 0;
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON: {
-		h5_tet_t *el;
-		h5_tet_data_t *el_data;
-
-		for ( local_eid=0, el=t->elems.tets, el_data=t->elems_data.tets;
-		      local_eid < num_elems;
-		      local_eid++, el++, el_data++ ) {
-			
-			TRY( h5t_map_global_vids2local (
-				     f,
-				     el->global_vids,
-				     t->mesh_type,
-				     el_data->local_vids
-				     ) );
-			if ( el->global_parent_eid >= 0 )
-				TRY ( el_data->local_parent_eid =
-				      h5t_map_global_eid2local (
-					      f,
-					      el->global_parent_eid ) );
-
-			if ( el->global_child_eid >= 0 )
-				TRY ( el_data->local_child_eid =
-				      h5t_map_global_eid2local (
-					      f,
-					      el->global_child_eid ) );
-
-			if ( local_eid >= t->num_elems[level_id] ) {
-				level_id++;
-			}
-			el_data->level_id = level_id;
-		}
-		break;
-	}
-	case H5_OID_TRIANGLE: {
-		h5_triangle_t *el;
-		h5_triangle_data_t *el_data;
-
-		for ( local_eid=0, el=t->elems.tris, el_data=t->elems_data.tris;
-		      local_eid < num_elems;
-		      local_eid++, el++, el_data++ ) {
-
-			TRY( h5t_map_global_vids2local (
-				     f,
-				     el->global_vids,
-				     t->mesh_type,
-				     el_data->local_vids
-				     ) );
-			if ( el->global_parent_eid >= 0 )
-				TRY ( el_data->local_parent_eid =
-				      h5t_map_global_eid2local (
-					      f,
-					      el->global_parent_eid ) );
-			if ( local_eid > t->num_elems_on_level[level_id] ) {
-				level_id++;
-			}
-			el_data->level_id = level_id;
-		}
-		break;
-	}
-	default:
-		return h5_error_internal (
-			f, __FILE__, __func__, __LINE__ );
-	}
 
 	return H5_SUCCESS;
 }
@@ -942,7 +657,7 @@ h5t_get_local_vids_of_entity (
 	h5t_fdata_t *t = f->t;
 	h5_id_t face_id = _h5t_get_face_id ( local_id );
 	h5_id_t local_eid = _h5t_get_elem_id ( local_id );
-	h5_tet_data_t	*tet_dta = &t->elems_data.tets[local_eid];
+	h5_elem_ldta_t	*tet_dta = &t->elems_ldta[local_eid];
 
 	switch ( _h5t_get_entity_type ( local_id ) ) {
 	case H5T_ELEM_TYPE_VERTEX: {
