@@ -35,12 +35,6 @@
 #define h5bl_getfieldinfo F77NAME (					\
 					h5bl_getfieldinfo_,		\
 					H5BL_GETFIELDINFO )
-#define h5bl_writefieldattrib_r8 F77NAME (				\
-					h5bl_writefieldattrib_r8_,	\
-					H5BL_WRITEFIELDATTRIB_R8 )
-#define h5bl_writefieldattrib_i8 F77NAME (				\
-					h5bl_writefieldattrib_i8_,	\
-					H5BL_WRITEFIELDATTRIB_I8 )
 #define h5bl_writefieldattrib_string F77NAME (			\
 					h5bl_writefieldattrib_string_,	\
 					H5BL_WRITEFIELDATTRIB_STRING )
@@ -209,57 +203,6 @@ h5bl_getfieldinfo (
 		filehandle, *idx, field_name, l_field_name,
 		grid_rank, grid_dims, field_dims );
 	_H5Part_strc2for ( field_name, l_field_name );
-	return herr;
-}
-
-h5part_int64_t
-h5bl_writefieldattrib_r8 (
-	h5part_int64_t *f,
-	const char *field_name,
-	const char *attrib_name,
-	const h5part_float64_t *attrib_value,
-	const h5part_int64_t *attrib_nelem,
-	const int l_field_name,
-	const int l_attrib_name
-	) {
-
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
-
-	char *field_name2 = _H5Part_strdupfor2c ( field_name,  l_field_name );
-	char *attrib_name2 =_H5Part_strdupfor2c ( attrib_name, l_attrib_name );
-
-	h5part_int64_t herr = H5BlockWriteFieldAttrib (
-		filehandle, field_name2, attrib_name2, H5PART_FLOAT64,
-		attrib_value, *attrib_nelem );
-
-	free ( field_name2 );
-	free ( attrib_name2 );
-	return herr;
-}
-
-
-h5part_int64_t
-h5bl_writefieldattrib_i8 (
-	h5part_int64_t *f,
-	const char *field_name,
-	const char *attrib_name,
-	const h5part_int64_t *attrib_value,
-	const h5part_int64_t *attrib_nelem,
-	const int l_field_name,
-	const int l_attrib_name
-	) {
-
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
-
-	char *field_name2 = _H5Part_strdupfor2c ( field_name,  l_field_name );
-	char *attrib_name2 =_H5Part_strdupfor2c ( attrib_name, l_attrib_name );
-
-	h5part_int64_t herr = H5BlockWriteFieldAttrib (
-		filehandle, field_name2, attrib_name2, H5PART_INT64,
-		attrib_value, *attrib_nelem );
-
-	free ( field_name2 );
-	free ( attrib_name2 );
 	return herr;
 }
 

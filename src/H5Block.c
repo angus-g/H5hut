@@ -1775,7 +1775,7 @@ H5BlockGetFieldAttribInfo (
 
   \return \c H5PART_SUCCESS or error code
 */
-static h5part_int64_t
+h5part_int64_t
 _read_field_attrib (
 	H5PartFile *f,				/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
