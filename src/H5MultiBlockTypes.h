@@ -4,6 +4,7 @@
 struct H5MultiBlockStruct {
 	h5part_int64_t halo_radii[3];
 	h5part_int64_t block_dims[3];
+	h5part_int64_t halo_dims[3];
 	h5part_int64_t field_dims[3];
 	h5part_int64_t decomp[3];
 	h5part_int64_t offsets[3];

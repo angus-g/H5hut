@@ -429,3 +429,127 @@ h5bl_3d_read_3dvector_field_i4 (
 	free ( field_name2 );
 	return herr;
 }
+
+#if ! defined(F77_NO_UNDERSCORE)
+#define h5bl_writefieldattrib_r8 F77NAME ( \
+	h5bl_writefieldattrib_r8_, \
+	H5BL_WRITEFIELDATTRIB_R8 )
+#endif
+
+h5part_int64_t
+h5bl_writefieldattrib_r8 (
+	h5part_int64_t *f,
+	const char *field_name,
+	const char *attrib_name,
+	const h5part_float64_t *attrib_value,
+	const h5part_int64_t *attrib_nelem,
+	const int l_field_name,
+	const int l_attrib_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *field_name2 = _H5Part_strdupfor2c ( field_name,  l_field_name );
+	char *attrib_name2 =_H5Part_strdupfor2c ( attrib_name, l_attrib_name );
+
+	h5part_int64_t herr = H5BlockWriteFieldAttribFloat64 (
+		filehandle, field_name2, attrib_name2,
+		attrib_value, *attrib_nelem );
+
+	free ( field_name2 );
+	free ( attrib_name2 );
+	return herr;
+}
+
+#if ! defined(F77_NO_UNDERSCORE)
+#define h5bl_writefieldattrib_r4 F77NAME ( \
+	h5bl_writefieldattrib_r4_, \
+	H5BL_WRITEFIELDATTRIB_R4 )
+#endif
+
+h5part_int64_t
+h5bl_writefieldattrib_r4 (
+	h5part_int64_t *f,
+	const char *field_name,
+	const char *attrib_name,
+	const h5part_float32_t *attrib_value,
+	const h5part_int64_t *attrib_nelem,
+	const int l_field_name,
+	const int l_attrib_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *field_name2 = _H5Part_strdupfor2c ( field_name,  l_field_name );
+	char *attrib_name2 =_H5Part_strdupfor2c ( attrib_name, l_attrib_name );
+
+	h5part_int64_t herr = H5BlockWriteFieldAttribFloat32 (
+		filehandle, field_name2, attrib_name2,
+		attrib_value, *attrib_nelem );
+
+	free ( field_name2 );
+	free ( attrib_name2 );
+	return herr;
+}
+
+#if ! defined(F77_NO_UNDERSCORE)
+#define h5bl_writefieldattrib_i8 F77NAME ( \
+	h5bl_writefieldattrib_i8_, \
+	H5BL_WRITEFIELDATTRIB_I8 )
+#endif
+
+h5part_int64_t
+h5bl_writefieldattrib_i8 (
+	h5part_int64_t *f,
+	const char *field_name,
+	const char *attrib_name,
+	const h5part_int64_t *attrib_value,
+	const h5part_int64_t *attrib_nelem,
+	const int l_field_name,
+	const int l_attrib_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *field_name2 = _H5Part_strdupfor2c ( field_name,  l_field_name );
+	char *attrib_name2 =_H5Part_strdupfor2c ( attrib_name, l_attrib_name );
+
+	h5part_int64_t herr = H5BlockWriteFieldAttribInt64 (
+		filehandle, field_name2, attrib_name2,
+		attrib_value, *attrib_nelem );
+
+	free ( field_name2 );
+	free ( attrib_name2 );
+	return herr;
+}
+
+#if ! defined(F77_NO_UNDERSCORE)
+#define h5bl_writefieldattrib_i4 F77NAME ( \
+	h5bl_writefieldattrib_i4_, \
+	H5BL_WRITEFIELDATTRIB_I4 )
+#endif
+
+h5part_int64_t
+h5bl_writefieldattrib_i4 (
+	h5part_int64_t *f,
+	const char *field_name,
+	const char *attrib_name,
+	const h5part_int32_t *attrib_value,
+	const h5part_int64_t *attrib_nelem,
+	const int l_field_name,
+	const int l_attrib_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *field_name2 = _H5Part_strdupfor2c ( field_name,  l_field_name );
+	char *attrib_name2 =_H5Part_strdupfor2c ( attrib_name, l_attrib_name );
+
+	h5part_int64_t herr = H5BlockWriteFieldAttribInt32 (
+		filehandle, field_name2, attrib_name2,
+		attrib_value, *attrib_nelem );
+
+	free ( field_name2 );
+	free ( attrib_name2 );
+	return herr;
+}

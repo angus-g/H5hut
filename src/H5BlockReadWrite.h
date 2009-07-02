@@ -135,6 +135,42 @@ H5Block3dRead3dVectorFieldInt32 (
 	h5part_int32_t *zval
 	);
 
+h5part_int64_t
+H5BlockWriteFieldAttribFloat64 (
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_float64_t *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	);
+
+h5part_int64_t
+H5BlockWriteFieldAttribFloat32 (
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_float32_t *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	);
+
+h5part_int64_t
+H5BlockWriteFieldAttribInt64 (
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_int64_t *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	);
+
+h5part_int64_t
+H5BlockWriteFieldAttribInt32 (
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_int32_t *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	);
+
 
 #ifdef __cplusplus
 }

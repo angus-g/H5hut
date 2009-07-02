@@ -57,4 +57,14 @@ _H5Block_read_data (
 	hid_t type
 	);
 
+h5part_int64_t
+_write_field_attrib (
+	H5PartFile *f,
+	const char *field_name,
+	const char *attrib_name,
+	const hid_t attrib_type,
+	const void *attrib_value,
+	const h5part_int64_t attrib_nelem
+	);
+
 #endif

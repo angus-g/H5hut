@@ -60,6 +60,11 @@ H5MultiBlock3dCalculateDecomp (
 	h5part_int64_t *decomp
 	);
 
+h5part_int64_t
+H5MultiBlockFree (
+	void *block
+	);
+
 #ifdef __cplusplus
 }
 #endif

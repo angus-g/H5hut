@@ -413,6 +413,93 @@ h5bl_#DIM#d_read_3dvector_field_#TYPE_F90_ABV# (
 }
 """
 
+write_attr_h = """
+h5part_int64_t
+H5BlockWriteFieldAttrib#TYPE_ABV# (
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_#TYPE_H5P#_t *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	);
+"""
+
+write_attr_c = """
+/*!
+  \\ingroup h5block_c_api
+
+  Write \\c attrib_value with type #TYPE_FULL# as attribute \\c attrib_name
+  to field \\c field_name.
+
+  \\return \\c H5PART_SUCCESS or error code
+*/
+h5part_int64_t
+H5BlockWriteFieldAttrib#TYPE_ABV# (
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_#TYPE_H5P#_t *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	) {
+
+	SET_FNAME ( "H5BlockWriteFieldAttrib#TYPE_ABV#" );
+	BLOCK_INIT ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	return _write_field_attrib (
+		f,
+		field_name,
+		attrib_name,
+                #TYPE_HDF5#,
+                attrib_value,
+		attrib_nelem );
+}
+"""
+
+write_attr_fi = """
+INTEGER*8 FUNCTION h5bl_writefieldattrib_#TYPE_F90_ABV# ( filehandle, field_name, attrib_name, attrib_value, attrib_nelem)
+  INTEGER*8, INTENT(IN) :: filehandle
+  CHARACTER(LEN=*), INTENT(IN) :: field_name    ! The name of the field
+  CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! The name of the attribute
+  #TYPE_F90#, INTENT(IN) :: attrib_value(*) ! The array of data to write into the attribute
+  INTEGER*8, INTENT(IN) :: attrib_nelem ! Number of elements in the attrib array
+END FUNCTION
+"""
+
+write_attr_fc = """
+#if ! defined(F77_NO_UNDERSCORE)
+#define h5bl_writefieldattrib_#TYPE_F90_ABV# F77NAME ( \\
+	h5bl_writefieldattrib_#TYPE_F90_ABV#_, \\
+	H5BL_WRITEFIELDATTRIB_#TYPE_F90_ABVC# )
+#endif
+
+h5part_int64_t
+h5bl_writefieldattrib_#TYPE_F90_ABV# (
+	h5part_int64_t *f,
+	const char *field_name,
+	const char *attrib_name,
+	const h5part_#TYPE_H5P#_t *attrib_value,
+	const h5part_int64_t *attrib_nelem,
+	const int l_field_name,
+	const int l_attrib_name
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	char *field_name2 = _H5Part_strdupfor2c ( field_name,  l_field_name );
+	char *attrib_name2 =_H5Part_strdupfor2c ( attrib_name, l_attrib_name );
+
+	h5part_int64_t herr = H5BlockWriteFieldAttrib#TYPE_ABV# (
+		filehandle, field_name2, attrib_name2,
+		attrib_value, *attrib_nelem );
+
+	free ( field_name2 );
+	free ( attrib_name2 );
+	return herr;
+}
+"""
+
 
 dims = ["3"]
 types = [
@@ -461,6 +548,11 @@ def write_calls():
       fcfile.write(create_call(read_vector_fc,type,dim));
       fifile.write(create_call(write_vector_fi,type,dim));
       fifile.write(create_call(read_vector_fi,type,dim));
+  for type in types:
+    cfile.write(create_call(write_attr_c,type,""));
+    hfile.write(create_call(write_attr_h,type,""));
+    fifile.write(create_call(write_attr_fi,type,""));
+    fcfile.write(create_call(write_attr_fc,type,""));
   cfile.close()
   hfile.write(h_tail)
   hfile.close()

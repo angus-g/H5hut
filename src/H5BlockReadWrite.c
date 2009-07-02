@@ -643,3 +643,127 @@ H5Block3dRead3dVectorFieldInt32 (
 
 	return H5PART_SUCCESS;
 }
+
+/*!
+  \ingroup h5block_c_api
+
+  Write \c attrib_value with type floating points (64-bit) as attribute \c attrib_name
+  to field \c field_name.
+
+  \return \c H5PART_SUCCESS or error code
+*/
+h5part_int64_t
+H5BlockWriteFieldAttribFloat64 (
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_float64_t *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	) {
+
+	SET_FNAME ( "H5BlockWriteFieldAttribFloat64" );
+	BLOCK_INIT ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	return _write_field_attrib (
+		f,
+		field_name,
+		attrib_name,
+                H5T_NATIVE_DOUBLE,
+                attrib_value,
+		attrib_nelem );
+}
+
+/*!
+  \ingroup h5block_c_api
+
+  Write \c attrib_value with type floating points (32-bit) as attribute \c attrib_name
+  to field \c field_name.
+
+  \return \c H5PART_SUCCESS or error code
+*/
+h5part_int64_t
+H5BlockWriteFieldAttribFloat32 (
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_float32_t *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	) {
+
+	SET_FNAME ( "H5BlockWriteFieldAttribFloat32" );
+	BLOCK_INIT ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	return _write_field_attrib (
+		f,
+		field_name,
+		attrib_name,
+                H5T_NATIVE_FLOAT,
+                attrib_value,
+		attrib_nelem );
+}
+
+/*!
+  \ingroup h5block_c_api
+
+  Write \c attrib_value with type integers (64-bit) as attribute \c attrib_name
+  to field \c field_name.
+
+  \return \c H5PART_SUCCESS or error code
+*/
+h5part_int64_t
+H5BlockWriteFieldAttribInt64 (
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_int64_t *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	) {
+
+	SET_FNAME ( "H5BlockWriteFieldAttribInt64" );
+	BLOCK_INIT ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	return _write_field_attrib (
+		f,
+		field_name,
+		attrib_name,
+                H5T_NATIVE_INT64,
+                attrib_value,
+		attrib_nelem );
+}
+
+/*!
+  \ingroup h5block_c_api
+
+  Write \c attrib_value with type integers (32-bit) as attribute \c attrib_name
+  to field \c field_name.
+
+  \return \c H5PART_SUCCESS or error code
+*/
+h5part_int64_t
+H5BlockWriteFieldAttribInt32 (
+	H5PartFile *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5part_int32_t *attrib_value,		/*!< IN: attribute value */
+	const h5part_int64_t attrib_nelem	/*!< IN: number of elements */
+	) {
+
+	SET_FNAME ( "H5BlockWriteFieldAttribInt32" );
+	BLOCK_INIT ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	return _write_field_attrib (
+		f,
+		field_name,
+		attrib_name,
+                H5T_NATIVE_INT32,
+                attrib_value,
+		attrib_nelem );
+}
