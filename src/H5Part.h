@@ -57,13 +57,13 @@ extern "C" {
 H5PartFile*
 H5PartOpenFile(
 	const char *filename,
-	const unsigned flags
+	const char flags
 	);
 
 H5PartFile*
 H5PartOpenFileAlign(
 	const char *filename,
-	const unsigned flags,
+	const char flags,
 	h5part_int64_t align
 	);
 
@@ -74,14 +74,14 @@ H5PartOpenFileAlign(
 H5PartFile*
 H5PartOpenFileParallel (
 	const char *filename,
-	const unsigned flags,
+	const char flags,
 	MPI_Comm communicator
 	);
 
 H5PartFile*
 H5PartOpenFileParallelAlign (
 	const char *filename,
-	const unsigned flags,
+	const char flags,
 	MPI_Comm communicator,
 	h5part_int64_t align
 	);

@@ -19,6 +19,12 @@ AC_CONFIG_HEADER(config.h)
 ###############################################################################
 
 AC_ARG_ENABLE(
+	[debug],
+	[AC_HELP_STRING([--enable-debug],
+	[Compile with debug support [default=no]])],
+	[USE_DEBUG=$enableval])
+
+AC_ARG_ENABLE(
 	[64],
 	[AC_HELP_STRING([--enable-64],
 	[Compile using 64-bit flags [default=no]])],
@@ -211,6 +217,15 @@ AC_DEFINE_UNQUOTED(MY_UNAME, "$uname", "")
 ###############################################################################
 ######################## CONFIGURE LINE OPTIONS ###############################
 ###############################################################################
+
+AC_MSG_CHECKING([if debug is enabled])
+
+if test "X$USE_DEBUG" = "Xyes"; then
+    AC_MSG_RESULT([yes])
+    CFLAGS="$CFLAGS -g"
+else
+    AC_MSG_RESULT([no])
+fi
 
 ###################### 64-bit compilation enabled #############################
 AC_MSG_CHECKING([if 64-bit compilation is enabled])

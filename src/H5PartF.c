@@ -213,6 +213,27 @@ _H5Part_strc2for (
 	return str;
 }
 
+char
+_H5Part_flagsfor2c (
+	char * flags
+	) {
+
+	char fbits = 0x00;
+
+	flags = strtok ( str, "," );
+	while ( flags != NULL ) {
+		if ( strcmp ( flags, "vfd_mpiposix" ) == 0 )
+				fbits |= H5PART_VFD_MPIPOSIX;
+		else if ( strcmp ( flags, "fs_lustre" ) == 0 )
+		    		fbits |= H5PART_FS_LUSTRE;
+		else if (strcmp ( flags, "fs_gpfs" ) == 0 )
+		    		fbits |= H5PART_FS_GPFS;
+		strtok ( NULL, "," );
+	}
+
+	return fbits;
+}
+
 /* open/close interface */
 h5part_int64_t
 h5pt_openr (
@@ -372,13 +393,18 @@ h5pt_openw_par_align (
 	const char *file_name,
 	MPI_Comm *comm,
 	const h5part_int64_t *align,
-	const int l_file_name
+	const char *flags,
+	const int l_file_name,
+	const int l_flags
 	) {
 
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
+
+	char fbits = H5PART_WRITE | _H5Part_flagsfor2c ( flags2 );
 
 	H5PartFile* f = H5PartOpenFileParallelAlign (
-		file_name2, H5PART_WRITE, *comm, *align );
+		file_name2, fbits, *comm, *align );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
@@ -389,16 +415,21 @@ h5pt_opena_par_align (
 	const char *file_name,
 	MPI_Comm *comm,
 	const h5part_int64_t *align,
-	const int l_file_name
+	const char *flags,
+	const int l_file_name,
+	const int l_flags
 	) {
 	
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
        
-       H5PartFile* f = H5PartOpenFileParallelAlign (
-               file_name2, H5PART_APPEND, *comm, *align );
-       
-       free ( file_name2 );
-       return (h5part_int64_t)(size_t)f;
+	char fbits = H5PART_APPEND | _H5Part_flagsfor2c ( flags2 );
+
+	H5PartFile* f = H5PartOpenFileParallelAlign (
+		file_name2, fbits, *comm, *align );
+
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f;
 }
 #endif
 

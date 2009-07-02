@@ -130,7 +130,7 @@ _h5_error_handler (
 static H5PartFile*
 _H5Part_open_file (
 	const char *filename,	/*!< [in] The name of the data file to open. */
-	unsigned flags,		/*!< [in] The access mode for the file. */
+	const char flags,	/*!< [in] The access mode for the file. */
 	MPI_Comm comm,		/*!< [in] MPI communicator */
 	int f_parallel,		/*!< [in] 0 for serial io otherwise parallel */
 	h5part_int64_t align	/*!< [in] Number of bytes for setting alignment,
@@ -376,7 +376,7 @@ _H5Part_open_file (
 H5PartFile*
 H5PartOpenFileParallel (
 	const char *filename,	/*!< [in] The name of the data file to open. */
-	unsigned flags,		/*!< [in] The access mode for the file. */
+	const char flags,	/*!< [in] The access mode for the file. */
 	MPI_Comm comm		/*!< [in] MPI communicator */
 	) {
 
@@ -399,7 +399,7 @@ H5PartOpenFileParallel (
 H5PartFile*
 H5PartOpenFileParallelAlign (
 	const char *filename,	/*!< [in] The name of the data file to open. */
-	unsigned flags,		/*!< [in] The access mode for the file. */
+	const char flags,	/*!< [in] The access mode for the file. */
 	MPI_Comm comm,		/*!< [in] MPI communicator */
 	h5part_int64_t align	/*!< [in] Alignment size in bytes. */
 	) {
@@ -436,7 +436,7 @@ H5PartOpenFileParallelAlign (
 H5PartFile*
 H5PartOpenFile (
 	const char *filename,	/*!< [in] The name of the data file to open. */
-	unsigned flags		/*!< [in] The access mode for the file. */
+	const char flags	/*!< [in] The access mode for the file. */
 	) {
 
 	SET_FNAME ( "H5PartOpenFile" );
@@ -459,7 +459,7 @@ H5PartOpenFile (
 H5PartFile*
 H5PartOpenFileAlign (
 	const char *filename,	/*!< [in] The name of the data file to open. */
-	unsigned flags,		/*!< [in] The access mode for the file. */
+	const char flags,	/*!< [in] The access mode for the file. */
 	h5part_int64_t align	/*!< [in] Alignment size in bytes. */
 ) {
 	SET_FNAME ( "H5PartOpenFile" );
