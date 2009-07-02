@@ -50,9 +50,9 @@ EXTRA_DIST = 	Bench.c \
 		H5PartTest.cc H5PartTestParallel.cc \
 		H5PartAndreasTest.cc \
 		H5test.cc H5testF.f \
-		H5testFpar.f90 \
-		H5BlockParTestScalarField.c H5BlockParTestScalarFieldF.f90 \
-		H5BlockTestAttributes.c H5BlockTestAttributesF.f90 \
+		H5testFpar.F90 \
+		H5BlockParTestScalarField.c H5BlockParTestScalarFieldF.F90 \
+		H5BlockTestAttributes.c H5BlockTestAttributesF.F90 \
 		$(bin_SCRIPTS)
 
 # Specific building instruction (What compilers to use...)
@@ -106,7 +106,7 @@ H5testF.o: H5testF.f
 H5testFpar: H5testFpar.o
 	$(MPIFC)  -o $@ $< $(H5LIB) -lpH5PartF -lpH5Part $(LIBS)
 
-H5testFpar.o: H5testFpar.f90
+H5testFpar.o: H5testFpar.F90
 	$(MPIFC) $(FFLAGS) -c $(H5INC) $<
 
 ###############################################################################
@@ -124,14 +124,14 @@ H5test.o: H5test.cc
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -g -c $<
 
-%.o : %.f90
+%.o : %.F90
 	${FC} $(FFLAGS) -c $(H5INC) $<
 
 H5BlockTestAttributes.o: H5BlockTestAttributes.c
 
 H5BlockTestAttributes:	H5BlockTestAttributes.o
 
-H5BlockTestAttributesF.o: H5BlockTestAttributesF.f90
+H5BlockTestAttributesF.o: H5BlockTestAttributesF.F90
 
 H5BlockTestAttributesF:	H5BlockTestAttributesF.o
 	$(FC)  -o $@ $< $(H5LIB) -lH5PartF -lH5Part $(LIBS)
@@ -140,7 +140,7 @@ H5BlockParTestScalarField.o: H5BlockParTestScalarField.c
 
 H5BlockParTestScalarField: H5BlockParTestScalarField.o
 
-H5BlockParTestScalarFieldF.o: H5BlockParTestScalarFieldF.f90
+H5BlockParTestScalarFieldF.o: H5BlockParTestScalarFieldF.F90
 
 H5BlockParTestScalarFieldF: H5BlockParTestScalarFieldF.o
 	$(FC)  -o $@ $< $(H5LIB) -lH5PartF -lH5Part $(LIBS)

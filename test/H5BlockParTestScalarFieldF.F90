@@ -5,10 +5,12 @@ PROGRAM H5BlockParTestScalarFieldF
    INCLUDE 'H5PartF90.inc'
    INCLUDE 'H5BlockF90.inc'
 
+#ifndef HAVE_GFORTRAN
    INTERFACE
       INTEGER FUNCTION IARGC ()
       END FUNCTION IARGC
    END INTERFACE
+#endif
 
    INTEGER :: myproc = 0
    INTEGER :: nprocs = 1

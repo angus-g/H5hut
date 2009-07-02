@@ -271,6 +271,10 @@ if test "X$USE_FORTRAN" = "Xyes"; then
 	FFLAGS="${FFLAGS} -fno-second-underscore"
     fi
 
+    if test $FC = "gfortran"; then
+        FFLAGS="${FFLAGS} -DHAVE_GFORTRAN"
+    fi
+
     AC_MSG_CHECKING([symbol convention in object files])
     `cd src && rm -f TestUnderscore.o TestUnderscoreC.o TestUnderscore`
     `cd src && ${FC} ${FFLAGS} -c TestUnderscore.f`

@@ -220,7 +220,7 @@ _H5Part_flagsfor2c (
 
 	char fbits = 0x00;
 
-	flags = strtok ( str, "," );
+	flags = strtok ( flags, "," );
 	while ( flags != NULL ) {
 		if ( strcmp ( flags, "vfd_mpiposix" ) == 0 )
 				fbits |= H5PART_VFD_MPIPOSIX;
