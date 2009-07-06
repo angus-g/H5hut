@@ -133,11 +133,13 @@ _H5Block_init (
 	b->diskshape = -1;
 	b->memshape = -1;
 	b->field_group_id = -1;
-	b->create_prop = H5P_DEFAULT;
 	b->have_layout = 0;
 	b->chunk[0] = 0;
 	b->chunk[1] = 0;
 	b->chunk[2] = 0;
+
+	b->create_prop = H5Pcreate ( H5P_DATASET_CREATE );
+	if ( b->create_prop < 0 ) return HANDLE_H5P_CREATE_ERR;
 
 	f->close_block = _H5Block_close;
 
@@ -182,12 +184,12 @@ _H5Block_close (
 		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
 		b->memshape = -1;
 	}
-	if ( b->create_prop != H5P_DEFAULT ) {
-		herr = H5Pclose ( b->create_prop );
-		if ( herr < 0 ) return HANDLE_H5P_CLOSE_ERR ("create_prop");
-		b->create_prop = H5P_DEFAULT;
-	}
+
+	herr = H5Pclose ( b->create_prop );
+	if ( herr < 0 ) return HANDLE_H5P_CLOSE_ERR ( "create_prop" );
+
 	free ( f->block );
+
 	f->block = NULL;
 	f->close_block = NULL;
 
@@ -785,9 +787,6 @@ H5BlockDefine3DChunkDims(
 		(long long)b->chunk[2],
 		(long long)b->chunk[1],
 		(long long)b->chunk[0] );
-
-	b->create_prop = H5Pcreate (H5P_DATASET_CREATE);
-	if (b->create_prop < 0) return HANDLE_H5P_CREATE_ERR;
 
 	herr_t herr = H5Pset_chunk ( b->create_prop, 3, b->chunk );
 	if ( herr < 0 ) return HANDLE_H5P_SET_CHUNK_ERR;
