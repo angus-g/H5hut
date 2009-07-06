@@ -57,6 +57,7 @@
 
 #ifdef PARALLEL_IO
 
+#define HALO_EXCHANGE_METHOD _halo_exchange_buffers
 
 /*******************************************************************************
 * Static functions
@@ -110,7 +111,7 @@ _get_decomp_and_offsets (
 	mb->decomp[1] = mb->field_dims[1] / mb->block_dims[1];
 	mb->decomp[2] = mb->field_dims[2] / mb->block_dims[2];
 
-        if (f->myproc == 0) {
+	if (f->myproc == 0) {
 		_H5Part_print_info ("Block decomposition: (%ld,%ld,%ld)",
 				mb->decomp[2],
 				mb->decomp[1],
@@ -250,25 +251,25 @@ _pad_block (
 	typesize = H5Tget_size ( type );
 
 	/* size of row in original block */
-	xSize = mb->block_dims[0] * typesize;
+	xSize = mb->block_dims[2] * typesize;
 
 	/* size of slab in original block */
 	xySize = xSize * mb->block_dims[1];
 
 	/* size of row/slab with halo regions */
-	hxSize = mb->halo_dims[0] * typesize;
+	hxSize = mb->halo_dims[2] * typesize;
 	hxySize = hxSize * mb->halo_dims[1];
 
 	/* inset of row in halo region */
-	hxInset = mb->halo_radii[0] * typesize;
+	hxInset = mb->halo_radii[2] * typesize;
 	
-	for (k=(mb->block_dims[2]-1);k>=0;k--)
+	for (k=(mb->block_dims[0]-1);k>=0;k--)
 	{
 		for (j=(mb->block_dims[1]-1);j>=0;j--)
 		{
 			iSrc =	k*xySize + j*xSize;
 
-			iDst =	(k + mb->halo_radii[2]) * hxySize +
+			iDst =	(k + mb->halo_radii[0]) * hxySize +
 				(j + mb->halo_radii[1]) * hxSize +
 				hxInset;
 
@@ -279,42 +280,92 @@ _pad_block (
 	return H5PART_SUCCESS;
 }
 
+/*!
+  \ingroup h5multiblock_static
+
+  \internal
+
+  Zeroes the padding of a block. This routine uses the 0 value for the specific datatype
+  (int, float, etc.) so that it is safe even with floating point implementations that do
+  not use all bytes zero to represent 0.F.
+
+  \return	H5PART_SUCCESS or error code
+*/
 static h5part_int64_t
-_halo_create_region (
-	const h5part_int64_t count,
-	const h5part_int64_t blocklen,
-	const h5part_int64_t stride,
-	MPI_Datatype *halo_region
+_zero_block (
+	const H5PartFile *f,		/*!< IN: file handle */
+	char *data,			/*!< IN/OUT: buffer to pad */
+	hid_t type			/*!< IN: HDF5 datatype of buffer */
 	) {
 
-	int ret;
-	int icount, iblocklen, istride;
+	h5part_int64_t i, j, k;
+        h5part_int64_t offset;
+	size_t typesize;
+	char zeroval[8];
+	h5part_int64_t xySize, xSize;
 
-	icount = (int)count;
-	if ( (h5part_int64_t)icount != count ) return HANDLE_MPI_INT64_ERR;
+	struct H5MultiBlockStruct *mb = f->multiblock;
 
-	iblocklen = (int)blocklen;
-	if ( (h5part_int64_t)iblocklen != blocklen )
-	    					return HANDLE_MPI_INT64_ERR;
+	typesize = H5Tget_size ( type );
 
-	istride = (int)stride;
-	if ( (h5part_int64_t)istride != stride ) return HANDLE_MPI_INT64_ERR;
+	if (type == H5T_NATIVE_DOUBLE) {
+		typesize = sizeof (h5part_float64_t);
+		h5part_float64_t zero = 0.0;
+		memcpy ( zeroval, &zero, typesize );
+	} else if (type == H5T_NATIVE_FLOAT) {
+		typesize = sizeof (h5part_float32_t);
+		h5part_float32_t zero = 0.F;
+		memcpy ( zeroval, &zero, typesize );
+	} else if (type == H5T_NATIVE_INT64) {
+		typesize = sizeof (h5part_int64_t);
+		h5part_int64_t zero = 0;
+		memcpy ( zeroval, &zero, typesize );
+	} else if (type == H5T_NATIVE_INT32) {
+		typesize = sizeof (h5part_int32_t);
+		h5part_int32_t zero = 0;
+		memcpy ( zeroval, &zero, typesize );
+	}
 
-	ret = MPI_Type_vector (	icount, iblocklen, istride,
-						MPI_BYTE, halo_region);
-	if (ret != MPI_SUCCESS) return HANDLE_MPI_CREATE_TYPE_ERR;
+	xSize = mb->halo_dims[2] * typesize;
+	xySize = xSize * mb->halo_dims[1];
 
-	ret = MPI_Type_commit ( halo_region );
-	if (ret != MPI_SUCCESS) return HANDLE_MPI_CREATE_TYPE_ERR;
+#define ZERO_SLAB(I0,J0,K0,I1,J1,K1,X,Y,Z) \
+	for (i=I0; i<I1; i++) { \
+		for (j=J0; j<J1; j++) { \
+			for (k=K0; k<K1; k++) { \
+				offset = i*X + j*Y + k*Z; \
+				memcpy ( data + offset, zeroval, typesize ); \
+			} \
+		} \
+	}
+
+        ZERO_SLAB (	0, 0, 0,
+			mb->halo_radii[0], mb->halo_dims[1], mb->halo_dims[2],
+			xySize, xSize, typesize );
+        ZERO_SLAB (	0, 0, 0,
+			mb->halo_radii[1], mb->halo_dims[0], mb->halo_dims[2],
+			xSize, xySize, typesize );
+	ZERO_SLAB (	0, 0, 0,
+			mb->halo_radii[2], mb->halo_dims[0], mb->halo_dims[1],
+			typesize, xySize, xSize );
+	ZERO_SLAB (	mb->halo_dims[0] - mb->halo_radii[0], 0, 0,
+			mb->halo_dims[0], mb->halo_dims[1], mb->halo_dims[2],
+			xySize, xSize, typesize );
+	ZERO_SLAB (	mb->halo_dims[1] - mb->halo_radii[1], 0, 0,
+			mb->halo_dims[1], mb->halo_dims[0], mb->halo_dims[2],
+			xSize, xySize, typesize );
+	ZERO_SLAB (	mb->halo_dims[2] - mb->halo_radii[2], 0, 0,
+			mb->halo_dims[2], mb->halo_dims[0], mb->halo_dims[1],
+			typesize, xySize, xSize );
 
 	return H5PART_SUCCESS;
 }
 
 static h5part_int64_t
-_halo_exchange_region (
+_halo_exchange_vector (
 	const H5PartFile *f,		/*!< IN: file handle */
 	char *data,			/*!< IN/OUT: local buffer */
-	MPI_Datatype *halo_region,
+	MPI_Datatype *halo_vector,
 	int send_offset,
 	int recv_offset,
 	char send_only_edge,
@@ -323,25 +374,24 @@ _halo_exchange_region (
 	) {
 
 	int ret;
+	MPI_Status status;
 
 	struct H5MultiBlockStruct *mb = f->multiblock;
-
-	MPI_Barrier ( MPI_COMM_WORLD );
 
 	if ( mb->field_edges & recv_only_edge ) {
 		ret = MPI_Recv (
 				data + recv_offset,
 				1,
-				*halo_region,
+				*halo_vector,
 				f->myproc - proc_spacing,
 				f->myproc, // use destination proc as tag
 				f->comm,
-				MPI_STATUS_IGNORE );
+				&status );
 	} else if ( mb->field_edges & send_only_edge ) {
 		ret = MPI_Send (
 				data + send_offset,
 				1,
-				*halo_region,
+				*halo_vector,
 				f->myproc + proc_spacing,
 				f->myproc + proc_spacing,
 				f->comm );
@@ -349,16 +399,70 @@ _halo_exchange_region (
 		ret = MPI_Sendrecv (
 				data + send_offset,
 				1,
-				*halo_region,
+				*halo_vector,
 				f->myproc + proc_spacing,
 				f->myproc + proc_spacing,
 				data + recv_offset,
 				1,
-				*halo_region,
+				*halo_vector,
 				f->myproc - proc_spacing,
 				f->myproc,
 				f->comm,
-				MPI_STATUS_IGNORE );
+				&status );
+	}
+
+	if ( ret != MPI_SUCCESS ) return HANDLE_MPI_SENDRECV_ERR;
+
+	return H5PART_SUCCESS;
+}
+
+static h5part_int64_t
+_halo_exchange_buffer (
+	const H5PartFile *f,		/*!< IN: file handle */
+	char *send_buffer,
+	char *recv_buffer,
+	int bufsize,
+	char send_only_edge,
+	char recv_only_edge,
+	int proc_spacing
+	) {
+
+	int ret;
+	MPI_Status status;
+
+	struct H5MultiBlockStruct *mb = f->multiblock;
+
+	if ( mb->field_edges & recv_only_edge ) {
+		ret = MPI_Recv (
+				recv_buffer,
+				bufsize,
+				MPI_BYTE,
+				f->myproc - proc_spacing,
+				f->myproc, // use destination proc as tag
+				f->comm,
+				&status );
+	} else if ( mb->field_edges & send_only_edge ) {
+		ret = MPI_Send (
+				send_buffer,
+				bufsize,
+				MPI_BYTE,
+				f->myproc + proc_spacing,
+				f->myproc + proc_spacing,
+				f->comm );
+	} else {
+		ret = MPI_Sendrecv (
+				send_buffer,
+				bufsize,
+				MPI_BYTE,
+				f->myproc + proc_spacing,
+				f->myproc + proc_spacing,
+				recv_buffer,
+				bufsize,
+				MPI_BYTE,
+				f->myproc - proc_spacing,
+				f->myproc,
+				f->comm,
+				&status );
 	}
 
 	if ( ret != MPI_SUCCESS ) return HANDLE_MPI_SENDRECV_ERR;
@@ -367,29 +471,168 @@ _halo_exchange_region (
 }
 
 static void
-_pack_halo_region (
+_halo_buffer_pack (
 	const char *data,		/*!< IN: local block */
-	size_t typesize,		/*!< IN: HDF5 datatype of buffer */
+	char *buffer,			/*!< OUT: packed buffer */
 	h5part_int64_t offset,
 	h5part_int64_t count,
-	h5part_int64_t block_len,
-	h5part_int64_t stride,
-	char *buffer			/*!< OUT: packed buffer */
+	h5part_int64_t blocklen,
+	h5part_int64_t stride
 	) {
 
 	h5part_int64_t i;
 	h5part_int64_t dst_offset, src_offset;
 
+        dst_offset = 0;
 	src_offset = offset;
 
 	for (i=0; i<count; i++)
 	{
 		memcpy (	buffer + dst_offset,
 				data + src_offset,
-				block_len * typesize );
-		dst_offset += block_len * typesize;
-		src_offset += stride * typesize;
+				blocklen );
+		dst_offset += blocklen;
+		src_offset += stride;
 	}
+}
+
+static void
+_halo_buffer_unpack (
+	char *data,			/*!< OUT: local block */
+	const char *buffer,		/*!< IN: packed buffer */
+	h5part_int64_t offset,
+	h5part_int64_t count,
+	h5part_int64_t blocklen,
+	h5part_int64_t stride
+	) {
+
+	h5part_int64_t i;
+	h5part_int64_t dst_offset, src_offset;
+
+	dst_offset = offset;
+        src_offset = 0;
+
+	for (i=0; i<count; i++)
+	{
+		memcpy (	data + dst_offset,
+				buffer + src_offset,
+				blocklen );
+		dst_offset += stride;
+		src_offset += blocklen;
+	}
+}
+
+static h5part_int64_t
+_halo_exchange_buffers (
+	const H5PartFile *f,		/*!< IN: file handle */
+	char *data,			/*!< IN/OUT: local buffer */
+	h5part_int64_t count,
+	h5part_int64_t blocklen,
+	h5part_int64_t stride,
+	int proc_spacing,
+	const char *edges
+	) {
+
+	char *send_buffer;
+	char *recv_buffer;
+	int ibufsize;
+	h5part_int64_t bufsize;
+	h5part_int64_t herr;
+
+	struct H5MultiBlockStruct *mb = f->multiblock;
+
+	bufsize = count * blocklen;
+	ibufsize = (int)bufsize;
+	if ( (h5part_int64_t)ibufsize != bufsize ) return HANDLE_MPI_INT64_ERR;
+
+	send_buffer = malloc ( bufsize );
+	if ( send_buffer == NULL ) return HANDLE_H5PART_NOMEM_ERR;
+
+	recv_buffer = malloc ( bufsize );
+	if ( recv_buffer == NULL ) return HANDLE_H5PART_NOMEM_ERR;
+
+	/* forward */
+	_halo_buffer_pack ( data, send_buffer, stride - 2*blocklen,
+						count, blocklen, stride );
+
+	herr = _halo_exchange_buffer ( f, send_buffer, recv_buffer,
+				ibufsize, edges[0], edges[1], proc_spacing);
+	if ( herr != H5PART_SUCCESS ) return herr;
+
+	if ( ! (mb->field_edges & edges[0]) ) {
+		_halo_buffer_unpack ( data, recv_buffer, 0,
+						count, blocklen, stride );
+	}
+
+	/* backward */
+	_halo_buffer_pack ( data, send_buffer, blocklen,
+						count, blocklen, stride );
+
+	herr = _halo_exchange_buffer ( f, send_buffer, recv_buffer,
+				ibufsize, edges[1], edges[0], -proc_spacing);
+	if ( herr != H5PART_SUCCESS ) return herr;
+
+	if ( ! (mb->field_edges & edges[1]) ) {
+		_halo_buffer_unpack ( data, recv_buffer, stride - blocklen,
+						count, blocklen, stride );
+	}
+
+	free ( send_buffer );
+	free ( recv_buffer );
+
+	return H5PART_SUCCESS;	
+}
+
+static h5part_int64_t
+_halo_exchange_vectors (
+	const H5PartFile *f,
+	char *data,
+	h5part_int64_t count,
+	h5part_int64_t blocklen,
+	h5part_int64_t stride,
+	int proc_spacing,
+	const char *edges
+	) {
+
+	int ret;
+	int icount, iblocklen, istride;
+	h5part_int64_t herr;
+	MPI_Datatype halo_vector;
+
+	icount = (int)count;
+	if ( (h5part_int64_t)icount != count ) return HANDLE_MPI_INT64_ERR;
+
+	iblocklen = (int)blocklen;
+	if ( (h5part_int64_t)iblocklen != blocklen ) return HANDLE_MPI_INT64_ERR;
+
+	istride = (int)stride;
+	if ( (h5part_int64_t)istride != stride ) return HANDLE_MPI_INT64_ERR;
+
+	ret = MPI_Type_vector (	icount, iblocklen, istride,
+						MPI_BYTE, &halo_vector);
+	if (ret != MPI_SUCCESS) return HANDLE_MPI_TYPE_ERR;
+
+	ret = MPI_Type_commit ( &halo_vector );
+	if (ret != MPI_SUCCESS) return HANDLE_MPI_TYPE_ERR;
+
+	/* forward */
+	herr = _halo_exchange_vector ( f, data, &halo_vector,
+					stride - 2*blocklen,
+					0,
+					edges[0], edges[1], proc_spacing );
+	if (herr != H5PART_SUCCESS) return herr;
+
+	/* backward */
+	herr = _halo_exchange_vector ( f, data, &halo_vector,
+					blocklen,
+					stride - blocklen,
+					edges[1], edges[0], -proc_spacing );
+	if (herr != H5PART_SUCCESS) return herr;
+
+	ret = MPI_Type_free ( &halo_vector );
+	if (ret != MPI_SUCCESS) return HANDLE_MPI_TYPE_ERR;
+
+	return H5PART_SUCCESS;
 }
 
 /*!
@@ -409,111 +652,60 @@ _halo_exchange (
 	) {
 
 	size_t typesize;
+	char edges[2];
 	int proc_spacing;
-	h5part_int64_t slabsize, blocksize;
+	h5part_int64_t count, blocklen, stride;
 	h5part_int64_t herr;
-	MPI_Datatype halo_region;
 
 	struct H5MultiBlockStruct *mb = f->multiblock;
 
 	typesize = H5Tget_size (type);
 
-	blocksize  = mb->halo_dims[0] * mb->halo_dims[1] * mb->halo_dims[2];
-	blocksize *= typesize;
-
-	/* xy-slab */
-	slabsize  = mb->halo_dims[2] * mb->halo_dims[1] * mb->halo_radii[0];
-	slabsize *= typesize;
-	/* jump by an entire xy-slab to get the next z block */
-	proc_spacing = mb->decomp[2] * mb->decomp[1];
-	/* the best case: the entire x-dimension by y-dimension by z halo
+	/* xy-slab
+	 * the best case: the entire x-dimension by y-dimension by z halo
 	 * radius slab can be transferred contiguosly */
-	herr = _halo_create_region ( 1, slabsize, 0, &halo_region );
-	if (herr != H5PART_SUCCESS) return herr;
+	count = 1;
+	blocklen  = mb->halo_dims[2] * mb->halo_dims[1] * mb->halo_radii[0];
+	blocklen *= typesize;
+    	stride  = mb->halo_dims[2] * mb->halo_dims[1] * mb->halo_dims[0];
+	stride *= typesize;
+	/* jump by an xy-slab to get the next z block */
+	proc_spacing = mb->decomp[2] * mb->decomp[1];
+	edges[0] = H5MB_EDGE_Z0;
+	edges[1] = H5MB_EDGE_Z1;
 
-	/* forward */
-	herr = _halo_exchange_region ( f, data, &halo_region,
-					blocksize - 2*slabsize,
-					0,
-					H5MB_EDGE_Z0, H5MB_EDGE_Z1,
-					proc_spacing );
-	if (herr != H5PART_SUCCESS) return herr;
-
-	/* backward */
-	herr = _halo_exchange_region ( f, data, &halo_region,
-					slabsize,
-					blocksize - slabsize,
-					H5MB_EDGE_Z1, H5MB_EDGE_Z0,
-					-proc_spacing );
-	if (herr != H5PART_SUCCESS) return herr;
-
-	MPI_Type_free ( &halo_region );
-
-
-	/* xz-slab */
-	slabsize  = mb->halo_dims[2] * mb->halo_radii[1] * mb->halo_dims[0];
-	slabsize *= typesize;
-	/* jump by an entire x-row to get the next y block */
-	proc_spacing = mb->decomp[2];
-	/* the second best case: a rectangle of x-dimension by y halo radius
+	herr = HALO_EXCHANGE_METHOD ( f, data, count, blocklen, stride,
+					        	proc_spacing, edges);
+	if ( herr != H5PART_SUCCESS ) return herr;
+	
+	/* xz-slab
+	 * the second best case: a rectangle of x-dimension by y halo radius
 	 * can be transferred contiguously */
-	herr = _halo_create_region (
-			mb->halo_dims[0],
-			mb->halo_dims[2] * mb->halo_radii[1] * typesize,
-			mb->halo_dims[2] *  mb->halo_dims[1] * typesize,
-			&halo_region );
-	if (herr != H5PART_SUCCESS) return herr;
+	count = mb->halo_dims[0],
+	blocklen = mb->halo_dims[2] * mb->halo_radii[1] * typesize;
+	stride = mb->halo_dims[2] *  mb->halo_dims[1] * typesize;
+	/* jump by an x-row to get the next y block */
+	proc_spacing = mb->decomp[2];
+	edges[0] = H5MB_EDGE_Y0;
+	edges[1] = H5MB_EDGE_Y1;
 
-	/* forward */
-	herr = _halo_exchange_region ( f, data, &halo_region,
-					blocksize - 2*slabsize,
-					0,
-					H5MB_EDGE_Y0, H5MB_EDGE_Y1,
-					proc_spacing );
-	if (herr != H5PART_SUCCESS) return herr;
+	herr = HALO_EXCHANGE_METHOD ( f, data, count, blocklen, stride,
+					        	proc_spacing, edges);
+	if ( herr != H5PART_SUCCESS ) return herr;
 
-	/* backward */
-	herr = _halo_exchange_region ( f, data, &halo_region,
-					slabsize,
-					blocksize - slabsize,
-					H5MB_EDGE_Y1, H5MB_EDGE_Y0,
-					-proc_spacing );
-	if (herr != H5PART_SUCCESS) return herr;
-
-	MPI_Type_free ( &halo_region );
-
-
-	/* yz-slab */
-	slabsize  = mb->halo_radii[2] * mb->halo_dims[1] * mb->halo_dims[0];
-	slabsize *= typesize;
+	/* yz-slab
+	 * the worst case: only small rows with length = x halo radius */
+	count = mb->halo_dims[1]  * mb->halo_dims[0],
+	blocklen = mb->halo_radii[2] * typesize;
+	stride = mb->halo_dims[2]  * typesize,
 	/* blocks are contiguous in the x direction */
 	proc_spacing = 1;
-	/* the worst case: only small rows with length = x halo radius */
-	herr = _halo_create_region (
-			mb->halo_dims[1] * mb->halo_dims[0],
-			mb->halo_radii[2] * typesize,
-			mb->halo_dims[2] * typesize,
-			&halo_region );
-	if (herr != H5PART_SUCCESS) return herr;
+	edges[0] = H5MB_EDGE_X0;
+	edges[1] = H5MB_EDGE_X1;
 
-	/* forward */
-	herr = _halo_exchange_region ( f, data, &halo_region,
-					blocksize - 2*slabsize,
-					0,
-					H5MB_EDGE_X0, H5MB_EDGE_X1,
-					proc_spacing );
-	if (herr != H5PART_SUCCESS) return herr;
-
-	/* backward */
-	herr = _halo_exchange_region ( f, data, &halo_region,
-					slabsize,
-					blocksize - slabsize,
-					H5MB_EDGE_X1, H5MB_EDGE_X0,
-					-proc_spacing );
-	if (herr != H5PART_SUCCESS) return herr;
-
-	MPI_Type_free ( &halo_region );
-
+	herr = HALO_EXCHANGE_METHOD ( f, data, count, blocklen, stride,
+				                        proc_spacing, edges);
+	if ( herr != H5PART_SUCCESS ) return herr;
 
 	return H5PART_SUCCESS;
 }
@@ -601,7 +793,7 @@ _H5MultiBlock_read_data (
 	hid_t type			/*!< IN: HDF5 datatype of buffer */
 	) {
 
-        MULTIBLOCK_INIT( f );
+	MULTIBLOCK_INIT( f );
 
 	hid_t dataset_id;
 	hid_t dataspace_id;
@@ -695,6 +887,7 @@ _H5MultiBlock_read_data (
 
 	if ( mb->halo ) {
 		_pad_block ( f, *data, type );
+		_zero_block (f, *data, type );
 		herr = _halo_exchange ( f, *data, type );
 		if ( herr != H5PART_SUCCESS ) return herr;
 	}
@@ -716,15 +909,15 @@ _H5MultiBlock_read_data (
 */
 h5part_int64_t
 _H5MultiBlock_write_data (
-	H5PartFile *f,          /*!< IN: file handle */
+	H5PartFile *f,		/*!< IN: file handle */
 	const char *name,       /*!< IN: name of dataset to write */
 	const void* data,	/*!< IN: data buffer */
 	hid_t type		/*!< IN: HDF5 datatype */
 	) {
 
-        MULTIBLOCK_INIT( f );
-        CHECK_WRITABLE_MODE( f );
-        CHECK_TIMEGROUP( f );
+	MULTIBLOCK_INIT( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
 	CHECK_DECOMP ( f );
 
 	hid_t dataset;
@@ -787,12 +980,12 @@ _H5MultiBlock_write_data (
 
 	/* write out the block dimensions to a special field attribute */
 	herr = _H5Part_write_attrib (
-                f->block->field_group_id,
-                H5MULTIBLOCK_ATTR_NAME,
-                H5T_NATIVE_INT64,
-                mb->block_dims,
-                3 );
-        if ( herr < 0 ) return herr;
+		f->block->field_group_id,
+		H5MULTIBLOCK_ATTR_NAME,
+		H5T_NATIVE_INT64,
+		mb->block_dims,
+		3 );
+	if ( herr < 0 ) return herr;
 
 	herr = _H5Block_close_field_group ( f );
 	if ( herr < 0 ) return herr;
@@ -875,10 +1068,10 @@ H5MultiBlock3dDefineRadii (
 */
 h5part_int64_t
 H5MultiBlock3dDefineDims (
-        H5PartFile *f,				/* IN: file handle */
-        const h5part_int64_t *field_dims,	/* IN: field dimensions */
-        const h5part_int64_t *block_dims	/* IN: block dimensions */
-        ) {
+	H5PartFile *f,				/* IN: file handle */
+	const h5part_int64_t *field_dims,	/* IN: field dimensions */
+	const h5part_int64_t *block_dims	/* IN: block dimensions */
+	) {
 
 	SET_FNAME ( "H5MultiBlock3dDefineDims" );
 	MULTIBLOCK_INIT ( f );
@@ -941,8 +1134,8 @@ H5MultiBlock3dGetFieldDims(
 */
 h5part_int64_t
 H5MultiBlock3dGetBlockDims(
-	H5PartFile *f,          /* IN: file handle */
-        const char *field_name, /* IN: field name */
+	H5PartFile *f,	  	/* IN: file handle */
+	const char *field_name, /* IN: field name */
 	h5part_int64_t *dims    /* OUT: block dimensions */
 	) {
 

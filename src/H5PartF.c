@@ -228,7 +228,7 @@ _H5Part_flagsfor2c (
 		    		fbits |= H5PART_FS_LUSTRE;
 		else if (strcmp ( flags, "fs_gpfs" ) == 0 )
 		    		fbits |= H5PART_FS_GPFS;
-		strtok ( NULL, "," );
+		flags = strtok ( NULL, "," );
 	}
 
 	return fbits;

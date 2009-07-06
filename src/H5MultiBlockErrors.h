@@ -16,11 +16,11 @@
 		H5PART_ERR_DECOMP, \
 		"Number of blocks does not equal number of procs" );
 
-#define HANDLE_MPI_CREATE_TYPE_ERR \
+#define HANDLE_MPI_TYPE_ERR \
 	 (*_err_handler) ( \
 		_H5Part_get_funcname(), \
 		H5PART_ERR_MPI, \
-		"Cannot created strided vector MPI datatype." );
+		"Cannot create/commit/free strided vector MPI datatype." );
 
 #define HANDLE_MPI_SENDRECV_ERR \
 	 (*_err_handler) ( \
