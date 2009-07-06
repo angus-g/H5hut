@@ -57,7 +57,7 @@
 
 #ifdef PARALLEL_IO
 
-#define HALO_EXCHANGE_METHOD _halo_exchange_buffers
+#define HALO_EXCHANGE_METHOD _halo_exchange_vectors
 
 /*******************************************************************************
 * Static functions
@@ -176,8 +176,8 @@ _nth_root_int_divisor (const int m, const int n)
 	int i, root;
 	double p;
 
-	p = 1.0 / (double) n;
-	root = (int) ceil ( pow ((double) m, p) );
+	p = 1.0 / (double)n;
+	root = (int) ceil ( pow ( (double)m, p ) );
 	for (i=root; i<=m; i++)
 	{
 		if (m % i == 0) return i;
@@ -541,6 +541,9 @@ _halo_exchange_buffers (
 
 	struct H5MultiBlockStruct *mb = f->multiblock;
 
+	if ( f->myproc == 0 ) _H5Part_print_info (
+			"Using halo exchange method _halo_exchange_buffers");
+
 	bufsize = count * blocklen;
 	ibufsize = (int)bufsize;
 	if ( (h5part_int64_t)ibufsize != bufsize ) return HANDLE_MPI_INT64_ERR;
@@ -598,6 +601,9 @@ _halo_exchange_vectors (
 	int icount, iblocklen, istride;
 	h5part_int64_t herr;
 	MPI_Datatype halo_vector;
+
+	if ( f->myproc == 0 ) _H5Part_print_info (
+			"Using halo exchange method _halo_exchange_vectors");
 
 	icount = (int)count;
 	if ( (h5part_int64_t)icount != count ) return HANDLE_MPI_INT64_ERR;

@@ -165,6 +165,13 @@
 		"Cannot create dataset for name \"%s\", step \"%lld\".", \
 		s, (long long) n );
 
+#define HANDLE_H5D_EXISTS_ERR( s, n ) \
+	 (*_err_handler) ( \
+		_H5Part_get_funcname(), \
+		H5PART_ERR_HDF5, \
+		"Dataset already exists with name \"%s\", step \"%lld\".", \
+		s, (long long) n );
+
 #define HANDLE_H5D_GET_SPACE_ERR \
 	 (*_err_handler) ( \
 		_H5Part_get_funcname(), \

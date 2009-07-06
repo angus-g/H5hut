@@ -1411,6 +1411,9 @@ _H5Block_write_data (
 	struct H5BlockStruct *b = f->block;
 
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	htri_t exists = H5Lexists ( b->field_group_id, name, H5P_DEFAULT );
+	if ( exists > 0 ) return HANDLE_H5D_EXISTS_ERR ( name, f->timestep );
+
 	dataset = H5Dcreate2 (
 		b->field_group_id,
 		name,

@@ -744,6 +744,9 @@ _write_data (
 			      name, (long long)f->timestep );
 
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+	htri_t exists = H5Lexists ( f->timegroup, name, H5P_DEFAULT );
+	if ( exists > 0 ) return HANDLE_H5D_EXISTS_ERR ( name, f->timestep );
+
 	dataset_id = H5Dcreate2 ( 
 		f->timegroup,
 		name,
