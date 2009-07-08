@@ -855,8 +855,14 @@ _H5MultiBlock_read_data (
 	if ( rank < 0 )  return HANDLE_H5S_GET_SIMPLE_EXTENT_DIMS_ERR;
 	if ( rank != 3 ) return HANDLE_H5PART_DATASET_RANK_ERR ( rank, 3 );
 
+#ifdef H5MB_TIMING
+	_H5Part_print_info ( "timing[%d]: alloc: %g", f->myproc, MPI_Wtime() );
+#endif
 	herr = _alloc_block ( f, data, type );
 	if ( herr < 0 ) return herr;
+#ifdef H5MB_TIMING
+	_H5Part_print_info ( "timing[%d]: read: %g", f->myproc, MPI_Wtime() );
+#endif
 
 	herr = _get_decomp_and_offsets ( f );
 	if ( herr < 0 ) return herr;
@@ -892,10 +898,22 @@ _H5MultiBlock_read_data (
 	if ( herr < 0 ) return herr;
 
 	if ( mb->halo ) {
+#ifdef H5MB_TIMING
+		_H5Part_print_info ( "timing[%d]: pad: %g", f->myproc, MPI_Wtime() );
+#endif
 		_pad_block ( f, *data, type );
+#ifdef H5MB_TIMING
+		_H5Part_print_info ( "timing[%d]: zero: %g", f->myproc, MPI_Wtime() );
+#endif
 		_zero_block (f, *data, type );
+#ifdef H5MB_TIMING
+		_H5Part_print_info ( "timing[%d]: halo: %g", f->myproc, MPI_Wtime() );
+#endif
 		herr = _halo_exchange ( f, *data, type );
 		if ( herr != H5PART_SUCCESS ) return herr;
+#ifdef H5MB_TIMING
+		_H5Part_print_info ( "timing[%d]: end: %g", f->myproc, MPI_Wtime() );
+#endif
 	}
 
 	mb->read = 1;
