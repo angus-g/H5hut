@@ -856,12 +856,12 @@ _H5MultiBlock_read_data (
 	if ( rank != 3 ) return HANDLE_H5PART_DATASET_RANK_ERR ( rank, 3 );
 
 #ifdef H5MB_TIMING
-	_H5Part_print_info ( "timing[%d]: alloc: %g", f->myproc, MPI_Wtime() );
+	_H5Part_print_info ( "timing[%d]: alloc: %.7f", f->myproc, MPI_Wtime() );
 #endif
 	herr = _alloc_block ( f, data, type );
 	if ( herr < 0 ) return herr;
 #ifdef H5MB_TIMING
-	_H5Part_print_info ( "timing[%d]: read: %g", f->myproc, MPI_Wtime() );
+	_H5Part_print_info ( "timing[%d]: read: %.7f", f->myproc, MPI_Wtime() );
 #endif
 
 	herr = _get_decomp_and_offsets ( f );
@@ -899,20 +899,20 @@ _H5MultiBlock_read_data (
 
 	if ( mb->halo ) {
 #ifdef H5MB_TIMING
-		_H5Part_print_info ( "timing[%d]: pad: %g", f->myproc, MPI_Wtime() );
+		_H5Part_print_info ( "timing[%d]: pad: %.7f", f->myproc, MPI_Wtime() );
 #endif
 		_pad_block ( f, *data, type );
 #ifdef H5MB_TIMING
-		_H5Part_print_info ( "timing[%d]: zero: %g", f->myproc, MPI_Wtime() );
+		_H5Part_print_info ( "timing[%d]: zero: %.7f", f->myproc, MPI_Wtime() );
 #endif
 		_zero_block (f, *data, type );
 #ifdef H5MB_TIMING
-		_H5Part_print_info ( "timing[%d]: halo: %g", f->myproc, MPI_Wtime() );
+		_H5Part_print_info ( "timing[%d]: halo: %.7f", f->myproc, MPI_Wtime() );
 #endif
 		herr = _halo_exchange ( f, *data, type );
 		if ( herr != H5PART_SUCCESS ) return herr;
 #ifdef H5MB_TIMING
-		_H5Part_print_info ( "timing[%d]: end: %g", f->myproc, MPI_Wtime() );
+		_H5Part_print_info ( "timing[%d]: end: %.7f", f->myproc, MPI_Wtime() );
 #endif
 	}
 
