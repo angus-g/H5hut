@@ -670,48 +670,54 @@ _halo_exchange (
 	/* xy-slab
 	 * the best case: the entire x-dimension by y-dimension by z halo
 	 * radius slab can be transferred contiguosly */
-	count = 1;
-	blocklen  = mb->halo_dims[2] * mb->halo_dims[1] * mb->halo_radii[0];
-	blocklen *= typesize;
-    	stride  = mb->halo_dims[2] * mb->halo_dims[1] * mb->halo_dims[0];
-	stride *= typesize;
-	/* jump by an xy-slab to get the next z block */
-	proc_spacing = mb->decomp[2] * mb->decomp[1];
-	edges[0] = H5MB_EDGE_Z0;
-	edges[1] = H5MB_EDGE_Z1;
-
-	herr = HALO_EXCHANGE_METHOD ( f, data, count, blocklen, stride,
-					        	proc_spacing, edges);
-	if ( herr != H5PART_SUCCESS ) return herr;
+	if ( mb->decomp[0] > 1 ) {
+		count    = 1;
+		blocklen =   mb->halo_dims[2] * mb->halo_dims[1]
+		           * mb->halo_radii[0] * typesize;
+    		stride   =   mb->halo_dims[2] * mb->halo_dims[1] 
+		           * mb->halo_dims[0]  * typesize;
+		/* jump by an xy-slab to get the next z block */
+		proc_spacing = mb->decomp[2] * mb->decomp[1];
+		edges[0] = H5MB_EDGE_Z0;
+		edges[1] = H5MB_EDGE_Z1;
+		herr = HALO_EXCHANGE_METHOD ( f, data,
+						count, blocklen, stride,
+						proc_spacing, edges);
+		if ( herr != H5PART_SUCCESS ) return herr;
+	}
 	
 	/* xz-slab
 	 * the second best case: a rectangle of x-dimension by y halo radius
 	 * can be transferred contiguously */
-	count = mb->halo_dims[0],
-	blocklen = mb->halo_dims[2] * mb->halo_radii[1] * typesize;
-	stride = mb->halo_dims[2] *  mb->halo_dims[1] * typesize;
-	/* jump by an x-row to get the next y block */
-	proc_spacing = mb->decomp[2];
-	edges[0] = H5MB_EDGE_Y0;
-	edges[1] = H5MB_EDGE_Y1;
-
-	herr = HALO_EXCHANGE_METHOD ( f, data, count, blocklen, stride,
-					        	proc_spacing, edges);
-	if ( herr != H5PART_SUCCESS ) return herr;
+	if ( mb->decomp[1] > 1 ) {
+		count    = mb->halo_dims[0];
+		blocklen = mb->halo_dims[2] * mb->halo_radii[1] * typesize;
+		stride   = mb->halo_dims[2] * mb->halo_dims[1]  * typesize;
+		/* jump by an x-row to get the next y block */
+		proc_spacing = mb->decomp[2];
+		edges[0] = H5MB_EDGE_Y0;
+		edges[1] = H5MB_EDGE_Y1;
+		herr = HALO_EXCHANGE_METHOD ( f, data,
+						count, blocklen, stride,
+						proc_spacing, edges);
+		if ( herr != H5PART_SUCCESS ) return herr;
+	}
 
 	/* yz-slab
 	 * the worst case: only small rows with length = x halo radius */
-	count = mb->halo_dims[1]  * mb->halo_dims[0],
-	blocklen = mb->halo_radii[2] * typesize;
-	stride = mb->halo_dims[2]  * typesize,
-	/* blocks are contiguous in the x direction */
-	proc_spacing = 1;
-	edges[0] = H5MB_EDGE_X0;
-	edges[1] = H5MB_EDGE_X1;
-
-	herr = HALO_EXCHANGE_METHOD ( f, data, count, blocklen, stride,
-				                        proc_spacing, edges);
-	if ( herr != H5PART_SUCCESS ) return herr;
+	if ( mb->decomp[2] > 1 ) {
+		count    = mb->halo_dims[1]  * mb->halo_dims[0];
+		blocklen = mb->halo_radii[2] * typesize;
+		stride   = mb->halo_dims[2]  * typesize;
+		/* blocks are contiguous in the x direction */
+		proc_spacing = 1;
+		edges[0] = H5MB_EDGE_X0;
+		edges[1] = H5MB_EDGE_X1;
+		herr = HALO_EXCHANGE_METHOD ( f, data,
+						count, blocklen, stride,
+						proc_spacing, edges);
+		if ( herr != H5PART_SUCCESS ) return herr;
+	}
 
 	return H5PART_SUCCESS;
 }

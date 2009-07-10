@@ -4,12 +4,15 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <hdf5.h>
-#ifdef PARALLEL_IO
-#include <mpi.h>
-#endif
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef MPI_INCLUDED
+#ifndef PARALLEL_IO
+#define PARALLEL_IO
+#endif
 #endif
 
 #include "H5PartTypes.h"
