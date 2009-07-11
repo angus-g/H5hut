@@ -37,11 +37,12 @@ INC = $(HDFINC) $(MPIINC) $(H5INC)
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
 bin_PROGRAMS = \
-		write_tetmesh \
-		read_tetmesh \
-		write_trianglemesh \
-		read_trianglemesh \
+		tetmesh_write \
+		tetmesh_write2 \
+		tetmesh_read \
 		tetmesh_adjacencies
+		trimesh_write \
+		trimesh_read \
 
 #		map_tet2globalid \
 #		map_triangle2globalid
@@ -54,9 +55,14 @@ EXTRA_PROGRAMS =
 
 # Extra files that I wish to include in the dist tar ball.
 EXTRA_DIST = 	\
-		write_tetmesh.c
+		tetmesh_write.c \
+		tetmesh_write2.c \
+		tetmesh_read.c \
+		tetmesh_adjacencies.c \
+		trimesh_write.c \
+		trimesh_read.c \
 
-#		read_tetmesh.c \
+#		tetmesh_read.c \
 #		write_trianglemesh.c \
 #		read_trianglemesh.c \
 #		map_tet2globalid.c \
