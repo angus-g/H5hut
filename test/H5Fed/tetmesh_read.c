@@ -53,6 +53,52 @@ read_vertices (
 }
 
 h5_err_t
+traverse_edges (
+	h5_file_t * f
+	) {
+	h5_id_t local_id, vids[4];
+
+	h5_err_t h5err = H5FedBeginTraverseEdges ( f );
+	if ( h5err < 0 ) return h5err;
+	printf ( "Edges on level %lld:\n", H5FedGetLevel(f) );
+	while ( (local_id = H5FedTraverseEdges ( f, vids )) >= 0 ) {
+		char v[256];
+		char k[256];
+		h5_id_t local_vids[4];
+		snprintf ( k, sizeof(k), "=%llx=", local_id );
+		H5FedMapEntity2LocalVids ( f, local_id, local_vids );
+		snprintf ( v, sizeof(v), "=[%lld,%lld]=",
+				   local_vids[0], local_vids[1] );
+		printf ( "| %-18s | %-18s |\n", k, v );
+	}
+	h5err = H5FedEndTraverseEdges ( f );
+	return h5err;
+}
+
+h5_err_t
+traverse_triangles (
+	h5_file_t * f
+	) {
+	h5_id_t local_id, vids[4];
+
+	h5_err_t h5err = H5FedBeginTraverseTriangles ( f );
+	if ( h5err < 0 ) return h5err;
+	printf ( "Triangles on level %lld:\n", H5FedGetLevel(f) );
+	while ( (local_id = H5FedTraverseTriangles ( f, vids )) >= 0 ) {
+		char v[256];
+		char d[256];
+		h5_id_t local_vids[4];
+		snprintf ( d, sizeof(d), "=%llx=", local_id );
+		H5FedMapEntity2LocalVids ( f, local_id, local_vids );
+		snprintf ( v, sizeof(v), "=[%lld,%lld,%lld]=",
+			   local_vids[0], local_vids[1], local_vids[2] );
+		printf ( "| %-18s | %-18s |\n", d, v );
+	}
+	h5err = H5FedEndTraverseTriangles ( f );
+	return h5err;
+}
+
+h5_err_t
 read_tets (
 	h5_file_t * f
 	) {
@@ -68,10 +114,14 @@ read_tets (
 	while ( (real_num < num) &&
 		((local_id = H5FedTraverseElements (
 			  f, &id, &parent_id, vids )) >= 0) ) {
-		printf ( "    Tet[%lld]: local id: %lld, parent id: %lld,"
-			 " vids: %lld %lld %lld %lld\n",
-			 id, local_id, parent_id,
-			 vids[0], vids[1], vids[2], vids[3] );
+		char v[256];
+		char t[256];
+		h5_id_t local_vids[4];
+		snprintf ( t, sizeof(t), "=%llx=", local_id );
+		H5FedMapEntity2LocalVids ( f, local_id, local_vids );
+		snprintf ( v, sizeof(v), "=[%lld,%lld,%lld,%lld]=",
+			   local_vids[0], local_vids[1], local_vids[2],local_vids[3] );
+		printf ( "| %-18s | %-18s |\n", t, v );
 		real_num++;
 	}
 	H5FedEndTraverseElements ( f );
@@ -93,6 +143,8 @@ read_level (
 		fprintf ( stderr, "!!! Oops ...\n" );
 		return -1;
 	}
+	h5err = traverse_edges ( f );
+	h5err = traverse_triangles ( f );
 	h5err = read_tets ( f );
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Oops ...\n" );
@@ -109,7 +161,7 @@ read_mesh (
 	h5_id_t level_id;
 	h5_size_t num_levels = H5FedGetNumLevels ( f );
 	printf ( "    Number of levels in mesh: %lld\n", num_levels );
-	for ( level_id = 0; level_id < num_levels; level_id++ ) {
+	for ( level_id = 2; level_id < num_levels; level_id++ ) {
 		h5_err_t h5err = H5FedSetLevel ( f, level_id );
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Can't set level %lld.\n", level_id );
