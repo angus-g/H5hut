@@ -455,10 +455,10 @@ test/H5Fed/map_tet2globalid.c -text
 test/H5Fed/map_triangle2globalid.c -text
 test/H5Fed/tetmesh_adjacencies.c -text
 test/H5Fed/tetmesh_read.c -text
+test/H5Fed/tetmesh_write.c -text
 test/H5Fed/trimesh_read.c -text
 test/H5Fed/trimesh_write.c -text
 test/H5Fed/write_boundary.c -text
-test/H5Fed/write_tetmesh.c -text
 test/H5Part/Bench.c -text
 test/H5Part/H5ParallelTest.cc -text
 test/H5Part/H5PartAndreasTest.cc -text
