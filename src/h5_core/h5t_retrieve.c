@@ -100,7 +100,7 @@ h5t_begin_traverse_edges (
 	h5t_fdata_t *t = f->t;
 	h5t_entity_iterator_t *iter = &t->iters.edge; 
 
-	iter->cur_eid = 0;
+	iter->cur_eid = -1;
 	TRY ( _skip_to_next_elem_on_level ( f, &iter->cur_eid ) );
 	iter->cur_fid = -1;
 	return H5_SUCCESS;
@@ -162,7 +162,7 @@ h5t_begin_traverse_triangles (
 	h5t_fdata_t *t = f->t;
 	h5t_entity_iterator_t *iter = &t->iters.triangle; 
 
-	iter->cur_eid = 0;
+	iter->cur_eid = -1;
 	TRY ( _skip_to_next_elem_on_level ( f, &iter->cur_eid ) );
 	iter->cur_fid = -1;
 	return H5_SUCCESS;
