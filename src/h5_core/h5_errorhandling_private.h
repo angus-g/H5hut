@@ -18,7 +18,7 @@
 #define HANDLE_H5_NOENT_ERR( f, name )				\
 	h5_error(						\
 		f,						\
-		H5_ERR_NOENT,				\
+		H5_ERR_NOENT,					\
 		"Object \"%s\" doesn't exists.", name );
 
 #define HANDLE_H5_DATASET_RANK_ERR( f, m, n )			  \
