@@ -234,6 +234,24 @@ H5GetErrorHandler (
 	return h5_get_errorhandler();
 }
 
+h5_err_t
+H5ReportErrorhandler (
+	h5_file_t * const f,
+	const char *fmt,
+	va_list ap
+	) {
+	return h5_report_errorhandler ( f, fmt, ap );
+}
+
+h5_err_t
+H5AbortErrorhandler (
+	h5_file_t * const f,
+	const char *fmt,
+	va_list ap
+	) {
+	return h5_abort_errorhandler ( f, fmt, ap );
+}
+
 /*!
   \ingroup h5part_c_api_errhandling
 
