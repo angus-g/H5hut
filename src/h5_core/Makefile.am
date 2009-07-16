@@ -36,6 +36,7 @@ EXTRA_HEADERS = \
 	h5_errorhandling_private.h \
 	h5_fcmp_private.h \
 	h5_hdf5_private.h \
+	h5_hsearch_private.h \
 	h5_maps.h \
 	h5_mpi_private.h \
 	h5_openclose.h \
@@ -85,6 +86,7 @@ libH5_core_a_SOURCES = \
 	h5_errorhandling.c \
 	h5_fcmp.c \
 	h5_hdf5.c \
+	h5_hsearch.c \
 	h5_maps.c \
 	h5_mpi.c \
 	h5_openclose.c \
