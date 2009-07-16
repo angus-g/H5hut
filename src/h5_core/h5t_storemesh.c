@@ -229,15 +229,15 @@ _h5t_alloc_num_elems (
 	const size_t new_num_elems
 	) {
 	h5t_fdata_t *t = f->t;
-	size_t sizeof_elem = 0;
+	size_t sizeof_elem = _h5t_sizeof_elem[t->mesh_type];
 
 	/* allocl mem for elements */
 	TRY ( t->elems.data = _h5_alloc (
 		      f,
 		      t->elems.data,
-		      new_num_elems * _h5t_sizeof_elem[t->mesh_type] ) );
+		      new_num_elems * sizeof_elem ) );
 	memset (
-		t->elems.data+cur_num_elems*sizeof_elem,
+		(void*)t->elems.data + cur_num_elems*sizeof_elem,
 		-1,
 		(new_num_elems-cur_num_elems)*sizeof_elem );
 
@@ -247,7 +247,7 @@ _h5t_alloc_num_elems (
 		      t->elems_ldta,
 		      new_num_elems * sizeof ( t->elems_ldta[0] ) ) );
 	memset (
-		t->elems_ldta+cur_num_elems*sizeof ( t->elems_ldta[0] ),
+		t->elems_ldta+cur_num_elems,
 		-1,
 		(new_num_elems-cur_num_elems)*sizeof ( t->elems_ldta[0] ) );
 
@@ -257,7 +257,7 @@ _h5t_alloc_num_elems (
 		      t->elems_lvids,
 		      new_num_elems*sizeof(t->elems_lvids[0])*t->mesh_type ) );
 	memset (
-		t->elems_lvids+cur_num_elems*sizeof(t->elems_lvids[0])*t->mesh_type,
+		(void*)t->elems_lvids + cur_num_elems*sizeof(t->elems_lvids[0])*t->mesh_type,
 		-1,
 		(new_num_elems-cur_num_elems)*sizeof(t->elems_lvids[0])*t->mesh_type );
 
