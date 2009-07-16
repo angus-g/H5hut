@@ -8,9 +8,28 @@ void *
 _h5_alloc (
 	h5_file_t * const f,
 	void *ptr,
-	const size_t size ) {
+	const size_t size
+	) {
 	h5_debug ( f, "Allocating %ld bytes.", size ); 
 	ptr = realloc ( ptr, size );
+	if ( ptr == NULL ) {
+		h5_error (
+			f,
+			H5_ERR_NOMEM,
+			"Out of memory." );
+		return (void*)(H5_ERR);
+	}
+	return ptr;
+}
+
+void *
+_h5_calloc (
+	h5_file_t * const f,
+	const size_t count,
+	const size_t size
+	) {
+	h5_debug ( f, "Allocating %ld * %ld bytes.", count, size ); 
+	void *ptr = calloc ( count, size );
 	if ( ptr == NULL ) {
 		h5_error (
 			f,

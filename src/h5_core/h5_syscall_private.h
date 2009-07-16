@@ -8,6 +8,13 @@ _h5_alloc (
 	const size_t size
 	);
 
+void *
+_h5_calloc (
+	h5_file_t * const f,
+	const size_t count,
+	const size_t size
+	);
+
 h5_err_t
 _h5_free (
 	h5_file_t * const f,
