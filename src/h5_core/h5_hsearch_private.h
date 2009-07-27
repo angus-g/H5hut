@@ -8,23 +8,46 @@ typedef enum {
 } h5_action_t;
 
 typedef struct h5_entry {
-	unsigned int len;
-	char *key;
-	void *data;
+	void *dta;
 } h5_entry_t;
-
-struct hsearch_data {
-	struct _ENTRY *table;
-	unsigned int size;
-	unsigned int filled;
-};
 
 /* Reentrant versions which can handle multiple hashing tables at the
    same time.  */
-extern int hsearch_r (h5_entry_t __item, h5_action_t __action, h5_entry_t **__retval,
-                      struct hsearch_data *__htab);
-extern int hcreate_r (size_t __nel, struct hsearch_data *__htab);
-extern void hdestroy_r (struct hsearch_data *__htab);
+extern h5_err_t
+_h5_hsearch_r (
+	h5_file_t * const f,
+	void *item,
+	h5_action_t action,
+	void **retval,
+	struct hsearch_data *htab
+	);
 
+extern h5_err_t
+_h5_hcreate_r (
+	h5_file_t* const f,
+	size_t __nel,
+	struct hsearch_data *__htab,
+	int (*compare)(const void*, const void*),
+	unsigned int (*compute_hash)(const void*)
+	);
 
+extern h5_err_t
+_h5_hresize_r (
+	h5_file_t * const f,
+	size_t nel,
+	h5_hashtable_t *htab
+	);
+
+extern h5_err_t
+_h5_hdestroy_r (
+	h5_file_t* f,
+	struct hsearch_data *__htab
+	);
+
+extern void
+_h5_hwalk_r (
+	h5_file_t* f,
+	struct hsearch_data *__htab,
+	void (*visit)(void *__item)
+	);
 #endif

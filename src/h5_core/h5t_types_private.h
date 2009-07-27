@@ -94,7 +94,7 @@ struct boundary {
 typedef struct boundary boundary_t;
 
 /*** type ids' for compound types ***/
-struct h5_dtypes {
+typedef struct h5_dtypes {
 	hid_t		h5_id_t;
 	hid_t		h5_int64_t;
 	hid_t		h5_float64_t;
@@ -104,61 +104,60 @@ struct h5_dtypes {
 	hid_t		h5_vertex_t;		/* vertex structure */
 	hid_t		h5_triangle_t;		/* triangle structure */
 	hid_t		h5_tet_t;		/* tetrahedron structure */
-};
-typedef struct h5_dtypes h5_dtypes_t;
+} h5_dtypes_t;
 
-struct h5_te_node_key {
+typedef struct h5_te_entry_key {
 	h5_2id_t vids;
-};
-typedef struct h5_te_node_key h5_te_node_key_t;
+} h5_te_entry_key_t;
 
-struct h5_te_node {
-	h5_te_node_key_t key;
+typedef struct h5_te_entry {
+	h5_te_entry_key_t key;
 	h5_idlist_t value;
-};
-typedef struct h5_te_node h5_te_node_t;
+} h5_te_entry_t;
 
-struct h5_td_node_key {
+typedef struct h5_td_entry_key {
 	h5_3id_t vids;
-};
-typedef struct h5_td_node_key h5_td_node_key_t;
+} h5_td_entry_key_t;
 
-struct h5_td_node {
-	h5_td_node_key_t key;
+typedef struct h5_td_entry {
+	h5_td_entry_key_t key;
 	h5_idlist_t value;
-};
-typedef struct h5_td_node h5_td_node_t;
+} h5_td_entry_t;
 
-struct h5t_adjacencies {
-	void * te_tree;
-	void * td_tree;
+struct hsearch_data {
+	struct _ENTRY *table;
+	unsigned int size;
+	unsigned int filled;
+	int (*compare)(const void*, const void*);
+	unsigned int (*compute_hash)(const void*);
 };
-typedef struct h5t_adjacencies h5t_adjacencies_t;
+typedef struct hsearch_data h5_hashtable_t; 
+
+typedef struct h5t_adjacencies {
+	struct hsearch_data te_hash;
+	struct hsearch_data td_hash;
+} h5t_adjacencies_t;
 
 struct h5t_elem_iterator {
 	h5_id_t	cur_eid;
 };
 typedef struct h5t_elem_iterator h5t_elem_iterator_t;
 
-struct h5t_vertex_iterator {
+typedef struct h5t_vertex_iterator {
 	h5_id_t	cur_vid;
-};
-typedef struct h5t_vertex_iterator h5t_vertex_iterator_t;
+} h5t_vertex_iterator_t;
 
-struct h5t_entity_iterator {
+typedef struct h5t_entity_iterator {
 	h5_id_t	cur_fid;
 	h5_id_t cur_eid;
-};
-typedef struct h5t_entity_iterator h5t_entity_iterator_t;
+} h5t_entity_iterator_t;
 
-struct h5t_iterators {
+typedef struct h5t_iterators {
 	h5t_vertex_iterator_t	vertex;
 	h5t_entity_iterator_t	edge;
 	h5t_entity_iterator_t	triangle;
 	h5t_elem_iterator_t	elem;
-};
-
-typedef struct h5t_iterators h5t_iterators_t;
+} h5t_iterators_t;
 
 struct h5t_fdata {
 	/*** book-keeping ***/
@@ -175,15 +174,15 @@ struct h5t_fdata {
 	h5_id_t		level_changed;
 	h5_id_t		storing_data;
 
-	hid_t		topo_gid;		/* grp id of mesh in current
-						   level		*/
+	hid_t		topo_gid;	/* grp id of mesh in current
+					   level		*/
 	hid_t		meshes_gid;
 	hid_t		mesh_gid;
 
 	/*** type ids' for base & compound data types ***/
 	h5_dtypes_t	dtypes;
 
-	h5t_iterators_t	iters;
+	h5t_iterators_t	iters;		/* "build-in" iterators */
 
 	/*** vertices ***/
 	h5_vertex_t	*vertices;

@@ -231,7 +231,7 @@ _h5t_alloc_num_elems (
 	h5t_fdata_t *t = f->t;
 	size_t sizeof_elem = _h5t_sizeof_elem[t->mesh_type];
 
-	/* allocl mem for elements */
+	/* alloc mem for elements */
 	TRY ( t->elems.data = _h5_alloc (
 		      f,
 		      t->elems.data,
@@ -257,7 +257,7 @@ _h5t_alloc_num_elems (
 		      t->elems_lvids,
 		      new_num_elems*sizeof(t->elems_lvids[0])*t->mesh_type ) );
 	memset (
-		(void*)t->elems_lvids + cur_num_elems*sizeof(t->elems_lvids[0])*t->mesh_type,
+		t->elems_lvids + cur_num_elems*sizeof(t->elems_lvids[0])*t->mesh_type,
 		-1,
 		(new_num_elems-cur_num_elems)*sizeof(t->elems_lvids[0])*t->mesh_type );
 
@@ -359,7 +359,6 @@ _h5t_store_elem (
 	memcpy ( elem_ldta->local_vids, local_vids,
 		 sizeof (*local_vids) * t->mesh_type );
 	_h5t_sort_local_vids ( f, elem_ldta->local_vids, t->mesh_type );
-
 	return local_eid;
 }
 
@@ -374,7 +373,6 @@ h5t_end_store_elems (
 	TRY ( _assign_global_elem_ids ( f ) );
 	TRY ( _h5t_sort_elems ( f ) );
 	TRY ( _h5t_rebuild_global_2_local_map_of_elems ( f ) );
-
 	return H5_SUCCESS;
 }
 
@@ -562,6 +560,15 @@ _h5t_refine_tet (
 	local_vids[1] = t->elems_ldta[local_eid].local_vids[1];
 	local_vids[2] = t->elems_ldta[local_eid].local_vids[2];
 	local_vids[3] = t->elems_ldta[local_eid].local_vids[3];
+
+	/*
+	  get adjacent tets to the edges we have to refine
+	  if one of the tets have been refined
+		get vertex id 
+	  else
+		add new vertex
+	 */
+
 	local_vids[4] = _h5t_bisect_edge(
 		f,
 		t->elems_ldta[local_eid].local_vids[0],

@@ -33,7 +33,7 @@
    which describes the current status.  */
 typedef struct _ENTRY {
 	unsigned int used;
-	h5_entry_t entry;
+	void* entry;
 } _ENTRY;
 
 
@@ -59,19 +59,16 @@ isprime (unsigned int number) {
    indexing as explained in the comment for the hsearch function.
    The contents of the table is zeroed, especially the field used
    becomes zero.  */
-int
-h5_hcreate_r (
+h5_err_t
+_h5_hcreate_r (
 	h5_file_t * const f,
 	size_t nel,
-	struct hsearch_data *htab
+	h5_hashtable_t *htab,
+	int (*compare)(const void*, const void*),
+	unsigned int (*compute_hash)(const void*)
 	) {
 	/* Test for correct arguments.  */
-	if (htab == NULL) {
-		h5_error_internal ( f, __FILE__, __func__, __LINE__ );
-	}
-
-	/* There is still another table active. Return with error. */
-	if (htab->table != NULL) {
+	if (htab == NULL || htab->table != NULL) {
 		h5_error_internal ( f, __FILE__, __func__, __LINE__ );
 	}
 	/* Change nel to the first prime number not smaller as nel. */
@@ -81,6 +78,8 @@ h5_hcreate_r (
 
 	htab->size = nel;
 	htab->filled = 0;
+	htab->compare = compare;
+	htab->compute_hash = compute_hash;
 
 	/* allocate memory and zero out */
 	TRY ( (htab->table = (_ENTRY *) _h5_calloc (
@@ -90,10 +89,41 @@ h5_hcreate_r (
 	return H5_SUCCESS;
 }
 
+h5_err_t
+_h5_hresize_r (
+	h5_file_t * const f,
+	size_t nel,
+	h5_hashtable_t *htab
+	) {
+	if ( htab == NULL || htab->table == NULL ) {
+		h5_error_internal ( f, __FILE__, __func__, __LINE__ );
+	}
+	h5_hashtable_t __htab;
+	memset ( &__htab, 0, sizeof ( __htab ) );
+	nel += htab->size;
+	h5_debug ( f, "Resize hash table from %u to %lu elements.",
+		   htab->size, nel );
+	TRY ( _h5_hcreate_r ( f, nel, &__htab, htab->compare, htab->compute_hash ) );
+	unsigned int idx;
+	for ( idx = 1; idx <= htab->size; idx++ ) {
+		if ( htab->table[idx].used ) {
+			void *ventry;
+			TRY ( _h5_hsearch_r (
+				      f,
+				      htab->table[idx].entry,
+				      H5_ENTER,
+				      &ventry,
+				      &__htab ) );
+		}
+	}
+	TRY ( _h5_hdestroy_r ( f, htab ) );
+	*htab = __htab;
+	return H5_SUCCESS;
+}
 /* After using the hash table it has to be destroyed. The used memory can
    be freed and the local static variable can be marked as not used.  */
-void
-h5_hdestroy_r (
+h5_err_t
+_h5_hdestroy_r (
 	h5_file_t * const f,
 	struct hsearch_data *htab
 	) {
@@ -103,10 +133,11 @@ h5_hdestroy_r (
 	}
 
 	/* Free used memory.  */
-	_h5_free ( f, htab->table );
+	TRY ( _h5_free ( f, htab->table ) );
 
 	/* the sign for an existing table is an value != NULL in htable */
 	htab->table = NULL;
+	return H5_SUCCESS;
 }
 
 
@@ -124,25 +155,19 @@ h5_hdestroy_r (
    means used. The used field can be used as a first fast comparison for
    equality of the stored and the parameter value. This helps to prevent
    unnecessary expensive calls of strcmp.  */
-int
-h5_hsearch_r (
+h5_err_t
+_h5_hsearch_r (
 	h5_file_t * const f,
-	h5_entry_t item,
+	void *item,
 	h5_action_t action,
-	h5_entry_t **retval,
+	void **retval,
 	struct hsearch_data *htab
 	) {
 	unsigned int hval;
-	unsigned int count;
 	unsigned int idx;
 
 	/* Compute an value for the given string. Perhaps use a better method. */
-	hval = item.len;
-	count = item.len;
-	while (count-- > 0) {
-		hval <<= 4;
-		hval += item.key[count];
-	}
+	hval = (*htab->compute_hash)(item);
 
 	/* First hash function: simply take the modul but prevent zero. */
 	idx = hval % htab->size + 1;
@@ -151,12 +176,9 @@ h5_hsearch_r (
 		/* Further action might be required according to the action
 		   value. */
 		if (htab->table[idx].used == hval
-		    && memcmp (
-			    item.key,
-			    htab->table[idx].entry.key,
-			    item.len ) == 0) {
-			*retval = &htab->table[idx].entry;
-			return H5_SUCCESS;
+		    && ((*htab->compare) (item, htab->table[idx].entry) == 0) ) {
+			    *retval = htab->table[idx].entry;
+			    return H5_SUCCESS;
 		}
 
 		/* Second hash function, as suggested in [Knuth] */
@@ -178,11 +200,8 @@ h5_hsearch_r (
 
 			/* If entry is found use it. */
 			if (htab->table[idx].used == hval
-			    && memcmp (
-				    item.key,
-				    htab->table[idx].entry.key,
-				    item.len ) == 0) {
-				*retval = &htab->table[idx].entry;
+			    && ((*htab->compare) (item, htab->table[idx].entry) == 0) ) {
+				*retval = htab->table[idx].entry;
 				return H5_SUCCESS;
 			}
 		} while (htab->table[idx].used);
@@ -203,10 +222,24 @@ h5_hsearch_r (
 		
 		++htab->filled;
 
-		*retval = &htab->table[idx].entry;
+		*retval = htab->table[idx].entry;
 		return H5_SUCCESS;
 	}
 
 	*retval = NULL;
 	return H5_ERR;
+}
+
+void
+_h5_hwalk_r (
+	h5_file_t* f,
+	struct hsearch_data *htab,
+	void (*visit)(void *item)
+	) {
+	unsigned int idx = 1;
+	for ( idx = 1; idx < htab->size; idx++ ) {
+		if ( htab->table[idx].used ) {
+			(*visit)( &htab->table[idx].entry );
+		}
+	} 
 }

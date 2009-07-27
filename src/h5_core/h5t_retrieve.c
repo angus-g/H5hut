@@ -113,7 +113,7 @@ h5t_traverse_edges (
 	) {
 	h5t_fdata_t *t = f->t;
 	h5t_entity_iterator_t *iter = &t->iters.edge; 
-	h5_te_node_t *te;
+	h5_te_entry_t *te;
 	h5_size_t i;
 	do {
 		if ( iter->cur_fid >= 5 ) {
@@ -128,7 +128,7 @@ h5t_traverse_edges (
 			iter->cur_fid++;
 		}
 		TRY ( _h5t_find_te2 (
-			      f, &te, iter->cur_fid, iter->cur_eid ) );
+			      f, iter->cur_fid, iter->cur_eid, &te ) );
 		/* skip to first element which is on current level */
 		i = -1;
 		h5_elem_ldta_t *el_dta;
@@ -175,7 +175,7 @@ h5t_traverse_triangles (
 	) {
 	h5t_fdata_t *t = f->t;
 	h5t_entity_iterator_t *iter = &t->iters.triangle; 
-	h5_td_node_t *td;
+	h5_td_entry_t *td;
 	h5_size_t i;
 	do {
 		if ( iter->cur_fid >= 3 ) {
@@ -189,8 +189,7 @@ h5t_traverse_triangles (
 		} else {
 			iter->cur_fid++;
 		}
-		TRY ( _h5t_find_td2 (
-			      f, &td, iter->cur_fid, iter->cur_eid ) );
+		TRY ( _h5t_find_td2 ( f, iter->cur_fid, iter->cur_eid, &td ) );
 		/* skip to first element which is on current level */
 		i = -1;
 		h5_elem_ldta_t *el_dta;

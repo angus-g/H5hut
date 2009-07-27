@@ -442,85 +442,6 @@ h5t_get_global_eid (
 }
 
 /*!
-  
- */
-h5_id_t
-h5t_get_global_triangle_id  (
-	h5_file_t * const f,
-	h5_id_t * const global_vids
-	) {
-	struct h5t_fdata *t = f->t;
-
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON: {
-		h5_id_t local_vids[3];
-		TRY ( h5t_map_global_vids2local (
-			      f, global_vids, 3, local_vids ) );
-		h5_id_t local_tid = h5t_get_local_triangle_id ( f, local_vids );
-		if ( local_tid < 0 )
-			return _h5t_error_global_triangle_id_nexist (
-				f, global_vids );
-		return h5t_map_local_triangle_id2global ( f, local_tid );
-	}
-	case H5_OID_TRIANGLE:
-		return h5t_get_global_eid ( f, global_vids );
-	default:
-		return h5_error_internal ( f, __FILE__, __func__, __LINE__ ); 
-	}
-}
-
-/*!
-  
- */
-h5_id_t
-h5t_get_local_triangle_id  (
-	h5_file_t * const f,
-	h5_id_t * const local_vids
-	) {
-	h5t_fdata_t *t = f->t;
-
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON: {
-		h5_td_node_t *td;
-		TRY ( _h5t_find_td (
-			      f,
-			      &td,
-			      local_vids ) );
-		return td->value.items[0];
-	}
-	case H5_OID_TRIANGLE:
-		return h5t_get_local_eid ( f, local_vids );
-	default:
-		return h5_error_internal ( f, __FILE__, __func__, __LINE__ ); 
-	}
-}
-
-h5_id_t
-h5t_get_local_triangle_id2 (
-	h5_file_t * const f,
-	h5_id_t face_id,
-	h5_id_t local_eid
-	) {
-	h5t_fdata_t *t = f->t;
-
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON: {
-		h5_td_node_t *td;
-		TRY ( _h5t_find_td2 (
-			      f,
-			      &td,
-			      face_id,
-			      local_eid) );
-		return td->value.items[0];
-	}
-	case H5_OID_TRIANGLE:
-		return local_eid;
-	default:
-		return h5_error_internal ( f, __FILE__, __func__, __LINE__ ); 
-	}
-}
-
-/*!
   Get local element id for an element given by its global id.
 
   \param[in]	f		File handle
@@ -643,6 +564,33 @@ _h5t_rebuild_global_2_local_map_of_elems (
 	return H5_SUCCESS;
 }
 
+h5_id_t *
+_h5t_get_local_vids_of_edge (
+	const h5_elem_ldta_t *tet,
+	const h5_id_t face_id,
+	h5_2id_t edge
+	) {
+	int map[6][2] = { { 0,1 }, {1,2}, {0,2}, {0,3}, {1,3}, {2,3} };
+
+ 	edge[0] = tet->local_vids[map[face_id][0]];
+	edge[1] = tet->local_vids[map[face_id][1]];
+	return edge;
+}
+
+h5_id_t *
+_h5t_get_local_vids_of_triangle (
+	const h5_elem_ldta_t *tet,
+	const h5_id_t face_id,
+	h5_id_t *tri
+	) {
+	int map[4][3] = { {1,2,3}, {0,2,3}, {0,1,3}, {0,1,2} };
+	
+ 	tri[0] = tet->local_vids[map[face_id][0]];
+	tri[1] = tet->local_vids[map[face_id][1]];
+	tri[2] = tet->local_vids[map[face_id][2]];
+	return tri;
+}
+
 /*!
   \param[in]	f		file handle
   \param[in]	local_id	local ID of entity
@@ -662,31 +610,25 @@ h5t_get_local_vids_of_entity (
 	switch ( _h5t_get_entity_type ( local_id ) ) {
 	case H5T_ELEM_TYPE_VERTEX: {
 		local_vids[0] = tet_dta->local_vids[face_id];
-		break;
+		return H5_SUCCESS;
 	}
 	case H5T_ELEM_TYPE_EDGE: {
-		int map[6][2] = { { 0,1 }, {1,2}, {0,2}, {0,3}, {1,3}, {2,3} };
-		local_vids[0] = tet_dta->local_vids[map[face_id][0]];
-		local_vids[1] = tet_dta->local_vids[map[face_id][1]];
-		break;
+		_h5t_get_local_vids_of_edge (tet_dta, face_id, local_vids);
+		return H5_SUCCESS;
 	}
 	case H5T_ELEM_TYPE_TRIANGLE: {
-		int map[4][3] = { { 1,2,3 }, {0,2,3}, {0,1,3}, {0,1,2} };
-		local_vids[0] = tet_dta->local_vids[map[face_id][0]];
-		local_vids[1] = tet_dta->local_vids[map[face_id][1]];
-		local_vids[2] = tet_dta->local_vids[map[face_id][2]];
-		break;
+		_h5t_get_local_vids_of_triangle (tet_dta, face_id, local_vids);
+		return H5_SUCCESS;
 	}
 	case 0:
 	case H5T_ELEM_TYPE_TET: {
 		memcpy ( local_vids, tet_dta->local_vids, sizeof(h5_id_t)*4 );
-		break;
+		return H5_SUCCESS;
 	}
 	default:
 		return h5_error_internal (
 			f, __FILE__, __func__, __LINE__ );
 	}
-	return H5_SUCCESS;
 }
 
 h5_id_t

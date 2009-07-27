@@ -14,43 +14,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <search.h>
+#include <time.h>
 #include <hdf5.h>
 #include "h5_core/h5_core.h"
 #include "h5_core/h5_core_private.h"
-
-h5_id_t *
-_h5t_get_edge_of_tet (
-	const h5_elem_ldta_t *tet,
-	const h5_id_t face_id,
-	h5_2id_t edge
-	) {
-	int map[6][2] = { { 0,1 }, {1,2}, {0,2}, {0,3}, {1,3}, {2,3} };
-
- 	edge[0] = tet->local_vids[map[face_id][0]];
-	edge[1] = tet->local_vids[map[face_id][1]];
-	return edge;
-}
-
-h5_id_t *
-_h5t_get_triangle_of_tet (
-	const h5_elem_ldta_t *tet,
-	const h5_id_t face_id,
-	h5_2id_t tri
-	) {
-	int map[4][3] = { { 1, 2, 3 }, { 0, 2, 3 }, { 0, 1, 3 }, { 0, 1, 2} };
-	
- 	tri[0] = tet->local_vids[map[face_id][0]];
-	tri[1] = tet->local_vids[map[face_id][1]];
-	tri[2] = tet->local_vids[map[face_id][2]];
-	return tri;
-}
-
 
 /*
   compute T(V)
 */
 static h5_err_t
-_calc_tets_of_vertices (
+_compute_tets_of_vertices (
 	h5_file_t * const f
 	) {
 	h5t_fdata_t *t = f->t;
@@ -75,247 +48,217 @@ _calc_tets_of_vertices (
 }
 
 static int
-_cmp_te_node (
-	const void *a,
-	const void *b
+_cmp_te_entries (
+	const void *__a,
+	const void *__b
 	) {
-	h5_te_node_key_t *key0 = (h5_te_node_key_t*)a;
-	h5_te_node_key_t *key1 = (h5_te_node_key_t*)b;
-
-	if ( key0->vids[0] < key1->vids[0] )
-		return -1;
-	if ( key0->vids[0] > key1->vids[0] )
-		return 1;
-	if ( key0->vids[1] < key1->vids[1] )
-		return -1;
-	if ( key0->vids[1] > key1->vids[1] )
-		return 1;
-	return 0;
+	return memcmp ( __a, __b, sizeof(h5_2id_t) );
 }
 
-static h5_err_t
-_search_te2 (
+static unsigned int
+_compute_te_hashval (
+	const void *__item
+	) {
+	h5_te_entry_t *item = (h5_te_entry_t*)__item;
+	char *key = (char *)item->key.vids;
+	unsigned int count = 2 * sizeof ( item->key.vids[0] );
+	unsigned int hval = count;
+	while ( count-- > 0 ) {
+		if ( key[count] ) {
+			hval <<= 4;
+			hval += key[count];
+		}
+	}
+	return hval;
+}
+
+h5_err_t
+_h5t_search_te2 (
 	h5_file_t * const f,
-	h5_te_node_t **node,
 	h5_id_t face_id,
-	h5_id_t local_eid
+	h5_id_t local_eid,
+	h5_te_entry_t **entry
+
 	) {
 	h5t_fdata_t *t = f->t;
 	h5t_adjacencies_t *a = &t->adjacencies;
-	void *vnode;
-
-	h5_elem_ldta_t *tet_data = &t->elems_ldta[local_eid];
-	h5_id_t vid;
-	int map[6][2] = { { 0,1 }, {1,2}, {0,2}, {0,3}, {1,3}, {2,3} };
-
-	if ( *node ==NULL ) {
-		TRY ( *node = _h5_alloc ( f, NULL, sizeof(**node) ) );
-		memset ( *node, 0, sizeof(**node) );
+	void *__retval;
+	if ( *entry == NULL ) {
+		TRY ( *entry = _h5_calloc ( f, 1, sizeof(**entry) ) );
 	}
-	h5_id_t *edge = (*node)->key.vids;
- 	edge[0] = tet_data->local_vids[map[face_id][0]];
-	edge[1] = tet_data->local_vids[map[face_id][1]];
-
-	if ( edge[0] > edge[1] ) {
-		vid = edge[0]; edge[0] = edge[1]; edge[1] = vid;
-	}
-
-	TRY ( vnode = _h5_tsearch (
+	_h5t_get_local_vids_of_edge (
+		&t->elems_ldta[local_eid],
+		face_id,
+		(*entry)->key.vids );
+	TRY ( _h5_hsearch_r (
 		      f,
-		      *node,
-		      (void**)&a->te_tree,
-		      _cmp_te_node ) );
-	h5_te_node_t *rnode = *(h5_te_node_t **)vnode;
+		      *entry,
+		      H5_ENTER,
+		      &__retval,
+		      &a->te_hash ) );
+	h5_te_entry_t *retval = (h5_te_entry_t *)__retval;
 	TRY ( _h5_append_to_idlist (
 		      f,
-		      &rnode->value,
+		      &retval->value,
 		      _h5t_build_edge_id ( face_id, local_eid ) ) );
-	if ( rnode->value.num_items == 1 ) {
-		*node = NULL;
+	if ( retval->value.num_items == 1 ) {
+		*entry = NULL;
 	}
-	return H5_SUCCESS;
-}
-
-h5_err_t
-_h5t_find_te (
-	h5_file_t * const f,
-	h5_te_node_t **rnode,
-	h5_2id_t edge
-	) {
-	h5t_fdata_t *t = f->t;
-	h5t_adjacencies_t *a = &t->adjacencies;
-	h5_te_node_t node;
-	void *vnode = &node;
-
-	if ( edge[0] > edge[1] ) {
-		h5_id_t vid = edge[0]; edge[0] = edge[1]; edge[1] = vid;
-	}
-	memcpy ( node.key.vids, edge, 2*sizeof(*edge) );
-	TRY ( vnode = _h5_tfind (
-		      f,
-		      vnode,
-		      (void**)&a->te_tree,
-		      _cmp_te_node ) );
-	*rnode = *(h5_te_node_t **)vnode;
-
-	return H5_SUCCESS;
-}
-
-h5_err_t
-_h5t_find_te2 (
-	h5_file_t * const f,
-	h5_te_node_t **rnode,
-	h5_id_t face_id,
-	h5_id_t local_eid
-	) {
-	h5t_fdata_t *t = f->t;
-	h5t_adjacencies_t *a = &t->adjacencies;
-	h5_te_node_t node;
-	void *vnode = &node;
-
-	h5_elem_ldta_t *tet_data = &t->elems_ldta[local_eid];
-	h5_id_t *edge = node.key.vids;
-	int map[6][2] = { { 0,1 }, {1,2}, {0,2}, {0,3}, {1,3}, {2,3} };
-
-	edge[0] = tet_data->local_vids[map[face_id][0]];
-	edge[1] = tet_data->local_vids[map[face_id][1]];
-
-	if ( edge[0] > edge[1] ) {
-		h5_id_t vid = edge[0]; edge[0] = edge[1]; edge[1] = vid;
-	}
-	TRY ( vnode = _h5_tfind (
-		      f,
-		      vnode,
-		      (void**)&a->te_tree,
-		      _cmp_te_node ) );
-	*rnode = *(h5_te_node_t **)vnode;
-
 	return H5_SUCCESS;
 }
 
 /*
-  Sort ID list according their tetrahedra ID.
+  Find item in the T(E) hash table.
 
-  Called by twalk().
+  Passing item with type entry type.
 */
-static void
-_sort_telist (
-	const void *_node,
-	const VISIT order,
-	const int depth
+h5_err_t
+_h5t_find_te (
+	h5_file_t * const f,
+	h5_te_entry_t *item,
+	h5_te_entry_t **retval
 	) {
-	if ( order == postorder || order == leaf ) {
-		h5_te_node_t *node = *(h5_te_node_t **)_node;
-		h5_idlist_t *list = &node->value;
-		qsort (
-			list->items,
-			list->num_items,
-			sizeof(list->items[0]),
-			_h5_cmp_ids_by_eid );
-	}
+	void *__ret;
+	TRY ( _h5_hsearch_r (
+		      f,
+		      item,
+		      H5_FIND,
+		      &__ret,
+		      &f->t->adjacencies.te_hash ) );
+	*retval = (h5_te_entry_t *)__ret;
+	return H5_SUCCESS;
 }
 
+/*
+  Find item in the T(E) hash table.
+
+  Passing item with face and local element ID.
+*/
+h5_err_t
+_h5t_find_te2 (
+	h5_file_t * const f,
+	h5_id_t face_id,
+	h5_id_t local_eid,
+	h5_te_entry_t **retval
+	) {
+	h5_te_entry_t item;
+	_h5t_get_local_vids_of_edge (
+		&f->t->elems_ldta[local_eid],
+		face_id,
+		item.key.vids
+		);
+	return _h5t_find_te ( f, &item, retval );
+}
+
+static void
+_sort_telist (
+	const void *_entry
+	) {
+	h5_te_entry_t *entry = *(h5_te_entry_t **)_entry;
+	h5_idlist_t *list = &entry->value;
+	qsort (
+		list->items,
+		list->num_items,
+		sizeof(list->items[0]),
+		_h5_cmp_ids_by_eid );
+}
+
+/*
+  Compute T(E) from current level up to highest levels.
+ */
 static h5_err_t
-_calc_tets_of_edges (
+_compute_tets_of_edges (
 	h5_file_t * const f
 	) {
 	h5t_fdata_t *t = f->t;
 	h5t_adjacencies_t *a = &t->adjacencies;
-	h5_id_t local_eid;
-	h5_size_t num_tets = t->num_elems[t->num_levels-1];
-	h5_te_node_t *node = NULL;
+	h5_te_entry_t *entry = NULL;
 	h5_elem_ldta_t *tet = &t->elems_ldta[0];
-	h5_id_t face_id;
-
-	a->te_tree = NULL;
-
-	for ( local_eid = 0; local_eid < num_tets; local_eid++, tet++ ) {
+	h5_id_t cur_lvl = t->cur_level < 0 ? 0 : t->cur_level;
+	h5_id_t num_elems = t->num_elems[t->num_levels-1];
+	h5_id_t local_eid = (cur_lvl == 0 ) ? 0 : t->num_elems[cur_lvl-1];
+	TRY ( _h5_hcreate_r (
+		      f,
+		      5*(num_elems - local_eid),
+		      &a->te_hash,
+		      _cmp_te_entries,
+		      _compute_te_hashval ) );
+	for ( ; local_eid < num_elems; local_eid++, tet++ ) {
+		h5_id_t face_id;
 		for ( face_id = 0; face_id < 6; face_id++ ) {
-			TRY (
-				_search_te2 (
-					f,
-					&node,
-					face_id,
-					local_eid )
-				);
+			if ( (a->te_hash.size*6) <= (a->te_hash.filled<<3) ) {
+				TRY ( _h5_hresize_r (
+					      f,
+					      3*(num_elems - local_eid),
+					      &a->te_hash ) );
+			}
+			TRY ( _h5t_search_te2 (
+				      f,
+				      face_id,
+				      local_eid,
+				      &entry ) );
 		}
 	}
-	twalk ( (void*)a->te_tree, _sort_telist ); 
-	if ( node && node->value.items == NULL ) {
-		_h5_free ( f, node );
+	_h5_hwalk_r ( f, &a->te_hash, _sort_telist ); 
+	if ( entry && entry->value.items == NULL ) {
+		_h5_free ( f, entry );
 	}
 	return H5_SUCCESS;
 }
 
 static int
-_cmp_td_node (
-	const void *a,
-	const void *b
+_cmp_td_entries (
+	const void *__a,
+	const void *__b
 	) {
-	h5_td_node_key_t *key0 = (h5_td_node_key_t*)a;
-	h5_td_node_key_t *key1 = (h5_td_node_key_t*)b;
-
-	if ( key0->vids[0] < key1->vids[0] )
-		return -1;
-	if ( key0->vids[0] > key1->vids[0] )
-		return 1;
-	if ( key0->vids[1] < key1->vids[1] )
-		return -1;
-	if ( key0->vids[1] > key1->vids[1] )
-		return 1;
-	if ( key0->vids[2] < key1->vids[2] )
-		return -1;
-	if ( key0->vids[2] > key1->vids[2] )
-		return 1;
-	return 0;
+	return memcmp ( __a, __b, sizeof(h5_3id_t) );
 }
 
-static h5_err_t
-_search_td2 (
-	h5_file_t * const f,
-	h5_td_node_t **node,
-	h5_id_t face_id,
-	h5_id_t local_eid
+static unsigned int
+_compute_td_hashval (
+	const void *__item
 	) {
-	h5t_fdata_t *t = f->t;
-	h5t_adjacencies_t *a = &t->adjacencies;
-	void *vnode;
-
-	h5_elem_ldta_t *tet_data = &t->elems_ldta[local_eid];
-	h5_id_t vid;
-	int map[4][3] = { { 1,2,3 }, {0,2,3}, {0,1,3}, {0,1,2} };
-
-	if ( *node ==NULL ) {
-		TRY ( *node = _h5_alloc ( f, NULL, sizeof(**node) ) );
-		memset ( *node, 0, sizeof(**node) );
+	h5_te_entry_t *item = (h5_te_entry_t*)__item;
+	char *key = (char *)item->key.vids;
+	unsigned int count = sizeof ( h5_3id_t );
+	unsigned int hval = count;
+	while ( count-- > 0 ) {
+		if ( key[count] ) {
+			hval <<= 4;
+			hval += key[count];
+		}
 	}
-	h5_id_t *triangle = (*node)->key.vids;
-	triangle[0] = tet_data->local_vids[map[face_id][0]];
-	triangle[1] = tet_data->local_vids[map[face_id][1]];
-	triangle[2] = tet_data->local_vids[map[face_id][2]];
+	return hval;
+}
 
-	if ( triangle[0] > triangle[1] ) {
-		vid = triangle[0]; triangle[0] = triangle[1]; triangle[1] = vid;
+h5_err_t
+_h5t_search_td2 (
+	h5_file_t * const f,
+	h5_id_t face_id,
+	h5_id_t local_eid,
+	h5_td_entry_t **entry
+	) {
+	void *__retval;
+	if ( *entry == NULL ) {
+		TRY ( *entry = _h5_calloc ( f, 1, sizeof(**entry) ) );
 	}
-	if ( triangle[1] > triangle[2] ) {
-		vid = triangle[1]; triangle[1] = triangle[2]; triangle[2] = vid;
-	}
-	if ( triangle[0] > triangle[1] ) {
-		vid = triangle[0]; triangle[0] = triangle[1]; triangle[1] = vid;
-	}
-
-	TRY ( vnode = _h5_tsearch (
+	_h5t_get_local_vids_of_triangle (
+		&f->t->elems_ldta[local_eid],
+		face_id,
+		(*entry)->key.vids );
+	TRY ( _h5_hsearch_r (
 		      f,
-		      *node,
-		      (void**)&a->td_tree,
-		      _cmp_td_node ) );
-	h5_td_node_t *rnode = *(h5_td_node_t **)vnode;
+		      *entry,
+		      H5_ENTER,
+		      &__retval,
+		      &f->t->adjacencies.td_hash ) );
+	h5_td_entry_t *retval = (h5_td_entry_t *)__retval;
 	TRY ( _h5_append_to_idlist (
 		      f,
-		      &rnode->value,
+		      &retval->value,
 		      _h5t_build_triangle_id ( face_id, local_eid ) ) );
-	if ( rnode->value.num_items == 1 ) {
-		*node = NULL;
+	if ( retval->value.num_items == 1 ) {
+		*entry = NULL;
 	}
 	return H5_SUCCESS;
 }
@@ -323,78 +266,36 @@ _search_td2 (
 h5_err_t
 _h5t_find_td (
 	h5_file_t * const f,
-	h5_td_node_t **rnode,
-	h5_3id_t tri
+	h5_td_entry_t *item,
+	h5_td_entry_t **retval
 	) {
-	h5t_fdata_t *t = f->t;
-	h5t_adjacencies_t *a = &t->adjacencies;
-	h5_td_node_t node;
-	void *vnode = &node;
-
-	h5_id_t vid;
-	if ( tri[0] > tri[1] ) {
-		vid = tri[0]; tri[0] = tri[1]; tri[1] = vid;
-	}
-	if ( tri[1] > tri[2] ) {
-		vid = tri[1]; tri[1] = tri[2]; tri[2] = vid;
-	}
-	if ( tri[0] > tri[1] ) {
-		vid = tri[0]; tri[0] = tri[1]; tri[1] = vid;
-	}
-	memcpy ( node.key.vids, tri, 3*sizeof(*tri) );
-	vnode = _h5_tfind (
+	void *__ret;
+	_h5_hsearch_r (
 		      f,
-		      vnode,
-		      (void**)&a->td_tree,
-		      _cmp_td_node );
-	if ( (h5_err_t)(ptrdiff_t)(vnode) == H5_ERR ) {
-		return _h5t_error_local_triangle_nexist( f, tri );
+		      item,
+		      H5_FIND,
+		      &__ret,
+		      &f->t->adjacencies.td_hash );
+	if ( __ret == NULL ) {
+		return _h5t_error_local_triangle_nexist( f, item->key.vids );
 	}
-
-	*rnode = *(h5_td_node_t **)vnode;
-
+	*retval = (h5_td_entry_t *)__ret;
 	return H5_SUCCESS;
 }
 
 h5_err_t
 _h5t_find_td2 (
 	h5_file_t * const f,
-	h5_td_node_t **rnode,
 	h5_id_t face_id,
-	h5_id_t local_eid
+	h5_id_t local_eid,
+	h5_td_entry_t **retval
 	) {
-	h5t_fdata_t *t = f->t;
-	h5t_adjacencies_t *a = &t->adjacencies;
-	h5_td_node_t node;
-	void *vnode = &node;
-
-	h5_elem_ldta_t *tet_data = &t->elems_ldta[local_eid];
-	h5_id_t *tri = node.key.vids;
-
-	_h5t_get_triangle_of_tet ( tet_data, face_id, tri );
-
-	h5_id_t vid;
-	if ( tri[0] > tri[1] ) {
-		vid = tri[0]; tri[0] = tri[1]; tri[1] = vid;
-	}
-	if ( tri[1] > tri[2] ) {
-		vid = tri[1]; tri[1] = tri[2]; tri[2] = vid;
-	}
-	if ( tri[0] > tri[1] ) {
-		vid = tri[0]; tri[0] = tri[1]; tri[1] = vid;
-	}
-	vnode = _h5_tfind (
-		f,
-		vnode,
-		(void**)&a->td_tree,
-		_cmp_td_node );
-	if ( (h5_err_t)(ptrdiff_t)(vnode) == H5_ERR ) {
-		return _h5t_error_local_triangle_nexist( f, tri );
-	}
-
-	*rnode = *(h5_td_node_t **)vnode;
-
-	return H5_SUCCESS;
+	h5_td_entry_t item;
+	_h5t_get_local_vids_of_triangle (
+		&f->t->elems_ldta[local_eid],
+		face_id,
+		item.key.vids );
+	return _h5t_find_td ( f, &item, retval );
 }
 
 /*
@@ -404,52 +305,57 @@ _h5t_find_td2 (
 */
 static void
 _sort_tdlist (
-	const void *_node,
-	const VISIT order,
-	const int depth
+	const void *_entry
 	) {
-	if ( order == postorder || order == leaf ) {
-		h5_td_node_t *node = *(h5_td_node_t **)_node;
-		h5_idlist_t *list = &node->value;
-		qsort (
-			list->items,
-			list->num_items,
-			sizeof(list->items[0]),
-			_h5_cmp_ids_by_eid );
-	}
+	h5_td_entry_t *entry = *(h5_td_entry_t **)_entry;
+	h5_idlist_t *list = &entry->value;
+	qsort (
+		list->items,
+		list->num_items,
+		sizeof(list->items[0]),
+		_h5_cmp_ids_by_eid );
 }
 
 
 static h5_err_t
-_calc_tets_of_triangles (
+_compute_tets_of_triangles (
 	h5_file_t * const f
 	) {
 	h5t_fdata_t *t = f->t;
 	h5t_adjacencies_t *a = &t->adjacencies;
-	h5_id_t local_eid;
-	h5_size_t num_tets = t->num_elems[t->num_levels-1];
-	h5_td_node_t *node = NULL;
+	h5_td_entry_t *entry = NULL;
 	h5_elem_ldta_t *tet = &t->elems_ldta[0];
-	h5_id_t face_id;
-
-	a->td_tree = NULL;
-
-	for ( local_eid = 0; local_eid < num_tets; local_eid++, tet++ ) {
+	h5_id_t cur_lvl = t->cur_level < 0 ? 0 : t->cur_level;
+	h5_size_t num_elems = t->num_elems[t->num_levels-1];
+	h5_id_t local_eid = (cur_lvl == 0 ) ? 0 : t->num_elems[cur_lvl-1];
+	TRY ( _h5_hcreate_r (
+		      f,
+		      5*(num_elems-local_eid),
+		      &a->td_hash,
+		      _cmp_td_entries,
+		      _compute_td_hashval ) );
+	for ( ; local_eid < num_elems; local_eid++, tet++ ) {
+		h5_id_t face_id;
 		for ( face_id = 0; face_id < 4; face_id++ ) {
+			if ( (a->td_hash.size*6) <= (a->td_hash.filled<<3) ) {
+				TRY ( _h5_hresize_r (
+					      f,
+					      3*(num_elems-local_eid),
+					      &a->td_hash ) );
+			}
 			TRY (
-				_search_td2 (
+				_h5t_search_td2 (
 					f,
-					&node,
 					face_id,
-					local_eid )
+					local_eid,
+					&entry )
 				);
 		}
 	}
-	twalk ( (void*)a->td_tree, _sort_tdlist ); 
-	if ( node && node->value.items == NULL ) {
-		_h5_free ( f, node );
+	_h5_hwalk_r ( f, &a->td_hash, _sort_tdlist ); 
+	if ( entry && entry->value.items == NULL ) {
+		_h5_free ( f, entry );
 	}
-
 	return H5_SUCCESS;
 }
 
@@ -457,9 +363,21 @@ h5_err_t
 _h5t_rebuild_adj_data (
 	h5_file_t * const f
 	) {
-	TRY ( _calc_tets_of_vertices ( f ) );
-	TRY ( _calc_tets_of_edges ( f ) );
-	TRY ( _calc_tets_of_triangles ( f ) );
+	clock_t t1 = clock();
+	TRY ( _compute_tets_of_vertices ( f ) );
+	clock_t t2 = clock();
+	fprintf ( stderr, "_compute_tets_of_vertices(): %f\n",
+		  (float)(t2-t1)/CLOCKS_PER_SEC );
+	t1 = clock();
+	TRY ( _compute_tets_of_edges ( f ) );
+	t2 = clock();
+	fprintf ( stderr, "_compute_tets_of_edge(): %f\n",
+		  (float)(t2-t1)/CLOCKS_PER_SEC );
+	t1 = clock();
+	TRY ( _compute_tets_of_triangles ( f ) );
+	t2 = clock();
+	fprintf ( stderr, "_compute_tets_of_triangle(): %f\n",
+		  (float)(t2-t1)/CLOCKS_PER_SEC );
 
 	return H5_SUCCESS;
 }
@@ -495,13 +413,13 @@ _compute_children_of_edge (
 	h5_idlist_t *children
 	) {
 	h5t_fdata_t *t = f->t;
-	h5_te_node_t *te;
+	h5_te_entry_t *te;
 
 	TRY ( _h5t_find_te2 (
 		      f,
-		      &te,
 		      _h5t_get_face_id ( local_kid ),
-		      _h5t_get_elem_id ( local_kid ) ) 
+		      _h5t_get_elem_id ( local_kid ),
+		      &te ) 
 		);
 	h5_id_t *edge = te->value.items;
 	h5_id_t *end = te->value.items+te->value.num_items;
@@ -539,13 +457,13 @@ _compute_sections_of_edge (
 	h5_idlist_t *children
 	) {
 	h5t_fdata_t *t = f->t;
-	h5_te_node_t *te;
+	h5_te_entry_t *te;
 
 	TRY ( _h5t_find_te2 (
 		      f,
-		      &te,
 		      _h5t_get_face_id ( local_kid ),
-		      _h5t_get_elem_id ( local_kid ) ) 
+		      _h5t_get_elem_id ( local_kid ),
+		      &te )
 		);
 	h5_id_t *edge = te->value.items;
 	h5_id_t *end = te->value.items+te->value.num_items;
@@ -601,14 +519,14 @@ _compute_children_of_triangle (
 	) {
 
 	h5t_fdata_t *t = f->t;
-	h5_td_node_t *td;
+	h5_td_entry_t *td;
 
 	TRY ( _h5t_find_td2 (
 		      f,
-		      &td,
 		      _h5t_get_face_id ( local_did ),
-		      _h5t_get_elem_id ( local_did ) ) 
-		      );
+		      _h5t_get_elem_id ( local_did ),
+		      &td
+		      ) );
 	h5_id_t *tri = td->value.items;
 	h5_id_t *end = td->value.items+td->value.num_items;
 	for ( ; tri < end; tri++ ) {
@@ -646,14 +564,12 @@ _compute_sections_of_triangle (
 	h5_idlist_t *children
 	) {
 	h5t_fdata_t *t = f->t;
-	h5_td_node_t *td;
+	h5_td_entry_t *td;
 
 	TRY ( _h5t_find_td2 (
 		      f,
-		      &td,
 		      _h5t_get_face_id ( local_did ),
-		      _h5t_get_elem_id ( local_did ) ) 
-		);
+		      _h5t_get_elem_id ( local_did ), &td ) );
 	h5_id_t *tri = td->value.items;
 	h5_id_t *end = td->value.items+td->value.num_items;
 	int refined = 0;
@@ -696,10 +612,9 @@ _add_edge (
 	h5_id_t face_id,
 	h5_id_t local_eid
 	) {
-	h5_te_node_t *te;
-	TRY ( _h5t_find_te2 ( f, &te, face_id, local_eid ) );
+	h5_te_entry_t *te;
+	TRY ( _h5t_find_te2 ( f, face_id, local_eid, &te ) );
 	TRY ( _h5_search_idlist ( f, list, te->value.items[0] ) );
-
 	return H5_SUCCESS;
 }
 
@@ -740,8 +655,8 @@ _add_triangle (
 	h5_id_t face_id,
 	h5_id_t local_eid
 	) {
-	h5_td_node_t *td;
-	TRY ( _h5t_find_td2 ( f, &td, face_id, local_eid ) );
+	h5_td_entry_t *td;
+	TRY ( _h5t_find_td2 ( f, face_id, local_eid, &td ) );
 	TRY ( _h5_search_idlist ( f, list, td->value.items[0] ) );
 
 	return H5_SUCCESS;
