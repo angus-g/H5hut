@@ -42,7 +42,7 @@ bin_PROGRAMS = \
 		tetmesh_read \
 		tetmesh_adjacencies
 		trimesh_write \
-		trimesh_read \
+		trimesh_read
 
 #		map_tet2globalid \
 #		map_triangle2globalid
@@ -60,7 +60,7 @@ EXTRA_DIST = 	\
 		tetmesh_read.c \
 		tetmesh_adjacencies.c \
 		trimesh_write.c \
-		trimesh_read.c \
+		trimesh_read.c
 
 #		tetmesh_read.c \
 #		write_trianglemesh.c \
