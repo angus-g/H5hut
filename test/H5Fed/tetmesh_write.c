@@ -48,89 +48,36 @@ main (
 	int argc,
 	char *argv[]
 	) {
-	H5SetVerbosityLevel ( 4 );
+	H5SetVerbosityLevel ( 2 );
+	H5SetErrorHandler ( H5AbortErrorhandler );
 
 	h5_file_t *f = H5OpenFile ( "simple_tet.h5", H5_O_WRONLY, 0 );
-	if ( f == NULL ) {
-		fprintf ( stderr, "!!! Can't open file.\n" );
-		return -1;
-	}
-
-	h5_err_t h5err = H5FedAddMesh ( f, H5_TETRAHEDRAL_MESH );
-	if ( h5err < 0 ) {
-		fprintf ( stderr, "!!! Can't add mesh.\n" );
-		return -1;
-	}
-
+	H5FedAddMesh ( f, H5_TETRAHEDRAL_MESH );
 	int i;
 	H5FedBeginStoreVertices ( f, 5 );
 	for ( i = 0; i<5; i++ ) {
-		h5err = H5FedStoreVertex (
-			f,
-			-1,
-			V0[i].P );
-		if ( h5err < 0 ) {
-			fprintf ( stderr, "!!! Can't store vertex.\n" );
-			return -1;
-		}
+		H5FedStoreVertex ( f, -1, V0[i].P );
 	}
 	H5FedEndStoreVertices ( f );
 
 	H5FedBeginStoreElements ( f, 2 );
 	for ( i = 0; i<2; i++ ) {
-		h5err = H5FedStoreElement (
-			f,
-			T0[i].vids );
-		
-		if ( h5err < 0 ) {
-			fprintf ( stderr, "!!! Can't store tet.\n" );
-			return -1;
-		}
+		H5FedStoreElement ( f, T0[i].vids );
 	}
 	H5FedEndStoreElements ( f );
 
 	/* add 1. Level */
 	h5_id_t level_id = H5FedAddLevel( f );
-	if ( level_id < 0 ) {
-		fprintf ( stderr, "!!! Can't add level.\n" );
-		return -1;
-	}
-	h5err = H5FedBeginRefineElements ( f, 1 );
-	if ( h5err < 0 ) {
-		fprintf ( stderr, "!!! Can't set number of elements torefine.\n" );
-		return -1;
-	}
-
+	H5FedBeginRefineElements ( f, 1 );
 	h5_id_t elem_id = H5FedRefineElement ( f, 0 );
-	if ( elem_id < 0 ) {
-		fprintf ( stderr, "!!! Can't refine tet.\n" );
-		return -1;
-	}
 	H5FedEndRefineElements ( f );
 
 	/* add 2. Level */
 	level_id = H5FedAddLevel( f );
-	if ( level_id < 0 ) {
-		fprintf ( stderr, "!!! Can't add level.\n" );
-		return -1;
-	}
-	h5err = H5FedBeginRefineElements ( f, 1 );
-	if ( h5err < 0 ) {
-		fprintf ( stderr, "!!! Can't set number of elements torefine.\n" );
-		return -1;
-	}
-
+	H5FedBeginRefineElements ( f, 1 );
 	elem_id = H5FedRefineElement ( f, 2 );
-	if ( elem_id < 0 ) {
-		fprintf ( stderr, "!!! Can't refine tet.\n" );
-		return -1;
-	}
 	H5FedEndRefineElements ( f );
 
-	h5err = H5CloseFile ( f );
-	if ( h5err < 0 ) {
-		fprintf ( stderr, "!!! Can't close file.\n" );
-		return -1;
-	}
+	H5CloseFile ( f );
 	return 0;
 }
