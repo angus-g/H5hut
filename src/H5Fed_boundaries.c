@@ -63,15 +63,6 @@ H5FedStoreBoundaryface (
 }
 
 h5_err_t
-H5FedStoreBoundaryfaceGlobalID (
-	h5_file_t *f,
-	h5_id_t global_fid
-	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_store_boundaryface_global_id ( f, global_fid );
-}
-
-h5_err_t
 H5FedStoreBoundaryfaceLocalID (
 	h5_file_t *f,
 	h5_id_t local_fid
