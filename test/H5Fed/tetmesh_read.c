@@ -28,7 +28,7 @@ static h5_err_t
 traverse_vertices (
 	h5_file_t * f
 	) {
-	h5_id_t id, local_id;
+	h5_id_t local_id;
 	h5_float64_t P[3];
 	h5_size_t real_num = 0;
 
@@ -37,7 +37,7 @@ traverse_vertices (
 
 	H5FedBeginTraverseVertices ( f );
 	while ( (real_num < num) &&
-		((local_id = H5FedTraverseVertices ( f, &id, P )) >= 0) ) {
+		((local_id = H5FedTraverseVertices ( f, P )) >= 0) ) {
 		char v[256];
 		snprintf ( v, sizeof(v), "=%llx=", local_id );
 		printf ( "| %-18s | (%f, %f, %f) |\n",
@@ -67,7 +67,7 @@ traverse_edges (
 		char k[256];
 		h5_id_t local_vids[4];
 		snprintf ( k, sizeof(k), "=%llx=", local_id );
-		H5FedMapEntity2LocalVids ( f, local_id, local_vids );
+		H5FedLMapEdgeID2VertexIDs ( f, local_id, local_vids );
 		snprintf ( v, sizeof(v), "=[%lld,%lld]=",
 				   local_vids[0], local_vids[1] );
 		printf ( "| %-18s | %-18s |\n", k, v );
@@ -89,7 +89,7 @@ traverse_triangles (
 		char d[256];
 		h5_id_t local_vids[4];
 		snprintf ( d, sizeof(d), "=%llx=", local_id );
-		H5FedMapEntity2LocalVids ( f, local_id, local_vids );
+		H5FedLMapTriangleID2VertexIDs ( f, local_id, local_vids );
 		snprintf ( v, sizeof(v), "=[%lld,%lld,%lld]=",
 			   local_vids[0], local_vids[1], local_vids[2] );
 		printf ( "| %-18s | %-18s |\n", d, v );
@@ -102,7 +102,7 @@ static h5_err_t
 traverse_tets (
 	h5_file_t * f
 	) {
-	h5_id_t id, local_id, parent_id, vids[4];
+	h5_id_t local_id, vids[4];
 	h5_size_t real_num = 0;
 
 	h5_size_t num = H5FedGetNumElementsTotal ( f );
@@ -110,13 +110,12 @@ traverse_tets (
 
 	H5FedBeginTraverseElements ( f );
 	while ( (real_num < num) &&
-		((local_id = H5FedTraverseElements (
-			  f, &id, &parent_id, vids )) >= 0) ) {
+		((local_id = H5FedTraverseElements ( f, vids )) >= 0) ) {
 		char v[256];
 		char t[256];
 		h5_id_t local_vids[4];
 		snprintf ( t, sizeof(t), "=%llx=", local_id );
-		H5FedMapEntity2LocalVids ( f, local_id, local_vids );
+		H5FedLMapTetID2VertexIDs ( f, local_id, local_vids );
 		snprintf ( v, sizeof(v), "=[%lld,%lld,%lld,%lld]=",
 			   local_vids[0], local_vids[1], local_vids[2],local_vids[3] );
 		printf ( "| %-18s | %-18s |\n", t, v );
