@@ -1542,8 +1542,8 @@ H5BlockWriteFieldAttrib (
 	return _write_field_attrib (
 		f,
 		field_name,
-		attrib_name, (const hid_t)attrib_type, attrib_value,
-		(const hid_t)attrib_nelem );
+		attrib_name, (hid_t)attrib_type, attrib_value,
+		(hid_t)attrib_nelem );
 }
 
 /*!
@@ -1751,7 +1751,7 @@ H5Block3dSetFieldOrigin (
 		f,
 		field_name,
 		H5BLOCK_FIELD_ORIGIN_NAME,
-		(const hid_t)H5PART_FLOAT64, 
+		(hid_t)H5PART_FLOAT64, 
 		origin,
 		3 );
 }
@@ -1816,7 +1816,7 @@ H5Block3dSetFieldSpacing (
 		f,
 		field_name,
 		H5BLOCK_FIELD_SPACING_NAME,
-		(const hid_t)H5PART_FLOAT64, 
+		(hid_t)H5PART_FLOAT64, 
 		spacing,
 		3 );
 }
