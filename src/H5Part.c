@@ -349,7 +349,7 @@ H5PartWriteStepAttrib (
 		f,
 		f->step_gid,
 		attrib_name,
-		(const hid_t)attrib_type,
+		(hid_t)attrib_type,
 		attrib_value,
 		attrib_nelem );
 }
@@ -391,7 +391,7 @@ H5PartWriteFileAttrib (
 		f,
 		f->root_gid,
 		attrib_name,
-		(const hid_t)attrib_type,
+		(hid_t)attrib_type,
 		attrib_value,
 		attrib_nelem );
 }
