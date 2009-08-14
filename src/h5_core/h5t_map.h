@@ -3,7 +3,7 @@
 
 h5_id_t
 h5t_map_global_vid2local (
-	h5_file_t *f,
+	h5_file_t * const f,
 	h5_id_t global_vid
 	);
 
@@ -57,29 +57,42 @@ h5t_get_local_eid (
 	h5_id_t * const local_vids
 	);
 
-h5_id_t
-h5t_get_global_eid (
-	h5_file_t *f,
-	const h5_id_t * const global_vids
-	);
-
-h5_id_t
-h5t_get_global_triangle_id (
+h5_err_t
+h5t_get_local_vids_of_edge (
 	h5_file_t * const f,
-	h5_id_t * const global_vids
+	const h5_id_t id,
+	h5_id_t *edge
 	);
 
 h5_err_t
-h5t_get_local_vids_of_entity (
+h5t_get_local_vids_of_edge2 (
 	h5_file_t * const f,
-	h5_id_t local_id,
-	h5_id_t *local_vids
+	const h5_id_t face,
+	const h5_id_t id,
+	h5_id_t *vids
 	);
 
-h5_id_t
-h5t_map_local_vids_to_entity_id (
+h5_err_t
+h5t_get_local_vids_of_triangle (
 	h5_file_t * const f,
-	h5_id_t *local_vids,
-	h5_oid_t etype
+	const h5_id_t id,
+	h5_id_t *vids
 	);
+
+h5_err_t
+h5t_get_local_vids_of_triangle2 (
+	h5_file_t * const f,
+	const h5_id_t face,
+	const h5_id_t id,
+	h5_id_t *vids
+	);
+
+h5_err_t
+h5t_get_local_vids_of_tet (
+	h5_file_t * const f,
+	const h5_id_t id,
+	h5_id_t *vids
+	);
+
+
 #endif

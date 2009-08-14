@@ -27,8 +27,8 @@ _h5_hcreate_r (
 	h5_file_t* const f,
 	size_t __nel,
 	struct hsearch_data *__htab,
-	int (*compare)(const void*, const void*),
-	unsigned int (*compute_hash)(const void*)
+	int (*compare)(void*, void*),
+	unsigned int (*compute_hash)(void*)
 	);
 
 extern h5_err_t
@@ -48,6 +48,6 @@ extern void
 _h5_hwalk_r (
 	h5_file_t* f,
 	struct hsearch_data *__htab,
-	void (*visit)(void *__item)
+	void (*visit)(const void *__item)
 	);
 #endif

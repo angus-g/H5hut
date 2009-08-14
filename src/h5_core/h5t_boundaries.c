@@ -243,26 +243,6 @@ h5t_store_boundaryface (
 }
 
 h5_id_t
-h5t_store_boundaryface_global_id (
-	h5_file_t * const f,
-	const h5_id_t global_fid
-	) {
-	struct h5t_fdata *t = f->t;
-
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON: {
-		h5_id_t local_tid = h5t_map_global_triangle_id2local (
-			f, global_fid );
-		if ( local_tid < 0 ) return local_tid;
-		return h5t_store_boundaryface_local_id ( f, local_tid );
-	}
-	default:
-		return h5_error_not_implemented (
-			f, __FILE__, __func__, __LINE__ );
-	}
-}
-
-h5_id_t
 h5t_store_boundaryface_local_id (
 	h5_file_t * const f,
 	const h5_id_t local_fid

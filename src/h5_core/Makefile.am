@@ -52,6 +52,7 @@ EXTRA_HEADERS = \
 	h5t_boundaries_private.h \
 	h5t_consts_private.h \
 	h5t_errorhandling_private.h \
+	h5t_hsearch_private.h \
 	h5t_inquiry.h \
 	h5t_map.h \
 	h5t_openclose.h \
@@ -98,6 +99,7 @@ libH5_core_a_SOURCES = \
 	h5t_boundaries.c \
 	h5t_consts.c \
 	h5t_errorhandling.c \
+	h5t_hsearch.c \
 	h5t_inquiry.c \
 	h5t_map.c \
 	h5t_openclose.c \

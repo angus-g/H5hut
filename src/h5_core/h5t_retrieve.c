@@ -22,8 +22,7 @@ h5t_begin_traverse_vertices (
 
 h5_id_t
 h5t_traverse_vertices (
-	h5_file_t * f,			/*!< file handle		*/
-	h5_id_t * const id,		/*!< OUT: global vertex id	*/
+	h5_file_t * const f,		/*!< file handle		*/
 	h5_float64_t P[3]		/*!< OUT: coordinates		*/
 	) {
 	h5t_fdata_t *t = f->t;
@@ -34,7 +33,6 @@ h5t_traverse_vertices (
 		return H5_NOK;
 	}
 	h5_vertex_t *vertex = &t->vertices[++iter->cur_vid];
-	*id = vertex->global_vid;
 	memcpy ( P, &vertex->P, sizeof ( vertex->P ) );
 
 	return iter->cur_vid;
@@ -229,20 +227,15 @@ h5t_begin_traverse_elems (
 
 /*!
   \param[in]	f		file handle
-  \param[out]	global_eid	Global element id
-  \param[out]	local_parent_id	Local parent id
   \param[out]	vids		Local vertex id
 */
 h5_id_t
 h5t_traverse_elems (
 	h5_file_t * const f,
-	h5_id_t * const global_eid,
-	h5_id_t * const local_parent_id,
 	h5_id_t *local_vids
 	) {
 	h5t_fdata_t *t = f->t;
 	h5t_elem_iterator_t *iter = &t->iters.elem; 
-	h5_elem_t *elem;
 	h5_elem_ldta_t *elem_data;
 	h5_id_t local_child_eid;
 	h5_id_t refined_on_level = -1;
@@ -265,24 +258,6 @@ h5t_traverse_elems (
 	}
 	while ( refined_on_level <= t->cur_level );
 
-	switch ( t->mesh_type ) {
-	case H5_OID_TETRAHEDRON:
-		elem = (h5_elem_t*)&t->elems.tets[iter->cur_eid];
-		break;
-	case H5_OID_TRIANGLE:
-		elem = (h5_elem_t*)&t->elems.tris[iter->cur_eid];
-		break;
-	default:
-		return h5_error_internal (
-			f, __FILE__, __func__, __LINE__ );
-	}
-
-	if ( iter->cur_eid >= t->num_elems[t->cur_level] ) {
-		return h5_error_internal (
-			f, __FILE__, __func__, __LINE__ );
-	}
-	*global_eid = elem->global_eid;
-	*local_parent_id = elem_data->local_parent_eid;
 	memcpy (
 		local_vids,
 		elem_data->local_vids,

@@ -1,69 +1,63 @@
 #ifndef __H5T_TYPES_PRIVATE_H
 #define __H5T_TYPES_PRIVATE_H
 
-typedef h5_id_t h5_2id_t[2];
-typedef h5_id_t h5_3id_t[3];
-typedef h5_id_t h5_4id_t[4];
-typedef h5_float64_t h5_coord3d_t[3];
 
-struct h5_vertex {
+struct h5t_methods {
+	h5_err_t (*_alloc_elems)(h5_file_t * const, const size_t, const size_t);
+	h5_id_t (*_store_elem)(h5_file_t * const, const h5_id_t, const h5_id_t*);
+	h5_id_t (*_refine_elem)(h5_file_t * const, const h5_id_t);
+};
+
+typedef struct h5_vertex {
 	h5_id_t		global_vid;
 	h5_coord3d_t	P;
-};
-typedef struct h5_vertex	h5_vertex_t;
+} h5_vertex_t;
 
-struct h5_vertex_data {
+typedef struct h5_vertex_data {
 	h5_idlist_t	tv;
-};
-typedef struct h5_vertex_data h5_vertex_data_t;
+} h5_vertex_data_t;
 
-struct h5_triangle {
+typedef struct h5_triangle {
 	h5_id_t		global_eid;
 	h5_id_t		global_parent_eid;
 	h5_id_t		global_child_eid;
 	h5_3id_t	global_vids;
-};
-typedef struct h5_triangle	h5_triangle_t;
+} h5_triangle_t;
 
-struct h5_tetrahedron {
+typedef struct h5_tetrahedron {
 	h5_id_t		global_eid;
 	h5_id_t		global_parent_eid;
 	h5_id_t		global_child_eid;
 	h5_4id_t	global_vids;
-};
+} h5_tetrahedron_t;
+typedef h5_tetrahedron_t	h5_tet_t;
 
-struct h5_elem {
+typedef struct h5_elem {
 	h5_id_t		global_eid;
 	h5_id_t		global_parent_eid;
 	h5_id_t		global_child_eid;
 	h5_id_t		global_vids[1];
-};
+} h5_elem_t;
 
-typedef struct h5_tetrahedron	h5_tetrahedron_t;
-typedef struct h5_tetrahedron	h5_tet_t;
-typedef struct h5_elem		h5_elem_t;
-
-struct h5_elem_ldta {
+typedef struct h5_elem_ldta {
 	h5_id_t		local_parent_eid;
 	h5_id_t		local_child_eid;
 	h5_id_t		level_id;
 	h5_id_t		*local_vids;
-};
-typedef struct h5_elem_ldta	h5_elem_ldta_t;
+} h5_elem_ldta_t;
 
 
-union h5_elems {
+typedef union h5_elems {
 	h5_tet_t	*tets;
 	h5_triangle_t	*tris;
 	void		*data;
-};
-typedef union h5_elems h5_elems_t;
+} h5_elems_t;
 
 
 /*
   information about HDF5 dataset
 */
-struct h5_dataset_info {
+typedef struct h5_dataset_info {
 	char name[256];
 	int rank;
 	hsize_t dims[4];
@@ -72,11 +66,10 @@ struct h5_dataset_info {
 	hid_t *type_id;
 	hid_t create_prop;
 	hid_t access_prop;
-};
-typedef struct h5_dataset_info h5_dataset_info_t;
+} h5_dataset_info_t;
 
 
-struct boundary {
+typedef struct boundary {
 	char		name[16];
 	char		label[256];
 	h5_id_t		id;			/* name of boundary as integer */
@@ -90,8 +83,7 @@ struct boundary {
 	
 	h5_id_t		last_accessed_face;
 	h5_dataset_info_t	dsinfo;
-};
-typedef struct boundary boundary_t;
+} boundary_t;
 
 /*** type ids' for compound types ***/
 typedef struct h5_dtypes {
@@ -107,7 +99,7 @@ typedef struct h5_dtypes {
 } h5_dtypes_t;
 
 typedef struct h5_te_entry_key {
-	h5_2id_t vids;
+	h5_id_t vids[2];
 } h5_te_entry_key_t;
 
 typedef struct h5_te_entry {
@@ -124,24 +116,22 @@ typedef struct h5_td_entry {
 	h5_idlist_t value;
 } h5_td_entry_t;
 
-struct hsearch_data {
+typedef struct hsearch_data {
 	struct _ENTRY *table;
 	unsigned int size;
 	unsigned int filled;
-	int (*compare)(const void*, const void*);
-	unsigned int (*compute_hash)(const void*);
-};
-typedef struct hsearch_data h5_hashtable_t; 
+	int (*compare)(void*, void*);
+	unsigned int (*compute_hash)(void*);
+} h5_hashtable_t; 
 
 typedef struct h5t_adjacencies {
 	struct hsearch_data te_hash;
 	struct hsearch_data td_hash;
 } h5t_adjacencies_t;
 
-struct h5t_elem_iterator {
+typedef struct h5t_elem_iterator {
 	h5_id_t	cur_eid;
-};
-typedef struct h5t_elem_iterator h5t_elem_iterator_t;
+} h5t_elem_iterator_t;
 
 typedef struct h5t_vertex_iterator {
 	h5_id_t	cur_vid;
@@ -159,7 +149,7 @@ typedef struct h5t_iterators {
 	h5t_elem_iterator_t	elem;
 } h5t_iterators_t;
 
-struct h5t_fdata {
+typedef struct h5t_fdata {
 	/*** book-keeping ***/
 	char		mesh_name[16];
 	char		mesh_label[256];
@@ -183,6 +173,9 @@ struct h5t_fdata {
 	h5_dtypes_t	dtypes;
 
 	h5t_iterators_t	iters;		/* "build-in" iterators */
+
+	/*** functions to handle differnt mesh types ***/
+	struct h5t_methods methods;
 
 	/*** vertices ***/
 	h5_vertex_t	*vertices;
@@ -224,7 +217,6 @@ struct h5t_fdata {
 	h5t_adjacencies_t adjacencies;
 
 
-};
-typedef struct h5t_fdata h5t_fdata_t;
+} h5t_fdata_t;
 
 #endif

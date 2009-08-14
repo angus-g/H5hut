@@ -21,6 +21,7 @@
 #include "h5t_boundaries_private.h"
 #include "h5t_consts_private.h"
 #include "h5t_errorhandling_private.h"
+#include "h5t_hsearch_private.h"
 #include "h5t_map_private.h"
 #include "h5t_readwrite_private.h"
 #include "h5t_retrieve_private.h"

@@ -285,7 +285,6 @@ _build_elems_ldta (
 		}
 		el_data->level_id = level_id;
 	}
-
 	return H5_SUCCESS;
 }
 
@@ -295,7 +294,7 @@ _read_elems (
 	) {
 	h5t_fdata_t *t = f->t;
 
-	TRY( _h5t_alloc_num_elems ( f, 0, t->num_elems[t->num_levels-1] ) );
+	TRY( (*t->methods._alloc_elems)( f, 0, t->num_elems[t->num_levels-1] ) );
 	TRY( _h5_read (
 		     f,
 		     t->mesh_gid,
@@ -306,6 +305,7 @@ _read_elems (
 
 	TRY ( _h5t_sort_elems ( f ) );
 	TRY ( _h5t_rebuild_global_2_local_map_of_elems ( f ) );
+
 	TRY ( _build_elems_ldta ( f ) );
 	TRY ( _h5t_rebuild_adj_data ( f ) );
 	return H5_SUCCESS;

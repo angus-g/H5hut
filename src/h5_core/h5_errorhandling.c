@@ -333,7 +333,7 @@ h5_set_funcname (
 	h5_file_t * const f,
 	const char * const fname
 	) {
-	f->__funcname = (char * const) fname;
+	f->__funcname = (char *) fname;
 }
 
 /*!

@@ -30,12 +30,6 @@ h5t_store_boundaryface (
 	);
 
 h5_id_t
-h5t_store_boundaryface_global_id (
-	h5_file_t * const f,
-	const h5_id_t global_fid
-	);
-
-h5_id_t
 h5t_store_boundaryface_local_id (
 	h5_file_t * const f,
 	const h5_id_t local_fid

@@ -39,10 +39,15 @@ typedef int64_t			h5_err_t;
 typedef double			h5_float64_t;
 typedef float			h5_float32_t;
 
-struct h5_complex {
+typedef struct h5_complex {
 	h5_float64_t		r,i;
-};
-typedef struct h5_complex	h5_complex_t;
+} h5_complex_t;
+
+typedef h5_id_t h5_2id_t[2];
+typedef h5_id_t h5_3id_t[3];
+typedef h5_id_t h5_4id_t[4];
+typedef h5_float64_t h5_coord3d_t[3];
+
 
 struct h5_file;
 typedef h5_err_t (*h5_errorhandler_t)(

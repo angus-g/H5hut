@@ -10,6 +10,18 @@
 #include "h5_core/h5_core.h"
 #include "h5_core/h5_core_private.h"
 
+static struct h5t_methods tet_funcs = {
+	_h5t_alloc_tets,
+	_h5t_store_tet,
+	_h5t_refine_tet
+};
+
+static struct h5t_methods tri_funcs = {
+	_h5t_alloc_tris,
+	_h5t_store_tri,
+	_h5t_refine_tri
+};
+
 /*
   create several HDF5 types
 */
@@ -431,13 +443,14 @@ h5t_open_mesh (
 	switch( type ) {
 	case H5_OID_TETRAHEDRON:
 		t->elem_tid = t->dtypes.h5_tet_t;
+		t->methods = tet_funcs;
 		break;
 	case H5_OID_TRIANGLE:
 		t->elem_tid = t->dtypes.h5_triangle_t;
+		t->methods = tri_funcs;
 		break;
 	default:
-		return h5_error_internal (
-			f, __FILE__, __func__, __LINE__ );
+		return h5_error_internal ( f, __FILE__, __func__, __LINE__ );
 	}
 
 	TRY( _h5t_open_mesh_group ( f ) );

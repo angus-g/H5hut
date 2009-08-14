@@ -9,10 +9,18 @@
 #include "h5_core/h5_core.h"
 #include "h5_core/h5_core_private.h"
 
+/*!
+  Get number of meshes of given type.
+
+  \param[in]	f	File handle
+  \param[in]	type_id	Type of mesh we want the number of.
+
+  \return	Number of meshes of type \c type_id or error code.
+ */
 h5_size_t
 h5t_get_num_meshes (
 	h5_file_t * const f,
-	const enum h5_oid type
+	const enum h5_oid type_id
 	) {
 	struct h5t_fdata *t = f->t;
 
@@ -24,17 +32,22 @@ h5t_get_num_meshes (
 	}
 	TRY( t->num_meshes = (h5_size_t)hdf5_get_num_objects (
 			t->topo_gid,
-			_h5t_meshes_grpnames[type],
+			_h5t_meshes_grpnames[type_id],
 			H5G_GROUP ) );
 
 	return t->num_meshes;
 }
 
-/*
+/*!
+  Get the number of hierarchical mesh levels.
+
+  \param[in]	f	File handle
+
+  \return	Number of hierarchical mesh levels or error code.
  */
 h5_size_t
 h5t_get_num_levels (
-	h5_file_t * f
+	h5_file_t * const f
 	) {
 	h5t_fdata_t *t = f->t;
 
@@ -44,122 +57,75 @@ h5t_get_num_levels (
 	return t->num_levels;
 }
 
+/*!
+  Get current level.
 
-/*
-  query number of topological elems:
+  \param[in]	f	File handle.
 
-  * on this cnode on current level
-    H5FedGetNumXXX(), h5t_get_num_elems()
-
-  * on given cnode on current level
-    H5FedGetNumXXXCnode(), h5t_get_num_elems_cnode()
-
-  * on this cnode on current level total (internal)
-    _h5t_get_num_elems_total()
-
-  * on given cnode on current level total (internal)
-  * on all cnodes on current level
-    H5FedGetNumXXXCnodeTotal()
-  * on all cnodes on current level total (internal)
-
-  * on this cnode on given level
-    H5FedGetNumXXXOnLevel()
-  * on this cnode on given level total (internal)
-  * on given cnode on given level
-    H5FedGetNumXXXCnodeOnLevel()
-  * on given cnode on given level total (internal)
-  * on all cnodes on given level
-    H5FedGetNumXXXTotalOnLevel()
-  * on all cnodes on given level total (internal)
-
-
-  * on this cnode on last level (internal)
-  * on given cnode on last level (internal)
-  * on this cnode on last level total (internal)
-  * on given cnode on last level total (internal)
-  * on all cnodes on last level (internal)
-  * on all cnodes on last level total (internal)
-  
+  \return	Current level ID.
 */
-
-/*!
-  Return number of elems on compute node \c cnode_id
-  and level \c level_id.  If \cnode_id is equal \c -1 return the 
-  number of elems in the entire mesh. If \level_id is equal \c -1
-  return the number of elems in the last level.
-
-  \remark
-  Refined elems are *not* counted.
- */
-h5_size_t
-h5t_get_num_elems (
-	h5_file_t * f,
-	h5_id_t cnode_id,
-	h5_id_t level_id
-	) {
-	h5t_fdata_t *t = f->t;
-
-	if ( t->cur_mesh < 0 ) {
-		return _h5t_error_undef_mesh ( f );
-	}
-	if ( level_id < 0 || level_id >= t->num_levels ) {
-		return HANDLE_H5_OUT_OF_RANGE_ERR ( f, "Level", level_id );
-	}
-	return t->num_elems_on_level[level_id];
-}
-
-/*!
-  Return number of all elems on compute node \c cnode_id
-  and level \c level_id including refined elems.   If
-  \cnode_id is equal \c -1 return the number of elems
-  in the entire mesh. If \level_id is equal \c -1
-  return the number of elems in the last level.
- */
-h5_size_t
-h5t_get_num_elems_total (
-	h5_file_t * f,
-	h5_id_t cnode_id,
-	h5_id_t level_id
-	) {
-	h5t_fdata_t *t = f->t;
-	if ( t->cur_mesh < 0 ) {
-		return _h5t_error_undef_mesh ( f );
-	}
-	if ( level_id < 0 || level_id >= t->num_levels ) {
-		return HANDLE_H5_OUT_OF_RANGE_ERR ( f, "Level", level_id );
-	}
-	return t->num_elems[level_id];
-}
-
-/*!
-  Return number of vertices on compute node \c cnode_id
-  and level \c level_id.  If \cnode_id is equal \c -1 return the 
-  number of vertices in the entire mesh. If \level_id is equal \c -1
-  return the number of vertices in the last level.
-
-  \remark
-  There is nothing like "refined vertices".
- */
-h5_size_t
-h5t_get_num_vertices (
-	h5_file_t * f,
-	h5_id_t cnode_id,
-	h5_id_t level_id
-	) {
-	h5t_fdata_t *t = f->t;
-
-	if ( t->cur_mesh < 0 ) {
-		return _h5t_error_undef_mesh ( f );
-	}
-	if ( level_id < 0 || level_id >= t->num_levels ) {
-		return HANDLE_H5_OUT_OF_RANGE_ERR ( f, "Level", level_id );
-	}
-	return t->num_vertices[level_id];
-}
-
 h5_id_t
 h5t_get_level (
 	h5_file_t * f
 	) {
 	return f->t->cur_level;
 }
+
+/*!
+  Return number of elems on compute node \c cnode_id on
+  current level. If \cnode_id is equal \c -1 return the 
+  number of elements in the entire mesh.
+
+  \remark
+  Refined elems are *not* counted.
+
+  \param[in]	f	File handle.
+  \param[in]	cnode	Compute node
+
+  \return	Number of elements or error code.
+ */
+h5_size_t
+h5t_get_num_elems (
+	h5_file_t * const f,
+	const h5_id_t cnode
+	) {
+	h5t_fdata_t *t = f->t;
+
+	if ( t->cur_mesh < 0 ) {
+		return _h5t_error_undef_mesh ( f );
+	}
+	if ( t->cur_level < 0 ) {
+		return _h5t_error_undef_level ( f );
+	}
+	return t->num_elems_on_level[t->cur_level];
+}
+
+/*!
+  Return number of vertices on compute node \c cnode_id
+  on current level.  If \cnode_id is equal \c -1 return the 
+  number of vertices in the entire mesh.
+
+  \remark
+  There is nothing like "refined vertices".
+
+  \param[in]	f	File handle.
+  \param[in]	cnode	Compute node
+
+  \return	Number of vertices or error code.
+ */
+h5_size_t
+h5t_get_num_vertices (
+	h5_file_t * f,
+	h5_id_t cnode
+	) {
+	h5t_fdata_t *t = f->t;
+
+	if ( t->cur_mesh < 0 ) {
+		return _h5t_error_undef_mesh ( f );
+	}
+	if ( t->cur_level < 0 ) {
+		return _h5t_error_undef_level ( f );
+	}
+	return t->num_vertices[t->cur_level];
+}
+

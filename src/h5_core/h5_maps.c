@@ -117,6 +117,9 @@ _h5_sort_idlist_by_eid (
 	return H5_SUCCESS;
 }
 
+/*
+  Find ID in sorted list
+*/
 h5_id_t
 _h5_find_idlist (
 	h5_file_t * const f,
@@ -138,6 +141,9 @@ _h5_find_idlist (
        	return -(low+1);  // not found
 }
 
+/*
+  Add item to list at position given by \c idx.
+*/
 h5_id_t
 _h5_insert_idlist (
 	h5_file_t * const f,
@@ -163,6 +169,9 @@ _h5_insert_idlist (
 	return idx;
 }
 
+/*
+  Search in sorted list. If item is not in list, add it.
+ */
 h5_id_t
 _h5_search_idlist (
 	h5_file_t * const f,

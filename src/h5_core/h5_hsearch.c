@@ -64,8 +64,8 @@ _h5_hcreate_r (
 	h5_file_t * const f,
 	size_t nel,
 	h5_hashtable_t *htab,
-	int (*compare)(const void*, const void*),
-	unsigned int (*compute_hash)(const void*)
+	int (*compare)(void*, void*),
+	unsigned int (*compute_hash)(void*)
 	) {
 	/* Test for correct arguments.  */
 	if (htab == NULL || htab->table != NULL) {
@@ -89,6 +89,10 @@ _h5_hcreate_r (
 	return H5_SUCCESS;
 }
 
+/*
+  Grow hash table. Do nothing if requested number of elements is less than
+  or equal the current size.
+ */
 h5_err_t
 _h5_hresize_r (
 	h5_file_t * const f,
@@ -98,12 +102,14 @@ _h5_hresize_r (
 	if ( htab == NULL || htab->table == NULL ) {
 		h5_error_internal ( f, __FILE__, __func__, __LINE__ );
 	}
+	if ( htab->size >= nel ) return H5_SUCCESS;
 	h5_hashtable_t __htab;
 	memset ( &__htab, 0, sizeof ( __htab ) );
 	nel += htab->size;
 	h5_debug ( f, "Resize hash table from %u to %lu elements.",
 		   htab->size, nel );
-	TRY ( _h5_hcreate_r ( f, nel, &__htab, htab->compare, htab->compute_hash ) );
+	TRY ( _h5_hcreate_r (
+		      f, nel, &__htab, htab->compare, htab->compute_hash ) );
 	unsigned int idx;
 	for ( idx = 1; idx <= htab->size; idx++ ) {
 		if ( htab->table[idx].used ) {
@@ -234,7 +240,7 @@ void
 _h5_hwalk_r (
 	h5_file_t* f,
 	struct hsearch_data *htab,
-	void (*visit)(void *item)
+	void (*visit)(const void *item)
 	) {
 	unsigned int idx = 1;
 	for ( idx = 1; idx < htab->size; idx++ ) {
