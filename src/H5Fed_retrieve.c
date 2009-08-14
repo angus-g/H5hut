@@ -19,41 +19,74 @@
 #include "h5_core/h5_core.h"
 #include "H5Fed.h"
 
+
+/*!
+  Begin traverse over all vertices on this compute node. 
+  Initialize internal data structures.
+
+  \remark
+  Vertices can be on processor boundaries! Therefore the same vertex can be
+  processed on several compute nodes.
+
+  \param[in]	f	file handle
+
+  \return	H5_SUCCESS or error code
+*/
 h5_err_t
 H5FedBeginTraverseVertices (
-	h5_file_t * const f		/*!< file handle		*/
+	h5_file_t * const f
 	) {
 	SET_FNAME ( f, __func__ );
 	return h5t_begin_traverse_vertices ( f );
 }
 
 /*!
-  \ingroup h5fed_c_api
-
   Get coordinates of next vertex.
 
-  \return local id
-  \return error code (H5_ERR_NOENT means no more vertices on this level)
- 
- */
+  \param[in]	f	file handle
+  \param[out]	P	3-dimensional coordinates
+
+  \return	Local vertex ID
+  \return	-1, if done
+  \return	error code on error
+  */
 h5_id_t
 H5FedTraverseVertices (
-	h5_file_t * const f,		/*!< file handle		*/
-	h5_id_t	* const id,		/*!< OUT: global id		*/
-	h5_float64_t P[3]		/*!< OUT: coordinates		*/
+	h5_file_t * const f,
+	h5_float64_t P[3]
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_traverse_vertices ( f, id, P );
+	return h5t_traverse_vertices ( f, P );
 }
 
+/*!
+  End of traversing. Release internal data structures.
+
+  \param[in]	f	File handle
+
+  \return	H5_SUCCESS or error code
+ 
+ */
 h5_err_t
 H5FedEndTraverseVertices (
-	h5_file_t * const f		/*!< file handle		*/
+	h5_file_t * const f
 	) {
 	SET_FNAME ( f, __func__ );
 	return h5t_end_traverse_vertices ( f );
 }
 
+/*!
+  Begin traverse over all edges on this compute node. 
+  Initialize internal data structures.
+
+  \remark
+  Edges can be on processor boundaries! Therefore the same edge can be
+  processed on several compute nodes.
+
+  \param[in]	f	file handle
+
+  \return	H5_SUCCESS or error code
+*/
 h5_err_t
 H5FedBeginTraverseEdges (
 	h5_file_t * const f  		/*!< file handle		*/
@@ -62,15 +95,32 @@ H5FedBeginTraverseEdges (
 	return h5t_begin_traverse_edges ( f );
 }
 
+/*!
+  Get local edge id and vertices of next edge.
+
+  \param[in]	f	file handle
+  \param[out]	vids	local vertex IDs
+
+  \return	Local edge ID
+  \return	-1, if done
+  \return	error code on error
+  */
 h5_id_t
 H5FedTraverseEdges (
 	h5_file_t * const f,
-	h5_id_t * const local_vids
+	h5_id_t * const vids
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_traverse_edges ( f, local_vids );
+	return h5t_traverse_edges ( f, vids );
 }
 
+/*!
+  End of traversing. Release internal data structures.
+
+  \param[in]	f	File handle
+
+  \return	H5_SUCCESS or error code
+  */
 h5_err_t
 H5FedEndTraverseEdges (
 	h5_file_t * const f		/*!< file handle		*/
@@ -79,6 +129,18 @@ H5FedEndTraverseEdges (
 	return h5t_end_traverse_edges ( f );
 }
 
+/*!
+  Begin traverse over all triangles on this compute node. 
+  Initialize internal data structures.
+
+  \remark
+  Triangles can be on processor boundaries! Therefore the same vertex can be
+  processed on several compute nodes.
+
+  \param[in]	f	file handle
+
+  \return	H5_SUCCESS or error code
+*/
 h5_err_t
 H5FedBeginTraverseTriangles (
 	h5_file_t * const f
@@ -87,15 +149,32 @@ H5FedBeginTraverseTriangles (
 	return h5t_begin_traverse_triangles ( f );
 }
 
+/*!
+  Get local triangle ID and vertices of next triangle.
+
+  \param[in]	f	file handle
+  \param[out]	vids	local vertex IDs
+
+  \return	Local triangle ID
+  \return	-1, if done
+  \return	error code on error
+  */
 h5_id_t
 H5FedTraverseTriangles (
 	h5_file_t * const f,
-	h5_id_t * const local_vids
+	h5_id_t * const vids
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_traverse_triangles ( f, local_vids );
+	return h5t_traverse_triangles ( f, vids );
 }
 
+/*!
+  End of traversing. Release internal data structures.
+
+  \param[in]	f	File handle
+
+  \return	H5_SUCCESS or error code
+  */
 h5_err_t
 H5FedEndTraverseTriangles (
 	h5_file_t * const f
@@ -104,6 +183,18 @@ H5FedEndTraverseTriangles (
 	return h5t_end_traverse_triangles ( f );
 }
 
+/*!
+  Begin traverse over all elements on this compute node. 
+  Initialize internal data structures.
+
+  \remark
+  Elements are unique per compute node. Ghost elements are *not* return 
+  while traversing.
+
+  \param[in]	f	file handle
+
+  \return	H5_SUCCESS or error code
+*/
 h5_err_t
 H5FedBeginTraverseElements (
 	h5_file_t * const f
@@ -113,35 +204,31 @@ H5FedBeginTraverseElements (
 }
 
 /*!
-  \ingroup h5fed_c_api
+  Get local element ID and vertices of next element.
 
-  Get the definition of a specific tetrahedron \c tetra_id, i.e. 
-  a 4-tuple containing the specific indices of the 3-dimensional vertex
-  coordinates.
+  \param[in]	f	file handle
+  \param[out]	vids	local vertex IDs
 
-  \param[in]	f		File handle.
-  \param[out]	global_eid	The global element id.
-  \param[out]	local_parent_eid The local element id of the parent or \c -1
-  \param[in]	local_vids	Local vertex id's.
-
-  \return \c H5_SUCCESS or error code.
-*/
-
+  \return	Local element ID
+  \return	-1, if done
+  \return	error code on error
+  */
 h5_id_t
 H5FedTraverseElements (
 	h5_file_t * const f,
-	h5_id_t * const global_eid,
-	h5_id_t * const local_parent_eid,
-	h5_id_t * const local_vids
+	h5_id_t * const vids
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_traverse_elems (
-		f,
-		global_eid,
-		local_parent_eid,
-		local_vids );
+	return h5t_traverse_elems ( f, vids );
 }
 
+/*!
+  End of traversing. Release internal data structures.
+
+  \param[in]	f	File handle
+
+  \return	H5_SUCCESS or error code
+  */
 h5_id_t
 H5FedEndTraverseElements (
 	h5_file_t * const f
