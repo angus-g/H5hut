@@ -22,128 +22,148 @@
 #include "h5_core/h5_core.h"
 #include "H5Fed.h"
 
+/*!
+  Get number of meshes of given type.
+
+  \param[in]	f	File handle
+  \param[in]	type_id	Type of mesh we want the number of.
+
+  \return	Number of meshes of type \c type_id or error code.
+ */
 h5_size_t
-H5FedGetNumMeshes (
+H5FedGetNumMeshes ( 
 	h5_file_t * const f,
-	const h5_oid_t mesh_type_id
+	const h5_oid_t type_id
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_get_num_meshes ( f, mesh_type_id );
+	return h5t_get_num_meshes ( f, type_id );
 }
 
 /*!
-  \ingroup h5fed_c_api
+  Get the number of hierarchical mesh levels.
 
-  Get the number of hierarchical mesh levels available in current step.
+  \param[in]	f	File handle
 
-  \return Number of hierarchical mesh levels
-  \return \c -1 on error
+  \return	Number of hierarchical mesh levels or error code.
  */
 h5_size_t
 H5FedGetNumLevels (
-	h5_file_t * const f		/*!< file handle		*/
+	h5_file_t * const f
 	) {
 	SET_FNAME ( f, __func__ );
 	return h5t_get_num_levels ( f );
 }
 
+/*!
+  Get current mesh levels.
+
+  \param[in]	f	File handle
+
+  \return	ID of current mesh levels or error code.
+ */
 h5_id_t
 H5FedGetLevel (
-	h5_file_t * const f		/*!< file handle		*/
+	h5_file_t * const f
 	) {
 	SET_FNAME ( f, __func__ );
 	return h5t_get_level ( f );
 }
 
 /*!
-  Get number of local vertices on current level.
+  Returns the number of vertices used for defining the (sub-)mesh
+  at current level on this compute node.
+
+  \param[in]	f	file handle
+
+  \return	Number of vertices or error code.
 */
 h5_size_t
 H5FedGetNumVertices (
 	h5_file_t * const f		/*!< file handle		*/
 	) {
 	SET_FNAME ( f, __func__ );
-	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_vertices ( f, f->myproc, cur_level );
+	return h5t_get_num_vertices ( f, f->myproc );
 }
 
 /*!
-  \ingroup h5fed_mesh_inquiry
+  Returns the number of vertices used for defining the (sub-)mesh
+  at current level on compute node \c cnode.
 
-  Get the total number of vertices used for defining a submesh
-  at level \c level in current step, summed up over all compute nodes.
+  \param[in]	f	file handle
+  \param[in]	cnode	compute node
 
-  \return number of vertices
-  \return \c -1	on error.
+  \return	Number of vertices or error code.
 */
 h5_size_t
-H5FedGetNumVerticesTotal(
-	h5_file_t * const f			/*!< file handle		*/
+H5FedGetNumVerticesCnode (
+	h5_file_t * const f,
+	const h5_id_t cnode
 	) {
 	SET_FNAME ( f, __func__ );
-	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_vertices ( f, -1, cur_level );
+	return h5t_get_num_vertices ( f, cnode );
 }
 
 /*!
-  \ingroup h5fed_mesh_inquiry
+  Returns the number of vertices used for defining the (sub-)mesh
+  at current level overl all compute nodes.
 
-  Returns the number of vertices used for defining a submesh
-  at level \c level for compute node \c cnode.
+  \param[in]	f	file handle
 
-  \return number of vertices
-q  \return \c -1	on error.
+  \return	Total number of vertices or error code.
 */
-h5_size_t H5FedGetNumVerticesCnode (
-	h5_file_t * const f,		/*!< file handle		*/
-	const h5_id_t cnode		/*!< compute node		*/
+h5_size_t
+H5FedGetNumVerticesTotal (
+	h5_file_t * const f
 	) {
 	SET_FNAME ( f, __func__ );
-	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_vertices ( f, cnode, cur_level );
+	return h5t_get_num_vertices ( f, -1 );
 }
 
 /*!
-  \ingroup h5fed_mesh_inquiry
+  Returns the number of elements present in the (sub-)mesh
+  at current level on this compute node.
 
-  Returns the number of tetrahedral elements present in the mesh at 
-  current \c level summed up over all compute nodes.
+  \param[in]	f	file handle
 
-  \return number of tetrahedra
-  \return \c -1 on error.
+  \return	Number of elements or error code.
 */
 h5_size_t
 H5FedGetNumElements (
-	h5_file_t * const f		/*!< file handle		*/
+	h5_file_t * const f
 	) {
 	SET_FNAME ( f, __func__ );
-	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_elems ( f, f->myproc, cur_level );
-}
-
-h5_size_t
-H5FedGetNumElementsTotal (
-	h5_file_t * const f		/*!< file handle		*/
-	) {
-	SET_FNAME ( f, __func__ );
-	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_elems ( f, -1, cur_level );
+	return h5t_get_num_elems ( f, f->myproc );
 }
 
 /*!
-  \ingroup h5fed_mesh_inquiry
+  Returns the number of elements present in the (sub-)mesh
+  at current level on compute node \c cnode.
 
-  Returns the number of tetrahedral elements present in the mesh at 
-  level \c level in current step on compute nodes \c computenode.
+  \param[in]	f	file handle
+  \param[in]	cnode	Compute node
 
-  \return number of tetrahedra
-  \return \c -1 on error.
+  \return	Number of elements or error code.
 */
-h5_size_t H5FedGetNumElementsCnode (
-	h5_file_t * const f,		/*!< file handle		*/
-	const h5_id_t cnode		/*!< compute node to query	*/
+h5_size_t
+H5FedGetNumElementsCnode (
+	h5_file_t * const f,
+	const h5_id_t cnode
 	) {
 	SET_FNAME ( f, __func__ );
-	h5_id_t cur_level = h5t_get_level( f );
-	return h5t_get_num_elems ( f, cnode, cur_level );
+	return h5t_get_num_elems ( f, cnode );
+}
+/*!
+  Returns the number of elements present in the mesh
+  at current level over all compute nodes.
+
+  \param[in]	f	File handle.
+
+  \return	Number of elements or error code.
+*/
+h5_size_t
+H5FedGetNumElementsTotal (
+	h5_file_t * const f
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_get_num_elems ( f, -1 );
 }
