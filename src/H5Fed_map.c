@@ -22,32 +22,32 @@
 #include "h5_core/h5_core.h"
 #include "H5Fed.h"
 
-h5_id_t
-H5FedMapTet2GlobalID (
-	h5_file_t * const f,
-	h5_id_t * const global_vids
-	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_global_eid ( f, global_vids );
-}
-
-
 h5_err_t
-H5FedMapEntity2LocalVids (
+H5FedLMapEdgeID2VertexIDs (
 	h5_file_t * const f,
 	h5_id_t local_id,
 	h5_id_t *local_vids
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_get_local_vids_of_entity ( f, local_id, local_vids );
+	return h5t_get_local_vids_of_edge ( f, local_id, local_vids );
 }
 
-h5_id_t
-H5FedMapLocalVids2Entity (
+h5_err_t
+H5FedLMapTriangleID2VertexIDs (
 	h5_file_t * const f,
-	h5_id_t *local_vids,
-	h5_oid_t etype
+	h5_id_t local_id,
+	h5_id_t *local_vids
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_map_local_vids_to_entity_id ( f, local_vids, etype );
+	return h5t_get_local_vids_of_triangle ( f, local_id, local_vids );
+}
+
+h5_err_t
+H5FedLMapTetID2VertexIDs (
+	h5_file_t * const f,
+	h5_id_t local_id,
+	h5_id_t *local_vids
+	) {
+	SET_FNAME ( f, __func__ );
+	return h5t_get_local_vids_of_tet ( f, local_id, local_vids );
 }
