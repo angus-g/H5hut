@@ -1226,10 +1226,6 @@ H5PartWriteFileAttribString (
 
   Writes a string attribute bound to the current time-step.
 
-  This function creates a new attribute \c name with the string \c value as
-  content. The attribute is bound to the current time step in the file given
-  by the file handle \c f.
-
   If the attribute already exists an error will be returned. There
   is currently no way to change the content of an existing attribute.
 
@@ -1239,8 +1235,8 @@ H5PartWriteFileAttribString (
 h5part_int64_t
 H5PartWriteStepAttribString (
 	H5PartFile *f,		/*!< [in] Handle to open file */
-	const char *attrib_name,/*!< [in] Name of attribute to create */
-	const char *attrib_value/*!< [in] Value of attribute */ 
+	const char *name,	/*!< [in] Name of attribute to create */
+	const char *value	/*!< [in] Value of attribute */ 
 	) {
 
 	SET_FNAME ( "H5PartWriteStepAttribString" );
@@ -1251,10 +1247,80 @@ H5PartWriteStepAttribString (
 
 	h5part_int64_t herr = _H5Part_write_attrib (
 		f->timegroup,
-		attrib_name,
+		name,
 		H5T_NATIVE_CHAR,
-		attrib_value,
-		strlen ( attrib_value ) + 1 );
+		value,
+		strlen ( value ) + 1 );
+	if ( herr < 0 ) return herr;
+
+	return H5PART_SUCCESS;
+}
+
+/*!
+  \ingroup h5part_attrib
+
+  Writes an int32 attribute bound to the current time-step.
+
+  If the attribute already exists an error will be returned. There
+  is currently no way to change the content of an existing attribute.
+
+  \return	\c H5PART_SUCCESS or error code   
+*/
+
+h5part_int64_t
+H5PartWriteStepAttribInt32 (
+	H5PartFile *f,			/*!< [in] Handle to open file */
+	const char *name,		/*!< [in] Name of attribute to create */
+	const h5part_int32_t value	/*!< [in] Value of attribute */ 
+	) {
+
+	SET_FNAME ( "H5PartWriteStepAttribInt32" );
+
+	CHECK_FILEHANDLE ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	h5part_int64_t herr = _H5Part_write_attrib (
+		f->timegroup,
+		name,
+		H5T_NATIVE_INT32,
+		&value,
+		1 );
+	if ( herr < 0 ) return herr;
+
+	return H5PART_SUCCESS;
+}
+
+/*!
+  \ingroup h5part_attrib
+
+  Writes a float32 attribute bound to the current time-step.
+
+  If the attribute already exists an error will be returned. There
+  is currently no way to change the content of an existing attribute.
+
+  \return	\c H5PART_SUCCESS or error code   
+*/
+
+h5part_int64_t
+H5PartWriteStepAttribFloat32 (
+	H5PartFile *f,			/*!< [in] Handle to open file */
+	const char *name,		/*!< [in] Name of attribute to create */
+	const h5part_float32_t value	/*!< [in] Value of attribute */ 
+	) {
+
+	SET_FNAME ( "H5PartWriteStepAttribFloat32" );
+
+	CHECK_FILEHANDLE ( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_TIMEGROUP( f );
+
+	h5part_int64_t herr = _H5Part_write_attrib (
+		f->timegroup,
+		name,
+		H5T_NATIVE_FLOAT,
+		&value,
+		1 );
 	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;

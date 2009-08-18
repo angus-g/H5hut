@@ -52,6 +52,7 @@ extern "C" {
 
 /* data types */
 #define H5PART_INT64		((h5part_int64_t)H5T_NATIVE_INT64)
+#define H5PART_INT32		((h5part_int64_t)H5T_NATIVE_INT32) 
 #define H5PART_FLOAT64		((h5part_int64_t)H5T_NATIVE_DOUBLE)
 #define H5PART_FLOAT32		((h5part_int64_t)H5T_NATIVE_FLOAT)
 #define H5PART_CHAR		((h5part_int64_t)H5T_NATIVE_CHAR)
@@ -286,14 +287,28 @@ h5part_int64_t
 H5PartWriteFileAttribString (
 	H5PartFile *f,
 	const char *name,
-	const char *attrib
+	const char *value
 	);
 
 h5part_int64_t
 H5PartWriteStepAttribString ( 
 	H5PartFile *f,
 	const char *name,
-	const char *attrib
+	const char *value
+	);
+
+h5part_int64_t
+H5PartWriteStepAttribInt32 ( 
+	H5PartFile *f,
+	const char *name,
+	const h5part_int32_t value
+	);
+
+h5part_int64_t
+H5PartWriteStepAttribFloat32 ( 
+	H5PartFile *f,
+	const char *name,
+	const h5part_float32_t value
 	);
 
 h5part_int64_t
@@ -330,14 +345,14 @@ h5part_int64_t
 H5PartReadStepAttrib (
 	H5PartFile *f,
 	const char *name,
-	void *data
+	void *value
 	);
 
 h5part_int64_t
 H5PartReadFileAttrib (
 	H5PartFile *f,
 	const char *name,
-	void *data
+	void *value
 	);
 
 h5part_int64_t

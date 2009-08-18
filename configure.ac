@@ -25,6 +25,12 @@ AC_ARG_ENABLE(
 	[USE_DEBUG=$enableval])
 
 AC_ARG_ENABLE(
+	[shared],
+	[AC_HELP_STRING([--enable-shared],
+	[Compile with shared library support [default=no]])],
+	[USE_SHARED=$enableval])
+
+AC_ARG_ENABLE(
 	[64],
 	[AC_HELP_STRING([--enable-64],
 	[Compile using 64-bit flags [default=no]])],
@@ -223,6 +229,17 @@ AC_MSG_CHECKING([if debug is enabled])
 if test "X$USE_DEBUG" = "Xyes"; then
     AC_MSG_RESULT([yes])
     CFLAGS="$CFLAGS -g"
+else
+    AC_MSG_RESULT([no])
+fi
+
+# shared library
+AC_MSG_CHECKING([if shared libraries are enabled])
+
+if test "X$USE_SHARED" = "Xyes"; then
+    AC_MSG_RESULT([yes])
+    CFLAGS="$CFLAGS -fPIC"
+    FFLAGS="$FFLAGS -fPIC"
 else
     AC_MSG_RESULT([no])
 fi
