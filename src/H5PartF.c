@@ -326,14 +326,16 @@ h5pt_opena_align (
 h5part_int64_t
 h5pt_openr_par (
 	const char *file_name,
-	MPI_Comm *comm,
+	MPI_Fint *fcomm,
 	const int l_file_name
 	) {
+
+	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
 
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
 	H5PartFile* f = H5PartOpenFileParallel (
-		file_name2, H5PART_READ, *comm );
+		file_name2, H5PART_READ, ccomm );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
@@ -342,14 +344,15 @@ h5pt_openr_par (
 h5part_int64_t
 h5pt_openw_par (
 	const char *file_name,
-	MPI_Comm *comm,
+	MPI_Fint *fcomm,
 	const int l_file_name
 	) {
 
+	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
 	H5PartFile* f = H5PartOpenFileParallel (
-		file_name2, H5PART_WRITE, *comm );
+		file_name2, H5PART_WRITE, ccomm );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
@@ -358,31 +361,33 @@ h5pt_openw_par (
 h5part_int64_t
 h5pt_opena_par (
 	const char *file_name,
-	MPI_Comm *comm,
+	MPI_Fint *fcomm,
 	const int l_file_name
 	) {
 	
+	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
        
-       H5PartFile* f = H5PartOpenFileParallel (
-               file_name2, H5PART_APPEND, *comm );
+	H5PartFile* f = H5PartOpenFileParallel (
+	       file_name2, H5PART_APPEND, ccomm );
        
-       free ( file_name2 );
-       return (h5part_int64_t)(size_t)f;
+	free ( file_name2 );
+	return (h5part_int64_t)(size_t)f;
 }
 
 h5part_int64_t
 h5pt_openr_par_align (
 	const char *file_name,
-	MPI_Comm *comm,
+	MPI_Fint *fcomm,
 	const h5part_int64_t *align,
 	const int l_file_name
 	) {
 
+	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 
 	H5PartFile* f = H5PartOpenFileParallelAlign (
-		file_name2, H5PART_READ, *comm, *align );
+		file_name2, H5PART_READ, ccomm, *align );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
@@ -391,20 +396,21 @@ h5pt_openr_par_align (
 h5part_int64_t
 h5pt_openw_par_align (
 	const char *file_name,
-	MPI_Comm *comm,
+	MPI_Fint *fcomm,
 	const h5part_int64_t *align,
 	const char *flags,
 	const int l_file_name,
 	const int l_flags
 	) {
 
+	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
 
 	char fbits = H5PART_WRITE | _H5Part_flagsfor2c ( flags2 );
 
 	H5PartFile* f = H5PartOpenFileParallelAlign (
-		file_name2, fbits, *comm, *align );
+		file_name2, fbits, ccomm, *align );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f; 
@@ -413,20 +419,21 @@ h5pt_openw_par_align (
 h5part_int64_t
 h5pt_opena_par_align (
 	const char *file_name,
-	MPI_Comm *comm,
+	MPI_Fint *fcomm,
 	const h5part_int64_t *align,
 	const char *flags,
 	const int l_file_name,
 	const int l_flags
 	) {
 	
+	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
 	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
        
 	char fbits = H5PART_APPEND | _H5Part_flagsfor2c ( flags2 );
 
 	H5PartFile* f = H5PartOpenFileParallelAlign (
-		file_name2, fbits, *comm, *align );
+		file_name2, fbits, ccomm, *align );
 
 	free ( file_name2 );
 	return (h5part_int64_t)(size_t)f;
