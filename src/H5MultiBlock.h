@@ -29,10 +29,10 @@ H5MultiBlock3dDefineRadii (
 
 h5part_int64_t
 H5MultiBlock3dDefineDims (
-        H5PartFile *f,
-        const h5part_int64_t *field_dims,
-        const h5part_int64_t *block_dims
-        );
+	H5PartFile *f,
+	const h5part_int64_t *field_dims,
+	const h5part_int64_t *block_dims
+	);
 
 h5part_int64_t
 H5MultiBlock3dGetFieldDims(
@@ -43,7 +43,7 @@ H5MultiBlock3dGetFieldDims(
 h5part_int64_t
 H5MultiBlock3dGetBlockDims(
 	H5PartFile *f,
-        const char *field_name,
+	const char *field_name,
 	h5part_int64_t *dims
 	);
 
@@ -63,6 +63,12 @@ H5MultiBlock3dCalculateDecomp (
 h5part_int64_t
 H5MultiBlockFree (
 	void *block
+	);
+
+h5part_int64_t
+H5MultiBlockShiftProcs (
+	H5PartFile *f,
+	const int shift
 	);
 
 #ifdef __cplusplus

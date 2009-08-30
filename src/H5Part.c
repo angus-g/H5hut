@@ -169,7 +169,6 @@ _H5Part_open_file (
 	if ( f_parallel ) {
 #ifdef PARALLEL_IO
 		MPI_Info info = MPI_INFO_NULL;
-		MPI_Info_create(&info);
 
 		if (MPI_Comm_size (comm, &f->nprocs) != MPI_SUCCESS) {
 			HANDLE_MPI_COMM_SIZE_ERR;
@@ -185,14 +184,6 @@ _H5Part_open_file (
 		if (f->pnparticles == NULL) {
 			HANDLE_H5PART_NOMEM_ERR;
 			goto error_cleanup;
-		}
-
-		/* set IBM_largeblock_io for GPFS filesystems */
-		if (flags & H5PART_FS_GPFS) {
-			if (f->myproc == 0) {
-				_H5Part_print_info ( "Setting IBM_largeblock_io hint." );
-			}
-			MPI_Info_set ( info, "IBM_largeblock_io", "true" );
 		}
 
 		/* select the HDF5 VFD */
@@ -237,6 +228,7 @@ _H5Part_open_file (
 			}
 			f->create_prop = H5Pcreate(H5P_FILE_CREATE);
 			H5Pset_istore_k (f->create_prop, H5PART_BTREE_IK);
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
 			/* defer metadata cache flushing until file close */
 			H5AC_cache_config_t cache_config;
 			cache_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
@@ -248,9 +240,11 @@ _H5Part_open_file (
 			cache_config.flash_incr_mode = H5C_flash_incr__off;
 			cache_config.decr_mode = H5C_decr__off;
 			H5Pset_mdc_config (f->access_prop, &cache_config);
+#elif
+			_H5Part_print_info (
+					"Unable to defer metadata write: need HDF5 1.8");
+#endif
 		}
-
-		MPI_Info_free(&info);
 
 		f->comm = comm;
 #endif
@@ -383,7 +377,7 @@ H5PartOpenFileParallel (
 	SET_FNAME ( "H5PartOpenFileParallel" );
 
 	int f_parallel = 1;	/* parallel i/o */
-	int align = 0;		/* no tuning parameters */
+	h5part_int64_t align = 0; /* no alignment tuning */
 
 	return _H5Part_open_file ( filename, flags, comm, f_parallel, align );
 }
@@ -404,7 +398,7 @@ H5PartOpenFileParallelAlign (
 	h5part_int64_t align	/*!< [in] Alignment size in bytes. */
 	) {
 
-	SET_FNAME ( "H5PartOpenFileParallel" );
+	SET_FNAME ( "H5PartOpenFileParallelAlign" );
 
 	int f_parallel = 1;	/* parallel i/o */
 
@@ -3111,12 +3105,12 @@ _H5Part_print_debug_detail (
 
 void
 _H5Part_set_funcname (
-	char * const fname
+	char *fname
 	) {
 	__funcname = fname;
 }
 
-char * const
+char*
 _H5Part_get_funcname (
 	void
 	) {

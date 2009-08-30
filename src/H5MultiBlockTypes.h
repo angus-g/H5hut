@@ -12,6 +12,7 @@ struct H5MultiBlockStruct {
 	int read;
 	int halo;
 	int have_decomp;
+        int proc_shift;
 };
 
 #define H5PART_ERR_DECOMP	-102

@@ -9,12 +9,6 @@
 extern "C" {
 #endif
 
-#ifdef MPI_INCLUDED
-#ifndef PARALLEL_IO
-#define PARALLEL_IO
-#endif
-#endif
-
 #include "H5PartTypes.h"
 
 #include "H5Block.h"
@@ -40,7 +34,6 @@ extern "C" {
 #define H5PART_APPEND		0x04
 #define H5PART_VFD_MPIPOSIX	0x08
 #define H5PART_FS_LUSTRE	0x10
-#define H5PART_FS_GPFS		0x20
 
 /* verbosity level flags */
 #define H5PART_VERB_NONE	0

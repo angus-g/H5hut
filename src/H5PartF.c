@@ -226,8 +226,6 @@ _H5Part_flagsfor2c (
 				fbits |= H5PART_VFD_MPIPOSIX;
 		else if ( strcmp ( flags, "fs_lustre" ) == 0 )
 		    		fbits |= H5PART_FS_LUSTRE;
-		else if (strcmp ( flags, "fs_gpfs" ) == 0 )
-		    		fbits |= H5PART_FS_GPFS;
 		flags = strtok ( NULL, "," );
 	}
 

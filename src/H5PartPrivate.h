@@ -44,10 +44,10 @@ _H5Part_iteration_operator (
 
 void
 _H5Part_set_funcname (
-	char * const fname
+	char *fname
 	);
 
-char * const
+char*
 _H5Part_get_funcname (
 	void
 	);

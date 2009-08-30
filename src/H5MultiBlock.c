@@ -124,9 +124,10 @@ _get_decomp_and_offsets (
 			mb->decomp[1],
 			mb->decomp[0] );
 
-	k = f->myproc % mb->decomp[2];
-	j = (f->myproc / mb->decomp[2]) % mb->decomp[1];
-	i = f->myproc / (mb->decomp[2] * mb->decomp[1]);
+        int rank = (f->myproc + mb->proc_shift) % f->nprocs;
+	k = rank % mb->decomp[2];
+	j = (rank / mb->decomp[2]) % mb->decomp[1];
+	i = rank / (mb->decomp[2] * mb->decomp[1]);
 
 	/* keep track of blocks that border the edges of the field */
 	if (i == 0)			mb->field_edges |= H5MB_EDGE_Z0;
@@ -761,6 +762,7 @@ _H5MultiBlock_init (
 	mb->halo = 0;
 	mb->read = 0;
 	mb->have_decomp = 0;
+        mb->proc_shift = 0;
 
 	return H5PART_SUCCESS;
 }
@@ -1256,5 +1258,33 @@ H5MultiBlockFree (
 	return H5PART_SUCCESS;
 }
 
-#endif
+/*!
+  \ingroup h5multiblock_c_api
+
+  Shifts the assignment of procs to blocks within the field.
+
+  This is useful mainly for I/O benchmarking, in order to defeat the write
+  cache when reading in data that was just written out.
+
+  \return \c H5PART_SUCCESS
+*/
+h5part_int64_t
+H5MultiBlockShiftProcs (
+	H5PartFile *f,			/* IN: file handle */
+	const int shift			/* IN: shift amount (non-negative) */
+	) {
+
+	SET_FNAME ( "H5MultiBlockShiftProcs" );
+	MULTIBLOCK_INIT ( f );
+
+	if ( shift < 0 ) return H5PART_ERR_INVAL;
+
+	struct H5MultiBlockStruct *mb = f->multiblock;
+
+	mb->proc_shift = shift;
+
+	return H5PART_SUCCESS;
+}
+
+#endif // PARALLEL_IO
 
