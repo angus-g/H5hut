@@ -10,6 +10,7 @@
 /README -text
 /autogen.sh -text
 /config.guess -text
+/config.h.in -text
 /config.sub -text
 /configure.ac -text
 /depcomp -text

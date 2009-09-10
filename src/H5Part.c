@@ -1687,7 +1687,7 @@ _H5Part_set_step (
 	f->timestep = step;
 
 	if( f->mode & H5PART_READ ) {
-		_H5Part_print_info (
+		_H5Part_print_debug (
 			"Proc[%d]: Set step to #%lld for file %lld",
 			f->myproc,
 			(long long)step,
