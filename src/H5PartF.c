@@ -43,7 +43,7 @@
 					h5pt_opena_align_,		\
 					H5PT_OPENA_ALIGN )
 #define h5pt_openr_par_align F77NAME (					\
-					h5pt_openr_par_align,		\
+					h5pt_openr_par_align_,		\
 					H5PT_OPENR_PAR_ALIGN )
 #define h5pt_openw_par_align F77NAME (					\
 					h5pt_openw_par_align_,		\

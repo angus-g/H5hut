@@ -901,7 +901,7 @@ _H5MultiBlock_read_data (
 		_H5Part_print_debug_detail (
 			"[%d] Waiting on read token from %d",
 			f->myproc, f->myproc - 1);
-		// wait to receive token before continuing with write
+		// wait to receive token before continuing with read
 		ret = MPI_Recv(
 			&token, 1, MPI_INT,
 			f->myproc - 1, // receive from previous proc
