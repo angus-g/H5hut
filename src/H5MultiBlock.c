@@ -14,15 +14,31 @@
 
   * All blocks must be the same size (a requirement of the HDF5 chunking
     mechanism).
+
   * The block dimensions must divide the field dimensions, to prevent fringe
     data that will lower performance by interfering with contiguous I/O
     operations.
+
   * For load-balancing purposes, the total number of blocks that the field
     is decomposed into must be a multiple of the number of nodes in the
     distributed system. (For ease of implementation, we require that the
     number of blocks equal the number of nodes.)
 
 */
+
+/*!
+  \ingroup h5multiblock_c_api
+  \defgroup h5multiblock_write	File Writing
+*/  
+/*!
+  \ingroup h5multiblock_c_api
+  \defgroup h5multiblock_read		File Reading
+*/  
+/*!
+  \ingroup h5multiblock_c_api
+  \defgroup h5multiblock_attrib	Reading and Writing Attributes
+*/
+
 
 /*!
   \internal
@@ -1115,7 +1131,7 @@ _H5MultiBlock_write_data (
 *******************************************************************************/
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_write
 
   Define the radius for halo exchanges between the blocks. Blocks on the edges
   of the field will be padded with zero values out to the radius.
@@ -1143,7 +1159,7 @@ H5MultiBlock3dDefineRadius (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_write
 
   Define the radii for halo exchanges between the blocks. Blocks on the edges
   of the field will be padded with zero values out to the radius.
@@ -1175,7 +1191,7 @@ H5MultiBlock3dDefineRadii (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_write
 
   Define the field and block dimensions for writing.
 
@@ -1211,7 +1227,7 @@ H5MultiBlock3dDefineDims (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_read
 
   Returns the field dimensions of the last field that was read.
 
@@ -1240,7 +1256,7 @@ H5MultiBlock3dGetFieldDims(
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_read
 
   Returns the block dimensions of the last field that was read.
 
@@ -1270,7 +1286,7 @@ H5MultiBlock3dGetBlockDims(
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_read
 
   Return the offsets for the block belonging to processor \c proc.
 
@@ -1326,7 +1342,7 @@ H5MultiBlock3dCalculateDecomp (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_read
 
   Frees a \c block that was allocated during a read.
 

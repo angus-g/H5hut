@@ -15,6 +15,19 @@
 */
 
 /*!
+  \ingroup h5block_c_api
+  \defgroup h5block_write	File Writing
+*/  
+/*!
+  \ingroup h5block_c_api
+  \defgroup h5block_read		File Reading
+*/  
+/*!
+  \ingroup h5block_c_api
+  \defgroup h5block_attrib	Reading and Writing Attributes
+*/
+
+/*!
   \note
   Different field sizes are allowed in the same time-step.
 
@@ -706,7 +719,7 @@ _release_hyperslab (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_write
 
   Define the field layout given the dense index space at the actual
   time step.
@@ -757,7 +770,7 @@ H5BlockDefine3DFieldLayout(
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_write
 
   Define the chunk dimensions and enable chunking in the underlying
   HDF5 dataset.
@@ -795,7 +808,7 @@ H5BlockDefine3DChunkDims(
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_read
 
   Lookup the chunk dimensions of the underlying HDF5 dataset.
 
@@ -854,7 +867,7 @@ H5BlockGet3DChunkDims(
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_read
 
   Return partition of processor \c proc as specified with
   \c H5BlockDefine3dLayout().
@@ -894,7 +907,7 @@ H5Block3dGetPartitionOfProc (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_read
 
   Return reduced (ghost-zone free) partition of processor \c proc
   as specified with \c H5BlockDefine3dLayout().
@@ -935,7 +948,7 @@ H5Block3dGetReducedPartitionOfProc (
 
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_read
 
   Returns the processor computing the reduced (ghostzone-free) 
   partition given by the coordinates \c i, \c j and \c k.
@@ -1449,7 +1462,7 @@ _H5Block_write_data (
 /********************** query information about available fields *************/
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_read
 
   Query number of fields in current time step.
 
@@ -1537,7 +1550,7 @@ _get_field_info (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_read
 
   Get the name, rank and dimensions of the field specified by the
   index \c idx.
@@ -1578,7 +1591,7 @@ H5BlockGetFieldInfo (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_read
 
   Get the rank and dimensions of the field specified by its name.
 
@@ -1638,7 +1651,7 @@ _write_field_attrib (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_attrib
 
   Write \c attrib_value with type \c attrib_type as attribute \c attrib_name
   to field \c field_name.
@@ -1668,7 +1681,7 @@ H5BlockWriteFieldAttrib (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_attrib
 
   Write string \c attrib_value as attribute \c attrib_name to field
   \c field_name..
@@ -1696,7 +1709,7 @@ H5BlockWriteFieldAttribString (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_attrib
 
   Query the number of attributes of field \c field_name.
 
@@ -1727,7 +1740,7 @@ H5BlockGetNumFieldAttribs (
 
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_attrib
 
   Query information about a attribute given by index \c attrib_idx and
   field name \c field_name. The function returns the name of the attribute,
@@ -1803,7 +1816,7 @@ _read_field_attrib (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_attrib
 
   Read attribute \c attrib_name of field \c field_name.
 
@@ -1827,7 +1840,7 @@ H5BlockReadFieldAttrib (
 
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_attrib
 
   Get field origin.
 
@@ -1861,7 +1874,7 @@ H5Block3dGetFieldOrigin (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_attrib
 
   Set field origin.
 
@@ -1893,7 +1906,7 @@ H5Block3dSetFieldOrigin (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_attrib
 
   Get field spacing for field \c field_name in the current time step.
 
@@ -1927,7 +1940,7 @@ H5Block3dGetFieldSpacing (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_attrib
 
   Set field spacing for field \c field_name in the current time step.
 
@@ -1959,7 +1972,7 @@ H5Block3dSetFieldSpacing (
 }
 
 /*!
-  \ingroup h5block_c_api
+  \ingroup h5block_read
 */
 /*
   Checks whether the current time-step has field data or not.

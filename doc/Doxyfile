@@ -84,6 +84,9 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 INPUT                  += ../src/H5Part.c
 INPUT		       += ../src/H5Block.c
+INPUT		       += ../src/H5MultiBlock.c
+INPUT		       += ../src/H5BlockReadWrite.c
+INPUT		       += ../src/H5MultiBlockReadWrite.c
 FILE_PATTERNS          = 
 RECURSIVE              = YES
 EXCLUDE                =

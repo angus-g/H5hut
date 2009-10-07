@@ -79,7 +79,7 @@ H5Block#DIM#dReadScalarField#TYPE_ABV# (
 
 write_scalar_c = """
 /*!
-  \\ingroup h5block_c_api
+  \\ingroup h5block_write
 
   Write a 3-dimensional field \\c name from the buffer starting at \\c data
   to the current time-step using the defined field layout. Values are
@@ -117,7 +117,7 @@ H5Block#DIM#dWriteScalarField#TYPE_ABV# (
 
 read_scalar_c = """
 /*!
-  \\ingroup h5block_c_api
+  \\ingroup h5block_read
 
   Read a 3-dimensional field \\c name into the buffer starting at \\c data from
   the current time-step using the defined field layout. Values are
@@ -246,7 +246,7 @@ H5Block#DIM#dRead3dVectorField#TYPE_ABV# (
 
 write_vector_c = """
 /*!
-  \\ingroup h5block_c_api
+  \\ingroup h5block_write
 */
 /*!
   Write a 3-dimensional field \\c name with 3-dimensional vectors as values
@@ -292,7 +292,7 @@ H5Block#DIM#dWrite3dVectorField#TYPE_ABV# (
 
 read_vector_c = """
 /*!
-  \\ingroup h5block_c_api
+  \\ingroup h5block_read
 */
 /*!
   Read a 3-dimensional field \\c name with 3-dimensional vectors as values
@@ -426,7 +426,7 @@ H5BlockWriteFieldAttrib#TYPE_ABV# (
 
 write_attr_c = """
 /*!
-  \\ingroup h5block_c_api
+  \\ingroup h5block_attrib
 
   Write \\c attrib_value with type #TYPE_FULL# as attribute \\c attrib_name
   to field \\c field_name.

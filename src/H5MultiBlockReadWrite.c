@@ -11,7 +11,7 @@
 #include "H5MultiBlockPrivate.h"
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_write
 
   Write a multiblock field \c name from the buffer starting at \c data
   to the current time-step using the defined block decomposition and dimensions.
@@ -39,7 +39,7 @@ H5MultiBlock3dWriteFieldFloat64 (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_read
 
   Allocate a buffer to hold a block from a multiblock field and place the
   pointer in \c data, then read the block into the buffer. Uses the block
@@ -68,7 +68,7 @@ H5MultiBlock3dReadFieldFloat64 (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_write
 
   Write a multiblock field \c name from the buffer starting at \c data
   to the current time-step using the defined block decomposition and dimensions.
@@ -96,7 +96,7 @@ H5MultiBlock3dWriteFieldFloat32 (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_read
 
   Allocate a buffer to hold a block from a multiblock field and place the
   pointer in \c data, then read the block into the buffer. Uses the block
@@ -125,7 +125,7 @@ H5MultiBlock3dReadFieldFloat32 (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_write
 
   Write a multiblock field \c name from the buffer starting at \c data
   to the current time-step using the defined block decomposition and dimensions.
@@ -153,7 +153,7 @@ H5MultiBlock3dWriteFieldInt64 (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_read
 
   Allocate a buffer to hold a block from a multiblock field and place the
   pointer in \c data, then read the block into the buffer. Uses the block
@@ -182,7 +182,7 @@ H5MultiBlock3dReadFieldInt64 (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_write
 
   Write a multiblock field \c name from the buffer starting at \c data
   to the current time-step using the defined block decomposition and dimensions.
@@ -210,7 +210,7 @@ H5MultiBlock3dWriteFieldInt32 (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_read
 
   Allocate a buffer to hold a block from a multiblock field and place the
   pointer in \c data, then read the block into the buffer. Uses the block

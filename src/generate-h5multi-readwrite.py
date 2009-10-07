@@ -77,7 +77,7 @@ H5MultiBlock#DIM#dReadField#TYPE_ABV# (
 
 write_c = """
 /*!
-  \\ingroup h5multiblock_c_api
+  \\ingroup h5multiblock_write
 
   Write a multiblock field \\c name from the buffer starting at \\c data
   to the current time-step using the defined block decomposition and dimensions.
@@ -107,7 +107,7 @@ H5MultiBlock#DIM#dWriteField#TYPE_ABV# (
 
 read_c = """
 /*!
-  \\ingroup h5multiblock_c_api
+  \\ingroup h5multiblock_read
 
   Allocate a buffer to hold a block from a multiblock field and place the
   pointer in \\c data, then read the block into the buffer. Uses the block
