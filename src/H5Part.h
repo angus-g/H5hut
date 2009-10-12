@@ -34,6 +34,7 @@ extern "C" {
 #define H5PART_APPEND		0x04
 #define H5PART_VFD_MPIPOSIX	0x08
 #define H5PART_FS_LUSTRE	0x10
+#define H5PART_VFD_MPIIO_IND	0x20
 
 /* verbosity level flags */
 #define H5PART_VERB_NONE	0

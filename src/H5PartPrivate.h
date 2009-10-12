@@ -52,6 +52,12 @@ _H5Part_get_funcname (
 	void
 	);
 
+#define INIT do {\
+	if ( _init() < 0 ) {\
+		HANDLE_H5PART_INIT_ERR;\
+		return NULL;\
+	}}while(0);
+
 #define SET_FNAME( fname )	_H5Part_set_funcname( fname );
 
 hid_t

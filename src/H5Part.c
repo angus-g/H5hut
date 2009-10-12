@@ -137,10 +137,6 @@ _H5Part_open_file (
 					  metadata block size, etc.
 					  Set to 0 to disable. */
 	) {
-	if ( _init() < 0 ) {
-		HANDLE_H5PART_INIT_ERR;
-		return NULL;
-	}
 	_h5part_errno = H5PART_SUCCESS;
 	H5PartFile *f = NULL;
 
@@ -204,14 +200,19 @@ _H5Part_open_file (
 				HANDLE_H5P_SET_FAPL_ERR;
 				goto error_cleanup;
 			}
-			f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
-			if (f->xfer_prop < 0) {
-				HANDLE_H5P_CREATE_ERR;
-				goto error_cleanup;
-			}
-			if (H5Pset_dxpl_mpio ( f->xfer_prop, H5FD_MPIO_COLLECTIVE ) < 0) {
-				HANDLE_H5P_SET_DXPL_MPIO_ERR;
-				goto error_cleanup;
+			if (flags & H5PART_VFD_MPIIO_IND) {
+				_H5Part_print_info ( "Using independent mode" );
+			} else {
+				_H5Part_print_info ( "Using collective mode" );
+				f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
+				if (f->xfer_prop < 0) {
+					HANDLE_H5P_CREATE_ERR;
+					goto error_cleanup;
+				}
+				if (H5Pset_dxpl_mpio ( f->xfer_prop, H5FD_MPIO_COLLECTIVE ) < 0) {
+					HANDLE_H5P_SET_DXPL_MPIO_ERR;
+					goto error_cleanup;
+				}
 			}
 		}
 
@@ -373,7 +374,7 @@ H5PartOpenFileParallel (
 	const char flags,	/*!< [in] The access mode for the file. */
 	MPI_Comm comm		/*!< [in] MPI communicator */
 	) {
-
+	INIT
 	SET_FNAME ( "H5PartOpenFileParallel" );
 
 	int f_parallel = 1;	/* parallel i/o */
@@ -397,7 +398,7 @@ H5PartOpenFileParallelAlign (
 	MPI_Comm comm,		/*!< [in] MPI communicator */
 	h5part_int64_t align	/*!< [in] Alignment size in bytes. */
 	) {
-
+	INIT
 	SET_FNAME ( "H5PartOpenFileParallelAlign" );
 
 	int f_parallel = 1;	/* parallel i/o */
@@ -432,7 +433,7 @@ H5PartOpenFile (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	const char flags	/*!< [in] The access mode for the file. */
 	) {
-
+	INIT
 	SET_FNAME ( "H5PartOpenFile" );
 
 	MPI_Comm comm = 0;	/* dummy */
@@ -456,7 +457,8 @@ H5PartOpenFileAlign (
 	const char flags,	/*!< [in] The access mode for the file. */
 	h5part_int64_t align	/*!< [in] Alignment size in bytes. */
 ) {
-	SET_FNAME ( "H5PartOpenFile" );
+	INIT
+	SET_FNAME ( "H5PartOpenFileAlign" );
 
 	MPI_Comm comm = 0;	/* dummy */
 	int f_parallel = 0;	/* serial open */
@@ -673,7 +675,7 @@ H5PartSetNumParticles (
 	if ( f->myproc == 0 ) {
 		_H5Part_print_debug ( "Particle offsets:" );
 		for(i=0;i<f->nprocs;i++) 
-			_H5Part_print_debug ( "\tnp=%lld",
+			_H5Part_print_debug ( "\t[%d] np=%lld", i,
 					      (long long) f->pnparticles[i] );
 	}
 	/* should I create a selection here? */
@@ -760,7 +762,6 @@ _write_data (
 	if ( dataset_id < 0 )
 		return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
 
-#ifdef COLLECTIVE_IO
 	herr = H5Dwrite (
 		dataset_id,
 		type,
@@ -768,15 +769,6 @@ _write_data (
 		f->diskshape,
 		f->xfer_prop,
 		array );
-#else
-	herr = H5Dwrite (
-		dataset_id,
-		type,
-		f->memshape,
-		f->diskshape,
-		H5P_DEFAULT,
-		array );
-#endif
 
 	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
 
