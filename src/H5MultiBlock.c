@@ -906,29 +906,8 @@ _H5MultiBlock_read_data (
 	herr = _H5Block_select_hyperslab_for_reading ( f, dataset_id );
 	if ( herr < 0 ) return herr;
 
-#if H5PART_THROTTLE > 0
-	int ret;
-	int token = 1;
-	if (f->myproc == 0) {
-		_H5Part_print_info ("Using throttled reads with factor = %d",
-			H5PART_THROTTLE);
-	}
-	if (f->myproc % H5PART_THROTTLE > 0) {
-		_H5Part_print_debug_detail (
-			"[%d] Waiting on read token from %d",
-			f->myproc, f->myproc - 1);
-		// wait to receive token before continuing with read
-		ret = MPI_Recv(
-			&token, 1, MPI_INT,
-			f->myproc - 1, // receive from previous proc
-			f->myproc, // use this proc id as message tag
-			f->comm,
-			MPI_STATUS_IGNORE
-			);
-		if ( ret != MPI_SUCCESS ) return HANDLE_MPI_SENDRECV_ERR;
-	}
-	_H5Part_print_debug_detail ("[%d] Executing read", f->myproc);
-#endif
+	herr = _H5Part_start_throttle( f );
+	if (herr < 0) return herr;
 
 	herr = H5Dread ( 
 		dataset_id,
@@ -939,23 +918,8 @@ _H5MultiBlock_read_data (
 		*data );
 	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( field_name, f->timestep );
 
-#if H5PART_THROTTLE > 0
-	if (f->myproc % H5PART_THROTTLE < H5PART_THROTTLE - 1) {
-		// pass token to next proc 
-		if (f->myproc + 1 < f->nprocs) {
-			_H5Part_print_debug_detail (
-				"[%d] Passing read token to %d",
-				f->myproc, f->myproc + 1);
-			ret = MPI_Send(
-				&token, 1, MPI_INT,
-				f->myproc + 1, // send to next proc
-				f->myproc + 1, // use the id of the target as tag
-				f->comm
-				);
-		}
-		if ( ret != MPI_SUCCESS ) return HANDLE_MPI_SENDRECV_ERR;
-	}
-#endif
+	herr = _H5Part_end_throttle( f );
+	if (herr < 0) return herr;
 
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
@@ -1056,30 +1020,9 @@ _H5MultiBlock_write_data (
 #endif
 	if ( dataset < 0 ) return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
 
-#if H5PART_THROTTLE > 0
-	int ret;
-	int token = 1;
-	if (f->myproc == 0) {
-		_H5Part_print_info ("Using throttled writes with factor = %d",
-			H5PART_THROTTLE);
-	}
-	if (f->myproc % H5PART_THROTTLE > 0) {
-		_H5Part_print_debug_detail (
-			"[%d] Waiting on write token from %d",
-			f->myproc, f->myproc - 1);
-		// wait to receive token before continuing with write
-		ret = MPI_Recv(
-			&token, 1, MPI_INT,
-			f->myproc - 1, // receive from previous proc
-			f->myproc, // use this proc id as message tag
-			f->comm,
-			MPI_STATUS_IGNORE
-			);
-		if ( ret != MPI_SUCCESS ) return HANDLE_MPI_SENDRECV_ERR;
-	}
-	_H5Part_print_debug_detail ("[%d] Executing write", f->myproc);
-#endif
-		
+	herr = _H5Part_start_throttle( f );
+	if (herr < 0) return herr;
+
 	herr = H5Dwrite ( 
 		dataset,
 		type,
@@ -1089,23 +1032,8 @@ _H5MultiBlock_write_data (
 		data );
 	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
 
-#if H5PART_THROTTLE > 0
-	if (f->myproc % H5PART_THROTTLE < H5PART_THROTTLE - 1) {
-		// pass token to next proc 
-		if (f->myproc + 1 < f->nprocs) {
-			_H5Part_print_debug_detail (
-				"[%d] Passing write token to %d",
-				f->myproc, f->myproc + 1);
-			ret = MPI_Send(
-				&token, 1, MPI_INT,
-				f->myproc + 1, // send to next proc
-				f->myproc + 1, // use the id of the target as tag
-				f->comm
-				);
-		}
-		if ( ret != MPI_SUCCESS ) return HANDLE_MPI_SENDRECV_ERR;
-	}
-#endif
+	herr = _H5Part_end_throttle( f );
+	if (herr < 0) return herr;
 
 	herr = H5Dclose ( dataset );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;

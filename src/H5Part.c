@@ -147,6 +147,9 @@ _H5Part_open_file (
 	}
 	memset (f, 0, sizeof (H5PartFile));
 
+	f->flags = flags;
+	f->throttle = 0;
+
 	f->groupname_step = strdup ( H5PART_GROUPNAME_STEP );
 	if( f->groupname_step == NULL ) {
 		HANDLE_H5PART_NOMEM_ERR;
@@ -201,9 +204,13 @@ _H5Part_open_file (
 				goto error_cleanup;
 			}
 			if (flags & H5PART_VFD_MPIIO_IND) {
-				_H5Part_print_info ( "Using independent mode" );
+				if (f->myproc == 0) {
+					_H5Part_print_info ( "Using independent mode" );
+				}
 			} else {
-				_H5Part_print_info ( "Using collective mode" );
+				if (f->myproc == 0) {
+					_H5Part_print_info ( "Using collective mode" );
+				}
 				f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
 				if (f->xfer_prop < 0) {
 					HANDLE_H5P_CREATE_ERR;
@@ -762,6 +769,9 @@ _write_data (
 	if ( dataset_id < 0 )
 		return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
 
+	herr = _H5Part_start_throttle( f );
+	if (herr < 0) return herr;
+
 	herr = H5Dwrite (
 		dataset_id,
 		type,
@@ -769,6 +779,9 @@ _write_data (
 		f->diskshape,
 		f->xfer_prop,
 		array );
+
+	herr = _H5Part_end_throttle( f );
+	if (herr < 0) return herr;
 
 	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
 
@@ -2323,7 +2336,7 @@ h5part_int64_t
 H5PartHasView (
  	H5PartFile *f			/*!< [in]  Handle to open file */
 	) {
-	SET_FNAME ( "H5PartResetView" );
+	SET_FNAME ( "H5PartHasView" );
 
 	CHECK_FILEHANDLE( f );
 	CHECK_READONLY_MODE ( f );
@@ -2387,7 +2400,7 @@ _set_view (
 		return HANDLE_H5S_CREATE_SIMPLE_ERR ( total );
 
 	/* declare overall data size  but then will select a subset */
-	f->diskshape= H5Screate_simple ( 1, &total, &total );
+	f->diskshape = H5Screate_simple ( 1, &total, &total );
 	if ( f->diskshape < 0 )
 		return HANDLE_H5S_CREATE_SIMPLE_ERR ( total );
 
@@ -2598,17 +2611,9 @@ _read_data (
 	memspace_id = _get_memshape_for_reading ( f, dataset_id );
 	if ( memspace_id < 0 ) return (h5part_int64_t)memspace_id;
 
-#ifdef INDEPENDENT_IO
-	herr = H5Dread (
-		dataset_id,
-		type,
-		memspace_id,		/* shape/size of data in memory (the
-					   complement to disk hyperslab) */
-		space_id,		/* shape/size of data on disk 
-					   (get hyperslab if needed) */
-		H5P_DEFAULT,		/* ignore... its for parallel reads */
-		array );
-#else
+	herr = _H5Part_start_throttle( f );
+	if (herr < 0) return herr;
+
 	herr = H5Dread (
 		dataset_id,
 		type,
@@ -2618,7 +2623,9 @@ _read_data (
 					   (get hyperslab if needed) */
 		f->xfer_prop,		/* ignore... its for parallel reads */
 		array );
-#endif
+
+	herr = _H5Part_end_throttle( f );
+	if (herr < 0) return herr;
 
 	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->timestep );
 
@@ -2820,7 +2827,98 @@ H5PartReadParticleStep (
 	return H5PART_SUCCESS;
 }
 
-/****************** error handling ******************/
+/************ error handling and configuration ************/
+
+/*!
+  \ingroup h5part_errhandle
+
+  Set the `throttle` factor, which causes HDF5 write and read
+  calls to be issued in that number of batches.
+
+  This can prevent large cuncurrency parallel applications that
+  use independent writes from overwhelming the underlying
+  parallel file system.
+
+  Throttling only works with the H5PART_VFD_MPIPOSIX or
+  H5PART_VFD_MPIIO_IND drivers.
+
+  \return \c H5PART_SUCCESS
+*/
+h5part_int64_t
+H5PartSetThrottle (
+	H5PartFile *f,
+	int factor
+	) {
+
+	SET_FNAME( "H5PartSetThrottle" );
+	CHECK_FILEHANDLE ( f );
+
+	if (f->flags & H5PART_VFD_MPIIO_IND || f->flags & H5PART_VFD_MPIPOSIX) {
+		f->throttle = factor;
+	} else {
+		_H5Part_print_warn ("Throttling is not permitted in MPI-IO collective mode.");
+	}
+
+	return H5PART_SUCCESS;
+}
+
+h5part_int64_t
+_H5Part_start_throttle (
+	H5PartFile *f
+	) {
+
+	if (f->throttle > 0) {
+		int ret;
+		int token = 1;
+		if (f->myproc == 0) {
+			_H5Part_print_info ("Throttling with factor = %d",
+				f->throttle);
+		}
+		if (f->myproc % f->throttle > 0) {
+			_H5Part_print_debug_detail (
+				"[%d] throttle: waiting on token from %d",
+				f->myproc, f->myproc - 1);
+			// wait to receive token before continuing with read
+			ret = MPI_Recv(
+				&token, 1, MPI_INT,
+				f->myproc - 1, // receive from previous proc
+				f->myproc, // use this proc id as message tag
+				f->comm,
+				MPI_STATUS_IGNORE
+				);
+			if ( ret != MPI_SUCCESS ) return HANDLE_MPI_SENDRECV_ERR;
+		}
+		_H5Part_print_debug_detail ("[%d] throttle: received token", f->myproc);
+	}
+	return H5PART_SUCCESS;
+}
+
+h5part_int64_t
+_H5Part_end_throttle (
+	H5PartFile *f
+	) {
+
+	if (f->throttle > 0) {
+		int ret;
+		int token;
+		if (f->myproc % f->throttle < f->throttle - 1) {
+			// pass token to next proc 
+			if (f->myproc + 1 < f->nprocs) {
+				_H5Part_print_debug_detail (
+					"[%d] throttle: passing token to %d",
+					f->myproc, f->myproc + 1);
+				ret = MPI_Send(
+					&token, 1, MPI_INT,
+					f->myproc + 1, // send to next proc
+					f->myproc + 1, // use the id of the target as tag
+					f->comm
+					);
+			}
+			if ( ret != MPI_SUCCESS ) return HANDLE_MPI_SENDRECV_ERR;
+		}
+	}
+	return H5PART_SUCCESS;
+}
 
 /*!
   \ingroup h5part_errhandle

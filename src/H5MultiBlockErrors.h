@@ -22,12 +22,6 @@
 		H5PART_ERR_MPI, \
 		"Cannot create/commit/free strided vector MPI datatype." );
 
-#define HANDLE_MPI_SENDRECV_ERR \
-	 (*_err_handler) ( \
-		_H5Part_get_funcname(), \
-		H5PART_ERR_MPI, \
-		"Unable to perform point-to-point MPI send/receive." );
-
 #define HANDLE_MPI_INT64_ERR \
 	 (*_err_handler) ( \
 		_H5Part_get_funcname(), \

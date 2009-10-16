@@ -336,6 +336,12 @@
 		H5PART_ERR_MPI, \
 		"Cannot gather data." );
 
+#define HANDLE_MPI_SENDRECV_ERR \
+	 (*_err_handler) ( \
+		_H5Part_get_funcname(), \
+		H5PART_ERR_MPI, \
+		"Unable to perform point-to-point MPI send/receive." );
+
 #define HANDLE_MPI_COMM_SIZE_ERR \
 	 (*_err_handler) ( \
 		_H5Part_get_funcname(), \

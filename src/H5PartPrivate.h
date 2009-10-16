@@ -122,6 +122,16 @@ _H5Part_have_group (
 	const char *name
 	);
 
+h5part_int64_t
+_H5Part_start_throttle (
+	H5PartFile *f
+	);
+
+h5part_int64_t
+_H5Part_end_throttle (
+	H5PartFile *f
+	);
+
 void
 _H5Part_vprint_error (
 	const char *fmt,

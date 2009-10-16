@@ -349,9 +349,17 @@ H5PartReadFileAttrib (
 	void *value
 	);
 
+/*============ Error Reporting and Configuration =============*/
+
 h5part_int64_t
 H5PartSetVerbosityLevel (
 	const h5part_int64_t level
+	);
+
+h5part_int64_t
+H5PartSetThrottle (
+	H5PartFile *f,
+	int factor
 	);
 
 h5part_int64_t

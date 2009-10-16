@@ -19,7 +19,7 @@ __attribute__ ((format (printf, 3, 4)))
 #endif
  ;
 
-#ifndef PARALLEL_IO
+#ifndef MPI_INCLUDED
 typedef unsigned long		MPI_Comm;
 #endif
 
@@ -78,6 +78,9 @@ struct H5PartFile {
 	   MPI comnunicator
 	*/
 	MPI_Comm comm;
+
+	char flags;
+	int throttle;
 
 	struct H5BlockStruct *block;
 	h5part_int64_t (*close_block)(struct H5PartFile *f);

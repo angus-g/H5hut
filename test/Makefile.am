@@ -53,6 +53,7 @@ EXTRA_DIST = 	Bench.c \
 		H5testFpar.F90 \
 		H5BlockParTestScalarField.c H5BlockParTestScalarFieldF.F90 \
 		H5BlockTestAttributes.c H5BlockTestAttributesF.F90 \
+                H5PartBench.c H5BlockBench.c \
 		$(bin_SCRIPTS)
 
 # Specific building instruction (What compilers to use...)
@@ -60,6 +61,12 @@ EXTRA_DIST = 	Bench.c \
 
 Bench: Bench.c
 	$(CC) $(CFLAGS) $(INC) -o $@ $< $(H5PLIB) -lH5Part $(LIBS)
+
+H5PartBench: H5PartBench.c
+	$(CC) $(CFLAGS) $(INC) -o $@ $< $(H5PLIB) -lpH5Part $(LIBS)
+
+H5BlockBench: H5BlockBench.c
+	$(CC) $(CFLAGS) $(INC) -o $@ $< $(H5PLIB) -lpH5Part $(LIBS)
 
 ###############################################################################
 
