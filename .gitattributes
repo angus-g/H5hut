@@ -363,6 +363,8 @@ src/H5Fed_retrieve.c -text
 src/H5Fed_retrieve.h -text
 src/H5Fed_store.c -text
 src/H5Fed_store.h -text
+src/H5Fed_tags.c -text
+src/H5Fed_tags.h -text
 src/H5Part.c -text
 src/H5Part.h -text
 src/H5_inquiry.c -text
