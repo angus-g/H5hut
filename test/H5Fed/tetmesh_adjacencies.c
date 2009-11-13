@@ -273,7 +273,7 @@ static h5_err_t
 traverse_vertices (
 	h5_file_t * f
 	) {
-	h5_id_t id, local_id;
+	h5_id_t local_id;
 	h5_id_t num = 0;
 	h5_float64_t P[3];
 	clock_t t_total = 0;
