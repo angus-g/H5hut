@@ -3,8 +3,6 @@
 #include <hdf5.h>
 
 #include "h5_core/h5_core.h"
-#include "h5_core/h5_types_private.h"
-#include "h5_core/h5t_types_private.h"
 #include "h5_core/h5_core_private.h"
 
 /*!
@@ -121,7 +119,7 @@ h5t_add_level (
 	t->dsinfo_num_elems_on_level.dims[0] = t->num_levels;
 
 	ssize_t num_bytes = t->num_levels*sizeof ( h5_size_t );
-	t->num_vertices = realloc ( t->num_vertices, num_bytes );
+	TRY ( t->num_vertices = _h5_alloc ( f, t->num_vertices, num_bytes ) );
 	t->num_vertices[t->cur_level] = -1;
 
 	TRY ( t->num_elems = _h5_alloc ( f, t->num_elems, num_bytes ) );
@@ -138,23 +136,6 @@ h5t_add_level (
 	}
 
 	return t->cur_level;
-}
-
-h5_err_t
-_h5t_alloc_num_vertices (
-	h5_file_t * const f,
-	const h5_size_t num_vertices
-	) {
-	h5t_fdata_t *t = f->t;
-
-	ssize_t size = num_vertices * sizeof ( t->vertices[0] );
-	TRY ( t->vertices = _h5_alloc (	f, t->vertices, size ) );
-	size = num_vertices * sizeof ( t->vertices_data[0] );
-	TRY ( t->vertices_data = _h5_alloc (	f, t->vertices_data, size ) );
-	TRY( _h5_alloc_idmap ( f, &t->map_vertex_g2l, num_vertices ) );
-	TRY( _h5_alloc_idlist_items ( f, &t->sorted_lvertices, num_vertices ) );
-
-	return H5_SUCCESS;
 }
 
 /*!
@@ -219,110 +200,6 @@ h5t_end_store_vertices (
 	TRY ( _h5t_sort_vertices ( f ) );
 	TRY ( _h5t_rebuild_global_2_local_map_of_vertices ( f ) );
 	return H5_SUCCESS;
-}
-
-h5_err_t
-_h5t_alloc_tris (
-	h5_file_t * const f,
-	const size_t cur,
-	const size_t new
-	) {
-	h5t_fdata_t *t = f->t;
-	const size_t nvertices = 3;
-
-	/* alloc mem for elements */
-	TRY ( t->elems.tris = _h5_alloc (
-		      f,
-		      t->elems.tris,
-		      new * sizeof(t->elems.tris[0]) ) );
-	memset (
-		t->elems.tris + cur,
-		-1,
-		(new-cur) * sizeof(t->elems.tris[0]) );
-
-	/* alloc mem for local data of elements */
-	TRY ( t->elems_ldta = _h5_alloc (
-		      f,
-		      t->elems_ldta,
-		      new * sizeof (t->elems_ldta[0]) ) );
-	memset (
-		t->elems_ldta + cur,
-		-1,
-		(new-cur) * sizeof (t->elems_ldta[0]) );
-
-	/* alloc mem for local vertex IDs of elements */
-	TRY ( t->elems_lvids = _h5_alloc (
-		      f,
-		      t->elems_lvids,
-		      new * sizeof(t->elems_lvids[0]) * nvertices ) );
-	memset (
-		t->elems_lvids + cur * sizeof(t->elems_lvids[0]) * nvertices,
-		-1,
-		(new-cur) * sizeof(t->elems_lvids[0]) * nvertices );
-
-	/* re-init pointer to local vertex id in local data structure */
-	h5_id_t *p = t->elems_lvids;
-	h5_id_t id;
-	for ( id = 0; id < new; id++, p+=nvertices ) {
-		t->elems_ldta[id].local_vids = p;
-	}
-
-	/* alloc mem for global to local ID mapping */
-	TRY ( _h5_alloc_idmap ( f, &t->map_elem_g2l, new ) );
-
-	return  H5_SUCCESS;
-}
-
-h5_err_t
-_h5t_alloc_tets (
-	h5_file_t * const f,
-	const size_t cur,
-	const size_t new
-	) {
-	h5t_fdata_t *t = f->t;
-	const size_t nvertices = 4;
-
-	/* alloc mem for elements */
-	TRY ( t->elems.tets = _h5_alloc (
-		      f,
-		      t->elems.tets,
-		      new * sizeof(t->elems.tets[0]) ) );
-	memset (
-		t->elems.tets + cur,
-		-1,
-		(new-cur) * sizeof(t->elems.tets[0]) );
-
-	/* alloc mem for local data of elements */
-	TRY ( t->elems_ldta = _h5_alloc (
-		      f,
-		      t->elems_ldta,
-		      new * sizeof (t->elems_ldta[0]) ) );
-	memset (
-		t->elems_ldta + cur,
-		-1,
-		(new-cur) * sizeof (t->elems_ldta[0]) );
-
-	/* alloc mem for local vertex IDs of elements */
-	TRY ( t->elems_lvids = _h5_alloc (
-		      f,
-		      t->elems_lvids,
-		      new * sizeof(t->elems_lvids[0]) * nvertices ) );
-	memset (
-		t->elems_lvids + cur * nvertices,
-		-1,
-		(new-cur) * sizeof(t->elems_lvids[0]) * nvertices );
-
-	/* re-init pointer to local vertex id in local data structure */
-	h5_id_t *p = t->elems_lvids;
-	h5_id_t id;
-	for ( id = 0; id < new; id++, p+=nvertices ) {
-		t->elems_ldta[id].local_vids = p;
-	}
-
-	/* alloc mem for global to local ID mapping */
-	TRY ( _h5_alloc_idmap ( f, &t->map_elem_g2l, new ) );
-
-	return  H5_SUCCESS;
 }
 
 /*!
@@ -420,7 +297,7 @@ _h5t_store_tet (
 		 sizeof (*local_vids) * t->mesh_type );
 	_h5t_sort_local_vids ( f, elem_ldta->local_vids, t->mesh_type );
 	h5_id_t face_id;
-	h5_te_entry_t *retval;
+	h5t_te_entry_t *retval;
 	for ( face_id = 0; face_id < 6; face_id++ ) {
 		TRY ( _h5t_search_te2 (
 			      f,
@@ -450,7 +327,7 @@ _h5t_store_tri (
 		 sizeof (*local_vids) * t->mesh_type );
 	_h5t_sort_local_vids ( f, elem_ldta->local_vids, t->mesh_type );
 	h5_id_t face_id;
-	h5_te_entry_t *retval;
+	h5t_te_entry_t *retval;
 	for ( face_id = 0; face_id < 3; face_id++ ) {
 		TRY ( _h5t_search_te2 (
 			      f,
@@ -536,9 +413,9 @@ _h5t_bisect_edge (
 	h5_id_t el_id
 	) {
 	h5t_fdata_t *t = f->t;
-	h5_te_entry_t item;
+	h5t_te_entry_t item;
 	h5_id_t *vids = item.key.vids;
-	h5_te_entry_t *retval;
+	h5t_te_entry_t *retval;
 	/*
 	  get all elements sharing the given edge
 	 */
@@ -549,14 +426,15 @@ _h5t_bisect_edge (
 	 */
 	size_t i;
 	for ( i = 0; i < retval->value.num_items; i++ ) {
-		h5_id_t local_id = _h5t_get_elem_id ( retval->value.items[i] );
+		h5_id_t local_id = _h5t_get_elem_idx ( retval->value.items[i] );
 		h5_elem_ldta_t *tet = &t->elems_ldta[local_id];
 		if ( tet->local_child_eid >= 0 ) {
 			/*
 			  this element has been refined!
 			  return bisecting point
 			 */
-			h5_id_t face_id = _h5t_get_face_id ( retval->value.items[i] );
+			h5_id_t	face_id = _h5t_get_face_id (
+				retval->value.items[i] );
 			h5_id_t kids[2], edge0[2], edge1[2];
 			TRY ( _h5t_compute_direct_children_of_edge (
 				      f,

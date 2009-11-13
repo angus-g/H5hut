@@ -23,25 +23,25 @@ h5_write_data (
 	const hid_t memspace_id,
 	const hid_t diskspace_id
 	) {
-	hid_t dataset_id;
+	hid_t dset_id;
 
 	h5_info ( f, "Writing dataset %s/%s.", h5_get_objname(group_id), name );
-	TRY ( dataset_id = _h5_create_dataset (
+	TRY ( dset_id = _hdf_create_dataset (
 		      f,
 		      group_id,
 		      name,
 		      type_id,
 		      diskspace_id,
 		      H5P_DEFAULT ) );
-	TRY ( _h5_write_dataset (
+	TRY ( _hdf_write_dataset (
 		      f,
-		      dataset_id,
+		      dset_id,
 		      type_id,
 		      memspace_id,
 		      diskspace_id,
 		      f->xfer_prop,
 		      array ) );
-	TRY ( _h5_close_dataset( f, dataset_id ) );
+	TRY ( _hdf_close_dataset( f, dset_id ) );
 
 	f->empty = 0;
 
@@ -57,77 +57,81 @@ h5_write_data (
   - Close dataset  
  */
 h5_err_t
-_h5_write (
+_h5_write_dataset_by_name (
  	h5_file_t * const f,
 	const hid_t loc_id,
-	h5_dataset_info_t *ds_info,
+	h5_dsinfo_t *dsinfo,
 	hid_t (*set_memspace)(h5_file_t*,hid_t),
 	hid_t (*set_diskspace)(h5_file_t*,hid_t),
 	const void * const data
 	) {
 	h5_info ( f, "Writing dataset %s/%s.",
-		  h5_get_objname ( loc_id ), ds_info->name );
+		  h5_get_objname ( loc_id ), dsinfo->name );
 
 	H5O_info_t obj_info;
 	herr_t herr = H5Oget_info_by_name(
 		loc_id,
-		ds_info->name,
+		dsinfo->name,
 		&obj_info,
 		H5P_DEFAULT  );
 
 	if ( (herr >= 0) && ( (f->mode==H5_O_WRONLY) || (f->mode==H5_O_APPEND) ) ) {
 		h5_warn ( f,
 			  "Dataset %s/%s already exist.",
-			  h5_get_objname ( loc_id ), ds_info->name );
+			  h5_get_objname ( loc_id ), dsinfo->name );
 		return _h5_handle_file_mode_error( f, f->mode );
 	}
 
 	/*
 	  open/create dataset
 	*/
-	hid_t dataset_id;
+	hid_t dset_id;
 	hid_t dataspace_id;
 	hid_t diskspace_id;
 	hid_t memspace_id;
 
 	if ( herr >= 0 ) {
-		TRY( (dataset_id = _h5_open_dataset (
+		/* overwrite dataset */
+		TRY ( (dset_id = _hdf_open_dataset (
 			      f, 
 			      loc_id,
-			      ds_info->name ) ) );
-		TRY( (dataspace_id = _h5_get_dataset_space (
+			      dsinfo->name ) ) );
+		TRY ( (dataspace_id = _hdf_get_dataset_space (
 			      f,
-			      dataset_id ) ) );
-		/* 
-		   extend dataset?
-		*/
+			      dset_id ) ) );
+		TRY ( _hdf_set_dataset_extent (
+			      f,
+			      dset_id,
+			      dsinfo->dims ) );
+		/* exten dataset? */
 	} else {
-		TRY ( dataspace_id = _h5_create_space (
+		/* create dataset */
+		TRY ( dataspace_id = _hdf_create_dataspace (
 			      f,
-			      ds_info->rank,
-			      ds_info->dims,
-			      ds_info->maxdims ) );
-		TRY ( dataset_id = _h5_create_dataset (
+			      dsinfo->rank,
+			      dsinfo->dims,
+			      dsinfo->max_dims ) );
+		TRY ( dset_id = _hdf_create_dataset (
 			      f,
 			      loc_id,
-			      ds_info->name,
-			      *ds_info->type_id,
+			      dsinfo->name,
+			      dsinfo->type_id,
 			      dataspace_id,
-			      ds_info->create_prop ) );
+			      dsinfo->create_prop ) );
 	}
 	TRY ( memspace_id = (*set_memspace)( f, 0 ) );
 	TRY ( diskspace_id = (*set_diskspace)( f, dataspace_id ) );
-	TRY ( _h5_write_dataset (
+	TRY ( _hdf_write_dataset (
 		     f,
-		     dataset_id,
-		     *ds_info->type_id,
+		     dset_id,
+		     dsinfo->type_id,
 		     memspace_id,
 		     diskspace_id,
 		     f->xfer_prop,
 		     data ) );
-	TRY ( _h5_close_dataspace ( f, diskspace_id ) );
-	TRY ( _h5_close_dataspace ( f, memspace_id ) );
-	TRY ( _h5_close_dataset( f, dataset_id ) );
+	TRY ( _hdf_close_dataspace ( f, diskspace_id ) );
+	TRY ( _hdf_close_dataspace ( f, memspace_id ) );
+	TRY ( _hdf_close_dataset( f, dset_id ) );
 
 	f->empty = 0;
 
@@ -135,39 +139,56 @@ _h5_write (
 }
 
 h5_err_t
-_h5_read (
+_h5_read_dataset (
 	h5_file_t * const f,
-	hid_t loc_id,
-	h5_dataset_info_t *ds_info,
-	hid_t (*set_memspace)(h5_file_t*,hid_t),
-	hid_t (*set_diskspace)(h5_file_t*,hid_t),
+	hid_t dset_id,
+	h5_dsinfo_t *dsinfo,
+	hid_t (*set_mspace)(h5_file_t*,hid_t),
+	hid_t (*set_dspace)(h5_file_t*,hid_t),
 	void * const data
 	) {
 
-	hid_t dataset_id;
-	hid_t memspace_id;
-	hid_t diskspace_id;
+	hid_t mspace_id;
+	hid_t dspace_id;
 
-	TRY ( (dataset_id = _h5_open_dataset (
-		      f,
-		      loc_id,
-		      ds_info->name ) ) );
-	TRY ( (memspace_id = (*set_memspace)( f, dataset_id ) ) );
-	TRY ( (diskspace_id = (*set_diskspace)( f, dataset_id ) ) );
-	TRY ( _h5_read_dataset (
+	TRY ( (mspace_id = (*set_mspace)( f, dset_id ) ) );
+	TRY ( (dspace_id = (*set_dspace)( f, dset_id ) ) );
+	TRY ( _hdf_read_dataset (
 		f,
-		dataset_id,
-		*ds_info->type_id,
-		memspace_id,
-		diskspace_id,
+		dset_id,
+		dsinfo->type_id,
+		mspace_id,
+		dspace_id,
 		f->xfer_prop,
 		data ) );
-	TRY ( _h5_close_dataspace ( f, diskspace_id ) );
-	TRY ( _h5_close_dataspace ( f, memspace_id ) );
-	TRY ( _h5_close_dataset ( f, dataset_id ) );
+	TRY ( _hdf_close_dataspace ( f, dspace_id ) );
+	TRY ( _hdf_close_dataspace ( f, mspace_id ) );
 
 	return H5_SUCCESS;
 }
+
+h5_err_t
+_h5_read_dataset_by_name (
+	h5_file_t * const f,
+	hid_t loc_id,
+	h5_dsinfo_t *dsinfo,
+	hid_t (*set_mspace)(h5_file_t*,hid_t),
+	hid_t (*set_dspace)(h5_file_t*,hid_t),
+	void * const data
+	) {
+
+	hid_t dset_id;
+	TRY ( (dset_id = _hdf_open_dataset (
+		      f,
+		      loc_id,
+		      dsinfo->name ) ) );
+	TRY ( _h5_read_dataset ( f, dset_id, dsinfo, set_mspace, set_dspace,
+				 data ) );
+	TRY ( _hdf_close_dataset ( f, dset_id ) );
+
+	return H5_SUCCESS;
+}
+
 
 static h5_err_t
 _init_step (
@@ -185,7 +206,7 @@ _h5_close_step (
 
 	if ( f->step_gid < 0 ) return H5_SUCCESS;
 	TRY ( _h5t_close_step ( f ) );
-	TRY ( _h5_close_group ( f, f->step_gid ) );
+	TRY ( _hdf_close_group ( f, f->step_gid ) );
 
 	f->step_gid = -1;
 
@@ -262,16 +283,16 @@ h5_int64_t
 h5_get_dataset_type(
 	h5_file_t * const f,
 	hid_t group_id,
-	const char *dataset_name
+	const char *dset_name
 	) {
-	hid_t dataset_id;
+	hid_t dset_id;
 	hid_t hdf5_type;
 
-	TRY( dataset_id = _h5_open_dataset ( f, group_id, dataset_name ) );
-	TRY ( hdf5_type = _h5_get_dataset_type ( f, dataset_id ) );
+	TRY( dset_id = _hdf_open_dataset ( f, group_id, dset_name ) );
+	TRY ( hdf5_type = _hdf_get_dataset_type ( f, dset_id ) );
 	h5_int64_t type = (h5_int64_t) h5_normalize_h5_type ( f, hdf5_type );
-	TRY( _h5_close_type( f, hdf5_type ) );
-	TRY( _h5_close_dataset( f, dataset_id ) );
+	TRY( _hdf_close_type( f, hdf5_type ) );
+	TRY( _hdf_close_dataset( f, dset_id ) );
 
 	return type;
 }

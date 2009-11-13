@@ -1,7 +1,6 @@
 #ifndef __H5_TYPES_PRIVATE_H
 #define __H5_TYPES_PRIVATE_H
 
-
 struct h5_idmap_el {
 	h5_id_t	global_id;
 	h5_id_t	local_id;

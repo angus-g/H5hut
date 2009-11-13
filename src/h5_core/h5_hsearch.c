@@ -43,7 +43,7 @@ typedef struct _ENTRY {
    a)  the code is (most probably) called a few times per program run and
    b)  the number is small because the table must fit in the core  */
 static int
-isprime (unsigned int number) {
+isprime (const unsigned int number) {
 	/* no even number will be passed */
 	unsigned int div = 3;
 
@@ -60,12 +60,12 @@ isprime (unsigned int number) {
    The contents of the table is zeroed, especially the field used
    becomes zero.  */
 h5_err_t
-_h5_hcreate_r (
+_h5_hcreate (
 	h5_file_t * const f,
 	size_t nel,
 	h5_hashtable_t *htab,
-	int (*compare)(void*, void*),
-	unsigned int (*compute_hash)(void*)
+	int (*compare)(const void*, const void*),
+	unsigned int (*compute_hash)(const void*)
 	) {
 	/* Test for correct arguments.  */
 	if (htab == NULL || htab->table != NULL) {
@@ -94,7 +94,7 @@ _h5_hcreate_r (
   or equal the current size.
  */
 h5_err_t
-_h5_hresize_r (
+_h5_hresize (
 	h5_file_t * const f,
 	size_t nel,
 	h5_hashtable_t *htab
@@ -108,28 +108,28 @@ _h5_hresize_r (
 	nel += htab->size;
 	h5_debug ( f, "Resize hash table from %u to %lu elements.",
 		   htab->size, nel );
-	TRY ( _h5_hcreate_r (
+	TRY ( _h5_hcreate (
 		      f, nel, &__htab, htab->compare, htab->compute_hash ) );
 	unsigned int idx;
 	for ( idx = 1; idx <= htab->size; idx++ ) {
 		if ( htab->table[idx].used ) {
 			void *ventry;
-			TRY ( _h5_hsearch_r (
+			_h5_hsearch (
 				      f,
 				      htab->table[idx].entry,
 				      H5_ENTER,
 				      &ventry,
-				      &__htab ) );
+				      &__htab );
 		}
 	}
-	TRY ( _h5_hdestroy_r ( f, htab ) );
+	TRY ( _h5_hdestroy ( f, htab ) );
 	*htab = __htab;
 	return H5_SUCCESS;
 }
 /* After using the hash table it has to be destroyed. The used memory can
    be freed and the local static variable can be marked as not used.  */
 h5_err_t
-_h5_hdestroy_r (
+_h5_hdestroy (
 	h5_file_t * const f,
 	struct hsearch_data *htab
 	) {
@@ -162,10 +162,10 @@ _h5_hdestroy_r (
    equality of the stored and the parameter value. This helps to prevent
    unnecessary expensive calls of strcmp.  */
 h5_err_t
-_h5_hsearch_r (
+_h5_hsearch (
 	h5_file_t * const f,
 	void *item,
-	h5_action_t action,
+	const h5_action_t action,
 	void **retval,
 	struct hsearch_data *htab
 	) {
@@ -206,7 +206,8 @@ _h5_hsearch_r (
 
 			/* If entry is found use it. */
 			if (htab->table[idx].used == hval
-			    && ((*htab->compare) (item, htab->table[idx].entry) == 0) ) {
+			    && ((*htab->compare) (
+					item, htab->table[idx].entry) == 0) ) {
 				*retval = htab->table[idx].entry;
 				return H5_SUCCESS;
 			}
@@ -231,21 +232,95 @@ _h5_hsearch_r (
 		*retval = htab->table[idx].entry;
 		return H5_SUCCESS;
 	}
-
 	*retval = NULL;
+	h5_error ( f, H5_ERR_INVAL, "Key not found in hash table." );
 	return H5_ERR;
 }
 
-void
-_h5_hwalk_r (
+h5_err_t
+_h5_hwalk (
 	h5_file_t* f,
 	struct hsearch_data *htab,
-	void (*visit)(const void *item)
+	h5_err_t (*visit)(h5_file_t*const f, const void *item)
 	) {
 	unsigned int idx = 1;
 	for ( idx = 1; idx < htab->size; idx++ ) {
 		if ( htab->table[idx].used ) {
-			(*visit)( &htab->table[idx].entry );
+			TRY ( (*visit)( f, &htab->table[idx].entry ) );
 		}
-	} 
+	}
+	return H5_SUCCESS;
+}
+
+typedef struct {
+	char *key;
+} h5_hitem_string_keyed_t;
+
+static int
+_hcmp_string_keyed (
+	const void *__a,
+	const void *__b
+	) {
+	h5_hitem_string_keyed_t *a = (h5_hitem_string_keyed_t*) __a;
+	h5_hitem_string_keyed_t *b = (h5_hitem_string_keyed_t*) __b;
+	return strcmp ( a->key, b->key );
+}
+
+static unsigned int
+_hcompute_string_keyed (
+	const void *__item
+	) {
+	h5_hitem_string_keyed_t *item = (h5_hitem_string_keyed_t*) __item;
+	unsigned int len = strlen (item->key);
+	unsigned int hval = len;
+	unsigned int count = len;
+	while (count-- > 0)  {
+		hval <<= 4;
+		hval += item->key[count];
+	}
+	return hval;
+}
+
+h5_err_t
+_h5_hcreate_string_keyed (
+	h5_file_t * const f,
+	size_t nel,
+	h5_hashtable_t *htab 
+	) {
+	return _h5_hcreate ( f, nel, htab,
+			       _hcmp_string_keyed, _hcompute_string_keyed );
+}
+
+static int
+_hcmp_id_keyed (
+	const void *__a,
+	const void *__b
+	) {
+	return memcmp ( __a, __b, sizeof(h5_id_t) );
+}
+
+static unsigned int
+_hcompute_id_keyed (
+	const void *__item
+	) {
+	char *key = (char*)__item;
+	unsigned int count = sizeof ( h5_id_t );
+	unsigned int hval = count;
+	while ( count-- > 0 ) {
+		if ( key[count] ) {
+			hval <<= 4;
+			hval += key[count];
+		}
+	}
+	return hval;
+}
+
+h5_err_t
+_h5_hcreate_id_keyed (
+	h5_file_t * const f,
+	size_t nel,
+	h5_hashtable_t *htab 
+	) {
+	return _h5_hcreate ( f, nel, htab,
+			       _hcmp_id_keyed, _hcompute_id_keyed );
 }

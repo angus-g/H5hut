@@ -49,6 +49,7 @@ include_HEADERS = \
 	H5Fed_boundaries.h \
 	H5Fed_map.h \
 	H5Fed_store.h \
+	H5Fed_tags.h \
 	H5Part.h
 
 # Listing of all possible headers that I may include
@@ -66,6 +67,7 @@ libH5_a_SOURCES = \
 	H5Fed_map.c \
 	H5Fed_retrieve.c \
 	H5Fed_store.c \
+	H5Fed_tags.c \
 	H5Part.c
 
 SUBDIRS = h5_core bindings
@@ -82,10 +84,8 @@ H5Block.o: H5Block.c H5Part.h H5Block.h
 clean: clean-recursive
 	$(RM) -f *~ *.o *.a *.so
 
-distclean:
-	$(RM) -f *.a
+distclean: clean
 	$(RM) -f Underscore.h
-
-#	$(RM) -rf .deps
-#	$(RM) -rf .libs
-#	$(RM) -f Makefile
+	$(RM) -rf .deps
+	$(RM) -rf .libs
+	$(RM) -f Makefile

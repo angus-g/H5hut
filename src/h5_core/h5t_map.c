@@ -421,7 +421,7 @@ h5t_map_global_triangle_id2local (
 	struct h5t_fdata *t = f->t;
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
-		h5_id_t global_tet_id = _h5t_get_elem_id ( global_tri_id );
+		h5_id_t global_tet_id = _h5t_get_elem_idx ( global_tri_id );
 		h5_id_t local_tet_id = h5t_map_global_eid2local (
 			f, global_tet_id );
 		if ( local_tet_id < 0 ) 
@@ -449,7 +449,7 @@ h5t_map_local_triangle_id2global (
 	struct h5t_fdata *t = f->t;
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
-		h5_id_t local_tet_id = _h5t_get_elem_id ( local_tri_id );
+		h5_id_t local_tet_id = _h5t_get_elem_idx ( local_tri_id );
 		h5_id_t global_tet_id = h5t_map_local_eid2global (
 			f, local_tet_id );
 		if ( global_tet_id < 0 )
@@ -522,7 +522,7 @@ h5t_get_local_vids_of_edge (
 	h5_id_t *edge
 	) {
 	h5_id_t face_id = _h5t_get_face_id ( id );
-	h5_id_t el_id = _h5t_get_elem_id ( id );
+	h5_id_t el_id = _h5t_get_elem_idx ( id );
 	return h5t_get_local_vids_of_edge2 ( f, face_id, el_id, edge );
 }
 
@@ -547,7 +547,7 @@ h5t_get_local_vids_of_triangle (
 	h5_id_t *vids
 	) {
 	h5_id_t face = _h5t_get_face_id ( id );
-	h5_id_t el_id = _h5t_get_elem_id ( id );
+	h5_id_t el_id = _h5t_get_elem_idx ( id );
 	return h5t_get_local_vids_of_triangle2 ( f, face, el_id, vids );
 }
 

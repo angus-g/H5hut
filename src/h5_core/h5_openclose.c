@@ -134,7 +134,7 @@ _h5_open_file (
 	) {
 	h5_info ( f, "Opening file %s.", filename );
 
-	TRY ( _h5_set_errorhandler ( f, H5E_DEFAULT, _h5_error_handler, NULL ) );
+	TRY ( _hdf_set_errorhandler ( f, H5E_DEFAULT, _h5_error_handler, NULL ) );
 	TRY ( h5_set_stepname_fmt ( f, H5PART_GROUPNAME_STEP, 0 ) );
 
 	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
@@ -154,17 +154,17 @@ _h5_open_file (
 	/* ks: IBM_large_block_io */
 	MPI_Info_create(&info);
 	MPI_Info_set(info, "IBM_largeblock_io", "true" );
-	TRY ( _h5_set_fapl_mpio_property ( f, f->access_prop, comm, info ) );
+	TRY ( _hdf_set_fapl_mpio_property ( f, f->access_prop, comm, info ) );
 	MPI_Info_free(&info);
 	
-	TRY ( f->access_prop = _h5_create_property ( f, H5P_FILE_ACCESS ) );
+	TRY ( f->access_prop = _hdf_create_property ( f, H5P_FILE_ACCESS ) );
 
-	/*TRY ( f->create_prop = _h5_create_property ( f, H5P_FILE_CREATE) );*/
+	/*TRY ( f->create_prop = _hdf_create_property ( f, H5P_FILE_CREATE) );*/
 	f->create_prop = H5P_DEFAULT;
 
 	/* xfer_prop:  also used for parallel I/O, during actual writes
 	   rather than the access_prop which is for file creation. */
-	TRY ( f->xfer_prop = _h5_create_property ( f, H5P_DATASET_XFER ) );
+	TRY ( f->xfer_prop = _hdf_create_property ( f, H5P_DATASET_XFER ) );
 	
 #ifdef COLLECTIVE_IO
 	if (H5Pset_dxpl_mpio (f->xfer_prop,H5FD_MPIO_COLLECTIVE) < 0) {
@@ -247,9 +247,11 @@ h5_open_file (
 	f->__funcname = funcname;
 	if ( _h5_open_file( f, filename, flags, comm ) < 0 ) {
 		if (f != NULL ) {
-			if (f->u->pnparticles != NULL) {
-				free (f->u->pnparticles);
-			}
+			/* Oops, cannot open file. We release the memory allocated for
+			   f only, there is most likely more allocated memory we do
+			   *not* release.
+			   We don't use the wrapper function because we don't know 
+			   wheter it will work or not! */
 			free (f);
 		}
 		return NULL;
@@ -275,15 +277,15 @@ _h5u_close_file (
 
 	f->__errno = H5_SUCCESS;
 	if( u->shape > 0 ) {
-		TRY( _h5_close_dataspace( f, u->shape ) );
+		TRY( _hdf_close_dataspace( f, u->shape ) );
 		u->shape = 0;
 	}
 	if( u->diskshape != H5S_ALL ) {
-		TRY( _h5_close_dataspace( f, u->diskshape ) );
+		TRY( _hdf_close_dataspace( f, u->diskshape ) );
 		u->diskshape = 0;
 	}
 	if( u->memshape != H5S_ALL ) {
-		TRY( _h5_close_dataspace( f, u->memshape ) );
+		TRY( _hdf_close_dataspace( f, u->memshape ) );
 		u->memshape = 0;
 	}
 	if( u->pnparticles ) {
@@ -308,10 +310,10 @@ _h5b_close_file (
 	) {
 	struct h5b_fdata *b = f->b;
 
-	TRY ( _h5_close_group( f, b->blockgroup ) );
-	TRY ( _h5_close_dataspace( f, b->shape ) );
-	TRY ( _h5_close_dataspace( f, b->diskshape ) );
-	TRY ( _h5_close_dataspace( f, b->memshape ) );
+	TRY ( _hdf_close_group( f, b->blockgroup ) );
+	TRY ( _hdf_close_dataspace( f, b->shape ) );
+	TRY ( _hdf_close_dataspace( f, b->diskshape ) );
+	TRY ( _hdf_close_dataspace( f, b->memshape ) );
 	free ( f->b );
 	f->b = NULL;
 
@@ -339,12 +341,12 @@ h5_close_file (
 	TRY( _h5u_close_file ( f ) );
 	TRY( _h5b_close_file ( f ) );
 	TRY( _h5t_close_file ( f ) );
-	TRY( _h5_close_group( f, f->step_gid ) );
-	TRY( _h5_close_property ( f, f->xfer_prop ) );
-	TRY( _h5_close_property ( f, f->access_prop ) );
-	TRY( _h5_close_property ( f, f->create_prop ) );
-	TRY( _h5_close_group ( f, f->root_gid ) );
-	TRY( _h5_close_file ( f, f->file ) );
+	TRY( _hdf_close_group( f, f->step_gid ) );
+	TRY( _hdf_close_property ( f, f->xfer_prop ) );
+	TRY( _hdf_close_property ( f, f->access_prop ) );
+	TRY( _hdf_close_property ( f, f->create_prop ) );
+	TRY( _hdf_close_group ( f, f->root_gid ) );
+	TRY( _hdf_close_file ( f, f->file ) );
 
 	free( f );
 

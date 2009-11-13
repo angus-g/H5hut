@@ -156,8 +156,7 @@ h5_abort_errorhandler (
 	) {
 
 	if ( _h5_debuglevel > 0 ) {
-		fprintf ( stderr, "%s: ", f->__funcname );
-		vfprintf ( stderr, fmt, ap );
+		h5_verror ( f, fmt, ap );
 	}
 	exit (-(int)f->__errno);
 }

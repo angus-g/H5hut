@@ -1,8 +1,9 @@
-#include "h5_types.h"
-#include "h5_types_private.h"
+#include "h5_core.h"
+#include "h5_core_private.h"
 #include "h5t_types_private.h"
 
-const char * _h5t_oid_names[] = {
+const char *
+_h5t_oid_names[] = {
 	"N.N.",
 	"vertex",
 	"edge",
@@ -10,7 +11,8 @@ const char * _h5t_oid_names[] = {
 	"tetrahedron"
 };
 
-const char * _h5t_meshes_grpnames[] = {
+const char *
+_h5t_meshes_grpnames[] = {
 	"N.N.",
 	"N.N.",
 	"N.N.",
@@ -18,7 +20,8 @@ const char * _h5t_meshes_grpnames[] = {
 	"TetMeshes"
 };
 
-const size_t _h5t_sizeof_elem[] = {
+const size_t
+_h5t_sizeof_elem[] = {
 	0,
 	0,
 	0,

@@ -9,15 +9,9 @@
 #include "h5_maps.h"
 #include "h5_openclose.h"
 #include "h5_readwrite.h"
-#include "h5t_adjacencies.h"
-#include "h5t_boundaries.h"
-#include "h5t_inquiry.h"
-#include "h5t_map.h"
-#include "h5t_openclose.h"
-#include "h5t_readwrite.h"
-#include "h5t_retrieve.h"
-#include "h5t_storemesh.h"
 #include "h5u_readwrite.h"
 #include "hdf5_misc.h"
+
+#include "h5t_core.h"
 
 #endif

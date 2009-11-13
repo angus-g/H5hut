@@ -82,8 +82,8 @@ _h5_cmp_ids_by_eid (
 	const void *_id1,
 	const void *_id2
 	) {
-	h5_id_t	id1 = _h5t_get_elem_id ( *(h5_id_t*)_id1 ); 
-	h5_id_t	id2 = _h5t_get_elem_id ( *(h5_id_t*)_id2 ); 
+	h5_id_t	id1 = _h5t_get_elem_idx ( *(h5_id_t*)_id1 ); 
+	h5_id_t	id2 = _h5t_get_elem_idx ( *(h5_id_t*)_id2 ); 
 	
 	if ( id1 < id2 ) return -1;
 	if ( id1 > id2 ) return 1;

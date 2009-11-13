@@ -75,12 +75,19 @@ H5FedBeginRefineElements (
 h5_id_t
 H5FedRefineElement (
 	h5_file_t * const f,
-	const h5_id_t local_eid
+	const h5_id_t eid
 	);
 
 h5_err_t
 H5FedEndRefineElements (
 	h5_file_t * const f
 	);
+
+h5_err_t
+H5FedMarkRefineElement (
+	h5_file_t * const f,
+	const h5_id_t eid
+	);
+
 
 #endif

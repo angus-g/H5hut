@@ -54,19 +54,6 @@ typedef union h5_elems {
 } h5_elems_t;
 
 
-/*
-  information about HDF5 dataset
-*/
-typedef struct h5_dataset_info {
-	char name[256];
-	int rank;
-	hsize_t dims[4];
-	hsize_t maxdims[4];
-	hsize_t chunk_size[4];
-	hid_t *type_id;
-	hid_t create_prop;
-	hid_t access_prop;
-} h5_dataset_info_t;
 
 
 typedef struct boundary {
@@ -82,71 +69,38 @@ typedef struct boundary {
 	h5_size_t	*num_faces_on_level;	/* real num of faces per level */
 	
 	h5_id_t		last_accessed_face;
-	h5_dataset_info_t	dsinfo;
+	h5_dsinfo_t	dsinfo;
 } boundary_t;
 
 /*** type ids' for compound types ***/
 typedef struct h5_dtypes {
-	hid_t		h5_id_t;
-	hid_t		h5_int64_t;
-	hid_t		h5_float64_t;
+	hid_t		h5_id_t;		/* ID's */
+	hid_t		h5_int64_t;		/* 64 bit signed integer */
+	hid_t		h5_float64_t;		/* 64 bit floating point */
 	hid_t		h5_coord3d_t;		/* 3-tuple of 64-bit float */
-	hid_t		h5_3id_t;		/* 3-tuple of id's */
-	hid_t		h5_4id_t;		/* 4-tuple of id's */
+	hid_t		h5_3id_t;		/* 3-tuple of ID's */
+	hid_t		h5_4id_t;		/* 4-tuple of ID's */
 	hid_t		h5_vertex_t;		/* vertex structure */
 	hid_t		h5_triangle_t;		/* triangle structure */
 	hid_t		h5_tet_t;		/* tetrahedron structure */
+	hid_t		h5t_tag_idx_t;
 } h5_dtypes_t;
 
-typedef struct h5_te_entry_key {
-	h5_id_t vids[2];
-} h5_te_entry_key_t;
-
-typedef struct h5_te_entry {
-	h5_te_entry_key_t key;
-	h5_idlist_t value;
-} h5_te_entry_t;
-
-typedef struct h5_td_entry_key {
-	h5_3id_t vids;
-} h5_td_entry_key_t;
-
-typedef struct h5_td_entry {
-	h5_td_entry_key_t key;
-	h5_idlist_t value;
-} h5_td_entry_t;
-
-typedef struct hsearch_data {
-	struct _ENTRY *table;
-	unsigned int size;
-	unsigned int filled;
-	int (*compare)(void*, void*);
-	unsigned int (*compute_hash)(void*);
-} h5_hashtable_t; 
-
 typedef struct h5t_adjacencies {
-	struct hsearch_data te_hash;
-	struct hsearch_data td_hash;
+	h5_hashtable_t te_hash;
+	h5_hashtable_t td_hash;
 } h5t_adjacencies_t;
 
-typedef struct h5t_elem_iterator {
-	h5_id_t	cur_eid;
-} h5t_elem_iterator_t;
-
-typedef struct h5t_vertex_iterator {
-	h5_id_t	cur_vid;
-} h5t_vertex_iterator_t;
-
 typedef struct h5t_entity_iterator {
-	h5_id_t	cur_fid;
+	h5_id_t	cur_cid;
 	h5_id_t cur_eid;
 } h5t_entity_iterator_t;
 
 typedef struct h5t_iterators {
-	h5t_vertex_iterator_t	vertex;
+	h5t_entity_iterator_t	vertex;
 	h5t_entity_iterator_t	edge;
 	h5t_entity_iterator_t	triangle;
-	h5t_elem_iterator_t	elem;
+	h5t_entity_iterator_t	elem;
 } h5t_iterators_t;
 
 typedef struct h5t_fdata {
@@ -157,7 +111,6 @@ typedef struct h5t_fdata {
 	h5_id_t		cur_mesh;	/* id of current mesh */
 	h5_id_t		mesh_changed;	/* true if new or has been changed */
 	h5_id_t		num_meshes;	/* number of meshes */
-	hid_t		elem_tid;	/* HDF5 type id: tet, triangle etc */
 	h5_id_t		cur_level;	/* id of current level */
 	h5_id_t		new_level;	/* idx of the first new level or -1 */
 	h5_size_t	num_levels;	/* number of levels */
@@ -166,7 +119,7 @@ typedef struct h5t_fdata {
 
 	hid_t		topo_gid;	/* grp id of mesh in current
 					   level		*/
-	hid_t		meshes_gid;
+	hid_t		meshes_gid;	/* HDF5 id */
 	hid_t		mesh_gid;
 
 	/*** type ids' for base & compound data types ***/
@@ -184,8 +137,8 @@ typedef struct h5t_fdata {
 	h5_idmap_t	map_vertex_g2l;	/* map global id to local id */
 	h5_idlist_t	sorted_lvertices;
 	h5_id_t		last_stored_vid;
-	h5_dataset_info_t	dsinfo_vertices;
-	h5_dataset_info_t	dsinfo_num_vertices;
+	h5_dsinfo_t	dsinfo_vertices;
+	h5_dsinfo_t	dsinfo_num_vertices;
 	
 
 	/*** Elements ***/
@@ -205,9 +158,9 @@ typedef struct h5t_fdata {
 	h5_idlist_t	sorted_elems[H5_MAX_VERTICES_PER_ELEM];
 
 	h5_id_t		last_stored_eid;
-	h5_dataset_info_t	dsinfo_elems;
-	h5_dataset_info_t	dsinfo_num_elems;
-	h5_dataset_info_t	dsinfo_num_elems_on_level;
+	h5_dsinfo_t	dsinfo_elems;
+	h5_dsinfo_t	dsinfo_num_elems;
+	h5_dsinfo_t	dsinfo_num_elems_on_level;
 
 	/*** Boundary Meshes ***/
 	h5_id_t		num_boundaries;		/* number of boundaries */
@@ -216,7 +169,9 @@ typedef struct h5t_fdata {
 	boundary_t	boundary;
 	h5t_adjacencies_t adjacencies;
 
-
+	/*** Tags ***/
+	h5t_tagcontainer_t	mtags;
+	h5t_tagcontainer_t	stags;
 } h5t_fdata_t;
 
 #endif

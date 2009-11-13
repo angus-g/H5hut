@@ -4,6 +4,41 @@
 #include "h5_core/h5_core_private.h"
 
 /****** G r o u p ************************************************************/
+
+hid_t
+_hdf_open_group (
+	h5_file_t * f,
+	const hid_t loc_id,
+	const char * const group_name
+	) {
+	hid_t group_id = H5Gopen ( loc_id, group_name, H5P_DEFAULT );
+	if ( group_id < 0 )
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot open group \"%s/%s\".",
+			h5_get_objname ( loc_id ),
+			group_name );
+	return group_id;
+}
+
+hid_t
+_hdf_create_group (
+	h5_file_t * f,
+	const hid_t loc_id,
+	const char * const group_name
+	) {
+	hid_t group_id = H5Gcreate ( loc_id, group_name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+	if ( group_id < 0 )
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot create group \"%s/%s\".",
+			h5_get_objname ( loc_id ),
+			group_name );
+	return group_id;
+}
+
 /*!
   Open HDF5 group. If group doesn't exist create it.
 
@@ -65,22 +100,64 @@ _h5_open_group (
   \param[in]	group_id        id of group to close
 */
 h5_err_t
-_h5_close_group (
+_hdf_close_group (
 	h5_file_t * const f,
 	const hid_t group_id
 	) {
 	if ( group_id <= 0 ) return H5_SUCCESS; 
-	const char *group_name = h5_get_objname( group_id );
 	if ( H5Gclose ( group_id ) < 0 ) {
 		return h5_error (
 			f,
 			H5_ERR_HDF5,
 			"Cannot terminate access to group \"%s\".",
-			group_name );
+			h5_get_objname( group_id ) );
 	}
 	return H5_SUCCESS;
 }
 
+hsize_t
+_hdf_get_num_objs_in_group (
+	h5_file_t * const f,
+	const hid_t group_id
+	) {
+	H5G_info_t group_info;
+	if ( H5Gget_info( group_id, &group_info  ) < 0 ) {
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot get number of objects in group %s.",
+			h5_get_objname( group_id ) );
+	}
+	return group_info.nlinks;
+}
+
+h5_err_t
+_hdf_get_objname_by_idx_in_group (
+	h5_file_t * const f,
+	hid_t loc_id,
+	hsize_t idx,
+	char **name ) {
+	size_t size;
+
+	size = H5Gget_objname_by_idx ( loc_id, idx, NULL, 0 ) + 1;
+	if ( size < 0 ) goto error;
+
+	*name = _h5_calloc ( f, 1, size );
+	if ( *name == NULL ) goto error;
+
+	size = H5Gget_objname_by_idx ( loc_id, idx, *name, size );
+	if ( size < 0 ) goto error;
+
+	return H5_SUCCESS;
+
+error:
+	return h5_error (
+		f,
+		H5_ERR_HDF5,
+		"Cannot get name of object %ld in group %s.",
+		(long)idx,
+		h5_get_objname( loc_id ) );
+}
 
 /****** D a t a s e t ********************************************************/
 /*!
@@ -91,7 +168,7 @@ _h5_close_group (
   \param[in]	dataset_name	name of dataset to open
  */
 hid_t
-_h5_open_dataset (
+_hdf_open_dataset (
 	h5_file_t * const f,
 	const hid_t loc_id,
 	const char * const dataset_name
@@ -112,28 +189,6 @@ _h5_open_dataset (
 }
 
 /*!
-  Get dataspace of existing dataset
-
-  \param[in]	f		file handle
-  \param[in]	dataset_id	id of dataset
-
- */
-hid_t
-_h5_get_dataset_space (
-	h5_file_t * const f,
-	const hid_t dataset_id
-	) {
-	hid_t dataspace_id = H5Dget_space ( dataset_id );
-	if ( dataspace_id < 0 )
-		return h5_error (
-			f,
-			H5_ERR_HDF5,
-			"Cannot get dataspace for dataset \"%s\".",
-			h5_get_objname ( dataset_id ) );
-	return dataspace_id;
-}
-
-/*!
   Create new dataset
 
   \param[in]	f		file handle
@@ -145,7 +200,7 @@ _h5_get_dataset_space (
 
  */
 hid_t
-_h5_create_dataset (
+_hdf_create_dataset (
 	h5_file_t * const f,
 	hid_t loc_id,
 	const char * dataset_name,
@@ -165,13 +220,60 @@ _h5_create_dataset (
 		return h5_error(
 			f,
 			H5_ERR_HDF5,
-			"Cannot create dataset name \"%s\"",
+			"Cannot create dataset %s/%s",
+			h5_get_objname ( loc_id ),
 			dataset_name );
 	return dataset_id;
 }
 
 /*!
-  Write dataset.
+  Close dataset.
+
+  \param[in]	f		file handle
+  \param[in]	dataset_id	id of dataset to close
+*/
+herr_t
+_hdf_close_dataset (
+	h5_file_t * const f,
+	const hid_t dset_id
+	) {
+	if ( dset_id == 0 || dset_id == -1 ) return H5_SUCCESS; 
+	const char *dset_name = h5_get_objname( dset_id );
+
+	if ( H5Dclose ( dset_id ) < 0 ) {
+		return 	h5_error(
+			f,
+			H5_ERR_HDF5,
+			"Close of dataset \"%s\" failed.", dset_name );
+	}
+	return H5_SUCCESS;
+}
+
+/*!
+  Get dataspace of existing dataset
+
+  \param[in]	f		file handle
+  \param[in]	dataset_id	id of dataset
+
+ */
+hid_t
+_hdf_get_dataset_space (
+	h5_file_t * const f,
+	const hid_t dataset_id
+	) {
+	hid_t dataspace_id = H5Dget_space ( dataset_id );
+	if ( dataspace_id < 0 )
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot get dataspace for dataset \"%s\".",
+			h5_get_objname ( dataset_id ) );
+	return dataspace_id;
+}
+
+/*!
+  Wrapper for H5Dwrite.
+  
 
   \param[in]	f		file handle
   \param[in]	dataset_id	id of dataset
@@ -183,7 +285,7 @@ _h5_create_dataset (
 
  */
 herr_t
-_h5_write_dataset (
+_hdf_write_dataset (
 	h5_file_t * const f,
 	const hid_t dataset_id,
 	const hid_t type_id,
@@ -209,8 +311,11 @@ _h5_write_dataset (
 	return H5_SUCCESS;
 }
 
+/*
+  Wrapper for H5Dread
+*/
 h5_err_t
-_h5_read_dataset (
+_hdf_read_dataset (
 	h5_file_t * const f,
 	const hid_t dataset_id,
 	const hid_t type_id,
@@ -230,49 +335,73 @@ _h5_read_dataset (
 		return h5_error(
 			f,
 			H5_ERR_HDF5,
-			"Read from dataset \"%s\".",	\
+			"Error reading dataset \"%s\".",	\
 			h5_get_objname ( dataset_id ) );
 	
 	return H5_SUCCESS;
 }
 
 hid_t
-_h5_get_dataset_type ( 
+_hdf_get_dataset_type ( 
 	h5_file_t * const f,
 	const hid_t dataset_id
 	) {
 	hid_t datatype_id = H5Dget_type ( dataset_id );
 	if ( datatype_id < 0 )
-		h5_error(
+		return h5_error(
 			f,
 			H5_ERR_HDF5,
 			"Cannot determine dataset type.");
 
-	return H5_SUCCESS;
+	return datatype_id;
 }
 
-/*!
-  Close dataset.
 
-  \param[in]	f		file handle
-  \param[in]	dataset_id	id of dataset to close
-*/
 herr_t
-_h5_close_dataset (
+_hdf_set_dataset_extent (
 	h5_file_t * const f,
-	const hid_t dataset_id
+	hid_t dset_id,
+	const hsize_t *size
 	) {
-	if ( dataset_id == 0 || dataset_id == -1 ) return H5_SUCCESS; 
-	const char *dataset_name = h5_get_objname( dataset_id );
+	const char *dset_name = h5_get_objname( dset_id );
 
-	if ( H5Dclose ( dataset_id ) < 0 ) {
+	if ( H5Dset_extent( dset_id, size  ) < 0 ) {
 		return 	h5_error(
 			f,
 			H5_ERR_HDF5,
-			"Close of dataset \"%s\" failed.", dataset_name );
+			"Changing size of dataset \"%s\" dimensions failed.",
+			dset_name );
 	}
 	return H5_SUCCESS;
 }
+
+hssize_t
+_hdf_get_npoints_of_dataset (
+	h5_file_t * const f,
+	hid_t dset_id
+	) {
+	hid_t dspace_id;
+	hsize_t size;
+	TRY ( dspace_id = _hdf_get_dataset_space ( f, dset_id ) );
+	TRY ( size = _hdf_get_npoints_of_dataspace ( f, dspace_id ) );
+	TRY ( _hdf_close_dataspace( f, dspace_id ) );
+	return size;
+}
+
+hssize_t
+_hdf_get_npoints_of_dataset_by_name (
+	h5_file_t * const f,
+	hid_t loc_id,
+	char * name
+	) {
+	hid_t dset_id;
+	hsize_t size;
+	TRY ( dset_id = _hdf_open_dataset ( f, loc_id, name ) );
+	TRY ( size = _hdf_get_npoints_of_dataset ( f, dset_id ) );
+	TRY ( _hdf_close_dataset ( f, dset_id ) );
+	return size;
+}
+
 
 /****** D a t a s p a c e ****************************************************/
 /*!
@@ -285,7 +414,7 @@ _h5_close_dataset (
 
  */
 hid_t 
-_h5_create_space (
+_hdf_create_dataspace (
 	h5_file_t * const f,
 	const int rank,
 	const hsize_t * dims,
@@ -302,7 +431,7 @@ _h5_create_space (
 }
 
 herr_t
-_h5_select_hyperslab_of_space (
+_hdf_select_hyperslab_of_dataspace (
 	h5_file_t * const f,
 	hid_t space_id,
 	H5S_seloper_t op,
@@ -328,7 +457,7 @@ _h5_select_hyperslab_of_space (
 }
 
 hssize_t
-_h5_get_selected_npoints_of_space (
+_hdf_get_selected_npoints_of_dataspace (
 	h5_file_t * const f,
 	hid_t space_id
 	) {
@@ -342,7 +471,7 @@ _h5_get_selected_npoints_of_space (
 }
 
 hssize_t
-_h5_get_npoints_of_space (
+_hdf_get_npoints_of_dataspace (
 	h5_file_t * const f,
 	hid_t space_id
 	) {
@@ -356,7 +485,7 @@ _h5_get_npoints_of_space (
 }
 
 int
-_h5_get_dims_of_space (
+_hdf_get_dims_of_dataspace (
 	h5_file_t * const f,
 	hid_t space_id,
 	hsize_t *dims,
@@ -379,7 +508,7 @@ _h5_get_dims_of_space (
   \param[in]	dataspace_id	id of space to close
 */
 herr_t
-_h5_close_dataspace (
+_hdf_close_dataspace (
 	h5_file_t * const f,
 	const hid_t dataspace_id
 	) {
@@ -399,8 +528,8 @@ _h5_close_dataspace (
 
 /****** D a t a t y p e ******************************************************/
 
-const char*
-_h5_get_base_type_name (
+static const char*
+_get_base_type_name (
 	h5_file_t * const f,
 	hid_t base_type_id
 	) {
@@ -412,8 +541,8 @@ _h5_get_base_type_name (
 	return "[unknown]";
 }
 
-const char*
-_h5_get_class_type_name (
+static const char*
+_get_class_type_name (
 	h5_file_t * const f,
 	hid_t base_type_id
 	) {
@@ -431,7 +560,7 @@ _h5_get_class_type_name (
   \param[in]	dims		dimensions
 */
 hid_t
-_h5_create_array_type (
+_hdf_create_array_type (
 	h5_file_t * const f,
 	hid_t base_type_id,
 	int rank,
@@ -444,14 +573,14 @@ _h5_create_array_type (
 			H5_ERR_HDF5,
 			"Can't create array datatype object with base "
 			"type %s and rank %d",
-			_h5_get_base_type_name ( f, base_type_id ),
+			_get_base_type_name ( f, base_type_id ),
 			rank );
 	}
 	return type_id;
 }
 
 hid_t
-_h5_create_type (
+_hdf_create_type (
 	h5_file_t * const f,
 	H5T_class_t class,
 	const size_t size
@@ -462,14 +591,14 @@ _h5_create_type (
 			f,
 			H5_ERR_HDF5,
 			"Can't create datatype object of class %s.",
-			_h5_get_class_type_name ( f, class )
+			_get_class_type_name ( f, class )
 			);
 	}
 	return type_id;
 }
 
 herr_t
-_h5_insert_type (
+_hdf_insert_type (
 	h5_file_t * const f,
 	hid_t dtype_id,
 	const char * name,
@@ -487,7 +616,7 @@ _h5_insert_type (
 }
 
 herr_t
-_h5_close_type (
+_hdf_close_type (
 	h5_file_t * const f,
 	hid_t dtype_id
 	) {
@@ -503,7 +632,7 @@ _h5_close_type (
 /****** P r o p e r t y ******************************************************/
 
 hid_t
-_h5_create_property (
+_hdf_create_property (
 	h5_file_t * const f,
 	hid_t cls_id
 	) {
@@ -517,14 +646,13 @@ _h5_create_property (
 }
 
 herr_t
-_h5_set_chunk_property (
+_hdf_set_chunk_property (
 	h5_file_t * const f,
 	hid_t plist,
-	int ndims,
-	const hsize_t * dim
+	int rank,
+	const hsize_t * dims
 	) {
-	herr_t herr = H5Pset_chunk ( plist, ndims, dim );
-	if ( herr < 0 )
+	if ( H5Pset_chunk ( plist, rank, dims ) < 0 )
 		return h5_error (
 			f,
 			H5_ERR_HDF5,
@@ -535,7 +663,7 @@ _h5_set_chunk_property (
 
 #ifdef PARALLEL_IO
 h5_err_t
-_h5_set_fapl_mpio_property (
+_hdf_set_fapl_mpio_property (
 	h5_file_t * const f,
 	hid_t fapl_id,
 	MPI_Comm comm,
@@ -553,7 +681,7 @@ _h5_set_fapl_mpio_property (
 #endif
 
 h5_err_t
-_h5_close_property (
+_hdf_close_property (
 	h5_file_t * const f,
 	hid_t prop
 	) {
@@ -569,7 +697,7 @@ _h5_close_property (
 /****** F i l e **************************************************************/
 
 herr_t
-_h5_close_file (
+_hdf_close_file (
 	h5_file_t * const f,
 	hid_t fileid
 	) {
@@ -585,7 +713,7 @@ _h5_close_file (
 /****** E r r o r h a n d l i n g ********************************************/
 
 herr_t
-_h5_set_errorhandler (
+_hdf_set_errorhandler (
 	h5_file_t * const f,
 	hid_t estack_id,
 	H5E_auto_t func,
@@ -602,7 +730,7 @@ _h5_set_errorhandler (
 
 /****** A t t r i b u t e ****************************************************/
 hid_t
-_h5_open_attribute (
+_hdf_open_attribute (
 	h5_file_t * const f,
 	hid_t loc_id,
 	const char *attr_name
@@ -619,7 +747,7 @@ _h5_open_attribute (
 }
 
 hid_t
-_h5_open_attribute_idx (
+_hdf_open_attribute_idx (
 	h5_file_t * const f,
 	hid_t loc_id,
 	unsigned int idx
@@ -636,7 +764,7 @@ _h5_open_attribute_idx (
 }	
 
 hid_t
-_h5_open_attribute_by_name (
+_hdf_open_attribute_by_name (
 	h5_file_t * const f,
 	hid_t loc_id,
 	const char *obj_name,
@@ -659,7 +787,7 @@ _h5_open_attribute_by_name (
 }
 
 hid_t
-_h5_create_attribute (
+_hdf_create_attribute (
 	h5_file_t * const f,
 	hid_t loc_id,
 	const char *attr_name,
@@ -686,7 +814,7 @@ _h5_create_attribute (
 }
 
 herr_t
-_h5_read_attribute (
+_hdf_read_attribute (
 	h5_file_t * const f,
 	hid_t attr_id,
 	hid_t mem_type_id,
@@ -703,8 +831,11 @@ _h5_read_attribute (
 	return H5_SUCCESS;
 }
 
+/*
+  Wrapper for H5Awrite.
+ */
 herr_t
-_h5_write_attribute (
+_hdf_write_attribute (
 	h5_file_t * const f,
 	hid_t attr_id,
 	hid_t mem_type_id,
@@ -722,7 +853,7 @@ _h5_write_attribute (
 }
 
 ssize_t
-_h5_get_attribute_name (
+_hdf_get_attribute_name (
 	h5_file_t * const f,
 	hid_t attr_id,
 	size_t buf_size,
@@ -738,7 +869,7 @@ _h5_get_attribute_name (
 }
 
 hid_t
-_h5_get_attribute_type (
+_hdf_get_attribute_type (
 	h5_file_t * const f,
 	hid_t attr_id
 	) {
@@ -753,7 +884,7 @@ _h5_get_attribute_type (
 }
 
 hid_t
-_h5_get_attribute_space (
+_hdf_get_attribute_dataspace (
 	h5_file_t * const f,
 	hid_t attr_id
 	) {
@@ -768,7 +899,7 @@ _h5_get_attribute_space (
 }
 
 int
-_h5_get_num_attributes (
+_hdf_get_num_attributes (
 	h5_file_t * const f,
 	hid_t loc_id
 	) {
@@ -784,7 +915,7 @@ _h5_get_num_attributes (
 
 
 herr_t
-_h5_close_attribute (
+_hdf_close_attribute (
 	h5_file_t * const f,
 	hid_t attr_id
 	) {

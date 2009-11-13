@@ -3,6 +3,8 @@
 #include "h5_core.h"
 #include "h5_core_private.h"
 
+/* OBSOLETE!!! */
+
 struct _iter_op_data {
 	int stop_idx;
 	int count;

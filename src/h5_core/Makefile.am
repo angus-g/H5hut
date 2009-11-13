@@ -62,6 +62,8 @@ EXTRA_HEADERS = \
 	h5t_retrieve_private.h \
 	h5t_storemesh.h \
 	h5t_storemesh_private.h \
+	h5t_tags.h \
+	h5t_tags_private.h \
 	h5u_errorhandling_private.h \
 	h5u_readwrite.h \
 	hdf5_misc.h
@@ -106,6 +108,7 @@ libH5_core_a_SOURCES = \
 	h5t_readwrite.c \
 	h5t_retrieve.c \
 	h5t_storemesh.c \
+	h5t_tags.c \
 	h5u_readwrite.c \
 	hdf5_misc.c
 

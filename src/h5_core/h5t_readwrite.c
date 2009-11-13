@@ -18,7 +18,6 @@ _open_space_all (
 }
 
 /*
-
   Write vertices:
   * either we write a new dataset
   * or we append data to this dataset
@@ -38,14 +37,14 @@ _write_vertices (
 		TRY( _h5t_open_mesh_group ( f ) );
 	}
 	t->dsinfo_vertices.dims[0] = t->num_vertices[t->cur_level];
-	TRY( _h5_write (
+	TRY( _h5_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_vertices,
 		     _open_space_all,
 		     _open_space_all,
 		     t->vertices ) );
-	TRY( _h5_write (
+	TRY( _h5_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_vertices,
@@ -68,7 +67,7 @@ _write_elems (
 		TRY( _h5t_open_mesh_group ( f ) );
 	}
 
-	TRY ( _h5_write (
+	TRY ( _h5_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_elems,
@@ -76,7 +75,7 @@ _write_elems (
 		     _open_space_all,
 		     t->elems.data ) );
 
-	TRY ( _h5_write (
+	TRY ( _h5_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems,
@@ -84,7 +83,7 @@ _write_elems (
 		     _open_space_all,
 		     t->num_elems ) );
 
-	TRY ( _h5_write (
+	TRY ( _h5_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems_on_level,
@@ -100,10 +99,13 @@ _h5t_write_mesh (
 	h5_file_t * f
 	) {
 	h5t_fdata_t *t = f->t;
-	if ( ! t->mesh_changed ) return 0;
-
-	TRY( _write_vertices( f ) );
-	TRY( _write_elems( f ) );
+	if ( t->mesh_changed ) {
+		TRY( _write_vertices( f ) );
+		TRY( _write_elems( f ) );
+	}
+	if ( t->mtags.changed ) { 
+		TRY ( _h5t_write_mtags ( f ) );
+	}
 
 	return H5_SUCCESS;
 }
@@ -120,10 +122,10 @@ _read_num_levels (
 	if ( t->cur_mesh < 0 ) {
 		return _h5t_error_undef_mesh ( f );
 	}
-	TRY ( dataset_id = _h5_open_dataset ( f, t->mesh_gid, "NumVertices" ) );
-	TRY ( diskspace_id = _h5_get_dataset_space ( f, dataset_id ) );
-	TRY ( size = _h5_get_npoints_of_space ( f, diskspace_id ) );
-	TRY ( _h5_close_dataspace( f, diskspace_id ) );
+	TRY ( dataset_id = _hdf_open_dataset ( f, t->mesh_gid, "NumVertices" ) );
+	TRY ( diskspace_id = _hdf_get_dataset_space ( f, dataset_id ) );
+	TRY ( size = _hdf_get_npoints_of_dataspace ( f, diskspace_id ) );
+	TRY ( _hdf_close_dataspace( f, diskspace_id ) );
 
 	t->num_levels = size;
 	return size;
@@ -157,7 +159,7 @@ _read_num_vertices (
 	}
 	ssize_t num_bytes = t->num_levels*sizeof ( t->num_vertices[0] );
 	TRY ( t->num_vertices = _h5_alloc ( f, t->num_vertices, num_bytes ) );
-	TRY ( _h5_read (
+	TRY ( _h5_read_dataset_by_name (
 		f,
 		t->mesh_gid,
 		&t->dsinfo_num_vertices,
@@ -176,7 +178,7 @@ _read_vertices (
 
 
 	TRY( _h5t_alloc_num_vertices ( f, t->num_vertices[t->num_levels-1] ) );
-	TRY( _h5_read (
+	TRY( _h5_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_vertices,
@@ -203,7 +205,7 @@ _read_num_elems (
 	size_t size = t->num_levels * sizeof ( t->num_elems[0] );
 	TRY( t->num_elems = _h5_alloc ( f, NULL, size ) );
 	TRY( t->num_elems_on_level = _h5_alloc ( f, NULL, size ) );
-	TRY( _h5_read (
+	TRY( _h5_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems,
@@ -211,7 +213,7 @@ _read_num_elems (
 		     _open_space_all,
 		     t->num_elems ) );
 
-	TRY( _h5_read (
+	TRY( _h5_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems_on_level,
@@ -295,7 +297,7 @@ _read_elems (
 	h5t_fdata_t *t = f->t;
 
 	TRY( (*t->methods._alloc_elems)( f, 0, t->num_elems[t->num_levels-1] ) );
-	TRY( _h5_read (
+	TRY( _h5_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_elems,
@@ -311,6 +313,15 @@ _read_elems (
 	return H5_SUCCESS;
 }
 
+static h5_err_t
+_read_mtags (
+	h5_file_t *const f
+	) {
+	h5t_fdata_t *t = f->t;
+	TRY ( t->mtags.group_id = _h5_open_group ( f, t->mesh_gid, "Tags" ) );
+	return _h5t_read_tag_container ( f, &f->t->mtags );
+}
+
 h5_err_t
 _h5t_read_mesh (
 	h5_file_t *f
@@ -323,6 +334,7 @@ _h5t_read_mesh (
 	TRY ( _read_num_elems ( f ) );
 	TRY ( _read_vertices ( f ) );
 	TRY ( _read_elems ( f ) );
+	TRY ( _read_mtags ( f ) );
 	return H5_SUCCESS;
 }
 

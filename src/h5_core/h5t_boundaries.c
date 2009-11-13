@@ -120,14 +120,14 @@ _h5t_read_boundaryfaces (
 	const char * const dataset_name = "Faces";
 	hid_t dataset_id;
 	h5_size_t num_faces;
-	TRY ( dataset_id = _h5_open_dataset ( f, boundary->gid, dataset_name ) );
-	TRY ( diskspace_id = _h5_get_dataset_space ( f, dataset_id ) );
-	TRY ( num_faces = _h5_get_npoints_of_space ( f, diskspace_id ) );
-	TRY ( _h5_close_dataspace( f, diskspace_id ) );
-	TRY ( _h5_close_dataset( f, dataset_id ) );
+	TRY ( dataset_id = _hdf_open_dataset ( f, boundary->gid, dataset_name ) );
+	TRY ( diskspace_id = _hdf_get_dataset_space ( f, dataset_id ) );
+	TRY ( num_faces = _hdf_get_npoints_of_dataspace ( f, diskspace_id ) );
+	TRY ( _hdf_close_dataspace( f, diskspace_id ) );
+	TRY ( _hdf_close_dataset( f, dataset_id ) );
 	TRY ( h5t_add_num_boundaryfaces ( f, num_faces ) );
 
-	TRY ( _h5_read_dataset (
+	TRY ( _hdf_read_dataset (
 		f,
 		dataset_id,
 		H5T_NATIVE_INT32,
@@ -135,7 +135,7 @@ _h5t_read_boundaryfaces (
 		H5S_ALL,
 		f->xfer_prop,
 		boundary->faces ) );
-	TRY ( _h5_close_dataset( f, dataset_id ) );
+	TRY ( _hdf_close_dataset( f, dataset_id ) );
 
 	return H5_SUCCESS;
 }
@@ -155,7 +155,7 @@ _h5t_write_boundary (
 	struct h5t_fdata *t = f->t;
 	boundary_t *boundary = &t->boundary;
 
-	return _h5_write (
+	return _h5_write_dataset_by_name (
 		f,
 		boundary->gid,
 		&boundary->dsinfo,
@@ -183,7 +183,7 @@ h5t_close_boundary (
 
 	bzero ( boundary, sizeof(*boundary) );
 
-	TRY( _h5_close_group( f, boundary->gid ) );
+	TRY( _hdf_close_group( f, boundary->gid ) );
 
 	boundary->id = -1;
 	boundary->gid = -1;
@@ -263,7 +263,7 @@ h5t_store_boundaryface_local_id (
 
 	switch ( t->mesh_type ) {
 	case H5_OID_TETRAHEDRON: {
-		h5_id_t local_tet_id = _h5t_get_elem_id ( local_fid );
+		h5_id_t local_tet_id = _h5t_get_elem_idx ( local_fid );
 		if ( t->elems.tets[local_tet_id].global_parent_eid != -1 ) {
 			return _h5t_error_store_boundaryface_local_id (
 				f,
