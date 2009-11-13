@@ -468,6 +468,7 @@ test/H5Fed/tetmesh_adjacencies.c -text
 test/H5Fed/tetmesh_read.c -text
 test/H5Fed/tetmesh_read_tags.c -text
 test/H5Fed/tetmesh_write.c -text
+test/H5Fed/tetmesh_write2.c -text
 test/H5Fed/tetmesh_write_tags.c -text
 test/H5Fed/trimesh_read.c -text
 test/H5Fed/trimesh_write.c -text
