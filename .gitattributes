@@ -421,6 +421,8 @@ src/h5_core/h5t_boundaries.h -text
 src/h5_core/h5t_boundaries_private.h -text
 src/h5_core/h5t_consts.c -text
 src/h5_core/h5t_consts_private.h -text
+src/h5_core/h5t_core.h -text
+src/h5_core/h5t_core_private.h -text
 src/h5_core/h5t_errorhandling.c -text
 src/h5_core/h5t_errorhandling_private.h -text
 src/h5_core/h5t_hsearch.c -text
@@ -441,6 +443,9 @@ src/h5_core/h5t_retrieve_private.h -text
 src/h5_core/h5t_storemesh.c -text
 src/h5_core/h5t_storemesh.h -text
 src/h5_core/h5t_storemesh_private.h -text
+src/h5_core/h5t_tags.c -text
+src/h5_core/h5t_tags.h -text
+src/h5_core/h5t_tags_private.h -text
 src/h5_core/h5t_types_private.h -text
 src/h5_core/h5u_errorhandling_private.h -text
 src/h5_core/h5u_readwrite.c -text
