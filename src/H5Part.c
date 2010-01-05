@@ -1085,16 +1085,28 @@ _H5Part_write_attrib (
 	herr_t herr;
 	hid_t space_id;
 	hid_t attrib_id;
+	hid_t type = attrib_type;
 
-	space_id = H5Screate_simple (1, &attrib_nelem, NULL);
-	if ( space_id < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( attrib_nelem );
+	if (type == H5T_STRING) {
+		type = H5Tcopy(H5T_C_S1);
+		if (attrib_type < 0) return HANDLE_H5T_STRING_ERR;
+		herr = H5Tset_size(type,attrib_nelem);
+		if (herr < 0) return HANDLE_H5T_STRING_ERR;
+		space_id = H5Screate (H5S_SCALAR);
+		if ( space_id < 0 )
+			return HANDLE_H5S_CREATE_SCALAR_ERR;
+	}
+	else {
+		space_id = H5Screate_simple (1, &attrib_nelem, NULL);
+		if ( space_id < 0 )
+			return HANDLE_H5S_CREATE_SIMPLE_ERR ( attrib_nelem );
+	}
 
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
 	attrib_id = H5Acreate2 ( 
 		id,
 		attrib_name,
-		attrib_type,
+		type,
 		space_id,
 		H5P_DEFAULT,
 		H5P_DEFAULT );
@@ -1102,13 +1114,13 @@ _H5Part_write_attrib (
 	attrib_id = H5Acreate ( 
 		id,
 		attrib_name,
-		attrib_type,
+		type,
 		space_id,
 		H5P_DEFAULT );
 #endif
 	if ( attrib_id < 0 ) return HANDLE_H5A_CREATE_ERR ( attrib_name );
 
-	herr = H5Awrite ( attrib_id, attrib_type, attrib_value);
+	herr = H5Awrite ( attrib_id, type, attrib_value);
 	if ( herr < 0 ) return HANDLE_H5A_WRITE_ERR ( attrib_name );
 
 	herr = H5Aclose ( attrib_id );
@@ -1209,7 +1221,7 @@ H5PartWriteFileAttribString (
 	h5part_int64_t herr = _H5Part_write_attrib (
 		group_id,
 		attrib_name,
-		H5T_NATIVE_CHAR,
+		H5T_STRING,
 		attrib_value,
 		strlen ( attrib_value ) + 1 );
 	if ( herr < 0 ) return herr;
@@ -1247,7 +1259,7 @@ H5PartWriteStepAttribString (
 	h5part_int64_t herr = _H5Part_write_attrib (
 		f->timegroup,
 		name,
-		H5T_NATIVE_CHAR,
+		H5T_STRING,
 		value,
 		strlen ( value ) + 1 );
 	if ( herr < 0 ) return herr;

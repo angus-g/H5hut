@@ -50,6 +50,7 @@ extern "C" {
 #define H5PART_FLOAT64		((h5part_int64_t)H5T_NATIVE_DOUBLE)
 #define H5PART_FLOAT32		((h5part_int64_t)H5T_NATIVE_FLOAT)
 #define H5PART_CHAR		((h5part_int64_t)H5T_NATIVE_CHAR)
+#define H5PART_STRING		((h5part_int64_t)H5T_STRING)
 
 /*========== File Opening/Closing ===============*/
 H5PartFile*

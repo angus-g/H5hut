@@ -291,6 +291,12 @@
 			"Cannot get chunk dimensions." );
 
 /* H5S: dataspace */
+#define HANDLE_H5S_CREATE_SCALAR_ERR \
+	 (*_err_handler) ( \
+		_H5Part_get_funcname(), \
+		H5PART_ERR_HDF5, \
+		"Cannot create scalar dataspace." );
+
 #define HANDLE_H5S_CREATE_SIMPLE_ERR( n ) \
 	 (*_err_handler) ( \
 		_H5Part_get_funcname(), \
@@ -322,6 +328,12 @@
 		"Cannot set select hyperslap region or add the specified region" );
 
 /* H5T:  type */
+#define HANDLE_H5T_STRING_ERR \
+	 (*_err_handler) ( \
+		_H5Part_get_funcname(), \
+		H5PART_ERR_HDF5, \
+		"Cannot create string datatype." );
+
 #define HANDLE_H5T_CLOSE_ERR \
 	 (*_err_handler) ( \
 		_H5Part_get_funcname(), \
