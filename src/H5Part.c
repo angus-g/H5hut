@@ -988,6 +988,17 @@ H5PartWriteDataInt32 (
   @{
 */
 
+hid_t
+_H5Part_make_string_type(
+	int size
+	) {
+	hid_t stype = H5Tcopy(H5T_C_S1);
+	if (stype < 0) return HANDLE_H5T_STRING_ERR;
+	herr_t herr = H5Tset_size(stype,size);
+	if (herr < 0) return HANDLE_H5T_STRING_ERR;
+	return stype;
+}
+
 /*!
    Normalize HDF5 type
 */
@@ -1015,6 +1026,8 @@ _H5Part_normalize_h5_type (
 	    return H5T_NATIVE_FLOAT;
 	  }
 	  break;
+	case H5T_STRING:
+	  return _H5Part_make_string_type(size);
 	default:
 	  ; /* NOP */
 	}
@@ -1039,10 +1052,13 @@ _H5Part_read_attrib (
 
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
 	if (! H5Aexists ( id, attrib_name )) {
-	    _H5Part_print_warn ( "Attribute does not exist!" );
+		_H5Part_print_warn ( "Attribute does not exist!" );
 	}
 	attrib_id = H5Aopen ( id, attrib_name, H5P_DEFAULT );
 #else
+	if (! H5Lexists ( id, attrib_name, H5P_DEFAULT )) {
+		_H5Part_print_warn ( "Attribute does not exist!" );
+	}
 	attrib_id = H5Aopen_name ( id, attrib_name );
 #endif
 	if ( attrib_id <= 0 ) return HANDLE_H5A_OPEN_NAME_ERR( attrib_name );
@@ -1088,10 +1104,7 @@ _H5Part_write_attrib (
 	hid_t type = attrib_type;
 
 	if (type == H5T_STRING) {
-		type = H5Tcopy(H5T_C_S1);
-		if (attrib_type < 0) return HANDLE_H5T_STRING_ERR;
-		herr = H5Tset_size(type,attrib_nelem);
-		if (herr < 0) return HANDLE_H5T_STRING_ERR;
+		type = _H5Part_make_string_type(attrib_nelem);
 		space_id = H5Screate (H5S_SCALAR);
 		if ( space_id < 0 )
 			return HANDLE_H5S_CREATE_SCALAR_ERR;
