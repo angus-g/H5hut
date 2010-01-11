@@ -396,6 +396,7 @@ if test "X$USE_PARALLEL" = "Xyes"; then
     TTARGET="${TTARGET} H5BlockTestAttributes"
     TTARGET="${TTARGET} H5BlockParTestScalarField"
 
+
     # parallel + fortran
     if test "X$USE_FORTRAN" = "Xyes"; then
         AC_PATH_PROGS([MPIFC], [mpxlf_r mpif90], [], [$PATH])

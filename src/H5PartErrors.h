@@ -250,6 +250,11 @@
 		H5PART_ERR_HDF5, \
 		"Cannot open group \"%s\".", s );
 
+#define HANDLE_H5O_OPEN_ERR( s ) \
+	 (*_err_handler) ( \
+		_H5Part_get_funcname(), \
+		H5PART_ERR_HDF5, \
+		"Cannot open object \"%s\".", s );
 
 /* H5P: property */
 #define HANDLE_H5P_CLOSE_ERR( s ) \

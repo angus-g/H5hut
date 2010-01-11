@@ -769,8 +769,10 @@ _write_data (
 	if ( dataset_id < 0 )
 		return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
 
+#if PARALLEL_IO
 	herr = _H5Part_start_throttle( f );
 	if (herr < 0) return herr;
+#endif
 
 	herr = H5Dwrite (
 		dataset_id,
@@ -780,8 +782,10 @@ _write_data (
 		f->xfer_prop,
 		array );
 
+#if PARALLEL_IO
 	herr = _H5Part_end_throttle( f );
 	if (herr < 0) return herr;
+#endif
 
 	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
 
@@ -1052,13 +1056,10 @@ _H5Part_read_attrib (
 
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
 	if (! H5Aexists ( id, attrib_name )) {
-		_H5Part_print_warn ( "Attribute does not exist!" );
+		_H5Part_print_warn ( "Attribute '%s' does not exist!", attrib_name );
 	}
 	attrib_id = H5Aopen ( id, attrib_name, H5P_DEFAULT );
 #else
-	if (! H5Lexists ( id, attrib_name, H5P_DEFAULT )) {
-		_H5Part_print_warn ( "Attribute does not exist!" );
-	}
 	attrib_id = H5Aopen_name ( id, attrib_name );
 #endif
 	if ( attrib_id <= 0 ) return HANDLE_H5A_OPEN_NAME_ERR( attrib_name );
@@ -1817,6 +1818,8 @@ _H5Part_iteration_operator (
 	herr_t herr;
 
 	if ( data->type != H5G_UNKNOWN ) {
+		hid_t obj_id = H5Oopen( group_id, member_name, H5P_DEFAULT );
+		if ( obj_id < 0 ) return (herr_t)HANDLE_H5O_OPEN_ERR ( member_name );
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
                 H5O_info_t objinfo;
 		herr = H5Oget_info ( group_id, &objinfo );
@@ -1826,6 +1829,7 @@ _H5Part_iteration_operator (
 		herr = H5Gget_objinfo ( group_id, member_name, 1, &objinfo );
 		if ( herr < 0 ) return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
 #endif
+		H5Oclose( obj_id );
 		if ( objinfo.type != data->type )
 			return 0;/* don't count, continue iteration */
 	}
@@ -2636,8 +2640,10 @@ _read_data (
 	memspace_id = _get_memshape_for_reading ( f, dataset_id );
 	if ( memspace_id < 0 ) return (h5part_int64_t)memspace_id;
 
+#if PARALLEL_IO
 	herr = _H5Part_start_throttle( f );
 	if (herr < 0) return herr;
+#endif
 
 	herr = H5Dread (
 		dataset_id,
@@ -2649,8 +2655,10 @@ _read_data (
 		f->xfer_prop,		/* ignore... its for parallel reads */
 		array );
 
+#if PARALLEL_IO
 	herr = _H5Part_end_throttle( f );
 	if (herr < 0) return herr;
+#endif
 
 	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->timestep );
 
@@ -2887,6 +2895,7 @@ H5PartSetThrottle (
 	return H5PART_SUCCESS;
 }
 
+#if PARALLEL_IO
 h5part_int64_t
 _H5Part_start_throttle (
 	H5PartFile *f
@@ -2944,6 +2953,7 @@ _H5Part_end_throttle (
 	}
 	return H5PART_SUCCESS;
 }
+#endif
 
 /*!
   \ingroup h5part_errhandle
