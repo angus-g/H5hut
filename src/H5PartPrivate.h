@@ -60,7 +60,13 @@ _H5Part_get_funcname (
 
 #define SET_FNAME( fname )	_H5Part_set_funcname( fname );
 
-hid_t
+h5part_int64_t
+_H5Part_make_string_type (
+	hid_t *type,
+	int size
+	);
+
+h5part_int64_t
 _H5Part_normalize_h5_type (
 	hid_t type
 	);

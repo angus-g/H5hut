@@ -992,21 +992,22 @@ H5PartWriteDataInt32 (
   @{
 */
 
-hid_t
+h5part_int64_t
 _H5Part_make_string_type(
+	hid_t *stype,
 	int size
 	) {
-	hid_t stype = H5Tcopy(H5T_C_S1);
-	if (stype < 0) return HANDLE_H5T_STRING_ERR;
-	herr_t herr = H5Tset_size(stype,size);
-	if (herr < 0) return HANDLE_H5T_STRING_ERR;
-	return stype;
+	*stype = H5Tcopy ( H5T_C_S1 );
+	if ( *stype < 0 ) return HANDLE_H5T_STRING_ERR;
+	herr_t herr = H5Tset_size ( *stype, size );
+	if ( herr < 0 ) return HANDLE_H5T_STRING_ERR;
+	return H5PART_SUCCESS;
 }
 
 /*!
    Normalize HDF5 type
 */
-hid_t
+h5part_int64_t
 _H5Part_normalize_h5_type (
 	hid_t type
 	) {
@@ -1016,22 +1017,22 @@ _H5Part_normalize_h5_type (
 	switch ( tclass ){
 	case H5T_INTEGER:
 	  if ( size==8 ) {
-	    return H5T_NATIVE_INT64;
+	    return H5PART_INT64;
 	  }
 	  else if ( size==1 ) {
-	    return H5T_NATIVE_CHAR;
+	    return H5PART_CHAR;
 	  }
 	  break;
 	case H5T_FLOAT:
 	  if ( size==8 ) {
-	    return H5T_NATIVE_DOUBLE;
+	    return H5PART_FLOAT64;
 	  }
 	  else if ( size==4 ) {
-	    return H5T_NATIVE_FLOAT;
+	    return H5PART_FLOAT32;
 	  }
 	  break;
 	case H5T_STRING:
-	  return _H5Part_make_string_type(size);
+	  return H5PART_STRING;
 	default:
 	  ; /* NOP */
 	}
@@ -1048,6 +1049,7 @@ _H5Part_read_attrib (
 	) {
 
 	herr_t herr;
+	h5part_int64_t h5err;
 	hid_t attrib_id;
 	hid_t space_id;
 	hid_t type_id;
@@ -1064,7 +1066,7 @@ _H5Part_read_attrib (
 #endif
 	if ( attrib_id <= 0 ) return HANDLE_H5A_OPEN_NAME_ERR( attrib_name );
 
-	mytype = H5Aget_type ( attrib_id );
+	type_id = H5Aget_type ( attrib_id );
 	if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR;
 
 	space_id = H5Aget_space ( attrib_id );
@@ -1073,15 +1075,13 @@ _H5Part_read_attrib (
 	nelem = H5Sget_simple_extent_npoints ( space_id );
 	if ( nelem < 0 ) return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR;
 
-	type_id = _H5Part_normalize_h5_type ( mytype );
-
-	herr = H5Aread (attrib_id, type_id, attrib_value );
+	herr = H5Aread ( attrib_id, type_id, attrib_value );
 	if ( herr < 0 ) return HANDLE_H5A_READ_ERR;
 
 	herr = H5Sclose ( space_id );
 	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
 
-	herr = H5Tclose ( mytype );
+	herr = H5Tclose ( type_id );
 	if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR;
 
 	herr = H5Aclose ( attrib_id );
@@ -1100,12 +1100,14 @@ _H5Part_write_attrib (
 	) {
 
 	herr_t herr;
+        h5part_int64_t h5err;
 	hid_t space_id;
 	hid_t attrib_id;
 	hid_t type = attrib_type;
 
-	if (type == H5T_STRING) {
-		type = _H5Part_make_string_type(attrib_nelem);
+	if (attrib_type == H5T_STRING) {
+		h5err = _H5Part_make_string_type(&type, attrib_nelem);
+                if ( h5err < 0 ) return h5err;
 		space_id = H5Screate (H5S_SCALAR);
 		if ( space_id < 0 )
 			return HANDLE_H5S_CREATE_SCALAR_ERR;
@@ -1142,6 +1144,11 @@ _H5Part_write_attrib (
 
 	herr = H5Sclose ( space_id );
 	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+
+	if (attrib_type == H5T_STRING) {
+		herr = H5Tclose ( type );
+		if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR;
+	}
 
 	return H5PART_SUCCESS;
 }
@@ -2144,8 +2151,7 @@ H5PartGetDatasetInfo (
 	mytype = H5Dget_type ( dataset_id );
 	if ( mytype < 0 ) HANDLE_H5D_GET_TYPE_ERR;
 
-	if(type)
-		*type = (h5part_int64_t) _H5Part_normalize_h5_type ( mytype );
+	if ( type ) *type = _H5Part_normalize_h5_type ( mytype );
 
 	herr = H5Tclose(mytype);
 	if ( herr < 0 ) HANDLE_H5T_CLOSE_ERR;
