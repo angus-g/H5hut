@@ -832,11 +832,11 @@ H5BlockGet3DChunkDims(
 	h5part_int64_t herr = _H5Block_open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	hid_t dataset_id = H5Dopen2 ( b->field_group_id, "0", H5P_DEFAULT );
-#else
-	hid_t dataset_id = H5Dopen ( b->field_group_id, "0" );
+	hid_t dataset_id = H5Dopen ( b->field_group_id, "0"
+#ifndef H5_USE_16_API
+		, H5P_DEFAULT
 #endif
+		);
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( field_name );
 
 	hid_t plist_id = H5Dget_create_plist (dataset_id);
@@ -1003,14 +1003,13 @@ _open_block_group (
 	}
 
 	if ( b->blockgroup < 0 ) {
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-		hid_t herr = H5Gopen2 (
+		hid_t herr = H5Gopen (
 				f->timegroup,
-				H5BLOCK_GROUPNAME_BLOCK,
-				H5P_DEFAULT );
-#else
-		hid_t herr = H5Gopen ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK );
+				H5BLOCK_GROUPNAME_BLOCK
+#ifndef H5_USE_16_API
+				, H5P_DEFAULT
 #endif
+				);
 		if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 		b->blockgroup = herr;
 	}
@@ -1042,11 +1041,11 @@ _H5Block_open_field_group (
 	if ( ! _H5Part_have_group ( b->blockgroup, name ) )
 		return HANDLE_H5PART_NOENT_ERR ( name );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	herr_t herr = H5Gopen2 ( b->blockgroup, name, H5P_DEFAULT );
-#else
-	herr_t herr = H5Gopen ( b->blockgroup, name );
+	herr_t herr = H5Gopen ( b->blockgroup, name
+#ifndef H5_USE_16_API
+		, H5P_DEFAULT
 #endif
+		);
 	if ( herr < 0 ) return HANDLE_H5G_OPEN_ERR ( name );
 
 	b->field_group_id = herr;
@@ -1177,11 +1176,11 @@ _H5Block_read_data (
 	h5part_int64_t herr;
 	struct H5BlockStruct *b = f->block;
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	hid_t dataset_id = H5Dopen2 ( b->field_group_id, name, H5P_DEFAULT );
-#else
-	hid_t dataset_id = H5Dopen ( b->field_group_id, name );
+	hid_t dataset_id = H5Dopen ( b->field_group_id, name
+#ifndef H5_USE_16_API
+		, H5P_DEFAULT
 #endif
+		);
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
 
 	herr = _H5Block_select_hyperslab_for_reading ( f, dataset_id );
@@ -1341,16 +1340,17 @@ _create_block_group (
 		f->block->blockgroup = -1;
 	}
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	herr = H5Gcreate2 (
-		    f->timegroup,
-		    H5BLOCK_GROUPNAME_BLOCK,
-		    H5P_DEFAULT,
-		    H5P_DEFAULT,
-		    H5P_DEFAULT );
+	herr = H5Gcreate (
+		f->timegroup,
+		H5BLOCK_GROUPNAME_BLOCK,
+#ifndef H5_USE_16_API
+		H5P_DEFAULT,
+		H5P_DEFAULT,
+		H5P_DEFAULT
 #else
-	herr = H5Gcreate ( f->timegroup, H5BLOCK_GROUPNAME_BLOCK, 0 );
+		0
 #endif
+		);
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( H5BLOCK_GROUPNAME_BLOCK );
 
 	f->block->blockgroup = herr;
@@ -1387,16 +1387,17 @@ _H5Block_create_field_group (
 	if ( _H5Part_have_group ( b->blockgroup, name ) )
 		return  HANDLE_H5PART_GROUP_EXISTS_ERR ( name );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	herr_t herr = H5Gcreate2 (
-		    b->blockgroup,
-		    name,
-		    H5P_DEFAULT,
-		    H5P_DEFAULT,
-		    H5P_DEFAULT );
+	herr_t herr = H5Gcreate (
+		b->blockgroup,
+		name,
+#ifndef H5_USE_16_API
+		H5P_DEFAULT,
+		H5P_DEFAULT,
+		H5P_DEFAULT
 #else
-	herr_t herr = H5Gcreate ( b->blockgroup, name, 0 );
+		0
 #endif
+		);
 	if ( herr < 0 ) return HANDLE_H5G_CREATE_ERR ( name );
 	b->field_group_id = herr;
 
@@ -1422,26 +1423,24 @@ _H5Block_write_data (
 	hid_t dataset;
 	struct H5BlockStruct *b = f->block;
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+#ifndef H5_USE_16_API
 	htri_t exists = H5Lexists ( b->field_group_id, name, H5P_DEFAULT );
 	if ( exists > 0 ) return HANDLE_H5D_EXISTS_ERR ( name, f->timestep );
+#endif
 
-	dataset = H5Dcreate2 (
-		b->field_group_id,
-		name,
-		type,
-		b->shape,
-		H5P_DEFAULT,
-		b->create_prop,
-		H5P_DEFAULT );
-#else
 	dataset = H5Dcreate (
 		b->field_group_id,
 		name,
 		type,
 		b->shape, 
-		b->create_prop );
+#ifndef H5_USE_16_API
+		H5P_DEFAULT,
+		b->create_prop,
+		H5P_DEFAULT
+#else
+		b->create_prop
 #endif
+		);
 	if ( dataset < 0 ) return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
 
 	herr = H5Dwrite ( 
@@ -1505,21 +1504,20 @@ _get_field_info (
 	h5part_int64_t herr = _open_block_group ( f );
 	if ( herr < 0 ) return herr;
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	hid_t group_id = H5Gopen2 (
-		    f->block->blockgroup,
-		    field_name,
-		    H5P_DEFAULT );
-#else
-	hid_t group_id = H5Gopen ( f->block->blockgroup, field_name );
+	hid_t group_id = H5Gopen (
+		f->block->blockgroup,
+		field_name
+#ifndef H5_USE_16_API
+		, H5P_DEFAULT
 #endif
+		);
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR ( field_name );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	hid_t dataset_id = H5Dopen2 ( group_id, "0", H5P_DEFAULT );
-#else
-	hid_t dataset_id = H5Dopen ( group_id, "0" );
+	hid_t dataset_id = H5Dopen ( group_id, "0"
+#ifndef H5_USE_16_API
+		, H5P_DEFAULT
 #endif
+		);
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( "0" );
 
  	hid_t dataspace_id = H5Dget_space ( dataset_id );

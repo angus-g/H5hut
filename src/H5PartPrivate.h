@@ -1,6 +1,10 @@
 #ifndef __H5PARTPRIVATE_H
 #define __H5PARTPRIVATE_H
 
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 6
+#define H5_USE_16_API
+#endif
+
 #define H5PART_GROUPNAME_STEP	"Step"
 
 #define H5PART_BTREE_IK 10000
@@ -41,6 +45,14 @@ _H5Part_iteration_operator (
 	void *operator_data
 	);
 
+#ifndef H5_USE_16_API
+herr_t
+_H5Part_iteration_operator2 (
+	hid_t group_id,		 /*!< [in] parent object id */
+	const char *member_name, /*!< [in] child object name */
+	const H5L_info_t *linfo, /*!< link info */
+	void *operator_data );   /*!< [in,out] data passed to the iterator */
+#endif
 
 void
 _H5Part_set_funcname (

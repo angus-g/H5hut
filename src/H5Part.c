@@ -119,7 +119,7 @@ _file_is_valid (
 */
 static herr_t
 _h5_error_handler (
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+#ifndef H5_USE_16_API
 	hid_t,
 #endif
 	void *
@@ -137,6 +137,7 @@ _H5Part_open_file (
 					  metadata block size, etc.
 					  Set to 0 to disable. */
 	) {
+
 	_h5part_errno = H5PART_SUCCESS;
 	H5PartFile *f = NULL;
 
@@ -236,7 +237,7 @@ _H5Part_open_file (
 			}
 			f->create_prop = H5Pcreate(H5P_FILE_CREATE);
 			H5Pset_istore_k (f->create_prop, H5PART_BTREE_IK);
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+#ifndef H5_USE_16_API
 			/* defer metadata cache flushing until file close */
 			H5AC_cache_config_t cache_config;
 			cache_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
@@ -248,7 +249,7 @@ _H5Part_open_file (
 			cache_config.flash_incr_mode = H5C_flash_incr__off;
 			cache_config.decr_mode = H5C_decr__off;
 			H5Pset_mdc_config (f->access_prop, &cache_config);
-#elif
+#else
 			_H5Part_print_info (
 					"Unable to defer metadata write: need HDF5 1.8");
 #endif
@@ -289,24 +290,24 @@ _H5Part_open_file (
 	}
 
 	if ( flags & H5PART_READ ) {
-		f->file = H5Fopen (filename, H5F_ACC_RDONLY, f->access_prop);
+		f->file = H5Fopen(filename, H5F_ACC_RDONLY, f->access_prop);
 	}
 	else if ( flags & H5PART_WRITE ){
 		f->file = H5Fcreate (filename, H5F_ACC_TRUNC, f->create_prop,
-				     f->access_prop);
+				f->access_prop);
 		f->empty = 1;
 	}
 	else if ( flags & H5PART_APPEND ) {
-		int fd = open (filename, O_RDONLY, 0);
+		int fd = open(filename, O_RDONLY, 0);
 		if ( (fd == -1) && (errno == ENOENT) ) {
 			f->file = H5Fcreate(filename, H5F_ACC_TRUNC,
-					    f->create_prop, f->access_prop);
+					f->create_prop, f->access_prop);
 			f->empty = 1;
 		}
 		else if (fd != -1) {
 			close (fd);
-			f->file = H5Fopen (filename, H5F_ACC_RDWR,
-					   f->access_prop);
+			f->file = H5Fopen(
+				filename, H5F_ACC_RDWR, f->access_prop);
 			/*
 			  The following function call returns an error,
 			  if f->file < 0. But we can safely ignore this.
@@ -651,11 +652,8 @@ H5PartSetNumParticles (
 	}
 	f->nparticles =(hsize_t) nparticles;
 #ifndef PARALLEL_IO
-	f->shape = H5Screate_simple (1,
-				     &(f->nparticles),
-				     NULL);
+	f->shape = H5Screate_simple (1, &(f->nparticles), NULL);
 	if ( f->shape < 0 ) HANDLE_H5S_CREATE_SIMPLE_ERR ( f->nparticles );
-
 #else /* PARALLEL_IO */
 	/*
 	  The Gameplan here is to declare the overall size of the on-disk
@@ -683,7 +681,7 @@ H5PartSetNumParticles (
 		_H5Part_print_debug ( "Particle offsets:" );
 		for(i=0;i<f->nprocs;i++) 
 			_H5Part_print_debug ( "\t[%d] np=%lld", i,
-					      (long long) f->pnparticles[i] );
+					(long long) f->pnparticles[i] );
 	}
 	/* should I create a selection here? */
 
@@ -743,10 +741,10 @@ _write_data (
 	hid_t dataset_id;
 
 	_H5Part_print_debug ( "Create a dataset[%s] mounted on the "
-			      "timestep %lld",
-			      name, (long long)f->timestep );
+			"timestep %lld",
+			name, (long long)f->timestep );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+#ifndef H5_USE_16_API
 	htri_t exists = H5Lexists ( f->timegroup, name, H5P_DEFAULT );
 	if ( exists > 0 ) return HANDLE_H5D_EXISTS_ERR ( name, f->timestep );
 
@@ -1056,7 +1054,7 @@ _H5Part_read_attrib (
 	hid_t mytype;
 	hsize_t nelem;
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+#ifndef H5_USE_16_API
 	if (! H5Aexists ( id, attrib_name )) {
 		_H5Part_print_warn ( "Attribute '%s' does not exist!", attrib_name );
 	}
@@ -1067,7 +1065,7 @@ _H5Part_read_attrib (
 	if ( attrib_id <= 0 ) return HANDLE_H5A_OPEN_NAME_ERR( attrib_name );
 
 	type_id = H5Aget_type ( attrib_id );
-	if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR;
+	if ( type_id < 0 ) return HANDLE_H5A_GET_TYPE_ERR;
 
 	space_id = H5Aget_space ( attrib_id );
 	if ( space_id < 0 ) return HANDLE_H5A_GET_SPACE_ERR;
@@ -1086,6 +1084,43 @@ _H5Part_read_attrib (
 
 	herr = H5Aclose ( attrib_id );
 	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR;
+
+
+/* 	if ( attrib_id <= 0 ) return HANDLE_H5A_OPEN_NAME_ERR( attrib_name ); */
+
+/* 	mytype = H5Aget_type ( attrib_id ); */
+/* 	if ( mytype < 0 ) return HANDLE_H5A_GET_TYPE_ERR; */
+
+/* 	space_id = H5Aget_space ( attrib_id ); */
+/* 	if ( space_id < 0 ) return HANDLE_H5A_GET_SPACE_ERR; */
+
+/* 	nelem = H5Sget_simple_extent_npoints ( space_id ); */
+/* 	if ( nelem < 0 ) return HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR; */
+
+/* 	type_id = _H5Part_normalize_h5_type ( mytype ); */
+
+/* 	herr = H5Aread (attrib_id, type_id, attrib_value ); */
+/* 	if ( herr < 0 ) return HANDLE_H5A_READ_ERR; */
+
+/* /\* 	_H5Part_close_h5_type( type_id ); *\/ */
+
+/* 	if( type_id != H5T_NATIVE_CHAR && */
+/* 	    type_id != H5T_NATIVE_INT64 && */
+/* 	    type_id != H5T_NATIVE_FLOAT && */
+/* 	    type_id != H5T_NATIVE_DOUBLE ) */
+/* 	{ */
+/* 	  herr = H5Tclose ( type_id ); */
+/* 	  if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR; */
+/* 	} */
+
+/* 	herr = H5Sclose ( space_id ); */
+/* 	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR; */
+
+/* 	herr = H5Tclose ( mytype ); */
+/* 	if ( herr < 0 ) return HANDLE_H5T_CLOSE_ERR; */
+
+/* 	herr = H5Aclose ( attrib_id ); */
+/* 	if ( herr < 0 ) return HANDLE_H5A_CLOSE_ERR; */
 
 	return H5PART_SUCCESS;
 }
@@ -1118,22 +1153,16 @@ _H5Part_write_attrib (
 			return HANDLE_H5S_CREATE_SIMPLE_ERR ( attrib_nelem );
 	}
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	attrib_id = H5Acreate2 ( 
-		id,
-		attrib_name,
-		type,
-		space_id,
-		H5P_DEFAULT,
-		H5P_DEFAULT );
-#else
-	attrib_id = H5Acreate ( 
-		id,
-		attrib_name,
-		type,
-		space_id,
-		H5P_DEFAULT );
+	attrib_id = H5Acreate( id,
+			       attrib_name,
+			       type,
+			       space_id,
+			       H5P_DEFAULT
+#ifndef H5_USE_16_API
+			       , H5P_DEFAULT
 #endif
+			       );
+
 	if ( attrib_id < 0 ) return HANDLE_H5A_CREATE_ERR ( attrib_name );
 
 	herr = H5Awrite ( attrib_id, type, attrib_value);
@@ -1232,11 +1261,12 @@ H5PartWriteFileAttribString (
 	CHECK_FILEHANDLE ( f );
 	CHECK_WRITABLE_MODE( f );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	hid_t group_id = H5Gopen2(f->file,"/",H5P_DEFAULT);
-#else
-	hid_t group_id = H5Gopen(f->file,"/");
+	hid_t group_id = H5Gopen ( f->file, "/"
+#ifndef H5_USE_16_API
+				  , H5P_DEFAULT
 #endif
+				  );
+
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR( "/" );
 
 	h5part_int64_t herr = _H5Part_write_attrib (
@@ -1441,11 +1471,12 @@ H5PartWriteFileAttrib (
 	CHECK_FILEHANDLE ( f );
 	CHECK_WRITABLE_MODE ( f );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	group_id = H5Gopen2(f->file,"/",H5P_DEFAULT);
-#else
-	group_id = H5Gopen(f->file,"/");
+	group_id = H5Gopen(f->file,"/"
+#ifndef H5_USE_16_API
+			   , H5P_DEFAULT
 #endif
+			   );
+
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR( "/" );
 
 	herr = _H5Part_write_attrib (
@@ -1503,11 +1534,13 @@ H5PartGetNumFileAttribs (
 
 	CHECK_FILEHANDLE ( f );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	hid_t group_id = H5Gopen2 ( f->file, "/", H5P_DEFAULT );
-#else
-	hid_t group_id = H5Gopen ( f->file, "/" );
+
+	hid_t group_id = H5Gopen ( f->file, "/"
+#ifndef H5_USE_16_API
+			   , H5P_DEFAULT
 #endif
+			   );
+
 	if ( group_id < 0 ) HANDLE_H5G_OPEN_ERR ( "/" );
 
 	nattribs = H5Aget_num_attrs ( group_id );
@@ -1593,11 +1626,12 @@ H5PartGetFileAttribInfo (
 
 	CHECK_FILEHANDLE( f );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	group_id = H5Gopen2(f->file,"/",H5P_DEFAULT);
-#else
-	group_id = H5Gopen(f->file,"/");
+	group_id = H5Gopen(f->file,"/"
+#ifndef H5_USE_16_API
+			   , H5P_DEFAULT
 #endif
+			   );
+
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR( "/" );
 
 	herr = _H5Part_get_attrib_info (
@@ -1635,7 +1669,8 @@ H5PartReadStepAttrib (
 
 	CHECK_FILEHANDLE( f );
 
-	herr = _H5Part_read_attrib ( f->timegroup, attrib_name, attrib_value );
+	herr = _H5Part_read_attrib ( f->timegroup,
+				     attrib_name, attrib_value );
 	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
@@ -1662,11 +1697,12 @@ H5PartReadFileAttrib (
 
 	CHECK_FILEHANDLE( f );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	group_id = H5Gopen2(f->file,"/",H5P_DEFAULT);
-#else
-	group_id = H5Gopen(f->file,"/");
+	group_id = H5Gopen(f->file,"/"
+#ifndef H5_USE_16_API
+			   , H5P_DEFAULT
 #endif
+			   );
+
 	if ( group_id < 0 ) return HANDLE_H5G_OPEN_ERR( "/" );
 
 	herr = _H5Part_read_attrib ( group_id, attrib_name, attrib_value );
@@ -1731,12 +1767,13 @@ _H5Part_set_step (
 			(long long)step,
 			(long long)(size_t) f );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-		f->timegroup = H5Gopen2 ( f->file, name, H5P_DEFAULT ); 
-#else
-		f->timegroup = H5Gopen ( f->file, name ); 
+		f->timegroup = H5Gopen ( f->file, name
+#ifndef H5_USE_16_API
+					  , H5P_DEFAULT
 #endif
-		if ( f->timegroup < 0 ) return HANDLE_H5G_OPEN_ERR( name );
+					  );
+		if ( f->timegroup < 0 )
+		  return HANDLE_H5G_OPEN_ERR( name );
 	}
 	else {
 		_H5Part_print_debug (
@@ -1745,17 +1782,16 @@ _H5Part_set_step (
 			(long long)step,
 			(long long)(size_t) f );
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-		f->timegroup = H5Gcreate2 (
-			f->file,
-			name,
-			0,
-			H5P_DEFAULT,
-			H5P_DEFAULT );
-#else
-		f->timegroup = H5Gcreate ( f->file, name, 0 );
+		f->timegroup = H5Gcreate( f->file,
+					  name,
+					  0
+#ifndef H5_USE_16_API
+					  , H5P_DEFAULT, H5P_DEFAULT
 #endif
-		if ( f->timegroup < 0 ) return HANDLE_H5G_CREATE_ERR ( name );
+					  );
+
+		if ( f->timegroup < 0 )
+		  return HANDLE_H5G_CREATE_ERR ( name );
 	}
 
 	return H5PART_SUCCESS;
@@ -1802,12 +1838,123 @@ _H5Part_have_group (
 	const hid_t id,
 	const char *name
 	) {
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+#ifndef H5_USE_16_API
 	return (H5Lexists( id, name, H5P_DEFAULT ) ? 1 : 0);
 #else
 	return (H5Gget_objinfo( id, name, 1, NULL ) >= 0 ? 1 : 0);
 #endif
 }
+
+
+/********************** query file structure *********************************/
+
+/*!
+  \ingroup h5part_kernel
+
+  Iterator for \c H5Giterate().
+*/
+#ifndef H5_USE_16_API
+herr_t
+_H5Part_iteration_operator2 (
+	hid_t group_id,		 /*!< [in] parent object id */
+	const char *member_name, /*!< [in] child object name */
+	const H5L_info_t *linfo, /*!< link info */
+	void *operator_data )    /*!< [in,out] data passed to the iterator */
+{
+  struct _iter_op_data *data = (struct _iter_op_data*)operator_data;
+  herr_t herr = 0;
+
+  switch (linfo->type) {
+    case H5L_TYPE_HARD: {
+
+      H5O_info_t objinfo;
+      if( H5Oget_info_by_name( group_id, member_name, &objinfo, H5P_DEFAULT ) < 0 ) {
+	return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+      }
+
+      switch(objinfo.type)
+      {
+        case H5O_TYPE_GROUP:
+        case H5O_TYPE_DATASET:
+          return _H5Part_iteration_operator( group_id,
+					     member_name,
+					     operator_data );
+          break;
+
+        default:
+	  return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+          break;
+      }
+
+      break;
+    }
+
+    case H5L_TYPE_EXTERNAL: {
+      char *targbuf = (char*) malloc( linfo->u.val_size );
+
+      if(H5Lget_val(group_id, member_name, targbuf, linfo->u.val_size,
+              H5P_DEFAULT) < 0) {
+
+        // DO TO - THROW AN ERROR
+      } else {
+        const char *filename;
+        const char *targname;
+
+        if(H5Lunpack_elink_val(targbuf, linfo->u.val_size, 0,
+                &filename, &targname) < 0) {
+          // DO TO - THROW AN ERROR
+        } else {
+
+/* 	  std::cout << "VsFilter::visitLinks: node '" << member_name << "' is an external link." << std::endl; */
+
+/* 	  std::cout << "VsFilter::visitLinks: node '" << targname << "' the is an external target group." << std::endl; */
+
+          free(targbuf);
+
+          // Open the linked object. 
+          H5O_info_t objinfo;
+          hid_t obj_id = H5Oopen(group_id, member_name, H5P_DEFAULT);
+          if ( obj_id < 0 ) {
+	    return (herr_t)HANDLE_H5G_OPEN_ERR ( member_name );
+          }
+          else if ( H5Oget_info ( obj_id, &objinfo ) < 0 ) {
+	    return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+          }
+          else {
+	    
+	    H5Oclose( obj_id );
+
+	    switch(objinfo.type)
+	    {
+	    case H5O_TYPE_GROUP:
+	    case H5O_TYPE_DATASET:
+	      return _H5Part_iteration_operator( group_id,
+						 member_name,
+						 operator_data );
+	      break;
+	      
+	    default:
+	      return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+	      break;
+	    }
+	  }
+        }
+      }
+    }
+    break;
+
+
+    default:
+      return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+      break;
+  }
+
+  return 0;
+}
+#endif // H5_USE_16_API
+
+
+/********************** query file structure *********************************/
 
 /*!
   \ingroup h5part_kernel
@@ -1816,46 +1963,55 @@ _H5Part_have_group (
 */
 herr_t
 _H5Part_iteration_operator (
-	hid_t group_id,		/*!< [in]  group id */
-	const char *member_name,/*!< [in]  group name */
+	hid_t group_id,		/*!< [in] parent object id */
+	const char *member_name,/*!< [in] child object name */
 	void *operator_data	/*!< [in,out] data passed to the iterator */
-	) {
+	)
+{
+  struct _iter_op_data *data = (struct _iter_op_data*)operator_data;
+  herr_t herr;
 
-	struct _iter_op_data *data = (struct _iter_op_data*)operator_data;
-	herr_t herr;
+/*   printf( "%d GROUP ITERATOR %s %d\n", __LINE__, member_name, data->type ); */
 
-	if ( data->type != H5G_UNKNOWN ) {
-		hid_t obj_id = H5Oopen( group_id, member_name, H5P_DEFAULT );
-		if ( obj_id < 0 ) return (herr_t)HANDLE_H5O_OPEN_ERR ( member_name );
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-                H5O_info_t objinfo;
-		herr = H5Oget_info ( group_id, &objinfo );
-		if ( herr < 0 ) return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+  if ( data->type != H5G_UNKNOWN ) {
+
+#ifndef H5_USE_16_API
+    H5O_info_t objinfo;
+
+    hid_t obj_id = H5Oopen(group_id, member_name, H5P_DEFAULT);
+    if ( obj_id < 0 )
+      return (herr_t)HANDLE_H5G_OPEN_ERR ( member_name );
+
+    herr = H5Oget_info ( obj_id, &objinfo );
+    if ( herr < 0 )
+      return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+
+    H5Oclose( obj_id );
 #else
-	        H5G_stat_t objinfo;
-		herr = H5Gget_objinfo ( group_id, member_name, 1, &objinfo );
-		if ( herr < 0 ) return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
+    H5G_stat_t objinfo;
+    herr = H5Gget_objinfo( group_id, member_name, 1, &objinfo );
+    if ( herr < 0 ) return (herr_t)HANDLE_H5G_GET_OBJINFO_ERR ( member_name );
 #endif
-		H5Oclose( obj_id );
-		if ( objinfo.type != data->type )
-			return 0;/* don't count, continue iteration */
-	}
 
-	if ( data->name && (data->stop_idx == data->count) ) {
-		memset ( data->name, 0, data->len );
-		strncpy ( data->name, member_name, data->len-1 );
+    if ( objinfo.type != data->type )
+    {
+      return 0;/* don't count, continue iteration */
+    }
+  }
+
+  if ( data->name && (data->stop_idx == data->count) ) {
+    memset ( data->name, 0, data->len );
+    strncpy ( data->name, member_name, data->len-1 );
 		
-		return 1;	/* stop iteration */
-	}
-	/*
-	  count only if pattern is NULL or member name matches
-	*/
-	if ( !data->pattern ||
-	     (strncmp (member_name, data->pattern, strlen(data->pattern)) == 0)
-	      ) {
-		data->count++;
-	}
-	return 0;		/* continue iteration */
+    return 1;	/* stop iteration */
+  }
+  /* count only if pattern is NULL or member name matches */
+  if ( !data->pattern ||
+       (strncmp (member_name, data->pattern, strlen(data->pattern)) == 0)
+       ) {
+    data->count++;
+  }
+  return 0;		/* continue iteration */
 }
 
 /*!
@@ -1898,10 +2054,25 @@ _H5Part_get_num_objects_matching_pattern (
 	data.type = type;
 	data.pattern = pattern;
 
+/*  	herr = H5Giterate ( group_id, group_name, &idx, */
+/*  			    _H5Part_iteration_operator, &data ); */
+
+#ifndef H5_USE_16_API
+	hid_t child_id = H5Gopen( group_id, group_name, H5P_DEFAULT );
+	if ( child_id < 0 ) return child_id;
+ 	herr = H5Literate( child_id, H5_INDEX_NAME, H5_ITER_INC, 0,
+ 			_H5Part_iteration_operator2, &data );
+#else
 	herr = H5Giterate ( group_id, group_name, &idx,
-			    _H5Part_iteration_operator, &data );
+			_H5Part_iteration_operator, &data );
+#endif
+
 	if ( herr < 0 ) return herr;
-	
+
+#ifndef H5_USE_16_API
+	H5Gclose( child_id );
+#endif
+
 	return data.count;
 }
 
@@ -1930,13 +2101,27 @@ _H5Part_get_object_name (
 	data.name = obj_name;
 	data.len = (size_t)len_obj_name;
 
+/*   	herr = H5Giterate ( group_id, group_name, &iterator_idx, */
+/*  			    _H5Part_iteration_operator, &data ); */
+
+#ifndef H5_USE_16_API
+	hid_t child_id = H5Gopen( group_id, group_name, H5P_DEFAULT );
+	if ( child_id < 0 ) return child_id;
+ 	herr = H5Literate( child_id, H5_INDEX_NAME, H5_ITER_INC, 0,
+ 			_H5Part_iteration_operator2, &data );
+#else
 	herr = H5Giterate ( group_id, group_name, &iterator_idx,
-			    _H5Part_iteration_operator,
-			    &data );
+			_H5Part_iteration_operator, &data );
+#endif
+
 	if ( herr < 0 ) return (h5part_int64_t)herr;
 
 	if ( herr == 0 ) HANDLE_H5PART_NOENTRY_ERR( group_name,
 						    type, idx );
+
+#ifndef H5_USE_16_API
+	H5Gclose( child_id );
+#endif
 
 	return H5PART_SUCCESS;
 }
@@ -2141,11 +2326,12 @@ H5PartGetDatasetInfo (
 	*nelem = _H5Part_get_num_particles ( f );
 	if ( *nelem < 0 ) return *nelem;
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	dataset_id = H5Dopen2 ( f->timegroup, dataset_name, H5P_DEFAULT );
-#else
-	dataset_id = H5Dopen ( f->timegroup, dataset_name );
+	dataset_id = H5Dopen( f->timegroup, dataset_name
+#ifndef H5_USE_16_API
+			      , H5P_DEFAULT
 #endif
+			      );
+
 	if ( dataset_id < 0 ) HANDLE_H5D_OPEN_ERR ( dataset_name );
 
 	mytype = H5Dget_type ( dataset_id );
@@ -2264,11 +2450,12 @@ _H5Part_get_num_particles (
 		dataset_name, sizeof (dataset_name) );
 	if ( herr < 0 ) return herr;
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	dataset_id = H5Dopen2 ( f->timegroup, dataset_name, H5P_DEFAULT );
-#else
-	dataset_id = H5Dopen ( f->timegroup, dataset_name );
+	dataset_id = H5Dopen ( f->timegroup, dataset_name
+#ifndef H5_USE_16_API
+				, H5P_DEFAULT
 #endif
+				 );
+
 	if ( dataset_id < 0 ) 
 		return HANDLE_H5D_OPEN_ERR ( dataset_name );
 
@@ -2633,11 +2820,12 @@ _read_data (
 		h5part_int64_t h5err = _H5Part_set_step ( f, f->timestep );
 		if ( h5err < 0 ) return h5err;
 	}
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	dataset_id = H5Dopen2 ( f->timegroup, name, H5P_DEFAULT );
-#else
-	dataset_id = H5Dopen ( f->timegroup, name );
+	dataset_id = H5Dopen ( f->timegroup, name
+#ifndef H5_USE_16_API
+				, H5P_DEFAULT
 #endif
+				);
+
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
 
 	space_id = _get_diskshape_for_reading ( f, dataset_id );
@@ -3081,8 +3269,8 @@ _init ( void ) {
 	herr_t r5;
 	if ( ! __init ) {
 		_H5Part_set_funcname ( "NONE" );
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-		r5 = H5Eset_auto2 ( H5E_DEFAULT, _h5_error_handler, NULL );
+#ifndef H5_USE_16_API
+		r5 = H5Eset_auto ( H5E_DEFAULT, _h5_error_handler, NULL );
 #else
 		r5 = H5Eset_auto ( _h5_error_handler, NULL );
 #endif
@@ -3094,15 +3282,15 @@ _init ( void ) {
 /*! @} */
 
 static herr_t
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+#ifndef H5_USE_16_API
 _h5_error_handler ( hid_t estack, void* unused ) {
 #else
 _h5_error_handler ( void* unused ) {
 #endif
 	
 	if ( _debug >= 1 ) {
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-		H5Eprint2 (H5E_DEFAULT,stderr);
+#ifndef H5_USE_16_API
+		H5Eprint (H5E_DEFAULT,stderr);
 #else
 		H5Eprint (stderr);
 #endif

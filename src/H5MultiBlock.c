@@ -838,11 +838,11 @@ _H5MultiBlock_read_data (
 	herr = _H5Block_open_field_group ( f, field_name );
 	if ( herr < 0 ) return herr;
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	dataset_id = H5Dopen2 ( b->field_group_id, "0", H5P_DEFAULT );
-#else
-	dataset_id = H5Dopen ( b->field_group_id, "0" );
+	dataset_id = H5Dopen ( b->field_group_id, "0"
+#ifndef H5_USE_16_API
+		, H5P_DEFAULT
 #endif
+		);
 	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( "0" );
 
 	/* read block dimensions from field attribute */
@@ -1001,23 +1001,19 @@ _H5MultiBlock_write_data (
 	herr = _H5Block_create_field_group ( f, name );
 	if ( herr < 0 ) return herr;
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
-	dataset = H5Dcreate2 (
-		b->field_group_id,
-		"0",
-		type,
-		b->shape,
-		H5P_DEFAULT,
-		b->create_prop,
-		H5P_DEFAULT );
-#else
 	dataset = H5Dcreate (
 		b->field_group_id,
 		"0",
 		type,
 		b->shape, 
-		b->create_prop );
+#ifndef H5_USE_16_API
+		H5P_DEFAULT,
+		b->create_prop,
+		H5P_DEFAULT
+#else
+		b->create_prop
 #endif
+		);
 	if ( dataset < 0 ) return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
 
 	herr = _H5Part_start_throttle( f );
