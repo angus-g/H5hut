@@ -16,11 +16,11 @@
 
 /*!
   \ingroup h5block_c_api
-  \defgroup h5block_write	File Writing
+  \defgroup h5block_model	Setting up the Data Model
 */  
 /*!
   \ingroup h5block_c_api
-  \defgroup h5block_read		File Reading
+  \defgroup h5block_data	Reading and Writing Datasets
 */  
 /*!
   \ingroup h5block_c_api
@@ -81,7 +81,7 @@
 */
 
 static h5part_int64_t
-_file_is_valid (
+_H5Block_file_is_valid (
 	const H5PartFile *f		/*!< IN: file handle */
 	) {
 
@@ -114,7 +114,7 @@ _H5Block_init (
 	h5part_int64_t herr;
 	struct H5BlockStruct *b; 
 
-	herr = _file_is_valid ( f );
+	herr = _H5Block_file_is_valid ( f );
 	if ( herr == H5PART_SUCCESS ) return H5PART_SUCCESS;
 
 	if ( (f == 0) || (f->file == 0) ) return HANDLE_H5PART_BADFD_ERR;
@@ -719,7 +719,7 @@ _release_hyperslab (
 }
 
 /*!
-  \ingroup h5block_write
+  \ingroup h5block_model
 
   Define the field layout given the dense index space at the actual
   time step.
@@ -770,7 +770,7 @@ H5BlockDefine3DFieldLayout(
 }
 
 /*!
-  \ingroup h5block_write
+  \ingroup h5block_model
 
   Define the chunk dimensions and enable chunking in the underlying
   HDF5 dataset.
@@ -808,7 +808,7 @@ H5BlockDefine3DChunkDims(
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_model
 
   Lookup the chunk dimensions of the underlying HDF5 dataset.
 
@@ -867,7 +867,7 @@ H5BlockGet3DChunkDims(
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_model
 
   Return partition of processor \c proc as specified with
   \c H5BlockDefine3dLayout().
@@ -907,7 +907,7 @@ H5Block3dGetPartitionOfProc (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_model
 
   Return reduced (ghost-zone free) partition of processor \c proc
   as specified with \c H5BlockDefine3dLayout().
@@ -948,7 +948,7 @@ H5Block3dGetReducedPartitionOfProc (
 
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_model
 
   Returns the processor computing the reduced (ghostzone-free) 
   partition given by the coordinates \c i, \c j and \c k.
@@ -1461,7 +1461,7 @@ _H5Block_write_data (
 /********************** query information about available fields *************/
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_model
 
   Query number of fields in current time step.
 
@@ -1548,7 +1548,7 @@ _get_field_info (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_model
 
   Get the name, rank and dimensions of the field specified by the
   index \c idx.
@@ -1589,7 +1589,7 @@ H5BlockGetFieldInfo (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_model
 
   Get the rank and dimensions of the field specified by its name.
 
@@ -1715,7 +1715,7 @@ H5BlockWriteFieldAttribString (
 */
 h5part_int64_t
 H5BlockGetNumFieldAttribs (
-	H5PartFile *f,				/*!< IN: file handle */
+	H5PartFile *f,				/*<! IN: file handle */
 	const char *field_name			/*<! IN: field name */
 	) {
 
@@ -1970,9 +1970,8 @@ H5Block3dSetFieldSpacing (
 }
 
 /*!
-  \ingroup h5block_read
-*/
-/*
+  \ingroup h5block_model
+
   Checks whether the current time-step has field data or not.
 
   \return \c H5PART_SUCCESS if field data is available otherwise \c

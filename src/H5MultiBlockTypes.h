@@ -1,5 +1,5 @@
-#ifndef __H5MULTIBLOCKTYPES_H
-#define __H5MULTIBLOCKTYPES_H
+#ifndef _H5MULTIBLOCK_TYPES_H_
+#define _H5MULTIBLOCK_TYPES_H_
 
 struct H5MultiBlockStruct {
 	h5part_int64_t halo_radii[3];

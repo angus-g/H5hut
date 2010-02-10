@@ -1,7 +1,7 @@
-#ifndef __H5BLOCKERRORS_H
-#define __H5BLOCKERRORS_H
+#ifndef _H5BLOCK_ERRORS_H_
+#define _H5BLOCK_ERRORS_H_
 
-#define _err_handler H5PartGetErrorHandler()
+extern h5part_error_handler _err_handler;
 
 #define CHECK_LAYOUT( f ) \
 	if ( ! f->block->have_layout ) \

@@ -10,11 +10,16 @@ extern "C" {
 #endif
 
 #include "H5PartTypes.h"
-
+#include "H5PartAttrib.h"
 #include "H5Block.h"
 #ifdef PARALLEL_IO
 #include "H5MultiBlock.h"
 #endif
+
+#define H5PART_VER_STRING	"1.5.0"
+#define H5PART_VER_MAJOR	1
+#define H5PART_VER_MINOR	5
+#define H5PART_VER_RELEASE	0
 
 /* error values */
 #define H5PART_SUCCESS		0
@@ -24,6 +29,8 @@ extern "C" {
 
 #define H5PART_ERR_INIT         -200
 #define H5PART_ERR_NOENTRY	-201
+#define H5PART_ERR_NOTYPE	-210
+#define H5PART_ERR_BAD_VIEW	-220
 
 #define H5PART_ERR_MPI		-300
 #define H5PART_ERR_HDF5		-400
@@ -50,7 +57,7 @@ extern "C" {
 #define H5PART_FLOAT64		((h5part_int64_t)H5T_NATIVE_DOUBLE)
 #define H5PART_FLOAT32		((h5part_int64_t)H5T_NATIVE_FLOAT)
 #define H5PART_CHAR		((h5part_int64_t)H5T_NATIVE_CHAR)
-#define H5PART_STRING		((h5part_int64_t)H5T_STRING)
+#define H5PART_STRING		((h5part_int64_t)H5T_C_S1)
 
 /*========== File Opening/Closing ===============*/
 H5PartFile*
@@ -105,6 +112,13 @@ h5part_int64_t
 H5PartSetNumParticles ( 
 	H5PartFile *f, 
 	const h5part_int64_t nparticles
+	);
+
+h5part_int64_t
+H5PartSetNumParticlesStrided (
+	H5PartFile *f,				/*!< [in] Handle to open file */
+	const h5part_int64_t nparticles,	/*!< [in] Number of particles */
+	const h5part_int64_t stride		/*!< [in] Stride (e.g. number of fields in the particle array) */
 	);
 
 h5part_int64_t
@@ -188,6 +202,12 @@ H5PartSetView (
 	const h5part_int64_t end
 	);
 
+h5part_int64_t
+H5PartSetViewIndices (
+	H5PartFile *f,			/*!< [in]  Handle to open file */
+	const hsize_t *indices,		/*!< [in]  List of indices */
+	h5part_int64_t nelems		/*!< [in]  Size of list */
+	);
 
 h5part_int64_t
 H5PartGetView (
@@ -290,20 +310,6 @@ H5PartWriteStepAttribString (
 	H5PartFile *f,
 	const char *name,
 	const char *value
-	);
-
-h5part_int64_t
-H5PartWriteStepAttribInt32 ( 
-	H5PartFile *f,
-	const char *name,
-	const h5part_int32_t value
-	);
-
-h5part_int64_t
-H5PartWriteStepAttribFloat32 ( 
-	H5PartFile *f,
-	const char *name,
-	const h5part_float32_t value
 	);
 
 h5part_int64_t

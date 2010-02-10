@@ -1,6 +1,6 @@
 
-#ifndef __H5BLOCKREADWRITE_H
-#define __H5BLOCKREADWRITE_H
+#ifndef _H5BLOCK_READWRITE_H_
+#define _H5BLOCK_READWRITE_H_
 
 #ifdef __cplusplus
 extern "C" {

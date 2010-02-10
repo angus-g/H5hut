@@ -14,8 +14,8 @@ c_head = """
 """
 
 h_head = """
-#ifndef __H5MULTIBLOCKREADWRITE_H
-#define __H5MULTIBLOCKREADWRITE_H
+#ifndef _H5MULTIBLOCK_READWRITE_H_
+#define _H5MULTIBLOCK_READWRITE_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,14 +49,6 @@ fc_head = """
 #endif
 """
 
-fi_head = """
-INTERFACE
-"""
-
-fi_tail = """
-END INTERFACE
-"""
-
 write_h = """
 h5part_int64_t
 H5MultiBlock#DIM#dWriteField#TYPE_ABV# (
@@ -77,7 +69,7 @@ H5MultiBlock#DIM#dReadField#TYPE_ABV# (
 
 write_c = """
 /*!
-  \\ingroup h5multiblock_write
+  \\ingroup h5multiblock_data
 
   Write a multiblock field \\c name from the buffer starting at \\c data
   to the current time-step using the defined block decomposition and dimensions.
@@ -107,7 +99,7 @@ H5MultiBlock#DIM#dWriteField#TYPE_ABV# (
 
 read_c = """
 /*!
-  \\ingroup h5multiblock_read
+  \\ingroup h5multiblock_data
 
   Allocate a buffer to hold a block from a multiblock field and place the
   pointer in \\c data, then read the block into the buffer. Uses the block

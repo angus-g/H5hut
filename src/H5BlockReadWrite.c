@@ -13,7 +13,7 @@
 #include "H5BlockErrors.h"
 
 /*!
-  \ingroup h5block_write
+  \ingroup h5block_data
 
   Write a 3-dimensional field \c name from the buffer starting at \c data
   to the current time-step using the defined field layout. Values are
@@ -49,7 +49,7 @@ H5Block3dWriteScalarFieldFloat64 (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_data
 
   Read a 3-dimensional field \c name into the buffer starting at \c data from
   the current time-step using the defined field layout. Values are
@@ -84,7 +84,7 @@ H5Block3dReadScalarFieldFloat64 (
 }
 
 /*!
-  \ingroup h5block_write
+  \ingroup h5block_data
 */
 /*!
   Write a 3-dimensional field \c name with 3-dimensional vectors as values
@@ -128,7 +128,7 @@ H5Block3dWrite3dVectorFieldFloat64 (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_data
 */
 /*!
   Read a 3-dimensional field \c name with 3-dimensional vectors as values
@@ -171,7 +171,7 @@ H5Block3dRead3dVectorFieldFloat64 (
 }
 
 /*!
-  \ingroup h5block_write
+  \ingroup h5block_data
 
   Write a 3-dimensional field \c name from the buffer starting at \c data
   to the current time-step using the defined field layout. Values are
@@ -207,7 +207,7 @@ H5Block3dWriteScalarFieldFloat32 (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_data
 
   Read a 3-dimensional field \c name into the buffer starting at \c data from
   the current time-step using the defined field layout. Values are
@@ -242,7 +242,7 @@ H5Block3dReadScalarFieldFloat32 (
 }
 
 /*!
-  \ingroup h5block_write
+  \ingroup h5block_data
 */
 /*!
   Write a 3-dimensional field \c name with 3-dimensional vectors as values
@@ -286,7 +286,7 @@ H5Block3dWrite3dVectorFieldFloat32 (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_data
 */
 /*!
   Read a 3-dimensional field \c name with 3-dimensional vectors as values
@@ -329,7 +329,7 @@ H5Block3dRead3dVectorFieldFloat32 (
 }
 
 /*!
-  \ingroup h5block_write
+  \ingroup h5block_data
 
   Write a 3-dimensional field \c name from the buffer starting at \c data
   to the current time-step using the defined field layout. Values are
@@ -365,7 +365,7 @@ H5Block3dWriteScalarFieldInt64 (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_data
 
   Read a 3-dimensional field \c name into the buffer starting at \c data from
   the current time-step using the defined field layout. Values are
@@ -400,7 +400,7 @@ H5Block3dReadScalarFieldInt64 (
 }
 
 /*!
-  \ingroup h5block_write
+  \ingroup h5block_data
 */
 /*!
   Write a 3-dimensional field \c name with 3-dimensional vectors as values
@@ -444,7 +444,7 @@ H5Block3dWrite3dVectorFieldInt64 (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_data
 */
 /*!
   Read a 3-dimensional field \c name with 3-dimensional vectors as values
@@ -487,7 +487,7 @@ H5Block3dRead3dVectorFieldInt64 (
 }
 
 /*!
-  \ingroup h5block_write
+  \ingroup h5block_data
 
   Write a 3-dimensional field \c name from the buffer starting at \c data
   to the current time-step using the defined field layout. Values are
@@ -523,7 +523,7 @@ H5Block3dWriteScalarFieldInt32 (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_data
 
   Read a 3-dimensional field \c name into the buffer starting at \c data from
   the current time-step using the defined field layout. Values are
@@ -558,7 +558,7 @@ H5Block3dReadScalarFieldInt32 (
 }
 
 /*!
-  \ingroup h5block_write
+  \ingroup h5block_data
 */
 /*!
   Write a 3-dimensional field \c name with 3-dimensional vectors as values
@@ -602,7 +602,7 @@ H5Block3dWrite3dVectorFieldInt32 (
 }
 
 /*!
-  \ingroup h5block_read
+  \ingroup h5block_data
 */
 /*!
   Read a 3-dimensional field \c name with 3-dimensional vectors as values

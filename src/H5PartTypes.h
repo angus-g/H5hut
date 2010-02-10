@@ -2,8 +2,8 @@
   System dependend definitions
 */
 
-#ifndef _H5PARTTYPES_H_
-#define _H5PARTTYPES_H_
+#ifndef _H5PART_TYPES_H_
+#define _H5PART_TYPES_H_
 
 #ifdef   WIN32
 typedef __int64			int64_t;
@@ -23,6 +23,8 @@ __attribute__ ((format (printf, 3, 4)))
 typedef unsigned long		MPI_Comm;
 #endif
 
+#define H5PART_STEPNAME_LEN	64
+
 struct H5BlockFile;
 
 /**
@@ -35,22 +37,26 @@ struct H5BlockFile;
 */
 struct H5PartFile {
 	hid_t	file;
-	char	*groupname_step;
+	char	groupname_step[H5PART_STEPNAME_LEN];
 	int	stepno_width;
 	int	empty;
        
+	char flags;
+
 	h5part_int64_t timestep;
 	hsize_t nparticles;
-	
+
 	hid_t timegroup;
 	hid_t shape;
-	unsigned mode;
 	hid_t xfer_prop;
 	hid_t create_prop;
 	hid_t access_prop;
+
+	/* the dataspace on disk for the current view */
 	hid_t diskshape;
-	hid_t memshape;	     /* for parallel I/O (this is on-disk) H5S_ALL 
-				if serial I/O */
+	/* the dataspace in memory for the current view */
+	hid_t memshape;
+
 	h5part_int64_t viewstart; /* -1 if no view is available: A "view" looks */
 	h5part_int64_t viewend;   /* at a subset of the data. */
   
@@ -75,11 +81,10 @@ struct H5PartFile {
 	int myproc;
 
 	/**
-	   MPI comnunicator
+	   MPI communicator
 	*/
 	MPI_Comm comm;
 
-	char flags;
 	int throttle;
 
 	struct H5BlockStruct *block;

@@ -1,5 +1,5 @@
-#ifndef __H5BLOCKTYPES_H
-#define __H5BLOCKTYPES_H
+#ifndef _H5BLOCK_TYPES_H
+#define _H5BLOCK_TYPES_H
 
 struct H5BlockPartition {
 	h5part_int64_t	i_start;

@@ -16,8 +16,8 @@ c_head = """
 """
 
 h_head = """
-#ifndef __H5BLOCKREADWRITE_H
-#define __H5BLOCKREADWRITE_H
+#ifndef _H5BLOCK_READWRITE_H_
+#define _H5BLOCK_READWRITE_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,14 +51,6 @@ fc_head = """
 #endif
 """
 
-fi_head = """
-INTERFACE
-"""
-
-fi_tail = """
-END INTERFACE
-"""
-
 write_scalar_h = """
 h5part_int64_t
 H5Block#DIM#dWriteScalarField#TYPE_ABV# (
@@ -79,7 +71,7 @@ H5Block#DIM#dReadScalarField#TYPE_ABV# (
 
 write_scalar_c = """
 /*!
-  \\ingroup h5block_write
+  \\ingroup h5block_data
 
   Write a 3-dimensional field \\c name from the buffer starting at \\c data
   to the current time-step using the defined field layout. Values are
@@ -117,7 +109,7 @@ H5Block#DIM#dWriteScalarField#TYPE_ABV# (
 
 read_scalar_c = """
 /*!
-  \\ingroup h5block_read
+  \\ingroup h5block_data
 
   Read a 3-dimensional field \\c name into the buffer starting at \\c data from
   the current time-step using the defined field layout. Values are
@@ -153,18 +145,26 @@ H5Block#DIM#dReadScalarField#TYPE_ABV# (
 """
 
 write_scalar_fi = """
+!> \\ingroup h5blockf_data
+!! See \\ref H5Block#DIM#dWriteScalarField#TYPE_ABV#
+!! \\return 0 on success or error code
+!<
 INTEGER*8 FUNCTION h5bl_#DIM#d_write_scalar_field_#TYPE_F90_ABV# ( filehandle, name, data )
-  INTEGER*8, INTENT(IN) :: filehandle
-  CHARACTER(LEN=*), INTENT(IN) :: name
-  #TYPE_F90#, INTENT(IN) :: data(*)
+    INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
+    CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
+    #TYPE_F90#, INTENT(IN) :: data(*)    !< the array of data
 END FUNCTION
 """
 
 read_scalar_fi = """
+!> \\ingroup h5blockf_data
+!! See \\ref H5Block#DIM#dReadScalarField#TYPE_ABV#
+!! \\return 0 on success or error code
+!<
 INTEGER*8 FUNCTION h5bl_#DIM#d_read_scalar_field_#TYPE_F90_ABV# ( filehandle, name, data )
-  INTEGER*8, INTENT(IN) :: filehandle
-  CHARACTER(LEN=*), INTENT(IN) :: name
-  #TYPE_F90#, INTENT(OUT) :: data(*)
+    INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
+    CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
+    #TYPE_F90#, INTENT(OUT) :: data(*)   !< buffer to read the data into
 END FUNCTION
 """
 
@@ -246,7 +246,7 @@ H5Block#DIM#dRead3dVectorField#TYPE_ABV# (
 
 write_vector_c = """
 /*!
-  \\ingroup h5block_write
+  \\ingroup h5block_data
 */
 /*!
   Write a 3-dimensional field \\c name with 3-dimensional vectors as values
@@ -292,7 +292,7 @@ H5Block#DIM#dWrite3dVectorField#TYPE_ABV# (
 
 read_vector_c = """
 /*!
-  \\ingroup h5block_read
+  \\ingroup h5block_data
 */
 /*!
   Read a 3-dimensional field \\c name with 3-dimensional vectors as values
@@ -335,23 +335,31 @@ H5Block#DIM#dRead3dVectorField#TYPE_ABV# (
 }
 """
 
-write_vector_fi = """
+write_vector_fi = """ 
+!> \\ingroup h5blockf_data
+!! See \\ref H5Block#DIM#dWrite3dVectorField#TYPE_ABV#
+!! \\return 0 on success or error code
+!<
 INTEGER*8 FUNCTION h5bl_#DIM#d_write_3dvector_field_#TYPE_F90_ABV# ( filehandle, name, x, y, z )
-  INTEGER*8, INTENT(IN) :: filehandle
-  CHARACTER(LEN=*), INTENT(IN) :: name
-  #TYPE_F90#, INTENT(IN) :: x(*)
-  #TYPE_F90#, INTENT(IN) :: y(*)
-  #TYPE_F90#, INTENT(IN) :: z(*)
+    INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
+    CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
+    #TYPE_F90#, INTENT(IN) :: x(*)       !< the array of x data to write
+    #TYPE_F90#, INTENT(IN) :: y(*)       !< the array of y data to write
+    #TYPE_F90#, INTENT(IN) :: z(*)       !< the array of z data to write
 END FUNCTION
 """
 
 read_vector_fi = """
+!> \\ingroup h5blockf_data
+!! See \\ref H5Block#DIM#dRead3dVectorField#TYPE_ABV#
+!! \\return 0 on success or error code
+!<
 INTEGER*8 FUNCTION h5bl_#DIM#d_read_3dvector_field_#TYPE_F90_ABV# ( filehandle, name, x, y, z )
-  INTEGER*8, INTENT(IN) :: filehandle
-  CHARACTER(LEN=*), INTENT(IN) :: name
-  #TYPE_F90#, INTENT(OUT) :: x(*)
-  #TYPE_F90#, INTENT(OUT) :: y(*)
-  #TYPE_F90#, INTENT(OUT) :: z(*)
+    INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
+    CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
+    #TYPE_F90#, INTENT(OUT) :: x(*)      !< buffer to read the x data into
+    #TYPE_F90#, INTENT(OUT) :: y(*)      !< buffer to read the y data into
+    #TYPE_F90#, INTENT(OUT) :: z(*)      !< buffer to read the z data into
 END FUNCTION
 """
 
@@ -458,12 +466,16 @@ H5BlockWriteFieldAttrib#TYPE_ABV# (
 """
 
 write_attr_fi = """
+!> \\ingroup h5blockf_attrib
+!! See \\ref H5BlockWriteFieldAttrib#TYPE_ABV#
+!! \\return 0 on success or error code
+!<
 INTEGER*8 FUNCTION h5bl_writefieldattrib_#TYPE_F90_ABV# ( filehandle, field_name, attrib_name, attrib_value, attrib_nelem)
-  INTEGER*8, INTENT(IN) :: filehandle
-  CHARACTER(LEN=*), INTENT(IN) :: field_name    ! The name of the field
-  CHARACTER(LEN=*), INTENT(IN) :: attrib_name   ! The name of the attribute
-  #TYPE_F90#, INTENT(IN) :: attrib_value(*) ! The array of data to write into the attribute
-  INTEGER*8, INTENT(IN) :: attrib_nelem ! Number of elements in the attrib array
+    INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned at file open
+    CHARACTER(LEN=*), INTENT(IN) :: field_name  !< the name of the field
+    CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< the name of the attribute
+    #TYPE_F90#, INTENT(IN) :: attrib_value(*)   !< the array of data to write into the attribute
+    INTEGER*8, INTENT(IN) :: attrib_nelem       !< the number of elements in the array
 END FUNCTION
 """
 
@@ -528,8 +540,7 @@ def write_calls():
   hfile.write(h_head)
   fcfile = file('H5BlockReadWriteF.c','w')
   fcfile.write(fc_head)
-  fifile = file('H5BlockReadWriteF90.inc','w')
-  fifile.write(fi_head)
+  fifile = file('H5BlockReadWrite.f90','w')
   for dim in dims:
     for type in types:
       cfile.write(create_call(write_scalar_c,type,dim));
@@ -557,7 +568,6 @@ def write_calls():
   hfile.write(h_tail)
   hfile.close()
   fcfile.close()
-  fifile.write(fi_tail)
   fifile.close()
 
 write_calls()

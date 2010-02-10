@@ -1,5 +1,5 @@
-#ifndef __H5MULTIBLOCKPRIVATE_H
-#define __H5MULTIBLOCKPRIVATE_H
+#ifndef _H5MULTIBLOCK_PRIVATE_H_
+#define _H5MULTIBLOCK_PRIVATE_H_
 
 #define MULTIBLOCK_INIT( f ) { \
 	h5part_int64_t herr = _H5MultiBlock_init ( f ); \

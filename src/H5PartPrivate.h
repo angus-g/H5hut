@@ -1,5 +1,5 @@
-#ifndef __H5PARTPRIVATE_H
-#define __H5PARTPRIVATE_H
+#ifndef __H5PART_PRIVATE_H
+#define __H5PART_PRIVATE_H
 
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 6
 #define H5_USE_16_API
@@ -8,6 +8,11 @@
 #define H5PART_GROUPNAME_STEP	"Step"
 
 #define H5PART_BTREE_IK 10000
+
+h5part_int64_t
+_H5Part_file_is_valid (
+	const H5PartFile *f
+	);
 
 /*!
   The functions declared here are not part of the API, but may be used
@@ -31,6 +36,13 @@ h5part_int64_t
 _H5Part_set_step (
 	H5PartFile *f,
 	const h5part_int64_t step
+	);
+
+h5part_int64_t
+_H5Part_get_step_name(
+	H5PartFile *f,
+	const h5part_int64_t step,
+	char *name
 	);
 
 h5part_int64_t
@@ -148,6 +160,11 @@ _H5Part_start_throttle (
 h5part_int64_t
 _H5Part_end_throttle (
 	H5PartFile *f
+	);
+
+h5part_error_handler
+_H5Part_get_err_handle (
+	void
 	);
 
 void

@@ -79,7 +79,6 @@ SAVE_MPIFC=$MPIFC
 SAVE_MPILIB=$MPILIB
 SAVE_MPIINC=$MPIINC
 SAVE_CFLAGS=$CFLAGS
-CFLAGS=''
 SAVE_FFLAGS=$FFLAGS
 SAVE_MPIROOT=$MPIROOT
 SAVE_HDF5ROOT=$HDF5ROOT
@@ -392,14 +391,14 @@ if test "X$USE_PARALLEL" = "Xyes"; then
     fi
 
     MTARGET="libpH5Part.a"
-    TTARGET="H5PartTestP H5PartAndreasTest Bench"
-    TTARGET="${TTARGET} H5BlockTestAttributes"
-    TTARGET="${TTARGET} H5BlockParTestScalarField"
+    TTARGET="test"
 
 
     # parallel + fortran
     if test "X$USE_FORTRAN" = "Xyes"; then
         AC_PATH_PROGS([MPIFC], [mpxlf_r mpif90], [], [$PATH])
+
+        FFLAGS="${FFLAGS} -DPARALLEL_IO"
 
 	if test -z "${MPIFC}" ; then
 	    if test -e "${MPIROOT}/bin/mpif90"; then
@@ -419,28 +418,29 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 	fi
  
         MTARGET="${MTARGET} libpH5PartF.a"
-        TTARGET="${TTARGET} H5testFpar"
-	TTARGET="${TTARGET} H5BlockParTestScalarFieldF"
+        TTARGET="${TTARGET} testf"
     fi
 
 else  # --enable-parallel=no
     AC_MSG_RESULT([no])
 
     MTARGET="libH5Part.a"
-    TTARGET="H5PartTest H5test"
-    TTARGET="${TTARGET} H5BlockTestAttributes"
+    TTARGET="test"
 
     if test "X$USE_FORTRAN" = "Xyes"; then
         MTARGET="${MTARGET} libH5PartF.a"
-        TTARGET="${TTARGET} H5testF"
-	TTARGET="${TTARGET} H5BlockTestAttributesF"
-   fi
+        TTARGET="${TTARGET} testf"
+    fi
 fi
 
-AC_MSG_CHECKING([wheter tools are enabled])
+AC_MSG_CHECKING([whether tools are enabled])
 if test "X$USE_TOOLS" = "Xyes"; then
     AC_MSG_RESULT([yes])
-    BUILD_TOOLS="h5pAttrib h5pToGNUplot # homdynToH5p"
+    BUILD_TOOLS="h5pAttrib h5pToGNUplot homdynToH5p"
+    # tools + parallel
+    if test "X$USE_PARALLEL" = "Xyes"; then
+        BUILD_TOOLS="${BUILD_TOOLS} H5PartBench H5BlockBench"
+    fi
 else
     AC_MSG_RESULT([no])
 fi
@@ -506,6 +506,8 @@ if test -n "$ZLIBROOT"; then
     LDFLAGS="$LDFLAGS -L$ZLIBROOT/lib"
 fi
 
+FCFLAGS=${FFLAGS}
+
 
 ###############################################################################
 #################### MISC SETTINGS - path, flags, etc #########################
@@ -570,16 +572,6 @@ if test -n "$SAVE_LDFLAGS"; then
 LDFLAGS=$SAVE_LDFLAGS
 fi
 
-if test -n "$MPICXX"; then
-TOOLS_CXX=$MPICXX
-TOOLS_H5PART_LIB="-lpH5Part"
-TOOLS_HDFLIB="-L$HDF5ROOT/lib -lhdf5"
-else
-TOOLS_CXX=$CXX
-TOOLS_H5PART_LIB="-lH5Part"
-TOOLS_HDFLIB="-L$HDF5ROOT/lib -lhdf5"
-fi
-
 ###############################################################################
 ############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
 ###############################################################################
@@ -607,9 +599,6 @@ AC_SUBST(H5P_LIB_LOC)
 AC_SUBST(UNDERSCORE_H)
 AC_SUBST(BUILD_TOOLS)
 AC_SUBST(LDFLAGS)
-AC_SUBST(TOOLS_CXX)
-AC_SUBST(TOOLS_H5PART_LIB)
-AC_SUBST(TOOLS_HDFLIB)
 
 # Make AC_OUTPUT create each `file' by copying an input file (by default `file.in'),
 # substituting the output variable values.

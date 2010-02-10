@@ -1,22 +1,23 @@
-#ifndef __H5PARTERRORS_H
-#define __H5PARTERRORS_H
+#ifndef __H5PART_ERRORS_H
+#define __H5PART_ERRORS_H
 
+extern h5part_error_handler _err_handler;
 
 /***************** Error Handling ***************/
 
 #define CHECK_FILEHANDLE( f ) \
-	if ( _file_is_valid ( f ) != H5PART_SUCCESS ) \
+	if ( _H5Part_file_is_valid ( f ) != H5PART_SUCCESS ) \
 		return HANDLE_H5PART_BADFD_ERR;
 
 #define CHECK_WRITABLE_MODE( f )  \
-	if ( f->mode==H5PART_READ ) \
+	if ( f->flags & H5PART_READ ) \
 		return (*_err_handler) ( \
 			_H5Part_get_funcname(), \
 			H5PART_ERR_INVAL, \
-			"Attempting to write to read-only file" );
+			"Attempting to write to read-only file." );
 
 #define CHECK_READONLY_MODE( f )  \
-	if ( ! f->mode==H5PART_READ ) \
+	if ( ! (f->flags & H5PART_READ) ) \
 		return (*_err_handler) ( \
 			_H5Part_get_funcname(), \
 			H5PART_ERR_INVAL, \
@@ -42,6 +43,13 @@
 		_H5Part_get_funcname(), \
 		H5PART_ERR_INIT, \
 		"Cannot initialize H5Part." );
+
+#define HANDLE_H5PART_INVALID_ERR( name, value ) \
+	(*_err_handler) ( \
+		_H5Part_get_funcname(), \
+		H5PART_ERR_INVAL, \
+		"Invalid value '%lld' for '%s'.", \
+		(long long)value, name);
 
 #define HANDLE_H5PART_NOMEM_ERR \
 	(*_err_handler) ( \
@@ -75,6 +83,13 @@
 			"Cannot set view to (%lld, %lld).", \
 			(long long)start, (long long)end );
 
+#define HANDLE_H5PART_BAD_VIEW_ERR( start, end ) \
+		(*_err_handler) ( \
+			_H5Part_get_funcname(), \
+			H5PART_ERR_BAD_VIEW, \
+			"Problem with existing view (%lld, %lld).", \
+			(long long)start, (long long)end );
+
 #define HANDLE_H5PART_GET_NUM_PARTICLES_ERR( rc ) \
 		(*_err_handler) ( \
 			_H5Part_get_funcname(), \
@@ -87,6 +102,12 @@
 			H5PART_ERR_NOENTRY, \
 			"No entry with index %lld and type %d in group %s!", \
 			(long long)idx, type, group_name );
+
+#define HANDLE_H5PART_TYPE_ERR \
+		(*_err_handler) ( \
+			_H5Part_get_funcname(), \
+			H5PART_ERR_NOTYPE, \
+			"Encountered unkown data type!");
 
 /**************** HDF5 *********************/
 /* H5A: Attribute */
@@ -318,7 +339,7 @@
 	 (*_err_handler) ( \
 		_H5Part_get_funcname(), \
 		H5PART_ERR_HDF5, \
-		"Cannot determine the number of elements in dataspace selection." ); 
+		"Cannot determine number of elements in dataspace selection." ); 
 
 #define HANDLE_H5S_GET_SIMPLE_EXTENT_NPOINTS_ERR \
 	 (*_err_handler) ( \
@@ -330,7 +351,13 @@
 	 (*_err_handler) ( \
 		_H5Part_get_funcname(), \
 		H5PART_ERR_HDF5, \
-		"Cannot set select hyperslap region or add the specified region" );
+		"Cannot select hyperslap region of dataspace." );
+
+#define HANDLE_H5S_SELECT_ELEMENTS_ERR \
+	 (*_err_handler) ( \
+		_H5Part_get_funcname(), \
+		H5PART_ERR_HDF5, \
+		"Cannot select elements in dataspace." );
 
 /* H5T:  type */
 #define HANDLE_H5T_STRING_ERR \
@@ -345,6 +372,12 @@
 		H5PART_ERR_HDF5, \
 		"Cannot release datatype." );
 
+/* H5L */
+#define HANDLE_H5L_ITERATE_ERR \
+	 (*_err_handler) ( \
+		_H5Part_get_funcname(), \
+		H5PART_ERR_HDF5, \
+		"Cannot iterate through group." );
 
 /* MPI */
 #define HANDLE_MPI_ALLGATHER_ERR \

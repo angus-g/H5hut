@@ -1,7 +1,7 @@
-#ifndef __H5MULTIBLOCKERRORS_H
-#define __H5MULTIBLOCKERRORS_H
+#ifndef _H5MULTIBLOCK_ERRORS_H_
+#define _H5MULTIBLOCK_ERRORS_H_
 
-#define _err_handler H5PartGetErrorHandler()
+extern h5part_error_handler _err_handler;
 
 #define CHECK_DECOMP( f ) \
 	if ( ! f->multiblock->have_decomp ) \

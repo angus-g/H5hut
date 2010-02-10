@@ -1,5 +1,5 @@
-#ifndef __H5MULTIBLOCK_H
-#define __H5MULTIBLOCK_H
+#ifndef _H5MULTIBLOCK_H_
+#define _H5MULTIBLOCK_H_
 
 #ifdef __cplusplus
 extern "C" {

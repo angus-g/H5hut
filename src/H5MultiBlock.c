@@ -28,12 +28,14 @@
 
 /*!
   \ingroup h5multiblock_c_api
-  \defgroup h5multiblock_write	File Writing
+  \defgroup h5multiblock_model	Setting up the Data Model
 */  
+
 /*!
   \ingroup h5multiblock_c_api
-  \defgroup h5multiblock_read		File Reading
+  \defgroup h5multiblock_data	Reading and Writing Datasets
 */  
+
 /*!
   \ingroup h5multiblock_c_api
   \defgroup h5multiblock_attrib	Reading and Writing Attributes
@@ -89,7 +91,7 @@
   \return	H5PART_SUCCESS or error code
 */
 static h5part_int64_t
-_file_is_valid (
+_H5MultiBlock_file_is_valid (
 	const H5PartFile *f		/*!< IN: file handle */
 	) {
 
@@ -1055,7 +1057,7 @@ _H5MultiBlock_write_data (
 *******************************************************************************/
 
 /*!
-  \ingroup h5multiblock_write
+  \ingroup h5multiblock_model
 
   Define the radius for halo exchanges between the blocks. Blocks on the edges
   of the field will be padded with zero values out to the radius.
@@ -1083,7 +1085,7 @@ H5MultiBlock3dDefineRadius (
 }
 
 /*!
-  \ingroup h5multiblock_write
+  \ingroup h5multiblock_model
 
   Define the radii for halo exchanges between the blocks. Blocks on the edges
   of the field will be padded with zero values out to the radius.
@@ -1115,7 +1117,7 @@ H5MultiBlock3dDefineRadii (
 }
 
 /*!
-  \ingroup h5multiblock_write
+  \ingroup h5multiblock_model
 
   Define the field and block dimensions for writing.
 
@@ -1151,7 +1153,7 @@ H5MultiBlock3dDefineDims (
 }
 
 /*!
-  \ingroup h5multiblock_read
+  \ingroup h5multiblock_model
 
   Returns the field dimensions of the last field that was read.
 
@@ -1180,7 +1182,7 @@ H5MultiBlock3dGetFieldDims(
 }
 
 /*!
-  \ingroup h5multiblock_read
+  \ingroup h5multiblock_model
 
   Returns the block dimensions of the last field that was read.
 
@@ -1210,7 +1212,7 @@ H5MultiBlock3dGetBlockDims(
 }
 
 /*!
-  \ingroup h5multiblock_read
+  \ingroup h5multiblock_model
 
   Return the offsets for the block belonging to processor \c proc.
 
@@ -1240,7 +1242,7 @@ H5MultiBlock3dGetOffsetsOfProc (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_model
 
   Finds a 3D block decomposition for an arbitrary number of processors
   \c nprocs.
@@ -1266,7 +1268,7 @@ H5MultiBlock3dCalculateDecomp (
 }
 
 /*!
-  \ingroup h5multiblock_read
+  \ingroup h5multiblock_data
 
   Frees a \c block that was allocated during a read.
 
@@ -1283,7 +1285,7 @@ H5MultiBlockFree (
 }
 
 /*!
-  \ingroup h5multiblock_c_api
+  \ingroup h5multiblock_model
 
   Shifts the assignment of procs to blocks within the field.
 
