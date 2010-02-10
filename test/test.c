@@ -61,10 +61,10 @@ int main(int argc, char **argv)
 	//if (GetTestCleanup() && !getenv("HDF5_NOCLEANUP"))
         //    TestCleanup();
 
-	//return GetTestNumErrs();
-
 #ifdef PARALLEL_IO
 	return MPI_Finalize();
+#else
+	return GetTestNumErrs();
 #endif
 }
 

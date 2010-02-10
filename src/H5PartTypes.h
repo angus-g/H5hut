@@ -24,6 +24,7 @@ typedef unsigned long		MPI_Comm;
 #endif
 
 #define H5PART_STEPNAME_LEN	64
+#define H5PART_DATANAME_LEN	64
 
 struct H5BlockFile;
 

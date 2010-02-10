@@ -205,7 +205,7 @@ H5PartSetView (
 h5part_int64_t
 H5PartSetViewIndices (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
-	const hsize_t *indices,		/*!< [in]  List of indices */
+	const h5part_int64_t *indices,	/*!< [in]  List of indices */
 	h5part_int64_t nelems		/*!< [in]  Size of list */
 	);
 

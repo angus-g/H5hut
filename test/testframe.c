@@ -649,3 +649,38 @@ test_is_valid(H5PartFile *file)
 	RETURN(status, H5PART_SUCCESS, "H5PartFileIsValid");
 }
 
+void
+test_open_objects(H5PartFile *file, int max_objects)
+{
+	ssize_t nopen = H5Fget_obj_count(file->file, H5F_OBJ_ALL);
+	if (nopen > max_objects)
+	{
+		TestErrPrintf(	"*** TOO MANY OBJECTS OPEN: %d > %d "
+				"at line %4d in %s\n", nopen, max_objects,
+				(int)__LINE__, __FILE__ );
+
+		hid_t *list = malloc(sizeof(hid_t)*nopen);
+		H5Fget_obj_ids(file->file, H5F_OBJ_ALL, nopen, list);
+
+                H5O_info_t info;
+		int i;
+		for (i=0; i<nopen; i++) {
+			H5Oget_info(list[i], &info);
+                        switch (info.type) {
+                        case H5O_TYPE_GROUP: 
+			TestErrPrintf("obj%d has type GROUP\n", i);
+                        break;
+                        case H5O_TYPE_DATASET: 
+			TestErrPrintf("obj%d has type DATASET\n", i);
+                        break;
+                        case H5O_TYPE_NAMED_DATATYPE: 
+			TestErrPrintf("obj%d has type NAMED_DATATYPE\n", i);
+                        break;
+                        default:
+			TestErrPrintf("obj%d has unknown type\n", i);
+                        }
+		}
+		free(list);
+	}
+}
+

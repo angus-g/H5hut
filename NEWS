@@ -1,3 +1,129 @@
+#### H5PART 1.6 ##############################################################
+
+Updated Documentation
+---------------------
+
+The Fortran API has been added to the doxygen documentation. Most entries have
+a reference to their respective C API call.
+
+Regression Test Suite
+---------------------
+
+The test subdirectory has been reorganized to include a systematic series
+of regression tests of common use cases for the API. The goal is to have both
+complete coverage of the API (every call is exercised) and testing of some
+unlikely or unsuspected values and cases.
+
+Currently, the C test covers the entire H5Part API and the Fortran test is
+still in development.
+
+Benchmark Utilities
+-------------------
+
+Two benchmarking utilities, H5PartBench and H5BlockBench, have been added to
+the tools collection. Both require the parallel library and have functionality
+and syntax similar to the IOR benchmark:
+
+  http://sourceforge.net/projects/ior-sio/
+
+File Mode Flags
+---------------
+
+Previously, the only flags used were H5PART_READ, H5PART_WRITE, and
+H5PART_APPEND, and these were mutually exclusive. Additional flags have been
+added to select the underlying virtual file driver (VFD) that HDF5 uses in
+parallel mode and to accommodate the lustre filesystem:
+
+H5PART_VFD_MPIPOSIX (use the MPI-POSIX driver, which bypasses MPI-IO)
+H5PART_VFD_MPIIO_IND (use MPI-IO in independent mode)
+H5PART_FS_LUSTRE (activate H5P tunings for the lustre stripe size)
+
+These flags can be specified using the typical bitwise OR method, e.g.
+
+  char flag = H5PART_WRITE | H5PART_VFD_MPIPOSIX | H5PART_FS_LUSTRE;
+
+will select write mode with these two additional options.
+
+The parallel library now defaults to using the MPI-IO collective mode driver
+(previously it used independent mode). The collective buffering algorithm in
+the Cray XT4/5 environment has been substantially improved in the last year,
+and defaulting to collective mode allows us to take advantage of these
+improvements automatically.
+
+There are also new open calls H5PartOpenAlign and H5PartOpenParallelAlign that
+take an additional 'alignment' value. This value is passed to HDF5 and used to
+pad out objects so that they align to filesystem boundaries. For instance, it
+would make sense to use the stripe size as the alignment value when writing to
+a lustre filesystem.
+
+Unified 'View' Model
+--------------------
+
+Views are now supported in both read and write mode (previously only supported
+in read mode). It is possible to specify non-sensical views: you could for
+instance specify a read view that is larger than the dataset on disk. Or you
+could create a write view that is larger than the data in memory. In those
+cases, you will encounter an error when you try to perform a read or write
+operation on a dataset.
+
+There are two new methods for selecting views. H5PartSetNumParticlesStrided
+selects a view with $n$ particles per processor, but such that the data in
+memory is expected to have a 'stride' factor. For instance, if you have
+particle data with fields $x$ and $y$ and a single array with entries
+$x1,y1,x2,y2...$, then the stride factor is 2. Striding works for both reads
+and writes and only affects the view of memory: individual fields are still
+stored as individual arrays on disk.
+
+The second new method is H5PartSetViewIndices, which allows for point
+selections of datasets. You can pass a list of indices for the points you
+want to select. This is useful, for instance, when interfacing with FastBit
+to perform queries that select a small subset of non-contiguous particles.
+
+Because views are now supported on write, it is possible to write a dataset
+using multiple 'passes' or to leave some values unwritten.
+
+Internal Handling of Dataspaces
+-------------------------------
+
+H5PartSetNumParticles and H5PartSetNumParticlesStrided now share the same
+HDF5 dataspace state in the H5PartFile struct with the calls that modify
+the view (H5PartSetView etc.). Previously, the memory and disk dataspaces
+were regenerated from the view on every read access, which was unnecessary.
+
+Autogeneration of API Calls
+---------------------------
+
+Python scripts have been added to automatically generate read/write call
+variants for different data types.
+
+Renamed Fortran Include
+-----------------------
+
+The automake system no longer greps the *F90.inc files to generate an include
+called 'H5Part.inc'. Instead, the *F90.inc files have been renamed to *.f90,
+and awk is used to generate an 'H5PartF.h' file (the same naming convention
+as in MPI's 'mpif.h').
+
+The change to *.f90 was necessary to facilitate integration of the Fortran
+API into doxygen. Note that the *.f90 files will not compile, nor can they
+be included directly. Simply use
+
+  include 'H5PartF.h'
+
+in your Fortran code to include all the definitions for Fortran H5Part/H5Block
+calls.
+
+64 Char Limit on Dataset Names
+------------------------------
+
+Previously, a user could overrun internal buffers for dataset names. Now, a
+fixed limit of 64 chars is imposed. Dataset names that are longer than this are
+truncated and a warning is printed. We expect that most users are using
+short canoncical names like x, px, id, etc.
+
+
+#### H5PART 1.4 ##############################################################
+
 Error Handling
 --------------
  Now all functions, in which an error could occure, are returning a

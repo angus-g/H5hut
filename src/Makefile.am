@@ -4,6 +4,11 @@ OBJEXT=o
 
 INCLUDES = -I@HDF5ROOT@/include @MPIINC@
 
+EXTRA_HEADERS = 	H5PartPrivate.h \
+			H5BlockPrivate.h \
+			H5MultiBlockPrivate.h \
+			H5PartAttrib.h
+
 # Extra files that I wish to include in the dist tar ball.
 EXTRA_DIST =		TestUnderscoreC.c \
 			TestUnderscore.f \
@@ -13,7 +18,8 @@ EXTRA_DIST =		TestUnderscoreC.c \
 			H5Part.f90 \
 			H5PartAttrib.f90 \
 			H5Block.f90 \
-			H5BlockReadWrite.f90
+			H5BlockReadWrite.f90 \
+			$(EXTRA_HEADERS)
 
 # Files that I don't want to include in the dist tar ball
 nodist_include_HEADERS = H5PartF.h @UNDERSCORE_H@
@@ -40,12 +46,6 @@ include_HEADERS = 	H5Part.h \
 			H5PartF.h \
 			@UNDERSCORE_H@
 
-# Listing of all possible headers that I may include
-EXTRA_HEADERS =		H5PartPrivate.h \
-			H5BlockPrivate.h \
-			H5MultiBlockPrivate.h \
-			H5PartAttrib.h
-
 # Listing of sources
 libH5Part_a_SOURCES =	H5Part.c \
 			H5PartAttrib.c \
@@ -54,7 +54,8 @@ libH5Part_a_SOURCES =	H5Part.c \
 			H5MultiBlock.c \
 			H5MultiBlockReadWrite.c
 
-libH5PartF_a_SOURCES =	H5PartF.c \
+libH5PartF_a_SOURCES =	$(libH5Part_a_SOURCES) \
+			H5PartF.c \
 			H5PartAttribF.c \
 			H5BlockF.c \
 			H5BlockReadWriteF.c

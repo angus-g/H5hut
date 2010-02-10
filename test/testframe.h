@@ -184,5 +184,8 @@ get_attr_name(char *name, char *tag, int id);
 void
 test_is_valid(H5PartFile *file);
 
+void
+test_open_objects(H5PartFile *file, int max_objects);
+
 #endif
 

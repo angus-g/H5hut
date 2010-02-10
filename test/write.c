@@ -83,6 +83,10 @@ test_write_data64(H5PartFile *file, int nparticles, int step)
 	status = H5PartSetNumParticlesStrided(file, nparticles, -1);
 	RETURN(status, H5PART_SUCCESS, "H5PartSetNumParticlesStrided");
 
+	/* invalid nparticles will produce an error */
+	status = H5PartSetNumParticlesStrided(file, -1, 2);
+	RETURN(status, H5PART_ERR_INVAL, "H5PartSetNumParticlesStrided");
+
 #if PARALLEL_IO
 	TEST("Setting throttle");
 	status = H5PartSetThrottle(file, 2);
@@ -195,6 +199,7 @@ test_write_data32(H5PartFile *file, int nparticles, int step)
 {
 	int i,t;
 	h5part_int32_t status;
+	int rank, nprocs;
 
 	float *x,*y,*z;
 	float *px,*py,*pz;
@@ -216,6 +221,12 @@ test_write_data32(H5PartFile *file, int nparticles, int step)
 	TEST("Setting throttle");
 	status = H5PartSetThrottle(file, 2);
 	RETURN(status, H5PART_SUCCESS, "H5PartSetThrottle");
+
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+#else
+	rank = 0;
+	nprocs = 1;
 #endif
 
 	TEST("Writing 32-bit data");
@@ -236,8 +247,11 @@ test_write_data32(H5PartFile *file, int nparticles, int step)
 		status = H5PartSetStep(file, t);
 		RETURN(status, H5PART_SUCCESS, "H5PartSetStep");
 
-		status = H5PartSetNumParticles(file, nparticles);
-		RETURN(status, H5PART_SUCCESS, "H5PartSetNumParticles");
+		/* test a two-part write using views */
+		status = H5PartSetView(file,
+			rank*nparticles,
+			rank*nparticles + 31);
+		RETURN(status, H5PART_SUCCESS, "H5PartSetView");
 
 		status = H5PartWriteDataFloat32(file, "x", x);
 		RETURN(status, H5PART_SUCCESS, "H5PartWriteDataFloat32");
@@ -259,7 +273,34 @@ test_write_data32(H5PartFile *file, int nparticles, int step)
 		status = H5PartWriteDataFloat32(file, "pz", pz);
 		RETURN(status, H5PART_SUCCESS, "H5PartWriteDataFloat32");
 		
-		status = H5PartWriteDataInt32(file, "id", id);
+		status = H5PartWriteDataInt32(file, LONGNAME, id);
+		RETURN(status, H5PART_SUCCESS, "H5PartWriteDataInt32");
+
+		/* the second write phase... */
+		status = H5PartSetView(file,
+			rank*nparticles + 32,
+			rank*nparticles + nparticles - 1);
+		RETURN(status, H5PART_SUCCESS, "H5PartSetView");
+		/* offset the input arrays */
+		status = H5PartWriteDataFloat32(file, "x", x+32);
+		RETURN(status, H5PART_SUCCESS, "H5PartWriteDataFloat32");
+
+		status = H5PartWriteDataFloat32(file, "y", y+32);
+		RETURN(status, H5PART_SUCCESS, "H5PartWriteDataFloat32");
+
+		status = H5PartWriteDataFloat32(file, "z", z+32);
+		RETURN(status, H5PART_SUCCESS, "H5PartWriteDataFloat32");
+		
+		status = H5PartWriteDataFloat32(file, "px", px+32);
+		RETURN(status, H5PART_SUCCESS, "H5PartWriteDataFloat32");
+
+		status = H5PartWriteDataFloat32(file, "py", py+32);
+		RETURN(status, H5PART_SUCCESS, "H5PartWriteDataFloat32");
+
+		status = H5PartWriteDataFloat32(file, "pz", pz+32);
+		RETURN(status, H5PART_SUCCESS, "H5PartWriteDataFloat32");
+		
+		status = H5PartWriteDataInt32(file, LONGNAME, id+32);
 		RETURN(status, H5PART_SUCCESS, "H5PartWriteDataInt32");
 	}
 }
@@ -273,9 +314,6 @@ test_write_strided_data32(H5PartFile *file, int nparticles, int step)
 	float *data;
 
 	data=(float*)malloc(6*nparticles*sizeof(float));
-
-	//status = H5PartSetNumParticlesStrided(file, nparticles, 6);
-	//RETURN(status, H5PART_SUCCESS, "H5PartSetNumParticlesStrided");
 
 	TEST("Writing 32-bit strided data");
 
@@ -332,6 +370,8 @@ void test_write1(void)
 	test_write_data32(file1, NPARTICLES, 1);
 	test_write_file_attribs(file1, 0);
 
+	_H5Part_close_hdf_ids(file1);
+	test_open_objects(file1, 1);
 	status = H5PartCloseFile(file1);
 	RETURN(status, H5PART_SUCCESS, "H5PartCloseFile");
 }
@@ -372,7 +412,7 @@ void test_write3(void)
 	test_is_valid(file1);
 
 	TEST("Redefining step name");
-	status = H5PartDefineStepName(file1, LONGSTEPNAME, 16);
+	status = H5PartDefineStepName(file1, LONGNAME, 16);
 	RETURN(status, H5PART_SUCCESS, "H5PartDefineStepName");
 
 	test_write_strided_data64(file1, NPARTICLES, 0);
@@ -401,10 +441,10 @@ void test_write4(void)
 	test_is_valid(file2);
 
 	TEST("Redefining step name");
-	status = H5PartDefineStepName(file1, LONGSTEPNAME, 16);
+	status = H5PartDefineStepName(file1, LONGNAME, 16);
 	RETURN(status, H5PART_SUCCESS, "H5PartDefineStepName");
 
-	status = H5PartDefineStepName(file2, LONGSTEPNAME, 16);
+	status = H5PartDefineStepName(file2, LONGNAME, 16);
 	RETURN(status, H5PART_SUCCESS, "H5PartDefineStepName");
 
 	test_write_data64(file1, NPARTICLES, NTIMESTEPS);

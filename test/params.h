@@ -2,7 +2,7 @@
 #define _H5PART_TEST_PARAMS_H_
 
 #define FILENAME "test.h5"
-#define LONGSTEPNAME "thisisaverylongstepnamethatshouldexceedthelimitof64charcausingawarningtoprint"
+#define LONGNAME "thisisaverylongnamethatshouldexceedthelimitof64charcausingawarningtoprint"
 #define NTIMESTEPS 10
 
 /* do not decrease this value below 99, or it will break assumptions

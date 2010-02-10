@@ -390,6 +390,7 @@ if test "X$USE_PARALLEL" = "Xyes"; then
         fi
     fi
 
+    H5P_LIB_NAME="-lpH5Part"
     MTARGET="libpH5Part.a"
     TTARGET="test"
 
@@ -417,6 +418,7 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 	    FC=${MPIFC}
 	fi
  
+        H5P_LIB_NAME="-lpH5PartF"
         MTARGET="${MTARGET} libpH5PartF.a"
         TTARGET="${TTARGET} testf"
     fi
@@ -424,10 +426,12 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 else  # --enable-parallel=no
     AC_MSG_RESULT([no])
 
+    H5P_LIB_NAME="-lH5Part"
     MTARGET="libH5Part.a"
     TTARGET="test"
 
     if test "X$USE_FORTRAN" = "Xyes"; then
+        H5P_LIB_NAME="-lH5PartF"
         MTARGET="${MTARGET} libH5PartF.a"
         TTARGET="${TTARGET} testf"
     fi
@@ -596,6 +600,7 @@ AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
 AC_SUBST(STDCXX)
 AC_SUBST(H5P_LIB_LOC)
+AC_SUBST(H5P_LIB_NAME)
 AC_SUBST(UNDERSCORE_H)
 AC_SUBST(BUILD_TOOLS)
 AC_SUBST(LDFLAGS)

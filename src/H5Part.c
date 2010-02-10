@@ -32,7 +32,7 @@ Papers:
 </LI>
 
 
-<LI> A. Adelmann, R.D. Ryne, J. Shalf, C. Siegerist,"H5Part: A Portable High Performance Parallel Data Interface for Particle Simulations," <i>
+<LI> A. Adelmann, R.D. Ryne, J. Shalf, C. Siegerist, "H5Part: A Portable High Performance Parallel Data Interface for Particle Simulations," <i>
 <a href="http://www.sns.gov/pac05">Particle Accelerator Conference (PAC05)</a></i>, Knoxville TN., May 16-20, 2005.
 <a href="http://vis.lbl.gov/Publications/2005/FPAT083.pdf">FPAT083.pdf</a>
 </LI>
@@ -440,7 +440,6 @@ H5PartOpenFileParallelAlign (
 
   \return	File handle or \c NULL
  */
-
 H5PartFile*
 H5PartOpenFile (
 	const char *filename,	/*!< [in] The name of the data file to open. */
@@ -497,23 +496,12 @@ _H5Part_file_is_valid (
 		return H5PART_ERR_BADFD;
 }
 
-/*!
-  \ingroup h5part_open
-
-  Closes an open file.
-
-  \return	\c H5PART_SUCCESS or error code
-*/
 h5part_int64_t
-H5PartCloseFile (
+_H5Part_close_hdf_ids (
 	H5PartFile *f		/*!< [in] filehandle of the file to close */
 	) {
 
-	SET_FNAME ( "H5PartCloseFile" );
 	herr_t r = 0;
-	_h5part_errno = H5PART_SUCCESS;
-
-	CHECK_FILEHANDLE ( f );
 
 	if ( f->block && f->close_block ) {
 		(*f->close_block) ( f );
@@ -564,11 +552,38 @@ H5PartCloseFile (
 		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( "f->create_prop" );
 		f->create_prop = H5P_DEFAULT;
 	}
+
+	return H5PART_SUCCESS;
+}
+
+/*!
+  \ingroup h5part_open
+
+  Closes an open file.
+
+  \return	\c H5PART_SUCCESS or error code
+*/
+h5part_int64_t
+H5PartCloseFile (
+	H5PartFile *f		/*!< [in] filehandle of the file to close */
+	) {
+
+	SET_FNAME ( "H5PartCloseFile" );
+	herr_t r = 0;
+	_h5part_errno = H5PART_SUCCESS;
+
+	CHECK_FILEHANDLE ( f );
+
+	r = _H5Part_close_hdf_ids ( f );
+	if ( r < 0 ) return r;
+
 	if ( f->file ) {
 		r = H5Fclose( f->file );
 		if ( r < 0 ) HANDLE_H5F_CLOSE_ERR;
 		f->file = 0;
 	}
+
+	/* free memory from H5PartFile struct */
 	if( f->pnparticles ) {
 		free( f->pnparticles );
 	}
@@ -688,6 +703,12 @@ _set_num_particles (
 	herr = _reset_view ( f );
 	if ( herr < 0 ) return herr;
 
+	if ( f->shape != H5S_ALL ) {
+		herr = H5Sclose ( f->shape );
+		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+		f->shape = H5S_ALL;
+	}
+
 	f->nparticles = (hsize_t) nparticles;
 
 	/* declare local memory datasize with striding */
@@ -781,12 +802,8 @@ _set_num_particles (
 		&stride,
 		&count, NULL );
 	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
-
-	if ( f->timegroup < 0 ) {
-		herr = _H5Part_set_step ( f, 0 );
-		if ( herr < 0 ) return herr;
-	}
 #endif
+
 	return H5PART_SUCCESS;
 }
 
@@ -797,7 +814,7 @@ _set_num_particles (
   After you call this subroutine, all subsequent 
   operations will assume this number of particles will be written.
 
-  For the parallel library, the \a nparticles value is the number of
+  For the parallel library, the \c nparticles value is the number of
   particles that the \e individual task will write. You can use
   a different value on different tasks.
   This function uses an \c MPI_Allgather
@@ -808,11 +825,11 @@ _set_num_particles (
 
   This function assumes that your particles' data fields are in stored in
   contiguous 1D arrays.
-  For instance, the fields $x$ and $y$ for your particles are stored
+  For instance, the fields \e x and \e y for your particles are stored
   in separate arrays \c x[] and \c y[].
   
   If instead you store your particles as tuples, so that the values
-  are arranged $x_1,y_1,x_2,y_2$... than you need to setup striding
+  are arranged \f$ x_1,y_1,x_2,y_2\f$... than you need to setup striding
   (in this case with value 2) using \ref H5PartSetNumParticlesStrided.
 
   \return	\c H5PART_SUCCESS or error code
@@ -842,7 +859,7 @@ H5PartSetNumParticles (
   After you call this subroutine, all subsequent 
   operations will assume this number of particles will be written.
 
-  For the parallel library, the \a nparticles value is the number of
+  For the parallel library, the \c nparticles value is the number of
   particles that the \e individual task will write. You can use
   a different value on different tasks.
   This function uses an \c MPI_Allgather
@@ -852,8 +869,8 @@ H5PartSetNumParticles (
   few times as possible when running at large concurrency.
 
   This function assumes that your particles' data fields are
-  stored tuples. For instance, the fields $x$ and $y$ of your
-  particles are arranged $x_1,y_1,x_2,y_2$... in a single data
+  stored tuples. For instance, the fields \e x and \e y of your
+  particles are arranged \f$x_1,y_1,x_2,y_2\f$... in a single data
   array. In this example, the stride value would be 2.
   
   If you instead have a separate array for each fields,
@@ -861,12 +878,12 @@ H5PartSetNumParticles (
   use \ref H5PartSetNumParticles.
 
   \return	\c H5PART_SUCCESS or error code
- */
+*/
 h5part_int64_t
 H5PartSetNumParticlesStrided (
 	H5PartFile *f,				/*!< [in] Handle to open file */
 	const h5part_int64_t nparticles,	/*!< [in] Number of particles */
-	const h5part_int64_t stride		/*!< [in] Stride (e.g. number of fields in the particle array) */
+	const h5part_int64_t stride		/*!< [in] Stride value (e.g. number of fields in the particle array) */
 	) {
 
 	SET_FNAME ( "H5PartSetNumParticlesStrided" );
@@ -880,6 +897,24 @@ H5PartSetNumParticlesStrided (
 	return H5PART_SUCCESS;
 }
 
+static void
+_normalize_dataset_name (
+	const char *name,
+	char *name2
+	) {
+
+	if ( strlen(name) > H5PART_DATANAME_LEN ) {
+		strncpy ( name2, name, H5PART_DATANAME_LEN - 1 );
+		name2[H5PART_DATANAME_LEN-1] = '\0';
+		_H5Part_print_warn (
+			"Dataset name '%s' is longer than maximum %d chars. "
+			"Truncated to: '%s'",
+			name, H5PART_DATANAME_LEN, name2 );
+	} else {
+		strcpy ( name2, name );
+	}
+}
+
 static h5part_int64_t
 _write_data (
 	H5PartFile *f,		/*!< IN: Handle to open file */
@@ -887,12 +922,17 @@ _write_data (
 	const void *array,	/*!< IN: Array to commit to disk */
 	const hid_t type	/*!< IN: Type of data */
 	) {
+
 	herr_t herr;
 	hid_t dataset_id;
 
-	_H5Part_print_debug ( "Create a dataset[%s] mounted on the "
+	char name2[H5PART_DATANAME_LEN];
+	_normalize_dataset_name ( name, name2 );
+
+	_H5Part_print_debug (
+			"Create a dataset[%s] mounted on "
 			"timestep %lld",
-			name, (long long)f->timestep );
+			name2, (long long)f->timestep );
 
 	if ( f->shape == H5S_ALL ) {
 		_H5Part_print_warn (
@@ -901,28 +941,39 @@ _write_data (
 		return HANDLE_H5PART_BAD_VIEW_ERR ( f->viewstart, f->viewend );
 	}
 
+	H5E_BEGIN_TRY
+	dataset_id = H5Dopen ( f->timegroup, name2
 #ifndef H5_USE_16_API
-	htri_t exists = H5Lexists ( f->timegroup, name, H5P_DEFAULT );
-	if ( exists > 0 ) return HANDLE_H5D_EXISTS_ERR ( name, f->timestep );
-
-	dataset_id = H5Dcreate2 ( 
-		f->timegroup,
-		name,
-		type,
-		f->shape,
-		H5P_DEFAULT,
-		H5P_DEFAULT,
-		H5P_DEFAULT );
-#else
-	dataset_id = H5Dcreate ( 
-		f->timegroup,
-		name,
-		type,
-		f->shape,
-		H5P_DEFAULT );
+		, H5P_DEFAULT
 #endif
-	if ( dataset_id < 0 )
-		return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
+		);
+	H5E_END_TRY
+
+	if ( dataset_id > 0 ) {
+		_H5Part_print_warn (
+			"Dataset[%s] at timestep %lld "
+			"already exists", name2, (long long)f->timestep );
+	} else {
+#ifndef H5_USE_16_API
+		dataset_id = H5Dcreate2 ( 
+			f->timegroup,
+			name2,
+			type,
+			f->shape,
+			H5P_DEFAULT,
+			H5P_DEFAULT,
+			H5P_DEFAULT );
+#else
+		dataset_id = H5Dcreate ( 
+			f->timegroup,
+			name2,
+			type,
+			f->shape,
+			H5P_DEFAULT );
+#endif
+		if ( dataset_id < 0 )
+			return HANDLE_H5D_CREATE_ERR ( name2, f->timestep );
+	}
 
 #ifdef PARALLEL_IO
 	herr = _H5Part_start_throttle ( f );
@@ -942,7 +993,7 @@ _write_data (
 	if ( herr < 0 ) return herr;
 #endif
 
-	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
+	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name2, f->timestep );
 
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
@@ -1825,7 +1876,7 @@ _H5Part_set_step (
 #endif
 					  );
 		if ( f->timegroup < 0 )
-			return HANDLE_H5G_OPEN_ERR( stepname );
+			return HANDLE_H5G_OPEN_ERR ( stepname );
 	}
 	else {
 		_H5Part_print_debug (
@@ -1834,14 +1885,11 @@ _H5Part_set_step (
 			(long long)step,
 			(long long)(size_t) f );
 
-		f->timegroup = H5Gcreate( f->file,
-					  stepname,
-					  0
+		f->timegroup = H5Gcreate( f->file, stepname, 0
 #ifndef H5_USE_16_API
 					  , H5P_DEFAULT, H5P_DEFAULT
 #endif
 					  );
-
 		if ( f->timegroup < 0 )
 			return HANDLE_H5G_CREATE_ERR ( stepname );
 	}
@@ -1893,7 +1941,10 @@ _H5Part_have_group (
 #ifndef H5_USE_16_API
 	return (H5Lexists( id, name, H5P_DEFAULT ) ? 1 : 0);
 #else
-	return (H5Gget_objinfo( id, name, 1, NULL ) >= 0 ? 1 : 0);
+	H5E_BEGIN_TRY
+	herr_t exists = H5Gget_objinfo( id, name, 1, NULL );
+	H5E_END_TRY
+	return (exists >= 0 ? 1 : 0);
 #endif
 }
 
@@ -2118,11 +2169,11 @@ _H5Part_get_num_objects_matching_pattern (
 	herr = H5Giterate ( group_id, group_name, &idx,
 			_H5Part_iteration_operator, &data );
 #endif
-
 	if ( herr < 0 ) return herr;
 
 #ifndef H5_USE_16_API
-	H5Gclose( child_id );
+	herr = H5Gclose ( child_id );
+	if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
 #endif
 
 	return data.count;
@@ -2166,12 +2217,13 @@ _H5Part_get_object_name (
 	if ( herr < 0 ) {
 		return HANDLE_H5L_ITERATE_ERR;
 	}
-	else if ( herr == 0 ) return 0;
 
 #ifndef H5_USE_16_API
-	herr = H5Gclose ( child_id );
-	if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
+	herr_t herr2 = H5Gclose ( child_id );
+	if ( herr2 < 0 ) return HANDLE_H5G_CLOSE_ERR;
 #endif
+
+	if ( herr == 0 ) return 0;
 
 	return 1;
 }
@@ -2393,11 +2445,8 @@ _H5Part_get_num_particles (
 	) {
 
 	h5part_int64_t herr;
-	hid_t space_id;
-	hid_t dataset_id;
-	char dataset_name[128];
-	hsize_t nparticles;
-
+	h5part_int64_t nparticles;
+	char dataset_name[H5PART_DATANAME_LEN];
 	char stepname[H5PART_STEPNAME_LEN];
 	_H5Part_get_step_name(f, f->timestep, stepname);
 
@@ -2406,38 +2455,70 @@ _H5Part_get_num_particles (
 		stepname,
 		H5G_DATASET,
 		0,
-		dataset_name, sizeof (dataset_name) );
+		dataset_name, H5PART_DATANAME_LEN );
 	if ( herr < 0 ) return herr;
-	else if ( herr == 0 ) {
-		_H5Part_print_warn ( 
-			"There are no datasets in timestep %s: "
-			"reporting 0 particles.", stepname );
-		return 0;
+	/* returns 0 if there are no datasets on disk */
+	else if ( herr == 0 )
+	{
+		/* try to recover number of particles from a previous
+		 * H5PartSetNumParticles call. */
+#ifdef PARALLEL_IO
+		nparticles = 0;
+		int i;
+		for (i=0; i < f->nprocs; i++) {
+			nparticles += f->pnparticles[i];
+		}
+#else
+		nparticles = f->nparticles;
+#endif
+
+		if ( nparticles > 0 ) {
+			_H5Part_print_debug (
+				"Using existing view to report "
+				"nparticles = %lld", (long long)nparticles );
+			return nparticles;
+		}
+		else {
+			_H5Part_print_warn ( 
+				"There are no datasets in timestep %s "
+				"or existing views: "
+				"reporting 0 particles.", stepname );
+			return 0;
+		}
 	}
 
-	dataset_id = H5Dopen ( f->timegroup, dataset_name
+	/* if a view exists, use its size as the number of particles */
+	if ( _H5Part_has_view ( f ) )
+	{
+		nparticles = H5Sget_select_npoints ( f->diskshape );
+		if ( nparticles < 0 ) return HANDLE_H5S_GET_SELECT_NPOINTS_ERR;
+
+		/* double check that the size of the diskshape agrees with
+		 * the size of the view */
+		if ( nparticles != f->viewend - f->viewstart + 1 ) {
+			_H5Part_print_warn (
+				"Number of particles (%lld) does not agree "
+				"with view range.", (long long)nparticles );
+			return HANDLE_H5PART_BAD_VIEW_ERR (
+					f->viewstart, f->viewend);
+		}
+	}
+	/* otherwise, report all particles on disk in the first dataset
+	 * for this timestep */
+	else
+	{
+		hid_t space_id;
+		hid_t dataset_id;
+
+		dataset_id = H5Dopen ( f->timegroup, dataset_name
 #ifndef H5_USE_16_API
 				, H5P_DEFAULT
 #endif
 				 );
 
-	if ( dataset_id < 0 ) 
-		return HANDLE_H5D_OPEN_ERR ( dataset_name );
+		if ( dataset_id < 0 ) 
+			return HANDLE_H5D_OPEN_ERR ( dataset_name );
 
-	/* if a view exists, use its size as the number of particles */
-	if ( _H5Part_has_view ( f ) ) {
-		nparticles = H5Sget_select_npoints ( f->diskshape );
-		if ( nparticles < 0 ) return HANDLE_H5S_GET_SELECT_NPOINTS_ERR;
-		if ( nparticles != f->viewend - f->viewstart + 1 )
-			_H5Part_print_warn (
-				"Number of particles (%lld) does not agree "
-				"with view range.", nparticles );
-			return HANDLE_H5PART_BAD_VIEW_ERR (
-					f->viewstart, f->viewend);
-	}
-	/* otherwise, report all particles on disk in the first dataset
-	 * for this timestep */
-	else {
 		space_id = H5Dget_space ( dataset_id );
 		if ( space_id < 0 ) return HANDLE_H5D_GET_SPACE_ERR;
 
@@ -2447,12 +2528,12 @@ _H5Part_get_num_particles (
 
 		herr = H5Sclose ( space_id );
 		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
+
+		herr = H5Dclose ( dataset_id );
+		if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
 	}
 
-	herr = H5Dclose ( dataset_id );
-	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
-
-	return (h5part_int64_t) nparticles;
+	return nparticles;
 }
 
 /*!
@@ -2498,12 +2579,6 @@ _reset_view (
 
 	f->viewstart = -1;
 	f->viewend = -1;
-
-	if ( f->shape != H5S_ALL ) {
-		herr = H5Sclose ( f->shape );
-		if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
-		f->shape = H5S_ALL;
-	}
 
 	if ( f->diskshape != H5S_ALL ) {
 		herr = H5Sclose ( f->diskshape );
@@ -2580,11 +2655,15 @@ _set_view (
 	  end==-1 to mean end of file
 	*/
 	total = (hsize_t) _H5Part_get_num_particles ( f );
-	if ( total < 0 ) return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( total );
-
-	_H5Part_print_debug ( "Total nparticles=%lld", (long long)total );
-
-	if ( total == 0 ) return H5PART_SUCCESS;
+	if ( total < 0 ) {
+		return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( total );
+	}
+	else if ( total == 0 ) {
+		/* No datasets have been created yet and no veiws are set.
+		 * We have to leave the view empty because we don't know how
+		 * many particles there should be! */
+		return H5PART_SUCCESS;
+	}
 
 	if ( start == -1 ) start = 0;
 	if ( end == -1 )   end = total - 1; // range is *inclusive*
@@ -2604,10 +2683,7 @@ _set_view (
 	f->viewend =    end;
 	f->nparticles = end - start + 1;
 	
-	/* declare overall datasize */
-	f->shape = H5Screate_simple ( 1, &total, NULL );
-	if ( f->shape < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( total );
+	_H5Part_print_debug ( "nparticles=%lld", (long long)f->nparticles );
 
 	/* declare overall data size but then select a subset */
 	f->diskshape = H5Screate_simple ( 1, &total, NULL );
@@ -2636,7 +2712,7 @@ _set_view (
 static h5part_int64_t
 _set_view_indices (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
-	const hsize_t *indices,		/*!< [in]  List of indices */
+	const h5part_int64_t *indices,	/*!< [in]  List of indices */
 	h5part_int64_t nelems		/*!< [in]  Size of list */
 	) {
 
@@ -2661,7 +2737,15 @@ _set_view_indices (
 	  end==-1 to mean end of file
 	*/
 	total = (hsize_t) _H5Part_get_num_particles ( f );
-	if ( total < 0 ) return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( total );
+	if ( total < 0 ) {
+		return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( total );
+	}
+	else if ( total == 0 ) {
+		/* No datasets have been created yet and no veiws are set.
+		 * We have to leave the view empty because we don't know how
+		 * many particles there should be! */
+		return H5PART_SUCCESS;
+	}
 
 	_H5Part_print_debug ( "Total nparticles=%lld", (long long)total );
 
@@ -2676,11 +2760,6 @@ _set_view_indices (
 	} else {
 		f->nparticles = (hsize_t) nelems;
 	}
-
-	/* declare overall datasize */
-	f->shape = H5Screate_simple ( 1, &total, NULL );
-	if ( f->shape < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( total );
 
 	/* declare overall data size  but then will select a subset */
 	f->diskshape = H5Screate_simple ( 1, &total, NULL );
@@ -2698,7 +2777,7 @@ _set_view_indices (
 			f->diskshape,
 			H5S_SELECT_SET,
 			nelems,
-			indices );
+			(hsize_t*)indices );
 	} else {
 		herr = H5Sselect_none ( f->diskshape );
 	}
@@ -2768,7 +2847,7 @@ H5PartSetView (
 h5part_int64_t
 H5PartSetViewIndices (
 	H5PartFile *f,			/*!< [in]  Handle to open file */
-	const hsize_t *indices,		/*!< [in]  List of indices */
+	const h5part_int64_t *indices,	/*!< [in]  List of indices */
 	h5part_int64_t nelems		/*!< [in]  Size of list */
 	) {
 
@@ -2930,17 +3009,20 @@ _read_data (
 	hid_t memspace_id;
 
 	if ( f->timegroup < 0 ) {
-		h5part_int64_t h5err = _H5Part_set_step ( f, f->timestep );
-		if ( h5err < 0 ) return h5err;
+		herr = _H5Part_set_step ( f, f->timestep );
+		if ( herr < 0 ) return herr;
 	}
 
-	dataset_id = H5Dopen ( f->timegroup, name
+	char name2[H5PART_DATANAME_LEN];
+	_normalize_dataset_name ( name, name2 );
+
+	dataset_id = H5Dopen ( f->timegroup, name2
 #ifndef H5_USE_16_API
 				, H5P_DEFAULT
 #endif
 				);
 
-	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name );
+	if ( dataset_id < 0 ) return HANDLE_H5D_OPEN_ERR ( name2 );
 
 	/* default spaces, if not using a view selection */
 	memspace_id = H5S_ALL;
@@ -2971,7 +3053,7 @@ _read_data (
 				"Ignoring view: dataset[%s] has fewer "
 				"elements on disk (%lld) than are selected "
 				"(%lld).",
-				name, (long long)ndisk, (long long)nread );
+				name2, (long long)ndisk, (long long)nread );
 			nread = ndisk;
 		}
 	}
@@ -2997,7 +3079,7 @@ _read_data (
 				"Ignoring view: dataset[%s] has more "
 				"elements selected (%lld) than are available "
 				"in memory (%lld).",
-				name, (long long)nread, (long long)nmem );
+				name2, (long long)nread, (long long)nmem );
 			memspace_id == H5S_ALL;
 		}
 	}
@@ -3016,7 +3098,7 @@ _read_data (
 					   (get hyperslab if needed) */
 		f->xfer_prop,		/* ignore... its for parallel reads */
 		array );
-	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->timestep );
+	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name2, f->timestep );
 
 #ifdef PARALLEL_IO
 	herr = _H5Part_end_throttle ( f );

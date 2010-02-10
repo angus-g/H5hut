@@ -3,7 +3,7 @@
 OBJEXT=o
 
 HDFLIB = -L@HDF5ROOT@/lib -lhdf5 -lz @SZLIB@
-LIBS = -L@H5P_LIB_LOC@ -lH5PartF -lH5Part $(HDFLIB) -lm
+LIBS = -L@H5P_LIB_LOC@ @H5P_LIB_NAME@ $(HDFLIB) -lm
 
 INCLUDES = -I@H5P_LIB_LOC@ -I@HDF5ROOT@/include @MPIINC@
 
@@ -18,7 +18,8 @@ test_SOURCES =	test.c \
 		testframe.c \
 		write.c \
 		read.c \
-		testframe.h
+		testframe.h \
+		params.h
 
 testf_SOURCES = testf.F90
 
