@@ -63,9 +63,6 @@ libH5PartF_a_SOURCES =	$(libH5Part_a_SOURCES) \
 H5PartF.h: H5Part.f90 H5PartAttrib.f90 H5Block.f90 H5BlockReadWrite.f90
 	awk '/INTEGER\*8 FUNCTION/{print "\t" $$1 " " $$3}' $^ >$@
 
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $<
-
 libpH5Part.a: libH5Part.a
 	$(RM) $@
 	ln -s $^ $@

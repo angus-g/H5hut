@@ -511,6 +511,7 @@ if test -n "$ZLIBROOT"; then
 fi
 
 FCFLAGS=${FFLAGS}
+CXXFLAGS=${CFLAGS}
 
 
 ###############################################################################

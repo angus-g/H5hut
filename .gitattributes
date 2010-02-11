@@ -12,6 +12,7 @@
 /config.guess -text
 /config.h.in -text
 /config.sub -text
+/configure-crayxt -text
 /configure.ac -text
 /depcomp -text
 doc/Doxyfile -text

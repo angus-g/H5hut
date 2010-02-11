@@ -24,9 +24,3 @@ homdynToH5p_SOURCES =	homdynToH5p.cc
 H5PartBench_SOURCES =	H5PartBench.c
 H5BlockBench_SOURCES =	H5BlockBench.c
 
-.o.cc:
-	$(CXX) $(CFLAGS) $(INCLUDES) -c $<
-
-.o.c:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $<
-

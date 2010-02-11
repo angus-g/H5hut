@@ -23,9 +23,6 @@ test_SOURCES =	test.c \
 
 testf_SOURCES = testf.F90
 
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $<
-
 clean: clean-am
 	rm -f *.h5
 
