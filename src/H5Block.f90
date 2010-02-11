@@ -102,6 +102,7 @@ INTEGER*8 FUNCTION h5bl_getfieldinfo ( filehandle, idx, field_name, grid_rank, g
     INTEGER*8, INTENT(OUT) :: grid_rank
     INTEGER*8, INTENT(OUT) :: grid_dims(*)
     INTEGER*8, INTENT(OUT) :: field_dims
+    INTEGER*8, INTENT(OUT) :: type
 END FUNCTION
 
 !> \ingroup h5blockf_model

@@ -340,6 +340,7 @@ _H5Part_open_file (
 	f->memshape = H5S_ALL;
 	f->viewstart = -1;
 	f->viewend = -1;
+	f->viewindexed = 0;
 	f->throttle = 0;
 
 	_H5Part_print_debug (
@@ -2399,13 +2400,15 @@ H5PartGetDatasetInfo (
 			, H5P_DEFAULT
 #endif
 			);
-	if ( dataset < 0 ) HANDLE_H5D_OPEN_ERR ( dataset_name );
+	if ( dataset < 0 ) return HANDLE_H5D_OPEN_ERR ( dataset_name );
 
 	h5type = H5Dget_type ( dataset );
-	if ( h5type < 0 ) HANDLE_H5D_GET_TYPE_ERR;
+	if ( h5type < 0 ) return HANDLE_H5D_GET_TYPE_ERR;
 
-	if ( type ) *type = _H5Part_normalize_h5_type ( h5type );
-	if ( *type < 0 ) return *type;
+	if ( type ) {
+		*type = _H5Part_normalize_h5_type ( h5type );
+		if ( *type < 0 ) return *type;
+	}
 
 	if ( nelem )
 	{
@@ -2434,7 +2437,7 @@ _H5Part_has_view (
 	H5PartFile *f
 	) {
 
-	return  ( f->viewstart >= 0 ) && ( f->viewend >= 0 );
+	return  ( f->viewindexed || ( f->viewstart >= 0 && f->viewend >= 0 ));
 }
 
 h5part_int64_t
@@ -2491,6 +2494,11 @@ _H5Part_get_num_particles (
 		nparticles = H5Sget_select_npoints ( f->diskshape );
 		if ( nparticles < 0 ) return HANDLE_H5S_GET_SELECT_NPOINTS_ERR;
 
+		_H5Part_print_debug (
+			"Found %lld points with H5Sget_select_npoints",
+			(long long)nparticles );
+
+#if 0 // this does not work for indices
 		/* double check that the size of the diskshape agrees with
 		 * the size of the view */
 		if ( nparticles != f->viewend - f->viewstart + 1 ) {
@@ -2500,6 +2508,7 @@ _H5Part_get_num_particles (
 			return HANDLE_H5PART_BAD_VIEW_ERR (
 					f->viewstart, f->viewend);
 		}
+#endif
 	}
 	/* otherwise, report all particles on disk in the first dataset
 	 * for this timestep */
@@ -2577,6 +2586,7 @@ _reset_view (
 
 	f->viewstart = -1;
 	f->viewend = -1;
+	f->viewindexed = 0;
 
 	if ( f->diskshape != H5S_ALL ) {
 		herr = H5Sclose ( f->diskshape );
@@ -2781,6 +2791,8 @@ _set_view_indices (
 	}
 	if ( herr < 0 ) return HANDLE_H5S_SELECT_ELEMENTS_ERR;
 
+	f->viewindexed = 1;
+
 	return H5PART_SUCCESS;
 }
 
@@ -2869,7 +2881,7 @@ H5PartSetViewIndices (
    Use \c H5PartHasView() to see if the view is smaller than the
    total dataset.
 
-   \return	the number of elements in the view 
+   \return	number of elements in the view or error code
 */
 h5part_int64_t
 H5PartGetView (
@@ -2881,6 +2893,13 @@ H5PartGetView (
 	SET_FNAME ( "H5PartGetView" );
 
 	CHECK_FILEHANDLE( f );
+
+	if ( f->viewindexed ) {
+		_H5Part_print_error (
+			"The current view has an index selection, but "
+			"this function only works for ranged views." );
+		return H5PART_ERR_INVAL;
+	}
 
 	if ( f->timegroup < 0 ) {
 		h5part_int64_t herr = _H5Part_set_step ( f, 0 );

@@ -88,7 +88,8 @@ H5BlockGetFieldInfo (
 	const h5part_int64_t len_name,
 	h5part_int64_t *grid_rank,
 	h5part_int64_t *grid_dims,
-	h5part_int64_t *field_rank
+	h5part_int64_t *field_rank,
+	h5part_int64_t *type
 	);
 
 h5part_int64_t
@@ -97,7 +98,8 @@ H5BlockGetFieldInfoByName (
 	const char *field_name,
 	h5part_int64_t *grid_rank,
 	h5part_int64_t *grid_dims,
-	h5part_int64_t *field_rank
+	h5part_int64_t *field_rank,
+	h5part_int64_t *type
 	);
 
 h5part_int64_t

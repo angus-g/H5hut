@@ -82,6 +82,9 @@ to perform queries that select a small subset of non-contiguous particles.
 Because views are now supported on write, it is possible to write a dataset
 using multiple 'passes' or to leave some values unwritten.
 
+Also, all views are now *inclusive*, so that a view of (0,9) corresponds
+to the 10 items 0, 1, 2, ... 9.
+
 Internal Handling of Dataspaces
 -------------------------------
 
@@ -120,6 +123,12 @@ Previously, a user could overrun internal buffers for dataset names. Now, a
 fixed limit of 64 chars is imposed. Dataset names that are longer than this are
 truncated and a warning is printed. We expect that most users are using
 short canoncical names like x, px, id, etc.
+
+Changes to Existing API
+-----------------------
+
+The H5BlockGetFieldInfo and H5BlockGetFieldInfoByName calls now both include
+a parameter for the 'type' of the field.
 
 
 #### H5PART 1.4 ##############################################################

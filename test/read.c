@@ -209,9 +209,15 @@ test_read_data64(H5PartFile *file, int nparticles, int step)
 		status = H5PartSetViewIndices(file, indices, 4);
 		RETURN(status, H5PART_SUCCESS, "H5PartSetViewIndices");
 
+		val = H5PartGetNumParticles(file);
+		IVALUE(val, 4, "particle count");
+
 		status = H5PartReadDataFloat64(file, "x", x);
 		RETURN(status, H5PART_SUCCESS, "H5PartReadDataFloat64");
 		FVALUE(x[2], (double)(rank*2+9+nparticles*t), "x data");
+
+		val = H5PartGetNumParticles(file);
+		IVALUE(val, 4, "particle count");
 
 		status = H5PartSetViewIndices(file, NULL, 4);
 		RETURN(status, H5PART_SUCCESS, "H5PartSetViewIndices");

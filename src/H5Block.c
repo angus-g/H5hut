@@ -1495,10 +1495,12 @@ _get_field_info (
 	const char *field_name,		/*!< IN: field name to get info about */
 	h5part_int64_t *grid_rank,	/*!< OUT: rank of grid */
 	h5part_int64_t *grid_dims,	/*!< OUT: dimensions of grid */
-	h5part_int64_t *field_rank	/*!< OUT: rank of field  (1 or 3) */
+	h5part_int64_t *field_rank,	/*!< OUT: rank of field  (1 or 3) */
+	h5part_int64_t *type		/*!< OUT: datatype */
 	) {
 
 	hsize_t dims[16];
+	hsize_t _grid_rank, _field_rank;
 	h5part_int64_t i, j;
 
 	h5part_int64_t herr = _open_block_group ( f );
@@ -1523,17 +1525,29 @@ _get_field_info (
  	hid_t dataspace_id = H5Dget_space ( dataset_id );
 	if ( dataspace_id < 0 ) return HANDLE_H5D_GET_SPACE_ERR;
 
-	*grid_rank = H5Sget_simple_extent_dims ( dataspace_id, dims, NULL );
-	if ( *grid_rank < 0 )  return HANDLE_H5S_GET_SIMPLE_EXTENT_DIMS_ERR;
+	_grid_rank = H5Sget_simple_extent_dims ( dataspace_id, dims, NULL );
+	if ( _grid_rank < 0 ) return HANDLE_H5S_GET_SIMPLE_EXTENT_DIMS_ERR;
+	if ( grid_rank ) *grid_rank = (h5part_int64_t) _grid_rank;
+ 
+	if ( grid_dims ) {
+		for ( i = 0, j = _grid_rank-1; i < _grid_rank; i++, j-- )
+			grid_dims[i] = (h5part_int64_t)dims[j];
+	}
 
-	for ( i = 0, j = *grid_rank-1; i < *grid_rank; i++, j-- )
-		grid_dims[i] = (h5part_int64_t)dims[j];
-
-	*field_rank = _H5Part_get_num_objects (
+	_field_rank = _H5Part_get_num_objects (
 		f->block->blockgroup,
 		field_name,
 		H5G_DATASET );
-	if ( *field_rank < 0 ) return *field_rank;
+	if ( _field_rank < 0 ) return *field_rank;
+	if ( field_rank ) *field_rank = (h5part_int64_t) _field_rank;
+
+	hid_t h5type = H5Dget_type ( dataset_id );
+	if ( h5type < 0 ) return HANDLE_H5D_GET_TYPE_ERR;
+
+	if ( type ) {
+		*type = _H5Part_normalize_h5_type ( h5type );
+		if ( *type < 0 ) return *type;
+	}
 
 	herr = H5Sclose ( dataspace_id );
 	if ( herr < 0 ) return HANDLE_H5S_CLOSE_ERR;
@@ -1568,7 +1582,8 @@ H5BlockGetFieldInfo (
 	const h5part_int64_t len_field_name,	/*!< IN: buffer size */
 	h5part_int64_t *grid_rank,		/*!< OUT: grid rank */
 	h5part_int64_t *grid_dims,		/*!< OUT: grid dimensions */
-	h5part_int64_t *field_rank		/*!< OUT: field rank */
+	h5part_int64_t *field_rank,		/*!< OUT: field rank */
+	h5part_int64_t *type			/*!< OUT: datatype */
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
@@ -1585,7 +1600,7 @@ H5BlockGetFieldInfo (
 	if ( herr < 0 ) return herr;
 
 	return _get_field_info (
-		f, field_name, grid_rank, grid_dims, field_rank );
+		f, field_name, grid_rank, grid_dims, field_rank, type );
 }
 
 /*!
@@ -1601,7 +1616,8 @@ H5BlockGetFieldInfoByName (
 	const char *field_name,			/*!< IN: field name */
 	h5part_int64_t *grid_rank,		/*!< OUT: grid rank */
 	h5part_int64_t *grid_dims,		/*!< OUT: grid dimensions */
-	h5part_int64_t *field_rank		/*!< OUT: field rank */
+	h5part_int64_t *field_rank,		/*!< OUT: field rank */
+	h5part_int64_t *type			/*!< OUT: datatype */
 	) {
 
 	SET_FNAME ( "H5BlockGetFieldInfo" );
@@ -1609,7 +1625,7 @@ H5BlockGetFieldInfoByName (
 	CHECK_TIMEGROUP( f );
 
 	return _get_field_info (
-		f, field_name, grid_rank, grid_dims, field_rank );
+		f, field_name, grid_rank, grid_dims, field_rank, type );
 }
 
 /********************** reading and writing attribute ************************/

@@ -194,6 +194,7 @@ h5bl_getfieldinfo (
 	h5part_int64_t *grid_rank,
 	h5part_int64_t *grid_dims,
 	h5part_int64_t *field_dims,
+	h5part_int64_t *type,
 	const int l_field_name
 	) {
 
@@ -201,7 +202,7 @@ h5bl_getfieldinfo (
 
 	h5part_int64_t herr = H5BlockGetFieldInfo (
 		filehandle, *idx, field_name, l_field_name,
-		grid_rank, grid_dims, field_dims );
+		grid_rank, grid_dims, field_dims, type );
 	_H5Part_strc2for ( field_name, l_field_name );
 	return herr;
 }

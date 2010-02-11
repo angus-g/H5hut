@@ -60,6 +60,7 @@ struct H5PartFile {
 
 	h5part_int64_t viewstart; /* -1 if no view is available: A "view" looks */
 	h5part_int64_t viewend;   /* at a subset of the data. */
+	char viewindexed; /* flag for an indexed view */
   
 	/**
 	   the number of particles in each processor.
