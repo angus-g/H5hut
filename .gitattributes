@@ -75,6 +75,7 @@ test/H5testF.f -text
 test/H5testFpar.F90 -text
 test/Makefile.am -text
 test/params.h -text
+test/read.c -text
 test/test.c -text
 test/testframe.c -text
 test/testframe.h -text
