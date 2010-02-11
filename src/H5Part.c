@@ -782,10 +782,8 @@ _set_num_particles (
 		total += f->pnparticles[i];
 	}
 
-	if ( stride > 1 ) count = stride * total;
-	else count = total;
-
 	/* declare overall datasize */
+	count = total;
 	f->shape = H5Screate_simple (1, &count, NULL);
 	if ( f->shape < 0 ) return HANDLE_H5S_CREATE_SIMPLE_ERR ( count );
 
