@@ -16,9 +16,9 @@ extern "C" {
 #include "H5MultiBlock.h"
 #endif
 
-#define H5PART_VER_STRING	"1.5.0"
+#define H5PART_VER_STRING	"1.6.0"
 #define H5PART_VER_MAJOR	1
-#define H5PART_VER_MINOR	5
+#define H5PART_VER_MINOR	6
 #define H5PART_VER_RELEASE	0
 
 /* error values */
