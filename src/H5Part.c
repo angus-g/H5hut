@@ -1940,8 +1940,9 @@ _H5Part_have_group (
 #ifndef H5_USE_16_API
 	return (H5Lexists( id, name, H5P_DEFAULT ) ? 1 : 0);
 #else
+	herr_t exists = 0;
 	H5E_BEGIN_TRY
-	herr_t exists = H5Gget_objinfo( id, name, 1, NULL );
+	H5Gget_objinfo( id, name, 1, NULL );
 	H5E_END_TRY
 	return (exists >= 0 ? 1 : 0);
 #endif

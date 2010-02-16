@@ -11,6 +11,13 @@ c_head = """
 
 #include "H5MultiBlockErrors.h"
 #include "H5MultiBlockPrivate.h"
+
+#ifdef PARALLEL_IO
+
+"""
+
+c_tail = """
+#endif // PARALLEL_IO
 """
 
 h_head = """
@@ -237,6 +244,7 @@ def write_calls():
 #	fcfile.write(create_call(read_fc,type,dim));
 #	fifile.write(create_call(write_fi,type,dim));
 #	fifile.write(create_call(read_fi,type,dim));
+  cfile.write(c_tail)
   cfile.close()
   hfile.write(h_tail)
   hfile.close()

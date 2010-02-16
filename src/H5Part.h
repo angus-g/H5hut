@@ -99,6 +99,10 @@ H5PartCloseFile (
 	H5PartFile *f
 	);
 
+h5part_int64_t
+H5PartFileIsValid (
+	H5PartFile *f
+	);
 
 /*============== File Writing Functions ==================== */
 h5part_int64_t
