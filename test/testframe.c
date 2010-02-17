@@ -31,6 +31,7 @@
 #include <string.h>
 #include <H5Part.h>
 #include "testframe.h"
+#include "../src/H5PartPrivate.h"
 
 /*
  * Definitions for the testing structure.
@@ -652,6 +653,7 @@ test_is_valid(H5PartFile *file)
 void
 test_open_objects(H5PartFile *file, int max_objects)
 {
+#ifndef H5_USE_16_API
 	ssize_t nopen = H5Fget_obj_count(file->file, H5F_OBJ_ALL);
 	if (nopen > max_objects)
 	{
@@ -682,5 +684,6 @@ test_open_objects(H5PartFile *file, int max_objects)
 		}
 		free(list);
 	}
+#endif
 }
 

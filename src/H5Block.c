@@ -724,6 +724,11 @@ _release_hyperslab (
   Define the field layout given the dense index space at the actual
   time step.
 
+  This routine uses an MPI_Allgather, so at large concurrency it should
+  be called as infrequently as possible. For instance, if several timesteps
+  use the same field dimensions, set the layout only once before the
+  first timestep.
+
   \return \c H5PART_SUCCESS on success<br>
   \c H5PART_ERR_MPI<br>
   \c H5PART_ERR_HDF5

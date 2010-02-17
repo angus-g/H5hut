@@ -198,7 +198,7 @@ static void
 test_write_data32(H5PartFile *file, int nparticles, int step)
 {
 	int i,t;
-	h5part_int32_t status;
+	h5part_int32_t status, val;
 	int rank, nprocs;
 
 	float *x,*y,*z;
@@ -244,8 +244,11 @@ test_write_data32(H5PartFile *file, int nparticles, int step)
 			id[i] = i + nparticles*t;
 		}
 
-		status = H5PartSetStep(file, t);
-		RETURN(status, H5PART_SUCCESS, "H5PartSetStep");
+		val = H5PartHasStep(file, t);
+		if (val == 0) {
+			status = H5PartSetStep(file, t);
+			RETURN(status, H5PART_SUCCESS, "H5PartSetStep");
+		}
 
 		/* test a two-part write using views */
 		status = H5PartSetView(file,
