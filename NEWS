@@ -1,5 +1,14 @@
 #### H5PART 1.6.1 ############################################################
 
+Chunking in the H5Part API
+--------------------------
+
+There is now an H5Part equivalent H5PartSetChunkSize to the existing
+H5BlockDefine3DChunkDims call. Both of these calls enable the chunking
+mechanism in the underlying HDF5 layer. Chunking is used in combination
+with the aligned open calls to pad datasets to alignment multiples
+on disk.
+
 All Steps Available on Write
 ----------------------------
 
@@ -17,7 +26,7 @@ Previously, a throttle factor of N meant that for P processors, the total
 number of P writes were divided into N batchs of P/N writes.
 
 To better accomodate round-robin lustre striping, the new policy is to
-execute P/N batch of N writes. Thus, matching N to the number of stripes
+execute P/N batches of N writes. Thus, matching N to the number of stripes
 results in the desirable 1-1 matching of writers to stripes.
 
 #### H5PART 1.6 ##############################################################

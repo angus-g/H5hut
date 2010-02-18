@@ -126,6 +126,12 @@ H5PartSetNumParticlesStrided (
 	);
 
 h5part_int64_t
+H5PartSetChunkSize (
+	H5PartFile *f,
+	const h5part_int64_t size
+	);
+
+h5part_int64_t
 H5PartWriteDataFloat64 (
 	H5PartFile *f,
 	const char *name,

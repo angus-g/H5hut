@@ -375,8 +375,6 @@ void test_write1(void)
 	test_write_data32(file1, NPARTICLES, 1);
 	test_write_file_attribs(file1, 0);
 
-	_H5Part_close_hdf_ids(file1);
-	test_open_objects(file1, 1);
 	status = H5PartCloseFile(file1);
 	RETURN(status, H5PART_SUCCESS, "H5PartCloseFile");
 }
@@ -410,10 +408,10 @@ void test_write3(void)
 	h5part_int64_t status;
 
 	TEST(	"Opening file once, write-truncate, lustre filesyste, "
-		"MPI-POSIX VFD, 64KB alignment");
+		"MPI-POSIX VFD, 1KB alignment");
 	file1 = OPENALIGN(FILENAME,
 		H5PART_WRITE | H5PART_VFD_MPIPOSIX | H5PART_FS_LUSTRE,
-		65536);
+		1024);
 	test_is_valid(file1);
 
 	TEST("Redefining step name");
@@ -435,14 +433,14 @@ void test_write4(void)
 	h5part_int64_t status;
 
 	TEST(	"Opening file twice, write-append + read-only, "
-		"lustre filesystem, MPI-IO Independent VFD, 64K alignment");
+		"lustre filesystem, MPI-IO Independent VFD, 1K alignment");
 	file1 = OPENALIGN(FILENAME,
 		H5PART_APPEND | H5PART_VFD_MPIIO_IND | H5PART_FS_LUSTRE,
-		65536);
+		1024);
 	test_is_valid(file1);
 	file2 = OPENALIGN(FILENAME,
 		H5PART_READ | H5PART_VFD_MPIIO_IND | H5PART_FS_LUSTRE,
-		65536);
+		1024);
 	test_is_valid(file2);
 
 	TEST("Redefining step name");
@@ -451,6 +449,9 @@ void test_write4(void)
 
 	status = H5PartDefineStepName(file2, LONGNAME, 16);
 	RETURN(status, H5PART_SUCCESS, "H5PartDefineStepName");
+
+	status = H5PartSetChunkSize(file1, NPARTICLES);
+	RETURN(status, H5PART_SUCCESS, "H5PartSetChunkSize");
 
 	test_write_data64(file1, NPARTICLES, NTIMESTEPS-2);
 	test_write_file_attribs(file1, 1);

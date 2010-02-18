@@ -1201,7 +1201,7 @@ _H5Block_read_data (
 		type,
 		f->block->memshape,
 		f->block->diskshape,
-		f->xfer_prop,
+		f->dxfer_prop,
 		data );
 	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->timestep );
 
@@ -1468,7 +1468,7 @@ _H5Block_write_data (
 		type,
 		b->memshape,
 		b->diskshape,
-		f->xfer_prop,
+		f->dxfer_prop,
 		data );
 	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
 
