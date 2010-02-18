@@ -7,7 +7,7 @@
 
 #define H5PART_GROUPNAME_STEP	"Step"
 
-#define H5PART_BTREE_IK 10000
+#define H5PART_SET_STEP_READ_ONLY 0
 
 h5part_int64_t
 _H5Part_file_is_valid (

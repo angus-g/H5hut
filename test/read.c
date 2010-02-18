@@ -509,7 +509,7 @@ void test_read4(void)
 	status = H5PartSetStep(file2, NTIMESTEPS);
 	RETURN(status, H5PART_SUCCESS, "H5PartSetStep");
 
-	test_read_data64(file2, NPARTICLES, NTIMESTEPS);
+	test_read_data64(file2, NPARTICLES, NTIMESTEPS-2);
 
 	status = H5PartCloseFile(file1);
 	RETURN(status, H5PART_SUCCESS, "H5PartCloseFile");

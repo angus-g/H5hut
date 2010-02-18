@@ -1191,6 +1191,11 @@ _H5Block_read_data (
 	herr = _H5Block_select_hyperslab_for_reading ( f, dataset_id );
 	if ( herr < 0 ) return herr;
 
+#ifdef PARALLEL_IO
+	herr = _H5Part_start_throttle ( f );
+	if ( herr < 0 ) return herr;
+#endif
+
 	herr = H5Dread ( 
 		dataset_id,
 		type,
@@ -1199,6 +1204,11 @@ _H5Block_read_data (
 		f->xfer_prop,
 		data );
 	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name, f->timestep );
+
+#ifdef PARALLEL_IO
+	herr = _H5Part_end_throttle ( f );
+	if ( herr < 0 ) return herr;
+#endif
 
 	herr = H5Dclose ( dataset_id );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;
@@ -1448,6 +1458,11 @@ _H5Block_write_data (
 		);
 	if ( dataset < 0 ) return HANDLE_H5D_CREATE_ERR ( name, f->timestep );
 
+#ifdef PARALLEL_IO
+	herr = _H5Part_start_throttle ( f );
+	if ( herr < 0 ) return herr;
+#endif
+
 	herr = H5Dwrite ( 
 		dataset,
 		type,
@@ -1456,6 +1471,11 @@ _H5Block_write_data (
 		f->xfer_prop,
 		data );
 	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
+
+#ifdef PARALLEL_IO
+	herr = _H5Part_end_throttle ( f );
+	if ( herr < 0 ) return herr;
+#endif
 
 	herr = H5Dclose ( dataset );
 	if ( herr < 0 ) return HANDLE_H5D_CLOSE_ERR;

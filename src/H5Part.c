@@ -242,7 +242,7 @@ _H5Part_open_file (
 			}
 
 			f->create_prop = H5Pcreate(H5P_FILE_CREATE);
-			H5Pset_istore_k (f->create_prop, H5PART_BTREE_IK);
+			H5Pset_istore_k (f->create_prop, btree_ik);
 
 #ifndef H5_USE_16_API
 			/* defer metadata cache flushing until file close */
@@ -1851,9 +1851,11 @@ _H5Part_set_step (
 	char stepname[H5PART_STEPNAME_LEN];
 	_H5Part_get_step_name(f, step, stepname);
 
+#if H5PART_SET_STEP_READ_ONLY
 	if ( (!(f->flags & H5PART_READ)) && _H5Part_have_group ( f->file, stepname ) ) {
 		return HANDLE_H5PART_STEP_EXISTS_ERR ( step );
 	}
+#endif
 
 	if ( f->timegroup >= 0 ) {
 		herr_t herr = H5Gclose ( f->timegroup );
@@ -1862,6 +1864,9 @@ _H5Part_set_step (
 	f->timegroup = -1;
 	f->timestep = step;
 
+#if H5PART_SET_STEP_READ_ONLY
+	// in this mode, existing steps can be selecting only
+	// for a READ file handle
 	if ( f->flags & H5PART_READ ) {
 		_H5Part_print_debug (
 			"Proc[%d]: Set step to #%lld for file %lld",
@@ -1892,6 +1897,33 @@ _H5Part_set_step (
 		if ( f->timegroup < 0 )
 			return HANDLE_H5G_CREATE_ERR ( stepname );
 	}
+
+#else // H5PART_SET_STEP_READ_ONLY
+
+	// in this mode, existing steps can be selected for all file
+	// handles: first try to open the step, and create it if it
+	// doesn't exist
+	H5E_BEGIN_TRY
+	f->timegroup = H5Gopen ( f->file, stepname
+#ifndef H5_USE_16_API
+					  , H5P_DEFAULT
+#endif
+					  );
+	H5E_END_TRY
+
+	
+	if ( f->timegroup < 0 )
+	{
+		f->timegroup = H5Gcreate( f->file, stepname, 0
+#ifndef H5_USE_16_API
+					  , H5P_DEFAULT, H5P_DEFAULT
+#endif
+					  );
+		if ( f->timegroup < 0 )
+			return HANDLE_H5G_CREATE_ERR ( stepname );
+	}
+
+#endif // H5PART_SET_STEP_READ_ONLY
 
 	return H5PART_SUCCESS;
 }
@@ -3343,12 +3375,14 @@ H5PartSetThrottle (
 
 	if ( f->flags & H5PART_VFD_MPIIO_IND || f->flags & H5PART_VFD_MPIPOSIX ) {
 		f->throttle = factor;
-		_H5Part_print_info (
-			"Throttling set with factor '%d'", f->throttle );
+		if ( f->myproc == 0 )
+			_H5Part_print_info (
+				"Throttling set with factor '%d'", f->throttle );
 	} else {
-		_H5Part_print_warn (
-			"Throttling is only permitted with the MPI-POSIX "
-			"or MPI-IO Independent VFD." );
+		if ( f->myproc == 0 )
+			_H5Part_print_warn (
+				"Throttling is only permitted with the MPI-POSIX "
+				"or MPI-IO Independent VFD." );
 	}
 
 	return H5PART_SUCCESS;
@@ -3366,14 +3400,14 @@ _H5Part_start_throttle (
 			_H5Part_print_info ("Throttling with factor = %d",
 				f->throttle);
 		}
-		if (f->myproc % f->throttle > 0) {
+		if (f->myproc / f->throttle > 0) {
 			_H5Part_print_debug_detail (
 				"[%d] throttle: waiting on token from %d",
-				f->myproc, f->myproc - 1);
+				f->myproc, f->myproc - f->throttle);
 			// wait to receive token before continuing with read
 			ret = MPI_Recv(
 				&token, 1, MPI_INT,
-				f->myproc - 1, // receive from previous proc
+				f->myproc - f->throttle, // receive from previous proc
 				f->myproc, // use this proc id as message tag
 				f->comm,
 				MPI_STATUS_IGNORE
@@ -3393,19 +3427,17 @@ _H5Part_end_throttle (
 	if (f->throttle > 0) {
 		int ret;
 		int token;
-		if (f->myproc % f->throttle < f->throttle - 1) {
+		if (f->myproc + f->throttle < f->nprocs) {
 			// pass token to next proc 
-			if (f->myproc + 1 < f->nprocs) {
-				_H5Part_print_debug_detail (
-					"[%d] throttle: passing token to %d",
-					f->myproc, f->myproc + 1);
-				ret = MPI_Send(
-					&token, 1, MPI_INT,
-					f->myproc + 1, // send to next proc
-					f->myproc + 1, // use the id of the target as tag
-					f->comm
-					);
-			}
+			_H5Part_print_debug_detail (
+				"[%d] throttle: passing token to %d",
+				f->myproc, f->myproc + f->throttle);
+			ret = MPI_Send(
+				&token, 1, MPI_INT,
+				f->myproc + f->throttle, // send to next proc
+				f->myproc + f->throttle, // use the id of the target as tag
+				f->comm
+				);
 			if ( ret != MPI_SUCCESS ) return HANDLE_MPI_SENDRECV_ERR;
 		}
 	}

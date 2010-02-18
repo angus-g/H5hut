@@ -20,6 +20,7 @@ doc/H5X_File_Format.txt -text
 doc/Makefile.am -text
 doc/doxyfooter -text
 examples/stridedf.F90 -text
+examples/write_setview.c -text
 /install-sh -text
 /license.txt -text
 /missing -text

@@ -7,6 +7,8 @@ SUBDIRS = \
 	test \
 	tools
 
+EXTRA_DIST = configure-crayxt
+
 MAINTAINERCLEANFILES = \
 	config.h \
 	config.log \

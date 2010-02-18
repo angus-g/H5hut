@@ -65,7 +65,7 @@ static void
 test_write_data64(H5PartFile *file, int nparticles, int step)
 {
 	int i,t;
-	h5part_int64_t status;
+	h5part_int64_t status, val;
 
 	double *x,*y,*z;
 	double *px,*py,*pz;
@@ -108,10 +108,12 @@ test_write_data64(H5PartFile *file, int nparticles, int step)
 			id[i] = i + nparticles*t;
 		}
 
+		val = H5PartHasStep(file, t);
+
 		status = H5PartSetStep(file, t);
 		RETURN(status, H5PART_SUCCESS, "H5PartSetStep");
 
-		test_write_step_attribs(file, t);
+		if (val == 0) test_write_step_attribs(file, t);
 
 		status = H5PartSetNumParticles(file, nparticles);
 		RETURN(status, H5PART_SUCCESS, "H5PartSetNumParticles");
@@ -450,7 +452,7 @@ void test_write4(void)
 	status = H5PartDefineStepName(file2, LONGNAME, 16);
 	RETURN(status, H5PART_SUCCESS, "H5PartDefineStepName");
 
-	test_write_data64(file1, NPARTICLES, NTIMESTEPS);
+	test_write_data64(file1, NPARTICLES, NTIMESTEPS-2);
 	test_write_file_attribs(file1, 1);
 
 	status = H5PartCloseFile(file1);

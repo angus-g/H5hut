@@ -1,3 +1,25 @@
+#### H5PART 1.6.1 ############################################################
+
+All Steps Available on Write
+----------------------------
+
+Previously, existing steps in a file were only accessable in read-only mode.
+Now, all steps are available in all modes, including write-truncate and
+write-append. Thus, it is now possible to overwrite existing data in write
+mode. To help alert the user to this possibility, a warning is issued every
+time an existing dataset is written to. Warnings can be printed by setting
+the verbosity to H5PART_VERB_WARN or higher.
+
+New Throttling Routine
+----------------------
+
+Previously, a throttle factor of N meant that for P processors, the total
+number of P writes were divided into N batchs of P/N writes.
+
+To better accomodate round-robin lustre striping, the new policy is to
+execute P/N batch of N writes. Thus, matching N to the number of stripes
+results in the desirable 1-1 matching of writers to stripes.
+
 #### H5PART 1.6 ##############################################################
 
 Updated Documentation
