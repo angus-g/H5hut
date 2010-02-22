@@ -249,7 +249,7 @@ _H5Part_open_file (
 
 			H5Pset_istore_k (f->fcreate_prop, btree_ik);
 
-#ifndef H5_USE_16_API
+#ifdef H5PART_HAVE_HDF5_18
 			/* defer metadata cache flushing until file close */
 			H5AC_cache_config_t cache_config;
 			cache_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
@@ -1299,7 +1299,7 @@ _H5Part_read_attrib (
 	hid_t space_id;
 	hid_t type_id;
 
-#ifndef H5_USE_16_API
+#ifdef H5PART_HAVE_HDF5_18
 	if (! H5Aexists ( id, attrib_name )) {
 		_H5Part_print_warn ( "Attribute '%s' does not exist!", attrib_name );
 	}
@@ -2009,7 +2009,7 @@ _H5Part_have_group (
 	const hid_t id,
 	const char *name
 	) {
-#ifndef H5_USE_16_API
+#ifdef H5PART_HAVE_HDF5_18
 	return (H5Lexists( id, name, H5P_DEFAULT ) ? 1 : 0);
 #else
 	herr_t exists = 0;
@@ -2028,7 +2028,7 @@ _H5Part_have_group (
 
   Iterator for \c H5Giterate().
 */
-#ifndef H5_USE_16_API
+#ifdef H5PART_HAVE_HDF5_18
 herr_t
 _H5Part_iteration_operator2 (
 	hid_t group_id,			/*!< [in] parent object id */
@@ -2152,7 +2152,7 @@ _H5Part_iteration_operator (
 
 	if ( data->type != H5G_UNKNOWN )
 	{
-#ifndef H5_USE_16_API
+#ifdef H5PART_HAVE_HDF6_18
 		H5O_info_t objinfo;
 
 		hid_t obj_id = H5Oopen(group_id, member_name, H5P_DEFAULT);
@@ -2232,7 +2232,7 @@ _H5Part_get_num_objects_matching_pattern (
 	data.type = type;
 	data.pattern = pattern;
 
-#ifndef H5_USE_16_API
+#ifdef H5PART_HAVE_HDF5_18
 	hid_t child_id = H5Gopen( group_id, group_name, H5P_DEFAULT );
 	if ( child_id < 0 ) return child_id;
  	herr = H5Literate( child_id, H5_INDEX_NAME, H5_ITER_INC, 0,
@@ -2243,7 +2243,7 @@ _H5Part_get_num_objects_matching_pattern (
 #endif
 	if ( herr < 0 ) return herr;
 
-#ifndef H5_USE_16_API
+#ifdef H5PART_HAVE_HDF5_18
 	herr = H5Gclose ( child_id );
 	if ( herr < 0 ) return HANDLE_H5G_CLOSE_ERR;
 #endif
@@ -2277,7 +2277,7 @@ _H5Part_get_object_name (
 	data.name = obj_name;
 	data.len = (size_t)len_obj_name;
 
-#ifndef H5_USE_16_API
+#ifdef H5PART_HAVE_HDF5_18
 	hid_t child_id = H5Gopen ( group_id, group_name, H5P_DEFAULT );
 	if ( child_id < 0 ) return child_id;
  	herr = H5Literate ( child_id, H5_INDEX_NAME, H5_ITER_INC, 0,
@@ -2290,7 +2290,7 @@ _H5Part_get_object_name (
 		return HANDLE_H5L_ITERATE_ERR;
 	}
 
-#ifndef H5_USE_16_API
+#ifdef H5PART_HAVE_HDF5_18
 	herr_t herr2 = H5Gclose ( child_id );
 	if ( herr2 < 0 ) return HANDLE_H5G_CLOSE_ERR;
 #endif

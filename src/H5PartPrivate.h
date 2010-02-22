@@ -2,7 +2,12 @@
 #define __H5PART_PRIVATE_H
 
 #if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 6
+#define H5PART_USE_HDF5_16
 #define H5_USE_16_API
+#endif
+
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+#define H5PART_HAVE_HDF5_18
 #endif
 
 #define H5PART_GROUPNAME_STEP	"Step"
