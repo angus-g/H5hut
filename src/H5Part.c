@@ -154,10 +154,10 @@ _H5Part_open_file (
 	strncpy ( f->groupname_step, H5PART_GROUPNAME_STEP, H5PART_STEPNAME_LEN );
 	f->stepno_width = 0;
 
-	f->dxfer_prop = f->dcreate_prop = f->fcreate_prop = H5P_DEFAULT;
+	f->xfer_prop = f->dcreate_prop = f->fcreate_prop = H5P_DEFAULT;
 
-	f->faccess_prop = H5Pcreate (H5P_FILE_ACCESS);
-	if (f->faccess_prop < 0) {
+	f->access_prop = H5Pcreate (H5P_FILE_ACCESS);
+	if (f->access_prop < 0) {
 		HANDLE_H5P_CREATE_ERR;
 		goto error_cleanup;
 	}
@@ -187,7 +187,7 @@ _H5Part_open_file (
 			if (f->myproc == 0) {
 				_H5Part_print_info ( "Selecting MPI-POSIX VFD" );
 			}
-			if (H5Pset_fapl_mpiposix ( f->faccess_prop, comm, 0 ) < 0) {
+			if (H5Pset_fapl_mpiposix ( f->access_prop, comm, 0 ) < 0) {
 				HANDLE_H5P_SET_FAPL_ERR;
 				goto error_cleanup;
 			}
@@ -196,7 +196,7 @@ _H5Part_open_file (
 			if (f->myproc == 0) {
 				_H5Part_print_info ( "Selecting MPI-IO VFD" );
 			}
-			if (H5Pset_fapl_mpio ( f->faccess_prop, comm, info ) < 0) {
+			if (H5Pset_fapl_mpio ( f->access_prop, comm, info ) < 0) {
 				HANDLE_H5P_SET_FAPL_ERR;
 				goto error_cleanup;
 			}
@@ -208,12 +208,12 @@ _H5Part_open_file (
 				if (f->myproc == 0) {
 					_H5Part_print_info ( "Using collective mode" );
 				}
-				f->dxfer_prop = H5Pcreate (H5P_DATASET_XFER);
-				if (f->dxfer_prop < 0) {
+				f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
+				if (f->xfer_prop < 0) {
 					HANDLE_H5P_CREATE_ERR;
 					goto error_cleanup;
 				}
-				if (H5Pset_dxpl_mpio ( f->dxfer_prop, H5FD_MPIO_COLLECTIVE ) < 0) {
+				if (H5Pset_dxpl_mpio ( f->xfer_prop, H5FD_MPIO_COLLECTIVE ) < 0) {
 					HANDLE_H5P_SET_DXPL_MPIO_ERR;
 					goto error_cleanup;
 				}
@@ -253,14 +253,14 @@ _H5Part_open_file (
 			/* defer metadata cache flushing until file close */
 			H5AC_cache_config_t cache_config;
 			cache_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
-			H5Pget_mdc_config (f->faccess_prop, &cache_config);
+			H5Pget_mdc_config (f->access_prop, &cache_config);
 			cache_config.set_initial_size = 1;
 			cache_config.initial_size = 16 * 1024 * 1024;
 			cache_config.evictions_enabled = 0;
 			cache_config.incr_mode = H5C_incr__off;
 			cache_config.flash_incr_mode = H5C_flash_incr__off;
 			cache_config.decr_mode = H5C_decr__off;
-			H5Pset_mdc_config (f->faccess_prop, &cache_config);
+			H5Pset_mdc_config (f->access_prop, &cache_config);
 #else // H5_USE_16_API
 			_H5Part_print_info (
 					"Unable to defer metadata write: need HDF5 1.8");
@@ -283,7 +283,7 @@ _H5Part_open_file (
 				"Setting HDF5 alignment to %ld bytes",
 				align );
 		}
-		if (H5Pset_alignment ( f->faccess_prop, 0, align ) < 0) {
+		if (H5Pset_alignment ( f->access_prop, 0, align ) < 0) {
 			HANDLE_H5P_SET_FAPL_ERR;
 			goto error_cleanup;
 		}
@@ -292,7 +292,7 @@ _H5Part_open_file (
 				"Setting HDF5 meta block to %ld bytes",
 				align );
 		}
-		if (H5Pset_meta_block_size ( f->faccess_prop, align ) < 0) {
+		if (H5Pset_meta_block_size ( f->access_prop, align ) < 0) {
 			HANDLE_H5P_SET_FAPL_ERR;
 			goto error_cleanup;
 		}
@@ -306,24 +306,24 @@ _H5Part_open_file (
 	}
 
 	if ( flags & H5PART_READ ) {
-		f->file = H5Fopen(filename, H5F_ACC_RDONLY, f->faccess_prop);
+		f->file = H5Fopen(filename, H5F_ACC_RDONLY, f->access_prop);
 	}
 	else if ( flags & H5PART_WRITE ){
 		f->file = H5Fcreate (filename, H5F_ACC_TRUNC, f->fcreate_prop,
-				f->faccess_prop);
+				f->access_prop);
 		f->empty = 1;
 	}
 	else if ( flags & H5PART_APPEND ) {
 		int fd = open(filename, O_RDONLY, 0);
 		if ( (fd == -1) && (errno == ENOENT) ) {
 			f->file = H5Fcreate(filename, H5F_ACC_TRUNC,
-					f->fcreate_prop, f->faccess_prop);
+					f->fcreate_prop, f->access_prop);
 			f->empty = 1;
 		}
 		else if (fd != -1) {
 			close (fd);
 			f->file = H5Fopen(
-				filename, H5F_ACC_RDWR, f->faccess_prop);
+				filename, H5F_ACC_RDWR, f->access_prop);
 			/*
 			  The following function call returns an error,
 			  if f->file < 0. But we can safely ignore this.
@@ -558,10 +558,10 @@ H5PartCloseFile (
 		if ( r < 0 ) HANDLE_H5S_CLOSE_ERR;
 		f->memshape = 0;
 	}
-	if( f->dxfer_prop != H5P_DEFAULT ) {
-		r = H5Pclose( f->dxfer_prop );
-		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( "f->dxfer_prop" );
-		f->dxfer_prop = H5P_DEFAULT;
+	if( f->xfer_prop != H5P_DEFAULT ) {
+		r = H5Pclose( f->xfer_prop );
+		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( "f->xfer_prop" );
+		f->xfer_prop = H5P_DEFAULT;
 	}
 	if( f->dcreate_prop != H5P_DEFAULT ) {
 		r = H5Pclose( f->dcreate_prop );
@@ -575,10 +575,10 @@ H5PartCloseFile (
 		if ( r < 0 ) HANDLE_H5F_CLOSE_ERR;
 		f->file = 0;
 	}
-	if( f->faccess_prop != H5P_DEFAULT ) {
-		r = H5Pclose( f->faccess_prop );
-		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( "f->faccess_prop" );
-		f->faccess_prop = H5P_DEFAULT;
+	if( f->access_prop != H5P_DEFAULT ) {
+		r = H5Pclose( f->access_prop );
+		if ( r < 0 ) HANDLE_H5P_CLOSE_ERR ( "f->access_prop" );
+		f->access_prop = H5P_DEFAULT;
 	}  
 	if( f->fcreate_prop != H5P_DEFAULT ) {
 		r = H5Pclose( f->fcreate_prop );
@@ -1024,7 +1024,7 @@ _write_data (
 		type,
 		f->memshape,
 		f->diskshape,
-		f->dxfer_prop,
+		f->xfer_prop,
 		array );
 
 #ifdef PARALLEL_IO
@@ -3186,7 +3186,7 @@ _read_data (
 					   complement to disk hyperslab) */
 		space_id,		/* shape/size of data on disk 
 					   (get hyperslab if needed) */
-		f->dxfer_prop,		/* ignore... its for parallel reads */
+		f->xfer_prop,		/* ignore... its for parallel reads */
 		array );
 	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( name2, f->timestep );
 

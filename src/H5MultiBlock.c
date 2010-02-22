@@ -916,7 +916,7 @@ _H5MultiBlock_read_data (
 		type,
 		f->block->memshape,
 		f->block->diskshape,
-		f->dxfer_prop,
+		f->xfer_prop,
 		*data );
 	if ( herr < 0 ) return HANDLE_H5D_READ_ERR ( field_name, f->timestep );
 
@@ -1026,7 +1026,7 @@ _H5MultiBlock_write_data (
 		type,
 		b->memshape,
 		b->diskshape,
-		f->dxfer_prop,
+		f->xfer_prop,
 		data );
 	if ( herr < 0 ) return HANDLE_H5D_WRITE_ERR ( name, f->timestep );
 

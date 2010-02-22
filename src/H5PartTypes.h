@@ -49,9 +49,9 @@ struct H5PartFile {
 
 	hid_t timegroup;
 	hid_t shape;
-	hid_t dxfer_prop;
+	hid_t xfer_prop;
+	hid_t access_prop;
 	hid_t dcreate_prop;
-	hid_t faccess_prop;
 	hid_t fcreate_prop;
 
 	/* the dataspace on disk for the current view */
