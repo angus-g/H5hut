@@ -98,6 +98,7 @@ h5part_error_handler	_err_handler = H5PartReportErrorHandler;
 
 /********* Private Variable Declarations *************/
 
+static unsigned			_is_root_proc = 0;
 static unsigned			_debug = H5PART_VERB_ERROR;
 static h5part_int64_t		_h5part_errno = H5PART_SUCCESS;
 static char *__funcname;
@@ -123,6 +124,14 @@ _h5_error_handler (
 	hid_t,
 #endif
 	void *
+	);
+
+static void
+_vprint (
+	FILE* f,
+	const char *prefix,
+	const char *fmt,
+	va_list ap
 	);
 
 /*========== File Opening/Closing ===============*/
@@ -175,6 +184,9 @@ _H5Part_open_file (
 			goto error_cleanup;
 		}
 
+		if ( f-> myproc == 0 ) _is_root_proc = 1;
+		else _is_root_proc = 0;
+
 		f->pnparticles =
 		  (h5part_int64_t*) malloc (f->nprocs * sizeof (h5part_int64_t));
 		if (f->pnparticles == NULL) {
@@ -184,30 +196,22 @@ _H5Part_open_file (
 
 		/* select the HDF5 VFD */
 		if (flags & H5PART_VFD_MPIPOSIX) {
-			if (f->myproc == 0) {
-				_H5Part_print_info ( "Selecting MPI-POSIX VFD" );
-			}
+			_H5Part_print_info ( "Selecting MPI-POSIX VFD" );
 			if (H5Pset_fapl_mpiposix ( f->access_prop, comm, 0 ) < 0) {
 				HANDLE_H5P_SET_FAPL_ERR;
 				goto error_cleanup;
 			}
 		}
 		else {
-			if (f->myproc == 0) {
-				_H5Part_print_info ( "Selecting MPI-IO VFD" );
-			}
+			_H5Part_print_info ( "Selecting MPI-IO VFD" );
 			if (H5Pset_fapl_mpio ( f->access_prop, comm, info ) < 0) {
 				HANDLE_H5P_SET_FAPL_ERR;
 				goto error_cleanup;
 			}
 			if (flags & H5PART_VFD_MPIIO_IND) {
-				if (f->myproc == 0) {
-					_H5Part_print_info ( "Using independent mode" );
-				}
+				_H5Part_print_info ( "Using independent mode" );
 			} else {
-				if (f->myproc == 0) {
-					_H5Part_print_info ( "Using collective mode" );
-				}
+				_H5Part_print_info ( "Using collective mode" );
 				f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
 				if (f->xfer_prop < 0) {
 					HANDLE_H5P_CREATE_ERR;
@@ -232,14 +236,12 @@ _H5Part_open_file (
 				goto error_cleanup;
 			}
 
-			if (f->myproc == 0) {
-				_H5Part_print_info (
-					"Setting HDF5 btree parameter to %u",
-					btree_ik );
-				_H5Part_print_info (
-					"Extending HDF5 btree size to %u bytes at rank 3",
-					btree_bytes );
-			}
+			_H5Part_print_info (
+				"Setting HDF5 btree parameter to %u",
+				btree_ik );
+			_H5Part_print_info (
+				"Extending HDF5 btree size to %u bytes at rank 3",
+				btree_bytes );
 
 			f->fcreate_prop = H5Pcreate(H5P_FILE_CREATE);
 			if ( f->fcreate_prop < 0 ) {
@@ -262,14 +264,15 @@ _H5Part_open_file (
 			cache_config.decr_mode = H5C_decr__off;
 			H5Pset_mdc_config (f->access_prop, &cache_config);
 #else // H5_USE_16_API
-			_H5Part_print_info (
-					"Unable to defer metadata write: need HDF5 1.8");
+			_H5Part_print_warn (
+				"Unable to defer metadata write: need HDF5 1.8");
 #endif // H5_USE_16_API
 		}
 
 		f->comm = comm;
 #endif // PARALLEL_IO
 	} else {
+		_is_root_proc = 1;
 		f->comm = 0;
 		f->nprocs = 1;
 		f->myproc = 0;
@@ -278,31 +281,20 @@ _H5Part_open_file (
 	}
 
 	if ( align != 0 ) {
-		if (f->myproc == 0) {
-			_H5Part_print_info (
-				"Setting HDF5 alignment to %ld bytes",
-				align );
-		}
+		_H5Part_print_info (
+			"Setting HDF5 alignment to %ld bytes",
+			align );
 		if (H5Pset_alignment ( f->access_prop, 0, align ) < 0) {
 			HANDLE_H5P_SET_FAPL_ERR;
 			goto error_cleanup;
 		}
-		if (f->myproc == 0) {
-			_H5Part_print_info (
-				"Setting HDF5 meta block to %ld bytes",
-				align );
-		}
+		_H5Part_print_info (
+			"Setting HDF5 meta block to %ld bytes",
+			align );
 		if (H5Pset_meta_block_size ( f->access_prop, align ) < 0) {
 			HANDLE_H5P_SET_FAPL_ERR;
 			goto error_cleanup;
 		}
-		/*if (f->myproc == 0) {
-			_H5Part_print_info ( "Setting HDF5 sieve buffer to %ld bytes", align );
-		}
-		if (H5Pset_sieve_buf_size ( f->access_prop, align ) < 0) {
-			HANDLE_H5P_SET_FAPL_ERR;
-			goto error_cleanup;
-		}*/
 	}
 
 	if ( flags & H5PART_READ ) {
@@ -765,10 +757,10 @@ _set_num_particles (
 	if ( ret != MPI_SUCCESS) return HANDLE_MPI_ALLGATHER_ERR;
 
 	if ( f->myproc == 0 ) {
-		_H5Part_print_debug ( "Particle offsets:" );
 		for ( i=0; i<f->nprocs; i++ ) 
-			_H5Part_print_debug ( "\t[%d] np=%lld", i,
-					(long long) f->pnparticles[i] );
+			_H5Part_print_debug_detail (
+				"[%d] np=%lld",
+				i, (long long) f->pnparticles[i] );
 	}
 
 	/* compute start offsets */
@@ -922,10 +914,9 @@ H5PartSetChunkSize (
 	SET_FNAME ( "H5PartSetChunkSize" );
 	CHECK_FILEHANDLE( f );
 
-	if ( f->myproc == 0 )
-		_H5Part_print_info (
-			"Setting chunk size to %lld elements",
-			(long long)size );
+	_H5Part_print_info (
+		"Setting chunk size to %lld elements",
+		(long long)size );
 
 	if ( f->dcreate_prop == H5P_DEFAULT ) {
 		f->dcreate_prop = H5Pcreate (H5P_DATASET_CREATE);
@@ -3415,14 +3406,12 @@ H5PartSetThrottle (
 
 	if ( f->flags & H5PART_VFD_MPIIO_IND || f->flags & H5PART_VFD_MPIPOSIX ) {
 		f->throttle = factor;
-		if ( f->myproc == 0 )
-			_H5Part_print_info (
-				"Throttling set with factor '%d'", f->throttle );
+		_H5Part_print_info (
+			"Throttling set with factor = %d", f->throttle );
 	} else {
-		if ( f->myproc == 0 )
-			_H5Part_print_warn (
-				"Throttling is only permitted with the MPI-POSIX "
-				"or MPI-IO Independent VFD." );
+		_H5Part_print_warn (
+			"Throttling is only permitted with the MPI-POSIX "
+			"or MPI-IO Independent VFD." );
 	}
 
 	return H5PART_SUCCESS;
@@ -3436,10 +3425,9 @@ _H5Part_start_throttle (
 	if (f->throttle > 0) {
 		int ret;
 		int token = 1;
-		if (f->myproc == 0) {
-			_H5Part_print_info ("Throttling with factor = %d",
-				f->throttle);
-		}
+		_H5Part_print_info (
+			"Throttling with factor = %d",
+			f->throttle);
 		if (f->myproc / f->throttle > 0) {
 			_H5Part_print_debug_detail (
 				"[%d] throttle: waiting on token from %d",
@@ -3454,7 +3442,9 @@ _H5Part_start_throttle (
 				);
 			if ( ret != MPI_SUCCESS ) return HANDLE_MPI_SENDRECV_ERR;
 		}
-		_H5Part_print_debug_detail ("[%d] throttle: received token", f->myproc);
+		_H5Part_print_debug_detail (
+			"[%d] throttle: received token",
+			f->myproc);
 	}
 	return H5PART_SUCCESS;
 }
@@ -3561,10 +3551,10 @@ H5PartReportErrorHandler (
 	) {
 
 	_h5part_errno = eno;
-	if ( _debug > 0 ) {
+	if ( _debug > 0 && _is_root_proc ) {
 		va_list ap;
 		va_start ( ap, fmt );
-		_H5Part_vprint_error ( fmt, ap );
+		_vprint ( stderr, "E", fmt, ap );
 		va_end ( ap );
 	}
 	return _h5part_errno;
@@ -3585,7 +3575,7 @@ H5PartAbortErrorHandler (
 	) {
 
 	_h5part_errno = eno;
-	if ( _debug > 0 ) {
+	if ( _debug > 0 && _is_root_proc ) {
 		va_list ap;
 		va_start ( ap, fmt );
 		fprintf ( stderr, "%s: ", funcname );
@@ -3649,35 +3639,16 @@ _vprint (
 }
 
 void
-_H5Part_vprint_error (
-	const char *fmt,
-	va_list ap
-	) {
-
-	if ( _debug < 1 ) return;
-	_vprint ( stderr, "E", fmt, ap );
-}
-
-void
 _H5Part_print_error (
 	const char *fmt,
 	...
 	) {
 
+	if ( _debug < 1 || !_is_root_proc) return;
 	va_list ap;
 	va_start ( ap, fmt );
-	_H5Part_vprint_error ( fmt, ap );
+	_vprint ( stderr, "E", fmt, ap );
 	va_end ( ap );
-}
-
-void
-_H5Part_vprint_warn (
-	const char *fmt,
-	va_list ap
-	) {
-
-	if ( _debug < 2 ) return;
-	_vprint ( stderr, "W", fmt, ap );
 }
 
 void
@@ -3686,20 +3657,11 @@ _H5Part_print_warn (
 	...
 	) {
 
+	if ( _debug < 2 || !_is_root_proc ) return;
 	va_list ap;
 	va_start ( ap, fmt );
-	_H5Part_vprint_warn ( fmt, ap );
+	_vprint ( stderr, "W", fmt, ap );
 	va_end ( ap );
-}
-
-void
-_H5Part_vprint_info (
-	const char *fmt,
-	va_list ap
-	) {
-
-	if ( _debug < 3 ) return;
-	_vprint ( stdout, "I", fmt, ap );
 }
 
 void
@@ -3708,20 +3670,11 @@ _H5Part_print_info (
 	...
 	) {
 
+	if ( _debug < 3 || !_is_root_proc ) return;
 	va_list ap;
 	va_start ( ap, fmt );
-	_H5Part_vprint_info ( fmt, ap );
+	_vprint ( stdout, "I", fmt, ap );
 	va_end ( ap );
-}
-
-void
-_H5Part_vprint_debug (
-	const char *fmt,
-	va_list ap
-	) {
-
-	if ( _debug < 4 ) return;
-	_vprint ( stdout, "D", fmt, ap );
 }
 
 void
@@ -3730,20 +3683,11 @@ _H5Part_print_debug (
 	...
 	) {
 
+	if ( _debug < 4 || !_is_root_proc ) return;
 	va_list ap;
 	va_start ( ap, fmt );
-	_H5Part_vprint_debug ( fmt, ap );
+	_vprint ( stdout, "D", fmt, ap );
 	va_end ( ap );
-}
-
-void
-_H5Part_vprint_debug_detail (
-	const char *fmt,
-	va_list ap
-	) {
-
-	if ( _debug < 5 ) return;
-	_vprint ( stdout, "DD", fmt, ap );
 }
 
 void
@@ -3752,9 +3696,10 @@ _H5Part_print_debug_detail (
 	...
 	) {
 
+	if ( _debug < 5 ) return;
 	va_list ap;
 	va_start ( ap, fmt );
-	_H5Part_vprint_debug_detail ( fmt, ap );
+	_vprint ( stdout, "DD", fmt, ap );
 	va_end ( ap );
 }
 
@@ -3763,6 +3708,7 @@ _H5Part_set_funcname (
 	char *fname
 	) {
 	__funcname = fname;
+	_H5Part_print_debug ("(entered function)");
 }
 
 char*

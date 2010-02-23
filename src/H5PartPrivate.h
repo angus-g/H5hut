@@ -173,12 +173,6 @@ _H5Part_get_err_handle (
 	);
 
 void
-_H5Part_vprint_error (
-	const char *fmt,
-	va_list ap
-	);
-
-void
 _H5Part_print_error (
 	const char *fmt,
 	... )
@@ -186,12 +180,6 @@ _H5Part_print_error (
 __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
-
-void
-_H5Part_vprint_warn (
-	const char *fmt,
-	va_list ap
-	);
 
 void
 _H5Part_print_warn (
@@ -204,12 +192,6 @@ __attribute__ ((format (printf, 1, 2)))
 ;
 
 void
-_H5Part_vprint_info (
-	const char *fmt,
-	va_list ap
-	);
-
-void
 _H5Part_print_info (
 	const char *fmt,
 	...
@@ -220,12 +202,6 @@ __attribute__ ((format (printf, 1, 2)))
 ;
 
 void
-_H5Part_vprint_debug (
-	const char *fmt,
-	va_list ap
-	);
-
-void
 _H5Part_print_debug (
 	const char *fmt,
 	...
@@ -234,12 +210,6 @@ _H5Part_print_debug (
 __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
-
-void
-_H5Part_vprint_debug_detail (
-	const char *fmt,
-	va_list ap
-	);
 
 void
 _H5Part_print_debug_detail (

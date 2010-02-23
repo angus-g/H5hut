@@ -23,9 +23,10 @@ int main(int argc, char **argv)
 	int procs;
 	MPI_Comm_size(MPI_COMM_WORLD, &procs);
 	if (procs > MAX_MPI_TASKS) {
-		fprintf(stderr, "ERROR: please use <= %d MPI tasks for the test.",
+		fprintf(stderr,
+			"ERROR: please use <= %d MPI tasks for the test.\n",
 			MAX_MPI_TASKS);
-		MPI_Abort(MPI_COMM_WORLD, -1);
+                exit(EXIT_FAILURE);
 	}
 #endif
 
@@ -62,9 +63,10 @@ int main(int argc, char **argv)
         //    TestCleanup();
 
 #ifdef PARALLEL_IO
-	return MPI_Finalize();
-#else
-	return GetTestNumErrs();
+	TestPrintf ("reached end\n");
+        fflush(stdout);
+        MPI_Finalize();
 #endif
+	return GetTestNumErrs();
 }
 
