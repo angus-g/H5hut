@@ -227,29 +227,32 @@ _H5Part_open_file (
 		if ( flags & H5PART_FS_LUSTRE )
 		{
 			/* extend the btree size so that metadata pieces are
-			 * close to the alignment value */
-			unsigned int btree_ik = (align - 256) / 96;
-			unsigned int btree_bytes = 64 + 96*btree_ik;
-			if ( btree_bytes > align ) {
-				HANDLE_H5PART_INVALID_ERR(
-					"btree_ik", btree_ik );
-				goto error_cleanup;
+		 	* close to the alignment value */
+			if ( align > 0 )
+			{
+				unsigned int btree_ik = (align - 4096) / 96;
+				unsigned int btree_bytes = 64 + 96*btree_ik;
+				if ( btree_bytes > align ) {
+					HANDLE_H5PART_INVALID_ERR(
+						"btree_ik", btree_ik );
+					goto error_cleanup;
+				}
+
+				_H5Part_print_info (
+					"Setting HDF5 btree parameter to %u",
+					btree_ik );
+				_H5Part_print_info (
+					"Extending HDF5 btree size to %u "
+					"bytes at rank 3", btree_bytes );
+
+				f->fcreate_prop = H5Pcreate(H5P_FILE_CREATE);
+				if ( f->fcreate_prop < 0 ) {
+					HANDLE_H5P_CREATE_ERR;
+					goto error_cleanup;
+				}
+
+				H5Pset_istore_k (f->fcreate_prop, btree_ik);
 			}
-
-			_H5Part_print_info (
-				"Setting HDF5 btree parameter to %u",
-				btree_ik );
-			_H5Part_print_info (
-				"Extending HDF5 btree size to %u bytes at rank 3",
-				btree_bytes );
-
-			f->fcreate_prop = H5Pcreate(H5P_FILE_CREATE);
-			if ( f->fcreate_prop < 0 ) {
-				HANDLE_H5P_CREATE_ERR;
-				goto error_cleanup;
-			}
-
-			H5Pset_istore_k (f->fcreate_prop, btree_ik);
 
 #ifdef H5PART_HAVE_HDF5_18
 			/* defer metadata cache flushing until file close */
@@ -267,6 +270,36 @@ _H5Part_open_file (
 			_H5Part_print_warn (
 				"Unable to defer metadata write: need HDF5 1.8");
 #endif // H5_USE_16_API
+		}
+
+		/* select the HDF5 VFD */
+		if (flags & H5PART_VFD_MPIPOSIX) {
+			_H5Part_print_info ( "Selecting MPI-POSIX VFD" );
+			if (H5Pset_fapl_mpiposix ( f->access_prop, comm, 0 ) < 0) {
+				HANDLE_H5P_SET_FAPL_ERR;
+				goto error_cleanup;
+			}
+		}
+		else {
+			_H5Part_print_info ( "Selecting MPI-IO VFD" );
+			if (H5Pset_fapl_mpio ( f->access_prop, comm, info ) < 0) {
+				HANDLE_H5P_SET_FAPL_ERR;
+				goto error_cleanup;
+			}
+			if (flags & H5PART_VFD_MPIIO_IND) {
+				_H5Part_print_info ( "Using independent mode" );
+			} else {
+				_H5Part_print_info ( "Using collective mode" );
+				f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
+				if (f->xfer_prop < 0) {
+					HANDLE_H5P_CREATE_ERR;
+					goto error_cleanup;
+				}
+				if (H5Pset_dxpl_mpio ( f->xfer_prop, H5FD_MPIO_COLLECTIVE ) < 0) {
+					HANDLE_H5P_SET_DXPL_MPIO_ERR;
+					goto error_cleanup;
+				}
+			}
 		}
 
 		f->comm = comm;
