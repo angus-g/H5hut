@@ -2038,7 +2038,7 @@ _H5Part_have_group (
 #else
 	herr_t exists = 0;
 	H5E_BEGIN_TRY
-	H5Gget_objinfo( id, name, 1, NULL );
+	exists = H5Gget_objinfo( id, name, 1, NULL );
 	H5E_END_TRY
 	return (exists >= 0 ? 1 : 0);
 #endif

@@ -6,7 +6,7 @@
 #define H5_USE_16_API
 #endif
 
-#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR == 8
+#if H5_VERS_MAJOR == 1 && H5_VERS_MINOR >= 8
 #define H5PART_HAVE_HDF5_18
 #endif
 
