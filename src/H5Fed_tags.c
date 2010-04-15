@@ -82,7 +82,7 @@ H5FedGetTypeOfMTagset (
 	char name[]
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_get_mtagset_type ( f, name );
+	return h5t_get_mtagset_type_by_name ( f, name );
 }
 
 /*!
@@ -105,7 +105,7 @@ H5FedSetMTag (
 	void *val 
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_set_mtag ( f, name, id, dims, val );
+	return h5t_set_mtag_by_name ( f, name, id, dims, val );
 }
 
 h5_err_t
@@ -117,8 +117,8 @@ H5FedSetMTagToVertex (
 	void *val 
 	) {
 	SET_FNAME ( f, __func__ );
-	id = _h5t_set_entity_type ( H5T_ETYPE_VERTEX, id );
-	return h5t_set_mtag ( f, name, id, dims, val );
+	id = h5tpriv_set_entity_type ( H5T_ETYPE_VERTEX, id );
+	return h5t_set_mtag_by_name ( f, name, id, dims, val );
 }
 
 h5_err_t
@@ -130,8 +130,8 @@ H5FedSetMTagToEdge (
 	void *val 
 	) {
 	SET_FNAME ( f, __func__ );
-	id = _h5t_set_entity_type ( H5T_ETYPE_EDGE, id );
-	return h5t_set_mtag ( f, name, id, dims, val );
+	id = h5tpriv_set_entity_type ( H5T_ETYPE_EDGE, id );
+	return h5t_set_mtag_by_name ( f, name, id, dims, val );
 }
 
 h5_err_t
@@ -143,8 +143,8 @@ H5FedSetMTagToTriangle (
 	void *val 
 	) {
 	SET_FNAME ( f, __func__ );
-	id = _h5t_set_entity_type ( H5T_ETYPE_TRIANGLE, id );
-	return h5t_set_mtag ( f, name, id, dims, val );
+	id = h5tpriv_set_entity_type ( H5T_ETYPE_TRIANGLE, id );
+	return h5t_set_mtag_by_name ( f, name, id, dims, val );
 }
 
 h5_err_t
@@ -156,8 +156,8 @@ H5FedSetMTagToTet (
 	void *val 
 	) {
 	SET_FNAME ( f, __func__ );
-	id = _h5t_set_entity_type ( H5T_ETYPE_TET, id );
-	return h5t_set_mtag ( f, name, id, dims, val );
+	id = h5tpriv_set_entity_type ( H5T_ETYPE_TET, id );
+	return h5t_set_mtag_by_name ( f, name, id, dims, val );
 }
 
 /*!
@@ -173,14 +173,14 @@ H5FedSetMTagToTet (
  */
 h5_err_t
 H5FedGetMTag (
-	h5_file_t *const f,
+	h5_file_t* const f,
 	const char name[],
 	const h5_id_t id,
-	size_t *dims,
-	void *val 
+	size_t* dim,
+	void* vals
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_get_mtag ( f, name, id, dims, val );
+	return h5t_get_mtag_by_name ( f, name, id, dim, vals );
 }
 
 /*!
@@ -197,5 +197,5 @@ H5FedRemoveMTag (
 	const h5_id_t id
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_remove_mtag ( f, name, id );
+	return h5t_remove_mtag_by_name ( f, name, id );
 }

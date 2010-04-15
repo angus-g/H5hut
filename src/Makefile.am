@@ -46,7 +46,6 @@ include_HEADERS = \
 	H5.h \
 	H5Block.h \
 	H5Fed.h \
-	H5Fed_boundaries.h \
 	H5Fed_map.h \
 	H5Fed_store.h \
 	H5Fed_tags.h \
@@ -62,7 +61,6 @@ libH5_a_SOURCES = \
 	H5Block.c \
 	H5Fed.c \
 	H5Fed_adjacency.c \
-	H5Fed_boundaries.c \
 	H5Fed_inquiry.c \
 	H5Fed_map.c \
 	H5Fed_retrieve.c \

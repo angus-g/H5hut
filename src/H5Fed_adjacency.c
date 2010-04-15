@@ -149,5 +149,5 @@ H5FedReleaseListOfAdjacencies (
 	h5_idlist_t **list
 	) {
 	SET_FNAME ( f, __func__ );
-	return _h5_free_idlist ( f, list );
+	return h5priv_free_idlist ( f, list );
 }

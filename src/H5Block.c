@@ -441,7 +441,7 @@ _dissolve_ghostzones (
 	memcpy ( b->write_layout, b->user_layout,
 		 f->nprocs * sizeof (*f->b->user_layout) );
 
-	TRY ( p_begin = _h5_alloc ( f, NULL, sizeof ( *p_begin ) ) );
+	TRY ( p_begin = h5priv_alloc ( f, NULL, sizeof ( *p_begin ) ) );
 	p_max = p_end = p_begin;
 	memset ( p_begin, 0, sizeof ( *p_begin ) );
 
@@ -453,7 +453,7 @@ _dissolve_ghostzones (
 		      proc_q++, q++ ) {
 
 			if ( _have_ghostzone ( p, q ) ) {
-				TRY ( p_el = _h5_alloc (
+				TRY ( p_el = h5priv_alloc (
 					      f, NULL, sizeof ( *p_el ) ) );
 
 				p_el->p = p;
@@ -544,13 +544,13 @@ _release_hyperslab (
 	) {
 	struct h5b_fdata *b = f->b;
 
-	TRY( _hdf_close_dataspace( f, b->shape ) );
+	TRY( h5priv_close_hdf5_dataspace( f, b->shape ) );
 	f->b->shape = -1;
 
-	TRY( _hdf_close_dataspace( f, b->diskshape ) );
+	TRY( h5priv_close_hdf5_dataspace( f, b->diskshape ) );
 	f->b->diskshape = -1;
 
-	TRY( _hdf_close_dataspace( f, f->b->memshape ) );
+	TRY( h5priv_close_hdf5_dataspace( f, f->b->memshape ) );
 	f->b->memshape = -1;
 
 	return H5_SUCCESS;
@@ -773,13 +773,13 @@ _open_block_group (
 	struct h5b_fdata *b = f->b;
 
 	if ( (f->step_idx != b->step_idx) && (b->blockgroup > 0) ) {
-		TRY( _hdf_close_group( f, b->blockgroup ) );
+		TRY( h5priv_close_hdf5_group( f, b->blockgroup ) );
 		f->b->blockgroup = -1;
 	}
 
 	if ( b->blockgroup < 0 ) {
 		TRY(
-			b->blockgroup = _h5_open_group (
+			b->blockgroup = h5priv_open_group (
 				f,
 				f->step_gid,
 				H5BLOCK_GROUPNAME_BLOCK )
@@ -828,7 +828,7 @@ _open_field_group (
 	struct h5b_fdata *b = f->b;
 
 	TRY( _open_block_group ( f ) );
-	TRY( b->field_group_id = _h5_open_group( f, b->blockgroup, name ) );
+	TRY( b->field_group_id = h5priv_open_group( f, b->blockgroup, name ) );
 
 	return H5_SUCCESS;
 }
@@ -850,7 +850,7 @@ _close_field_group (
 	h5_file_t *f			/*!< IN: file handle */
 	) {
 
-	return _hdf_close_group ( f, f->b->field_group_id );
+	return h5priv_close_hdf5_group ( f, f->b->field_group_id );
 }
 
 /*!
@@ -888,10 +888,10 @@ _select_hyperslab_for_reading (
 		p->i_end - p->i_start + 1 };
 
 	TRY( _release_hyperslab ( f ) );
-	TRY ( b->diskshape = _hdf_get_dataset_space ( f, dataset ) );
-	TRY ( rank = _hdf_get_dims_of_dataspace ( f, b->diskshape, NULL, NULL ) );
+	TRY ( b->diskshape = h5priv_get_hdf5_dataset_space ( f, dataset ) );
+	TRY ( rank = h5priv_get_dims_of_hdf5_dataspace ( f, b->diskshape, NULL, NULL ) );
 	if ( rank != 3 ) return HANDLE_H5_DATASET_RANK_ERR ( f, rank, 3 );
-	TRY ( rank = _hdf_get_dims_of_dataspace (
+	TRY ( rank = h5priv_get_dims_of_hdf5_dataspace (
 		      f, b->diskshape, field_dims, NULL ) );
 	
 	if ( (field_dims[0] < (hsize_t)b->k_max) ||
@@ -907,11 +907,11 @@ _select_hyperslab_for_reading (
 		(long long)field_dims[1],
 		(long long)field_dims[0] );
 
-	TRY ( b->diskshape = _hdf_create_dataspace (
+	TRY ( b->diskshape = h5priv_create_hdf5_dataspace (
 		      f, rank, field_dims,field_dims ) );
-	TRY ( b->memshape = _hdf_create_dataspace (
+	TRY ( b->memshape = h5priv_create_hdf5_dataspace (
 		      f, rank, part_dims, part_dims ) );
-	TRY ( _hdf_select_hyperslab_of_dataspace (
+	TRY ( h5priv_select_hyperslab_of_hdf5_dataspace (
 		      f,
 		      b->diskshape,
 		      H5S_SELECT_SET,
@@ -957,7 +957,7 @@ _read_data (
 	struct h5b_fdata *b = f->b;
 	hid_t dataset_id;
 	TRY(
-		dataset_id = _hdf_open_dataset (
+		dataset_id = h5priv_open_hdf5_dataset (
 			f,
 			b->field_group_id, name
 			)
@@ -965,7 +965,7 @@ _read_data (
 	TRY( 
 		_select_hyperslab_for_reading ( f, dataset_id ) );
 	TRY( 
-		_hdf_read_dataset(
+		h5priv_read_hdf5_dataset(
 			f,
 			dataset_id,
 			type,
@@ -975,7 +975,7 @@ _read_data (
 			data )
 		);
 	TRY(
-		_hdf_close_dataset( f, dataset_id )
+		h5priv_close_hdf5_dataset( f, dataset_id )
 		);
 
 	return H5_SUCCESS;
@@ -994,7 +994,7 @@ h5b_read_scalar_field (
 
 	TRY ( _open_field_group ( f, field_name ) );
 	TRY ( _read_data ( f, dataset_name, data, type ) );
-	TRY ( _hdf_close_group ( f, f->b->field_group_id ) );
+	TRY ( h5priv_close_hdf5_group ( f, f->b->field_group_id ) );
 
 	return H5_SUCCESS;
 }
@@ -1088,7 +1088,7 @@ h5b_3d_read_3d_vectorfield (
 	TRY ( _read_data ( f, "0", x_data, type ) );
 	TRY ( _read_data ( f, "1", y_data, type ) );
 	TRY ( _read_data ( f, "2", z_data, type ) );
-	TRY ( _hdf_close_group ( f, f->b->field_group_id ) );
+	TRY ( h5priv_close_hdf5_group ( f, f->b->field_group_id ) );
 
 	return H5_SUCCESS;
 }
@@ -1173,9 +1173,9 @@ _select_hyperslab_for_writing (
 	};
 
 
-	TRY ( b->shape = _hdf_create_dataspace (
+	TRY ( b->shape = h5priv_create_hdf5_dataspace (
 		      f, rank, field_dims, field_dims ) );
-	TRY ( b->diskshape = _hdf_create_dataspace (
+	TRY ( b->diskshape = h5priv_create_hdf5_dataspace (
 		      f, rank, field_dims,field_dims ) );
 
 	h5_debug (
@@ -1195,7 +1195,7 @@ _select_hyperslab_for_writing (
 		(long long)part_dims[1],
 		(long long)part_dims[0]  );
 
-	TRY ( _hdf_select_hyperslab_of_dataspace (
+	TRY ( h5priv_select_hyperslab_of_hdf5_dataspace (
 		      f,
 		      b->diskshape,
 		      H5S_SELECT_SET,
@@ -1208,7 +1208,7 @@ _select_hyperslab_for_writing (
 	field_dims[1] = q->j_end - q->j_start + 1;
 	field_dims[2] = q->i_end - q->i_start + 1;
 
-	TRY ( b->memshape = _hdf_create_dataspace (
+	TRY ( b->memshape = h5priv_create_hdf5_dataspace (
 		      f, rank, field_dims, field_dims ) );
 
 	start[0] = p->k_start - q->k_start;
@@ -1232,7 +1232,7 @@ _select_hyperslab_for_writing (
 		(long long)part_dims[1],
 		(long long)part_dims[0]  );
 
-	TRY ( _hdf_select_hyperslab_of_dataspace (
+	TRY ( h5priv_select_hyperslab_of_hdf5_dataspace (
 		      f,
 		      b->memshape,
 		      H5S_SELECT_SET,
@@ -1263,7 +1263,7 @@ _create_field_group (
 	TRY ( _select_hyperslab_for_writing ( f ) );
 	if ( _have_object ( b->blockgroup, name ) )
 		return  HANDLE_H5_GROUP_EXISTS_ERR ( f, name );
-	TRY ( b->field_group_id = _h5_open_group ( f, b->blockgroup, name ) );
+	TRY ( b->field_group_id = h5priv_open_group ( f, b->blockgroup, name ) );
 
 	return H5_SUCCESS;
 }	
@@ -1322,7 +1322,7 @@ H5Block3dWriteScalarField (
 		f,
 		"0",
 		data ) );
-	TRY ( _hdf_close_group ( f, f->b->field_group_id ) );
+	TRY ( h5priv_close_hdf5_group ( f, f->b->field_group_id ) );
 
 	return H5_SUCCESS;
 }
@@ -1358,7 +1358,7 @@ H5Block3dWrite3dVectorField (
 	TRY ( _write_field_data ( f, "0", x_data ) );
 	TRY ( _write_field_data ( f, "1", y_data ) );
 	TRY ( _write_field_data ( f, "2", z_data ) );
-	TRY ( _hdf_close_group ( f, f->b->field_group_id ) );
+	TRY ( h5priv_close_hdf5_group ( f, f->b->field_group_id ) );
 
 	return H5_SUCCESS;
 }
@@ -1410,10 +1410,10 @@ _get_field_info (
 	hid_t dataspace_id;
 
 	TRY ( _open_block_group ( f ) );
-	TRY ( group_id = _hdf_open_group( f, f->b->blockgroup, field_name ) );
-	TRY ( dataset_id = _hdf_open_dataset ( f, group_id, "0" ) );
- 	TRY ( dataspace_id = _hdf_get_dataset_space ( f, dataset_id ) );
-	TRY ( *grid_rank = _hdf_get_dims_of_dataspace (
+	TRY ( group_id = h5priv_open_hdf5_group( f, f->b->blockgroup, field_name ) );
+	TRY ( dataset_id = h5priv_open_hdf5_dataset ( f, group_id, "0" ) );
+ 	TRY ( dataspace_id = h5priv_get_hdf5_dataset_space ( f, dataset_id ) );
+	TRY ( *grid_rank = h5priv_get_dims_of_hdf5_dataspace (
 		      f, dataspace_id, dims, NULL ) );
 
 	for ( i = 0, j = *grid_rank-1; i < *grid_rank; i++, j-- )
@@ -1423,9 +1423,9 @@ _get_field_info (
 		f->b->blockgroup,
 		field_name,
 		H5G_DATASET ) );
-	TRY( _hdf_close_dataspace( f, dataspace_id ) );
-	TRY( _hdf_close_dataset( f, dataset_id ) );
-	TRY( _hdf_close_group( f, group_id ) ); 
+	TRY( h5priv_close_hdf5_dataspace( f, dataspace_id ) );
+	TRY( h5priv_close_hdf5_dataset( f, dataset_id ) );
+	TRY( h5priv_close_hdf5_group( f, group_id ) ); 
 
 	return H5_SUCCESS;
 }
@@ -1519,7 +1519,7 @@ _write_field_attrib (
 		attrib_type,
 		attrib_value,
 		attrib_nelem ) );
-	TRY ( _hdf_close_group ( f, f->b->field_group_id ) );
+	TRY ( h5priv_close_hdf5_group ( f, f->b->field_group_id ) );
 
 	return H5_SUCCESS;
 }
@@ -1598,8 +1598,8 @@ H5BlockGetNumFieldAttribs (
 	CHECK_TIMEGROUP( f );
 
 	TRY ( _open_field_group ( f, field_name ) );
-	TRY ( nattribs = _hdf_get_num_attributes ( f, f->b->field_group_id ) );
-	TRY ( _hdf_close_group ( f, f->b->field_group_id ) );
+	TRY ( nattribs = h5priv_get_num_hdf5_attribute ( f, f->b->field_group_id ) );
+	TRY ( h5priv_close_hdf5_group ( f, f->b->field_group_id ) );
 
 	return nattribs;
 }
@@ -1637,7 +1637,7 @@ H5BlockGetFieldAttribInfo (
 		len_of_attrib_name,
 		attrib_type,
 		attrib_nelem ) );
-	TRY ( _hdf_close_group ( f, f->b->field_group_id ) );
+	TRY ( h5priv_close_hdf5_group ( f, f->b->field_group_id ) );
 
 	return H5_SUCCESS;
 }
@@ -1667,7 +1667,7 @@ _read_field_attrib (
 		b->field_group_id,
 		attrib_name,
 		attrib_value ) );
-	TRY ( _hdf_close_group ( f, f->b->field_group_id ) );
+	TRY ( h5priv_close_hdf5_group ( f, f->b->field_group_id ) );
 
 	return H5_SUCCESS;
 }

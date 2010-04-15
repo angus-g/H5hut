@@ -131,7 +131,7 @@ H5FedStoreElement (
 		return h5_error (
 			f,
 			H5_ERR_INVAL,
-			"Tetrahedra can be added to level 0 only!" );
+			"Elements can be added to level 0 only!" );
 	}
 	return h5t_store_elem ( f, -1, local_vids );
 }
