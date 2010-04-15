@@ -2,7 +2,7 @@
 #define __H5T_READWRITE_PRIVATE_H
 
 h5_err_t
-_h5t_write_obj (
+h5tpriv_write_obj (
 	h5_file_t * f,
 	const hid_t gid,
 	const hsize_t current_dims,
@@ -13,12 +13,12 @@ _h5t_write_obj (
 	);
 
 h5_err_t
-_h5t_read_mesh (
+h5tpriv_read_mesh (
 	h5_file_t * const f
 	);
 
 h5_err_t
-_h5t_write_mesh (
+h5tpriv_write_mesh (
 	h5_file_t * const f
 	);
 

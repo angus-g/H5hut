@@ -1,11 +1,40 @@
 #ifndef __H5T_TYPES_PRIVATE_H
 #define __H5T_TYPES_PRIVATE_H
 
+struct h5t_adjacency_methods {
+	h5_err_t (*rebuild_internal_structs)(h5_file_t * const);
+	h5_err_t (*release_internal_structs)(h5_file_t * const);
+	h5_err_t (*get_edges_upadjacent_to_vertex)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_triangles_upadjacent_to_vertex)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_tets_upadjacent_to_vertex)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_triangles_upadjacent_to_edge)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_tets_upadjacent_to_edge)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_tets_upadjacent_to_triangle)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_vertices_downadjacent_to_edge)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_vertices_downadjacent_to_triangle)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_vertices_downadjacent_to_tet)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_edges_downadjacent_to_triangle)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_edges_downadjacent_to_tet)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_triangles_downadjacent_to_tet)(
+		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+};
 
 struct h5t_methods {
 	h5_err_t (*_alloc_elems)(h5_file_t * const, const size_t, const size_t);
 	h5_id_t (*_store_elem)(h5_file_t * const, const h5_id_t, const h5_id_t*);
 	h5_id_t (*_refine_elem)(h5_file_t * const, const h5_id_t);
+	struct h5t_adjacency_methods *adjacency;
 };
 
 typedef struct h5_vertex {

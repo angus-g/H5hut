@@ -24,7 +24,7 @@ _get_diskshape_for_reading (
 	struct h5u_fdata *u = f->u;
 	hid_t space;
 
-	TRY( space = _hdf_get_dataset_space ( f, dataset ) );
+	TRY( space = h5priv_get_hdf5_dataset_space ( f, dataset ) );
 
 	if ( h5u_has_view ( f ) ) {
 		hsize_t stride;
@@ -42,14 +42,14 @@ _get_diskshape_for_reading (
 
 		/* now we select a subset */
 		if ( u->diskshape > 0 ) {
-			TRY ( _hdf_select_hyperslab_of_dataspace (
+			TRY ( h5priv_select_hyperslab_of_hdf5_dataspace (
 				      f,
 				      u->diskshape,
 				      H5S_SELECT_SET,
 				      &start, &stride, &count,
 				      NULL ) );
 		}
-		TRY ( _hdf_select_hyperslab_of_dataspace (
+		TRY ( h5priv_select_hyperslab_of_hdf5_dataspace (
 			      f,
 			      space,
 			      H5S_SELECT_SET,
@@ -76,7 +76,7 @@ _get_memshape_for_reading (
 	if ( h5u_has_view ( f ) ) {
 		hsize_t dmax=H5S_UNLIMITED;
 		hsize_t len = u->viewend - u->viewstart;
-		return _hdf_create_dataspace ( f, 1, &len, &dmax );
+		return h5priv_create_hdf5_dataspace ( f, 1, &len, &dmax );
 	} else {
 		return H5S_ALL;
 	}
@@ -104,19 +104,19 @@ h5u_get_num_elems (
 		H5G_DATASET,
 		0,
 		dataset_name, sizeof (dataset_name) ) );
-	TRY( dataset_id = _hdf_open_dataset ( f, f->step_gid, dataset_name ) );
+	TRY( dataset_id = h5priv_open_hdf5_dataset ( f, f->step_gid, dataset_name ) );
 	TRY( space_id = _get_diskshape_for_reading ( f, dataset_id ) );
 
 	if ( h5u_has_view ( f ) ) {
-		TRY ( nparticles = _hdf_get_selected_npoints_of_dataspace (
+		TRY ( nparticles = h5priv_get_selected_npoints_of_hdf5_dataspace (
 			      f, space_id ) );
 	}
 	else {
-		TRY ( nparticles = _hdf_get_npoints_of_dataspace (
+		TRY ( nparticles = h5priv_get_npoints_of_hdf5_dataspace (
 			      f, space_id ) );
 	}
-	TRY( _hdf_close_dataspace( f, space_id ) );
-	TRY( _hdf_close_dataset( f, dataset_id ) );
+	TRY( h5priv_close_hdf5_dataspace( f, space_id ) );
+	TRY( h5priv_close_hdf5_dataset( f, dataset_id ) );
 
 	return (h5_int64_t) nparticles;
 }
@@ -136,10 +136,10 @@ h5u_read_elems (
 	if ( f->step_gid < 0 ) {
 		TRY( h5_set_step ( f, f->step_idx ) );
 	}
-	TRY( (dataset_id = _hdf_open_dataset ( f, f->step_gid, name ) ) );
+	TRY( (dataset_id = h5priv_open_hdf5_dataset ( f, f->step_gid, name ) ) );
 	TRY( (space_id = _get_diskshape_for_reading ( f, dataset_id ) ) );
 	TRY( (memspace_id = _get_memshape_for_reading ( f, dataset_id ) ) );
-	TRY( _hdf_read_dataset (
+	TRY( h5priv_read_hdf5_dataset (
 		     f,
 		     dataset_id,
 		     type,
@@ -147,9 +147,9 @@ h5u_read_elems (
 		     space_id,
 		     f->xfer_prop,
 		     array ) );
-	TRY( _hdf_close_dataspace( f, space_id ) );
-	TRY( _hdf_close_dataspace( f, memspace_id ) );
-	TRY( _hdf_close_dataset ( f, dataset_id ) );
+	TRY( h5priv_close_hdf5_dataspace( f, space_id ) );
+	TRY( h5priv_close_hdf5_dataspace( f, memspace_id ) );
+	TRY( h5priv_close_hdf5_dataset ( f, dataset_id ) );
 	
 	return H5_SUCCESS;
 }
@@ -173,15 +173,15 @@ h5u_set_num_elements (
 		return H5_SUCCESS;
 	}
 #endif
-	TRY( _hdf_close_dataspace( f, u->diskshape ) );
-	TRY( _hdf_close_dataspace( f, u->memshape ) );
-	TRY( _hdf_close_dataspace( f, u->shape ) );
+	TRY( h5priv_close_hdf5_dataspace( f, u->diskshape ) );
+	TRY( h5priv_close_hdf5_dataspace( f, u->memshape ) );
+	TRY( h5priv_close_hdf5_dataspace( f, u->shape ) );
 	u->diskshape = H5S_ALL;
 	u->memshape = H5S_ALL;
 	u->shape = H5S_ALL;
 	u->nparticles =(hsize_t) nparticles;
 #ifndef PARALLEL_IO
-	TRY( u->shape = _hdf_create_dataspace (
+	TRY( u->shape = h5priv_create_hdf5_dataspace (
 		     f,
 		     1,
 		     &(u->nparticles),
@@ -210,7 +210,7 @@ h5u_set_num_elements (
 	  acquire the number of particles to be written from each MPI process
 	*/
 
-	TRY ( _h5_mpi_allgather (
+	TRY ( h5priv_mpi_allgather (
 		      f,
 		      &nparticles, 1, MPI_LONG_LONG,
 		      f->u->pnparticles, 1, MPI_LONG_LONG,
@@ -239,17 +239,17 @@ h5u_set_num_elements (
 	}
 
 	/* declare overall datasize */
-	TRY ( f->u->shape = _hdf_create_dataspace ( f, 1, &total, &total ) );
+	TRY ( f->u->shape = h5priv_create_hdf5_dataspace ( f, 1, &total, &total ) );
 
 	/* declare overall data size  but then will select a subset */
-	TRY ( f->u->diskshape = _hdf_create_dataspace ( f, 1, &total, &total) );
+	TRY ( f->u->diskshape = h5priv_create_hdf5_dataspace ( f, 1, &total, &total) );
 
 	/* declare local memory datasize */
-	TRY ( f->u->memshape = _hdf_create_dataspace (
+	TRY ( f->u->memshape = h5priv_create_hdf5_dataspace (
 		      f, 1, &(f->u->nparticles), &dmax ) );
 
 	count[0] = nparticles;
-	TRY ( _hdf_select_hyperslab_of_dataspace (
+	TRY ( h5priv_select_hyperslab_of_hdf5_dataspace (
 		      f,
 		      f->u->diskshape,
 		      H5S_SELECT_SET,
@@ -295,11 +295,11 @@ h5u_reset_view (
 
 	u->viewstart = -1;
 	u->viewend = -1;
-	TRY( _hdf_close_dataspace( f, u->shape ) );
+	TRY( h5priv_close_hdf5_dataspace( f, u->shape ) );
 	u->shape = H5S_ALL;
-	TRY( _hdf_close_dataspace( f, u->diskshape ) );
+	TRY( h5priv_close_hdf5_dataspace( f, u->diskshape ) );
 	u->diskshape = H5S_ALL;
-	TRY( _hdf_close_dataspace( f, u->memshape ) );
+	TRY( h5priv_close_hdf5_dataspace( f, u->memshape ) );
 	u->memshape = H5S_ALL;
 
 	return H5_SUCCESS;
@@ -358,16 +358,16 @@ h5u_set_view (
 	u->nparticles = end - start + 1;
 	
 	/* declare overall datasize */
-	TRY ( u->shape = _hdf_create_dataspace ( f, 1, &total, &total ) );
+	TRY ( u->shape = h5priv_create_hdf5_dataspace ( f, 1, &total, &total ) );
 
 	/* declare overall data size  but then will select a subset */
-	TRY ( u->diskshape= _hdf_create_dataspace ( f, 1, &total, &total ) );
+	TRY ( u->diskshape= h5priv_create_hdf5_dataspace ( f, 1, &total, &total ) );
 
 	/* declare local memory datasize */
-	TRY ( u->memshape = _hdf_create_dataspace (
+	TRY ( u->memshape = h5priv_create_hdf5_dataspace (
 		      f, 1, &(u->nparticles), &dmax ) );
 
-	TRY ( _hdf_select_hyperslab_of_dataspace ( 
+	TRY ( h5priv_select_hyperslab_of_hdf5_dataspace ( 
 		      f,
 		      u->diskshape,
 		      H5S_SELECT_SET,

@@ -3,7 +3,7 @@
 #include "h5t_types_private.h"
 
 const char *
-_h5t_oid_names[] = {
+h5tpriv_oid_names[] = {
 	"N.N.",
 	"vertex",
 	"edge",
@@ -12,7 +12,7 @@ _h5t_oid_names[] = {
 };
 
 const char *
-_h5t_meshes_grpnames[] = {
+h5tpriv_meshes_grpnames[] = {
 	"N.N.",
 	"N.N.",
 	"N.N.",
@@ -21,7 +21,7 @@ _h5t_meshes_grpnames[] = {
 };
 
 const size_t
-_h5t_sizeof_elem[] = {
+h5tpriv_sizeof_elem[] = {
 	0,
 	0,
 	0,
@@ -30,11 +30,11 @@ _h5t_sizeof_elem[] = {
 };
 
 const char *
-_h5t_map_oid2str (
+h5tpriv_map_oid2str (
 	h5_oid_t oid
 	) {
-	if ( oid < 0 || oid >= sizeof(_h5t_oid_names)/sizeof(char*) ) {
+	if ( oid < 0 || oid >= sizeof(h5tpriv_oid_names)/sizeof(char*) ) {
 		return "[invalid oid]";
 	}
-	return _h5t_oid_names[oid];
+	return h5tpriv_oid_names[oid];
 }

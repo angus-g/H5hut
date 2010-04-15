@@ -60,7 +60,7 @@ isprime (const unsigned int number) {
    The contents of the table is zeroed, especially the field used
    becomes zero.  */
 h5_err_t
-_h5_hcreate (
+h5priv_hcreate (
 	h5_file_t * const f,
 	size_t nel,
 	h5_hashtable_t *htab,
@@ -82,7 +82,7 @@ _h5_hcreate (
 	htab->compute_hash = compute_hash;
 
 	/* allocate memory and zero out */
-	TRY ( (htab->table = (_ENTRY *) _h5_calloc (
+	TRY ( (htab->table = (_ENTRY *) h5priv_calloc (
 		       f, htab->size + 1, sizeof (_ENTRY)) ) );
 
 	/* everything went alright */
@@ -94,7 +94,7 @@ _h5_hcreate (
   or equal the current size.
  */
 h5_err_t
-_h5_hresize (
+h5priv_hresize (
 	h5_file_t * const f,
 	size_t nel,
 	h5_hashtable_t *htab
@@ -108,13 +108,13 @@ _h5_hresize (
 	nel += htab->size;
 	h5_debug ( f, "Resize hash table from %u to %lu elements.",
 		   htab->size, nel );
-	TRY ( _h5_hcreate (
+	TRY ( h5priv_hcreate (
 		      f, nel, &__htab, htab->compare, htab->compute_hash ) );
 	unsigned int idx;
 	for ( idx = 1; idx <= htab->size; idx++ ) {
 		if ( htab->table[idx].used ) {
 			void *ventry;
-			_h5_hsearch (
+			h5priv_hsearch (
 				      f,
 				      htab->table[idx].entry,
 				      H5_ENTER,
@@ -122,14 +122,15 @@ _h5_hresize (
 				      &__htab );
 		}
 	}
-	TRY ( _h5_hdestroy ( f, htab ) );
+	TRY ( h5priv_hdestroy ( f, htab ) );
 	*htab = __htab;
 	return H5_SUCCESS;
 }
+
 /* After using the hash table it has to be destroyed. The used memory can
    be freed and the local static variable can be marked as not used.  */
 h5_err_t
-_h5_hdestroy (
+h5priv_hdestroy (
 	h5_file_t * const f,
 	struct hsearch_data *htab
 	) {
@@ -139,7 +140,7 @@ _h5_hdestroy (
 	}
 
 	/* Free used memory.  */
-	TRY ( _h5_free ( f, htab->table ) );
+	TRY ( h5priv_free ( f, htab->table ) );
 
 	/* the sign for an existing table is an value != NULL in htable */
 	htab->table = NULL;
@@ -162,7 +163,7 @@ _h5_hdestroy (
    equality of the stored and the parameter value. This helps to prevent
    unnecessary expensive calls of strcmp.  */
 h5_err_t
-_h5_hsearch (
+h5priv_hsearch (
 	h5_file_t * const f,
 	void *item,
 	const h5_action_t action,
@@ -215,7 +216,7 @@ _h5_hsearch (
 	}
 
 	/* An empty bucket has been found. */
-	if (action == H5_ENTER) {
+	if ( action == H5_ENTER ) {
 		/* If table is full and another entry should be entered return
 		   with error.  */
 		if (htab->filled == htab->size)	{
@@ -231,6 +232,10 @@ _h5_hsearch (
 
 		*retval = htab->table[idx].entry;
 		return H5_SUCCESS;
+	} else if ( action == H5_REMOVE ) {
+		htab->table[idx].used = 0;		/* mark as unused, but */
+		*retval = htab->table[idx].entry;	/* return ptr to entry */
+		return H5_SUCCESS;
 	}
 	*retval = NULL;
 	h5_error ( f, H5_ERR_INVAL, "Key not found in hash table." );
@@ -238,7 +243,7 @@ _h5_hsearch (
 }
 
 h5_err_t
-_h5_hwalk (
+h5priv_hwalk (
 	h5_file_t* f,
 	struct hsearch_data *htab,
 	h5_err_t (*visit)(h5_file_t*const f, const void *item)
@@ -282,12 +287,12 @@ _hcompute_string_keyed (
 }
 
 h5_err_t
-_h5_hcreate_string_keyed (
+h5priv_hcreate_string_keyed (
 	h5_file_t * const f,
 	size_t nel,
 	h5_hashtable_t *htab 
 	) {
-	return _h5_hcreate ( f, nel, htab,
+	return h5priv_hcreate ( f, nel, htab,
 			       _hcmp_string_keyed, _hcompute_string_keyed );
 }
 
@@ -316,11 +321,11 @@ _hcompute_id_keyed (
 }
 
 h5_err_t
-_h5_hcreate_id_keyed (
+h5priv_hcreate_id_keyed (
 	h5_file_t * const f,
 	size_t nel,
 	h5_hashtable_t *htab 
 	) {
-	return _h5_hcreate ( f, nel, htab,
+	return h5priv_hcreate ( f, nel, htab,
 			       _hcmp_id_keyed, _hcompute_id_keyed );
 }

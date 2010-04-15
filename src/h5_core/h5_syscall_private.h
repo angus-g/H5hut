@@ -2,27 +2,27 @@
 #define __H5_SYSCALL_H
 
 void *
-_h5_alloc (
+h5priv_alloc (
 	h5_file_t * const f,
 	void *ptr,
 	const size_t size
 	);
 
 void *
-_h5_calloc (
+h5priv_calloc (
 	h5_file_t * const f,
 	const size_t count,
 	const size_t size
 	);
 
 h5_err_t
-_h5_free (
+h5priv_free (
 	h5_file_t * const f,
 	void *ptr
 	);
 
 void *
-_h5_tsearch (
+h5priv_tsearch (
 	h5_file_t * const f,
 	const void *key,
 	void **rootp,
@@ -30,7 +30,7 @@ _h5_tsearch (
 	);
 
 void *
-_h5_tfind (
+h5priv_tfind (
 	h5_file_t * const f,
 	const void *key,
 	void *const *rootp,

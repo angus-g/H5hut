@@ -5,13 +5,16 @@
   * Tags can be assigned to all entities of a mesh
   * Tag values are arrays of int64 or float64
   * Complex numbers can be stored as array of float64 with even dimension
-  * Tags are addressed via a name and the entity.
+  * Tags are addressed via a name and the entity id.
   * Tags with the same name are called a "tagset"
   * Tagsets can be used to store time/step-constant data. These tagsets are
     called "m-tagsets" and are assigned directly to a mesh.
   * Tagsets can be used to store data which may change from step to step. 
     These tagsets are called "s-tagsets" and are assigned to a mesh and a
     (time-)step.
+
+ToDo
+  * Scalar values
  */
 
 
@@ -29,7 +32,8 @@
   Structure to store a tag value
 */
 typedef struct {
-	size_t size;
+	int32_t subent_id;	/* sub-entitiy id */
+	int32_t size;
 	union {
 		h5_float64_t	f;
 		h5_int64_t	i;
@@ -48,19 +52,19 @@ typedef struct {
   If idx[k] is equal -1, no tag has been assigned to the appropriate entity.
 */
 typedef struct {
-	signed char size;	/* size of valp */
 	signed char idx[15];
+	signed char size;	/* size of valp */
 	h5t_tagval_t *valp[1];
 } h5t_tagsel_t;
 
 
-typedef struct h5t_tagset {
+struct h5t_tagset {
 	char * name;
 	unsigned int changed;	/* flag tagset changed, ... */
 	unsigned int num_elems;
 	h5_id_t type;		/* int64 or float64 */
 	h5t_tagsel_t *elems[1];
-} h5t_tagset_t;
+};
 
 /*
   Structure for hash table of tagsets
@@ -79,8 +83,8 @@ typedef struct {
 	h5_id_t idx;
 } h5t_tag_idx_t;
 
-h5_err_t _h5t_write_mtags ( h5_file_t *const f );
-h5_err_t _h5t_release_tags ( h5_file_t * const f );
-h5_err_t _h5t_read_tag_container ( h5_file_t * const f,
+h5_err_t h5tpriv_write_mtags ( h5_file_t *const f );
+h5_err_t h5tpriv_release_tags ( h5_file_t * const f );
+h5_err_t h5tpriv_read_tag_container ( h5_file_t * const f,
 				   h5t_tagcontainer_t *container );
 #endif

@@ -106,11 +106,11 @@ __unused
 
 #ifdef I_AM_QSORT_R
 void
-_h5_qsort_r(void *a, size_t n, size_t es, void *thunk, cmp_t *cmp)
+h5priv_qsort_r(void *a, size_t n, size_t es, void *thunk, cmp_t *cmp)
 #else
 #define thunk NULL
 void
-_h5_qsort(void *a, size_t n, size_t es, cmp_t *cmp)
+h5priv_qsort(void *a, size_t n, size_t es, cmp_t *cmp)
 #endif
 {
 	char *pa, *pb, *pc, *pd, *pl, *pm, *pn;
@@ -182,9 +182,9 @@ loop:	SWAPINIT(a, es);
 	vecswap(pb, pn - r, r);
 	if ((r = pb - pa) > es)
 #ifdef I_AM_QSORT_R
-		_h5_qsort_r(a, r / es, es, thunk, cmp);
+		h5priv_qsort_r(a, r / es, es, thunk, cmp);
 #else
-		_h5_qsort(a, r / es, es, cmp);
+		h5priv_qsort(a, r / es, es, cmp);
 #endif
 	if ((r = pd - pc) > es) {
 		/* Iterate rather than recurse to save stack space */

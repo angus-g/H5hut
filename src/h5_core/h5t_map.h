@@ -46,7 +46,7 @@ h5t_map_global_triangle_id2local (
 	);
 
 h5_id_t
-_h5t_get_local_vid (
+h5tpriv_get_local_vid (
 	h5_file_t * const f,
 	h5_float64_t P[3]
 	);

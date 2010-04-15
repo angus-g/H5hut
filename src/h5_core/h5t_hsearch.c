@@ -29,12 +29,12 @@ _compute_te_hashval (
 }
 
 h5_err_t
-_h5t_create_te_htab (
+h5tpriv_create_te_htab (
 	h5_file_t * const f,
 	size_t nel
 	) {
 	h5t_adjacencies_t *a = &f->t->adjacencies;
-	return _h5_hcreate (
+	return h5priv_hcreate (
 		      f,
 		      nel,
 		      &a->te_hash,
@@ -43,21 +43,21 @@ _h5t_create_te_htab (
 }
 
 h5_err_t
-_h5t_resize_te_htab (
+h5tpriv_resize_te_htab (
 	h5_file_t * const f,
 	size_t nel
 	) {
 	h5t_adjacencies_t *a = &f->t->adjacencies;
 	if ( a->te_hash.size == 0 ) {
-		TRY ( _h5t_create_te_htab ( f, nel ) );
+		TRY ( h5tpriv_create_te_htab ( f, nel ) );
 	} else if ( a->te_hash.size < nel ) {
-		TRY ( _h5_hresize ( f, nel, &a->te_hash ) );
+		TRY ( h5priv_hresize ( f, nel, &a->te_hash ) );
 	}
 	return H5_SUCCESS;
 }
 
 h5_err_t
-_h5t_search_te2 (
+h5tpriv_search_te2 (
 	h5_file_t * const f,
 	h5_id_t face,
 	h5_id_t eid,
@@ -67,7 +67,7 @@ _h5t_search_te2 (
 	h5t_adjacencies_t *a = &t->adjacencies;
 	void *__retval;
 
-	TRY ( *entry = _h5_calloc ( f, 1, sizeof(**entry) ) );
+	TRY ( *entry = h5priv_calloc ( f, 1, sizeof(**entry) ) );
 
 	TRY ( h5t_get_local_vids_of_edge2 (
 		f,
@@ -79,25 +79,25 @@ _h5t_search_te2 (
 	 */
 	if ( (a->te_hash.size*6) <= (a->te_hash.filled<<3) ) {
 		h5_id_t num_elems = t->num_elems[t->num_levels-1];
-		TRY ( _h5_hresize (
+		TRY ( h5priv_hresize (
 			      f,
 			      3*(num_elems - eid),
 			      &a->te_hash ) );
 	}
-	TRY ( _h5_hsearch (
+	TRY ( h5priv_hsearch (
 		      f,
 		      *entry,
 		      H5_ENTER,
 		      &__retval,
 		      &a->te_hash ) );
 	h5t_te_entry_t *retval = (h5t_te_entry_t *)__retval;
-	TRY ( _h5_search_idlist (
+	TRY ( h5priv_search_idlist (
 		      f,
 		      &retval->value,
-		      _h5t_build_edge_id ( face, eid ) ) );
+		      h5tpriv_build_edge_id ( face, eid ) ) );
 	if ( retval->value.num_items > 1 ) {
 		/* search returned an existing entry */
-		TRY ( _h5_free ( f, *entry ) );
+		TRY ( h5priv_free ( f, *entry ) );
 	}
 	return H5_SUCCESS;
 }
@@ -108,13 +108,13 @@ _h5t_search_te2 (
   Passing item with type entry type.
 */
 h5_err_t
-_h5t_find_te (
+h5tpriv_find_te (
 	h5_file_t * const f,
 	h5t_te_entry_t *item,
 	h5t_te_entry_t **retval
 	) {
 	void *__ret;
-	TRY ( _h5_hsearch (
+	TRY ( h5priv_hsearch (
 		      f,
 		      item,
 		      H5_FIND,
@@ -130,7 +130,7 @@ _h5t_find_te (
   Passing item with face and local element ID.
 */
 h5_err_t
-_h5t_find_te2 (
+h5tpriv_find_te2 (
 	h5_file_t * const f,
 	h5_id_t face_id,
 	h5_id_t local_eid,
@@ -143,7 +143,7 @@ _h5t_find_te2 (
 		local_eid,
 		item.key.vids
 		      ) );
-	return _h5t_find_te ( f, &item, retval );
+	return h5tpriv_find_te ( f, &item, retval );
 }
 
 static int
@@ -172,12 +172,12 @@ _compute_td_hashval (
 }
 
 h5_err_t
-_h5t_create_td_htab (
+h5tpriv_create_td_htab (
 	h5_file_t * const f,
 	size_t nel
 	) {
 	h5t_adjacencies_t *a = &f->t->adjacencies;
-	return _h5_hcreate (
+	return h5priv_hcreate (
 		      f,
 		      nel,
 		      &a->td_hash,
@@ -186,21 +186,21 @@ _h5t_create_td_htab (
 }
 
 h5_err_t
-_h5t_resize_td_htab (
+h5tpriv_resize_td_htab (
 	h5_file_t * const f,
 	size_t nel
 	) {
 	h5t_adjacencies_t *a = &f->t->adjacencies;
 	if ( a->td_hash.size == 0 ) {
-		TRY ( _h5t_create_td_htab ( f, nel ) );
+		TRY ( h5tpriv_create_td_htab ( f, nel ) );
 	} else if ( a->td_hash.size < nel ) {
-		TRY ( _h5_hresize ( f, nel, &a->td_hash ) );
+		TRY ( h5priv_hresize ( f, nel, &a->td_hash ) );
 	}
 	return H5_SUCCESS;
 }
 
 h5_err_t
-_h5t_search_td2 (
+h5tpriv_search_td2 (
 	h5_file_t * const f,
 	h5_id_t face,
 	h5_id_t eid,
@@ -210,7 +210,7 @@ _h5t_search_td2 (
 	h5t_adjacencies_t *a = &f->t->adjacencies;
 	void *__retval;
 
-	TRY ( *entry = _h5_calloc ( f, 1, sizeof(**entry) ) );
+	TRY ( *entry = h5priv_calloc ( f, 1, sizeof(**entry) ) );
 
 	TRY ( h5t_get_local_vids_of_triangle2 (
 		f,
@@ -222,51 +222,51 @@ _h5t_search_td2 (
 	*/
 	if ( (a->td_hash.size*6) <= (a->td_hash.filled<<3) ) {
 		h5_id_t num_elems = t->num_elems[t->num_levels-1];
-		TRY ( _h5_hresize (
+		TRY ( h5priv_hresize (
 			      f,
 			      3*(num_elems-eid),
 			      &a->td_hash ) );
 	}
 
-	TRY ( _h5_hsearch (
+	TRY ( h5priv_hsearch (
 		      f,
 		      *entry,
 		      H5_ENTER,
 		      &__retval,
 		      &a->td_hash ) );
 	h5t_td_entry_t *retval = (h5t_td_entry_t *)__retval;
-	TRY ( _h5_search_idlist (
+	TRY ( h5priv_search_idlist (
 		      f,
 		      &retval->value,
-		      _h5t_build_triangle_id ( face, eid ) ) );
+		      h5tpriv_build_triangle_id ( face, eid ) ) );
 	if ( retval->value.num_items > 1 ) {
-		TRY ( _h5_free ( f, *entry ) );
+		TRY ( h5priv_free ( f, *entry ) );
 	}
 	return H5_SUCCESS;
 }
 
 h5_err_t
-_h5t_find_td (
+h5tpriv_find_td (
 	h5_file_t * const f,
 	h5t_td_entry_t *item,
 	h5t_td_entry_t **retval
 	) {
 	void *__ret;
-	_h5_hsearch (
+	h5priv_hsearch (
 		      f,
 		      item,
 		      H5_FIND,
 		      &__ret,
 		      &f->t->adjacencies.td_hash );
 	if ( __ret == NULL ) {
-		return _h5t_error_local_triangle_nexist( f, item->key.vids );
+		return h5tpriv_error_local_triangle_nexist( f, item->key.vids );
 	}
 	*retval = (h5t_td_entry_t *)__ret;
 	return H5_SUCCESS;
 }
 
 h5_err_t
-_h5t_find_td2 (
+h5tpriv_find_td2 (
 	h5_file_t * const f,
 	h5_id_t face_id,
 	h5_id_t local_eid,
@@ -278,11 +278,11 @@ _h5t_find_td2 (
 		face_id,
 		local_eid,
 		item.key.vids ) );
-	return _h5t_find_td ( f, &item, retval );
+	return h5tpriv_find_td ( f, &item, retval );
 }
 
 h5_err_t
-_h5t_find_tv2 (
+h5tpriv_find_tv2 (
 	h5_file_t * const f,
 	h5_id_t cid,
 	h5_id_t el_idx,

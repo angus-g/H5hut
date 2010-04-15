@@ -33,7 +33,7 @@ h5t_add_mesh (
  * Set the global vertex id's in element definitions.
 */
 h5_err_t
-_h5t_assign_global_vertex_ids (
+h5tpriv_assign_global_vertex_ids (
 	h5_file_t * const f
 	) {
 	h5t_fdata_t *t = f->t;
@@ -68,9 +68,9 @@ _assign_global_elem_ids (
 	/*
 	  simple in serial runs: global_id = local_id
 	*/
-	for ( local_eid = (t->cur_level == 0) ? 0 : t->num_elems[t->cur_level-1];
+	for (local_eid = (t->cur_level == 0) ? 0 : t->num_elems[t->cur_level-1];
 	      local_eid < t->num_elems[t->cur_level];
-	      local_eid++ ) {
+	      local_eid++) {
 		h5_elem_t *elem;
 		h5_elem_ldta_t *elem_ldta = &t->elems_ldta[local_eid];
 		switch ( t->mesh_type ) {
@@ -119,12 +119,12 @@ h5t_add_level (
 	t->dsinfo_num_elems_on_level.dims[0] = t->num_levels;
 
 	ssize_t num_bytes = t->num_levels*sizeof ( h5_size_t );
-	TRY ( t->num_vertices = _h5_alloc ( f, t->num_vertices, num_bytes ) );
+	TRY ( t->num_vertices = h5priv_alloc ( f, t->num_vertices, num_bytes ) );
 	t->num_vertices[t->cur_level] = -1;
 
-	TRY ( t->num_elems = _h5_alloc ( f, t->num_elems, num_bytes ) );
+	TRY ( t->num_elems = h5priv_alloc ( f, t->num_elems, num_bytes ) );
 	t->num_elems[t->cur_level] = -1;
-	TRY ( t->num_elems_on_level = _h5_alloc (
+	TRY ( t->num_elems_on_level = h5priv_alloc (
 		      f, t->num_elems_on_level, num_bytes ) );
 	t->num_elems_on_level[t->cur_level] = -1;
 
@@ -149,14 +149,14 @@ h5t_begin_store_vertices (
 	h5t_fdata_t *t = f->t;
 
 	if ( t->cur_level < 0 ) {
-		return _h5t_error_undef_level( f );
+		return h5tpriv_error_undef_level( f );
 	}
 	t->storing_data = 1;
 	h5_size_t cur_num_vertices = ( t->cur_level > 0 ?
 				       t->num_vertices[t->cur_level-1] : 0 );
 	t->num_vertices[t->cur_level] = cur_num_vertices+num;
 	t->dsinfo_vertices.dims[0] = cur_num_vertices+num;
-	return _h5t_alloc_num_vertices ( f, cur_num_vertices+num );
+	return h5tpriv_alloc_num_vertices ( f, cur_num_vertices+num );
 }
 
 h5_id_t
@@ -178,7 +178,7 @@ h5t_store_vertex (
 	  missing call to add the first level
 	 */
 	if ( t->cur_level < 0 )
-		return _h5t_error_undef_level( f );
+		return h5tpriv_error_undef_level( f );
 
 	t->level_changed = 1;
 	h5_id_t local_id = ++t->last_stored_vid;
@@ -196,9 +196,9 @@ h5t_end_store_vertices (
 	t->storing_data = 0;
 
 	t->num_vertices[t->cur_level] = t->last_stored_vid+1;
-	TRY ( _h5t_assign_global_vertex_ids ( f ) );
-	TRY ( _h5t_sort_vertices ( f ) );
-	TRY ( _h5t_rebuild_global_2_local_map_of_vertices ( f ) );
+	TRY ( h5tpriv_assign_global_vertex_ids ( f ) );
+	TRY ( h5tpriv_sort_vertices ( f ) );
+	TRY ( h5tpriv_rebuild_global_2_local_map_of_vertices ( f ) );
 	return H5_SUCCESS;
 }
 
@@ -228,7 +228,7 @@ h5t_begin_store_elems (
 	  prevent resizing.
 	 */
 	size_t nel = 2097152 > 5*new ? 2097152 : 5*new;
-	TRY ( _h5t_resize_te_htab ( f, nel ) );
+	TRY ( h5tpriv_resize_te_htab ( f, nel ) );
 	return (*t->methods._alloc_elems) ( f, cur, new );
 }
 
@@ -247,12 +247,12 @@ h5t_store_elem    (
 
 	/* level set? */
 	if ( t->cur_level < 0 )
-		return _h5t_error_undef_level( f );
+		return h5tpriv_error_undef_level( f );
 
 	/*  more than allocated? */
 	if ( t->last_stored_eid+1 >= t->num_elems[t->cur_level] ) 
 		return HANDLE_H5_OVERFLOW_ERR(
-			f, _h5t_map_oid2str(t->mesh_type),
+			f, h5tpriv_map_oid2str(t->mesh_type),
 			t->num_elems[t->cur_level] );
 
 	/* check parent id */
@@ -264,7 +264,7 @@ h5t_store_elem    (
 		) {
 		return HANDLE_H5_PARENT_ID_ERR (
 			f,
-			_h5t_map_oid2str(t->mesh_type),
+			h5tpriv_map_oid2str(t->mesh_type),
 			local_parent_eid );
 	}
 
@@ -279,7 +279,7 @@ h5t_store_elem    (
   \param[in]	local_vids	Local vertex id's defining the tetrahedron.
  */
 h5_id_t
-_h5t_store_tet (
+h5tpriv_store_tet (
 	h5_file_t * const f,
 	const h5_id_t local_parent_eid,
 	const h5_id_t *local_vids
@@ -295,11 +295,11 @@ _h5t_store_tet (
 	elem_ldta->level_id = t->cur_level;
 	memcpy ( elem_ldta->local_vids, local_vids,
 		 sizeof (*local_vids) * t->mesh_type );
-	_h5t_sort_local_vids ( f, elem_ldta->local_vids, t->mesh_type );
+	h5tpriv_sort_local_vids ( f, elem_ldta->local_vids, t->mesh_type );
 	h5_id_t face_id;
 	h5t_te_entry_t *retval;
 	for ( face_id = 0; face_id < 6; face_id++ ) {
-		TRY ( _h5t_search_te2 (
+		TRY ( h5tpriv_search_te2 (
 			      f,
 			      face_id,
 			      local_eid,
@@ -309,7 +309,7 @@ _h5t_store_tet (
 }
 
 h5_id_t
-_h5t_store_tri (
+h5tpriv_store_tri (
 	h5_file_t * const f,
 	const h5_id_t local_parent_eid,
 	const h5_id_t *local_vids
@@ -325,11 +325,11 @@ _h5t_store_tri (
 	elem_ldta->level_id = t->cur_level;
 	memcpy ( elem_ldta->local_vids, local_vids,
 		 sizeof (*local_vids) * t->mesh_type );
-	_h5t_sort_local_vids ( f, elem_ldta->local_vids, t->mesh_type );
+	h5tpriv_sort_local_vids ( f, elem_ldta->local_vids, t->mesh_type );
 	h5_id_t face_id;
 	h5t_te_entry_t *retval;
 	for ( face_id = 0; face_id < 3; face_id++ ) {
-		TRY ( _h5t_search_te2 (
+		TRY ( h5tpriv_search_te2 (
 			      f,
 			      face_id,
 			      local_eid,
@@ -348,8 +348,8 @@ h5t_end_store_elems (
 	t->num_elems[t->cur_level] = t->last_stored_eid+1;
 	TRY ( _assign_global_elem_ids ( f ) );
 
-	TRY ( _h5t_sort_elems ( f ) );
-	TRY ( _h5t_rebuild_global_2_local_map_of_elems ( f ) );
+	TRY ( h5tpriv_sort_elems ( f ) );
+	TRY ( h5tpriv_rebuild_global_2_local_map_of_elems ( f ) );
 
 	return H5_SUCCESS;
 }
@@ -404,10 +404,12 @@ h5t_end_refine_elems (
 /*!
   Refine edge. Store vertex, if new.
 
+  Function can be used with tetrahedral and triangle meshes.
+
   \return local id of vertex
 */
 h5_id_t
-_h5t_bisect_edge (
+h5tpriv_bisect_edge (
 	h5_file_t * const f,
 	h5_id_t face_id,
 	h5_id_t el_id
@@ -420,23 +422,23 @@ _h5t_bisect_edge (
 	  get all elements sharing the given edge
 	 */
 	TRY ( h5t_get_local_vids_of_edge2 ( f, face_id, el_id, vids ) );
-	TRY ( _h5t_find_te ( f, &item, &retval ) );
+	TRY ( h5tpriv_find_te ( f, &item, &retval ) );
 	/*
-	  check wether one of these elements has been refined
+	  check wether one of the found elements has been refined
 	 */
 	size_t i;
 	for ( i = 0; i < retval->value.num_items; i++ ) {
-		h5_id_t local_id = _h5t_get_elem_idx ( retval->value.items[i] );
+		h5_id_t local_id = h5tpriv_get_elem_idx ( retval->value.items[i] );
 		h5_elem_ldta_t *tet = &t->elems_ldta[local_id];
 		if ( tet->local_child_eid >= 0 ) {
 			/*
 			  this element has been refined!
 			  return bisecting point
 			 */
-			h5_id_t	face_id = _h5t_get_face_id (
+			h5_id_t	face_id = h5tpriv_get_face_id (
 				retval->value.items[i] );
 			h5_id_t kids[2], edge0[2], edge1[2];
-			TRY ( _h5t_compute_direct_children_of_edge (
+			TRY ( h5tpriv_compute_direct_children_of_edge (
 				      f,
 				      face_id,
 				      tet->local_child_eid,
@@ -466,7 +468,7 @@ _h5t_bisect_edge (
 /*!
   Refine element \c local_eid
 
-  \return Local id of first new element or \c -1
+  \return local id of first new element or \c -1
 */
 h5_id_t
 h5t_refine_elem (
@@ -483,7 +485,7 @@ h5t_refine_elem (
   \return Local id of first new triangle or \c -1
 */
 h5_id_t
-_h5t_refine_tri (
+h5tpriv_refine_tri (
 	h5_file_t * const f,
 	const h5_id_t local_eid
 	) {
@@ -503,9 +505,9 @@ _h5t_refine_tri (
 	local_vids[1] = el->local_vids[1];
 	local_vids[2] = el->local_vids[2];
 
-	local_vids[3] = _h5t_bisect_edge( f, 0, local_eid ); /* 1,2 */
-	local_vids[4] = _h5t_bisect_edge( f, 1, local_eid ); /* 0,2 */
-	local_vids[5] = _h5t_bisect_edge( f, 2, local_eid ); /* 0,1 */
+	local_vids[3] = h5tpriv_bisect_edge( f, 0, local_eid ); /* 1,2 */
+	local_vids[4] = h5tpriv_bisect_edge( f, 1, local_eid ); /* 0,2 */
+	local_vids[5] = h5tpriv_bisect_edge( f, 2, local_eid ); /* 0,1 */
 
 	h5_id_t new_el[3];
 
@@ -513,25 +515,25 @@ _h5t_refine_tri (
 	new_el[0] = local_vids[0];
 	new_el[1] = local_vids[4]; 
 	new_el[2] = local_vids[5];
-	TRY ( local_child_eid = _h5t_store_tri ( f, local_eid, new_el ) );
+	TRY ( local_child_eid = h5tpriv_store_tri ( f, local_eid, new_el ) );
 
 	/* 1 */
 	new_el[0] = local_vids[1];
 	new_el[1] = local_vids[3]; 
 	new_el[2] = local_vids[5];
-	TRY ( _h5t_store_tri ( f, local_eid, new_el ) );
+	TRY ( h5tpriv_store_tri ( f, local_eid, new_el ) );
 
 	/* 2 */
 	new_el[0] = local_vids[2];
 	new_el[1] = local_vids[3]; 
 	new_el[2] = local_vids[4];
-	TRY ( _h5t_store_tri ( f, local_eid, new_el ) );
+	TRY ( h5tpriv_store_tri ( f, local_eid, new_el ) );
 
 	/* 3 */
 	new_el[0] = local_vids[3];
 	new_el[1] = local_vids[4];
 	new_el[2] = local_vids[5];
-	TRY ( _h5t_store_tri ( f, local_eid, new_el ) );
+	TRY ( h5tpriv_store_tri ( f, local_eid, new_el ) );
 
 	return local_child_eid;
 }
@@ -544,7 +546,7 @@ _h5t_refine_tri (
 
 */
 h5_err_t
-_h5t_compute_direct_children_of_edge (
+h5tpriv_compute_direct_children_of_edge (
 	h5_file_t * const f,
 	h5_id_t face_id,
 	h5_id_t local_eid,
@@ -555,8 +557,8 @@ _h5t_compute_direct_children_of_edge (
 	if ( ( face_id < 0 ) || ( face_id >= 6 ) ) {
 		return  h5_error_internal ( f, __FILE__, __func__, __LINE__ ); 
 	}
-	kids[0] = _h5t_build_edge_id ( face_id, local_eid+off[face_id][0] );
-	kids[1] = _h5t_build_edge_id ( face_id, local_eid+off[face_id][1] );
+	kids[0] = h5tpriv_build_edge_id ( face_id, local_eid+off[face_id][0] );
+	kids[1] = h5tpriv_build_edge_id ( face_id, local_eid+off[face_id][1] );
 	return H5_SUCCESS;
 }
 
@@ -567,7 +569,7 @@ _h5t_compute_direct_children_of_edge (
   \return Local id of first new tetrahedron or \c -1
 */
 h5_id_t
-_h5t_refine_tet (
+h5tpriv_refine_tet (
 	h5_file_t * const f,
 	const h5_id_t local_eid
 	) {
@@ -587,12 +589,12 @@ _h5t_refine_tet (
 	local_vids[2] = tet->local_vids[2];
 	local_vids[3] = tet->local_vids[3];
 
-	local_vids[4] = _h5t_bisect_edge( f, 0, local_eid );
-	local_vids[5] = _h5t_bisect_edge( f, 2, local_eid );
-	local_vids[6] = _h5t_bisect_edge( f, 3, local_eid );
-	local_vids[7] = _h5t_bisect_edge( f, 1, local_eid );
-	local_vids[8] = _h5t_bisect_edge( f, 4, local_eid );
-	local_vids[9] = _h5t_bisect_edge( f, 5, local_eid );
+	local_vids[4] = h5tpriv_bisect_edge( f, 0, local_eid );
+	local_vids[5] = h5tpriv_bisect_edge( f, 2, local_eid );
+	local_vids[6] = h5tpriv_bisect_edge( f, 3, local_eid );
+	local_vids[7] = h5tpriv_bisect_edge( f, 1, local_eid );
+	local_vids[8] = h5tpriv_bisect_edge( f, 4, local_eid );
+	local_vids[9] = h5tpriv_bisect_edge( f, 5, local_eid );
 
 	/* 
 	   add new tets
@@ -604,7 +606,7 @@ _h5t_refine_tet (
 	new_tet_local_vids[1] = local_vids[6];  // (03)
 	new_tet_local_vids[2] = local_vids[5];  // (02)
 	new_tet_local_vids[3] = local_vids[4];  // (01)
-	TRY ( local_child_eid = _h5t_store_tet (
+	TRY ( local_child_eid = h5tpriv_store_tet (
 		      f, local_eid, new_tet_local_vids ) );
 
 	/* 1 */
@@ -612,49 +614,49 @@ _h5t_refine_tet (
 	new_tet_local_vids[1] = local_vids[8];  // (13)
 	new_tet_local_vids[2] = local_vids[7];  // (12)
 	new_tet_local_vids[3] = local_vids[1];
-	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
+	TRY ( h5tpriv_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 2 */
 	new_tet_local_vids[0] = local_vids[5];  // (02)
 	new_tet_local_vids[1] = local_vids[9];  // (23)
 	new_tet_local_vids[2] = local_vids[2];
 	new_tet_local_vids[3] = local_vids[7];  // (12)
-	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
+	TRY ( h5tpriv_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 3 */
 	new_tet_local_vids[0] = local_vids[6];  // (03)
 	new_tet_local_vids[1] = local_vids[3];
 	new_tet_local_vids[2] = local_vids[9];  // (23)
 	new_tet_local_vids[3] = local_vids[8];  // (13)
-	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
+	TRY ( h5tpriv_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 4 */
 	new_tet_local_vids[0] = local_vids[6];  // (03)
 	new_tet_local_vids[1] = local_vids[5];  // (02)
 	new_tet_local_vids[2] = local_vids[4];  // (01)
 	new_tet_local_vids[3] = local_vids[8];  // (13)
-	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
+	TRY ( h5tpriv_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 5 */
 	new_tet_local_vids[0] = local_vids[5];  // (02)
 	new_tet_local_vids[1] = local_vids[4];  // (01)
 	new_tet_local_vids[2] = local_vids[8];  // (13)
 	new_tet_local_vids[3] = local_vids[7];  // (12)
-	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
+	TRY ( h5tpriv_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 6 */
 	new_tet_local_vids[0] = local_vids[6];  // (03)
 	new_tet_local_vids[1] = local_vids[5];  // (02)
 	new_tet_local_vids[2] = local_vids[9];  // (23)
 	new_tet_local_vids[3] = local_vids[8];  // (13)
-	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
+	TRY ( h5tpriv_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	/* 7 */
 	new_tet_local_vids[0] = local_vids[5];  // (02)
 	new_tet_local_vids[1] = local_vids[9];  // (23)
 	new_tet_local_vids[2] = local_vids[8];  // (13)
 	new_tet_local_vids[3] = local_vids[7];  // (12)
-	TRY ( _h5t_store_tet ( f, local_eid, new_tet_local_vids ) );
+	TRY ( h5tpriv_store_tet ( f, local_eid, new_tet_local_vids ) );
 
 	t->elems.tets[local_eid].global_child_eid = local_child_eid;
 	t->elems_ldta[local_eid].local_child_eid = local_child_eid;

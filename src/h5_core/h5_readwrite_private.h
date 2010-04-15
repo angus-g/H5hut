@@ -16,7 +16,7 @@ typedef struct h5_dataset_info {
 } h5_dsinfo_t;
 
 h5_err_t
-_h5_write_dataset_by_name (
+h5priv_write_dataset_by_name (
  	h5_file_t * const f,
 	hid_t loc_id,
 	h5_dsinfo_t *ds_info,
@@ -26,7 +26,7 @@ _h5_write_dataset_by_name (
 	);
 
 h5_err_t
-_h5_read_dataset (
+h5priv_read_dataset (
 	h5_file_t * const f,
 	hid_t dset_id,
 	h5_dsinfo_t *ds_info,
@@ -36,7 +36,7 @@ _h5_read_dataset (
 	);
 
 h5_err_t
-_h5_read_dataset_by_name (
+h5priv_read_dataset_by_name (
 	h5_file_t * const f,
 	hid_t loc_id,
 	h5_dsinfo_t *ds_info,

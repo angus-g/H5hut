@@ -34,17 +34,17 @@ _write_vertices (
 	if ( t->num_vertices <= 0 ) return H5_SUCCESS;  /* ???? */
 
  	if ( t->mesh_gid < 0 ) {
-		TRY( _h5t_open_mesh_group ( f ) );
+		TRY( h5tpriv_open_mesh_group ( f ) );
 	}
 	t->dsinfo_vertices.dims[0] = t->num_vertices[t->cur_level];
-	TRY( _h5_write_dataset_by_name (
+	TRY( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_vertices,
 		     _open_space_all,
 		     _open_space_all,
 		     t->vertices ) );
-	TRY( _h5_write_dataset_by_name (
+	TRY( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_vertices,
@@ -64,10 +64,10 @@ _write_elems (
 	if ( t->num_elems <= 0 ) return H5_SUCCESS;
 
 	if ( t->mesh_gid < 0 ) {
-		TRY( _h5t_open_mesh_group ( f ) );
+		TRY( h5tpriv_open_mesh_group ( f ) );
 	}
 
-	TRY ( _h5_write_dataset_by_name (
+	TRY ( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_elems,
@@ -75,7 +75,7 @@ _write_elems (
 		     _open_space_all,
 		     t->elems.data ) );
 
-	TRY ( _h5_write_dataset_by_name (
+	TRY ( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems,
@@ -83,7 +83,7 @@ _write_elems (
 		     _open_space_all,
 		     t->num_elems ) );
 
-	TRY ( _h5_write_dataset_by_name (
+	TRY ( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems_on_level,
@@ -95,7 +95,7 @@ _write_elems (
 }
 
 h5_err_t
-_h5t_write_mesh (
+h5tpriv_write_mesh (
 	h5_file_t * f
 	) {
 	h5t_fdata_t *t = f->t;
@@ -104,7 +104,7 @@ _h5t_write_mesh (
 		TRY( _write_elems( f ) );
 	}
 	if ( t->mtags.changed ) { 
-		TRY ( _h5t_write_mtags ( f ) );
+		TRY ( h5tpriv_write_mtags ( f ) );
 	}
 
 	return H5_SUCCESS;
@@ -120,12 +120,12 @@ _read_num_levels (
 	hssize_t size;
 
 	if ( t->cur_mesh < 0 ) {
-		return _h5t_error_undef_mesh ( f );
+		return h5tpriv_error_undef_mesh ( f );
 	}
-	TRY ( dataset_id = _hdf_open_dataset ( f, t->mesh_gid, "NumVertices" ) );
-	TRY ( diskspace_id = _hdf_get_dataset_space ( f, dataset_id ) );
-	TRY ( size = _hdf_get_npoints_of_dataspace ( f, diskspace_id ) );
-	TRY ( _hdf_close_dataspace( f, diskspace_id ) );
+	TRY ( dataset_id = h5priv_open_hdf5_dataset ( f, t->mesh_gid, "NumVertices" ) );
+	TRY ( diskspace_id = h5priv_get_hdf5_dataset_space ( f, dataset_id ) );
+	TRY ( size = h5priv_get_npoints_of_hdf5_dataspace ( f, diskspace_id ) );
+	TRY ( h5priv_close_hdf5_dataspace( f, diskspace_id ) );
 
 	t->num_levels = size;
 	return size;
@@ -155,11 +155,11 @@ _read_num_vertices (
 	struct h5t_fdata *t = f->t;
 
  	if ( t->mesh_gid < 0 ) {
-		TRY ( _h5t_open_mesh_group ( f ) );
+		TRY ( h5tpriv_open_mesh_group ( f ) );
 	}
 	ssize_t num_bytes = t->num_levels*sizeof ( t->num_vertices[0] );
-	TRY ( t->num_vertices = _h5_alloc ( f, t->num_vertices, num_bytes ) );
-	TRY ( _h5_read_dataset_by_name (
+	TRY ( t->num_vertices = h5priv_alloc ( f, t->num_vertices, num_bytes ) );
+	TRY ( h5priv_read_dataset_by_name (
 		f,
 		t->mesh_gid,
 		&t->dsinfo_num_vertices,
@@ -177,16 +177,16 @@ _read_vertices (
 	struct h5t_fdata *t = f->t;
 
 
-	TRY( _h5t_alloc_num_vertices ( f, t->num_vertices[t->num_levels-1] ) );
-	TRY( _h5_read_dataset_by_name (
+	TRY( h5tpriv_alloc_num_vertices ( f, t->num_vertices[t->num_levels-1] ) );
+	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_vertices,
 		     _open_mem_space_vertices,
 		     _open_file_space_vertices,
 		     t->vertices ) );
-	TRY ( _h5t_sort_vertices ( f ) );
-	TRY ( _h5t_rebuild_global_2_local_map_of_vertices ( f ) );
+	TRY ( h5tpriv_sort_vertices ( f ) );
+	TRY ( h5tpriv_rebuild_global_2_local_map_of_vertices ( f ) );
 
 	return H5_SUCCESS;
 }
@@ -200,12 +200,12 @@ _read_num_elems (
 	struct h5t_fdata *t = f->t;
 
  	if ( t->mesh_gid < 0 ) {
-		TRY( _h5t_open_mesh_group ( f ) );
+		TRY( h5tpriv_open_mesh_group ( f ) );
 	}
 	size_t size = t->num_levels * sizeof ( t->num_elems[0] );
-	TRY( t->num_elems = _h5_alloc ( f, NULL, size ) );
-	TRY( t->num_elems_on_level = _h5_alloc ( f, NULL, size ) );
-	TRY( _h5_read_dataset_by_name (
+	TRY( t->num_elems = h5priv_alloc ( f, NULL, size ) );
+	TRY( t->num_elems_on_level = h5priv_alloc ( f, NULL, size ) );
+	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems,
@@ -213,7 +213,7 @@ _read_num_elems (
 		     _open_space_all,
 		     t->num_elems ) );
 
-	TRY( _h5_read_dataset_by_name (
+	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems_on_level,
@@ -262,7 +262,7 @@ _build_elems_ldta (
 	
 	for ( local_eid=0;
 	      local_eid < num_elems;
-	      local_eid++, elp+=_h5t_sizeof_elem[t->mesh_type], el_data++ ) {
+	      local_eid++, elp+=h5tpriv_sizeof_elem[t->mesh_type], el_data++ ) {
 		el = (h5_elem_t*)elp;
 		TRY( h5t_map_global_vids2local (
 			     f,
@@ -297,7 +297,7 @@ _read_elems (
 	h5t_fdata_t *t = f->t;
 
 	TRY( (*t->methods._alloc_elems)( f, 0, t->num_elems[t->num_levels-1] ) );
-	TRY( _h5_read_dataset_by_name (
+	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_elems,
@@ -305,11 +305,11 @@ _read_elems (
 		     _open_file_space_elems,
 		     t->elems.data ) );
 
-	TRY ( _h5t_sort_elems ( f ) );
-	TRY ( _h5t_rebuild_global_2_local_map_of_elems ( f ) );
+	TRY ( h5tpriv_sort_elems ( f ) );
+	TRY ( h5tpriv_rebuild_global_2_local_map_of_elems ( f ) );
 
 	TRY ( _build_elems_ldta ( f ) );
-	TRY ( _h5t_rebuild_adj_data ( f ) );
+	TRY ( (*t->methods.adjacency->rebuild_internal_structs)( f ) );
 	return H5_SUCCESS;
 }
 
@@ -318,16 +318,16 @@ _read_mtags (
 	h5_file_t *const f
 	) {
 	h5t_fdata_t *t = f->t;
-	TRY ( t->mtags.group_id = _h5_open_group ( f, t->mesh_gid, "Tags" ) );
-	return _h5t_read_tag_container ( f, &f->t->mtags );
+	TRY ( t->mtags.group_id = h5priv_open_group ( f, t->mesh_gid, "Tags" ) );
+	return h5tpriv_read_tag_container ( f, &f->t->mtags );
 }
 
 h5_err_t
-_h5t_read_mesh (
+h5tpriv_read_mesh (
 	h5_file_t *f
 	) {
  	if ( f->t->mesh_gid < 0 ) {
-		TRY( _h5t_open_mesh_group ( f ) );
+		TRY( h5tpriv_open_mesh_group ( f ) );
 	}
 	TRY ( _read_num_levels ( f ) );
 	TRY ( _read_num_vertices ( f ) );

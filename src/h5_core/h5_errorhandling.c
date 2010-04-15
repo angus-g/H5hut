@@ -9,8 +9,8 @@
 #include "h5_core.h"
 #include "h5_core_private.h"
 
-static h5_errorhandler_t	_h5_errhandler = h5_report_errorhandler;
-static h5_int32_t _h5_debuglevel = 0;
+static h5_errorhandler_t	h5priv_errhandler = h5_report_errorhandler;
+static h5_int32_t h5priv_debuglevel = 0;
 
 /*!
   \ingroup h5_core
@@ -44,7 +44,7 @@ h5_set_debuglevel (
 	h5_id_t debuglevel	/*!< debug level */
 	) {
 	if ( debuglevel < 0 || debuglevel > 5 ) return H5_ERR_INVAL;
-	_h5_debuglevel = debuglevel;
+	h5priv_debuglevel = debuglevel;
 	return H5_SUCCESS;
 }
 
@@ -59,7 +59,7 @@ h5_id_t
 h5_get_debuglevel (
 	void
 	) {
-	return _h5_debuglevel;
+	return h5priv_debuglevel;
 }
 
 /*!
@@ -73,7 +73,7 @@ h5_err_t
 h5_set_errorhandler (
 	h5_errorhandler_t handler
 	) {
-	_h5_errhandler = handler;
+	h5priv_errhandler = handler;
 	return H5_SUCCESS;
 }
 
@@ -88,7 +88,7 @@ h5_errorhandler_t
 h5_get_errorhandler (
 	void
 	) {
-	return _h5_errhandler;
+	return h5priv_errhandler;
 }
 
 /*!
@@ -136,7 +136,7 @@ h5_report_errorhandler (
 	va_list ap
 	) {
 
-	if ( _h5_debuglevel > 0 ) {
+	if ( h5priv_debuglevel > 0 ) {
 		h5_verror ( f, fmt, ap );
 	}
 	return f->__errno;
@@ -155,7 +155,7 @@ h5_abort_errorhandler (
 	va_list ap
 	) {
 
-	if ( _h5_debuglevel > 0 ) {
+	if ( h5priv_debuglevel > 0 ) {
 		h5_verror ( f, fmt, ap );
 	}
 	exit (-(int)f->__errno);
@@ -197,7 +197,7 @@ h5_error (
 	va_list ap;
 	va_start ( ap, fmt );
 
-	(*_h5_errhandler)( f, fmt, ap );
+	(*h5priv_errhandler)( f, fmt, ap );
 
 	va_end ( ap );
 	return f->__errno;
@@ -215,7 +215,7 @@ h5_verror (
 	va_list ap
 	) {
 
-	if ( _h5_debuglevel < 1 ) return;
+	if ( h5priv_debuglevel < 1 ) return;
 	_vprintf ( stderr, "E", f->__funcname, fmt, ap );
 }
 
@@ -232,7 +232,7 @@ h5_vwarn (
 	va_list ap
 	) {
 
-	if ( _h5_debuglevel < 2 ) return;
+	if ( h5priv_debuglevel < 2 ) return;
 	_vprintf ( stderr, "W", f->__funcname, fmt, ap );
 }
 
@@ -266,7 +266,7 @@ h5_vinfo (
 	va_list ap
 	) {
 
-	if ( _h5_debuglevel < 3 ) return;
+	if ( h5priv_debuglevel < 3 ) return;
 	_vprintf ( stdout, "I", f->__funcname, fmt, ap );
 }
 
@@ -300,7 +300,7 @@ h5_vdebug (
 	va_list ap
 	) {
 
-	if ( _h5_debuglevel < 4 ) return;
+	if ( h5priv_debuglevel < 4 ) return;
 	_vprintf ( stdout, "D", f->__funcname, fmt, ap );
 }
 

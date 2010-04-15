@@ -2,7 +2,7 @@
 #define __H5_QSORT_PRIVATE_H
 
 void
-_h5_qsort_r ( 
+h5priv_qsort_r ( 
 	void *a,
 	size_t n,
 	size_t es,
@@ -11,7 +11,7 @@ _h5_qsort_r (
 	);
 
 void
-_h5_qsort (
+h5priv_qsort (
 	void *a,
 	size_t n,
 	size_t es,

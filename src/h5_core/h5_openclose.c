@@ -40,7 +40,7 @@ h5_check_filehandle (
   Initialize H5Part
 */
 static herr_t
-_h5_error_handler (
+h5priv_error_handler (
 	hid_t estack_id,
 	void* __f
 	) {
@@ -60,10 +60,10 @@ _h5_error_handler (
   \return	H5_SUCCESS or error code
 */
 static h5_int64_t
-_h5u_open_file (
+h5upriv_open_file (
 	h5_file_t *f			/*!< IN: file handle */
 	) {
-	TRY ( f->u = (h5u_fdata_t*) _h5_alloc( f, NULL, sizeof (*f->u) ) );
+	TRY ( f->u = (h5u_fdata_t*) h5priv_alloc( f, NULL, sizeof (*f->u) ) );
 	h5u_fdata_t *u = f->u;
 
  	u->shape = 0;
@@ -72,7 +72,7 @@ _h5u_open_file (
 	u->viewstart = -1;
 	u->viewend = -1;
 	size_t size = f->nprocs * sizeof (h5_int64_t);
-	TRY ( u->pnparticles = _h5_alloc ( f, NULL, size ) ); 
+	TRY ( u->pnparticles = h5priv_alloc ( f, NULL, size ) ); 
 
 	return H5_SUCCESS;
 }
@@ -87,22 +87,22 @@ _h5u_open_file (
   \return	H5_SUCCESS or error code
 */
 static h5_int64_t
-_h5b_open_file (
+h5bpriv_open_block (
 	h5_file_t *f			/*!< IN: file handle */
 	) {
 	h5b_fdata_t *b; 
 
 	if ( f->b ) return H5_SUCCESS;
 
-	TRY ( f->b = (h5b_fdata_t*) _h5_alloc ( f, NULL, sizeof (*f->b) ) );
+	TRY ( f->b = (h5b_fdata_t*) h5priv_alloc ( f, NULL, sizeof (*f->b) ) );
 
 	b = f->b;
 	memset ( b, 0, sizeof (*b) );
 
 	size_t size = f->nprocs * sizeof (b->user_layout[0]);
-	TRY ( b->user_layout = _h5_alloc ( f, NULL, size ) );
+	TRY ( b->user_layout = h5priv_alloc ( f, NULL, size ) );
 	size = f->nprocs * sizeof (b->write_layout[0]);
-	TRY ( b->write_layout = _h5_alloc ( f, NULL, size ) );
+	TRY ( b->write_layout = h5priv_alloc ( f, NULL, size ) );
 
 	b->step_idx = -1;
 	b->blockgroup = -1;
@@ -126,7 +126,7 @@ _h5b_open_file (
 */
 
 h5_err_t
-_h5_open_file (
+h5priv_open_file (
 	h5_file_t * const f,
 	const char *filename,	/*!< The name of the data file to open. */
 	h5_int32_t flags,	/*!< The access mode for the file. */
@@ -134,7 +134,7 @@ _h5_open_file (
 	) {
 	h5_info ( f, "Opening file %s.", filename );
 
-	TRY ( _hdf_set_errorhandler ( f, H5E_DEFAULT, _h5_error_handler, NULL ) );
+	TRY ( h5priv_set_hdf5_errorhandler ( f, H5E_DEFAULT, h5priv_error_handler, NULL ) );
 	TRY ( h5_set_stepname_fmt ( f, H5PART_GROUPNAME_STEP, 0 ) );
 
 	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
@@ -145,8 +145,8 @@ _h5_open_file (
 
 #ifdef PARALLEL_IO
 	f->comm = comm;
-	TRY ( _h5_mpi_comm_size ( f, comm, &f->nprocs ) );
-	TRY ( _h5_mpi_comm_rank ( f, comm, &f->myproc ) );
+	TRY ( h5priv_mpi_comm_size ( f, comm, &f->nprocs ) );
+	TRY ( h5priv_mpi_comm_rank ( f, comm, &f->myproc ) );
 	
 	/* for the SP2... perhaps different for linux */
 	MPI_Info info = MPI_INFO_NULL;
@@ -154,17 +154,17 @@ _h5_open_file (
 	/* ks: IBM_large_block_io */
 	MPI_Info_create(&info);
 	MPI_Info_set(info, "IBM_largeblock_io", "true" );
-	TRY ( _hdf_set_fapl_mpio_property ( f, f->access_prop, comm, info ) );
+	TRY ( h5priv_set_hdf5_fapl_mpio_property ( f, f->access_prop, comm, info ) );
 	MPI_Info_free(&info);
 	
-	TRY ( f->access_prop = _hdf_create_property ( f, H5P_FILE_ACCESS ) );
+	TRY ( f->access_prop = h5priv_create_hdf5_property ( f, H5P_FILE_ACCESS ) );
 
-	/*TRY ( f->create_prop = _hdf_create_property ( f, H5P_FILE_CREATE) );*/
+	/*TRY ( f->create_prop = h5priv_create_hdf5_property ( f, H5P_FILE_CREATE) );*/
 	f->create_prop = H5P_DEFAULT;
 
 	/* xfer_prop:  also used for parallel I/O, during actual writes
 	   rather than the access_prop which is for file creation. */
-	TRY ( f->xfer_prop = _hdf_create_property ( f, H5P_DATASET_XFER ) );
+	TRY ( f->xfer_prop = h5priv_create_hdf5_property ( f, H5P_DATASET_XFER ) );
 	
 #ifdef COLLECTIVE_IO
 	if (H5Pset_dxpl_mpio (f->xfer_prop,H5FD_MPIO_COLLECTIVE) < 0) {
@@ -208,7 +208,7 @@ _h5_open_file (
 			H5_ERR_HDF5,
 			"Cannot open file \"%s\" with mode \"%d\"",
 			filename, flags );
-	TRY ( f->root_gid = _h5_open_group ( f,  f->file, "/" ) );
+	TRY ( f->root_gid = h5priv_open_group ( f,  f->file, "/" ) );
 	f->mode = flags;
 	f->step_gid = -1;
 
@@ -217,9 +217,9 @@ _h5_open_file (
 		"%s#%0*lld",
 		f->prefix_step_name, f->width_step_idx, (long long) f->step_idx );
 
-	TRY ( _h5u_open_file ( f ) );
-	TRY ( _h5b_open_file ( f ) );
-	TRY ( _h5t_open_file ( f ) );
+	TRY ( h5upriv_open_file ( f ) );
+	TRY ( h5bpriv_open_block ( f ) );
+	TRY ( h5tpriv_open_file ( f ) );
 	return H5_SUCCESS;
 }
  
@@ -245,7 +245,7 @@ h5_open_file (
 	}
 	memset (f, 0, sizeof (h5_file_t));
 	f->__funcname = funcname;
-	if ( _h5_open_file( f, filename, flags, comm ) < 0 ) {
+	if ( h5priv_open_file( f, filename, flags, comm ) < 0 ) {
 		if (f != NULL ) {
 			/* Oops, cannot open file. We release the memory allocated for
 			   f only, there is most likely more allocated memory we do
@@ -270,22 +270,22 @@ h5_open_file (
   \return	H5_SUCCESS or error code
 */
 static h5_int64_t
-_h5u_close_file (
+h5upriv_close_file (
 	h5_file_t *f		/*!< file handle */
 	) {
 	struct h5u_fdata *u = f->u;
 
 	f->__errno = H5_SUCCESS;
 	if( u->shape > 0 ) {
-		TRY( _hdf_close_dataspace( f, u->shape ) );
+		TRY( h5priv_close_hdf5_dataspace( f, u->shape ) );
 		u->shape = 0;
 	}
 	if( u->diskshape != H5S_ALL ) {
-		TRY( _hdf_close_dataspace( f, u->diskshape ) );
+		TRY( h5priv_close_hdf5_dataspace( f, u->diskshape ) );
 		u->diskshape = 0;
 	}
 	if( u->memshape != H5S_ALL ) {
-		TRY( _hdf_close_dataspace( f, u->memshape ) );
+		TRY( h5priv_close_hdf5_dataspace( f, u->memshape ) );
 		u->memshape = 0;
 	}
 	if( u->pnparticles ) {
@@ -305,15 +305,15 @@ _h5u_close_file (
   \return	H5_SUCCESS or error code
 */
 static h5_int64_t
-_h5b_close_file (
+h5bpriv_close_block (
 	h5_file_t *f		/*!< IN: file handle */
 	) {
 	struct h5b_fdata *b = f->b;
 
-	TRY ( _hdf_close_group( f, b->blockgroup ) );
-	TRY ( _hdf_close_dataspace( f, b->shape ) );
-	TRY ( _hdf_close_dataspace( f, b->diskshape ) );
-	TRY ( _hdf_close_dataspace( f, b->memshape ) );
+	TRY ( h5priv_close_hdf5_group( f, b->blockgroup ) );
+	TRY ( h5priv_close_hdf5_dataspace( f, b->shape ) );
+	TRY ( h5priv_close_hdf5_dataspace( f, b->diskshape ) );
+	TRY ( h5priv_close_hdf5_dataspace( f, b->memshape ) );
 	free ( f->b );
 	f->b = NULL;
 
@@ -337,16 +337,16 @@ h5_close_file (
 
 	CHECK_FILEHANDLE ( f );
 
-	TRY( _h5_close_step ( f ) );
-	TRY( _h5u_close_file ( f ) );
-	TRY( _h5b_close_file ( f ) );
-	TRY( _h5t_close_file ( f ) );
-	TRY( _hdf_close_group( f, f->step_gid ) );
-	TRY( _hdf_close_property ( f, f->xfer_prop ) );
-	TRY( _hdf_close_property ( f, f->access_prop ) );
-	TRY( _hdf_close_property ( f, f->create_prop ) );
-	TRY( _hdf_close_group ( f, f->root_gid ) );
-	TRY( _hdf_close_file ( f, f->file ) );
+	TRY( h5priv_close_step ( f ) );
+	TRY( h5upriv_close_file ( f ) );
+	TRY( h5bpriv_close_block ( f ) );
+	TRY( h5tpriv_close_file ( f ) );
+	TRY( h5priv_close_hdf5_group( f, f->step_gid ) );
+	TRY( h5priv_close_hdf5_property ( f, f->xfer_prop ) );
+	TRY( h5priv_close_hdf5_property ( f, f->access_prop ) );
+	TRY( h5priv_close_hdf5_property ( f, f->create_prop ) );
+	TRY( h5priv_close_hdf5_group ( f, f->root_gid ) );
+	TRY( h5priv_close_hdf5_file ( f, f->file ) );
 
 	free( f );
 

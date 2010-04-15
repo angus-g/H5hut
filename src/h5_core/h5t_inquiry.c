@@ -28,11 +28,11 @@ h5t_get_num_meshes (
 		return t->num_meshes;
 	}
 	if ( t->topo_gid < 0 ) {
-		TRY( _h5t_open_topo_group ( f ) );
+		TRY( h5tpriv_open_topo_group ( f ) );
 	}
 	TRY( t->num_meshes = (h5_size_t)hdf5_get_num_objects (
 			t->topo_gid,
-			_h5t_meshes_grpnames[type_id],
+			h5tpriv_meshes_grpnames[type_id],
 			H5G_GROUP ) );
 
 	return t->num_meshes;
@@ -52,7 +52,7 @@ h5t_get_num_levels (
 	h5t_fdata_t *t = f->t;
 
 	if ( t->cur_mesh < 0 ) {
-		return _h5t_error_undef_mesh ( f );
+		return h5tpriv_error_undef_mesh ( f );
 	}
 	return t->num_levels;
 }
@@ -92,10 +92,10 @@ h5t_get_num_elems (
 	h5t_fdata_t *t = f->t;
 
 	if ( t->cur_mesh < 0 ) {
-		return _h5t_error_undef_mesh ( f );
+		return h5tpriv_error_undef_mesh ( f );
 	}
 	if ( t->cur_level < 0 ) {
-		return _h5t_error_undef_level ( f );
+		return h5tpriv_error_undef_level ( f );
 	}
 	return t->num_elems_on_level[t->cur_level];
 }
@@ -121,10 +121,10 @@ h5t_get_num_vertices (
 	h5t_fdata_t *t = f->t;
 
 	if ( t->cur_mesh < 0 ) {
-		return _h5t_error_undef_mesh ( f );
+		return h5tpriv_error_undef_mesh ( f );
 	}
 	if ( t->cur_level < 0 ) {
-		return _h5t_error_undef_level ( f );
+		return h5tpriv_error_undef_level ( f );
 	}
 	return t->num_vertices[t->cur_level];
 }

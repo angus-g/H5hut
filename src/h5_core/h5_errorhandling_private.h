@@ -30,7 +30,7 @@
 
 /**************** H5 *********************/
 
-#define _h5_handle_file_mode_error( f, mode_id )		  \
+#define h5priv_handle_file_mode_error( f, mode_id )		  \
 	h5_error(						  \
 		f,						  \
 		H5_ERR_BADF,					  \

@@ -47,9 +47,7 @@ EXTRA_HEADERS = \
 	h5_types.h \
 	h5b_errorhandling_private.h \
 	h5t_adjacencies.h \
-	h5t_adjacencies_private.h \
-	h5t_boundaries.h \
-	h5t_boundaries_private.h \
+	h5t_tetm_adjacencies_private.h \
 	h5t_consts_private.h \
 	h5t_errorhandling_private.h \
 	h5t_hsearch_private.h \
@@ -98,7 +96,7 @@ libH5_core_a_SOURCES = \
 	h5_readwrite.c \
 	h5_syscall.c \
 	h5t_adjacencies.c \
-	h5t_boundaries.c \
+	h5t_tetm_adjacencies.c \
 	h5t_consts.c \
 	h5t_errorhandling.c \
 	h5t_hsearch.c \

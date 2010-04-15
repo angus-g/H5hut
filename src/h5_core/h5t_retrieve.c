@@ -27,7 +27,7 @@ _skip_to_next_elem_on_level (
 				f, __FILE__, __func__, __LINE__ );
 		}
 		el_dta = &t->elems_ldta[*eid];
-	} while ( _h5t_elem_is_on_cur_level ( f, el_dta ) == H5_NOK );
+	} while ( h5tpriv_elem_is_on_cur_level ( f, el_dta ) == H5_NOK );
 	return *eid;
 }
 
@@ -37,7 +37,7 @@ _skip_to_next_elem_on_level (
   - and, if any, the direct children is on a level > the current level
 */
 h5_err_t
-_h5t_elem_is_on_cur_level (
+h5tpriv_elem_is_on_cur_level (
 	h5_file_t * const f,
 	h5_elem_ldta_t *el_dta 
 	) {
@@ -84,22 +84,22 @@ h5t_traverse_vertices (
 		} else {
 			iter->cur_cid++;
 		}
-		TRY ( _h5t_find_tv2 ( f, iter->cur_cid, iter->cur_eid, &tv ) );
+		TRY ( h5tpriv_find_tv2 ( f, iter->cur_cid, iter->cur_eid, &tv ) );
 		/* skip to first element which is on current level */
 		i = -1;
 		h5_elem_ldta_t *el_dta;
 		do {
 			i++;
-			h5_id_t eid = _h5t_get_elem_idx ( tv->items[i] );
+			h5_id_t eid = h5tpriv_get_elem_idx ( tv->items[i] );
 			el_dta = &t->elems_ldta[eid];
-		} while ( _h5t_elem_is_on_cur_level ( f, el_dta ) == H5_NOK );
-	} while ( iter->cur_eid != _h5t_get_elem_idx(tv->items[i]) );
+		} while ( h5tpriv_elem_is_on_cur_level ( f, el_dta ) == H5_NOK );
+	} while ( iter->cur_eid != h5tpriv_get_elem_idx(tv->items[i]) );
 
 	h5_id_t vidx = t->elems_ldta[iter->cur_eid].local_vids[iter->cur_cid];
 	h5_vertex_t *vertex = &t->vertices[vidx];
 	memcpy ( P, &vertex->P, sizeof ( vertex->P ) );
 
-	return _h5t_build_vertex_id ( iter->cur_cid, iter->cur_eid );
+	return h5tpriv_build_vertex_id ( iter->cur_cid, iter->cur_eid );
 }
 
 h5_err_t
@@ -148,17 +148,17 @@ h5t_traverse_edges (
 		} else {
 			iter->cur_cid++;
 		}
-		TRY ( _h5t_find_te2 (
+		TRY ( h5tpriv_find_te2 (
 			      f, iter->cur_cid, iter->cur_eid, &te ) );
 		/* skip to first element which is on current level */
 		i = -1;
 		h5_elem_ldta_t *el_dta;
 		do {
 			i++;
-			h5_id_t eid = _h5t_get_elem_idx ( te->value.items[i] );
+			h5_id_t eid = h5tpriv_get_elem_idx ( te->value.items[i] );
 			el_dta = &t->elems_ldta[eid];
-		} while ( _h5t_elem_is_on_cur_level ( f, el_dta ) == H5_NOK );
-	} while ( iter->cur_eid != _h5t_get_elem_idx(te->value.items[i]) );
+		} while ( h5tpriv_elem_is_on_cur_level ( f, el_dta ) == H5_NOK );
+	} while ( iter->cur_eid != h5tpriv_get_elem_idx(te->value.items[i]) );
 	memcpy ( local_vids, te->key.vids, 2*sizeof(h5_id_t) );
 
 	return te->value.items[0];
@@ -210,16 +210,16 @@ h5t_traverse_triangles (
 		} else {
 			iter->cur_cid++;
 		}
-		TRY ( _h5t_find_td2 ( f, iter->cur_cid, iter->cur_eid, &td ) );
+		TRY ( h5tpriv_find_td2 ( f, iter->cur_cid, iter->cur_eid, &td ) );
 		/* skip to first element which is on current level */
 		i = -1;
 		h5_elem_ldta_t *el_dta;
 		do {
 			i++;
-			h5_id_t eid = _h5t_get_elem_idx ( td->value.items[i] );
+			h5_id_t eid = h5tpriv_get_elem_idx ( td->value.items[i] );
 			el_dta = &t->elems_ldta[eid];
-		} while ( _h5t_elem_is_on_cur_level ( f, el_dta ) == H5_NOK );
-	} while ( iter->cur_eid != _h5t_get_elem_idx(td->value.items[i]) );
+		} while ( h5tpriv_elem_is_on_cur_level ( f, el_dta ) == H5_NOK );
+	} while ( iter->cur_eid != h5tpriv_get_elem_idx(td->value.items[i]) );
 	memcpy ( local_vids, td->key.vids, 3*sizeof(h5_id_t) );
 
 	return td->value.items[0];
@@ -287,7 +287,7 @@ h5t_traverse_elems (
 		elem_data->local_vids,
 		sizeof ( elem_data->local_vids[0] ) * t->mesh_type );
 
-	return _h5t_build_elem_id ( iter->cur_eid );
+	return h5tpriv_build_elem_id ( iter->cur_eid );
 }
 
 h5_err_t

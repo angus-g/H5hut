@@ -38,15 +38,15 @@ h5_read_attrib (
 	hid_t mytype;
 	hsize_t nelem;
 
-	TRY ( attrib_id = _hdf_open_attribute ( f, id, attrib_name ) );
-	TRY ( mytype = _hdf_get_attribute_type ( f, attrib_id ) );
-	TRY ( space_id = _hdf_get_attribute_dataspace ( f, attrib_id ) );
-	TRY ( nelem = _hdf_get_npoints_of_dataspace ( f, space_id ) );
+	TRY ( attrib_id = h5priv_open_hdf5_attribute ( f, id, attrib_name ) );
+	TRY ( mytype = h5priv_get_hdf5_attribute_type ( f, attrib_id ) );
+	TRY ( space_id = h5priv_get_hdf5_attribute_dataspace ( f, attrib_id ) );
+	TRY ( nelem = h5priv_get_npoints_of_hdf5_dataspace ( f, space_id ) );
 	TRY ( type_id = h5_normalize_h5_type ( f, mytype ) );
-	TRY ( _hdf_read_attribute ( f, attrib_id, type_id, attrib_value ) );
-	TRY ( _hdf_close_dataspace( f, space_id ) );
-	TRY ( _hdf_close_type( f, mytype ) );
-	TRY ( _hdf_close_attribute ( f, attrib_id ) );
+	TRY ( h5priv_read_hdf5_attribute ( f, attrib_id, type_id, attrib_value ) );
+	TRY ( h5priv_close_hdf5_dataspace( f, space_id ) );
+	TRY ( h5priv_close_hdf5_type( f, mytype ) );
+	TRY ( h5priv_close_hdf5_attribute ( f, attrib_id ) );
 
 	return H5_SUCCESS;
 }
@@ -70,8 +70,8 @@ h5_write_attrib (
 	hid_t space_id;
 	hid_t attrib_id;
 
-	TRY ( space_id = _hdf_create_dataspace ( f, 1, &attrib_nelem, NULL) );
-	TRY ( attrib_id = _hdf_create_attribute ( 
+	TRY ( space_id = h5priv_create_hdf5_dataspace ( f, 1, &attrib_nelem, NULL) );
+	TRY ( attrib_id = h5priv_create_hdf5_attribute ( 
 		      f,
 		      id,
 		      attrib_name,
@@ -79,9 +79,9 @@ h5_write_attrib (
 		      space_id,
 		      H5P_DEFAULT, H5P_DEFAULT ) );
 
-	TRY ( _hdf_write_attribute ( f, attrib_id, attrib_type, attrib_value ) );
-	TRY ( _hdf_close_attribute ( f, attrib_id ) );
-	TRY ( _hdf_close_dataspace ( f, space_id ) );
+	TRY ( h5priv_write_hdf5_attribute ( f, attrib_id, attrib_type, attrib_value ) );
+	TRY ( h5priv_close_hdf5_attribute ( f, attrib_id ) );
+	TRY ( h5priv_close_hdf5_dataspace ( f, space_id ) );
 
 	return H5_SUCCESS;
 }
@@ -107,30 +107,30 @@ h5_get_attrib_info (
 	hid_t mytype;
 	hid_t space_id;
 
-	TRY ( attrib_id = _hdf_open_attribute_idx (
+	TRY ( attrib_id = h5priv_open_hdf5_attribute_idx (
 		      f,
 		      id,
 		      (unsigned int)attrib_idx ) );
 
 	if ( attrib_nelem ) {
-		TRY ( space_id = _hdf_get_attribute_dataspace ( f, attrib_id ) );
-		TRY ( *attrib_nelem = _hdf_get_npoints_of_dataspace (
+		TRY ( space_id = h5priv_get_hdf5_attribute_dataspace ( f, attrib_id ) );
+		TRY ( *attrib_nelem = h5priv_get_npoints_of_hdf5_dataspace (
 			      f, space_id ) );
-		TRY( _hdf_close_dataspace( f, space_id ) );
+		TRY( h5priv_close_hdf5_dataspace( f, space_id ) );
 	}
 	if ( attrib_name ) {
-		TRY ( _hdf_get_attribute_name (
+		TRY ( h5priv_get_hdf5_attribute_name (
 			      f,
 			      attrib_id,
 			      (size_t)len_attrib_name,
 			      attrib_name ) );
 	}
 	if ( attrib_type ) {
-		TRY ( mytype = _hdf_get_attribute_type ( f, attrib_id ) );
+		TRY ( mytype = h5priv_get_hdf5_attribute_type ( f, attrib_id ) );
 		TRY ( *attrib_type = h5_normalize_h5_type ( f, mytype ) );
-		TRY ( _hdf_close_type( f, mytype ) );
+		TRY ( h5priv_close_hdf5_type( f, mytype ) );
 	}
-	TRY ( _hdf_close_attribute ( f, attrib_id ) );
+	TRY ( h5priv_close_hdf5_attribute ( f, attrib_id ) );
 
 	return H5_SUCCESS;
 }
@@ -148,5 +148,5 @@ h5_get_num_attribs (
 	const hid_t id
 	) {
 	CHECK_FILEHANDLE ( f );
-	return _hdf_get_num_attributes ( f, id );
+	return h5priv_get_num_hdf5_attribute ( f, id );
 }

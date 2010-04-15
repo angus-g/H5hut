@@ -35,7 +35,7 @@ h5_get_stepname_fmt (
 	);
 
 h5_err_t
-_h5_close_step (
+h5priv_close_step (
 	h5_file_t * const f
 	);
 

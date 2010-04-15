@@ -26,14 +26,14 @@ h5_write_data (
 	hid_t dset_id;
 
 	h5_info ( f, "Writing dataset %s/%s.", h5_get_objname(group_id), name );
-	TRY ( dset_id = _hdf_create_dataset (
+	TRY ( dset_id = h5priv_create_hdf5_dataset (
 		      f,
 		      group_id,
 		      name,
 		      type_id,
 		      diskspace_id,
 		      H5P_DEFAULT ) );
-	TRY ( _hdf_write_dataset (
+	TRY ( h5priv_write_hdf5_dataset (
 		      f,
 		      dset_id,
 		      type_id,
@@ -41,7 +41,7 @@ h5_write_data (
 		      diskspace_id,
 		      f->xfer_prop,
 		      array ) );
-	TRY ( _hdf_close_dataset( f, dset_id ) );
+	TRY ( h5priv_close_hdf5_dataset( f, dset_id ) );
 
 	f->empty = 0;
 
@@ -57,7 +57,7 @@ h5_write_data (
   - Close dataset  
  */
 h5_err_t
-_h5_write_dataset_by_name (
+h5priv_write_dataset_by_name (
  	h5_file_t * const f,
 	const hid_t loc_id,
 	h5_dsinfo_t *dsinfo,
@@ -79,7 +79,7 @@ _h5_write_dataset_by_name (
 		h5_warn ( f,
 			  "Dataset %s/%s already exist.",
 			  h5_get_objname ( loc_id ), dsinfo->name );
-		return _h5_handle_file_mode_error( f, f->mode );
+		return h5priv_handle_file_mode_error( f, f->mode );
 	}
 
 	/*
@@ -92,26 +92,26 @@ _h5_write_dataset_by_name (
 
 	if ( herr >= 0 ) {
 		/* overwrite dataset */
-		TRY ( (dset_id = _hdf_open_dataset (
+		TRY ( (dset_id = h5priv_open_hdf5_dataset (
 			      f, 
 			      loc_id,
 			      dsinfo->name ) ) );
-		TRY ( (dataspace_id = _hdf_get_dataset_space (
+		TRY ( (dataspace_id = h5priv_get_hdf5_dataset_space (
 			      f,
 			      dset_id ) ) );
-		TRY ( _hdf_set_dataset_extent (
+		TRY ( h5priv_set_hdf5_dataset_extent (
 			      f,
 			      dset_id,
 			      dsinfo->dims ) );
 		/* exten dataset? */
 	} else {
 		/* create dataset */
-		TRY ( dataspace_id = _hdf_create_dataspace (
+		TRY ( dataspace_id = h5priv_create_hdf5_dataspace (
 			      f,
 			      dsinfo->rank,
 			      dsinfo->dims,
 			      dsinfo->max_dims ) );
-		TRY ( dset_id = _hdf_create_dataset (
+		TRY ( dset_id = h5priv_create_hdf5_dataset (
 			      f,
 			      loc_id,
 			      dsinfo->name,
@@ -121,7 +121,7 @@ _h5_write_dataset_by_name (
 	}
 	TRY ( memspace_id = (*set_memspace)( f, 0 ) );
 	TRY ( diskspace_id = (*set_diskspace)( f, dataspace_id ) );
-	TRY ( _hdf_write_dataset (
+	TRY ( h5priv_write_hdf5_dataset (
 		     f,
 		     dset_id,
 		     dsinfo->type_id,
@@ -129,9 +129,9 @@ _h5_write_dataset_by_name (
 		     diskspace_id,
 		     f->xfer_prop,
 		     data ) );
-	TRY ( _hdf_close_dataspace ( f, diskspace_id ) );
-	TRY ( _hdf_close_dataspace ( f, memspace_id ) );
-	TRY ( _hdf_close_dataset( f, dset_id ) );
+	TRY ( h5priv_close_hdf5_dataspace ( f, diskspace_id ) );
+	TRY ( h5priv_close_hdf5_dataspace ( f, memspace_id ) );
+	TRY ( h5priv_close_hdf5_dataset( f, dset_id ) );
 
 	f->empty = 0;
 
@@ -139,7 +139,7 @@ _h5_write_dataset_by_name (
 }
 
 h5_err_t
-_h5_read_dataset (
+h5priv_read_dataset (
 	h5_file_t * const f,
 	hid_t dset_id,
 	h5_dsinfo_t *dsinfo,
@@ -153,7 +153,7 @@ _h5_read_dataset (
 
 	TRY ( (mspace_id = (*set_mspace)( f, dset_id ) ) );
 	TRY ( (dspace_id = (*set_dspace)( f, dset_id ) ) );
-	TRY ( _hdf_read_dataset (
+	TRY ( h5priv_read_hdf5_dataset (
 		f,
 		dset_id,
 		dsinfo->type_id,
@@ -161,14 +161,14 @@ _h5_read_dataset (
 		dspace_id,
 		f->xfer_prop,
 		data ) );
-	TRY ( _hdf_close_dataspace ( f, dspace_id ) );
-	TRY ( _hdf_close_dataspace ( f, mspace_id ) );
+	TRY ( h5priv_close_hdf5_dataspace ( f, dspace_id ) );
+	TRY ( h5priv_close_hdf5_dataspace ( f, mspace_id ) );
 
 	return H5_SUCCESS;
 }
 
 h5_err_t
-_h5_read_dataset_by_name (
+h5priv_read_dataset_by_name (
 	h5_file_t * const f,
 	hid_t loc_id,
 	h5_dsinfo_t *dsinfo,
@@ -178,13 +178,13 @@ _h5_read_dataset_by_name (
 	) {
 
 	hid_t dset_id;
-	TRY ( (dset_id = _hdf_open_dataset (
+	TRY ( (dset_id = h5priv_open_hdf5_dataset (
 		      f,
 		      loc_id,
 		      dsinfo->name ) ) );
-	TRY ( _h5_read_dataset ( f, dset_id, dsinfo, set_mspace, set_dspace,
+	TRY ( h5priv_read_dataset ( f, dset_id, dsinfo, set_mspace, set_dspace,
 				 data ) );
-	TRY ( _hdf_close_dataset ( f, dset_id ) );
+	TRY ( h5priv_close_hdf5_dataset ( f, dset_id ) );
 
 	return H5_SUCCESS;
 }
@@ -194,19 +194,19 @@ static h5_err_t
 _init_step (
 	h5_file_t * f
 	) {
-	TRY ( _h5t_init_step ( f ) );
+	TRY ( h5tpriv_init_step ( f ) );
 
 	return H5_SUCCESS;
 }	
 
 h5_err_t
-_h5_close_step (
+h5priv_close_step (
 	h5_file_t * f
 	) {
 
 	if ( f->step_gid < 0 ) return H5_SUCCESS;
-	TRY ( _h5t_close_step ( f ) );
-	TRY ( _hdf_close_group ( f, f->step_gid ) );
+	TRY ( h5tpriv_close_step ( f ) );
+	TRY ( h5priv_close_hdf5_group ( f, f->step_gid ) );
 
 	f->step_gid = -1;
 
@@ -230,7 +230,7 @@ _set_step (
 		f->myproc,
 		(long long)f->step_idx,
 		(long long)(size_t) f );
-	TRY ( f->step_gid = _h5_open_group ( f, f->file, f->step_name ) );
+	TRY ( f->step_gid = h5priv_open_group ( f, f->file, f->step_name ) );
 
 	return H5_SUCCESS;
 }
@@ -241,7 +241,7 @@ h5_set_step (
 	const h5_int64_t step_idx	/*!< [in]  Step to set. */
 	) {
 
-	TRY ( _h5_close_step ( f ) );
+	TRY ( h5priv_close_step ( f ) );
 	TRY ( _set_step ( f, step_idx ) );
 	TRY ( _init_step ( f ) );
 
@@ -288,11 +288,11 @@ h5_get_dataset_type(
 	hid_t dset_id;
 	hid_t hdf5_type;
 
-	TRY( dset_id = _hdf_open_dataset ( f, group_id, dset_name ) );
-	TRY ( hdf5_type = _hdf_get_dataset_type ( f, dset_id ) );
+	TRY( dset_id = h5priv_open_hdf5_dataset ( f, group_id, dset_name ) );
+	TRY ( hdf5_type = h5priv_get_hdf5_dataset_type ( f, dset_id ) );
 	h5_int64_t type = (h5_int64_t) h5_normalize_h5_type ( f, hdf5_type );
-	TRY( _hdf_close_type( f, hdf5_type ) );
-	TRY( _hdf_close_dataset( f, dset_id ) );
+	TRY( h5priv_close_hdf5_type( f, hdf5_type ) );
+	TRY( h5priv_close_hdf5_dataset( f, dset_id ) );
 
 	return type;
 }

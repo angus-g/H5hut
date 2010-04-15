@@ -2,7 +2,6 @@
 #define __H5T_CORE_H
 
 #include "h5t_adjacencies.h"
-#include "h5t_boundaries.h"
 #include "h5t_inquiry.h"
 #include "h5t_map.h"
 #include "h5t_openclose.h"
@@ -41,39 +40,39 @@
 #define H5T_ETYPE_TRIANGLE	((h5_id_t)3)
 #define H5T_ETYPE_TET		((h5_id_t)4)
 
-#define _h5t_set_entity_type( type, elem_idx )			\
+#define h5tpriv_set_entity_type( type, elem_idx )			\
 	(							\
 		((h5_id_t)(type) << (sizeof(h5_id_t)*8-4)) |	\
 		((h5_id_t)(elem_idx))				\
 		)
-#define _h5t_get_entity_type( entity_id )			\
+#define h5tpriv_get_entity_type( entity_id )			\
 	((entity_id & H5T_ETYPE_MASK) >> (sizeof(h5_id_t)*8-4))
 
 
 
-#define _h5t_build_id( type, comp_idx, elem_idx )		\
+#define h5tpriv_build_id( type, comp_idx, elem_idx )		\
 	(							\
 		((h5_id_t)(type) << (sizeof(h5_id_t)*8-4)) |	\
 		((h5_id_t)(comp_idx) << (sizeof(h5_id_t)*7)) |	\
 		((h5_id_t)(elem_idx) & H5T_ELEM_MASK)		\
 		)
 
-#define _h5t_build_vertex_id( comp_idx, elem_idx )			\
-	( _h5t_build_id ( H5T_ETYPE_VERTEX, comp_idx, elem_idx ) )
+#define h5tpriv_build_vertex_id( comp_idx, elem_idx )			\
+	( h5tpriv_build_id ( H5T_ETYPE_VERTEX, comp_idx, elem_idx ) )
 
-#define _h5t_build_edge_id( comp_idx, elem_idx )			\
-	( _h5t_build_id ( H5T_ETYPE_EDGE, comp_idx, elem_idx ) )
+#define h5tpriv_build_edge_id( comp_idx, elem_idx )			\
+	( h5tpriv_build_id ( H5T_ETYPE_EDGE, comp_idx, elem_idx ) )
 
-#define _h5t_build_triangle_id( comp_idx, elem_idx )	 \
-	( _h5t_build_id ( H5T_ETYPE_TRIANGLE, comp_idx, elem_idx ) )
+#define h5tpriv_build_triangle_id( comp_idx, elem_idx )	 \
+	( h5tpriv_build_id ( H5T_ETYPE_TRIANGLE, comp_idx, elem_idx ) )
 
-#define _h5t_build_elem_id( elem_idx )				\
-	( _h5t_build_id ( f->t->mesh_type, 0, elem_idx ) )
+#define h5tpriv_build_elem_id( elem_idx )				\
+	( h5tpriv_build_id ( f->t->mesh_type, 0, elem_idx ) )
 
-#define _h5t_get_face_id( entity_id )				\
+#define h5tpriv_get_face_id( entity_id )				\
 	( (entity_id & H5T_COMPONENT_ID_MASK) >> (sizeof(h5_id_t)*7) )
 
-#define _h5t_get_elem_idx( entity_id )		\
+#define h5tpriv_get_elem_idx( entity_id )		\
 	( entity_id & H5T_ELEM_MASK )
 
 #endif
