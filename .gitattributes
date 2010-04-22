@@ -18,15 +18,6 @@ doc/Examples/trimesh_level0.metis.ngraph -text
 doc/Examples/trimesh_level0.metis.npart.2 -text
 doc/Examples/trimesh_level1.metis -text
 doc/Examples/trimesh_level1.metis.part.2 -text
-doc/Graphs/meshexample.dxf -text
-doc/Graphs/trimesh_dnode_level1.metis -text
-doc/Graphs/trimesh_dnode_level1.metis.part.2 -text
-doc/Graphs/trimesh_level0.metis -text
-doc/Graphs/trimesh_level0.metis.epart.2 -text
-doc/Graphs/trimesh_level0.metis.ngraph -text
-doc/Graphs/trimesh_level0.metis.npart.2 -text
-doc/Graphs/trimesh_level1.metis -text
-doc/Graphs/trimesh_level1.metis.part.2 -text
 doc/H5.dox -text
 doc/H5X_File_Format.txt -text
 doc/Makefile.am -text
