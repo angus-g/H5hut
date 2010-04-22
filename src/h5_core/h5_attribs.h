@@ -30,7 +30,7 @@ h5_get_attrib_info (
 	h5_int64_t *attrib_nelem
 	);
 
-h5_int64_t
+h5_ssize_t
 h5_get_num_attribs (
 	h5_file_t * constf,
 	hid_t id

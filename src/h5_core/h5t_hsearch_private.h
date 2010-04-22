@@ -6,17 +6,17 @@ typedef struct h5t_te_entry_key {
 } h5t_te_entry_key_t;
 
 typedef struct h5_te_entry {
-	h5t_te_entry_key_t key;
 	h5_idlist_t value;
+	h5t_te_entry_key_t key;
 } h5t_te_entry_t;
 
 typedef struct h5t_td_entry_key {
-	h5_3id_t vids;
+	h5_id_t vids[3];
 } h5t_td_entry_key_t;
 
 typedef struct h5_td_entry {
-	h5t_td_entry_key_t key;
 	h5_idlist_t value;
+	h5t_td_entry_key_t key;
 } h5t_td_entry_t;
 
 

@@ -32,7 +32,7 @@ typedef __int64			int64_t;
 typedef int64_t			h5_int64_t;
 typedef int32_t			h5_int32_t;
 typedef int64_t			h5_id_t;
-typedef int64_t			h5_size_t;	/* size in number of elements */
+typedef uint64_t		h5_size_t;	/* size in number of elements */
 typedef int64_t			h5_ssize_t;	/* size in number of elements */
 typedef int64_t			h5_err_t;
 
@@ -60,8 +60,8 @@ typedef unsigned long		MPI_Comm;
 #endif
 
 typedef struct h5_idlist {
-	h5_size_t	size;		/* allocated space in number of items */
-	h5_size_t	num_items;	/* stored items	*/
+	int32_t		size;		/* allocated space in number of items */
+	int32_t		num_items;	/* stored items	*/
 	h5_id_t		*items;
 } h5_idlist_t;
 

@@ -142,7 +142,7 @@ h5_get_attrib_info (
 
   \return number of attributes or error code.
 */
-h5_size_t
+h5_ssize_t
 h5_get_num_attribs (
 	h5_file_t * const f,		/*!< handle to open file */
 	const hid_t id
