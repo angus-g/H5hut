@@ -42,34 +42,35 @@ lib_LIBRARIES = libH5.a
 EXTRA_LIBRARIES = libH5.a
 
 # Header files that I wish to install in $(prefix)/include
-include_HEADERS = \
-	../include/H5.h \
-	../include/H5Block.h \
-	../include/H5Fed.h
-	../include/H5Fed_map.h \
-	../include/H5Fed_store.h \
-	../include/H5Fed_tags.h \
+include_HEADERS =				\
+	../include/H5.h				\
+	../include/H5Block.h			\
+	../include/H5Fed.h			\
+	../include/H5Fed_map.h			\
+	../include/H5Fed_store.h		\
+	../include/H5Fed_tags.h			\
 	../include/H5Part.h
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS =
 
 # Listing of sources
-libH5_a_SOURCES = \
-	H5.c \
-	H5_inquiry.c \
-	H5Block.c \
-	H5Fed.c \
-	H5Fed_adjacency.c \
-	H5Fed_inquiry.c \
-	H5Fed_map.c \
-	H5Fed_retrieve.c \
-	H5Fed_store.c \
-	H5Fed_tags.c \
+libH5_a_SOURCES =				\
+	H5.c					\
+	H5_inquiry.c				\
+	H5Block.c				\
+	H5Fed.c					\
+	H5Fed_adjacency.c			\
+	H5Fed_inquiry.c				\
+	H5Fed_map.c				\
+	H5Fed_store.c				\
+	H5Fed_tags.c				\
 	H5Part.c
 
-libH5.a: $(libH5_a_OBJECTS)
-	${AR} rucs ../lib/$@ $^
+all: ../lib/libH5.a
+
+../lib/libH5.a: libH5.a
+	-cp $^ $@
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
