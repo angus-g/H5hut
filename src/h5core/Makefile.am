@@ -112,10 +112,10 @@ libH5Core_a_SOURCES =				\
 
 libH5Core_a_DEPENDENCIES = $(EXTRA_HEADERS)
 
-all: libH5Core.a
+all: ../lib/libH5Core.a
 
-libH5Core.a: $(libH5Core_a_OBJECTS)
-	${AR} rucs ../lib/$@ $^
+../lib/libH5Core.a: libH5Core.a
+	-cp $^ $@
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
