@@ -387,6 +387,7 @@ src/C/H5Part.c -text
 src/C/H5Part.h -text
 src/C/H5_inquiry.c -text
 src/C/H5_inquiry.h -text
+src/C/Makefile.am -text
 src/Fortran/H5BlockF.c -text
 src/Fortran/H5BlockF90.inc -text
 src/Fortran/H5PartF.c -text
