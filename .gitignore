@@ -17,9 +17,9 @@ doc/Makefile.in
 src/.deps
 src/Makefile
 src/Makefile.in
-src/h5_core/.deps
-src/h5_core/Makefile
-src/h5_core/Makefile.in
+src/h5core/.deps
+src/h5core/Makefile
+src/h5core/Makefile.in
 src/tags
 /stamp-h1
 /svn-prop.tmp
