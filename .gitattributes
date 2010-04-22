@@ -394,7 +394,6 @@ src/Fortran/H5PartF90.inc -text
 src/Fortran/TestUnderscore.f -text
 src/Fortran/TestUnderscoreC.c -text
 src/Makefile.am -text
-src/bindings/Makefile.am -text
 src/h5_core/Makefile.am -text
 src/h5_core/h5_attribs.c -text
 src/h5_core/h5_attribs.h -text
