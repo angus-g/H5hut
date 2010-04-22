@@ -19,7 +19,7 @@ LIBS = $(HDFLIB) $(MPILIB) -lm @STDCXX@ @LDFLAGS@
 
 # H5Part compiled library location
 # H5PLIB = -L@prefix@/lib
-H5PLIB = -L@H5P_LIB_LOC@ @TOOLS_H5PART_LIB@
+H5PLIB = -L${abs_top_builddir}/src/lib @TOOLS_H5PART_LIB@
 
 # INCLUDES
 HDFINC = -I$(HDF5ROOT)/include
@@ -27,7 +27,7 @@ INC = $(HDFINC) $(H5PINC) $(MPIINC)
 
 # H5Part header file location
 # H5PINC = -I@prefix@/include
-H5PINC = -I@H5P_LIB_LOC@
+H5PINC = -I${abs_top_builddir}/src/include
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
 bin_PROGRAMS = @BUILD_TOOLS@
