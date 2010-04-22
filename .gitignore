@@ -1,5 +1,9 @@
 doc/Makefile
 doc/Makefile.in
+src/.deps
+src/Makefile
+src/Makefile.in
+src/tags
 test/H5Block/Makefile
 test/H5Block/Makefile.in
 test/H5Fed/.deps
