@@ -1,6 +1,6 @@
 * text=auto !eol
 /AUTHORS -text
-/COPYRIGHT -text
+/COPYING -text
 /ChangeLog -text
 /GNUmakefile.orig -text
 /Makefile.am -text
