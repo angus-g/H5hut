@@ -407,7 +407,6 @@ src/h5core/h5_syscall.c -text
 src/h5core/h5_syscall_private.h -text
 src/h5core/h5_types_private.h -text
 src/h5core/h5b_errorhandling_private.h -text
-src/h5core/h5b_types_private.h -text
 src/h5core/h5t_adjacencies.c -text
 src/h5core/h5t_consts.c -text
 src/h5core/h5t_consts_private.h -text
@@ -454,6 +453,7 @@ src/include/h5core/h5_maps.h -text
 src/include/h5core/h5_openclose.h -text
 src/include/h5core/h5_readwrite.h -text
 src/include/h5core/h5_types.h -text
+src/include/h5core/h5b_types.h -text
 src/include/h5core/h5t_adjacencies.h -text
 src/include/h5core/h5t_core.h -text
 src/include/h5core/h5t_inquiry.h -text
