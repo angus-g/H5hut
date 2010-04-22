@@ -382,7 +382,7 @@ else  # --enable-parallel=no
 	AC_MSG_RESULT([no])
 
 	MTARGET="libH5Part.a"
-	TPTARGET="${TPTARGET} H5PartTest H5test"
+	TPTARGET="${TPTARGET} H5test"
 	TBTARGET="${TBTARGET} H5BlockTestAttributes"
 
 	if test "X$USE_FORTRAN" = "Xyes"; then
@@ -460,13 +460,6 @@ PATH_Search ZLIBROOT '/apps/zlib' lib/libz.a
 if test -n "$ZLIBROOT"; then
 	LDFLAGS="$LDFLAGS -L$ZLIBROOT/lib"
 fi
-
-
-###############################################################################
-#################### MISC SETTINGS - path, flags, etc #########################
-###############################################################################
-
-H5P_LIB_LOC=`pwd`/src
 
 ###############################################################################
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
@@ -560,7 +553,6 @@ AC_SUBST(SZLIB)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
 AC_SUBST(STDCXX)
-AC_SUBST(H5P_LIB_LOC)
 AC_SUBST(UNDERSCORE_H)
 AC_SUBST(BUILD_TOOLS)
 AC_SUBST(LDFLAGS)
