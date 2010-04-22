@@ -7,3 +7,6 @@ test/H5Part/Makefile
 test/H5Part/Makefile.in
 test/Makefile
 test/Makefile.in
+tools/.deps
+tools/Makefile
+tools/Makefile.in
