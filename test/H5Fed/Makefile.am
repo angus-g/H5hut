@@ -20,7 +20,7 @@ FFLAGS = @FFLAGS@ @MPIINC@
 SZLIB = @SZLIB@
 HDFLIB = -L$(HDF5ROOT)/lib -lhdf5 -lz $(SZLIB) @LDFLAGS@
 MPILIB = @MPILIB@
-H5LIB = -L@H5P_LIB_LOC@ -L@H5P_LIB_LOC@/h5_core -lH5_core -lH5
+H5LIB = -L${abs_top_builddir}/src/lib -lH5Core -lH5
 
 LIBS = ${H5LIB} $(HDFLIB) $(MPILIB) -lm @STDCXX@
 
@@ -30,7 +30,7 @@ LIBS = ${H5LIB} $(HDFLIB) $(MPILIB) -lm @STDCXX@
 # INCLUDES
 HDFINC = -I$(HDF5ROOT)/include
 MPIINC = @MPIINC@
-H5INC = -I@H5P_LIB_LOC@ -I@H5P_LIB_LOC@/h5_core
+H5INC = -I${abs_top_builddir}/src/include
 
 INC = $(HDFINC) $(MPIINC) $(H5INC)
 
