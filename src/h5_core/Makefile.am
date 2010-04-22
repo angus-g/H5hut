@@ -12,7 +12,7 @@ CC = @CC@
 HDFINC = -I$(HDF5ROOT)/include
 MPIINC = @MPIINC@
 
-INC = $(HDFINC) ${MPIINC} -I. -I../
+INC = $(HDFINC) ${MPIINC} -I. -I../include -I../include/h5core
 
 # H5Part header file location
 H5PINC = -I@prefix@/include
@@ -73,16 +73,16 @@ EXTRA_DIST = $(EXTRA_HEADERS)
 nodist_include_HEADERS =
 
 # What to build... Will be determined by configure script.
-lib_LIBRARIES = libH5_core.a
+lib_LIBRARIES = libH5Core.a
 
 # Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = libH5_core.a
+EXTRA_LIBRARIES = libH5Core.a
 
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS =
 
 # Listing of sources
-libH5_core_a_SOURCES = \
+libH5Core_a_SOURCES = \
 	h5_attribs.c \
 	h5_errorhandling.c \
 	h5_fcmp.c \
@@ -110,18 +110,18 @@ libH5_core_a_SOURCES = \
 	h5u_readwrite.c \
 	hdf5_misc.c
 
-libH5_core_a_DEPENDENCIES = $(EXTRA_HEADERS)
+libH5Core_a_DEPENDENCIES = $(EXTRA_HEADERS)
 
-all: libH5_core.a
+all: libH5Core.a
 
-libH5_core.a: $(libH5_core_a_OBJECTS)
+libH5Core.a: $(libH5_core_a_OBJECTS)
 	echo $(libH5_a_OBJECTS)
-	${AR} rucs $@ $^
+	${AR} rucs ../lib/$@ $^
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
 
-$(libH5_core_a_OBJECTS): $(libH5_core_a_DEPENDENCIES)
+$(libH5Core_a_OBJECTS): $(libH5_core_a_DEPENDENCIES)
 
 #errorhandling.o: errorhandling.c
 
