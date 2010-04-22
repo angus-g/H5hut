@@ -10,6 +10,14 @@
 /configure.ac -text
 doc/Doxyfile -text
 doc/Examples/meshexample.dxf -text
+doc/Examples/meshexample.txt -text
+doc/Examples/simple_tet.vtk -text
+doc/Examples/simple_tet_level0.vtk -text
+doc/Examples/simple_tet_level1.vtk -text
+doc/Examples/simple_tet_level2.vtk -text
+doc/Examples/trimesh_dgraph_level0.metis -text
+doc/Examples/trimesh_dgraph_level0.metis.part.2 -text
+doc/Examples/trimesh_dgraph_level0.metis.part.3 -text
 doc/Examples/trimesh_dnode_level1.metis -text
 doc/Examples/trimesh_dnode_level1.metis.part.2 -text
 doc/Examples/trimesh_level0.metis -text
