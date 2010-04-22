@@ -573,6 +573,7 @@ AC_SUBST(TOOLS_HDFLIB)
 AC_CONFIG_FILES([
 	Makefile
 	doc/Makefile
+	src/Makefile
 	src/C/Makefile
 	src/h5core/Makefile
 	test/Makefile
