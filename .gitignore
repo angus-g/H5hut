@@ -17,6 +17,9 @@ doc/Makefile.in
 src/.deps
 src/C++/Makefile
 src/C++/Makefile.in
+src/C/.deps
+src/C/Makefile
+src/C/Makefile.in
 src/Makefile
 src/Makefile.in
 src/h5core/.deps
