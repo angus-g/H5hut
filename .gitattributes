@@ -9,6 +9,15 @@
 /autogen.sh -text
 /configure.ac -text
 doc/Doxyfile -text
+doc/Examples/meshexample.dxf -text
+doc/Examples/trimesh_dnode_level1.metis -text
+doc/Examples/trimesh_dnode_level1.metis.part.2 -text
+doc/Examples/trimesh_level0.metis -text
+doc/Examples/trimesh_level0.metis.epart.2 -text
+doc/Examples/trimesh_level0.metis.ngraph -text
+doc/Examples/trimesh_level0.metis.npart.2 -text
+doc/Examples/trimesh_level1.metis -text
+doc/Examples/trimesh_level1.metis.part.2 -text
 doc/Graphs/meshexample.dxf -text
 doc/Graphs/trimesh_dnode_level1.metis -text
 doc/Graphs/trimesh_dnode_level1.metis.part.2 -text
