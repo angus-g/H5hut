@@ -6,8 +6,8 @@
 #include <fcntl.h>
 #include <hdf5.h>
 
-#include "h5_core/h5_core.h"
-#include "h5_core/h5_core_private.h"
+#include "h5core/h5_core.h"
+#include "h5_core_private.h"
 
 h5_int64_t
 h5u_has_view (

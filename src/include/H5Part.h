@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#include "h5_core/h5_core.h"
+#include "h5core/h5_core.h"
 #include "H5.h"
 #ifdef PARALLEL_IO
 #include <mpi.h>

@@ -10,7 +10,7 @@ CC = @CC@
 HDFINC = -I$(HDF5ROOT)/include
 MPIINC = @MPIINC@
 
-INC = $(HDFINC) ${MPIINC} -I./h5
+INC = $(HDFINC) ${MPIINC} -I../include
 
 # H5Part header file location
 H5PINC = -I@prefix@/include
@@ -43,13 +43,13 @@ EXTRA_LIBRARIES = libH5.a
 
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS = \
-	H5.h \
-	H5Block.h \
-	H5Fed.h \
-	H5Fed_map.h \
-	H5Fed_store.h \
-	H5Fed_tags.h \
-	H5Part.h
+	../include/H5.h \
+	../include/H5Block.h \
+	../include/H5Fed.h
+	../include/H5Fed_map.h \
+	../include/H5Fed_store.h \
+	../include/H5Fed_tags.h \
+	../include/H5Part.h
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS =
@@ -68,18 +68,13 @@ libH5_a_SOURCES = \
 	H5Fed_tags.c \
 	H5Part.c
 
-SUBDIRS = h5_core bindings
-
 libH5.a: $(libH5_a_OBJECTS)
-	${AR} rucs $@ $^
+	${AR} rucs ../lib/$@ $^
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
 
-H5Part.o: H5Part.c H5Part.h
-H5Block.o: H5Block.c H5Part.h H5Block.h
-
-clean: clean-recursive
+clean:
 	$(RM) -f *~ *.o *.a *.so
 
 distclean: clean

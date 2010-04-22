@@ -29,42 +29,42 @@ HDFLIB = -L$(HDF5ROOT)/lib -lhdf5 -lz $(SZLIB) @LDFLAGS@
 # SZ LIBRARY
 SZLIB = @SZLIB@
 
-EXTRA_HEADERS = \
-	h5_attribs.h \
-	h5_core.h \
-	h5_errorhandling.h \
-	h5_errorhandling_private.h \
-	h5_fcmp_private.h \
-	h5_hdf5_private.h \
-	h5_hsearch_private.h \
-	h5_maps.h \
-	h5_mpi_private.h \
-	h5_openclose.h \
-	h5_qsort_private.h \
-	h5_readwrite.h \
-	h5_readwrite_private.h \
-	h5_syscall_private.h \
-	h5_types.h \
-	h5b_errorhandling_private.h \
-	h5t_adjacencies.h \
-	h5t_tetm_adjacencies_private.h \
-	h5t_consts_private.h \
-	h5t_errorhandling_private.h \
-	h5t_hsearch_private.h \
-	h5t_inquiry.h \
-	h5t_map.h \
-	h5t_openclose.h \
-	h5t_readwrite.h \
-	h5t_readwrite_private.h \
-	h5t_retrieve.h \
-	h5t_retrieve_private.h \
-	h5t_storemesh.h \
-	h5t_storemesh_private.h \
-	h5t_tags.h \
-	h5t_tags_private.h \
-	h5u_errorhandling_private.h \
-	h5u_readwrite.h \
-	hdf5_misc.h
+EXTRA_HEADERS =					\
+	../include/h5core/h5_attribs.h		\
+	../include/h5core/h5_core.h		\
+	../include/h5core/h5_errorhandling.h	\
+	../include/h5core/h5_maps.h		\
+	../include/h5core/h5_openclose.h	\
+	../include/h5core/h5_readwrite.h	\
+	../include/h5core/h5_types.h		\
+	../include/h5core/h5t_adjacencies.h	\
+	../include/h5core/h5t_inquiry.h		\
+	../include/h5core/h5t_map.h		\
+	../include/h5core/h5t_openclose.h	\
+	../include/h5core/h5t_readwrite.h	\
+	../include/h5core/h5t_retrieve.h	\
+	../include/h5core/h5t_storemesh.h	\
+	../include/h5core/h5t_tags.h		\
+	../include/h5core/h5u_readwrite.h	\
+	../include/h5core/hdf5_misc.h		\
+	h5_errorhandling_private.h		\
+	h5_fcmp_private.h			\
+	h5_hdf5_private.h			\
+	h5_hsearch_private.h			\
+	h5_mpi_private.h			\
+	h5_qsort_private.h			\
+	h5_readwrite_private.h			\
+	h5_syscall_private.h			\
+	h5b_errorhandling_private.h		\
+	h5t_consts_private.h			\
+	h5t_errorhandling_private.h		\
+	h5t_hsearch_private.h			\
+	h5t_readwrite_private.h			\
+	h5t_retrieve_private.h			\
+	h5t_storemesh_private.h			\
+	h5t_tags_private.h			\
+	h5t_tetm_adjacencies_private.h		\
+	h5u_errorhandling_private.h
 
 # Extra files that I wish to include in the dist tar ball.
 EXTRA_DIST = $(EXTRA_HEADERS)
@@ -82,48 +82,45 @@ EXTRA_LIBRARIES = libH5Core.a
 include_HEADERS =
 
 # Listing of sources
-libH5Core_a_SOURCES = \
-	h5_attribs.c \
-	h5_errorhandling.c \
-	h5_fcmp.c \
-	h5_hdf5.c \
-	h5_hsearch.c \
-	h5_maps.c \
-	h5_mpi.c \
-	h5_openclose.c \
-	h5_qsort.c \
-	h5_qsort_r.c \
-	h5_readwrite.c \
-	h5_syscall.c \
-	h5t_adjacencies.c \
-	h5t_tetm_adjacencies.c \
-	h5t_consts.c \
-	h5t_errorhandling.c \
-	h5t_hsearch.c \
-	h5t_inquiry.c \
-	h5t_map.c \
-	h5t_openclose.c \
-	h5t_readwrite.c \
-	h5t_retrieve.c \
-	h5t_storemesh.c \
-	h5t_tags.c \
-	h5u_readwrite.c \
+libH5Core_a_SOURCES =				\
+	h5_attribs.c				\
+	h5_errorhandling.c			\
+	h5_fcmp.c				\
+	h5_hdf5.c				\
+	h5_hsearch.c				\
+	h5_maps.c				\
+	h5_mpi.c				\
+	h5_openclose.c				\
+	h5_qsort.c				\
+	h5_qsort_r.c				\
+	h5_readwrite.c				\
+	h5_syscall.c				\
+	h5t_adjacencies.c			\
+	h5t_consts.c				\
+	h5t_errorhandling.c			\
+	h5t_hsearch.c				\
+	h5t_inquiry.c				\
+	h5t_map.c				\
+	h5t_openclose.c				\
+	h5t_readwrite.c				\
+	h5t_retrieve.c				\
+	h5t_storemesh.c				\
+	h5t_tags.c				\
+	h5t_tetm_adjacencies.c			\
+	h5u_readwrite.c				\
 	hdf5_misc.c
 
 libH5Core_a_DEPENDENCIES = $(EXTRA_HEADERS)
 
 all: libH5Core.a
 
-libH5Core.a: $(libH5_core_a_OBJECTS)
-	echo $(libH5_a_OBJECTS)
+libH5Core.a: $(libH5Core_a_OBJECTS)
 	${AR} rucs ../lib/$@ $^
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
 
-$(libH5Core_a_OBJECTS): $(libH5_core_a_DEPENDENCIES)
-
-#errorhandling.o: errorhandling.c
+$(libH5Core_a_OBJECTS): $(libH5Core_a_DEPENDENCIES)
 
 clean:
 	$(RM) -f *~ *.o *.a *.so

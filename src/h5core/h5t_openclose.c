@@ -7,8 +7,8 @@
 #include <fcntl.h>
 #include <hdf5.h>
 
-#include "h5_core/h5_core.h"
-#include "h5_core/h5_core_private.h"
+#include "h5core/h5_core.h"
+#include "h5_core_private.h"
 
 static struct h5t_methods tet_funcs = {
 	h5tpriv_alloc_tets,

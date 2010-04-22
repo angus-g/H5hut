@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "h5_core/h5_core.h"
-#include "h5_core/h5_core_private.h"
+#include "h5core/h5_core.h"
+#include "h5_core_private.h"
 
 /*
   Skip elements which have been refined on a level <= the current one.
@@ -218,6 +218,8 @@ h5t_traverse_triangles (
 	return td->value.items[0];
 }
 
+
+#if 0
 /*!
   Function for traversing entities with 0 < co-dim < co-dim(vertex).
   In a tetrahedral mesh this means edges and triangle, in triangle
@@ -276,6 +278,7 @@ h5t_traverse_faces (
 
 	return td->value.items[0];
 }
+#endif
 
 h5_err_t
 h5t_end_traverse_triangles (

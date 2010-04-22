@@ -16,8 +16,8 @@
 #include <search.h>
 #include <time.h>
 #include <hdf5.h>
-#include "h5_core/h5_core.h"
-#include "h5_core/h5_core_private.h"
+#include "h5core/h5_core.h"
+#include "h5_core_private.h"
 
 h5_err_t
 h5t_get_edges_upadjacent_to_vertex (

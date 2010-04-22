@@ -12,7 +12,7 @@ h5t_add_level (
 	h5_file_t * const f
 	);
 
-h5_size_t
+h5_err_t
 h5t_begin_store_vertices (
 	h5_file_t * const f,
 	const h5_size_t num

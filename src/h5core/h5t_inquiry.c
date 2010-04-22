@@ -6,8 +6,8 @@
 #include <fcntl.h>
 #include <hdf5.h>
 
-#include "h5_core/h5_core.h"
-#include "h5_core/h5_core_private.h"
+#include "h5core/h5_core.h"
+#include "h5_core_private.h"
 
 /*!
   Get number of meshes of given type.

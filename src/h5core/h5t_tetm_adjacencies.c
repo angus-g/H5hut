@@ -16,8 +16,8 @@
 #include <search.h>
 #include <time.h>
 #include <hdf5.h>
-#include "h5_core/h5_core.h"
-#include "h5_core/h5_core_private.h"
+#include "h5core/h5_core.h"
+#include "h5_core_private.h"
 
 /*
   compute T(V) from current level up to highest levels.

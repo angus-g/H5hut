@@ -10,47 +10,47 @@ extern "C" {
 
 */
 
-h5_int64_t
+h5_err_t
 H5BlockDefine3DFieldLayout (
 	h5_file_t *f,
-	const h5_int64_t i_start,
-	const h5_int64_t i_end,
-	const h5_int64_t j_start,
-	const h5_int64_t j_end,
-	const h5_int64_t k_start,
-	const h5_int64_t k_end
+	const h5_size_t i_start,
+	const h5_size_t i_end,
+	const h5_size_t j_start,
+	const h5_size_t j_end,
+	const h5_size_t k_start,
+	const h5_size_t k_end
 	);
 
-h5_int64_t
+h5_err_t
 H5Block3dGetPartitionOfProc (
 	h5_file_t *f,
 	const h5_int64_t proc,
-	h5_int64_t *i_start,
-	h5_int64_t *i_end,
-	h5_int64_t *j_start,
-	h5_int64_t *j_end,
-	h5_int64_t *k_start,
-	h5_int64_t *k_end
+	h5_size_t *i_start,
+	h5_size_t *i_end,
+	h5_size_t *j_start,
+	h5_size_t *j_end,
+	h5_size_t *k_start,
+	h5_size_t *k_end
 	);
 
-h5_int64_t
+h5_err_t
 H5Block3dGetReducedPartitionOfProc (
 	h5_file_t *f,
-	h5_int64_t proc,
-	h5_int64_t *i_start, 
-	h5_int64_t *i_end,
-	h5_int64_t *j_start,
-	h5_int64_t *j_end,
-	h5_int64_t *k_start,
-	h5_int64_t *k_end
+	h5_id_t proc,
+	h5_size_t *i_start, 
+	h5_size_t *i_end,
+	h5_size_t *j_start,
+	h5_size_t *j_end,
+	h5_size_t *k_start,
+	h5_size_t *k_end
 	);
 
-h5_int64_t
+h5_id_t
 H5Block3dGetProcOf (
 	h5_file_t *f,
-	h5_int64_t i,
-	h5_int64_t j,
-	h5_int64_t k
+	h5_size_t i,
+	h5_size_t j,
+	h5_size_t k
 	);
 
 h5_int64_t

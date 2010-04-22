@@ -1,8 +1,8 @@
 #include <string.h>
 #include <hdf5.h>
 
-#include "h5_core/h5_core.h"
-#include "h5_core/h5_core_private.h"
+#include "h5core/h5_core.h"
+#include "h5_core_private.h"
 
 /*
   Mapping of global to local id's:

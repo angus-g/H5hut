@@ -15,8 +15,7 @@
 #define close _close
 #endif /* WIN32 */
 
-#include "h5_core/h5_core.h"
-#include "h5_core/h5_errorhandling_private.h"
+#include "h5core/h5_core.h"
 #include "H5Part.h"
 
 /********* Private Variable Declarations *************/

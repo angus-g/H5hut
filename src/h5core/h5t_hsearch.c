@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
-#include "h5_core/h5_core.h"
-#include "h5_core/h5_core_private.h"
+#include "h5core/h5_core.h"
+#include "h5_core_private.h"
 
 static int
 _cmp_te_entries (
