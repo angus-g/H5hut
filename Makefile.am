@@ -1,8 +1,8 @@
-SUBDIRS = \
-	doc \
-	src \
-	src/h5_core \
-	test \
+SUBDIRS =		\
+	doc		\
+	src/C		\
+	src/h5core	\
+	test		\
 	tools
 
 MAINTAINERCLEANFILES = \
