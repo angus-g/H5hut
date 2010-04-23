@@ -4,15 +4,17 @@
 #include "h5_core_private.h"
 
 static int
-_cmp_te_entries (
+cmp_te_entries (
 	const void *__a,
 	const void *__b
 	) {
-	return memcmp ( __a, __b, sizeof(h5_2id_t) );
+	h5t_te_entry_t *a = (h5t_te_entry_t*)__a;
+	h5t_te_entry_t *b = (h5t_te_entry_t*)__b;
+	return memcmp ( a->key.vids, b->key.vids, sizeof(a->key.vids) );
 }
 
 static unsigned int
-_compute_te_hashval (
+compute_te_hashval (
 	const void *__item
 	) {
 	h5t_te_entry_t *item = (h5t_te_entry_t*)__item;
@@ -38,8 +40,8 @@ h5tpriv_create_te_htab (
 		      f,
 		      nel,
 		      &a->te_hash,
-		      _cmp_te_entries,
-		      _compute_te_hashval );
+		      cmp_te_entries,
+		      compute_te_hashval );
 }
 
 h5_err_t
@@ -147,15 +149,17 @@ h5tpriv_find_te2 (
 }
 
 static int
-_cmp_td_entries (
+cmp_td_entries (
 	const void *__a,
 	const void *__b
 	) {
-	return memcmp ( __a, __b, sizeof(h5_3id_t) );
+	h5t_td_entry_t *a = (h5t_td_entry_t*)__a;
+	h5t_td_entry_t *b = (h5t_td_entry_t*)__b;
+	return memcmp ( a->key.vids, b->key.vids, sizeof(a->key.vids) );
 }
 
 static unsigned int
-_compute_td_hashval (
+compute_td_hashval (
 	const void *__item
 	) {
 	h5t_te_entry_t *item = (h5t_te_entry_t*)__item;
@@ -181,8 +185,8 @@ h5tpriv_create_td_htab (
 		      f,
 		      nel,
 		      &a->td_hash,
-		      _cmp_td_entries,
-		      _compute_td_hashval );
+		      cmp_td_entries,
+		      compute_td_hashval );
 }
 
 h5_err_t
