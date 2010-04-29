@@ -721,8 +721,8 @@ _release_hyperslab (
 /*!
   \ingroup h5block_model
 
-  Define the field layout given the dense index space at the actual
-  time step.
+  Defines the partition of the field that this processor owns, using
+  Fortran ordering: the fastest moving index is \c i.
 
   This routine uses an MPI_Allgather, so at large concurrency it should
   be called as infrequently as possible. For instance, if several timesteps

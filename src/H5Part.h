@@ -220,6 +220,11 @@ H5PartSetViewIndices (
 	);
 
 h5part_int64_t
+H5PartSetViewEmpty (
+	H5PartFile *f
+	);
+
+h5part_int64_t
 H5PartGetView (
 	H5PartFile *f,
 	h5part_int64_t *start,

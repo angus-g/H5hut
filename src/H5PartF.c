@@ -100,6 +100,9 @@
 #define h5pt_setview_indices F77NAME (					\
 					h5pt_setview_indices_,		\
 					H5PT_SETVIEW_INDICES )
+#define h5pt_setview_empty F77NAME (					\
+					h5pt_setview_empty_,		\
+					H5PT_SETVIEW_EMPTY )
 #define h5pt_resetview F77NAME (					\
 					h5pt_resetview_,		\
 					H5PT_RESETVIEW )
@@ -197,6 +200,8 @@ _H5Part_flagsfor2c (
 	while ( flags != NULL ) {
 		if ( strcmp ( flags, "vfd_mpiposix" ) == 0 )
 				fbits |= H5PART_VFD_MPIPOSIX;
+		else if ( strcmp ( flags, "vfd_mpio_ind" ) == 0 )
+				fbits |= H5PART_VFD_MPIIO_IND;
 		else if ( strcmp ( flags, "fs_lustre" ) == 0 )
 		    		fbits |= H5PART_FS_LUSTRE;
 		flags = strtok ( NULL, "," );
@@ -351,16 +356,22 @@ h5pt_openr_par_align (
 	const char *file_name,
 	MPI_Fint *fcomm,
 	const h5part_int64_t *align,
-	const int l_file_name
+	const char *flags,
+	const int l_file_name,
+	const int l_flags
 	) {
 
 	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
 	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
+
+	char fbits = H5PART_READ | _H5Part_flagsfor2c ( flags2 );
 
 	H5PartFile* f = H5PartOpenFileParallelAlign (
-		file_name2, H5PART_READ, ccomm, *align );
+		file_name2, fbits, ccomm, *align );
 
 	free ( file_name2 );
+	free ( flags2 );
 	return (h5part_int64_t)(size_t)f; 
 }
 
@@ -384,6 +395,7 @@ h5pt_openw_par_align (
 		file_name2, fbits, ccomm, *align );
 
 	free ( file_name2 );
+	free ( flags2 );
 	return (h5part_int64_t)(size_t)f; 
 }
 
@@ -407,6 +419,7 @@ h5pt_opena_par_align (
 		file_name2, fbits, ccomm, *align );
 
 	free ( file_name2 );
+	free ( flags2 );
 	return (h5part_int64_t)(size_t)f;
 }
 #endif
@@ -624,6 +637,16 @@ h5pt_setview_indices (
 	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
 	return H5PartSetViewIndices ( filehandle, indices, *nelem );
+}
+
+h5part_int64_t
+h5pt_setview_empty (
+	const h5part_int64_t *f
+	) {
+
+	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
+
+	return H5PartSetViewEmpty ( filehandle );
 }
 
 h5part_int64_t

@@ -401,13 +401,17 @@ _H5Part_open_file (
 
   Opens file with specified filename. 
 
-  If you open with flag \c H5PART_WRITE, it will truncate any
-  file with the specified filename and start writing to it. If 
-  you open with \c H5PART_APPEND, then you can append new timesteps.
-  If you open with \c H5PART_READ, then it will open the file
-  readonly.
+  Flags are bit values that can be combined with the bit operator \c |
+  and include:
 
-  The typical extension for these files is \c .h5.
+  - \c H5PART_WRITE - truncate file and open for writing
+  - \c H5PART_APPEND - open file for writing without truncating
+  - \c H5PART_READ - open file read-only
+  - \c H5PART_FS_LUSTRE - enable optimizations for the Lustre file system
+  - \c H5PART_VFD_MPIPOSIX - use the HDF5 MPI-POSIX virtual file driver
+  - \c H5PART_VFD_MPIO_IND - use MPI-IO in indepedent mode
+
+  The typical file extension is \c .h5.
   
   H5PartFile should be treated as an essentially opaque
   datastructure.  It acts as the file handle, but internally
@@ -437,6 +441,23 @@ H5PartOpenFileParallel (
   Opens file with specified filename, and also specifices an alignment
   value used for HDF5 tuning parameters.
 
+  Flags are bit values that can be combined with the bit operator \c |
+  and include:
+
+  - \c H5PART_WRITE - truncate file and open for writing
+  - \c H5PART_APPEND - open file for writing without truncating
+  - \c H5PART_READ - open file read-only
+  - \c H5PART_FS_LUSTRE - enable optimizations for the Lustre file system
+  - \c H5PART_VFD_MPIPOSIX - use the HDF5 MPI-POSIX virtual file driver
+  - \c H5PART_VFD_MPIO_IND - use MPI-IO in indepedent mode
+
+  The typical file extension is \c .h5.
+  
+  H5PartFile should be treated as an essentially opaque
+  datastructure.  It acts as the file handle, but internally
+  it maintains several key state variables associated with 
+  the file.
+
   \return	File handle or \c NULL
  */
 H5PartFile*
@@ -460,13 +481,14 @@ H5PartOpenFileParallelAlign (
 
   Opens file with specified filename. 
 
-  If you open with flag \c H5PART_WRITE, it will truncate any
-  file with the specified filename and start writing to it. If 
-  you open with \c H5PART_APPEND, then you can append new timesteps.
-  If you open with \c H5PART_READ, then it will open the file
-  readonly.
+  Flags are bit values that can be combined with the bit operator \c |
+  and include:
 
-  The typical extension for these files is \c .h5.
+  - \c H5PART_WRITE - truncate file and open for writing
+  - \c H5PART_APPEND - open file for writing without truncating
+  - \c H5PART_READ - open file read-only
+
+  The typical file extension is \c .h5.
   
   H5PartFile should be treated as an essentially opaque
   datastructure.  It acts as the file handle, but internally
@@ -495,6 +517,20 @@ H5PartOpenFile (
 
   Opens file with specified filename, and also specifices an alignment
   value used for HDF5 tuning parameters.
+
+  Flags are bit values that can be combined with the bit operator \c |
+  and include:
+
+  - \c H5PART_WRITE - truncate file and open for writing
+  - \c H5PART_APPEND - open file for writing without truncating
+  - \c H5PART_READ - open file read-only
+
+  The typical file extension is \c .h5.
+  
+  H5PartFile should be treated as an essentially opaque
+  datastructure.  It acts as the file handle, but internally
+  it maintains several key state variables associated with 
+  the file.
 
   \return	File handle or \c NULL
  */
@@ -2968,6 +3004,34 @@ H5PartSetViewIndices (
 	}
 
 	return _set_view_indices ( f, indices, nelems );
+}
+
+/*!
+  \ingroup h5part_model
+
+  In MPI-IO collective mode, all MPI tasks must participate in I/O
+  operations. \c H5PartSetViewEmpty() allows a task to participate
+  but with an empty view of the file, so that it contributes no data
+  to the I/O operation.
+
+  \return	\c H5PART_SUCCESS or error code
+*/
+h5part_int64_t
+H5PartSetViewEmpty (
+	H5PartFile *f			/*!< [in]  Handle to open file */
+	) {
+
+	SET_FNAME ( "H5PartSetViewEmpty" );
+
+	CHECK_FILEHANDLE( f );
+
+	if ( f->timegroup < 0 ) {
+		h5part_int64_t herr = _H5Part_set_step ( f, 0 );
+		if ( herr < 0 ) return herr;
+	}
+
+        /* using a null indices list will set an empty view */
+	return _set_view_indices ( f, NULL, 0 );
 }
 
 /*!

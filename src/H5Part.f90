@@ -108,17 +108,32 @@ END FUNCTION
 !> \ingroup h5partf_open
 !! Opens a parallel file for reading and specifies an HDF5 alignment.
 !! See \ref H5PartOpenFileParallelAlign
+!!
+!! Flags are specified as a comma separated string that can include:
+!!
+!! - \c fs_lustre - enable optimizations for the Lustre file system
+!! - \c vfd_mpiposix - use the HDF5 MPI-POSIX virtual file driver
+!! - \c vfd_mpio_ind - use MPI-IO in indepedent mode
+!!
 !! \return 0 on success or error code
 !<
 INTEGER*8 FUNCTION h5pt_openr_par_align ( filename, mpi_communicator, align )
     CHARACTER(LEN=*), INTENT(IN) :: filename    !< the filename to open for reading
     INTEGER, INTENT(IN) :: mpi_communicator     !< the MPI_Communicator used by the program
     INTEGER*8, INTENT(IN) :: align              !< alignment value in bytes
+    CHARACTER(LEN=*), INTENT(IN) :: flags       !< additional flags
 END FUNCTION
 
 !> \ingroup h5partf_open
 !! Opens a parallel file for writing in truncate mode and specifies
 !! an HDF5 alignment.
+!!
+!! Flags are specified as a comma separated string that can include:
+!!
+!! - \c fs_lustre - enable optimizations for the Lustre file system
+!! - \c vfd_mpiposix - use the HDF5 MPI-POSIX virtual file driver
+!! - \c vfd_mpio_ind - use MPI-IO in indepedent mode
+!!
 !! See \ref H5PartOpenFileParallelAlign
 !! \return 0 on success or error code
 !<
@@ -132,6 +147,13 @@ END FUNCTION
 !> \ingroup h5partf_open
 !! Opens a parallel file for writing in append mode and specifies
 !! an HDF5 alignment.
+!!
+!! Flags are specified as a comma separated string that can include:
+!!
+!! - \c fs_lustre - enable optimizations for the Lustre file system
+!! - \c vfd_mpiposix - use the HDF5 MPI-POSIX virtual file driver
+!! - \c vfd_mpio_ind - use MPI-IO in indepedent mode
+!!
 !! See \ref H5PartOpenFileParallelAlign
 !! \return 0 on success or error code
 !<
@@ -241,6 +263,14 @@ INTEGER*8 FUNCTION h5pt_setview_indices (filehandle,indices,nelem)
     INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
     INTEGER*8, INTENT(IN) :: indices(*) !< list of indicies to select in this view
     INTEGER*8, INTENT(IN) :: nelem      !< number of particles in the list
+END FUNCTION
+
+!> \ingroup h5partf_model
+!! See \ref H5PartSetViewEmpty
+!! \return 0 on success or error code
+!<
+INTEGER*8 FUNCTION h5pt_setview_empty (filehandle)
+    INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
 END FUNCTION
 
 !> \ingroup h5partf_model
