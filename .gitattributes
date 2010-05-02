@@ -462,6 +462,7 @@ src/include/h5core/h5t_inquiry.h -text
 src/include/h5core/h5t_map.h -text
 src/include/h5core/h5t_openclose.h -text
 src/include/h5core/h5t_readwrite.h -text
+src/include/h5core/h5t_ref_elements.h -text
 src/include/h5core/h5t_retrieve.h -text
 src/include/h5core/h5t_storemesh.h -text
 src/include/h5core/h5t_tags.h -text
