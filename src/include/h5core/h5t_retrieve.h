@@ -1,19 +1,61 @@
 #ifndef __H5T_RETRIEVE_H
 #define __H5T_RETRIEVE_H
 
-h5_err_t h5t_begin_traverse_vertices ( h5_file_t * const f );
-h5_id_t h5t_traverse_vertices ( h5_file_t * const f, h5_float64_t P[3] );
-h5_err_t h5t_end_traverse_vertices ( h5_file_t * f );
+typedef struct {
+	h5_id_t elem_idx;	// local element id
+	h5_id_t	face_idx;	// face id according reference element
+	int codim;		// dimension of entities to traverse
+	h5t_ref_element_t* ref_element; // pointer to reference element
+	h5_err_t (*find)(h5_file_t *const f,
+			 h5_id_t face_idx,
+			 h5_id_t elem_idx,
+			 h5_idlist_t **retval);
+} h5t_entity_iterator_t;
 
-h5_err_t h5t_begin_traverse_edges ( h5_file_t * const f );
-h5_id_t h5t_traverse_edges ( h5_file_t * const f, h5_id_t * const vids );
-h5_err_t h5t_end_traverse_edges ( h5_file_t * f );
+h5_err_t
+h5t_alloc_entity_iterator (
+	h5_file_t* f,
+	h5t_entity_iterator_t** iter,
+	int codim
+	);
 
-h5_err_t h5t_begin_traverse_triangles ( h5_file_t * const f );
-h5_id_t h5t_traverse_triangles ( h5_file_t * const f, h5_id_t * const vids );
-h5_err_t h5t_end_traverse_triangles ( h5_file_t * const f );
+h5_err_t
+h5t_release_entity_iterator (
+	h5_file_t* const f,
+	h5t_entity_iterator_t* iter
+	);
 
-h5_err_t h5t_begin_traverse_elems ( h5_file_t * const f );
-h5_id_t h5t_traverse_elems ( h5_file_t * const f, h5_id_t * const vids );
-h5_err_t h5t_end_traverse_elems ( h5_file_t * const f );
+h5_err_t
+h5t_begin_iterate_entities (
+	h5_file_t* f,
+	h5t_entity_iterator_t* iter,
+	int codim
+	);
+
+h5_id_t
+h5t_iterate_entities (
+	h5_file_t * const f,
+	h5t_entity_iterator_t *iter
+	);
+
+h5_err_t
+h5t_end_iterate_entities (
+	h5_file_t * const f,
+	h5t_entity_iterator_t *iter
+	);
+
+
+h5_err_t
+h5t_get_vertex_coords_by_index (
+	h5_file_t* const f,
+	h5_id_t vertex_index,
+	h5_float64_t P[3]
+	);
+
+h5_err_t
+h5t_get_vertrex_coords_by_id (
+	h5_file_t* const f,
+	h5_id_t vertex_id,
+	h5_float64_t P[3]
+	);
 #endif
