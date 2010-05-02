@@ -61,46 +61,57 @@ h5tpriv_resize_te_htab (
 h5_err_t
 h5tpriv_search_te2 (
 	h5_file_t * const f,
-	h5_id_t face,
-	h5_id_t eid,
-	h5t_te_entry_t **entry
+	h5_id_t face_idx,
+	h5_id_t elem_idx,
+	h5_idlist_t **retval
 	) {
 	h5t_fdata_t *t = f->t;
 	h5t_adjacencies_t *a = &t->adjacencies;
 	void *__retval;
+	h5t_te_entry_t *entry;
 
-	TRY ( *entry = h5priv_calloc ( f, 1, sizeof(**entry) ) );
+	TRY( entry = h5priv_calloc ( f, 1, sizeof(*entry) ) );
 
-	TRY ( h5t_get_local_vids_of_edge2 (
-		f,
-		face,
-		eid,
-		(*entry)->key.vids ) );
+	TRY ( h5t_get_vertex_indices_of_edge2 (
+		f, face_idx, elem_idx, entry->key.vids ) );
 	/*
 	  resize hash table if more than 3/4 filled
 	 */
 	if ( (a->te_hash.size*6) <= (a->te_hash.filled<<3) ) {
+		/*
+		  Grow the hash table by 3*(num_elems - elem_idx) entries.
+		  Why this number? We fill the hash table by looping over
+		  all elements starting with 0. So if we have to grow, we
+		  still have num_elems-elem_idx elements to handle. Half the 
+		  number of edges of the reference element times the number
+		  of remaining elements is a good enough guess for the number
+		  of edges we still have to add to the hash table.
+
+		  Thus for a tetrahedal mesh we 3 time the remaining elements!
+		  @@@
+		 */
 		h5_id_t num_elems = t->num_elems[t->num_levels-1];
 		TRY ( h5priv_hresize (
 			      f,
-			      3*(num_elems - eid),
+			      3*(num_elems - elem_idx),
 			      &a->te_hash ) );
 	}
 	TRY ( h5priv_hsearch (
 		      f,
-		      *entry,
+		      entry,
 		      H5_ENTER,
 		      &__retval,
 		      &a->te_hash ) );
-	h5t_te_entry_t *retval = (h5t_te_entry_t *)__retval;
-	TRY ( h5priv_search_idlist (
+	h5t_te_entry_t *te_entry = (h5t_te_entry_t *)__retval;
+	TRY( h5priv_search_idlist (
 		      f,
-		      &retval->value,
-		      h5tpriv_build_edge_id ( face, eid ) ) );
-	if ( retval->value.num_items > 1 ) {
+		      &te_entry->value,
+		      h5tpriv_build_edge_id (face_idx, elem_idx)) );
+	if (entry->value.num_items > 1) {
 		/* search returned an existing entry */
-		TRY ( h5priv_free ( f, *entry ) );
+		TRY ( h5priv_free (f, entry) );
 	}
+	*retval = &te_entry->value;
 	return H5_SUCCESS;
 }
 
@@ -113,16 +124,17 @@ h5_err_t
 h5tpriv_find_te (
 	h5_file_t * const f,
 	h5t_te_entry_t *item,
-	h5t_te_entry_t **retval
+	h5_idlist_t **retval
 	) {
-	void *__ret;
+	void* __entry;
 	TRY ( h5priv_hsearch (
 		      f,
 		      item,
 		      H5_FIND,
-		      &__ret,
+		      &__entry,
 		      &f->t->adjacencies.te_hash ) );
-	*retval = (h5t_te_entry_t *)__ret;
+	h5t_te_entry_t* entry = (h5t_te_entry_t*)__entry;
+	*retval = &entry->value;
 	return H5_SUCCESS;
 }
 
@@ -134,15 +146,15 @@ h5tpriv_find_te (
 h5_err_t
 h5tpriv_find_te2 (
 	h5_file_t * const f,
-	h5_id_t face_id,
-	h5_id_t local_eid,
-	h5t_te_entry_t **retval
+	h5_id_t face_idx,
+	h5_id_t elem_idx,
+	h5_idlist_t **retval
 	) {
 	h5t_te_entry_t item;
-	TRY ( h5t_get_local_vids_of_edge2 (
+	TRY ( h5t_get_vertex_indices_of_edge2 (
 		f,
-		face_id,
-		local_eid,
+		face_idx,
+		elem_idx,
 		item.key.vids
 		      ) );
 	return h5tpriv_find_te ( f, &item, retval );
@@ -206,45 +218,43 @@ h5tpriv_resize_td_htab (
 h5_err_t
 h5tpriv_search_td2 (
 	h5_file_t * const f,
-	h5_id_t face,
-	h5_id_t eid,
-	h5t_td_entry_t **entry
+	h5_id_t face_idx,
+	h5_id_t elem_idx,
+	h5_idlist_t **retval
 	) {
 	h5t_fdata_t *t = f->t;
 	h5t_adjacencies_t *a = &f->t->adjacencies;
 	void *__retval;
+	h5t_td_entry_t *entry;
 
-	TRY ( *entry = h5priv_calloc ( f, 1, sizeof(**entry) ) );
+	TRY( entry = h5priv_calloc ( f, 1, sizeof(*entry) ) );
 
-	TRY ( h5t_get_local_vids_of_triangle2 (
-		f,
-		face,
-		eid,
-		(*entry)->key.vids ) );
+	TRY( h5t_get_vertex_indices_of_triangle2 (
+		     f, face_idx, elem_idx, entry->key.vids ) );
 	/*
 	  resize hash table if more than 3/4 filled
 	*/
 	if ( (a->td_hash.size*6) <= (a->td_hash.filled<<3) ) {
 		h5_id_t num_elems = t->num_elems[t->num_levels-1];
-		TRY ( h5priv_hresize (
-			      f,
-			      3*(num_elems-eid),
-			      &a->td_hash ) );
+		TRY( h5priv_hresize (
+			     f,
+			     3*(num_elems-elem_idx),
+			     &a->td_hash) );
 	}
 
-	TRY ( h5priv_hsearch (
-		      f,
-		      *entry,
-		      H5_ENTER,
-		      &__retval,
-		      &a->td_hash ) );
-	h5t_td_entry_t *retval = (h5t_td_entry_t *)__retval;
-	TRY ( h5priv_search_idlist (
-		      f,
-		      &retval->value,
-		      h5tpriv_build_triangle_id ( face, eid ) ) );
-	if ( retval->value.num_items > 1 ) {
-		TRY ( h5priv_free ( f, *entry ) );
+	TRY( h5priv_hsearch (
+		     f,
+		     entry,
+		     H5_ENTER,
+		     &__retval,
+		     &a->td_hash) );
+	h5t_td_entry_t *te_entry = (h5t_td_entry_t *)__retval;
+	TRY( h5priv_search_idlist (
+		     f,
+		     &te_entry->value,
+		     h5tpriv_build_triangle_id (face_idx, elem_idx) ) );
+	if ( te_entry->value.num_items > 1 ) {
+		TRY( h5priv_free ( f, entry ) );
 	}
 	return H5_SUCCESS;
 }
@@ -253,34 +263,35 @@ h5_err_t
 h5tpriv_find_td (
 	h5_file_t * const f,
 	h5t_td_entry_t *item,
-	h5t_td_entry_t **retval
+	h5_idlist_t **retval
 	) {
-	void *__ret;
+	void *__entry;
 	h5priv_hsearch (
 		      f,
 		      item,
 		      H5_FIND,
-		      &__ret,
-		      &f->t->adjacencies.td_hash );
-	if ( __ret == NULL ) {
-		return h5tpriv_error_local_triangle_nexist( f, item->key.vids );
+		      &__entry,
+		      &f->t->adjacencies.td_hash);
+	if (__entry == NULL) {
+		return h5tpriv_error_local_triangle_nexist (f, item->key.vids);
 	}
-	*retval = (h5t_td_entry_t *)__ret;
+	h5t_td_entry_t* entry = (h5t_td_entry_t*)__entry;
+	*retval = &entry->value;
 	return H5_SUCCESS;
 }
 
 h5_err_t
 h5tpriv_find_td2 (
 	h5_file_t * const f,
-	h5_id_t face_id,
-	h5_id_t local_eid,
-	h5t_td_entry_t **retval
+	h5_id_t face_idx,
+	h5_id_t elem_idx,
+	h5_idlist_t **retval
 	) {
 	h5t_td_entry_t item;
-	TRY ( h5t_get_local_vids_of_triangle2 (
+	TRY ( h5t_get_vertex_indices_of_triangle2 (
 		f,
-		face_id,
-		local_eid,
+		face_idx,
+		elem_idx,
 		item.key.vids ) );
 	return h5tpriv_find_td ( f, &item, retval );
 }
@@ -288,15 +299,15 @@ h5tpriv_find_td2 (
 h5_err_t
 h5tpriv_find_tv2 (
 	h5_file_t * const f,
-	h5_id_t cid,
-	h5_id_t el_idx,
+	h5_id_t face_idx,
+	h5_id_t elem_idx,
 	h5_idlist_t **retval
 	) {
 	/*
 	  map (cid,el_idx) to local index of vertex
 	*/
-	h5_id_t vidx = f->t->elems_ldta[el_idx].local_vids[cid];
-	*retval = &f->t->vertices_data[vidx].tv;
+	h5_id_t vertex_idx = f->t->elems_ldta[elem_idx].local_vids[face_idx];
+	*retval = &f->t->vertices_data[vertex_idx].tv;
 
 	return H5_SUCCESS;
 }
