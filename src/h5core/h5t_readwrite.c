@@ -259,7 +259,7 @@ _build_elems_ldta (
 	void *elp = t->elems.data;
 	h5_elem_t *el;
 	h5_elem_ldta_t *el_data = t->elems_ldta;
-	
+	int num_vertices = t->ref_element->num_faces[0];
 	for ( local_eid=0;
 	      local_eid < num_elems;
 	      local_eid++, elp+=h5tpriv_sizeof_elem[t->mesh_type], el_data++ ) {
@@ -267,7 +267,7 @@ _build_elems_ldta (
 		TRY( h5t_map_global_vids2local (
 			     f,
 			     el->global_vids,
-			     t->mesh_type,
+			     num_vertices,
 			     el_data->local_vids
 			     ) );
 		if ( el->global_parent_eid >= 0 )
