@@ -120,23 +120,12 @@ typedef struct h5t_adjacencies {
 	h5_hashtable_t td_hash;
 } h5t_adjacencies_t;
 
-typedef struct h5t_entity_iterator {
-	h5_id_t	cur_cid;
-	h5_id_t cur_eid;
-} h5t_entity_iterator_t;
-
-typedef struct h5t_iterators {
-	h5t_entity_iterator_t	vertex;
-	h5t_entity_iterator_t	edge;
-	h5t_entity_iterator_t	triangle;
-	h5t_entity_iterator_t	elem;
-} h5t_iterators_t;
-
 typedef struct h5t_fdata {
 	/*** book-keeping ***/
 	char		mesh_name[16];
 	char		mesh_label[256];
 	h5_oid_t	mesh_type;	/* object id of element type */
+	h5t_ref_element_t* ref_element;
 	h5_id_t		cur_mesh;	/* id of current mesh */
 	h5_id_t		mesh_changed;	/* true if new or has been changed */
 	h5_id_t		num_meshes;	/* number of meshes */
@@ -153,8 +142,6 @@ typedef struct h5t_fdata {
 
 	/*** type ids' for base & compound data types ***/
 	h5_dtypes_t	dtypes;
-
-	h5t_iterators_t	iters;		/* "build-in" iterators */
 
 	/*** functions to handle differnt mesh types ***/
 	struct h5t_methods methods;
