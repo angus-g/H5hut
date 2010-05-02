@@ -1,7 +1,7 @@
 #ifndef __H5_TYPES_H
 #define __H5_TYPES_H
 
-#include <stdargs.h>
+#include <stdarg.h>
 #include <hdf5.h>
 
 /*
@@ -113,11 +113,12 @@ struct h5_file {
 
 typedef struct h5_file h5_file_t;
 
-enum h5_oid {		/* enum with number of vertices(!) */
+enum h5_oid {
 	H5_OID_VERTEX = 1,
 	H5_OID_EDGE = 2,
 	H5_OID_TRIANGLE = 3,
-	H5_OID_TETRAHEDRON = 4
+	H5_OID_TETRAHEDRON = 4,
+	H5_OID_MAX = 5	
 };
 typedef enum h5_oid h5_oid_t;
 
