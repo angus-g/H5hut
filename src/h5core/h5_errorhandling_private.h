@@ -1,20 +1,6 @@
 #ifndef __H5_ERRORHANDLING_PRIVATE_H
 #define __H5_ERRORHANDLING_PRIVATE_H
 
-#define h5_error_not_implemented( f, file, func, lino )		     \
-	h5_error(						     \
-		f,						     \
-		H5_ERR_NOT_IMPLEMENTED,				     \
-		"%s: Function \"%s\", line %d not yet implemented!", \
-		file, func, lino );
-
-#define h5_error_internal( f, file, func, lino )   \
-	h5_error(				   \
-		f,				   \
-		H5_ERR_INTERNAL,		   \
-		"%s: Internal error: %s line %d!", \
-		file, func, lino )
-
 #define HANDLE_H5_DATASET_RANK_ERR( f, m, n )			  \
 	h5_error(						  \
 		f,						  \
