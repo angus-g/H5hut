@@ -90,19 +90,18 @@ h5priv_hcreate (
 }
 
 /*
-  Grow hash table. Do nothing if requested number of elements is less than
-  or equal the current size.
+  Grow hash table.
  */
 h5_err_t
 h5priv_hresize (
 	h5_file_t * const f,
-	size_t nel,
-	h5_hashtable_t *htab
+	size_t nel,		// number of entries to grow
+	h5_hashtable_t *htab	// hash table to resize
 	) {
 	if ( htab == NULL || htab->table == NULL ) {
 		h5_error_internal ( f, __FILE__, __func__, __LINE__ );
 	}
-	if ( htab->size >= nel ) return H5_SUCCESS;
+	// create new hash table
 	h5_hashtable_t __htab;
 	memset ( &__htab, 0, sizeof ( __htab ) );
 	nel += htab->size;
@@ -110,6 +109,8 @@ h5priv_hresize (
 		   htab->size, nel );
 	TRY ( h5priv_hcreate (
 		      f, nel, &__htab, htab->compare, htab->compute_hash ) );
+
+	// add all entries to new hash table
 	unsigned int idx;
 	for ( idx = 1; idx <= htab->size; idx++ ) {
 		if ( htab->table[idx].used ) {
@@ -122,6 +123,7 @@ h5priv_hresize (
 				      &__htab );
 		}
 	}
+	// destroy old hash table
 	TRY ( h5priv_hdestroy ( f, htab ) );
 	*htab = __htab;
 	return H5_SUCCESS;
