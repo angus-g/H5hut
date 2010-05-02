@@ -15,19 +15,37 @@
 #ifndef __H5FED_RETRIEVE_H
 #define __H5FED_RETRIEVE_H
 
-h5_err_t H5FedBeginTraverseVertices ( h5_file_t * const f );
-h5_id_t H5FedTraverseVertices ( h5_file_t * const f, h5_float64_t P[3] );
-h5_err_t H5FedEndTraverseVertices ( h5_file_t * const f	);
-
-h5_err_t H5FedBeginTraverseEdges ( h5_file_t * const f );
-h5_id_t H5FedTraverseEdges ( h5_file_t * const f, h5_id_t * const vids );
-h5_err_t H5FedEndTraverseEdges ( h5_file_t * const f );
-
-h5_err_t H5FedBeginTraverseTriangles ( h5_file_t * const f );
-h5_id_t H5FedTraverseTriangles ( h5_file_t * const f, h5_id_t * const vids );
-h5_err_t H5FedEndTraverseTriangles ( h5_file_t * const f );
-
-h5_err_t H5FedBeginTraverseElements ( h5_file_t * const f );
-h5_id_t H5FedTraverseElements ( h5_file_t * const f, h5_id_t * const vids );
-h5_err_t H5FedEndTraverseElements ( h5_file_t * const f );
+h5t_entity_iterator_t*
+H5FedBeginTraverseEntities (
+	h5_file_t* const f,
+	int codim
+	);
+h5_id_t
+H5FedTraverseEntities (
+	h5_file_t* const f,
+	h5t_entity_iterator_t* iter
+	);
+h5_err_t
+H5FedEndTraverseEntities (
+	h5_file_t* const f,
+	h5t_entity_iterator_t* iter
+	);
+h5_err_t
+H5FedGetVertexCoordByIndex (
+	h5_file_t* const f,
+	h5_id_t vertex_index,
+	h5_float64_t P[3]
+	);
+h5_err_t
+H5FedGetVertexCoordByID (
+	h5_file_t* const f,
+	h5_id_t vertex_id,
+	h5_float64_t P[3]
+	);
+h5_err_t
+H5FedGetVertexIndicesOfEntity (
+	h5_file_t* const f,
+	h5_id_t entity_id,
+	h5_id_t* const vertex_indices
+	);
 #endif
