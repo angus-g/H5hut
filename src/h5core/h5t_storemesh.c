@@ -88,7 +88,8 @@ _assign_global_elem_ids (
 		elem->global_parent_eid = elem_ldta->local_parent_eid;
 		elem->global_child_eid = elem_ldta->local_child_eid;
 		int i;
-		for ( i = 0; i < t->mesh_type; i++ ) {
+		int num_vertices = t->ref_element->num_faces[0];
+		for ( i = 0; i < num_vertices; i++ ) {
 			elem->global_vids[i] = elem_ldta->local_vids[i];
 		}
 	}
@@ -293,12 +294,14 @@ h5tpriv_store_tet (
 	elem_ldta->local_parent_eid = local_parent_eid;
 	elem_ldta->local_child_eid = -1;
 	elem_ldta->level_id = t->cur_level;
+	int num_vertices = t->ref_element->num_faces[0];
 	memcpy ( elem_ldta->local_vids, local_vids,
-		 sizeof (*local_vids) * t->mesh_type );
-	h5tpriv_sort_local_vids ( f, elem_ldta->local_vids, t->mesh_type );
+		 sizeof (*local_vids) * num_vertices );
+	h5tpriv_sort_local_vids ( f, elem_ldta->local_vids, num_vertices );
 	h5_id_t face_id;
-	h5t_te_entry_t *retval;
+	h5_idlist_t *retval;
 	for ( face_id = 0; face_id < 6; face_id++ ) {
+		// add edges to neighbour struct
 		TRY ( h5tpriv_search_te2 (
 			      f,
 			      face_id,
@@ -323,12 +326,14 @@ h5tpriv_store_tri (
 	elem_ldta->local_parent_eid = local_parent_eid;
 	elem_ldta->local_child_eid = -1;
 	elem_ldta->level_id = t->cur_level;
+	int num_vertices = t->ref_element->num_faces[0];
 	memcpy ( elem_ldta->local_vids, local_vids,
-		 sizeof (*local_vids) * t->mesh_type );
-	h5tpriv_sort_local_vids ( f, elem_ldta->local_vids, t->mesh_type );
+		 sizeof (*local_vids) * num_vertices );
+	h5tpriv_sort_local_vids ( f, elem_ldta->local_vids, num_vertices );
 	h5_id_t face_id;
-	h5t_te_entry_t *retval;
+	h5_idlist_t *retval;
 	for ( face_id = 0; face_id < 3; face_id++ ) {
+		// add edges to neighbour struct
 		TRY ( h5tpriv_search_te2 (
 			      f,
 			      face_id,
@@ -412,39 +417,37 @@ h5_id_t
 h5tpriv_bisect_edge (
 	h5_file_t * const f,
 	h5_id_t face_id,
-	h5_id_t el_id
+	h5_id_t elem_id
 	) {
 	h5t_fdata_t *t = f->t;
-	h5t_te_entry_t item;
-	h5_id_t *vids = item.key.vids;
-	h5t_te_entry_t *retval;
+	h5_id_t vids[2];
+	h5_idlist_t *retval;
 	/*
 	  get all elements sharing the given edge
 	 */
-	TRY ( h5t_get_local_vids_of_edge2 ( f, face_id, el_id, vids ) );
-	TRY ( h5tpriv_find_te ( f, &item, &retval ) );
+	TRY( h5tpriv_find_te2 (f, face_id, elem_id, &retval) );
 	/*
 	  check wether one of the found elements has been refined
 	 */
 	size_t i;
-	for ( i = 0; i < retval->value.num_items; i++ ) {
-		h5_id_t local_id = h5tpriv_get_elem_idx ( retval->value.items[i] );
+	for ( i = 0; i < retval->num_items; i++ ) {
+		h5_id_t local_id = h5tpriv_get_elem_idx ( retval->items[i] );
 		h5_elem_ldta_t *tet = &t->elems_ldta[local_id];
 		if ( tet->local_child_eid >= 0 ) {
 			/*
 			  this element has been refined!
 			  return bisecting point
 			 */
-			h5_id_t	face_id = h5tpriv_get_face_id (
-				retval->value.items[i] );
+			h5_id_t	face_id = h5tpriv_get_face_idx (
+				retval->items[i] );
 			h5_id_t kids[2], edge0[2], edge1[2];
 			TRY ( h5tpriv_compute_direct_children_of_edge (
 				      f,
 				      face_id,
 				      tet->local_child_eid,
 				      kids ) );
-			TRY ( h5t_get_local_vids_of_edge ( f, kids[0], edge0 ) );
-			TRY ( h5t_get_local_vids_of_edge ( f, kids[1], edge1 ) );
+			TRY ( h5t_get_vertex_indices_of_edge ( f, kids[0], edge0 ) );
+			TRY ( h5t_get_vertex_indices_of_edge ( f, kids[1], edge1 ) );
 			if ( (edge0[0] == edge1[0]) || (edge0[0] == edge1[1]) )
 				return edge0[0];
 			else
