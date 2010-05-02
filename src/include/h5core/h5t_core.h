@@ -6,6 +6,7 @@
 #include "h5t_map.h"
 #include "h5t_openclose.h"
 #include "h5t_readwrite.h"
+#include "h5t_reference_elements.h"
 #include "h5t_retrieve.h"
 #include "h5t_storemesh.h"
 #include "h5t_tags.h"
@@ -69,7 +70,7 @@
 #define h5tpriv_build_elem_id( elem_idx )				\
 	( h5tpriv_build_id ( f->t->mesh_type, 0, elem_idx ) )
 
-#define h5tpriv_get_face_id( entity_id )				\
+#define h5tpriv_get_face_idx( entity_id )				\
 	( (entity_id & H5T_COMPONENT_ID_MASK) >> (sizeof(h5_id_t)*7) )
 
 #define h5tpriv_get_elem_idx( entity_id )		\
