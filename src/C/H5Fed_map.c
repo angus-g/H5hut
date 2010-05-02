@@ -29,7 +29,7 @@ H5FedLMapEdgeID2VertexIDs (
 	h5_id_t *local_vids
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_get_local_vids_of_edge ( f, local_id, local_vids );
+	return h5t_get_vertex_indices_of_edge ( f, local_id, local_vids );
 }
 
 h5_err_t
@@ -39,7 +39,7 @@ H5FedLMapTriangleID2VertexIDs (
 	h5_id_t *local_vids
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_get_local_vids_of_triangle ( f, local_id, local_vids );
+	return h5t_get_vertex_indices_of_triangle ( f, local_id, local_vids );
 }
 
 h5_err_t
@@ -49,5 +49,5 @@ H5FedLMapTetID2VertexIDs (
 	h5_id_t *local_vids
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_get_local_vids_of_tet ( f, local_id, local_vids );
+	return h5t_get_vertex_indices_of_tet ( f, local_id, local_vids );
 }
