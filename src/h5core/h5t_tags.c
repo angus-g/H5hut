@@ -358,7 +358,7 @@ h5tpriv_set_mtag (
 	) {
 	size_t offs[5] = { 14, 0, 4, 10, 14 };
 	h5_id_t el_idx = h5tpriv_get_elem_idx ( id );
-	h5_id_t eoe_id = h5tpriv_get_face_id ( id );
+	h5_id_t eoe_id = h5tpriv_get_face_idx ( id );
 	h5_id_t type_id = h5tpriv_get_entity_type ( id );
 	if ( tagset->elems[el_idx] == NULL ) {
 		/*
@@ -445,7 +445,7 @@ _get_tag_valp (
 	h5t_tagval_t **valp
 	) {
 	h5_id_t el_idx = h5tpriv_get_elem_idx ( entity_id );
-	h5_id_t subentity_id = h5tpriv_get_face_id ( entity_id );
+	h5_id_t subentity_id = h5tpriv_get_face_idx ( entity_id );
 	h5_id_t type_id = h5tpriv_get_entity_type ( entity_id );
 
 	if ( tagset->elems[el_idx] == NULL ) {
@@ -533,7 +533,7 @@ h5t_remove_mtag (
 	const h5_id_t id
 	) {
 	h5_id_t el_idx = h5tpriv_get_elem_idx ( id );
-	h5_id_t subentity_id = h5tpriv_get_face_id ( id );
+	h5_id_t subentity_id = h5tpriv_get_face_idx ( id );
 	h5_id_t type_id = h5tpriv_get_entity_type ( id );
 
 	if ( tagset->elems[el_idx] == NULL ) {
