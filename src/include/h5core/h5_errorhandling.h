@@ -28,6 +28,21 @@
 			H5_ERR_INVAL,					\
 			"Internal error: step_gid <= 0.");
 
+#define h5_error_not_implemented( f, file, func, lino )		     \
+	h5_error(						     \
+		f,						     \
+		H5_ERR_NOT_IMPLEMENTED,				     \
+		"%s: Function \"%s\", line %d not yet implemented!", \
+		file, func, lino );
+
+#define h5_error_internal( f, file, func, lino )   \
+	h5_error(				   \
+		f,				   \
+		H5_ERR_INTERNAL,		   \
+		"%s: Internal error: %s line %d!", \
+		file, func, lino )
+
+
 h5_err_t
 h5_set_debuglevel (
 	h5_id_t debuglevel
