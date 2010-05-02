@@ -63,6 +63,7 @@ libH5_a_SOURCES =				\
 	H5Fed_adjacency.c			\
 	H5Fed_inquiry.c				\
 	H5Fed_map.c				\
+	H5Fed_retrieve.c			\
 	H5Fed_store.c				\
 	H5Fed_tags.c				\
 	H5Part.c
