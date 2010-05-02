@@ -1,33 +1,10 @@
 # src level Makefile.am
 
-# PATH SETTING (IMPORTED FROM CONFIGURE)
-HDF5ROOT = @HDF5ROOT@
-
-OBJEXT = o
-
 # COMPILERS
 CC = @CC@
 
-#INCLUDES
-HDFINC = -I$(HDF5ROOT)/include
-MPIINC = @MPIINC@
-
-INC = $(HDFINC) ${MPIINC} -I. -I../include -I../include/h5core
-
-# H5Part header file location
-H5PINC = -I@prefix@/include
-
-# COMPILER FLAGS
-CFLAGS = @CFLAGS@ ${INC}
-
-# H5Part compiled library location
-H5PLIB = -L@prefix@/lib
-
-# HDF5 LIBRARY
-HDFLIB = -L$(HDF5ROOT)/lib -lhdf5 -lz $(SZLIB) @LDFLAGS@
-
-# SZ LIBRARY
-SZLIB = @SZLIB@
+AM_CPPFLAGS = -I@HDF5ROOT@/include @MPIINC@ -I. -I../include -I../include/h5core
+AM_CFLAGS = @CFLAGS@ 
 
 EXTRA_HEADERS =					\
 	../include/h5core/h5_attribs.h		\
@@ -42,6 +19,7 @@ EXTRA_HEADERS =					\
 	../include/h5core/h5t_map.h		\
 	../include/h5core/h5t_openclose.h	\
 	../include/h5core/h5t_readwrite.h	\
+	../include/h5core/h5t_ref_elements.h	\
 	../include/h5core/h5t_retrieve.h	\
 	../include/h5core/h5t_storemesh.h	\
 	../include/h5core/h5t_tags.h		\
@@ -72,6 +50,7 @@ EXTRA_DIST = $(EXTRA_HEADERS)
 # Files that I don't want to include in the dist tar ball
 nodist_include_HEADERS =
 
+OBJEXT = o
 # What to build... Will be determined by configure script.
 lib_LIBRARIES = libH5Core.a
 
@@ -103,6 +82,7 @@ libH5Core_a_SOURCES =				\
 	h5t_map.c				\
 	h5t_openclose.c				\
 	h5t_readwrite.c				\
+	h5t_ref_elements.c			\
 	h5t_retrieve.c				\
 	h5t_storemesh.c				\
 	h5t_tags.c				\
@@ -116,9 +96,6 @@ all: ../lib/libH5Core.a
 
 ../lib/libH5Core.a: libH5Core.a
 	-cp $^ $@
-
-%.o : %.c
-	$(CC) $(CFLAGS) $(INC) -c $<
 
 $(libH5Core_a_OBJECTS): $(libH5Core_a_DEPENDENCIES)
 
