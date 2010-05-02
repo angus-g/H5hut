@@ -22,27 +22,9 @@ h5t_map_local_vid2global (
 	);
 
 h5_id_t
-h5t_map_local_eid2global (
-	h5_file_t *f,
-	h5_id_t local_eid
-	);
-
-h5_id_t
 h5t_map_global_eid2local (
 	h5_file_t * const f,
 	const h5_id_t global_eid
-	);
-
-h5_id_t
-h5t_map_local_triangle_id2global (
-	h5_file_t * const f,
-	const h5_id_t local_tid
-	);
-
-h5_id_t
-h5t_map_global_triangle_id2local (
-	h5_file_t * const f,
-	const h5_id_t global_tid
 	);
 
 h5_id_t
@@ -58,41 +40,62 @@ h5t_get_local_eid (
 	);
 
 h5_err_t
-h5t_get_local_vids_of_edge (
-	h5_file_t * const f,
-	const h5_id_t id,
-	h5_id_t *edge
+h5t_get_vertex_index_of_vertex (
+	h5_file_t* const f,
+	const h5_id_t entity_id,
+	h5_id_t* vertex_index
 	);
 
 h5_err_t
-h5t_get_local_vids_of_edge2 (
-	h5_file_t * const f,
-	const h5_id_t face,
-	const h5_id_t id,
-	h5_id_t *vids
+h5t_get_vertex_index_of_vertex2 (
+	h5_file_t* const f,
+	const h5_id_t face_idx,
+	const h5_id_t elem_idx,
+	h5_id_t* vertex_indices
 	);
 
 h5_err_t
-h5t_get_local_vids_of_triangle (
-	h5_file_t * const f,
-	const h5_id_t id,
-	h5_id_t *vids
+h5t_get_vertex_indices_of_edge (
+	h5_file_t* const f,
+	const h5_id_t entity_id,
+	h5_id_t *vertex_indices
 	);
 
 h5_err_t
-h5t_get_local_vids_of_triangle2 (
-	h5_file_t * const f,
-	const h5_id_t face,
-	const h5_id_t id,
-	h5_id_t *vids
+h5t_get_vertex_indices_of_edge2 (
+	h5_file_t* const f,
+	const h5_id_t face_idx,
+	const h5_id_t elem_id,
+	h5_id_t* vertex_indices
 	);
 
 h5_err_t
-h5t_get_local_vids_of_tet (
-	h5_file_t * const f,
-	const h5_id_t id,
-	h5_id_t *vids
+h5t_get_vertex_indices_of_triangle (
+	h5_file_t* const f,
+	const h5_id_t entity_id,
+	h5_id_t* vertex_indices
 	);
 
+h5_err_t
+h5t_get_vertex_indices_of_triangle2 (
+	h5_file_t* const f,
+	const h5_id_t face_idx,
+	const h5_id_t elem_idx,
+	h5_id_t* vertex_indices
+	);
+
+h5_err_t
+h5t_get_vertex_indices_of_tet (
+	h5_file_t* const f,
+	const h5_id_t entity_id,
+	h5_id_t *vertex_indices
+	);
+
+h5_err_t
+h5t_get_vertex_indices_of_entity (
+	h5_file_t * const f,
+	const h5_id_t entity_id,
+	h5_id_t *vertex_indices
+	);
 
 #endif
