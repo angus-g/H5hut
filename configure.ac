@@ -74,7 +74,6 @@ SAVE_MPIFC=$MPIFC
 SAVE_MPILIB=$MPILIB
 SAVE_MPIINC=$MPIINC
 SAVE_CFLAGS=$CFLAGS
-#CFLAGS=''
 SAVE_FFLAGS=$FFLAGS
 SAVE_MPIROOT=$MPIROOT
 SAVE_HDF5ROOT=$HDF5ROOT
@@ -195,31 +194,9 @@ AC_DEFINE_UNQUOTED(MY_GNUNAME, "${host_cpu}-${host_vendor}-${host_os}", "")
 AC_DEFINE_UNQUOTED(MY_UNAME, "$uname", "")
 
 
-
 ###############################################################################
 ######################## CONFIGURE LINE OPTIONS ###############################
 ###############################################################################
-
-###################### 64-bit compilation enabled #############################
-AC_MSG_CHECKING([if 64-bit compilation is enabled])
-
-
-# If --enable-64 is set in the configure line
-if test "X$USE_64" = "Xyes"; then
-	AC_MSG_RESULT([yes])
-	if test $uname = "AIX"; then
-		CFLAGS="$CFLAGS -q64"
-		FFLAGS="$FFLAGS -q64"
-	fi
-
-	if test $uname = "IRIX64"; then
-		CFLAGS="$CFLAGS -64"
-		FFLAGS="$FFLAGS -64 -fPIC -fno-second-underscore"
-	fi
-else
-	AC_MSG_RESULT([no])
-fi
-
 
 ############################ fortran enabled ##################################
 AC_MSG_CHECKING([if fortran interface enabled])
@@ -498,9 +475,7 @@ if test -n "$SAVE_MPIINC"; then
 	MPIINC=$SAVE_MPIINC
 fi
 
-if test -n "$SAVE_CFLAGS"; then
-	CFLAGS="$SAVE_CFLAGS ${CFLAGS}"
-fi
+#CFLAGS="$SAVE_CFLAGS ${CFLAGS}"
 
 if test -n "$SAVE_FFLAGS"; then
 	FFLAGS=$SAVE_FFLAGS
