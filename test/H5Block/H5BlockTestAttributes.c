@@ -212,9 +212,9 @@ _read_data (
 				h5_int64_t rk = k + layout->k_start;
 				int proc = (int) H5Block3dGetProcOf ( f, ri, rj, rk );
 
-				h5_int64_t i_start, i_end;
-				h5_int64_t j_start, j_end;
-				h5_int64_t k_start, k_end;
+				h5_size_t i_start, i_end;
+				h5_size_t j_start, j_end;
+				h5_size_t k_start, k_end;
 
  				H5Block3dGetPartitionOfProc (
 					f,
