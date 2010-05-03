@@ -28,23 +28,25 @@ static h5_err_t
 traverse_vertices (
 	h5_file_t * f
 	) {
-	h5_id_t local_id;
+	h5_id_t vertex_id;
 	h5_float64_t P[3];
 	h5_size_t real_num = 0;
+	h5t_entity_iterator_t* iter;
 
 	h5_size_t num = H5FedGetNumVerticesTotal ( f );
 	printf ( "    Number of vertices on level: %lld\n", num );
 
-	H5FedBeginTraverseVertices ( f );
+	iter = H5FedBeginTraverseEntities ( f, 3 );
 	while ( (real_num < num) &&
-		((local_id = H5FedTraverseVertices ( f, P )) >= 0) ) {
+		((vertex_id = H5FedTraverseEntities ( f, iter )) >= 0) ) {
+		H5FedGetVertexCoordByID (f, vertex_id, P);
 		char v[256];
-		snprintf ( v, sizeof(v), "=%llx=", local_id );
+		snprintf ( v, sizeof(v), "=%llx=", vertex_id );
 		printf ( "| %-18s | (%f, %f, %f) |\n",
 			 v, P[0], P[1], P[2] );
 		real_num++;
 	}
-	H5FedEndTraverseVertices ( f );
+	H5FedEndTraverseEntities ( f, iter );
 
 	if ( real_num != num ) {
 		fprintf ( stderr, "!!! Got %lld vertices, but expected %lld.\n",
@@ -58,11 +60,10 @@ static h5_err_t
 traverse_edges (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
-
-	H5FedBeginTraverseEdges ( f );
+	h5_id_t local_id;
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities ( f, 2 );
 	printf ( "Edges on level %lld:\n", H5FedGetLevel(f) );
-	while ( (local_id = H5FedTraverseEdges ( f, vids )) >= 0 ) {
+	while ( (local_id = H5FedTraverseEntities ( f, iter )) >= 0 ) {
 		char v[256];
 		char k[256];
 		h5_id_t local_vids[4];
@@ -72,7 +73,7 @@ traverse_edges (
 				   local_vids[0], local_vids[1] );
 		printf ( "| %-18s | %-18s |\n", k, v );
 	}
-	H5FedEndTraverseEdges ( f );
+	H5FedEndTraverseEntities ( f, iter );
 	return H5_SUCCESS;
 }
 
@@ -80,11 +81,10 @@ static h5_err_t
 traverse_triangles (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
-
-	H5FedBeginTraverseTriangles ( f );
+	h5_id_t local_id;
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities ( f, 1 );
 	printf ( "Triangles on level %lld:\n", H5FedGetLevel(f) );
-	while ( (local_id = H5FedTraverseTriangles ( f, vids )) >= 0 ) {
+	while ( (local_id = H5FedTraverseEntities ( f, iter )) >= 0 ) {
 		char v[256];
 		char d[256];
 		h5_id_t local_vids[4];
@@ -94,7 +94,7 @@ traverse_triangles (
 			   local_vids[0], local_vids[1], local_vids[2] );
 		printf ( "| %-18s | %-18s |\n", d, v );
 	}
-	H5FedEndTraverseTriangles ( f );
+	H5FedEndTraverseEntities ( f, iter );
 	return H5_SUCCESS;
 }
 
@@ -102,15 +102,14 @@ static h5_err_t
 traverse_tets (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
+	h5_id_t local_id;
 	h5_size_t real_num = 0;
 
 	h5_size_t num = H5FedGetNumElementsTotal ( f );
 	printf ( "    Number of tetrahedra on level: %lld\n", num );
-
-	H5FedBeginTraverseElements ( f );
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
 	while ( (real_num < num) &&
-		((local_id = H5FedTraverseElements ( f, vids )) >= 0) ) {
+		((local_id = H5FedTraverseEntities ( f, iter )) >= 0) ) {
 		char v[256];
 		char t[256];
 		h5_id_t local_vids[4];
@@ -121,7 +120,7 @@ traverse_tets (
 		printf ( "| %-18s | %-18s |\n", t, v );
 		real_num++;
 	}
-	H5FedEndTraverseElements ( f );
+	H5FedEndTraverseEntities (f, iter);
 	if ( real_num != num ) {
 		fprintf ( stderr, "!!! Got %lld tets, but expected %lld.\n",
 			  real_num, num );

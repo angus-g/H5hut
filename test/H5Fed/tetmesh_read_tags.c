@@ -29,14 +29,12 @@ traverse_vertices (
 	h5_file_t * f
 	) {
 	h5_id_t local_id;
-	h5_float64_t P[3];
 	h5_size_t real_num = 0;
 
 	h5_size_t num = H5FedGetNumVerticesTotal ( f );
-
-	H5FedBeginTraverseVertices ( f );
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 3 );
 	while ( (real_num < num) &&
-		((local_id = H5FedTraverseVertices ( f, P )) >= 0) ) {
+		((local_id = H5FedTraverseEntities (f, iter)) >= 0) ) {
 		size_t size;
 		h5_int64_t retval[3];
 		H5FedGetMTag ( f, "testtag", local_id, &size, retval );
@@ -49,7 +47,7 @@ traverse_vertices (
 		}
 		real_num++;
 	}
-	H5FedEndTraverseVertices ( f );
+	H5FedEndTraverseEntities (f, iter);
 
 	if ( real_num != num ) {
 		fprintf ( stderr, "!!! Got %lld vertices, but expected %lld.\n",
@@ -63,10 +61,10 @@ static h5_err_t
 traverse_edges (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
+	h5_id_t local_id;
 
-	H5FedBeginTraverseEdges ( f );
-	while ( (local_id = H5FedTraverseEdges ( f, vids )) >= 0 ) {
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
+	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		h5_id_t local_vids[4];
 		H5FedLMapEdgeID2VertexIDs ( f, local_id, local_vids );
 		size_t size;
@@ -80,7 +78,7 @@ traverse_edges (
 			exit ( 1 );
 		}
 	}
-	H5FedEndTraverseEdges ( f );
+	H5FedEndTraverseEntities (f, iter);
 	return H5_SUCCESS;
 }
 
@@ -88,10 +86,10 @@ static h5_err_t
 traverse_triangles (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
+	h5_id_t local_id;
 
-	H5FedBeginTraverseTriangles ( f );
-	while ( (local_id = H5FedTraverseTriangles ( f, vids )) >= 0 ) {
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
+	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		size_t size;
 		h5_int64_t retval[3];
 		H5FedGetMTag ( f, "testtag", local_id, &size, retval );
@@ -103,7 +101,7 @@ traverse_triangles (
 			exit ( 1 );
 		}
 	}
-	H5FedEndTraverseTriangles ( f );
+	H5FedEndTraverseEntities (f, iter);
 	return H5_SUCCESS;
 }
 
@@ -111,14 +109,14 @@ static h5_err_t
 traverse_tets (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
+	h5_id_t local_id;
 	h5_size_t real_num = 0;
 
 	h5_size_t num = H5FedGetNumElementsTotal ( f );
 
-	H5FedBeginTraverseElements ( f );
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
 	while ( (real_num < num) &&
-		((local_id = H5FedTraverseElements ( f, vids )) >= 0) ) {
+		((local_id = H5FedTraverseEntities (f, iter)) >= 0) ) {
 		size_t size;
 		h5_int64_t retval[3];
 		H5FedGetMTag ( f, "testtag", local_id, &size, retval );
@@ -131,7 +129,7 @@ traverse_tets (
 		}
 		real_num++;
 	}
-	H5FedEndTraverseElements ( f );
+	H5FedEndTraverseEntities (f, iter);
 	if ( real_num != num ) {
 		fprintf ( stderr, "!!! Got %lld tets, but expected %lld.\n",
 			  real_num, num );

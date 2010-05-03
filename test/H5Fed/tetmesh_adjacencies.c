@@ -275,17 +275,16 @@ traverse_vertices (
 	) {
 	h5_id_t local_id;
 	h5_id_t num = 0;
-	h5_float64_t P[3];
 	clock_t t_total = 0;
 	clock_t t_min = CLOCKS_PER_SEC;
 	clock_t t_max = 0;
 	clock_t t = 0;
 	printf ( "\nAdjacencies to vertices\n" );
-	H5FedBeginTraverseVertices ( f );
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 3);
 	fprintf (
 		stderr,
 		"Computing all adjacencies of all vertices ... ");
-	while ( (local_id = H5FedTraverseVertices ( f, P )) >= 0 ) {
+	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		print_adjacencies_of_vertex ( f, local_id, &t );
 		num++;
 		t_total += t;
@@ -300,25 +299,25 @@ traverse_vertices (
 		(double)t_min / (double)CLOCKS_PER_SEC,
 		(double)t_total / (double)CLOCKS_PER_SEC / (double)num,
 		(double)t_max / (double)CLOCKS_PER_SEC );
-	return H5FedEndTraverseVertices ( f );
+	return H5FedEndTraverseEntities (f, iter);
 }
 
 static h5_err_t
 traverse_edges (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
+	h5_id_t local_id;
 	h5_id_t num = 0;
 	clock_t t_total = 0;
 	clock_t t_min = CLOCKS_PER_SEC;
 	clock_t t_max = 0;
 	clock_t t = 0;
 	printf ( "\nAdjacencies to edges\n" );
-	H5FedBeginTraverseEdges ( f );
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
 	fprintf (
 		stderr,
 		"Computing all adjacencies of all edges ... ");
-	while ( (local_id = H5FedTraverseEdges ( f, vids )) >= 0 ) {
+	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		print_adjacencies_of_edge ( f, local_id, &t );
 		num++;
 		t_total += t;
@@ -333,25 +332,25 @@ traverse_edges (
 		(double)t_min / (double)CLOCKS_PER_SEC,
 		(double)t_total / (double)CLOCKS_PER_SEC / (double)num,
 		(double)t_max / (double)CLOCKS_PER_SEC );
-	return H5FedEndTraverseEdges ( f );
+	return H5FedEndTraverseEntities (f, iter);
 }
 
 static h5_err_t
 traverse_triangles (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
+	h5_id_t local_id;
 	h5_id_t num = 0;
 	clock_t t_min = CLOCKS_PER_SEC;
 	clock_t t_max = 0;
 	clock_t t_total = 0;
 	clock_t t = 0;
 	printf ( "\nAdjacencies to triangle\n" );
-	H5FedBeginTraverseTriangles ( f );
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
 	fprintf (
 		stderr,
 		"Computing all adjacencies of all triangles ... ");
-	while ( (local_id = H5FedTraverseTriangles ( f, vids )) >= 0 ) {
+	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		print_adjacencies_of_triangle ( f, local_id, &t );
 		num++;
 		t_total += t;
@@ -366,25 +365,25 @@ traverse_triangles (
 		(double)t_min / (double)CLOCKS_PER_SEC,
 		(double)t_total / (double)CLOCKS_PER_SEC / (double)num,
 		(double)t_max / (double)CLOCKS_PER_SEC );
-	return H5FedEndTraverseTriangles ( f );
+	return H5FedEndTraverseEntities (f, iter);
 }
 
 static h5_err_t
 traverse_tets (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
+	h5_id_t local_id;
 	h5_id_t num = 0;
 	clock_t t_total = 0;
 	clock_t t_min = CLOCKS_PER_SEC;
 	clock_t t_max = 0;
 	clock_t t = 0;
 	printf ( "\nAdjacencies to tetrahedra\n" );
-	H5FedBeginTraverseElements ( f );
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
 	fprintf (
 		stderr,
 		"Computing all adjacencies of all tetrahedra ... ");
-	while ( (local_id = H5FedTraverseElements (f, vids )) >= 0 ) {
+	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		print_adjacencies_of_tet ( f, local_id, &t );
 		num++;
 		t_total += t;
@@ -399,7 +398,7 @@ traverse_tets (
 		(double)t_min / (double)CLOCKS_PER_SEC,
 		(double)t_total / (double)CLOCKS_PER_SEC / (double)num,
 		(double)t_max / (double)CLOCKS_PER_SEC );
-	return H5FedEndTraverseElements ( f );
+	return H5FedEndTraverseEntities (f, iter);
 }
 
 static h5_err_t

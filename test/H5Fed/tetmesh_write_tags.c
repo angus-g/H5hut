@@ -31,11 +31,10 @@ set_vertex_tags (
 	) {
 	h5_id_t local_id;
 	h5_int64_t val[3];
-	h5_float64_t P[3];
 
 	printf ( "\nSet tags to vertices\n" );
-	H5FedBeginTraverseVertices ( f );
-	while ( (local_id = H5FedTraverseVertices ( f, P )) >= 0 ) {
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 3);
+	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		val[0] = local_id;
 		val[1] = local_id+1;
 		val[2] = local_id+2;
@@ -58,18 +57,18 @@ set_vertex_tags (
 			fprintf (  stderr, "Oops!\n" );
 		}
 	}
-	return H5FedEndTraverseVertices ( f );
+	return H5FedEndTraverseEntities (f, iter);
 }
 
 static h5_err_t
 set_edge_tags (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
+	h5_id_t local_id;
 	h5_int64_t val[3];
 	printf ( "\nSet tags to edges\n" );
-	H5FedBeginTraverseEdges ( f );
-	while ( (local_id = H5FedTraverseEdges ( f, vids )) >= 0 ) {
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
+	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		val[0] = local_id;
 		val[1] = local_id+1;
 		val[2] = local_id+2;
@@ -92,18 +91,18 @@ set_edge_tags (
 			fprintf (  stderr, "Oops!\n" );
 		}
 	}
-	return H5FedEndTraverseEdges ( f );
+	return H5FedEndTraverseEntities (f, iter);
 }
 
 static h5_err_t
 set_tri_tags (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
+	h5_id_t local_id;
 	h5_int64_t val[3];
 	printf ( "\nSet tags to triangle\n" );
-	H5FedBeginTraverseTriangles ( f );
-	while ( (local_id = H5FedTraverseTriangles ( f, vids )) >= 0 ) {
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
+	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		val[0] = local_id;
 		val[1] = local_id+1;
 		val[2] = local_id+2;
@@ -126,18 +125,18 @@ set_tri_tags (
 			fprintf (  stderr, "Oops!\n" );
 		}
 	}
-	return H5FedEndTraverseTriangles ( f );
+	return H5FedEndTraverseEntities (f, iter);
 }
 
 static h5_err_t
 set_tet_tags (
 	h5_file_t * f
 	) {
-	h5_id_t local_id, vids[4];
+	h5_id_t local_id;
 	h5_int64_t val[3];
 	printf ( "\nSet tags to tetrahedra\n" );
-	H5FedBeginTraverseElements ( f );
-	while ( (local_id = H5FedTraverseElements (f, vids )) >= 0 ) {
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
+	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		val[0] = local_id;
 		val[1] = local_id+1;
 		val[2] = local_id+2;
@@ -160,7 +159,7 @@ set_tet_tags (
 			fprintf (  stderr, "Oops!\n" );
 		}
 	}
-	return H5FedEndTraverseElements ( f );
+	return H5FedEndTraverseEntities (f, iter);
 }
 
 int
