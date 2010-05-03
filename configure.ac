@@ -168,7 +168,7 @@ fi
 # If CC is not already set in the environment, check for gcc and cc, then
 # for other C compilers. 
 # Set output variable CC to the name of the compiler found.
-AC_PROG_CC(pathcc icc cc_r gcc cc)
+AC_PROG_CC(pgcc pathcc icc cc_r gcc cc)
 
 # AC_PROG_CC doesn't pick up cc_r in Bassi. The following AC_PATH_PROGS
 # is the fix.
@@ -189,7 +189,7 @@ fi
 # then search for a C++ compiler under the likely names (first g++ and c++
 # then other names). 
 # If none of those checks succeed, then as a last resort set CXX to g++.
-AC_PROG_CXX(pathCC icc cc_r g++ gcc cc)
+AC_PROG_CXX(pgCC pathCC icc cc_r g++ gcc cc)
 
 
 # Set output variable INSTALL to the path of a BSD-compatible install program,
@@ -248,7 +248,8 @@ AC_MSG_CHECKING([if 64-bit compilation is enabled])
 
 
 # If --enable-64 is set in the configure line
-if test "X$USE_64" = "Xyes"; then
+if test "X$USE_64:/f90
+" = "Xyes"; then
     AC_MSG_RESULT([yes])
     if test $uname = "AIX"; then
         CFLAGS="$CFLAGS -q64"
@@ -269,7 +270,7 @@ AC_MSG_CHECKING([if fortran interface enabled])
 if test "X$USE_FORTRAN" = "Xyes"; then
     AC_MSG_RESULT([yes])
 
-    AC_PROG_FC(ifort xlf_r pathf90 g95 g90 ftn gfortran)
+    AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
     if test -z "$FC" ; then
         AC_MSG_ERROR([Cannot find a fortran compiler!!!])
         exit 1
