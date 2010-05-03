@@ -6,7 +6,7 @@
 #include "h5t_map.h"
 #include "h5t_openclose.h"
 #include "h5t_readwrite.h"
-#include "h5t_reference_elements.h"
+#include "h5t_ref_elements.h"
 #include "h5t_retrieve.h"
 #include "h5t_storemesh.h"
 #include "h5t_tags.h"
