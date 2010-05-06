@@ -40,6 +40,8 @@ test/H5Fed/tetmesh_read_tags
 test/H5Fed/tetmesh_write
 test/H5Fed/tetmesh_write2
 test/H5Fed/tetmesh_write_tags
+test/H5Fed/trimesh_read
+test/H5Fed/trimesh_write
 test/H5Part/H5test
 test/H5Part/Makefile
 test/H5Part/Makefile.in
