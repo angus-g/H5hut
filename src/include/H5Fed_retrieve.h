@@ -42,6 +42,28 @@ H5FedGetVertexCoordByID (
 	h5_id_t vertex_id,
 	h5_float64_t P[3]
 	);
+
+h5_err_t
+H5FedGetVertexIndicesOfEdge (
+	h5_file_t* const f,
+	h5_id_t entity_id,
+	h5_id_t* const vertex_indices
+	);
+
+h5_err_t
+H5FedGetVertexIndicesOfTriangle (
+	h5_file_t* const f,
+	h5_id_t entity_id,
+	h5_id_t* const vertex_indices
+	);
+
+h5_err_t
+H5FedGetVertexIndicesOfTet (
+	h5_file_t* const f,
+	h5_id_t entity_id,
+	h5_id_t* const vertex_indices
+	);
+
 h5_err_t
 H5FedGetVertexIndicesOfEntity (
 	h5_file_t* const f,

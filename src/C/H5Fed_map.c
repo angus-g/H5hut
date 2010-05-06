@@ -21,33 +21,3 @@
 #include <hdf5.h>
 #include "h5core/h5_core.h"
 #include "H5Fed.h"
-
-h5_err_t
-H5FedLMapEdgeID2VertexIDs (
-	h5_file_t * const f,
-	h5_id_t local_id,
-	h5_id_t *local_vids
-	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_vertex_indices_of_edge ( f, local_id, local_vids );
-}
-
-h5_err_t
-H5FedLMapTriangleID2VertexIDs (
-	h5_file_t * const f,
-	h5_id_t local_id,
-	h5_id_t *local_vids
-	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_vertex_indices_of_triangle ( f, local_id, local_vids );
-}
-
-h5_err_t
-H5FedLMapTetID2VertexIDs (
-	h5_file_t * const f,
-	h5_id_t local_id,
-	h5_id_t *local_vids
-	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_vertex_indices_of_tet ( f, local_id, local_vids );
-}

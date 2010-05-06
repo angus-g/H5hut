@@ -113,12 +113,42 @@ H5FedGetVertexCoordByID (
 }
 
 h5_err_t
+H5FedGetVertexIndicesOfEdge (
+	h5_file_t* const f,
+	h5_id_t entity_id,
+	h5_id_t* vertex_indices
+	) {
+	SET_FNAME (f, __func__);
+	return h5t_get_vertex_indices_of_edge (f, entity_id, vertex_indices);
+}
+
+h5_err_t
+H5FedGetVertexIndicesOfTriangle (
+	h5_file_t* const f,
+	h5_id_t entity_id,
+	h5_id_t* vertex_indices
+	) {
+	SET_FNAME (f, __func__);
+	return h5t_get_vertex_indices_of_triangle (f, entity_id, vertex_indices);
+}
+
+h5_err_t
+H5FedGetVertexIndicesOfTet (
+	h5_file_t* const f,
+	h5_id_t entity_id,
+	h5_id_t* vertex_indices
+	) {
+	SET_FNAME (f, __func__);
+	return h5t_get_vertex_indices_of_tet (f, entity_id, vertex_indices);
+}
+
+h5_err_t
 H5FedGetVertexIndicesOfEntity (
 	h5_file_t* const f,
 	h5_id_t entity_id,
-	h5_id_t* const vertex_indices
+	h5_id_t* vertex_indices
 	) {
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 	return h5t_get_vertex_indices_of_entity (f, entity_id, vertex_indices);
 }
 

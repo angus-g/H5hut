@@ -19,26 +19,6 @@
 #ifndef __H5FED_MAP_H
 #define __H5FED_MAP_H
 
-h5_err_t
-H5FedLMapEdgeID2VertexIDs (
-	h5_file_t * const f,
-	h5_id_t local_id,
-	h5_id_t *localvids
-	);
-
-h5_err_t
-H5FedLMapTriangleID2VertexIDs (
-	h5_file_t * const f,
-	h5_id_t local_id,
-	h5_id_t *localvids
-	);
-
-h5_err_t
-H5FedLMapTetID2VertexIDs (
-	h5_file_t * const f,
-	h5_id_t local_id,
-	h5_id_t *localvids
-	);
 
 #endif
 
