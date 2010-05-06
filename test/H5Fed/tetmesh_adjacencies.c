@@ -57,7 +57,7 @@ print_adjacencies_of_vertex (
 			*v = '\0';
 		}
 		if ( i < uadj_edges->num_items ) {
-			H5FedLMapEdgeID2VertexIDs (
+			H5FedGetVertexIndicesOfEntity (
 				f, uadj_edges->items[i], local_vids );
 			snprintf ( k, sizeof(k), "=[%lld,%lld]=",
 				   local_vids[0], local_vids[1] );
@@ -65,7 +65,7 @@ print_adjacencies_of_vertex (
 			*k = '\0';
 		}
 		if ( i < uadj_triangles->num_items ) {
-			H5FedLMapTriangleID2VertexIDs (
+			H5FedGetVertexIndicesOfEntity (
 				f, uadj_triangles->items[i], local_vids );
 			snprintf ( d, sizeof(d), "=[%lld,%lld,%lld]=",
 				   local_vids[0], local_vids[1], local_vids[2] );
@@ -73,7 +73,7 @@ print_adjacencies_of_vertex (
 			*d = '\0';
 		}
 		if ( i < uadj_tets->num_items ) {
-			H5FedLMapTetID2VertexIDs (
+			H5FedGetVertexIndicesOfEntity (
 				f, uadj_tets->items[i], local_vids );
 			snprintf ( t, sizeof(t), "=[%lld,%lld,%lld,%lld]=",
 				   local_vids[0], local_vids[1],
@@ -126,7 +126,7 @@ print_adjacencies_of_edge (
 			*k = '\0';
 		}
 		if ( i < uadj_triangles->num_items ) {
-			H5FedLMapTriangleID2VertexIDs (
+			H5FedGetVertexIndicesOfEntity (
 				f, uadj_triangles->items[i], local_vids );
 			snprintf ( d, sizeof(d), "=[%lld,%lld,%lld]=",
 				   local_vids[0], local_vids[1], local_vids[2] );
@@ -134,7 +134,7 @@ print_adjacencies_of_edge (
 			*d = '\0';
 		}
 		if ( i < uadj_tets->num_items ) {
-			H5FedLMapTetID2VertexIDs (
+			H5FedGetVertexIndicesOfEntity (
 				f, uadj_tets->items[i], local_vids );
 			snprintf ( t, sizeof(t), "=[%lld,%lld,%lld,%lld]=",
 				   local_vids[0], local_vids[1],
@@ -181,7 +181,7 @@ print_adjacencies_of_triangle (
 			*v = '\0';
 		}
 		if ( i < dadj_edges->num_items ) {
-			H5FedLMapEdgeID2VertexIDs (
+			H5FedGetVertexIndicesOfEntity (
 				f, dadj_edges->items[i], local_vids );
 			snprintf ( k, sizeof(k), "=[%lld,%lld]=",
 				   local_vids[0], local_vids[1] );
@@ -194,7 +194,7 @@ print_adjacencies_of_triangle (
 			*d = '\0';
 		}
 		if ( i < uadj_tets->num_items ) {
-			H5FedLMapTetID2VertexIDs (
+			H5FedGetVertexIndicesOfEntity (
 				f, uadj_tets->items[i], local_vids );
 			snprintf ( t, sizeof(t), "=[%lld,%lld,%lld,%lld]=",
 				   local_vids[0], local_vids[1],
@@ -241,7 +241,7 @@ print_adjacencies_of_tet (
 			*v = '\0';
 		}
 		if ( i < dadj_edges->num_items ) {
-			H5FedLMapEdgeID2VertexIDs (
+			H5FedGetVertexIndicesOfEntity (
 				f, dadj_edges->items[i], local_vids );
 			snprintf ( k, sizeof(k), "=[%lld,%lld]=",
 				   local_vids[0], local_vids[1] );
@@ -249,7 +249,7 @@ print_adjacencies_of_tet (
 			*k = '\0';
 		}
 		if ( i < dadj_triangles->num_items ) {
-			H5FedLMapTriangleID2VertexIDs (
+			H5FedGetVertexIndicesOfEntity (
 				f, dadj_triangles->items[i], local_vids );
 			snprintf ( d, sizeof(d), "=[%lld,%lld,%lld]=",
 				   local_vids[0], local_vids[1], local_vids[2] );

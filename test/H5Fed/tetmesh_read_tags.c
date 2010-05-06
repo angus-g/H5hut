@@ -66,7 +66,7 @@ traverse_edges (
 	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
 	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
 		h5_id_t local_vids[4];
-		H5FedLMapEdgeID2VertexIDs ( f, local_id, local_vids );
+		H5FedGetVertexIndicesOfEntity( f, local_id, local_vids );
 		size_t size;
 		h5_int64_t retval[3];
 		H5FedGetMTag ( f, "testtag", local_id, &size, retval );

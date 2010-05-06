@@ -23,74 +23,80 @@ struct entity {
 };
 typedef struct entity entity_t;
 
-h5_err_t
-read_vertices (
+static h5_err_t
+traverse_vertices (
 	h5_file_t * f
 	) {
-	h5_id_t id, local_id;
+	h5_id_t vertex_id;
 	h5_float64_t P[3];
 	h5_size_t real_num = 0;
+	h5t_entity_iterator_t* iter;
 
-	h5_id_t level_id = H5FedGetLevel ( f );
-	h5_size_t num = H5FedGetNumVertices ( f );
-	printf ( "    Number of vertices on level %lld: %lld\n", level_id, num );
-	h5_err_t h5err = H5FedBeginTraverseVertices ( f );
-	if ( h5err < 0 ) return h5err;
-	while ( (real_num < num) &&
-		((local_id = H5FedTraverseVertices ( f, &id, P )) >= 0) ) {
-		printf ( "    Vertex[%lld]: local id: %lld, coords: %f %f %f \n",
-			 id, local_id, P[0], P[1], P[2] );
+	h5_size_t num = H5FedGetNumVerticesTotal (f);
+	printf ("    Number of vertices on level: %lld\n", num);
+
+	iter = H5FedBeginTraverseEntities (f, 2);
+	while ((real_num < num) &&
+	       ((vertex_id = H5FedTraverseEntities (f, iter)) >= 0)) {
+		H5FedGetVertexCoordByID (f, vertex_id, P);
+		char v[256];
+		snprintf (v, sizeof(v), "=%llx=", vertex_id);
+		printf ("| %-18s | (%f, %f, %f) |\n",
+			 v, P[0], P[1], P[2]);
 		real_num++;
 	}
-	if ( real_num != num ) {
-		fprintf ( stderr, "!!! Got %lld vertices, but expected %lld.\n",
-			  real_num, num );
-		return -1;
+	H5FedEndTraverseEntities (f, iter);
+
+	if (real_num != num) {
+		fprintf (stderr, "!!! Got %lld vertices, but expected %lld.\n",
+			 real_num, num);
+		exit (1);
 	}
 	return H5_SUCCESS;
 }
 
-h5_err_t
-read_entities (
+static h5_err_t
+traverse_elems (
 	h5_file_t * f
 	) {
-	h5_id_t id, local_id, parent_id, vids[4];
+	h5_id_t local_id;
 	h5_size_t real_num = 0;
 
-	h5_id_t level_id = H5FedGetLevel ( f );
-	h5_size_t num = H5FedGetNumElements ( f );
-	printf ( "    Number of triangles on level %lld: %lld\n", level_id, num );
-
-	h5_err_t h5err = H5FedBeginTraverseElements ( f );
-	if ( h5err < 0 ) return h5err;
+	h5_size_t num = H5FedGetNumElementsTotal ( f );
+	printf ( "    Number of tetrahedra on level: %lld\n", num );
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
 	while ( (real_num < num) &&
-		((local_id = H5FedTraverseElements (
-			  f, &id, &parent_id, vids )) >= 0) ) {
-		printf (
-			"    entitiy[%lld]: local id: %lld, parent id: %lld, "
-			"vids: %lld %lld %lld\n",
-			id, local_id, parent_id, vids[0], vids[1], vids[2] );
+		((local_id = H5FedTraverseEntities ( f, iter )) >= 0) ) {
+		char v[256];
+		char t[256];
+		h5_id_t local_vids[4];
+		snprintf ( t, sizeof(t), "=%llx=", local_id );
+		H5FedGetVertexIndicesOfEntity ( f, local_id, local_vids );
+		snprintf (v, sizeof(v), "=[%lld,%lld,%lld]=",
+			   local_vids[0], local_vids[1], local_vids[2]);
+		printf ( "| %-18s | %-18s |\n", t, v );
 		real_num++;
 	}
+	H5FedEndTraverseEntities (f, iter);
 	if ( real_num != num ) {
 		fprintf ( stderr, "!!! Got %lld tets, but expected %lld.\n",
 			  real_num, num );
-		return -1;
+		exit(1);
 	}
 
 	return H5_SUCCESS;
 }
 
 h5_err_t
-read_level (
-	h5_file_t * f
+traverse_level (
+	h5_file_t* const f
 	) {
-	h5_err_t h5err = read_vertices ( f );
+	h5_err_t h5err = traverse_vertices (f);
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Oops ...\n" );
 		return -1;
 	}
-	h5err = read_entities ( f );
+	h5err = traverse_elems (f);
 	if ( h5err < 0 ) {
 		fprintf ( stderr, "!!! Oops ...\n" );
 		return -1;
@@ -99,7 +105,7 @@ read_level (
 }
 
 h5_err_t
-read_mesh (
+traverse_mesh (
 	h5_file_t * f
 	) {
 
@@ -117,7 +123,7 @@ read_mesh (
 			fprintf ( stderr, "!!! Can't set level %lld.\n", level_id );
 			return -1;
 		}
-		h5err = read_level ( f );
+		h5err = traverse_level ( f );
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Oops ...\n" );
 			return -1;
@@ -152,7 +158,7 @@ main (
 			fprintf ( stderr, "!!! Can't open mesh %lld\n", mesh_id );
 			return -1;
 		}
-		h5err = read_mesh ( f );
+		h5err = traverse_mesh ( f );
 		if ( h5err < 0 ) {
 			fprintf ( stderr, "!!! Oops ...\n" );
 			return 1;

@@ -68,7 +68,7 @@ traverse_edges (
 		char k[256];
 		h5_id_t local_vids[4];
 		snprintf ( k, sizeof(k), "=%llx=", local_id );
-		H5FedLMapEdgeID2VertexIDs ( f, local_id, local_vids );
+		H5FedGetVertexIndicesOfEntity ( f, local_id, local_vids );
 		snprintf ( v, sizeof(v), "=[%lld,%lld]=",
 				   local_vids[0], local_vids[1] );
 		printf ( "| %-18s | %-18s |\n", k, v );
@@ -89,7 +89,7 @@ traverse_triangles (
 		char d[256];
 		h5_id_t local_vids[4];
 		snprintf ( d, sizeof(d), "=%llx=", local_id );
-		H5FedLMapTriangleID2VertexIDs ( f, local_id, local_vids );
+		H5FedGetVertexIndicesOfEntity ( f, local_id, local_vids );
 		snprintf ( v, sizeof(v), "=[%lld,%lld,%lld]=",
 			   local_vids[0], local_vids[1], local_vids[2] );
 		printf ( "| %-18s | %-18s |\n", d, v );
@@ -114,7 +114,7 @@ traverse_tets (
 		char t[256];
 		h5_id_t local_vids[4];
 		snprintf ( t, sizeof(t), "=%llx=", local_id );
-		H5FedLMapTetID2VertexIDs ( f, local_id, local_vids );
+		H5FedGetVertexIndicesOfEntity ( f, local_id, local_vids );
 		snprintf ( v, sizeof(v), "=[%lld,%lld,%lld,%lld]=",
 			   local_vids[0], local_vids[1], local_vids[2],local_vids[3] );
 		printf ( "| %-18s | %-18s |\n", t, v );
