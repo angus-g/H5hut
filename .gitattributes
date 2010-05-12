@@ -431,6 +431,16 @@ src/h5core/h5t_tags.c -text
 src/h5core/h5t_tags_private.h -text
 src/h5core/h5t_tetm_adjacencies.c -text
 src/h5core/h5t_tetm_adjacencies_private.h -text
+src/h5core/h5t_tetm_retrieve.c -text
+src/h5core/h5t_tetm_retrieve_private.h -text
+src/h5core/h5t_tetm_store.c -text
+src/h5core/h5t_tetm_store_private.h -text
+src/h5core/h5t_trim_adjacencies.c -text
+src/h5core/h5t_trim_adjacencies_private.h -text
+src/h5core/h5t_trim_retrieve.c -text
+src/h5core/h5t_trim_retrieve_private.h -text
+src/h5core/h5t_trim_store.c -text
+src/h5core/h5t_trim_store_private.h -text
 src/h5core/h5t_types_private.h -text
 src/h5core/h5u_errorhandling_private.h -text
 src/h5core/h5u_readwrite.c -text
