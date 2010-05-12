@@ -1,5 +1,5 @@
 /*
-  Copyright 2006-2009
+  Copyright 2006-2010
  	Paul Scherrer Institut, Villigen, Switzerland;
  	Achim Gsell
  	All rights reserved.
@@ -11,11 +11,7 @@
 	This code is under development.
 */
 
-#include <stdlib.h>
-#include <string.h>
-#include <search.h>
 #include <time.h>
-#include <hdf5.h>
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
@@ -134,7 +130,7 @@ compute_children_of_edge (
 				);
 		} else {
 			h5_id_t kids[2];
-			TRY ( h5tpriv_compute_direct_children_of_edge (
+			TRY ( t->methods.store->get_direct_children_of_edge (
 				      f,
 				      face_idx,
 				      tet->local_child_eid,
@@ -176,7 +172,7 @@ compute_sections_of_edge (
 		if ( ! h5tpriv_elem_is_on_cur_level ( f, tet ) == H5_OK ) {
 			refined = 1;
 			h5_id_t kids[2];
-			TRY ( h5tpriv_compute_direct_children_of_edge (
+			TRY ( t->methods.store->get_direct_children_of_edge (
 				      f,
 				      face_id,
 				      tet->local_child_eid,
@@ -193,22 +189,62 @@ compute_sections_of_edge (
 	return H5_SUCCESS;
 }
 
+/*
+  Compute direct children of a triangle.
+
+  Face 0	      Face 1		  Face 2	      Face 3	    
+  1		      1	      	          2		      1	    
+   +		       +	      	   +		       +	    
+   |\		       |\	      	   |\		       |\	    
+   | \		       | \	      	   | \		       | \	    
+   |  \		       |  \	      	   |  \		       |  \	    
+   |   \	       |   \	      	   |   \	       |   \	    
+  4+----+7	      4+----+8     	  5+----+9	      7+----+8     
+   |\   |\	       |\   |\     	   |\   |\	       |\   |\     
+   | \  | \	       | \  | \    	   | \  | \	       | \  | \    
+   |  \ |  \	       |  \ |  \   	   |  \ |  \	       |  \ |  \   
+   |   \|   \	       |   \|   \  	   |   \|   \	       |   \|   \  
+   +----+----+	       +----+----+ 	   +----+----+	       +----+----+ 
+  0     5     2	      0     6     3	  0     6     3	      2     9     3
+
+  z ^                 z ^                 y ^                 z ^
+    |                   |                   |                   |
+    +-->                +-->                +-->                +-->
+       y                    x                  x                   x
+
+  Triangle: face idx, #child
+
+  [0,4,5]: 0, 0       [0,4,6]: 1, 0       [0,5,6]: 2, 0       [1,7,8]: 3, 1
+  [1,4,7]: 0, 1       [1,4,8]: 1, 1       [2,5,9]: 2, 2       [2,7,9]: 3, 2
+  [2,5,7]: 0, 2       [3,6,8]: 1, 3       [3,6,9]: 2, 3       [3,8,9]: 3, 3
+  [4,5,7]: 0, 5       [4,6,8]: 2, 4       [5,6,9]: 1, 7       [7,8,9]: 3, 6
+
+*/
 static h5_err_t
 compute_direct_children_of_triangle (
 	h5_file_t * const f,
-	h5_id_t face_id,
-	h5_id_t eid,
-	h5_id_t	dids[4]
+	h5_id_t face_idx,
+	h5_id_t elem_idx,
+	h5_id_t	children[4]
 	) {
-	int off[4][4] = { {1,2,3,7}, {0,2,3,6}, {0,1,3,4}, {0,1,2,5} };
-
-	if ( ( face_id < 0 ) || ( face_id >= 4 ) ) {
+	h5_id_t map[4][4][2] = {
+		{{0,0},{0,1},{0,2},{0,5}},
+		{{1,0},{1,1},{1,3},{2,4}},
+		{{2,0},{2,2},{2,3},{1,7}},
+		{{3,1},{3,2},{3,3},{3,6}}
+	};
+	int num_faces = f->t->ref_element->num_faces[2];
+	if ( (face_idx < 0) || (face_idx >= num_faces) ) {
 		return  h5_error_internal ( f, __FILE__, __func__, __LINE__ ); 
 	}
-	dids[0] = h5tpriv_build_edge_id ( face_id, eid+off[face_id][0] );
-	dids[1] = h5tpriv_build_edge_id ( face_id, eid+off[face_id][1] );
-	dids[2] = h5tpriv_build_edge_id ( face_id, eid+off[face_id][2] );
-	dids[3] = h5tpriv_build_edge_id ( face_id, eid+off[face_id][3] );
+	children[0] = h5tpriv_build_edge_id (
+		map[face_idx][0][0], elem_idx+map[face_idx][0][1]);
+	children[1] = h5tpriv_build_edge_id (
+		map[face_idx][1][0], elem_idx+map[face_idx][1][1]);
+	children[2] = h5tpriv_build_edge_id (
+		map[face_idx][2][0], elem_idx+map[face_idx][2][1]);
+	children[3] = h5tpriv_build_edge_id (
+		map[face_idx][3][0], elem_idx+map[face_idx][3][1]);
 	return H5_SUCCESS;
 }
 

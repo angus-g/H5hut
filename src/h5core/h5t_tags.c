@@ -15,7 +15,7 @@
  */
 
 static h5_err_t
-_init_container (
+init_container (
 	h5_file_t * const f,
 	const size_t ntags,
 	h5t_tagcontainer_t * ctn
@@ -32,14 +32,14 @@ h5tpriv_init_mtagsets (
 	h5_file_t * const f,
 	size_t ntags
 	) {
-	return _init_container ( f, ntags, &f->t->mtags );
+	return init_container ( f, ntags, &f->t->mtags );
 }
 
 /*
   Release all tag values for a specific element 
  */
 static h5_err_t
-_release_tagvals_of_elem (
+release_tagvals_of_elem (
  	h5_file_t * const f,
 	h5t_tagsel_t *el_vals
 	) {
@@ -54,7 +54,7 @@ _release_tagvals_of_elem (
   Release a tag-set
  */
 static h5_err_t
-_release_tagset (
+release_tagset (
  	h5_file_t * const f,
 	const void *__set
 	) {
@@ -62,7 +62,7 @@ _release_tagset (
 	unsigned int i;
 	for ( i = 0; i < set->num_elems; i++ ) {
 		if ( set->elems[i] != NULL ) {
-			TRY ( _release_tagvals_of_elem ( f, set->elems[i] ) );
+			TRY ( release_tagvals_of_elem ( f, set->elems[i] ) );
 		}
 	}
 	TRY ( h5priv_free ( f, set->name ) );
@@ -74,11 +74,12 @@ _release_tagset (
   Release all sets in given container
  */
 static h5_err_t
-_release_container (
-	h5_file_t * const f,
-	h5t_tagcontainer_t * ctn
+release_container (
+	h5_file_t* const f,
+	h5t_tagcontainer_t* ctn
 	) {
-	TRY ( h5priv_hwalk ( f, &ctn->sets, _release_tagset ) ); 
+	if (ctn->num_sets == 0) return H5_SUCCESS;
+	TRY ( h5priv_hwalk ( f, &ctn->sets, release_tagset ) ); 
 	TRY ( h5priv_free ( f, ctn->names ) );
 
 	return H5_SUCCESS;
@@ -92,7 +93,7 @@ h5tpriv_release_tags (
 	h5_file_t * const f
 	) {
 	h5t_fdata_t *t = f->t;
-	TRY ( _release_container ( f, &t->mtags ) );
+	TRY ( release_container ( f, &t->mtags ) );
 
 	return H5_SUCCESS;
 }
@@ -185,7 +186,7 @@ h5t_add_mtagset (
   \return	H5_SUCCESS or error code
  */
 static h5_err_t
-_remove_tagset (
+remove_tagset (
 	h5_file_t *const f,
 	h5t_tagcontainer_t *ctn,
 	const char name[]
@@ -249,7 +250,7 @@ h5t_remove_mtagset (
 	h5t_fdata_t *t = f->t;
 
 	TRY ( t->mtags.group_id = h5priv_open_group ( f, t->mesh_gid, "Tags" ) );
-	TRY ( _remove_tagset ( f, &t->mtags, name ) );
+	TRY ( remove_tagset ( f, &t->mtags, name ) );
 	TRY ( h5priv_close_hdf5_group ( f, t->mtags.group_id ) );
 	return H5_SUCCESS;
 }
@@ -585,7 +586,7 @@ h5t_remove_mtag_by_name (
 }
 
 static hid_t
-_open_space_all (
+open_space_all (
 	h5_file_t * const f,
 	hid_t dataset_id
 	) {
@@ -596,7 +597,7 @@ _open_space_all (
   Store given tagset.
  */
 static h5_err_t
-_write_tagset (
+write_tagset (
  	h5_file_t * const f,
 	hid_t loc_id,
 	H5T_Tagset *tagset
@@ -721,7 +722,7 @@ _write_tagset (
 		      f,
 		      group_id,
 		      &dsinfo,
-		      _open_space_all, _open_space_all,
+		      open_space_all, open_space_all,
 		      elems ) );
 
 	strcpy ( dsinfo.name, "entities" );
@@ -731,7 +732,7 @@ _write_tagset (
 		      f,
 		      group_id,
 		      &dsinfo,
-		      _open_space_all, _open_space_all,
+		      open_space_all, open_space_all,
 		      entities ) );
 
 	strcpy ( dsinfo.name, "values" );
@@ -742,7 +743,7 @@ _write_tagset (
 		      f,
 		      group_id,
 		      &dsinfo,
-		      _open_space_all, _open_space_all,
+		      open_space_all, open_space_all,
 		      vals ) );
 
 	return H5_SUCCESS;
@@ -766,7 +767,7 @@ _write_container (
 				    &ctn->sets ) );
 		H5T_Tagset *tagset = (H5T_Tagset*)__retval;
 		if ( tagset->changed ) {
-			TRY ( _write_tagset (
+			TRY ( write_tagset (
 				      f,
 				      ctn->group_id,
 				      tagset ) );
@@ -791,7 +792,7 @@ h5tpriv_write_mtags (
 }
 
 static h5_err_t
-_read_tagset (
+read_tagset (
 	h5_file_t * const f,
 	hid_t loc_id,
 	hsize_t idx
@@ -820,7 +821,7 @@ _read_tagset (
 		      f,
 		      dset_id,
 		      &dsinfo,
-		      _open_space_all, _open_space_all,
+		      open_space_all, open_space_all,
 		      elems ) );
 	TRY ( h5priv_close_hdf5_dataset ( f, dset_id ) );
 	num_elems--;
@@ -835,7 +836,7 @@ _read_tagset (
 		      f,
 		      dset_id,
 		      &dsinfo,
-		      _open_space_all, _open_space_all,
+		      open_space_all, open_space_all,
 		      entities ) );
 	TRY ( h5priv_close_hdf5_dataset ( f, dset_id ) );
 	num_entities--;
@@ -850,7 +851,7 @@ _read_tagset (
 		      f,
 		      dset_id,
 		      &dsinfo,
-		      _open_space_all, _open_space_all,
+		      open_space_all, open_space_all,
 		      vals ) );
 	TRY ( h5priv_close_hdf5_dataset ( f, dset_id ) );
 	type = h5_normalize_h5_type ( f, dsinfo.type_id );
@@ -884,7 +885,7 @@ h5tpriv_read_tag_container (
 	hsize_t idx;
 	
 	for ( idx = 0; idx < num_sets; idx++ ) {
-		TRY ( _read_tagset ( f, ctn->group_id, idx ) );
+		TRY( read_tagset (f, ctn->group_id, idx) );
 	}
 
 	return H5_SUCCESS;

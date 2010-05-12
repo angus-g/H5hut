@@ -1,6 +1,16 @@
 #ifndef __H5T_TYPES_PRIVATE_H
 #define __H5T_TYPES_PRIVATE_H
 
+struct h5t_store_methods {
+	h5_err_t (*alloc_elems)(h5_file_t* const, const size_t, const size_t);
+	h5_id_t (*refine_elem)(h5_file_t* const, const h5_id_t);
+	h5_id_t (*get_direct_children_of_edge)(h5_file_t* const, const h5_id_t, const h5_id_t, h5_id_t*);
+};
+
+struct h5t_retrieve_methods {
+	h5_err_t (*init_iterator)(h5_file_t* const, h5t_entity_iterator_t*, const int);
+};
+
 struct h5t_adjacency_methods {
 	h5_err_t (*rebuild_internal_structs)(h5_file_t * const);
 	h5_err_t (*release_internal_structs)(h5_file_t * const);
@@ -31,9 +41,8 @@ struct h5t_adjacency_methods {
 };
 
 struct h5t_methods {
-	h5_err_t (*_alloc_elems)(h5_file_t * const, const size_t, const size_t);
-	h5_id_t (*_store_elem)(h5_file_t * const, const h5_id_t, const h5_id_t*);
-	h5_id_t (*_refine_elem)(h5_file_t * const, const h5_id_t);
+	struct h5t_store_methods *store;
+	struct h5t_retrieve_methods *retrieve;
 	struct h5t_adjacency_methods *adjacency;
 };
 
@@ -125,7 +134,7 @@ typedef struct h5t_fdata {
 	char		mesh_name[16];
 	char		mesh_label[256];
 	h5_oid_t	mesh_type;	/* object id of element type */
-	h5t_ref_element_t* ref_element;
+	const h5t_ref_element_t*  ref_element;
 	h5_id_t		cur_mesh;	/* id of current mesh */
 	h5_id_t		mesh_changed;	/* true if new or has been changed */
 	h5_id_t		num_meshes;	/* number of meshes */

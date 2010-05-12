@@ -296,7 +296,7 @@ _read_elems (
 	) {
 	h5t_fdata_t *t = f->t;
 
-	TRY( (*t->methods._alloc_elems)( f, 0, t->num_elems[t->num_levels-1] ) );
+	TRY( (*t->methods.store->alloc_elems)( f, 0, t->num_elems[t->num_levels-1] ) );
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,

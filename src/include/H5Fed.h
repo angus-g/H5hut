@@ -22,7 +22,6 @@
 #include "H5.h"
 #include "H5Fed_adjacency.h"
 #include "H5Fed_inquiry.h"
-#include "H5Fed_map.h"
 #include "H5Fed_retrieve.h"
 #include "H5Fed_store.h"
 #include "H5Fed_tags.h"

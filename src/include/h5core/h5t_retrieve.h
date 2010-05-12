@@ -5,7 +5,7 @@ typedef struct {
 	h5_id_t elem_idx;	// local element id
 	h5_id_t	face_idx;	// face id according reference element
 	int codim;		// dimension of entities to traverse
-	h5t_ref_element_t* ref_element; // pointer to reference element
+	const h5t_ref_element_t* ref_element; // pointer to reference element
 	h5_err_t (*find)(h5_file_t *const f,
 			 h5_id_t face_idx,
 			 h5_id_t elem_idx,

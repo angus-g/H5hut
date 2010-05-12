@@ -42,6 +42,11 @@ EXTRA_HEADERS =					\
 	h5t_storemesh_private.h			\
 	h5t_tags_private.h			\
 	h5t_tetm_adjacencies_private.h		\
+	h5t_tetm_retrieve_private.h		\
+	h5t_tetm_store_private.h		\
+	h5t_trim_adjacencies_private.h		\
+	h5t_trim_retrieve_private.h		\
+	h5t_trim_store_private.h		\
 	h5u_errorhandling_private.h
 
 # Extra files that I wish to include in the dist tar ball.
@@ -87,6 +92,11 @@ libH5Core_a_SOURCES =				\
 	h5t_storemesh.c				\
 	h5t_tags.c				\
 	h5t_tetm_adjacencies.c			\
+	h5t_tetm_retrieve.c			\
+	h5t_tetm_store.c			\
+	h5t_trim_adjacencies.c			\
+	h5t_trim_retrieve.c			\
+	h5t_trim_store.c			\
 	h5u_readwrite.c				\
 	hdf5_misc.c
 

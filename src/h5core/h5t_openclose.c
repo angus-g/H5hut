@@ -11,16 +11,15 @@
 #include "h5_core_private.h"
 
 static struct h5t_methods tet_funcs = {
-	h5tpriv_alloc_tets,
-	h5tpriv_store_tet,
-	h5tpriv_refine_tet,
+	&h5tpriv_tetm_store_methods,
+	&h5tpriv_tetm_retrieve_methods,
 	&h5tpriv_tetm_adjacency_methods
 };
 
 static struct h5t_methods tri_funcs = {
-	h5tpriv_alloc_tris,
-	h5tpriv_store_tri,
-	h5tpriv_refine_tri
+	&h5tpriv_trim_store_methods,
+	&h5tpriv_trim_retrieve_methods,
+	&h5tpriv_trim_adjacency_methods
 };
 
 /*
@@ -473,10 +472,12 @@ h5t_open_mesh (
 	case H5_OID_TETRAHEDRON:
 		t->dsinfo_elems.type_id = t->dtypes.h5_tet_t;
 		t->methods = tet_funcs;
+		t->ref_element = &h5t_tet_ref_element;
 		break;
 	case H5_OID_TRIANGLE:
 		t->dsinfo_elems.type_id = t->dtypes.h5_triangle_t;
 		t->methods = tri_funcs;
+		t->ref_element = &h5t_tri_ref_element;
 		break;
 	default:
 		return h5_error_internal ( f, __FILE__, __func__, __LINE__ );
@@ -530,10 +531,12 @@ static h5_err_t
 _release_memory (
 	h5_file_t* const f
 	) {
-	TRY ( h5tpriv_release_tags (f) );
-	TRY ( (*f->t->methods.adjacency->release_internal_structs) (f) );
-	TRY ( _release_elems (f) );
-	TRY ( _release_vertices (f) );
+	TRY( h5tpriv_release_tags (f) );
+	if (f->t->methods.adjacency != NULL) {
+		TRY( (*f->t->methods.adjacency->release_internal_structs) (f) );
+	}
+	TRY( _release_elems (f) );
+	TRY( _release_vertices (f) );
 
 	return H5_SUCCESS;
 }
@@ -588,108 +591,3 @@ h5tpriv_alloc_num_vertices (
 
 	return H5_SUCCESS;
 }
-
-h5_err_t
-h5tpriv_alloc_tris (
-	h5_file_t * const f,
-	const size_t cur,
-	const size_t new
-	) {
-	h5t_fdata_t *t = f->t;
-	const size_t nvertices = 3;
-
-	/* alloc mem for elements */
-	TRY ( t->elems.tris = h5priv_alloc (
-		      f,
-		      t->elems.tris,
-		      new * sizeof(t->elems.tris[0]) ) );
-	memset (
-		t->elems.tris + cur,
-		-1,
-		(new-cur) * sizeof(t->elems.tris[0]) );
-
-	/* alloc mem for local data of elements */
-	TRY ( t->elems_ldta = h5priv_alloc (
-		      f,
-		      t->elems_ldta,
-		      new * sizeof (t->elems_ldta[0]) ) );
-	memset (
-		t->elems_ldta + cur,
-		-1,
-		(new-cur) * sizeof (t->elems_ldta[0]) );
-
-	/* alloc mem for local vertex IDs of elements */
-	TRY ( t->elems_lvids = h5priv_alloc (
-		      f,
-		      t->elems_lvids,
-		      new * sizeof(t->elems_lvids[0]) * nvertices ) );
-	memset (
-		t->elems_lvids + cur * sizeof(t->elems_lvids[0]) * nvertices,
-		-1,
-		(new-cur) * sizeof(t->elems_lvids[0]) * nvertices );
-
-	/* re-init pointer to local vertex id in local data structure */
-	h5_id_t *p = t->elems_lvids;
-	h5_id_t id;
-	for ( id = 0; id < new; id++, p+=nvertices ) {
-		t->elems_ldta[id].local_vids = p;
-	}
-
-	/* alloc mem for global to local ID mapping */
-	TRY ( h5priv_alloc_idmap ( f, &t->map_elem_g2l, new ) );
-
-	return  H5_SUCCESS;
-}
-
-h5_err_t
-h5tpriv_alloc_tets (
-	h5_file_t * const f,
-	const size_t cur,
-	const size_t new
-	) {
-	h5t_fdata_t *t = f->t;
-	const size_t nvertices = 4;
-
-	/* alloc mem for elements */
-	TRY ( t->elems.tets = h5priv_alloc (
-		      f,
-		      t->elems.tets,
-		      new * sizeof(t->elems.tets[0]) ) );
-	memset (
-		t->elems.tets + cur,
-		-1,
-		(new-cur) * sizeof(t->elems.tets[0]) );
-
-	/* alloc mem for local data of elements */
-	TRY ( t->elems_ldta = h5priv_alloc (
-		      f,
-		      t->elems_ldta,
-		      new * sizeof (t->elems_ldta[0]) ) );
-	memset (
-		t->elems_ldta + cur,
-		-1,
-		(new-cur) * sizeof (t->elems_ldta[0]) );
-
-	/* alloc mem for local vertex IDs of elements */
-	TRY ( t->elems_lvids = h5priv_alloc (
-		      f,
-		      t->elems_lvids,
-		      new * sizeof(t->elems_lvids[0]) * nvertices ) );
-	memset (
-		t->elems_lvids + cur * nvertices,
-		-1,
-		(new-cur) * sizeof(t->elems_lvids[0]) * nvertices );
-
-	/* re-init pointer to local vertex id in local data structure */
-	h5_id_t *p = t->elems_lvids;
-	h5_id_t id;
-	for ( id = 0; id < new; id++, p+=nvertices ) {
-		t->elems_ldta[id].local_vids = p;
-	}
-
-	/* alloc mem for global to local ID mapping */
-	TRY ( h5priv_alloc_idmap ( f, &t->map_elem_g2l, new ) );
-
-	return  H5_SUCCESS;
-}
-

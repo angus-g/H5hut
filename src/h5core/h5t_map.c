@@ -1,5 +1,4 @@
 #include <string.h>
-#include <hdf5.h>
 
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
@@ -22,7 +21,7 @@ cmp_vertices (
 	h5_float64_t P1[3]
 	) {
 	int i;
-	for ( i = 2; i >= 0; i++ ) {
+	for ( i = 0; i < 3; i++ ) {
 		h5_int64_t diff = h5priv_fcmp ( P0[i], P1[i], 10 );
 		if ( diff < 0 ) 	return -1;
 		else if ( diff > 0 )	return 1;
@@ -424,7 +423,7 @@ h5t_get_vertex_indices_of_entity (
 	h5_id_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	int dim =  map_entity_type_to_dimension[entity_type];
 	h5_elem_ldta_t *el = &f->t->elems_ldta[elem_idx];
-	h5t_ref_element_t* ref_element = f->t->ref_element;
+	const h5t_ref_element_t* ref_element = f->t->ref_element;
 	int num_vertices = ref_element->num_vertices_of_face[dim][face_idx];
 	int i;
 	for (i = 0; i < num_vertices; i++) {
@@ -453,10 +452,10 @@ h5t_get_vertex_index_of_vertex2 (
 	const h5_id_t elem_idx,		// local element index
 	h5_id_t* vertex_indices		// OUT: vertex ID's
 	) {
-	h5t_ref_element_t* ref_element = f->t->ref_element;
+	const h5t_ref_element_t* ref_element = f->t->ref_element;
 	h5_elem_ldta_t *el = &f->t->elems_ldta[elem_idx];
 
- 	vertex_indices[0] = el->local_vids[ref_element->map[1][face_idx][0]];
+ 	vertex_indices[0] = el->local_vids[ref_element->map[0][face_idx][0]];
 	return H5_SUCCESS;
 }
 
@@ -489,7 +488,7 @@ h5t_get_vertex_indices_of_edge2 (
 	const h5_id_t elem_idx,		// local element index
 	h5_id_t *vertex_indices		// OUT: vertex ID's
 	) {
-	h5t_ref_element_t* ref_element = f->t->ref_element;
+	const h5t_ref_element_t* ref_element = f->t->ref_element;
 	h5_elem_ldta_t *el = &f->t->elems_ldta[elem_idx];
 
  	vertex_indices[0] = el->local_vids[ref_element->map[1][face_idx][0]];
@@ -516,7 +515,7 @@ h5t_get_vertex_indices_of_triangle2 (
 	const h5_id_t elem_idx,
 	h5_id_t *vertex_indices
 	) {
-	h5t_ref_element_t* ref_element = f->t->ref_element;
+	const h5t_ref_element_t* ref_element = f->t->ref_element;
 	h5_elem_ldta_t *el = &f->t->elems_ldta[elem_idx];
 
  	vertex_indices[0] = el->local_vids[ref_element->map[2][face_idx][0]];
@@ -533,7 +532,7 @@ h5t_get_vertex_indices_of_tet (
 	h5_id_t *vertex_indices
 	) {
 	h5_id_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	h5t_ref_element_t* ref_element = f->t->ref_element;
+	const h5t_ref_element_t* ref_element = f->t->ref_element;
 	h5_elem_ldta_t *el = &f->t->elems_ldta[elem_idx];
 
  	vertex_indices[0] = el->local_vids[ref_element->map[3][0][0]];

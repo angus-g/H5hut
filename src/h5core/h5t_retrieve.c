@@ -8,7 +8,7 @@
   Skip elements which have been refined on a level <= the current one.
 */
 h5_err_t
-skip_to_next_elem_on_level (
+h5tpriv_skip_to_next_elem_on_level (
 	h5_file_t* f,
 	h5t_entity_iterator_t* iter
 	) {
@@ -44,11 +44,39 @@ h5tpriv_elem_is_on_cur_level (
 	return H5_SUCCESS;
 }
 
+h5_err_t
+h5t_alloc_entity_iterator (
+	h5_file_t* f,
+	h5t_entity_iterator_t** iter,
+	int codim
+	) {
+	TRY( *iter = h5priv_alloc (f, NULL, sizeof (h5t_entity_iterator_t)) );
+	return h5t_begin_iterate_entities (f, *iter, codim);
+}
+
+h5_err_t
+h5t_release_entity_iterator (
+	h5_file_t* const f,
+	h5t_entity_iterator_t* iter
+	) {
+	return h5priv_free (f, iter);
+}
+
+
+h5_err_t
+h5t_begin_iterate_entities (
+	h5_file_t* f,
+	h5t_entity_iterator_t* iter,
+	const int codim
+	) {
+	return (*f->t->methods.retrieve->init_iterator)(f, iter, codim);
+}
+
 /*!
   Travere entities with co-dim > 0
 */
-h5_id_t
-h5tpriv_iterate_faces (
+static h5_id_t
+iterate_faces (
 	h5_file_t* const f,
 	h5t_entity_iterator_t* iter
 	) {
@@ -56,10 +84,10 @@ h5tpriv_iterate_faces (
 	h5_idlist_t* entry;
 	h5_size_t i;
 	int dim = iter->ref_element->dim - iter->codim;
-	int num_faces = iter->ref_element->num_faces[dim];
+	int num_faces = iter->ref_element->num_faces[dim] - 1;
 	do {
 		if (iter->face_idx >= num_faces) {
-			if (skip_to_next_elem_on_level (f, iter) == H5_NOK) {
+			if (h5tpriv_skip_to_next_elem_on_level (f, iter) == H5_NOK) {
 				h5_debug (f, "Traversing done!");
 				return H5_NOK;
 			}
@@ -86,65 +114,16 @@ h5tpriv_iterate_faces (
 	return entry->items[0];
 }
 
-h5_id_t
-h5tpriv_iterate_elems (
+static h5_id_t
+iterate_elems (
 	h5_file_t* const f,
 	h5t_entity_iterator_t*iter
 	) {
-	if ( skip_to_next_elem_on_level (f, iter) == H5_NOK) {
+	if ( h5tpriv_skip_to_next_elem_on_level (f, iter) == H5_NOK) {
 		h5_debug ( f, "Traversing done!" );
 		return H5_NOK;
 	}
 	return h5tpriv_build_elem_id ( iter->elem_idx );
-}
-
-h5_err_t
-h5t_alloc_entity_iterator (
-	h5_file_t* f,
-	h5t_entity_iterator_t** iter,
-	int codim
-	) {
-	TRY( *iter = h5priv_alloc (f, NULL, sizeof (h5t_entity_iterator_t)) );
-	return h5t_begin_iterate_entities (f, *iter, codim);
-}
-
-h5_err_t
-h5t_release_entity_iterator (
-	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
-	) {
-	return h5priv_free (f, iter);
-}
-
-
-h5_err_t
-h5t_begin_iterate_entities (
-	h5_file_t* f,
-	h5t_entity_iterator_t* iter,
-	int codim
-	) {
-	iter->face_idx = -1;
-	iter->elem_idx = -1;
-	iter->codim = codim;
-	iter->ref_element = f->t->ref_element;
-	switch (iter->ref_element->dim - codim) {
-	case 0: // iterate vertices
-		iter->find = h5tpriv_find_tv2;
-		break;
-	case 1: // iterate edges
-		iter->find = h5tpriv_find_te2;
-		break;
-	case 2: // iterate faces
-		iter->find = h5tpriv_find_td2;
-		break;
-	case 3: // iterate elems
-		iter->find = NULL;
-		break;
-	default:
-		return h5_error_internal (f, __FILE__, __func__, __LINE__);
-	}
-
-	return skip_to_next_elem_on_level (f, iter);
 }
 
 h5_id_t
@@ -153,9 +132,9 @@ h5t_iterate_entities (
 	h5t_entity_iterator_t* iter
 	) {
 	if (iter->codim > 0) {
-		return h5tpriv_iterate_faces (f, iter);
+		return iterate_faces (f, iter);
 	} else if (iter->codim == 0) {
-		return h5tpriv_iterate_elems (f, iter);
+		return iterate_elems (f, iter);
 	} else {
 		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
