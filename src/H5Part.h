@@ -16,10 +16,10 @@ extern "C" {
 #include "H5MultiBlock.h"
 #endif
 
-#define H5PART_VER_STRING	"1.6.1"
+#define H5PART_VER_STRING	"1.6.2"
 #define H5PART_VER_MAJOR	1
 #define H5PART_VER_MINOR	6
-#define H5PART_VER_RELEASE	1
+#define H5PART_VER_RELEASE	2
 
 /* error values */
 #define H5PART_SUCCESS		0
@@ -42,6 +42,7 @@ extern "C" {
 #define H5PART_VFD_MPIPOSIX	0x08
 #define H5PART_FS_LUSTRE	0x10
 #define H5PART_VFD_MPIIO_IND	0x20
+#define H5PART_VFD_CORE		0x40
 
 /* verbosity level flags */
 #define H5PART_VERB_NONE	0

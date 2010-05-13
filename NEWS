@@ -29,6 +29,13 @@ To better accomodate round-robin lustre striping, the new policy is to
 execute P/N batches of N writes. Thus, matching N to the number of stripes
 results in the desirable 1-1 matching of writers to stripes.
 
+Other Fixes
+-----------
+
+* The configure script should correctly detect PGI compilers now.
+* There was a small memory leak in the Fortran file open calls.
+* There was a compile error with HDF5 1.6.x due to a missing assignment.
+
 #### H5PART 1.6 ##############################################################
 
 Updated Documentation

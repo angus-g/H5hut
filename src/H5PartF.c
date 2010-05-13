@@ -200,6 +200,8 @@ _H5Part_flagsfor2c (
 	while ( flags != NULL ) {
 		if ( strcmp ( flags, "vfd_mpiposix" ) == 0 )
 				fbits |= H5PART_VFD_MPIPOSIX;
+		else if ( strcmp ( flags, "vfd_core" ) == 0 )
+				fbits |= H5PART_VFD_CORE;
 		else if ( strcmp ( flags, "vfd_mpio_ind" ) == 0 )
 				fbits |= H5PART_VFD_MPIIO_IND;
 		else if ( strcmp ( flags, "fs_lustre" ) == 0 )

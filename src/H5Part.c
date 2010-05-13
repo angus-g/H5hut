@@ -194,36 +194,7 @@ _H5Part_open_file (
 			goto error_cleanup;
 		}
 
-		/* select the HDF5 VFD */
-		if (flags & H5PART_VFD_MPIPOSIX) {
-			_H5Part_print_info ( "Selecting MPI-POSIX VFD" );
-			if (H5Pset_fapl_mpiposix ( f->access_prop, comm, 0 ) < 0) {
-				HANDLE_H5P_SET_FAPL_ERR;
-				goto error_cleanup;
-			}
-		}
-		else {
-			_H5Part_print_info ( "Selecting MPI-IO VFD" );
-			if (H5Pset_fapl_mpio ( f->access_prop, comm, info ) < 0) {
-				HANDLE_H5P_SET_FAPL_ERR;
-				goto error_cleanup;
-			}
-			if (flags & H5PART_VFD_MPIIO_IND) {
-				_H5Part_print_info ( "Using independent mode" );
-			} else {
-				_H5Part_print_info ( "Using collective mode" );
-				f->xfer_prop = H5Pcreate (H5P_DATASET_XFER);
-				if (f->xfer_prop < 0) {
-					HANDLE_H5P_CREATE_ERR;
-					goto error_cleanup;
-				}
-				if (H5Pset_dxpl_mpio ( f->xfer_prop, H5FD_MPIO_COLLECTIVE ) < 0) {
-					HANDLE_H5P_SET_DXPL_MPIO_ERR;
-					goto error_cleanup;
-				}
-			}
-		}
-
+		/* optional lustre optimizations */
 		if ( flags & H5PART_FS_LUSTRE )
 		{
 			/* extend the btree size so that metadata pieces are
@@ -279,8 +250,13 @@ _H5Part_open_file (
 				HANDLE_H5P_SET_FAPL_ERR;
 				goto error_cleanup;
 			}
-		}
-		else {
+		} else if (flags & H5PART_VFD_CORE) {
+			_H5Part_print_info ( "Selecting CORE VFD" );
+			if (H5Pset_fapl_core ( f->access_prop, comm, 0 ) < 0) {
+				HANDLE_H5P_SET_FAPL_ERR;
+				goto error_cleanup;
+			}
+		} else {
 			_H5Part_print_info ( "Selecting MPI-IO VFD" );
 			if (H5Pset_fapl_mpio ( f->access_prop, comm, info ) < 0) {
 				HANDLE_H5P_SET_FAPL_ERR;
