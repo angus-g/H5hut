@@ -34,6 +34,8 @@ test/H5Block/Makefile.in
 test/H5Fed/.deps
 test/H5Fed/Makefile
 test/H5Fed/Makefile.in
+test/H5Fed/simple_tet.h5
+test/H5Fed/simple_triangle.h5
 test/H5Fed/tetmesh_adjacencies
 test/H5Fed/tetmesh_read
 test/H5Fed/tetmesh_read_tags
