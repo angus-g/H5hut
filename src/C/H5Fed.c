@@ -32,7 +32,7 @@ h5_err_t
 H5FedCloseMesh (
 	h5_file_t * const f
 	) {
-	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
+	return h5t_close_mesh (f);
 }
 
 h5_err_t

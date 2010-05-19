@@ -372,7 +372,7 @@ h5_err_t
 h5tpriv_close_file (
 	h5_file_t *f		/*!< IN: file handle */
 	) {
-	TRY ( h5tpriv_close_mesh ( f ) );
+	TRY ( h5t_close_mesh ( f ) );
 
 	return H5_SUCCESS;
 }
@@ -453,7 +453,7 @@ h5t_open_mesh (
 	) {
 	h5t_fdata_t *t = f->t;
 
-	TRY( h5tpriv_close_mesh ( f ) );
+	TRY( h5t_close_mesh ( f ) );
 
 	if ( t->num_meshes < 0 ) {
 		h5_size_t result = h5t_get_num_meshes ( f, type );
@@ -542,7 +542,7 @@ _release_memory (
 }
 
 h5_err_t
-h5tpriv_close_mesh (
+h5t_close_mesh (
 	h5_file_t * const f
 	) {
 	TRY( h5tpriv_write_mesh ( f ) );

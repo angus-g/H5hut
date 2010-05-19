@@ -3,6 +3,7 @@
 
 #define H5T_CONTAINER_GRPNAME	"Topo"
 
+#include "h5t_openclose_private.h"
 #include "h5t_tetm_adjacencies_private.h"
 #include "h5t_tetm_retrieve_private.h"
 #include "h5t_tetm_store_private.h"
