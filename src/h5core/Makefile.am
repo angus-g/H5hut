@@ -37,6 +37,7 @@ EXTRA_HEADERS =					\
 	h5t_consts_private.h			\
 	h5t_errorhandling_private.h		\
 	h5t_hsearch_private.h			\
+	h5t_openclose_private.h			\
 	h5t_readwrite_private.h			\
 	h5t_retrieve_private.h			\
 	h5t_storemesh_private.h			\
