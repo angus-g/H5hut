@@ -1,15 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>	/* va_arg - System dependent ?! */
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <hdf5.h>
-
 #include "h5_core.h"
 #include "h5_core_private.h"
-#include "H5Part.h"
-#include "H5Block.h"
 
 /*!
   \ingroup h5_core

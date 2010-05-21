@@ -1,5 +1,5 @@
 /*
-  Copyright 2006-2007
+  Copyright 2006-2010
  	Paul Scherrer Institut, Villigen, Switzerland;
  	Benedikt Oswald;
  	Achim Gsell
@@ -13,7 +13,6 @@
  
  */
 
-#include <hdf5.h>
 #include "h5core/h5_core.h"
 #include "H5Fed.h"
 

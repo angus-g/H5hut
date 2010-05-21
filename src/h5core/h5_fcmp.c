@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
-#include <hdf5.h>
+
 #include "h5_core.h"
 
 /*!

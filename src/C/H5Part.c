@@ -1,11 +1,5 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>	/* va_arg - System dependent ?! */
 #include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <hdf5.h>
 
 #ifndef WIN32
 #include <unistd.h>

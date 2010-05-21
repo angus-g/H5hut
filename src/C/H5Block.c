@@ -41,9 +41,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
-
-#include <hdf5.h>
 
 #include "h5core/h5_core.h"
 #include "../h5core/h5_core_private.h"

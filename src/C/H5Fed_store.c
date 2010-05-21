@@ -13,8 +13,6 @@
  
  */
 
-#include <stdarg.h>
-#include <hdf5.h>
 #include "h5core/h5_core.h"
 #include "H5Fed.h"
 

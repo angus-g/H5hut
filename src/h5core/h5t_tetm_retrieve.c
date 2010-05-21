@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <string.h>
 
 #include "h5core/h5_core.h"

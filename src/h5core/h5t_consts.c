@@ -1,6 +1,5 @@
 #include "h5_core.h"
 #include "h5_core_private.h"
-#include "h5t_types_private.h"
 
 const char *
 h5tpriv_oid_names[] = {
