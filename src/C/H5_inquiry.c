@@ -34,10 +34,10 @@
  */
 h5_size_t
 H5GetNumNodes (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	SET_FNAME ( f, __func__ );
-	CHECK_FILEHANDLE ( f );
+	SET_FNAME (f, __func__);
+	CHECK_FILEHANDLE (f);
 	return (h5_size_t)f->nprocs;
 }
 
@@ -56,17 +56,17 @@ H5GetNumNodes (
 */
 h5_size_t
 H5GetNumSteps (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
 
-	SET_FNAME ( f, __func__ );
-	CHECK_FILEHANDLE ( f );
+	SET_FNAME (f, __func__);
+	CHECK_FILEHANDLE (f);
 
 	return hdf5_get_num_objects_matching_pattern (
 		f->file,
 		"/",
 		H5G_UNKNOWN,
-		f->prefix_step_name );
+		f->prefix_step_name);
 }
 
 /*!
@@ -81,14 +81,14 @@ H5GetNumSteps (
 */
 h5_err_t
 H5HasStep (
-	h5_file_t *f,
+	h5_file_t* const f,
 	h5_id_t stepno
 	) {
   
-	SET_FNAME ( f, __func__ );
-	CHECK_FILEHANDLE ( f );
+	SET_FNAME (f, __func__);
+	CHECK_FILEHANDLE (f);
 
-	return h5_has_step( f, stepno );
+	return h5_has_step (f, stepno);
 }
 
 

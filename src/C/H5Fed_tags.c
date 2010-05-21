@@ -26,12 +26,12 @@
  */
 h5_err_t
 H5FedAddMTagset (
-	h5_file_t * const f,
-	char * name,
+	h5_file_t* const f,
+	char* name,
 	h5_id_t type
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_add_mtagset ( f, name, type );
+	SET_FNAME (f, __func__);
+	return h5t_add_mtagset (f, name, type);
 }
 
 /*!
@@ -44,10 +44,10 @@ H5FedAddMTagset (
  */
 h5_err_t
 H5FedRemoveMTagset (
-	h5_file_t *const f,
+	h5_file_t* const f,
 	char name[]
 	) {
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 	return h5t_remove_mtagset (f, name );
 }
 
@@ -61,11 +61,11 @@ H5FedRemoveMTagset (
  */
 h5_size_t
 H5FedGetMTagsets (
-	h5_file_t *const f,
-	char **names[]
+	h5_file_t* const f,
+	char** names[]
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_mtagsets ( f, names );
+	SET_FNAME (f, __func__);
+	return h5t_get_mtagsets (f, names);
 }
 
 /*!
@@ -78,11 +78,11 @@ H5FedGetMTagsets (
  */
 h5_id_t
 H5FedGetTypeOfMTagset (
-	h5_file_t *const f,
+	h5_file_t* const f,
 	char name[]
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_mtagset_type_by_name ( f, name );
+	SET_FNAME (f, __func__);
+	return h5t_get_mtagset_type_by_name (f, name);
 }
 
 /*!
@@ -98,66 +98,66 @@ H5FedGetTypeOfMTagset (
  */
 h5_err_t
 H5FedSetMTag (
-	h5_file_t *const f,
+	h5_file_t* const f,
 	char name[],
 	h5_id_t id,
 	const size_t dims,
-	void *val 
+	void* val 
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_set_mtag_by_name ( f, name, id, dims, val );
+	SET_FNAME (f, __func__);
+	return h5t_set_mtag_by_name (f, name, id, dims, val);
 }
 
 h5_err_t
 H5FedSetMTagToVertex (
-	h5_file_t *const f,
+	h5_file_t* const f,
 	char name[],
 	h5_id_t id,
 	const size_t dims,
-	void *val 
+	void* val 
 	) {
-	SET_FNAME ( f, __func__ );
-	id = h5tpriv_set_entity_type ( H5T_ETYPE_VERTEX, id );
-	return h5t_set_mtag_by_name ( f, name, id, dims, val );
+	SET_FNAME (f, __func__);
+	id = h5tpriv_set_entity_type (H5T_ETYPE_VERTEX, id);
+	return h5t_set_mtag_by_name (f, name, id, dims, val);
 }
 
 h5_err_t
 H5FedSetMTagToEdge (
-	h5_file_t *const f,
+	h5_file_t* const f,
 	char name[],
 	h5_id_t id,
 	const size_t dims,
-	void *val 
+	void* val 
 	) {
-	SET_FNAME ( f, __func__ );
-	id = h5tpriv_set_entity_type ( H5T_ETYPE_EDGE, id );
-	return h5t_set_mtag_by_name ( f, name, id, dims, val );
+	SET_FNAME (f, __func__);
+	id = h5tpriv_set_entity_type (H5T_ETYPE_EDGE, id);
+	return h5t_set_mtag_by_name (f, name, id, dims, val);
 }
 
 h5_err_t
 H5FedSetMTagToTriangle (
-	h5_file_t *const f,
+	h5_file_t* const f,
 	char name[],
 	h5_id_t id,
 	const size_t dims,
-	void *val 
+	void* val 
 	) {
-	SET_FNAME ( f, __func__ );
-	id = h5tpriv_set_entity_type ( H5T_ETYPE_TRIANGLE, id );
-	return h5t_set_mtag_by_name ( f, name, id, dims, val );
+	SET_FNAME (f, __func__);
+	id = h5tpriv_set_entity_type (H5T_ETYPE_TRIANGLE, id);
+	return h5t_set_mtag_by_name (f, name, id, dims, val);
 }
 
 h5_err_t
 H5FedSetMTagToTet (
-	h5_file_t *const f,
+	h5_file_t* const f,
 	char name[],
 	h5_id_t id,
 	const size_t dims,
-	void *val 
+	void* val 
 	) {
-	SET_FNAME ( f, __func__ );
-	id = h5tpriv_set_entity_type ( H5T_ETYPE_TET, id );
-	return h5t_set_mtag_by_name ( f, name, id, dims, val );
+	SET_FNAME (f, __func__);
+	id = h5tpriv_set_entity_type (H5T_ETYPE_TET, id);
+	return h5t_set_mtag_by_name (f, name, id, dims, val);
 }
 
 /*!
@@ -179,8 +179,8 @@ H5FedGetMTag (
 	size_t* dim,
 	void* vals
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_mtag_by_name ( f, name, id, dim, vals );
+	SET_FNAME (f, __func__);
+	return h5t_get_mtag_by_name (f, name, id, dim, vals);
 }
 
 /*!
@@ -192,10 +192,10 @@ H5FedGetMTag (
 */
 h5_err_t
 H5FedRemoveMTag (
-	h5_file_t *const f,
+	h5_file_t* const f,
 	const char name[],
 	const h5_id_t id
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_remove_mtag_by_name ( f, name, id );
+	SET_FNAME (f, __func__);
+	return h5t_remove_mtag_by_name (f, name, id);
 }

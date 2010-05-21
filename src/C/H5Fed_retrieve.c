@@ -39,7 +39,7 @@ H5FedBeginTraverseEntities (
 	int codim
 	) {
 	h5t_entity_iterator_t* iter;
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 	if (h5t_alloc_entity_iterator (f, &iter, codim) < 0) {
 		return (void*)H5_ERR;
 	}
@@ -61,7 +61,7 @@ H5FedTraverseEntities (
 	h5_file_t* const f,
 	h5t_entity_iterator_t* iter
 	) {
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 	return h5t_iterate_entities (f, iter);
 }
 
@@ -78,7 +78,7 @@ H5FedEndTraverseEntities (
 	h5_file_t* const f,
 	h5t_entity_iterator_t* iter
 	) {
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 	return h5t_release_entity_iterator (f, iter);
 }
 
@@ -98,7 +98,7 @@ H5FedGetVertexCoordsByIndex (
 	h5_id_t vertex_index,
 	h5_float64_t P[3]
 	) {
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 	return h5t_get_vertex_coords_by_index (f, vertex_index, P);
 }
 
@@ -108,7 +108,7 @@ H5FedGetVertexCoordByID (
 	h5_id_t vertex_id,
 	h5_float64_t P[3]
 	) {
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 	return h5t_get_vertrex_coords_by_id (f, vertex_id, P);
 }
 

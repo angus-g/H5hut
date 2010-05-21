@@ -20,34 +20,34 @@
 
 h5_err_t
 H5FedOpenMesh (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	const h5_id_t mesh_id,
 	const h5_oid_t mesh_type_id
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_open_mesh ( f, mesh_id, mesh_type_id );
+	SET_FNAME (f, __func__);
+	return h5t_open_mesh (f, mesh_id, mesh_type_id);
 }
 
 h5_err_t
 H5FedCloseMesh (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
 	return h5t_close_mesh (f);
 }
 
 h5_err_t
 H5FedSetLevel (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	const h5_id_t level_id
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_open_level ( f, level_id );
+	SET_FNAME (f, __func__);
+	return h5t_open_level (f, level_id);
 }
 
 h5_err_t
 H5FedLinkMeshToStep (
-	h5_file_t * f,
+	h5_file_t* const f,
 	const h5_id_t mesh_id
 	) {
-	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
+	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }

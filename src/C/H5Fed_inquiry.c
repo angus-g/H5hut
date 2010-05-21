@@ -32,11 +32,11 @@
  */
 h5_size_t
 H5FedGetNumMeshes ( 
-	h5_file_t * const f,
+	h5_file_t* const f,
 	const h5_oid_t type_id
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_num_meshes ( f, type_id );
+	SET_FNAME (f, __func__);
+	return h5t_get_num_meshes (f, type_id);
 }
 
 /*!
@@ -48,10 +48,10 @@ H5FedGetNumMeshes (
  */
 h5_size_t
 H5FedGetNumLevels (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_num_levels ( f );
+	SET_FNAME (f, __func__);
+	return h5t_get_num_levels (f);
 }
 
 /*!
@@ -63,10 +63,10 @@ H5FedGetNumLevels (
  */
 h5_id_t
 H5FedGetLevel (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_level ( f );
+	SET_FNAME (f, __func__);
+	return h5t_get_level (f);
 }
 
 /*!
@@ -79,10 +79,10 @@ H5FedGetLevel (
 */
 h5_size_t
 H5FedGetNumVertices (
-	h5_file_t * const f		/*!< file handle		*/
+	h5_file_t* const f		/*!< file handle		*/
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_num_vertices ( f, f->myproc );
+	SET_FNAME (f, __func__);
+	return h5t_get_num_vertices (f, f->myproc);
 }
 
 /*!
@@ -96,11 +96,11 @@ H5FedGetNumVertices (
 */
 h5_size_t
 H5FedGetNumVerticesCnode (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	const h5_id_t cnode
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_num_vertices ( f, cnode );
+	SET_FNAME (f, __func__);
+	return h5t_get_num_vertices (f, cnode);
 }
 
 /*!
@@ -113,10 +113,10 @@ H5FedGetNumVerticesCnode (
 */
 h5_size_t
 H5FedGetNumVerticesTotal (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_num_vertices ( f, -1 );
+	SET_FNAME (f, __func__);
+	return h5t_get_num_vertices (f, -1);
 }
 
 /*!
@@ -129,10 +129,10 @@ H5FedGetNumVerticesTotal (
 */
 h5_size_t
 H5FedGetNumElements (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_num_elems ( f, f->myproc );
+	SET_FNAME (f, __func__);
+	return h5t_get_num_elems (f, f->myproc);
 }
 
 /*!
@@ -146,11 +146,11 @@ H5FedGetNumElements (
 */
 h5_size_t
 H5FedGetNumElementsCnode (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	const h5_id_t cnode
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_num_elems ( f, cnode );
+	SET_FNAME (f, __func__);
+	return h5t_get_num_elems (f, cnode);
 }
 /*!
   Returns the number of elements present in the mesh
@@ -162,8 +162,8 @@ H5FedGetNumElementsCnode (
 */
 h5_size_t
 H5FedGetNumElementsTotal (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5t_get_num_elems ( f, -1 );
+	SET_FNAME (f, __func__);
+	return h5t_get_num_elems (f, -1);
 }

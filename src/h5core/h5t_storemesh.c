@@ -12,13 +12,13 @@
 */
 h5_id_t
 h5t_add_mesh (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	const h5_oid_t mesh_type
 	) {
 	h5_id_t mesh_id = 0;
 
-	TRY ( (mesh_id = h5t_open_mesh ( f, -1, mesh_type )) ); 
-	TRY ( h5t_add_level ( f ) );
+	TRY( (mesh_id = h5t_open_mesh (f, -1, mesh_type)) ); 
+	TRY( h5t_add_level (f) );
 	
 	f->t->mesh_changed = 1;
 
@@ -34,19 +34,19 @@ h5t_add_mesh (
 */
 static h5_err_t
 assign_global_vertex_ids (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	h5t_fdata_t *t = f->t;
+	h5t_fdata_t* const t = f->t;
 	h5_id_t local_id;
 
-	if ( t->cur_level < 0 ) return H5_SUCCESS; /* no level defined */
+	if (t->cur_level < 0) return H5_SUCCESS; /* no level defined */
 
 	/*
 	  simple in serial runs: global_id = local_id
 	*/
-	for ( local_id = 0;
-	      local_id < t->num_vertices[t->num_levels-1];
-	      local_id++ ) {
+	for (local_id = 0;
+	     local_id < t->num_vertices[t->num_levels-1];
+	     local_id++) {
 		t->vertices[local_id].global_vid = local_id;
 	}
 
@@ -58,9 +58,9 @@ assign_global_vertex_ids (
 */
 static h5_err_t
 assign_global_elem_ids (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	h5t_fdata_t *t = f->t;
+	h5t_fdata_t* const t = f->t;
 	h5_id_t local_eid;
 
 	if ( t->cur_level < 0 ) return H5_SUCCESS; /* no level defined */
@@ -81,15 +81,14 @@ assign_global_elem_ids (
 			elem = (h5_elem_t*)&t->elems.tris[local_eid];
 			break;
 		default:
-			return h5_error_internal (
-				f, __FILE__, __func__, __LINE__ );
+			return h5_error_internal (f,__FILE__,__func__,__LINE__);
 		}
 		elem->global_eid = local_eid;
 		elem->global_parent_eid = elem_ldta->local_parent_eid;
 		elem->global_child_eid = elem_ldta->local_child_eid;
 		int i;
 		int num_vertices = t->ref_element->num_faces[0];
-		for ( i = 0; i < num_vertices; i++ ) {
+		for (i = 0; i < num_vertices; i++) {
 			elem->global_vids[i] = elem_ldta->local_vids[i];
 		}
 	}
@@ -99,38 +98,35 @@ assign_global_elem_ids (
 
 h5_id_t
 h5t_add_level (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	h5t_fdata_t *t = f->t;
+	h5t_fdata_t* const t = f->t;
 
-	if ( f->mode == H5_O_RDONLY ) {
+	if (f->mode == H5_O_RDONLY) {
 		return H5_ERR_INVAL;
 	}
 
 	/* t->num_levels will be set to zero on file creation(!) */
-	if ( t->num_levels == -1 ) {	/* unknown number of levels	*/
-		/* determine number of levels */
-		return h5_error_not_implemented (
-			f, __FILE__, __func__, __LINE__ );
-	
+	if ((t->cur_mesh < 0) || (t->num_levels == -1)) {
+		return h5tpriv_error_undef_mesh ( f );
 	}
 	t->cur_level = t->num_levels++;
 	t->dsinfo_num_vertices.dims[0] = t->num_levels;
 	t->dsinfo_num_elems.dims[0] = t->num_levels;
 	t->dsinfo_num_elems_on_level.dims[0] = t->num_levels;
 
-	ssize_t num_bytes = t->num_levels*sizeof ( h5_size_t );
-	TRY ( t->num_vertices = h5priv_alloc ( f, t->num_vertices, num_bytes ) );
+	ssize_t num_bytes = t->num_levels*sizeof (h5_size_t);
+	TRY( t->num_vertices = h5priv_alloc (f, t->num_vertices, num_bytes) );
 	t->num_vertices[t->cur_level] = -1;
 
-	TRY ( t->num_elems = h5priv_alloc ( f, t->num_elems, num_bytes ) );
+	TRY( t->num_elems = h5priv_alloc (f, t->num_elems, num_bytes) );
 	t->num_elems[t->cur_level] = -1;
-	TRY ( t->num_elems_on_level = h5priv_alloc (
-		      f, t->num_elems_on_level, num_bytes ) );
+	TRY( t->num_elems_on_level = h5priv_alloc (
+		     f, t->num_elems_on_level, num_bytes) );
 	t->num_elems_on_level[t->cur_level] = -1;
 
 	t->new_level = t->cur_level;
-	if ( t->cur_level == 0 ) {
+	if (t->cur_level == 0) {
 		/* nothing stored yet */
 		t->last_stored_vid = -1;
 		t->last_stored_eid = -1;
@@ -144,62 +140,62 @@ h5t_add_level (
 */
 h5_err_t
 h5t_begin_store_vertices (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	const h5_size_t num
 	) {
-	h5t_fdata_t *t = f->t;
+	h5t_fdata_t* const t = f->t;
 
-	if ( t->cur_level < 0 ) {
-		return h5tpriv_error_undef_level( f );
+	if (t->cur_level < 0) {
+		return h5tpriv_error_undef_level(f);
 	}
 	t->storing_data = 1;
-	h5_size_t cur_num_vertices = ( t->cur_level > 0 ?
-				       t->num_vertices[t->cur_level-1] : 0 );
+	h5_size_t cur_num_vertices = (t->cur_level > 0 ?
+				      t->num_vertices[t->cur_level-1] : 0);
 	t->num_vertices[t->cur_level] = cur_num_vertices+num;
 	t->dsinfo_vertices.dims[0] = cur_num_vertices+num;
-	return h5tpriv_alloc_num_vertices ( f, cur_num_vertices+num );
+	return h5tpriv_alloc_num_vertices (f, cur_num_vertices+num);
 }
 
 h5_id_t
 h5t_store_vertex (
-	h5_file_t * const f,		/*!< file handle		*/
+	h5_file_t* const f,		/*!< file handle		*/
 	const h5_id_t global_vid,     	/*!< global vertex id or -1	*/
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t* const t = f->t;
 	
 	/*
 	  more than allocated
 	*/
-	if ( t->last_stored_vid+1 >= t->num_vertices[t->cur_level] ) 
+	if (t->last_stored_vid+1 >= t->num_vertices[t->cur_level]) 
 		return HANDLE_H5_OVERFLOW_ERR(
-			f, "vertex", t->num_vertices[t->cur_level] );
+			f, "vertex", t->num_vertices[t->cur_level]);
 	
 	/*
 	  missing call to add the first level
 	 */
-	if ( t->cur_level < 0 )
-		return h5tpriv_error_undef_level( f );
+	if (t->cur_level < 0)
+		return h5tpriv_error_undef_level(f);
 
 	t->level_changed = 1;
 	h5_id_t local_id = ++t->last_stored_vid;
 	h5_vertex_t *vertex = &t->vertices[local_id];
 	vertex->global_vid = global_vid;     /* ID from mesher, replaced later!*/
-	memcpy ( &vertex->P, P, sizeof ( vertex->P ) );
+	memcpy (&vertex->P, P, sizeof (vertex->P));
 	return local_id;
 }
 
 h5_err_t
 h5t_end_store_vertices (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	h5t_fdata_t *t = f->t;
+	h5t_fdata_t* const t = f->t;
 	t->storing_data = 0;
 
 	t->num_vertices[t->cur_level] = t->last_stored_vid+1;
-	TRY ( assign_global_vertex_ids ( f ) );
-	TRY ( h5tpriv_sort_vertices ( f ) );
-	TRY ( h5tpriv_rebuild_global_2_local_map_of_vertices ( f ) );
+	TRY( assign_global_vertex_ids (f) );
+	TRY( h5tpriv_sort_vertices (f) );
+	TRY( h5tpriv_rebuild_global_2_local_map_of_vertices (f) );
 	return H5_SUCCESS;
 }
 
@@ -211,10 +207,10 @@ h5t_end_store_vertices (
  */
 h5_err_t
 h5t_begin_store_elems (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	const h5_size_t num
 	) {
-	h5t_fdata_t *t = f->t;
+	h5t_fdata_t* const t = f->t;
 
 	t->storing_data = 1;
 	size_t cur = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
@@ -229,8 +225,8 @@ h5t_begin_store_elems (
 	  prevent resizing.
 	 */
 	size_t nel = 2097152 > 5*new ? 2097152 : 5*new;
-	TRY ( h5tpriv_resize_te_htab ( f, nel ) );
-	return (*t->methods.store->alloc_elems) ( f, cur, new );
+	TRY( h5tpriv_resize_te_htab (f, nel) );
+	return (*t->methods.store->alloc_elems) (f, cur, new);
 }
 
 
@@ -252,8 +248,8 @@ h5t_store_elem (
 	h5t_fdata_t *t = f->t;
 
 	/* level set? */
-	if ( t->cur_level < 0 )
-		return h5tpriv_error_undef_level( f );
+	if (t->cur_level < 0)
+		return h5tpriv_error_undef_level(f);
 
 	/*  more than allocated? */
 	if ( t->last_stored_eid+1 >= t->num_elems[t->cur_level] ) 
@@ -263,15 +259,15 @@ h5t_store_elem (
 
 	/* check parent id */
 	if (
-		( t->cur_level == 0 && elem_idx_of_parent != -1 ) ||
-		( t->cur_level >  0 && elem_idx_of_parent < 0 ) ||
-		( t->cur_level >  0
-		  && elem_idx_of_parent >= t->num_elems[t->cur_level-1] )
+		(t->cur_level == 0 && elem_idx_of_parent != -1) ||
+		(t->cur_level >  0 && elem_idx_of_parent < 0) ||
+		(t->cur_level >  0
+		  && elem_idx_of_parent >= t->num_elems[t->cur_level-1])
 		) {
 		return HANDLE_H5_PARENT_ID_ERR (
 			f,
-			h5tpriv_map_oid2str(t->mesh_type),
-			elem_idx_of_parent );
+			h5tpriv_map_oid2str (t->mesh_type),
+			elem_idx_of_parent);
 	}
 	t->level_changed = 1;
 	h5_id_t elem_idx = ++t->last_stored_eid;
@@ -300,16 +296,16 @@ h5t_store_elem (
 
 h5_err_t
 h5t_end_store_elems (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	h5t_fdata_t *t = f->t;
+	h5t_fdata_t* const t = f->t;
 	t->storing_data = 0;
 
 	t->num_elems[t->cur_level] = t->last_stored_eid+1;
-	TRY ( assign_global_elem_ids ( f ) );
+	TRY( assign_global_elem_ids (f) );
 
-	TRY ( h5tpriv_sort_elems ( f ) );
-	TRY ( h5tpriv_rebuild_global_2_local_map_of_elems ( f ) );
+	TRY( h5tpriv_sort_elems (f) );
+	TRY( h5tpriv_rebuild_global_2_local_map_of_elems (f) );
 
 	return H5_SUCCESS;
 }
@@ -322,7 +318,7 @@ h5t_mark_entity (
 	h5_file_t* const f,
 	const h5_id_t entity_id
 	) {
-	h5t_fdata_t* t = f->t;
+	h5t_fdata_t* const t = f->t;
 	return h5priv_append_to_idlist (f, &t->marked_entities, entity_id);
 }
 
@@ -351,7 +347,7 @@ h5_err_t
 h5t_pre_refine (
 	h5_file_t* const f
 	) {
-	h5t_fdata_t* t = f->t;
+	h5t_fdata_t* const t = f->t;
 	unsigned int num_elems_to_refine = t->marked_entities.num_items;
 	unsigned int num_elems_to_add = 0;
 	unsigned int num_vertices_to_add = 0;
@@ -382,7 +378,7 @@ h5_err_t
 h5t_refine (
 	h5_file_t* const f
 	) {
-	h5t_fdata_t* t = f->t;
+	h5t_fdata_t* const t = f->t;
 	t->storing_data = 1;
 	int i;
 	for (i = 0; i < t->marked_entities.num_items; i++) {
@@ -395,7 +391,7 @@ h5_err_t
 h5t_post_refine (
 	h5_file_t* const f
 	) {
-	h5t_fdata_t* t = f->t;
+	h5t_fdata_t* const t = f->t;
 	return h5priv_free_idlist_items (f, &t->marked_entities);
 }
 

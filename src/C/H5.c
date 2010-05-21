@@ -52,13 +52,13 @@
   \return File handle.
   \return NULL on error.
 */
-h5_file_t *
+h5_file_t*
 H5OpenFile (
-	const char * filename,		/*!< file name			*/
+	const char* filename,		/*!< file name			*/
 	const h5_int32_t oflag,		/*!< file open flags		*/
 	const MPI_Comm comm		/*!< MPI communicator		*/
 	) {
-	return h5_open_file( filename, H5_O_RDWR, comm, __func__ ); 
+	return h5_open_file (filename, H5_O_RDWR, comm, __func__); 
 }
 
 /*!
@@ -70,10 +70,10 @@ H5OpenFile (
 */
 h5_err_t
 H5CloseFile (
-	h5_file_t * const f		/*!< file handle		*/
+	h5_file_t* const f		/*!< file handle		*/
 	) {
-	SET_FNAME ( f, __func__ );
-	return h5_close_file ( f );
+	SET_FNAME (f, __func__);
+	return h5_close_file (f);
 }
 
 /*!
@@ -88,13 +88,13 @@ H5CloseFile (
 */
 h5_err_t
 H5DefineStepNameFormat (
-	h5_file_t *f,			/*!< Handle to file		*/
-	const char *name,		/*!< Prefix			*/
+	h5_file_t* const f,		/*!< Handle to file		*/
+	const char* name,		/*!< Prefix			*/
 	const h5_int64_t width		/*!< Width of the number	*/
 	) {
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 
-	return h5_set_stepname_fmt( f, name, width );
+	return h5_set_stepname_fmt (f, name, width);
 }
 
 /*!
@@ -107,14 +107,14 @@ H5DefineStepNameFormat (
 */
 h5_err_t
 H5GetStepNameFormat (
-	h5_file_t *f,			/*!< Handle to file		*/
-	char *name,			/*!< OUT: Prefix		*/
+	h5_file_t* const f,		/*!< Handle to file		*/
+	char* name,			/*!< OUT: Prefix		*/
 	const h5_size_t l_name,		/*!< length of buffer name	*/
-	h5_size_t *width		/*!< OUT: Width of the number	*/
+	h5_size_t* width		/*!< OUT: Width of the number	*/
 	) {
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 
-	return h5_get_stepname_fmt( f, name, l_name, width );
+	return h5_get_stepname_fmt (f, name, l_name, width);
 }
 
 /*!
@@ -126,12 +126,12 @@ H5GetStepNameFormat (
 */
 h5_err_t
 H5SetStep (
-	h5_file_t *f,			/*!< [in]  Handle to open file */
+	h5_file_t* const f,		/*!< [in]  Handle to open file */
 	const h5_int64_t step		/*!< [in]  Step to set. */
 	) {
 
-	SET_FNAME ( f, __func__ );
-	return h5_set_step ( f, step );
+	SET_FNAME (f, __func__);
+	return h5_set_step (f, step);
 }
 
 /*!
@@ -143,11 +143,11 @@ H5SetStep (
 */
 h5_id_t
 H5GetStep (
-	h5_file_t *f			/*!< Handle to open file */
+	h5_file_t* const f		/*!< Handle to open file */
 	) {
 
-	SET_FNAME ( f, __func__ );
-	return h5_get_step ( f );
+	SET_FNAME (f, __func__);
+	return h5_get_step (f);
 }
 
 /*!
@@ -159,12 +159,12 @@ H5GetStep (
 */
 h5_err_t
 H5StartTraverseSteps (
-	h5_file_t *f			/*!< Handle to open file */
+	h5_file_t* const f		/*!< Handle to open file */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 
-	return h5_start_traverse_steps( f );
+	return h5_start_traverse_steps (f);
 }
 
 /*!
@@ -176,12 +176,12 @@ H5StartTraverseSteps (
 */
 h5_err_t
 H5TraverseSteps (
-	h5_file_t * f			/*!< Handle to open file */
+	h5_file_t* const f		/*!< Handle to open file */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME (f, __func__);
 
-	return h5_traverse_steps( f );
+	return h5_traverse_steps (f);
 }
 
 /*!
@@ -200,8 +200,7 @@ h5_err_t
 H5SetVerbosityLevel (
 	const h5_id_t level
 	) {
-
-	return h5_set_debuglevel ( level );
+	return h5_set_debuglevel (level);
 }
 
 /*!
@@ -215,8 +214,7 @@ h5_err_t
 H5SetErrorHandler (
 	h5_errorhandler_t handler
 	) {
-  
-	return h5_set_errorhandler( handler );
+	return h5_set_errorhandler (handler);
 }
 
 /*!
@@ -235,20 +233,20 @@ H5GetErrorHandler (
 
 h5_err_t
 H5ReportErrorhandler (
-	h5_file_t * const f,
-	const char *fmt,
+	h5_file_t* const f,
+	const char* fmt,
 	va_list ap
 	) {
-	return h5_report_errorhandler ( f, fmt, ap );
+	return h5_report_errorhandler (f, fmt, ap);
 }
 
 h5_err_t
 H5AbortErrorhandler (
-	h5_file_t * const f,
-	const char *fmt,
+	h5_file_t* const f,
+	const char* fmt,
 	va_list ap
 	) {
-	return h5_abort_errorhandler ( f, fmt, ap );
+	return h5_abort_errorhandler (f, fmt, ap);
 }
 
 /*!
@@ -260,8 +258,8 @@ H5AbortErrorhandler (
 */
 h5_err_t
 H5GetErrno (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	return h5_get_errno( f );
+	return h5_get_errno (f);
 }
 /*! @} */
