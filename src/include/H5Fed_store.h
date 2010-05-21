@@ -68,8 +68,7 @@ H5FedEndStoreElements (
 
 h5_err_t
 H5FedBeginRefineElements (
-	h5_file_t * const f,
-	const h5_size_t num
+	h5_file_t * const f
 	);
 
 h5_id_t

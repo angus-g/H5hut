@@ -82,7 +82,7 @@ main (
 
 	/* add 1. Level */
 	H5FedAddLevel(f);
-	H5FedBeginRefineElements (f, 1);
+	H5FedBeginRefineElements (f);
 	H5FedRefineElement (f, 0);
 	H5FedEndRefineElements (f);
 
@@ -94,7 +94,7 @@ main (
 		/* refine 4 to the power of level_id-1 elems */
 		h5_id_t level_id = H5FedAddLevel(f);
 		h5_int32_t num_elems2refine = power (4, level_id-1);
-		H5FedBeginRefineElements (f, num_elems2refine);
+		H5FedBeginRefineElements (f);
 		for (i = num_elems_last_level;
 		     i < num_elems_last_level+num_elems2refine;
 		     i++) {

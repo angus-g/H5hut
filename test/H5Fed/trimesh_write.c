@@ -63,7 +63,7 @@ main (
 
 	/* add 1. Level */
 	H5FedAddLevel(f);
-	H5FedBeginRefineElements (f, 1);
+	H5FedBeginRefineElements (f);
 	H5FedRefineElement (f, 0);
 	H5FedEndRefineElements (f);
 

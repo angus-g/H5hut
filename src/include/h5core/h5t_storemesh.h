@@ -50,8 +50,7 @@ h5t_end_store_elems (
 
 h5_err_t
 h5t_begin_refine_elems (
-	h5_file_t * const f,
-	const h5_size_t num_elems_to_refine
+	h5_file_t * const f
 	);
 
 h5_id_t

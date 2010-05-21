@@ -237,7 +237,6 @@ _init_fdata (
 	t->topo_gid = -1;
 	t->meshes_gid = -1;
 	t->mesh_gid = -1;
-	t->num_boundaries = -1;
 
 	/* vertices */
 	strcpy( t->dsinfo_vertices.name, "Vertices" );

@@ -146,11 +146,10 @@ H5FedEndStoreElements (
 
 h5_err_t
 H5FedBeginRefineElements (
-	h5_file_t * const f,
-	const h5_size_t num
+	h5_file_t * const f
 	) {
 	SET_FNAME ( f, __func__ );
-	return h5t_begin_refine_elems ( f, num );
+	return h5t_begin_refine_elems ( f );
 }
 
 h5_id_t

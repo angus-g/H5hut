@@ -187,11 +187,16 @@ typedef struct h5t_fdata {
 	h5_dsinfo_t	dsinfo_num_elems;
 	h5_dsinfo_t	dsinfo_num_elems_on_level;
 
+	h5_idlist_t	marked_entities;
+
+#if 0
 	/*** Boundary Meshes ***/
 	h5_id_t		num_boundaries;		/* number of boundaries */
 	h5_id_t		boundaries_gid;		/* hdf5 grp id container group */
 
 	boundary_t	boundary;
+#endif
+	/*** Adjacencies ***/
 	h5t_adjacencies_t adjacencies;
 
 	/*** Tags ***/

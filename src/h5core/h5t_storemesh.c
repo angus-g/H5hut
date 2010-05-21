@@ -314,63 +314,127 @@ h5t_end_store_elems (
 	return H5_SUCCESS;
 }
 
-
+/*
+  Mark entity for further processing (e.g. refinement). 
+ */
 h5_err_t
-h5t_begin_refine_elems (
-	h5_file_t * const f,
-	const h5_size_t num_elems_to_refine
+h5t_mark_entity (
+	h5_file_t* const f,
+	const h5_id_t entity_id
 	) {
-	h5_size_t num_elems_to_add = 0;
-	h5_size_t num_vertices_to_add = 0;
+	h5t_fdata_t* t = f->t;
+	return h5priv_append_to_idlist (f, &t->marked_entities, entity_id);
+}
 
-	f->t->storing_data = 1;
-	/*
-	  Now we have to guess the number of vertices ...
-	  If we are going to refine one tetrahedron, we have 8 new tetrahedra
-	  and 6 new vertices. Thus the numbers below are definitely upper
-	  limits!
-	 */
-	switch ( f->t->mesh_type ) {
+/*
+  When calling this function, we know the number of elements to refine. But
+  we don't now the number of new vertices we will get. We have to compute
+  this number or just to guess it.
+
+  Let n be the number of elements to refine and l the number of disconnected
+  areas to be refined.
+
+  For triangle grids the upper limit of new vertices is 3n and the lower limit
+  2n + 1. The exact number is 2n + l.
+
+  For tetrahedral grids the upper limit is 6n and the lower limit is 3n+3. 
+  The exact number is 3n + 3l.
+
+  To get the real number of vertices to add, we either have to compute the
+  number of disconnected areas (which is quiet expensive), try to guess it
+  (which is impossible) or just set a limit. In most cases the number of
+  disconnected areas will be "small".
+
+  For the time being we set the maximum number of disconnected areas to 64.
+ */
+h5_err_t
+h5t_pre_refine (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t* t = f->t;
+	unsigned int num_elems_to_refine = t->marked_entities.num_items;
+	unsigned int num_elems_to_add = 0;
+	unsigned int num_vertices_to_add = 0;
+
+	switch (t->mesh_type) {
 	case H5_OID_TETRAHEDRON:
-		num_vertices_to_add = num_elems_to_refine*6;
+		num_vertices_to_add = num_elems_to_refine*3 + 192;
 		num_elems_to_add = num_elems_to_refine*8;
 		break;
 	case H5_OID_TRIANGLE:
-		num_vertices_to_add = num_elems_to_refine*3;
+		num_vertices_to_add = num_elems_to_refine*2 + 64;
 		num_elems_to_add = num_elems_to_refine*4;
 		break;
 	default:
-		return h5_error_internal ( f, __FILE__, __func__, __LINE__ );
+		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
-	TRY ( h5t_begin_store_vertices ( f, num_vertices_to_add ) );
-	TRY ( h5t_begin_store_elems ( f, num_elems_to_add ) );
+	t->storing_data = 1;
+	TRY( h5t_begin_store_vertices (f, num_vertices_to_add) );
+	TRY( h5t_begin_store_elems (f, num_elems_to_add) );
 
+	return H5_SUCCESS;
+}
+
+/*
+  Refine previously marked elements.
+*/
+h5_err_t
+h5t_refine (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t* t = f->t;
+	t->storing_data = 1;
+	int i;
+	for (i = 0; i < t->marked_entities.num_items; i++) {
+		TRY( h5t_refine_elem (f, t->marked_entities.items[i]) );
+	}
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5t_post_refine (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t* t = f->t;
+	return h5priv_free_idlist_items (f, &t->marked_entities);
+}
+
+
+h5_err_t
+h5t_begin_refine_elems (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t* const t = f->t;
+
+	/*
+	  Pre-allocate space for items to avoid allocating small pieces of
+	  memory.
+	*/
+	TRY( h5priv_alloc_idlist_items (f, &t->marked_entities, 2048) );
 	return H5_SUCCESS;
 }
 
 
 /*!
-  Refine element \c local_eid
+  Refine element \c elem_id. Actually we set a mark only ...
 
   \return local id of first new element or \c -1
 */
 h5_id_t
 h5t_refine_elem (
-	h5_file_t * const f,
-	const h5_id_t local_eid
+	h5_file_t* const f,
+	const h5_id_t elem_id
 	) {
-	return (*f->t->methods.store->refine_elem)( f, local_eid );
+	return h5t_mark_entity (f, elem_id);
 }
 
 h5_err_t
 h5t_end_refine_elems (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	h5t_fdata_t *t = f->t;
-	t->storing_data = 0;
-
-	TRY ( h5t_end_store_vertices ( f ) );
-	TRY ( h5t_end_store_elems ( f ) );
+	TRY( h5t_pre_refine (f) );
+	TRY( h5t_refine (f) );
+	TRY( h5t_post_refine (f) );
 
 	return H5_SUCCESS;
 }
