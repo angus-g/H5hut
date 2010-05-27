@@ -60,10 +60,9 @@ H5GetNumSteps (
 	SET_FNAME (f, __func__);
 	CHECK_FILEHANDLE (f);
 
-	return hdf5_get_num_objects_matching_pattern (
-		f->file,
-		"/",
-		H5G_UNKNOWN,
+	return h5_get_num_hdf5_groups_matching_prefix (
+		f,
+		f->step_gid,
 		f->prefix_step_name);
 }
 

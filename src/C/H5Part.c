@@ -622,7 +622,7 @@ H5PartGetNumDatasets (
 	SET_FNAME ( f, __func__ );
 	CHECK_FILEHANDLE ( f );
 
-	return hdf5_get_num_objects ( f->file, f->step_name, H5G_DATASET );
+	return  h5_get_num_hdf5_datasets (f, f->step_gid);
 }
 
 /*!
@@ -638,9 +638,9 @@ H5PartGetNumDatasets (
 h5_int64_t
 H5PartGetDatasetName (
 	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const h5_int64_t idx,	/*!< [in]  Index of the dataset */
+	const h5_int64_t idx,		/*!< [in]  Index of the dataset */
 	char *name,			/*!< [out] Name of dataset */
-	const h5_int64_t len_of_name/*!< [in]  Size of buffer \c name */
+	const h5_int64_t len_of_name	/*!< [in]  Size of buffer \c name */
 	) {
 
 	SET_FNAME ( f, __func__ );
@@ -648,13 +648,12 @@ H5PartGetDatasetName (
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return h5_get_errno ( f );
 
-	return hdf5_get_object_name (
-		f->file,
-		f->step_name,
-		H5G_DATASET,
+	return h5_get_hdf5_datasetname_by_idx (
+		f,
+		f->step_gid,
 		idx,
 		name,
-		len_of_name );
+		len_of_name);
 }
 
 /*!

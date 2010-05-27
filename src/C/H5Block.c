@@ -1380,8 +1380,7 @@ H5BlockGetNumFields (
 	if ( ! _have_object ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK ) )
 		return 0;
 
-	return hdf5_get_num_objects (
-		f->step_gid, H5BLOCK_GROUPNAME_BLOCK, H5G_GROUP );
+	return h5_get_num_hdf5_groups (f, f->b->blockgroup);
 }
 
 /*!
@@ -1416,10 +1415,7 @@ _get_field_info (
 	for ( i = 0, j = *grid_rank-1; i < *grid_rank; i++, j-- )
 		grid_dims[i] = (h5_int64_t)dims[j];
 
-	TRY ( *field_dims = hdf5_get_num_objects (
-		f->b->blockgroup,
-		field_name,
-		H5G_DATASET ) );
+	TRY( *field_dims = h5_get_num_hdf5_datasets (f, f->b->field_group_id) );
 	TRY( h5priv_close_hdf5_dataspace( f, dataspace_id ) );
 	TRY( h5priv_close_hdf5_dataset( f, dataset_id ) );
 	TRY( h5priv_close_hdf5_group( f, group_id ) ); 
@@ -1454,13 +1450,12 @@ H5BlockGetFieldInfo (
 	SET_FNAME ( f, __func__ );
 	CHECK_TIMEGROUP( f );
 
-	TRY ( hdf5_get_object_name (
-		f->step_gid,
-		H5BLOCK_GROUPNAME_BLOCK,
-		H5G_GROUP,
-		idx,
-		field_name,
-		len_field_name ) );
+	TRY( h5_get_hdf5_groupname_by_idx (
+		     f,
+		     f->b->blockgroup,
+		     idx,
+		     field_name,
+		     len_field_name) );
 
 	return _get_field_info (
 		f, field_name, grid_rank, grid_dims, field_dims );
