@@ -90,12 +90,11 @@ h5u_get_num_elems (
 		"%s#%0*lld",
 		f->prefix_step_name, f->width_step_idx, (long long) f->step_idx );
 
-	TRY( hdf5_get_object_name (
-		f->file,
-		step_name,
-		H5G_DATASET,
-		0,
-		dataset_name, sizeof (dataset_name) ) );
+	TRY( h5_get_hdf5_datasetname_by_idx (
+		     f,
+		     f->step_gid,
+		     0,
+		     dataset_name, sizeof (dataset_name)) );
 	TRY( dataset_id = h5priv_open_hdf5_dataset ( f, f->step_gid, dataset_name ) );
 	TRY( space_id = _get_diskshape_for_reading ( f, dataset_id ) );
 
@@ -456,14 +455,11 @@ h5u_get_dataset_info (
 	h5_int64_t *nelem	/*!< [out] Number of elements. */
 	) {
 
-	h5_int64_t herr = hdf5_get_object_name (
-		f->file,
-		f->step_name,
-		H5G_DATASET,
-		idx,
-		dataset_name,
-		len_dataset_name );
-	if ( herr < 0 ) return herr;
+	TRY( h5_get_hdf5_datasetname_by_idx (
+		     f,
+		     f->step_gid,
+		     idx,
+		     dataset_name, len_dataset_name) );
 
 	if ( nelem ) {
 		*nelem = h5u_get_num_elems ( f );

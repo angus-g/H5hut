@@ -1,5 +1,5 @@
-#ifndef __H5_HDF5_H
-#define __H5_HDF5_H
+#ifndef __H5_HDF5_PRIVATE_H
+#define __H5_HDF5_PRIVATE_H
 
 /*** group ***/
 hid_t
@@ -35,12 +35,14 @@ h5priv_get_num_objs_in_hdf5_group (
 	const hid_t group_id
 	);
 
-h5_err_t
-h5priv_get_objname_by_idx_in_hdf5_group (
-	h5_file_t * const f,
+ssize_t
+h5priv_get_hdf5_objname_by_idx (
+	h5_file_t* const f,
 	hid_t loc_id,
 	hsize_t idx,
-	char **name );
+	char *name,
+	size_t size
+	);
 
 /*** dataset ***/
 hid_t
@@ -334,4 +336,5 @@ h5priv_delete_hdf5_link (
 	const char *name,
 	hid_t lapl_id
 	);
+
 #endif

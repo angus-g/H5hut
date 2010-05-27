@@ -461,6 +461,7 @@ src/include/h5core/h5_attribs.h -text
 src/include/h5core/h5_core.h -text
 src/include/h5core/h5_errno.h -text
 src/include/h5core/h5_errorhandling.h -text
+src/include/h5core/h5_hdf5.h -text
 src/include/h5core/h5_maps.h -text
 src/include/h5core/h5_openclose.h -text
 src/include/h5core/h5_readwrite.h -text

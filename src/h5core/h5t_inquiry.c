@@ -11,21 +11,18 @@
  */
 h5_size_t
 h5t_get_num_meshes (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	const enum h5_oid type_id
 	) {
-	struct h5t_fdata *t = f->t;
+	h5t_fdata_t* t = f->t;
 
-	if ( t->num_meshes >= 0 ) {
+	if (t->num_meshes >= 0) {
 		return t->num_meshes;
 	}
-	if ( t->topo_gid < 0 ) {
-		TRY( h5tpriv_open_topo_group ( f ) );
+	if (t->topo_gid < 0) {
+		TRY( h5tpriv_open_topo_group (f) );
 	}
-	TRY( t->num_meshes = (h5_size_t)hdf5_get_num_objects (
-			t->topo_gid,
-			h5tpriv_meshes_grpnames[type_id],
-			H5G_GROUP ) );
+	TRY( t->num_meshes = h5_get_num_hdf5_groups (f, t->meshes_gid) );
 
 	return t->num_meshes;
 }
@@ -39,12 +36,12 @@ h5t_get_num_meshes (
  */
 h5_size_t
 h5t_get_num_levels (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	h5t_fdata_t *t = f->t;
+	h5t_fdata_t* t = f->t;
 
-	if ( t->cur_mesh < 0 ) {
-		return h5tpriv_error_undef_mesh ( f );
+	if (t->cur_mesh < 0) {
+		return h5tpriv_error_undef_mesh (f);
 	}
 	return t->num_levels;
 }
@@ -58,7 +55,7 @@ h5t_get_num_levels (
 */
 h5_id_t
 h5t_get_level (
-	h5_file_t * f
+	h5_file_t* const f
 	) {
 	return f->t->cur_level;
 }
@@ -78,16 +75,16 @@ h5t_get_level (
  */
 h5_size_t
 h5t_get_num_elems (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	const h5_id_t cnode
 	) {
-	h5t_fdata_t *t = f->t;
+	h5t_fdata_t* t = f->t;
 
-	if ( t->cur_mesh < 0 ) {
-		return h5tpriv_error_undef_mesh ( f );
+	if (t->cur_mesh < 0) {
+		return h5tpriv_error_undef_mesh (f);
 	}
-	if ( t->cur_level < 0 ) {
-		return h5tpriv_error_undef_level ( f );
+	if (t->cur_level < 0) {
+		return h5tpriv_error_undef_level (f);
 	}
 	return t->num_elems_on_level[t->cur_level];
 }
@@ -107,16 +104,16 @@ h5t_get_num_elems (
  */
 h5_size_t
 h5t_get_num_vertices (
-	h5_file_t * f,
+	h5_file_t* const f,
 	h5_id_t cnode
 	) {
-	h5t_fdata_t *t = f->t;
+	h5t_fdata_t* t = f->t;
 
-	if ( t->cur_mesh < 0 ) {
-		return h5tpriv_error_undef_mesh ( f );
+	if (t->cur_mesh < 0) {
+		return h5tpriv_error_undef_mesh (f);
 	}
-	if ( t->cur_level < 0 ) {
-		return h5tpriv_error_undef_level ( f );
+	if (t->cur_level < 0) {
+		return h5tpriv_error_undef_level (f);
 	}
 	return t->num_vertices[t->cur_level];
 }

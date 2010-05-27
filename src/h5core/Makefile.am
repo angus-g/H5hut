@@ -10,6 +10,7 @@ EXTRA_HEADERS =					\
 	../include/h5core/h5_attribs.h		\
 	../include/h5core/h5_core.h		\
 	../include/h5core/h5_errorhandling.h	\
+	../include/h5core/h5_hdf5.h		\
 	../include/h5core/h5_maps.h		\
 	../include/h5core/h5_openclose.h	\
 	../include/h5core/h5_readwrite.h	\
@@ -24,7 +25,6 @@ EXTRA_HEADERS =					\
 	../include/h5core/h5t_storemesh.h	\
 	../include/h5core/h5t_tags.h		\
 	../include/h5core/h5u_readwrite.h	\
-	../include/h5core/hdf5_misc.h		\
 	h5_errorhandling_private.h		\
 	h5_fcmp_private.h			\
 	h5_hdf5_private.h			\
@@ -98,8 +98,7 @@ libH5Core_a_SOURCES =				\
 	h5t_trim_adjacencies.c			\
 	h5t_trim_retrieve.c			\
 	h5t_trim_store.c			\
-	h5u_readwrite.c				\
-	hdf5_misc.c
+	h5u_readwrite.c
 
 libH5Core_a_DEPENDENCIES = $(EXTRA_HEADERS)
 
