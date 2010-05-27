@@ -58,7 +58,7 @@ h5priv_tsearch (
 	return ptr;
 }
 
-void *
+void*
 h5priv_tfind (
 	h5_file_t* const f,
 	const void* key,

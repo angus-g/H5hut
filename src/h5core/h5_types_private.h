@@ -10,6 +10,6 @@ typedef struct h5_idmap_el h5_idmap_el_t;
 struct h5_idmap {
 	h5_size_t	size;		/* allocated space in number of items */
 	h5_size_t	num_items;	/* stored items	*/
-	h5_idmap_el_t	*items;
+	h5_idmap_el_t*  items;
 };
 #endif
