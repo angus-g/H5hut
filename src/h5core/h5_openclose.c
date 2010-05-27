@@ -21,14 +21,14 @@
 */
 h5_err_t
 h5_check_filehandle (
-	h5_file_t * const f	/*!< filehandle  to check validity of */
+	h5_file_t* const f	/*!< filehandle  to check validity of */
 	) {
 
-	if ( f == NULL || f->file == 0 ) {
+	if (f == NULL || f->file == 0) {
 		return h5_error (
 			f,
 			H5_ERR_BADFD,
-			"Called with bad filehandle." );
+			"Called with bad filehandle.");
 	}
 	return H5_SUCCESS;
 }
@@ -41,7 +41,7 @@ h5priv_error_handler (
 	hid_t estack_id,
 	void* __f
 	) {
-	if ( h5_get_debuglevel () >= 5 ) {
+	if (h5_get_debuglevel () >= 5) {
 		H5Eprint (estack_id, stderr);
 	}
 	return 0;
@@ -58,9 +58,9 @@ h5priv_error_handler (
 */
 static h5_int64_t
 h5upriv_open_file (
-	h5_file_t *f			/*!< IN: file handle */
+	h5_file_t* const f		/*!< IN: file handle */
 	) {
-	TRY ( f->u = (h5u_fdata_t*) h5priv_alloc( f, NULL, sizeof (*f->u) ) );
+	TRY( f->u = (h5u_fdata_t*)h5priv_alloc (f, NULL, sizeof (*f->u)) );
 	h5u_fdata_t *u = f->u;
 
  	u->shape = 0;
@@ -69,7 +69,7 @@ h5upriv_open_file (
 	u->viewstart = -1;
 	u->viewend = -1;
 	size_t size = f->nprocs * sizeof (h5_int64_t);
-	TRY ( u->pnparticles = h5priv_alloc ( f, NULL, size ) ); 
+	TRY( u->pnparticles = h5priv_alloc (f, NULL, size) ); 
 
 	return H5_SUCCESS;
 }
@@ -85,21 +85,21 @@ h5upriv_open_file (
 */
 static h5_int64_t
 h5bpriv_open_block (
-	h5_file_t *f			/*!< IN: file handle */
+	h5_file_t * const f		/*!< IN: file handle */
 	) {
-	h5b_fdata_t *b; 
+	h5b_fdata_t* b; 
 
 	if ( f->b ) return H5_SUCCESS;
 
-	TRY ( f->b = (h5b_fdata_t*) h5priv_alloc ( f, NULL, sizeof (*f->b) ) );
+	TRY( f->b = (h5b_fdata_t*)h5priv_alloc( f, NULL, sizeof (*f->b)) );
 
 	b = f->b;
-	memset ( b, 0, sizeof (*b) );
+	memset (b, 0, sizeof (*b));
 
 	size_t size = f->nprocs * sizeof (b->user_layout[0]);
-	TRY ( b->user_layout = h5priv_alloc ( f, NULL, size ) );
+	TRY( b->user_layout = h5priv_alloc (f, NULL, size) );
 	size = f->nprocs * sizeof (b->write_layout[0]);
-	TRY ( b->write_layout = h5priv_alloc ( f, NULL, size ) );
+	TRY( b->write_layout = h5priv_alloc (f, NULL, size) );
 
 	b->step_idx = -1;
 	b->blockgroup = -1;
@@ -124,15 +124,15 @@ h5bpriv_open_block (
 
 h5_err_t
 h5priv_open_file (
-	h5_file_t * const f,
-	const char *filename,	/*!< The name of the data file to open. */
+	h5_file_t* const f,
+	const char* filename,	/*!< The name of the data file to open. */
 	h5_int32_t flags,	/*!< The access mode for the file. */
 	MPI_Comm comm		/*!< MPI communicator */
 	) {
-	h5_info ( f, "Opening file %s.", filename );
+	h5_info (f, "Opening file %s.", filename);
 
-	TRY ( h5priv_set_hdf5_errorhandler ( f, H5E_DEFAULT, h5priv_error_handler, NULL ) );
-	TRY ( h5_set_stepname_fmt ( f, H5PART_GROUPNAME_STEP, 0 ) );
+	TRY( h5priv_set_hdf5_errorhandler (f, H5E_DEFAULT, h5priv_error_handler, NULL) );
+	TRY( h5_set_stepname_fmt (f, H5PART_GROUPNAME_STEP, 0) );
 
 	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
 
@@ -142,26 +142,26 @@ h5priv_open_file (
 
 #ifdef PARALLEL_IO
 	f->comm = comm;
-	TRY ( h5priv_mpi_comm_size ( f, comm, &f->nprocs ) );
-	TRY ( h5priv_mpi_comm_rank ( f, comm, &f->myproc ) );
+	TRY( h5priv_mpi_comm_size (f, comm, &f->nprocs) );
+	TRY( h5priv_mpi_comm_rank (f, comm, &f->myproc) );
 	
 	/* for the SP2... perhaps different for linux */
 	MPI_Info info = MPI_INFO_NULL;
 	
 	/* ks: IBM_large_block_io */
-	MPI_Info_create(&info);
-	MPI_Info_set(info, "IBM_largeblock_io", "true" );
-	TRY ( h5priv_set_hdf5_fapl_mpio_property ( f, f->access_prop, comm, info ) );
-	MPI_Info_free(&info);
+	MPI_Info_create (&info);
+	MPI_Info_set (info, "IBM_largeblock_io", "true" );
+	TRY( h5priv_set_hdf5_fapl_mpio_property (f, f->access_prop, comm, info) );
+	MPI_Info_free (&info);
 	
-	TRY ( f->access_prop = h5priv_create_hdf5_property ( f, H5P_FILE_ACCESS ) );
+	TRY( f->access_prop = h5priv_create_hdf5_property (f, H5P_FILE_ACCESS) );
 
 	/*TRY ( f->create_prop = h5priv_create_hdf5_property ( f, H5P_FILE_CREATE) );*/
 	f->create_prop = H5P_DEFAULT;
 
 	/* xfer_prop:  also used for parallel I/O, during actual writes
 	   rather than the access_prop which is for file creation. */
-	TRY ( f->xfer_prop = h5priv_create_hdf5_property ( f, H5P_DATASET_XFER ) );
+	TRY( f->xfer_prop = h5priv_create_hdf5_property (f, H5P_DATASET_XFER) );
 	
 #ifdef COLLECTIVE_IO
 	if (H5Pset_dxpl_mpio (f->xfer_prop,H5FD_MPIO_COLLECTIVE) < 0) {
@@ -171,19 +171,19 @@ h5priv_open_file (
 
 #endif /* PARALLEL_IO */
 
-	if ( flags == H5_O_RDONLY ) {
+	if (flags == H5_O_RDONLY) {
 		f->file = H5Fopen (filename, H5F_ACC_RDONLY, f->access_prop);
 	}
-	else if ( flags == H5_O_WRONLY ){
+	else if (flags == H5_O_WRONLY){
 		f->file = H5Fcreate (filename, H5F_ACC_TRUNC, f->create_prop,
 				     f->access_prop);
 		f->empty = 1;
 	}
-	else if ( flags == H5_O_APPEND || flags == H5_O_RDWR ) {
+	else if (flags == H5_O_APPEND || flags == H5_O_RDWR) {
 		int fd = open (filename, O_RDONLY, 0);
-		if ( (fd == -1) && (errno == ENOENT) ) {
-			f->file = H5Fcreate(filename, H5F_ACC_TRUNC,
-					    f->create_prop, f->access_prop);
+		if ((fd == -1) && (errno == ENOENT)) {
+			f->file = H5Fcreate (filename, H5F_ACC_TRUNC,
+					     f->create_prop, f->access_prop);
 			f->empty = 1;
 		}
 		else if (fd != -1) {
@@ -204,46 +204,44 @@ h5priv_open_file (
 			f,
 			H5_ERR_HDF5,
 			"Cannot open file \"%s\" with mode \"%d\"",
-			filename, flags );
-	TRY ( f->root_gid = h5priv_open_group ( f,  f->file, "/" ) );
+			filename, flags);
+	TRY( f->root_gid = h5priv_open_group (f,  f->file, "/" ));
 	f->mode = flags;
 	f->step_gid = -1;
 
 	sprintf (
 		f->step_name,
 		"%s#%0*lld",
-		f->prefix_step_name, f->width_step_idx, (long long) f->step_idx );
+		f->prefix_step_name, f->width_step_idx, (long long)f->step_idx);
 
-	TRY ( h5upriv_open_file ( f ) );
-	TRY ( h5bpriv_open_block ( f ) );
-	TRY ( h5tpriv_open_file ( f ) );
+	TRY( h5upriv_open_file (f) );
+	TRY( h5bpriv_open_block (f) );
+	TRY( h5tpriv_open_file (f) );
 	return H5_SUCCESS;
 }
  
-h5_file_t *
+h5_file_t*
 h5_open_file (
-	const char *filename,	/*!< The name of the data file to open. */
+	const char* filename,	/*!< The name of the data file to open. */
 	h5_int32_t flags,	/*!< The access mode for the file. */
 	MPI_Comm comm,		/*!< MPI communicator */
-	const char *funcname	/*!< calling function name */
+	const char* funcname	/*!< calling function name */
 	) {
+	h5_file_t* f = NULL;
 
-
-	h5_file_t *f = NULL;
-
-	f = (h5_file_t*) malloc( sizeof (h5_file_t) );
-	if( f == NULL ) {
+	f = (h5_file_t*) malloc (sizeof (h5_file_t));
+	if (f == NULL) {
 		fprintf(
 			stderr,
 			"E: %s: Can't open file %s. Not enough memory!",
 			funcname,
-			filename );
+			filename);
 		return NULL;
 	}
 	memset (f, 0, sizeof (h5_file_t));
 	f->__funcname = funcname;
-	if ( h5priv_open_file( f, filename, flags, comm ) < 0 ) {
-		if (f != NULL ) {
+	if (h5priv_open_file (f, filename, flags, comm) < 0) {
+		if (f != NULL) {
 			/* Oops, cannot open file. We release the memory allocated for
 			   f only, there is most likely more allocated memory we do
 			   *not* release.
@@ -268,25 +266,25 @@ h5_open_file (
 */
 static h5_int64_t
 h5upriv_close_file (
-	h5_file_t *f		/*!< file handle */
+	h5_file_t* const f	/*!< file handle */
 	) {
-	struct h5u_fdata *u = f->u;
+	struct h5u_fdata* u = f->u;
 
 	f->__errno = H5_SUCCESS;
-	if( u->shape > 0 ) {
-		TRY( h5priv_close_hdf5_dataspace( f, u->shape ) );
+	if (u->shape > 0) {
+		TRY( h5priv_close_hdf5_dataspace (f, u->shape) );
 		u->shape = 0;
 	}
-	if( u->diskshape != H5S_ALL ) {
-		TRY( h5priv_close_hdf5_dataspace( f, u->diskshape ) );
+	if(u->diskshape != H5S_ALL) {
+		TRY( h5priv_close_hdf5_dataspace (f, u->diskshape) );
 		u->diskshape = 0;
 	}
-	if( u->memshape != H5S_ALL ) {
-		TRY( h5priv_close_hdf5_dataspace( f, u->memshape ) );
+	if(u->memshape != H5S_ALL) {
+		TRY( h5priv_close_hdf5_dataspace (f, u->memshape) );
 		u->memshape = 0;
 	}
-	if( u->pnparticles ) {
-		free( u->pnparticles );
+	if (u->pnparticles) {
+		free (u->pnparticles);
 	}
 	return f->__errno;
 }
@@ -303,15 +301,15 @@ h5upriv_close_file (
 */
 static h5_int64_t
 h5bpriv_close_block (
-	h5_file_t *f		/*!< IN: file handle */
+	h5_file_t* const f	/*!< IN: file handle */
 	) {
-	struct h5b_fdata *b = f->b;
+	struct h5b_fdata* b = f->b;
 
-	TRY ( h5priv_close_hdf5_group( f, b->blockgroup ) );
-	TRY ( h5priv_close_hdf5_dataspace( f, b->shape ) );
-	TRY ( h5priv_close_hdf5_dataspace( f, b->diskshape ) );
-	TRY ( h5priv_close_hdf5_dataspace( f, b->memshape ) );
-	free ( f->b );
+	TRY( h5priv_close_hdf5_group (f, b->blockgroup) );
+	TRY( h5priv_close_hdf5_dataspace (f, b->shape) );
+	TRY( h5priv_close_hdf5_dataspace (f, b->diskshape) );
+	TRY( h5priv_close_hdf5_dataspace (f, b->memshape) );
+	free (f->b);
 	f->b = NULL;
 
 	return H5_SUCCESS;
@@ -328,24 +326,24 @@ h5bpriv_close_block (
 */
 h5_err_t
 h5_close_file (
-	h5_file_t *f		/*!< file handle */
+	h5_file_t* const f	/*!< file handle */
 	) {
 	f->__errno = H5_SUCCESS;
 
-	CHECK_FILEHANDLE ( f );
+	CHECK_FILEHANDLE (f);
 
-	TRY( h5priv_close_step ( f ) );
-	TRY( h5upriv_close_file ( f ) );
-	TRY( h5bpriv_close_block ( f ) );
-	TRY( h5tpriv_close_file ( f ) );
-	TRY( h5priv_close_hdf5_group( f, f->step_gid ) );
-	TRY( h5priv_close_hdf5_property ( f, f->xfer_prop ) );
-	TRY( h5priv_close_hdf5_property ( f, f->access_prop ) );
-	TRY( h5priv_close_hdf5_property ( f, f->create_prop ) );
-	TRY( h5priv_close_hdf5_group ( f, f->root_gid ) );
-	TRY( h5priv_close_hdf5_file ( f, f->file ) );
+	TRY( h5priv_close_step (f) );
+	TRY( h5upriv_close_file (f) );
+	TRY( h5bpriv_close_block (f) );
+	TRY( h5tpriv_close_file (f) );
+	TRY( h5priv_close_hdf5_group (f, f->step_gid) );
+	TRY( h5priv_close_hdf5_property (f, f->xfer_prop) );
+	TRY( h5priv_close_hdf5_property (f, f->access_prop) );
+	TRY( h5priv_close_hdf5_property (f, f->create_prop) );
+	TRY( h5priv_close_hdf5_group (f, f->root_gid) );
+	TRY( h5priv_close_hdf5_file (f, f->file) );
 
-	free( f );
+	free (f);
 
 	return H5_SUCCESS;
 }
@@ -362,14 +360,14 @@ h5_close_file (
 */
 h5_err_t
 h5_set_stepname_fmt (
-	h5_file_t *f,
-	const char *name,
+	h5_file_t* const f,
+	const char* name,
 	const h5_int64_t width
 	) {
 	strncpy (
 		f->prefix_step_name,
 		name,
-		sizeof ( f->prefix_step_name ) - 1 );
+		sizeof (f->prefix_step_name) - 1);
 	f->width_step_idx = (int)width;
 	
 	return H5_SUCCESS;
@@ -384,12 +382,12 @@ h5_set_stepname_fmt (
 */
 h5_err_t
 h5_get_stepname_fmt (
-	h5_file_t *f,			/*!< Handle to file		*/
-	char *name,			/*!< OUT: Prefix		*/
+	h5_file_t* const f,		/*!< Handle to file		*/
+	char* name,			/*!< OUT: Prefix		*/
 	const h5_size_t l_name,		/*!< length of buffer name	*/
-	h5_size_t *width		/*!< OUT: Width of the number	*/
+	h5_size_t* width		/*!< OUT: Width of the number	*/
 	) {
-	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
+	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
 
 /*!
@@ -401,9 +399,9 @@ h5_get_stepname_fmt (
 */
 h5_id_t
 h5_get_step (
-	h5_file_t * f			/*!< file handle		*/
+	h5_file_t* const f		/*!< file handle		*/
 	) {
-	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
+	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
 	
 /*!
@@ -416,13 +414,13 @@ h5_get_step (
 */
 h5_err_t
 h5_has_step (
-	h5_file_t * f,			/*!< file handle		*/
+	h5_file_t* const f,		/*!< file handle		*/
 	h5_id_t stepno			/*!< step number to check	*/
 	) {
 	char name[128];
-        sprintf ( name, "%s#%0*ld",
-		  f->prefix_step_name, f->width_step_idx, (long) stepno );
-	return ( H5Gget_info_by_name( f->file, name, NULL, H5P_DEFAULT ) >= 0 );
+        sprintf (name, "%s#%0*ld",
+		 f->prefix_step_name, f->width_step_idx, (long)stepno);
+	return (H5Gget_info_by_name (f->file, name, NULL, H5P_DEFAULT) >= 0);
 }
 
 /*!
@@ -434,9 +432,9 @@ h5_has_step (
 */
 h5_err_t
 h5_start_traverse_steps (
-	h5_file_t * f			/*!< file handle		*/
+	h5_file_t* const f	       	/*!< file handle		*/
 	) {
-	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
+	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
 
 /*!
@@ -448,7 +446,7 @@ h5_start_traverse_steps (
 */
 h5_err_t
 h5_traverse_steps (
-	h5_file_t * f			/*!< file handle		*/
+	h5_file_t* const f		/*!< file handle		*/
 	) {
-	return h5_error_not_implemented ( f, __FILE__, __func__, __LINE__ );
+	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
