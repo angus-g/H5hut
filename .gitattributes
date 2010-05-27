@@ -446,7 +446,6 @@ src/h5core/h5t_types_private.h -text
 src/h5core/h5u_errorhandling_private.h -text
 src/h5core/h5u_readwrite.c -text
 src/h5core/h5u_types_private.h -text
-src/h5core/hdf5_misc.c -text
 src/include/H5.h -text
 src/include/H5Block.h -text
 src/include/H5Fed.h -text
@@ -477,7 +476,6 @@ src/include/h5core/h5t_retrieve.h -text
 src/include/h5core/h5t_storemesh.h -text
 src/include/h5core/h5t_tags.h -text
 src/include/h5core/h5u_readwrite.h -text
-src/include/h5core/hdf5_misc.h -text
 test/H5Block/BlockTestSpecs.txt -text
 test/H5Block/H5BlockDissolveGhosts.c -text
 test/H5Block/H5BlockParTestScalarField.c -text
