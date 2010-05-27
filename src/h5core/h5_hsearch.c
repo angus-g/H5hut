@@ -61,15 +61,15 @@ isprime (const unsigned int number) {
    becomes zero.  */
 h5_err_t
 h5priv_hcreate (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	size_t nel,
-	h5_hashtable_t *htab,
+	h5_hashtable_t* htab,
 	int (*compare)(const void*, const void*),
 	unsigned int (*compute_hash)(const void*)
 	) {
 	/* Test for correct arguments.  */
 	if (htab == NULL || htab->table != NULL) {
-		h5_error_internal ( f, __FILE__, __func__, __LINE__ );
+		h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 	/* Change nel to the first prime number not smaller as nel. */
 	nel |= 1;      /* make odd */
@@ -82,8 +82,8 @@ h5priv_hcreate (
 	htab->compute_hash = compute_hash;
 
 	/* allocate memory and zero out */
-	TRY ( (htab->table = (_ENTRY *) h5priv_calloc (
-		       f, htab->size + 1, sizeof (_ENTRY)) ) );
+	TRY( (htab->table = (_ENTRY *) h5priv_calloc (
+		       f, htab->size + 1, sizeof (_ENTRY))) );
 
 	/* everything went alright */
 	return H5_SUCCESS;
@@ -94,37 +94,37 @@ h5priv_hcreate (
  */
 h5_err_t
 h5priv_hresize (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	size_t nel,		// number of entries to grow
-	h5_hashtable_t *htab	// hash table to resize
+	h5_hashtable_t* htab	// hash table to resize
 	) {
-	if ( htab == NULL || htab->table == NULL ) {
-		h5_error_internal ( f, __FILE__, __func__, __LINE__ );
+	if (htab == NULL || htab->table == NULL) {
+		h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 	// create new hash table
 	h5_hashtable_t __htab;
-	memset ( &__htab, 0, sizeof ( __htab ) );
+	memset (&__htab, 0, sizeof (__htab));
 	nel += htab->size;
-	h5_debug ( f, "Resize hash table from %u to %lu elements.",
-		   htab->size, nel );
-	TRY ( h5priv_hcreate (
-		      f, nel, &__htab, htab->compare, htab->compute_hash ) );
+	h5_debug (f, "Resize hash table from %u to %lu elements.",
+		   htab->size, nel);
+	TRY( h5priv_hcreate (
+		      f, nel, &__htab, htab->compare, htab->compute_hash) );
 
 	// add all entries to new hash table
 	unsigned int idx;
-	for ( idx = 1; idx <= htab->size; idx++ ) {
-		if ( htab->table[idx].used ) {
-			void *ventry;
+	for (idx = 1; idx <= htab->size; idx++) {
+		if (htab->table[idx].used) {
+			void* ventry;
 			h5priv_hsearch (
 				      f,
 				      htab->table[idx].entry,
 				      H5_ENTER,
 				      &ventry,
-				      &__htab );
+				      &__htab);
 		}
 	}
 	// destroy old hash table
-	TRY ( h5priv_hdestroy ( f, htab ) );
+	TRY (h5priv_hdestroy (f, htab) );
 	*htab = __htab;
 	return H5_SUCCESS;
 }
@@ -133,16 +133,16 @@ h5priv_hresize (
    be freed and the local static variable can be marked as not used.  */
 h5_err_t
 h5priv_hdestroy (
-	h5_file_t * const f,
-	struct hsearch_data *htab
+	h5_file_t* const f,
+	struct hsearch_data* htab
 	) {
 	/* Test for correct arguments.  */
 	if (htab == NULL) {
-		h5_error_internal ( f, __FILE__, __func__, __LINE__ );
+		h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 
 	/* Free used memory.  */
-	TRY ( h5priv_free ( f, htab->table ) );
+	TRY( h5priv_free (f, htab->table) );
 
 	/* the sign for an existing table is an value != NULL in htable */
 	htab->table = NULL;
@@ -166,11 +166,11 @@ h5priv_hdestroy (
    unnecessary expensive calls of strcmp.  */
 h5_err_t
 h5priv_hsearch (
-	h5_file_t * const f,
-	void *item,
+	h5_file_t* const f,
+	void* item,
 	const h5_action_t action,
-	void **retval,
-	struct hsearch_data *htab
+	void** retval,
+	struct hsearch_data* htab
 	) {
 	unsigned int hval;
 	unsigned int idx;
@@ -218,11 +218,11 @@ h5priv_hsearch (
 	}
 
 	/* An empty bucket has been found. */
-	if ( action == H5_ENTER ) {
+	if (action == H5_ENTER) {
 		/* If table is full and another entry should be entered return
 		   with error.  */
 		if (htab->filled == htab->size)	{
-			h5_error_internal ( f, __FILE__, __func__, __LINE__ );
+			h5_error_internal (f, __FILE__, __func__, __LINE__);
 			*retval = NULL;
 			return H5_ERR;
 		}
@@ -234,50 +234,50 @@ h5priv_hsearch (
 
 		*retval = htab->table[idx].entry;
 		return H5_SUCCESS;
-	} else if ( action == H5_REMOVE ) {
+	} else if (action == H5_REMOVE) {
 		htab->table[idx].used = 0;		/* mark as unused, but */
 		*retval = htab->table[idx].entry;	/* return ptr to entry */
 		return H5_SUCCESS;
 	}
 	*retval = NULL;
-	h5_error ( f, H5_ERR_INVAL, "Key not found in hash table." );
+	h5_error (f, H5_ERR_INVAL, "Key not found in hash table.");
 	return H5_ERR;
 }
 
 h5_err_t
 h5priv_hwalk (
-	h5_file_t* f,
-	struct hsearch_data *htab,
+	h5_file_t* const f,
+	struct hsearch_data* htab,
 	h5_err_t (*visit)(h5_file_t*const f, const void *item)
 	) {
 	unsigned int idx = 1;
-	for ( idx = 1; idx < htab->size; idx++ ) {
-		if ( htab->table[idx].used ) {
-			TRY ( (*visit)( f, &htab->table[idx].entry ) );
+	for (idx = 1; idx < htab->size; idx++) {
+		if (htab->table[idx].used) {
+			TRY( (*visit)(f, &htab->table[idx].entry) );
 		}
 	}
 	return H5_SUCCESS;
 }
 
 typedef struct {
-	char *key;
+	char* key;
 } h5_hitem_string_keyed_t;
 
 static int
 _hcmp_string_keyed (
-	const void *__a,
-	const void *__b
+	const void* __a,
+	const void* __b
 	) {
 	h5_hitem_string_keyed_t *a = (h5_hitem_string_keyed_t*) __a;
 	h5_hitem_string_keyed_t *b = (h5_hitem_string_keyed_t*) __b;
-	return strcmp ( a->key, b->key );
+	return strcmp (a->key, b->key);
 }
 
 static unsigned int
 _hcompute_string_keyed (
-	const void *__item
+	const void* __item
 	) {
-	h5_hitem_string_keyed_t *item = (h5_hitem_string_keyed_t*) __item;
+	h5_hitem_string_keyed_t* item = (h5_hitem_string_keyed_t*) __item;
 	unsigned int len = strlen (item->key);
 	unsigned int hval = len;
 	unsigned int count = len;
@@ -290,31 +290,31 @@ _hcompute_string_keyed (
 
 h5_err_t
 h5priv_hcreate_string_keyed (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	size_t nel,
-	h5_hashtable_t *htab 
+	h5_hashtable_t* htab 
 	) {
-	return h5priv_hcreate ( f, nel, htab,
-			       _hcmp_string_keyed, _hcompute_string_keyed );
+	return h5priv_hcreate (f, nel, htab,
+			       _hcmp_string_keyed, _hcompute_string_keyed);
 }
 
 static int
 _hcmp_id_keyed (
-	const void *__a,
-	const void *__b
+	const void* __a,
+	const void* __b
 	) {
-	return memcmp ( __a, __b, sizeof(h5_id_t) );
+	return memcmp (__a, __b, sizeof(h5_id_t));
 }
 
 static unsigned int
 _hcompute_id_keyed (
-	const void *__item
+	const void*__item
 	) {
-	char *key = (char*)__item;
-	unsigned int count = sizeof ( h5_id_t );
+	char* key = (char*)__item;
+	unsigned int count = sizeof (h5_id_t);
 	unsigned int hval = count;
-	while ( count-- > 0 ) {
-		if ( key[count] ) {
+	while (count-- > 0) {
+		if (key[count]) {
 			hval <<= 4;
 			hval += key[count];
 		}
@@ -324,10 +324,10 @@ _hcompute_id_keyed (
 
 h5_err_t
 h5priv_hcreate_id_keyed (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	size_t nel,
-	h5_hashtable_t *htab 
+	h5_hashtable_t* htab 
 	) {
-	return h5priv_hcreate ( f, nel, htab,
-			       _hcmp_id_keyed, _hcompute_id_keyed );
+	return h5priv_hcreate (f, nel, htab,
+			       _hcmp_id_keyed, _hcompute_id_keyed);
 }
