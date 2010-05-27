@@ -6,24 +6,24 @@
 
 h5_err_t
 h5priv_alloc_idlist_items (
-	h5_file_t * const f,
-	h5_idlist_t *list,
+	h5_file_t* const f,
+	h5_idlist_t* list,
 	const h5_size_t	size
 	) {
-	int new = ( list->items == NULL );
-	size_t size_in_bytes = size * sizeof ( list->items[0] );
-	TRY ( list->items = h5priv_alloc ( f, list->items, size_in_bytes ) );
+	int new = (list->items == NULL);
+	size_t size_in_bytes = size * sizeof (list->items[0]);
+	TRY( list->items = h5priv_alloc (f, list->items, size_in_bytes) );
 	list->size = size;
-	if ( new ) list->num_items = 0;
+	if (new) list->num_items = 0;
 	return H5_SUCCESS;
 }
 
 h5_err_t
 h5priv_free_idlist_items (
-	h5_file_t * const f,
-	h5_idlist_t *list
+	h5_file_t* const f,
+	h5_idlist_t* list
 	) {
-	if ( list->items != NULL ) free ( list->items );
+	if (list->items != NULL) free (list->items);
 	list->items = NULL;
 	list->size = 0;
 	list->num_items = 0;
@@ -32,44 +32,44 @@ h5priv_free_idlist_items (
 
 h5_err_t
 h5priv_alloc_idlist (
-	h5_file_t * const f,
-	h5_idlist_t **list,
+	h5_file_t* const f,
+	h5_idlist_t** list,
 	const h5_size_t	size
 	) {
-	TRY ( ( *list = h5priv_alloc ( f, NULL, sizeof (**list) ) ) );
-	memset ( *list, 0, sizeof(**list) );
-	size_t size_in_bytes = size * sizeof ( (*list)->items[0] );
-	TRY ( (*list)->items = h5priv_alloc ( f, (*list)->items, size_in_bytes ) );
+	TRY( (*list = h5priv_alloc (f, NULL, sizeof (**list))) );
+	memset (*list, 0, sizeof (**list));
+	size_t size_in_bytes = size * sizeof ((*list)->items[0]);
+	TRY( (*list)->items = h5priv_alloc (f, (*list)->items, size_in_bytes) );
 	(*list)->size = size;
 	return H5_SUCCESS;
 }
 
 h5_err_t
 h5priv_free_idlist (
-	h5_file_t * const f,
-	h5_idlist_t **list
+	h5_file_t* const f,
+	h5_idlist_t** list
 	) {
-	if ( *list == NULL ) return H5_SUCCESS;
-	TRY ( h5priv_free_idlist_items ( f, *list ) );
-	TRY ( h5priv_free( f, *list ) );
+	if (*list == NULL) return H5_SUCCESS;
+	TRY( h5priv_free_idlist_items (f, *list) );
+	TRY( h5priv_free( f, *list) );
 	*list = NULL;
 	return H5_SUCCESS;
 }
 
 h5_err_t
 h5priv_append_to_idlist (
-	h5_file_t * const f,
-	h5_idlist_t *list,
+	h5_file_t* const f,
+	h5_idlist_t* list,
 	h5_id_t id
 	) {
-	if ( list->num_items == list->size ) {
+	if (list->num_items == list->size) {
 		h5_size_t size = list->size;
-		if ( size == 0 ) {
+		if (size == 0) {
 			size = 2;
 		} else {
 			size *= 2;
 		}
-		TRY ( h5priv_alloc_idlist_items ( f, list, size ) );
+		TRY( h5priv_alloc_idlist_items (f, list, size) );
 	}
 	list->items[list->num_items++] = id;
 	return H5_SUCCESS;
@@ -77,40 +77,40 @@ h5priv_append_to_idlist (
 
 int
 h5priv_cmp_ids_by_eid (
-	const void *_id1,
-	const void *_id2
+	const void* _id1,
+	const void* _id2
 	) {
-	h5_id_t	id1 = h5tpriv_get_elem_idx ( *(h5_id_t*)_id1 ); 
-	h5_id_t	id2 = h5tpriv_get_elem_idx ( *(h5_id_t*)_id2 ); 
+	h5_id_t	id1 = h5tpriv_get_elem_idx (*(h5_id_t*)_id1); 
+	h5_id_t	id2 = h5tpriv_get_elem_idx (*(h5_id_t*)_id2); 
 	
-	if ( id1 < id2 ) return -1;
-	if ( id1 > id2 ) return 1;
+	if (id1 < id2) return -1;
+	if (id1 > id2) return 1;
 	return 0;
 }
 
 int
 h5priv_cmp_ids (
-	const void *_id1,
-	const void *_id2
+	const void* _id1,
+	const void* _id2
 	) {
 	h5_id_t	*id1 = (h5_id_t*)_id1;
 	h5_id_t	*id2 = (h5_id_t*)_id2;
 	
-	if ( *id1 < *id2 ) return -1;
-	if ( *id1 > *id2 ) return 1;
+	if (*id1 < *id2) return -1;
+	if (*id1 > *id2) return 1;
 	return 0;
 }
 
 h5_err_t
 h5priv_sort_idlist_by_eid (
-	h5_file_t * const f,
-	h5_idlist_t *list
+	h5_file_t* const f,
+	h5_idlist_t* list
 	) {
 	qsort (
 		list->items,
 		list->num_items,
-		sizeof(list->items[0]),
-		h5priv_cmp_ids_by_eid );
+		sizeof (list->items[0]),
+		h5priv_cmp_ids_by_eid);
 	
 	return H5_SUCCESS;
 }
@@ -120,8 +120,8 @@ h5priv_sort_idlist_by_eid (
 */
 h5_id_t
 h5priv_find_idlist (
-	h5_file_t * const f,
-	h5_idlist_t *list,
+	h5_file_t* const f,
+	h5_idlist_t* list,
 	h5_id_t	item
 	) {
 	register h5_id_t low = 0;
@@ -144,24 +144,24 @@ h5priv_find_idlist (
 */
 h5_id_t
 h5priv_insert_idlist (
-	h5_file_t * const f,
-	h5_idlist_t *list,
+	h5_file_t* const f,
+	h5_idlist_t* list,
 	h5_id_t	item,
 	h5_id_t idx
 	) {
-	if ( list->num_items == list->size ) {
+	if (list->num_items == list->size) {
 		h5_size_t size = list->size;
-		if ( size == 0 ) {
+		if (size == 0) {
 			size = 16;
 		} else {
 			size *= 2;
 		}
-		TRY ( h5priv_alloc_idlist_items ( f, list, size ) );
+		TRY( h5priv_alloc_idlist_items (f, list, size) );
 	}
 	memmove ( 
 		&list->items[idx+1],
 		&list->items[idx],
-		(list->num_items - idx) * sizeof(list->items[0]) );
+		(list->num_items - idx) * sizeof (list->items[0]));
 	list->items[idx] = item;
 	list->num_items++;
 	return idx;
@@ -172,45 +172,44 @@ h5priv_insert_idlist (
  */
 h5_id_t
 h5priv_search_idlist (
-	h5_file_t * const f,
-	h5_idlist_t *list,
+	h5_file_t* const f,
+	h5_idlist_t* list,
 	h5_id_t	item
 	) {
-	h5_id_t idx = h5priv_find_idlist ( f, list, item );
-	if ( idx < 0 ) {
+	h5_id_t idx = h5priv_find_idlist (f, list, item);
+	if (idx < 0) {
 		idx = -(idx+1);
-		idx = h5priv_insert_idlist ( f, list, item, idx );
+		idx = h5priv_insert_idlist (f, list, item, idx);
 	}
 	return idx;
 }
 
 h5_err_t
 h5priv_alloc_idmap (
-	h5_file_t * const f,
-	h5_idmap_t	*map,
+	h5_file_t* const f,
+	h5_idmap_t* map,
 	const h5_size_t	size
 	) {
-	int new = ( map->items == NULL );
-	size_t size_in_bytes = size * sizeof ( map->items[0] );
-	TRY ( map->items = h5priv_alloc ( f, map->items, size_in_bytes ) );
+	int new = (map->items == NULL);
+	size_t size_in_bytes = size * sizeof (map->items[0]);
+	TRY( map->items = h5priv_alloc (f, map->items, size_in_bytes) );
 	map->size = size;
-	if ( new ) map->num_items = 0;
+	if (new) map->num_items = 0;
 	return H5_SUCCESS;
 }
 
 h5_err_t
 h5priv_insert_idmap (
-	h5_file_t * const f,
-	h5_idmap_t *map,
+	h5_file_t* const f,
+	h5_idmap_t* map,
 	h5_id_t global_id,
 	h5_id_t local_id
 	) {
+	if (map->num_items == map->size)
+		return HANDLE_H5_OVERFLOW_ERR (f, "g2lmap", map->size);
 
-	if ( map->num_items == map->size )
-		return HANDLE_H5_OVERFLOW_ERR( f, "g2lmap", map->size );
-
-	h5_id_t i = h5priv_search_idmap ( map, global_id );
-	if ( i >= 0 )			/* global id already in use ? */
+	h5_id_t i = h5priv_search_idmap (map, global_id);
+	if (i >= 0)			/* global id already in use ? */
 		return -1;
 
 	i = -(i+1);
@@ -218,7 +217,7 @@ h5priv_insert_idmap (
 	memmove ( 
 		&map->items[i+1],
 		&map->items[i],
-		(map->num_items - i) * sizeof(map->items[0]) );
+		(map->num_items - i) * sizeof(map->items[0]));
 	map->items[i].global_id = global_id;
 	map->items[i].local_id = local_id;
 	map->num_items++;
@@ -238,7 +237,7 @@ h5priv_insert_idmap (
  */
 h5_id_t
 h5priv_search_idmap (
-	h5_idmap_t *map,
+	h5_idmap_t* map,
 	h5_id_t value
 	) {
 
@@ -259,26 +258,23 @@ h5priv_search_idmap (
 
 int
 _cmp_idmap_items (
-	const void *_item1,
-	const void *_item2
+	const void* _item1,
+	const void* _item2
 	) {
-	h5_idmap_el_t	*item1 = (h5_idmap_el_t*)_item1;
-	h5_idmap_el_t	*item2 = (h5_idmap_el_t*)_item2;
+	h5_idmap_el_t* item1 = (h5_idmap_el_t*)_item1;
+	h5_idmap_el_t* item2 = (h5_idmap_el_t*)_item2;
 
-	if ( item1->global_id < item2->global_id ) return -1;
-	if ( item1->global_id > item2->global_id ) return 1;
+	if (item1->global_id < item2->global_id) return -1;
+	if (item1->global_id > item2->global_id) return 1;
 	
 	return 0;
 }
 
 h5_err_t
 h5priv_sort_idmap (
-	h5_idmap_t *map
+	h5_idmap_t* map
 	) {
-	qsort (
-		map->items,
-		map->num_items,
-		sizeof(map->items[0]),
-		_cmp_idmap_items );
+	qsort (	map->items, map->num_items, sizeof (map->items[0]),
+		_cmp_idmap_items);
 	return H5_SUCCESS;
 }
