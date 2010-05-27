@@ -106,11 +106,11 @@ __unused
 
 #ifdef I_AM_QSORT_R
 void
-h5priv_qsort_r(void *a, size_t n, size_t es, void *thunk, cmp_t *cmp)
+h5priv_qsort_r (void* a, size_t n, size_t es, void* thunk, cmp_t* cmp)
 #else
 #define thunk NULL
 void
-h5priv_qsort(void *a, size_t n, size_t es, cmp_t *cmp)
+h5priv_qsort (void* a, size_t n, size_t es, cmp_t* cmp)  
 #endif
 {
 	char *pa, *pb, *pc, *pd, *pl, *pm, *pn;
