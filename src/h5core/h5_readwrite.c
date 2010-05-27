@@ -285,7 +285,7 @@ h5_get_dataset_type(
 	TRY( h5priv_close_hdf5_type (f, hdf5_type) );
 	TRY( h5priv_close_hdf5_dataset (f, dset_id) );
 
-	returntype;
+	return type;
 }
 
 h5_int64_t
