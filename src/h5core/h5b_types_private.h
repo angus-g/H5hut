@@ -15,8 +15,8 @@ struct h5b_fdata {
 	h5_size_t i_max;
 	h5_size_t j_max;
 	h5_size_t k_max;
-	struct h5b_partition *user_layout;
-	struct h5b_partition *write_layout;
+	struct h5b_partition* user_layout;
+	struct h5b_partition* write_layout;
 	int have_layout;
 	h5_size_t chunk[3];
 
