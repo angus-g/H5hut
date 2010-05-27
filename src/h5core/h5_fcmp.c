@@ -16,8 +16,8 @@ h5priv_fcmp (
 
 	// Make sure maxUlps is non-negative and small enough that the
 	// default NAN won't compare as equal to anything.
-	assert(maxUlps > 0 && maxUlps < 4 * 1024 * 1024);
-	assert ( sizeof(long long) == sizeof(h5_int64_t) );
+	assert (maxUlps > 0 && maxUlps < 4 * 1024 * 1024);
+	assert (sizeof (long long) == sizeof (h5_int64_t) );
 
 	// Make [ab]Int lexicographically ordered as a twos-complement int
 	h5_int64_t aInt = *(h5_int64_t*)&A;
