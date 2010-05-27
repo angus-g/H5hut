@@ -12,9 +12,7 @@ static h5_int32_t h5priv_debuglevel = 0;
   \ingroup h5_core
   \defgroup h5_core_errorhandling
 */
-//static char *__funcname = "NONE";
-
-const char * const H5_O_MODES[] = {
+const char* const H5_O_MODES[] = {
 	"H5_O_RDWR",
 	"H5_O_RDONLY",
 	"H5_O_WRONLY",
@@ -39,7 +37,7 @@ h5_err_t
 h5_set_debuglevel (
 	h5_id_t debuglevel	/*!< debug level */
 	) {
-	if ( debuglevel < 0 || debuglevel > 5 ) return H5_ERR_INVAL;
+	if (debuglevel < 0 || debuglevel > 5) return H5_ERR_INVAL;
 	h5priv_debuglevel = debuglevel;
 	return H5_SUCCESS;
 }
@@ -96,7 +94,7 @@ h5_get_errorhandler (
 */
 h5_err_t
 h5_get_errno (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
 	return f->__errno;
 }
@@ -110,7 +108,7 @@ h5_get_errno (
 */
 void
 h5_set_errno (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	h5_err_t h5_errno
 	) {
 	f->__errno = h5_errno;
@@ -127,13 +125,13 @@ h5_set_errno (
 */
 h5_err_t
 h5_report_errorhandler (
-	h5_file_t * const f,
-	const char *fmt,
+	h5_file_t* const f,
+	const char* fmt,
 	va_list ap
 	) {
 
-	if ( h5priv_debuglevel > 0 ) {
-		h5_verror ( f, fmt, ap );
+	if (h5priv_debuglevel > 0) {
+		h5_verror (f, fmt, ap);
 	}
 	return f->__errno;
 }
@@ -146,13 +144,13 @@ h5_report_errorhandler (
 */
 h5_err_t
 h5_abort_errorhandler (
-	h5_file_t * const f,
-	const char *fmt,
+	h5_file_t* const f,
+	const char* fmt,
 	va_list ap
 	) {
 
-	if ( h5priv_debuglevel > 0 ) {
-		h5_verror ( f, fmt, ap );
+	if (h5priv_debuglevel > 0) {
+		h5_verror (f, fmt, ap);
 	}
 	exit (-(int)f->__errno);
 }
@@ -160,19 +158,19 @@ h5_abort_errorhandler (
 static void
 _vprintf (
 	FILE* f,
-	const char *prefix,
-	const char *__funcname,
-	const char *fmt,
+	const char* prefix,
+	const char* __funcname,
+	const char* fmt,
 	va_list ap
 	) {
 	char *fmt2 = (char*)malloc(
-		strlen ( prefix ) +
-		strlen ( fmt ) + 
-		strlen ( __funcname ) + 16 );
-	if ( fmt2 == NULL ) return;
-	sprintf ( fmt2, "%s: %s: %s\n", prefix, __funcname, fmt ); 
-	vfprintf ( f, fmt2, ap );
-	free ( fmt2 );
+		strlen (prefix) +
+		strlen (fmt) + 
+		strlen (__funcname) + 16);
+	if (fmt2 == NULL) return;
+	sprintf (fmt2, "%s: %s: %s\n", prefix, __funcname, fmt); 
+	vfprintf (f, fmt2, ap);
+	free (fmt2);
 }
 
 /*!
@@ -184,18 +182,18 @@ _vprintf (
 */
 h5_err_t
 h5_error (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	h5_err_t __errno,
-	const char *fmt,
+	const char* fmt,
 	...
 	) {
 	f->__errno = __errno;
 	va_list ap;
-	va_start ( ap, fmt );
+	va_start (ap, fmt);
 
-	(*h5priv_errhandler)( f, fmt, ap );
+	(*h5priv_errhandler)(f, fmt, ap);
 
-	va_end ( ap );
+	va_end (ap);
 	return f->__errno;
 }
 
@@ -206,13 +204,13 @@ h5_error (
 */
 void
 h5_verror (
-	h5_file_t * const f,
-	const char *fmt,
+	h5_file_t* const f,
+	const char* fmt,
 	va_list ap
 	) {
 
-	if ( h5priv_debuglevel < 1 ) return;
-	_vprintf ( stderr, "E", f->__funcname, fmt, ap );
+	if (h5priv_debuglevel < 1) return;
+	_vprintf (stderr, "E", f->__funcname, fmt, ap);
 }
 
 
@@ -223,13 +221,12 @@ h5_verror (
 */
 void
 h5_vwarn (
-	h5_file_t * const f,
-	const char *fmt,
+	h5_file_t* const f,
+	const char* fmt,
 	va_list ap
 	) {
-
-	if ( h5priv_debuglevel < 2 ) return;
-	_vprintf ( stderr, "W", f->__funcname, fmt, ap );
+	if (h5priv_debuglevel < 2) return;
+	_vprintf (stderr, "W", f->__funcname, fmt, ap);
 }
 
 /*!
@@ -239,15 +236,14 @@ h5_vwarn (
 */
 void
 h5_warn (
-	h5_file_t * const f,
-	const char *fmt,
+h5_file_t* const f,
+		const char* fmt,
 	...
 	) {
-
 	va_list ap;
-	va_start ( ap, fmt );
-	h5_vwarn ( f, fmt, ap );
-	va_end ( ap );
+	va_start (ap, fmt);
+	h5_vwarn (f, fmt, ap);
+	va_end (ap);
 }
 
 /*!
@@ -257,13 +253,12 @@ h5_warn (
 */
 void
 h5_vinfo (
-	h5_file_t * const f,
-	const char *fmt,
+	h5_file_t* const f,
+	const char* fmt,
 	va_list ap
 	) {
-
-	if ( h5priv_debuglevel < 3 ) return;
-	_vprintf ( stdout, "I", f->__funcname, fmt, ap );
+	if (h5priv_debuglevel < 3) return;
+	_vprintf (stdout, "I", f->__funcname, fmt, ap);
 }
 
 /*!
@@ -273,15 +268,14 @@ h5_vinfo (
 */
 void
 h5_info (
-	h5_file_t * const f,
-	const char *fmt,
+	h5_file_t* const f,
+	const char* fmt,
 	...
 	) {
-
 	va_list ap;
-	va_start ( ap, fmt );
-	h5_vinfo ( f, fmt, ap );
-	va_end ( ap );
+	va_start (ap, fmt);
+	h5_vinfo (f, fmt, ap);
+	va_end (ap);
 }
 
 /*!
@@ -291,13 +285,12 @@ h5_info (
 */
 void
 h5_vdebug (
-	h5_file_t * const f,
-	const char *fmt,
+	h5_file_t* const f,
+	const char* fmt,
 	va_list ap
 	) {
-
-	if ( h5priv_debuglevel < 4 ) return;
-	_vprintf ( stdout, "D", f->__funcname, fmt, ap );
+	if (h5priv_debuglevel < 4) return;
+	_vprintf (stdout, "D", f->__funcname, fmt, ap);
 }
 
 /*!
@@ -307,15 +300,14 @@ h5_vdebug (
 */
 void
 h5_debug (
-	h5_file_t * const f,
-	const char *fmt,
+	h5_file_t* const f,
+	const char* fmt,
 	...
 	) {
-
 	va_list ap;
-	va_start ( ap, fmt );
-	h5_vdebug ( f, fmt, ap );
-	va_end ( ap );
+	va_start (ap, fmt);
+	h5_vdebug (f, fmt, ap);
+	va_end (ap);
 }
 
 /*!
@@ -325,10 +317,10 @@ h5_debug (
 */
 void
 h5_set_funcname (
-	h5_file_t * const f,
-	const char * const fname
+	h5_file_t* const f,
+	const char* const fname
 	) {
-	f->__funcname = (char *) fname;
+	f->__funcname = (char *)fname;
 }
 
 /*!
@@ -336,9 +328,9 @@ h5_set_funcname (
 
   Get function name.
 */
-const char *
+const char*
 h5_get_funcname (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
 	return f->__funcname;
 }
