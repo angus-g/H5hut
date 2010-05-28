@@ -34,20 +34,20 @@ EXTRA_HEADERS =					\
 	h5_readwrite_private.h			\
 	h5_syscall_private.h			\
 	h5b_errorhandling_private.h		\
+	h5t_adjacencies_tetm_private.h		\
+	h5t_adjacencies_trim_private.h		\
 	h5t_consts_private.h			\
 	h5t_errorhandling_private.h		\
 	h5t_hsearch_private.h			\
 	h5t_openclose_private.h			\
 	h5t_readwrite_private.h			\
 	h5t_retrieve_private.h			\
-	h5t_storemesh_private.h			\
+	h5t_retrieve_tetm_private.h		\
+	h5t_retrieve_trim_private.h		\
+	h5t_store_private.h			\
+	h5t_store_tetm_private.h		\
+	h5t_store_trim_private.h		\
 	h5t_tags_private.h			\
-	h5t_tetm_adjacencies_private.h		\
-	h5t_tetm_retrieve_private.h		\
-	h5t_tetm_store_private.h		\
-	h5t_trim_adjacencies_private.h		\
-	h5t_trim_retrieve_private.h		\
-	h5t_trim_store_private.h		\
 	h5u_errorhandling_private.h
 
 # Extra files that I wish to include in the dist tar ball.
@@ -81,6 +81,8 @@ libH5Core_a_SOURCES =				\
 	h5_readwrite.c				\
 	h5_syscall.c				\
 	h5t_adjacencies.c			\
+	h5t_adjacencies_tetm.c			\
+	h5t_adjacencies_trim.c			\
 	h5t_consts.c				\
 	h5t_errorhandling.c			\
 	h5t_hsearch.c				\
@@ -90,14 +92,12 @@ libH5Core_a_SOURCES =				\
 	h5t_readwrite.c				\
 	h5t_ref_elements.c			\
 	h5t_retrieve.c				\
-	h5t_storemesh.c				\
+	h5t_retrieve_tetm.c			\
+	h5t_retrieve_trim.c			\
+	h5t_store.c				\
+	h5t_store_tetm.c			\
+	h5t_store_trim.c			\
 	h5t_tags.c				\
-	h5t_tetm_adjacencies.c			\
-	h5t_tetm_retrieve.c			\
-	h5t_tetm_store.c			\
-	h5t_trim_adjacencies.c			\
-	h5t_trim_retrieve.c			\
-	h5t_trim_store.c			\
 	h5u_readwrite.c
 
 libH5Core_a_DEPENDENCIES = $(EXTRA_HEADERS)
