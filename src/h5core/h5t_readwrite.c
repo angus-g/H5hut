@@ -2,7 +2,7 @@
 #include "h5_core_private.h"
 
 static hid_t
-_open_space_all (
+open_space_all (
 	h5_file_t* const f,
 	const hid_t dataset_id
 	) {
@@ -18,7 +18,7 @@ _open_space_all (
 
  */
 static h5_err_t
-_write_vertices (
+write_vertices (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t *t = f->t;
@@ -33,22 +33,22 @@ _write_vertices (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_vertices,
-		     _open_space_all,
-		     _open_space_all,
+		     open_space_all,
+		     open_space_all,
 		     t->vertices) );
 	TRY( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_vertices,
-		     _open_space_all,
-		     _open_space_all,
+		     open_space_all,
+		     open_space_all,
 		     t->num_vertices) );
 
 	return H5_SUCCESS;
 }
 
 static h5_err_t
-_write_elems (
+write_elems (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -63,24 +63,24 @@ _write_elems (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_elems,
-		     _open_space_all,
-		     _open_space_all,
+		     open_space_all,
+		     open_space_all,
 		     t->elems.data) );
 
 	TRY( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems,
-		     _open_space_all,
-		     _open_space_all,
+		     open_space_all,
+		     open_space_all,
 		     t->num_elems) );
 
 	TRY( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems_on_level,
-		     _open_space_all,
-		     _open_space_all,
+		     open_space_all,
+		     open_space_all,
 		     t->num_elems_on_level) );
 
 	return H5_SUCCESS;
@@ -92,8 +92,8 @@ h5tpriv_write_mesh (
 	) {
 	h5t_fdata_t* t = f->t;
 	if (t->mesh_changed) {
-		TRY( _write_vertices (f) );
-		TRY( _write_elems (f) );
+		TRY( write_vertices (f) );
+		TRY( write_elems (f) );
 	}
 	if (t->mtags.changed) { 
 		TRY( h5tpriv_write_mtags (f) );
@@ -103,7 +103,7 @@ h5tpriv_write_mesh (
 }
 
 static h5_size_t
-_read_num_levels (
+read_num_levels (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -125,7 +125,7 @@ _read_num_levels (
 
 
 static hid_t
-_open_mem_space_vertices (
+open_mem_space_vertices (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
@@ -133,7 +133,7 @@ _open_mem_space_vertices (
 }
 
 static hid_t
-_open_file_space_vertices (
+open_file_space_vertices (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
@@ -141,7 +141,7 @@ _open_file_space_vertices (
 }
 
 static h5_err_t
-_read_num_vertices (
+read_num_vertices (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -155,15 +155,15 @@ _read_num_vertices (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_vertices,
-		     _open_space_all,
-		     _open_space_all,
+		     open_space_all,
+		     open_space_all,
 		     t->num_vertices) );
 
 	return H5_SUCCESS;
 }
 
 static h5_err_t
-_read_vertices (
+read_vertices (
 	h5_file_t * f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -173,8 +173,8 @@ _read_vertices (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_vertices,
-		     _open_mem_space_vertices,
-		     _open_file_space_vertices,
+		     open_mem_space_vertices,
+		     open_file_space_vertices,
 		     t->vertices) );
 	TRY( h5tpriv_sort_vertices (f) );
 	TRY( h5tpriv_rebuild_global_2_local_map_of_vertices (f) );
@@ -185,7 +185,7 @@ _read_vertices (
 
 
 static h5_err_t
-_read_num_elems (
+read_num_elems (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -200,23 +200,23 @@ _read_num_elems (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems,
-		     _open_space_all,
-		     _open_space_all,
+		     open_space_all,
+		     open_space_all,
 		     t->num_elems) );
 
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_num_elems_on_level,
-		     _open_space_all,
-		     _open_space_all,
+		     open_space_all,
+		     open_space_all,
 		     t->num_elems_on_level) );
 	
 	return H5_SUCCESS;
 }
 
 static hid_t
-_open_mem_space_elems (
+open_mem_space_elems (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
@@ -224,7 +224,7 @@ _open_mem_space_elems (
 }
 
 static hid_t
-_open_file_space_elems (
+open_file_space_elems (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
@@ -239,7 +239,7 @@ _open_file_space_elems (
     corresponding local id.
 */
 static h5_err_t
-_build_elems_ldta (
+build_elems_ldta (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -279,7 +279,7 @@ _build_elems_ldta (
 }
 
 static h5_err_t
-_read_elems (
+read_elems (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -289,20 +289,20 @@ _read_elems (
 		     f,
 		     t->mesh_gid,
 		     &t->dsinfo_elems,
-		     _open_mem_space_elems,
-		     _open_file_space_elems,
+		     open_mem_space_elems,
+		     open_file_space_elems,
 		     t->elems.data) );
 
 	TRY( h5tpriv_sort_elems (f) );
 	TRY( h5tpriv_rebuild_global_2_local_map_of_elems (f) );
 
-	TRY( _build_elems_ldta (f) );
+	TRY( build_elems_ldta (f) );
 	TRY( (*t->methods.adjacency->rebuild_internal_structs)(f) );
 	return H5_SUCCESS;
 }
 
 static h5_err_t
-_read_mtags (
+read_mtags (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -317,11 +317,11 @@ h5tpriv_read_mesh (
  	if (f->t->mesh_gid < 0) {
 		TRY( h5tpriv_open_mesh_group (f) );
 	}
-	TRY( _read_num_levels (f) );
-	TRY( _read_num_vertices (f) );
-	TRY( _read_num_elems (f) );
-	TRY( _read_vertices (f) );
-	TRY( _read_elems (f) );
-	TRY( _read_mtags (f) );
+	TRY( read_num_levels (f) );
+	TRY( read_num_vertices (f) );
+	TRY( read_num_elems (f) );
+	TRY( read_vertices (f) );
+	TRY( read_elems (f) );
+	TRY( read_mtags (f) );
 	return H5_SUCCESS;
 }
