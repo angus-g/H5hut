@@ -38,7 +38,7 @@ H5FedSetLevel (
 	const h5_id_t level_id
 	) {
 	SET_FNAME (f, __func__);
-	return h5t_open_level (f, level_id);
+	return h5t_set_level (f, level_id);
 }
 
 h5_err_t
