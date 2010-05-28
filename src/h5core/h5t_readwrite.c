@@ -297,7 +297,7 @@ read_elems (
 	TRY( h5tpriv_rebuild_global_2_local_map_of_elems (f) );
 
 	TRY( build_elems_ldta (f) );
-	TRY( (*t->methods.adjacency->rebuild_internal_structs)(f) );
+	TRY( (*t->methods.adjacency->update_internal_structs)(f) );
 	return H5_SUCCESS;
 }
 

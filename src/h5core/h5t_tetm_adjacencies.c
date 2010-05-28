@@ -82,7 +82,7 @@ compute_tets_of_triangles (
 }
 
 static h5_err_t
-rebuild_internal_structs (
+update_internal_structs (
 	h5_file_t * const f
 	) {
 	clock_t t1 = clock();
@@ -693,7 +693,7 @@ release_internal_structs (
 }
 
 struct h5t_adjacency_methods h5tpriv_tetm_adjacency_methods = {
-	rebuild_internal_structs,
+	update_internal_structs,
 	release_internal_structs,
 	get_edges_upadjacent_to_vertex,
 	get_triangles_upadjacent_to_vertex,

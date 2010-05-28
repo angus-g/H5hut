@@ -12,7 +12,7 @@ struct h5t_retrieve_methods {
 };
 
 struct h5t_adjacency_methods {
-	h5_err_t (*rebuild_internal_structs)(h5_file_t * const);
+	h5_err_t (*update_internal_structs)(h5_file_t * const);
 	h5_err_t (*release_internal_structs)(h5_file_t * const);
 	h5_err_t (*get_edges_upadjacent_to_vertex)(
 		h5_file_t * const, const h5_id_t, h5_idlist_t**);

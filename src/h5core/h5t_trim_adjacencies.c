@@ -69,7 +69,7 @@ compute_elems_of_edges (
 }
 
 static h5_err_t
-rebuild_internal_structs (
+update_internal_structs (
 	h5_file_t * const f
 	) {
 	clock_t t1 = clock();
@@ -346,7 +346,7 @@ get_edges_downadjacent_to_triangle (
 			     h5tpriv_build_edge_id (face_idx, elem_idx),
 			     children) );
 	}
-	TRY ( h5priv_alloc_idlist (f, list, 8) );
+-	TRY ( h5priv_alloc_idlist (f, list, 8) );
 	h5_id_t *edge_idp = children->items;
 	int i;
 	for (i = 0; i < children->num_items; i++, edge_idp++) {
@@ -366,7 +366,7 @@ release_internal_structs (
 }
 
 struct h5t_adjacency_methods h5tpriv_trim_adjacency_methods = {
-	rebuild_internal_structs,
+	update_internal_structs,
 	release_internal_structs,
 	get_edges_upadjacent_to_vertex,
 	get_triangles_upadjacent_to_vertex,
