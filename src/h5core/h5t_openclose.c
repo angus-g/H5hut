@@ -542,7 +542,7 @@ h5t_close_mesh (
 }
 
 h5_err_t
-h5t_open_level (
+h5t_set_level (
 	h5_file_t* const f,
 	const h5_id_t id
 	) {
