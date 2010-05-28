@@ -47,7 +47,7 @@ struct h5t_methods {
 };
 
 typedef struct h5_vertex {
-	h5_id_t		global_vid;
+	h5_id_t		global_idx;
 	h5_coord3d_t	P;
 } h5_vertex_t;
 
@@ -56,32 +56,32 @@ typedef struct h5_vertex_data {
 } h5_vertex_data_t;
 
 typedef struct h5_triangle {
-	h5_id_t		global_eid;
-	h5_id_t		global_parent_eid;
-	h5_id_t		global_child_eid;
-	h5_3id_t	global_vids;
+	h5_id_t		global_idx;
+	h5_id_t		global_parent_idx;
+	h5_id_t		global_child_idx;
+	h5_3id_t	global_vertex_indices;
 } h5_triangle_t;
 
 typedef struct h5_tetrahedron {
-	h5_id_t		global_eid;
-	h5_id_t		global_parent_eid;
-	h5_id_t		global_child_eid;
-	h5_4id_t	global_vids;
+	h5_id_t		global_idx;
+	h5_id_t		global_parent_idx;
+	h5_id_t		global_child_idx;
+	h5_4id_t	global_vertex_indices;
 } h5_tetrahedron_t;
 typedef h5_tetrahedron_t	h5_tet_t;
 
 typedef struct h5_elem {
-	h5_id_t		global_eid;
-	h5_id_t		global_parent_eid;
-	h5_id_t		global_child_eid;
-	h5_id_t		global_vids[1];
+	h5_id_t		global_idx;
+	h5_id_t		global_parent_idx;
+	h5_id_t		global_child_idx;
+	h5_id_t		global_vertex_indices[1];
 } h5_elem_t;
 
 typedef struct h5_elem_ldta {
-	h5_id_t		local_parent_eid;
-	h5_id_t		local_child_eid;
+	h5_id_t		local_parent_idx;
+	h5_id_t		local_child_idx;
 	h5_id_t		level_id;
-	h5_id_t		*local_vids;
+	h5_id_t		*local_vertex_indices;
 } h5_elem_ldta_t;
 
 

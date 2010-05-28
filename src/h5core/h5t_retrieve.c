@@ -36,8 +36,8 @@ h5tpriv_elem_is_on_cur_level (
 	) {
 	h5t_fdata_t* t = f->t;
 	if ( (el_dta->level_id > t->cur_level) ||
-	     ( (el_dta->local_child_eid >= 0) &&
-	       (el_dta->local_child_eid < t->num_elems[t->cur_level]) ) ) {
+	     ( (el_dta->local_child_idx >= 0) &&
+	       (el_dta->local_child_idx < t->num_elems[t->cur_level]) ) ) {
 		return H5_NOK;
 	}
 	return H5_SUCCESS;

@@ -2,17 +2,17 @@
 #define __H5T_MAP_H
 
 h5_id_t
-h5t_map_global_vid2local (
+h5t_map_global_vertex_index2local (
 	h5_file_t * const f,
-	h5_id_t global_vid
+	h5_id_t global_idx
 	);
 
 h5_err_t
-h5t_map_global_vids2local (
+h5t_map_global_vertex_indices2local (
 	h5_file_t *f,
-	const h5_id_t * const global_vids,
+	const h5_id_t * const global_indices,
 	const h5_id_t size,
-	h5_id_t * const local_vids
+	h5_id_t * const local_indices
 	);
 
 h5_id_t
@@ -22,9 +22,9 @@ h5t_map_local_vid2global (
 	);
 
 h5_id_t
-h5t_map_global_eid2local (
+h5t_map_global_elem_idx2local (
 	h5_file_t * const f,
-	const h5_id_t global_eid
+	const h5_id_t global_idx
 	);
 
 h5_id_t

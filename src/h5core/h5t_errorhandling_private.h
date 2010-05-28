@@ -4,7 +4,7 @@
 h5_err_t
 h5tpriv_error_local_elem_nexist (
 	h5_file_t * const f,
-	h5_id_t local_vids[]
+	h5_id_t local_vertex_indices[]
 	);
 
 #define h5tpriv_error_undef_mesh( f )		\
@@ -41,12 +41,12 @@ h5tpriv_error_local_elem_nexist (
 		"Triangle with global vertex ids (%lld,%lld,%lld) doesn't exist!", \
 		vids[0], vids[1], vids[2] );
 
-#define h5tpriv_error_local_triangle_nexist( f, local_vids )			\
+#define h5tpriv_error_local_triangle_nexist( f, indices )	\
 	h5_error(							\
 		f,							\
 		H5_ERR_NOENTRY,						\
 		"Triangle with global vertex ids (%lld,%lld,%lld) doesn't exist!", \
-		local_vids[0], local_vids[1], local_vids[2] );
+		indices[0], indices[1], indices[2] );
 
 
 #define h5tpriv_error_store_boundaryface_local_id( f, local_fid )	     \

@@ -255,20 +255,20 @@ build_elems_ldta (
 	     local_eid < num_elems;
 	     local_eid++, elp+=h5tpriv_sizeof_elem[t->mesh_type], el_data++) {
 		el = (h5_elem_t*)elp;
-		TRY( h5t_map_global_vids2local (
+		TRY( h5t_map_global_vertex_indices2local (
 			     f,
-			     el->global_vids,
+			     el->global_vertex_indices,
 			     num_vertices,
-			     el_data->local_vids) );
-		if (el->global_parent_eid >= 0)
-			TRY( el_data->local_parent_eid =
-			     h5t_map_global_eid2local (
-				     f, el->global_parent_eid) );
+			     el_data->local_vertex_indices) );
+		if (el->global_parent_idx >= 0)
+			TRY( el_data->local_parent_idx =
+			     h5t_map_global_elem_idx2local (
+				     f, el->global_parent_idx) );
 		
-		if (el->global_child_eid >= 0)
-			TRY( el_data->local_child_eid =
-			     h5t_map_global_eid2local (
-				     f, el->global_child_eid) );
+		if (el->global_child_idx >= 0)
+			TRY( el_data->local_child_idx =
+			     h5t_map_global_elem_idx2local (
+				     f, el->global_child_idx) );
 		
 		if (local_eid >= t->num_elems[level_id]) {
 			level_id++;

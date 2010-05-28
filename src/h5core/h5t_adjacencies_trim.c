@@ -32,7 +32,7 @@ compute_elems_of_vertices (
 		int face_idx;
 		int num_faces = t->ref_element->num_faces[0];
 		for (face_idx = 0; face_idx < num_faces; face_idx++) {
-			h5_id_t vidx = el->local_vids[face_idx];
+			h5_id_t vidx = el->local_vertex_indices[face_idx];
 			TRY( h5priv_append_to_idlist (
 				     f,
 				     &t->vertices_data[vidx].tv,
@@ -98,7 +98,7 @@ compute_children_of_edge (
 			TRY ( t->methods.store->get_direct_children_of_edge (
 				      f,
 				      face_idx,
-				      el->local_child_eid,
+				      el->local_child_idx,
 				      kids ) );
 			TRY ( compute_children_of_edge (
 				      f, kids[0], children ) );
@@ -140,7 +140,7 @@ compute_sections_of_edge (
 			TRY ( t->methods.store->get_direct_children_of_edge (
 				      f,
 				      face_id,
-				      el->local_child_eid,
+				      el->local_child_idx,
 				      kids ) );
 			TRY ( compute_sections_of_edge (
 				      f, kids[0], children ) );

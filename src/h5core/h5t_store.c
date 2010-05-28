@@ -42,7 +42,7 @@ assign_global_vertex_indices (
 	for (local_idx = 0;
 	     local_idx < t->num_vertices[t->num_levels-1];
 	     local_idx++) {
-		t->vertices[local_idx].global_vid = local_idx;
+		t->vertices[local_idx].global_idx = local_idx;
 	}
 
 	return H5_SUCCESS;
@@ -77,13 +77,13 @@ assign_global_elem_indices (
 		default:
 			return h5_error_internal (f,__FILE__,__func__,__LINE__);
 		}
-		elem->global_eid = local_idx;
-		elem->global_parent_eid = elem_ldta->local_parent_eid;
-		elem->global_child_eid = elem_ldta->local_child_eid;
+		elem->global_idx = local_idx;
+		elem->global_parent_idx = elem_ldta->local_parent_idx;
+		elem->global_child_idx = elem_ldta->local_child_idx;
 		int i;
 		int num_vertices = t->ref_element->num_faces[0];
 		for (i = 0; i < num_vertices; i++) {
-			elem->global_vids[i] = elem_ldta->local_vids[i];
+			elem->global_vertex_indices[i] = elem_ldta->local_vertex_indices[i];
 		}
 	}
 
@@ -152,7 +152,7 @@ h5t_begin_store_vertices (
 h5_id_t
 h5t_store_vertex (
 	h5_file_t* const f,		/*!< file handle		*/
-	const h5_id_t global_vid,     	/*!< global vertex id or -1	*/
+	const h5_id_t global_idx,     	/*!< global vertex id or -1	*/
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
 	h5t_fdata_t* const t = f->t;
@@ -170,11 +170,11 @@ h5t_store_vertex (
 	if (t->cur_level < 0)
 		return h5tpriv_error_undef_level(f);
 
-	h5_id_t local_id = ++t->last_stored_vid;
-	h5_vertex_t *vertex = &t->vertices[local_id];
-	vertex->global_vid = global_vid;     /* ID from mesher, replaced later!*/
+	h5_id_t local_idx = ++t->last_stored_vid;
+	h5_vertex_t *vertex = &t->vertices[local_idx];
+	vertex->global_idx = global_idx;     /* ID from mesher, replaced later!*/
 	memcpy (&vertex->P, P, sizeof (vertex->P));
-	return local_id;
+	return local_idx;
 }
 
 h5_err_t
@@ -261,13 +261,14 @@ h5t_store_elem (
 	h5_id_t elem_idx = ++t->last_stored_eid;
 	h5_elem_ldta_t* elem_ldta = &t->elems_ldta[elem_idx];
 
-	elem_ldta->local_parent_eid = elem_idx_of_parent;
-	elem_ldta->local_child_eid = -1;
+	elem_ldta->local_parent_idx = elem_idx_of_parent;
+	elem_ldta->local_child_idx = -1;
 	elem_ldta->level_id = t->cur_level;
 	int num_vertices = t->ref_element->num_faces[0];
-	memcpy (elem_ldta->local_vids, vertices,
+	memcpy (elem_ldta->local_vertex_indices, vertices,
 		 sizeof (*vertices) * num_vertices);
-	h5tpriv_sort_local_vids (f, elem_ldta->local_vids, num_vertices);
+	h5tpriv_sort_local_vertex_indices (f, elem_ldta->local_vertex_indices,
+					   num_vertices);
 	h5_id_t face_idx;
 	int num_faces = t->ref_element->num_faces[1];
 	h5_idlist_t* retval;

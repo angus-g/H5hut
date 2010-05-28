@@ -305,7 +305,7 @@ h5tpriv_find_tv2 (
 	/*
 	  map (cid,el_idx) to local index of vertex
 	*/
-	h5_id_t vertex_idx = f->t->elems_ldta[elem_idx].local_vids[face_idx];
+	h5_id_t vertex_idx = f->t->elems_ldta[elem_idx].local_vertex_indices[face_idx];
 	*retval = &f->t->vertices_data[vertex_idx].tv;
 
 	return H5_SUCCESS;

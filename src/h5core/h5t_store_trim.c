@@ -46,7 +46,7 @@ alloc_triangles (
 	h5_id_t *p = t->elems_lvids;
 	h5_id_t id;
 	for ( id = 0; id < new; id++, p+=nvertices ) {
-		t->elems_ldta[id].local_vids = p;
+		t->elems_ldta[id].local_vertex_indices = p;
 	}
 
 	/* alloc mem for global to local ID mapping */
@@ -106,7 +106,7 @@ bisect_edge (
 	for ( i = 0; i < retval->num_items; i++ ) {
 		h5_id_t local_id = h5tpriv_get_elem_idx ( retval->items[i] );
 		h5_elem_ldta_t *tet = &t->elems_ldta[local_id];
-		if ( tet->local_child_eid >= 0 ) {
+		if ( tet->local_child_idx >= 0 ) {
 			/*
 			  this element has been refined!
 			  return bisecting point
@@ -117,7 +117,7 @@ bisect_edge (
 			TRY ( get_direct_children_of_edge (
 				      f,
 				      face_id,
-				      tet->local_child_eid,
+				      tet->local_child_idx,
 				      kids ) );
 			TRY ( h5t_get_vertex_indices_of_edge ( f, kids[0], edge0 ) );
 			TRY ( h5t_get_vertex_indices_of_edge ( f, kids[1], edge1 ) );
@@ -158,16 +158,16 @@ refine_triangle (
 	h5_id_t elem_idx_of_first_child;
 	h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
 
-	if ( el->local_child_eid >= 0 )
+	if ( el->local_child_idx >= 0 )
 		return h5_error (
 			f,
 			H5_ERR_INVAL,
 			"Element %lld already refined.",
 			elem_idx );
 
-	vertices[0] = el->local_vids[0];
-	vertices[1] = el->local_vids[1];
-	vertices[2] = el->local_vids[2];
+	vertices[0] = el->local_vertex_indices[0];
+	vertices[1] = el->local_vertex_indices[1];
+	vertices[2] = el->local_vertex_indices[2];
 
 	vertices[3] = bisect_edge( f, 0, elem_idx );
 	vertices[4] = bisect_edge( f, 1, elem_idx );
@@ -195,8 +195,8 @@ refine_triangle (
 	new_elem[2] = vertices[5];
 	TRY( h5t_store_elem (f, elem_idx, new_elem) );
 
-	t->elems.tris[elem_idx].global_child_eid = elem_idx_of_first_child;
-	t->elems_ldta[elem_idx].local_child_eid = elem_idx_of_first_child;
+	t->elems.tris[elem_idx].global_child_idx = elem_idx_of_first_child;
+	t->elems_ldta[elem_idx].local_child_idx = elem_idx_of_first_child;
 	t->num_elems_on_level[t->cur_level]--;
 
 	return elem_idx_of_first_child;

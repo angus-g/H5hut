@@ -67,8 +67,8 @@ _create_vertex_type (
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_vertex_t,
-			"global_vid",
-			HOFFSET (struct h5_vertex, global_vid),
+			"global_idx",
+			HOFFSET (struct h5_vertex, global_idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
@@ -96,29 +96,29 @@ _create_triangle_type (
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_triangle_t,
-			"global_eid",
-			HOFFSET (struct h5_triangle, global_eid),
+			"global_idx",
+			HOFFSET (struct h5_triangle, global_idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_triangle_t,
-			"global_parent_eid",
-			HOFFSET (struct h5_triangle, global_parent_eid),
+			"global_parent_idx",
+			HOFFSET (struct h5_triangle, global_parent_idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_triangle_t,
-			"global_child_eid",
-			HOFFSET(struct h5_triangle, global_child_eid),
+			"global_child_idx",
+			HOFFSET(struct h5_triangle, global_child_idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_triangle_t,
-			"global_vids",
-			HOFFSET (struct h5_triangle, global_vids),
+			"global_vertex_indices",
+			HOFFSET (struct h5_triangle, global_vertex_indices),
 			dtypes->h5_3id_t) );
 
 	return H5_SUCCESS;
@@ -168,29 +168,29 @@ _create_tet_type (
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_tet_t,
-			"global_eid",
-			HOFFSET (struct h5_tetrahedron, global_eid),
+			"global_idx",
+			HOFFSET (struct h5_tetrahedron, global_idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_tet_t,
-			"global_parent_eid",
-			HOFFSET (struct h5_tetrahedron, global_parent_eid),
+			"global_parent_idx",
+			HOFFSET (struct h5_tetrahedron, global_parent_idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_tet_t,
-			"global_child_eid",
-			HOFFSET (struct h5_tetrahedron, global_child_eid),
+			"global_child_idx",
+			HOFFSET (struct h5_tetrahedron, global_child_idx),
 			H5T_NATIVE_INT32) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_tet_t,
-			"global_vids",
-			HOFFSET (struct h5_tetrahedron, global_vids),
+			"global_vertex_indices",
+			HOFFSET (struct h5_tetrahedron, global_vertex_indices),
 			dtypes->h5_4id_t) );
 
 	return H5_SUCCESS;
