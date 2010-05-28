@@ -222,7 +222,6 @@ _init_fdata (
 	t->num_meshes = -1;
 	t->cur_mesh = -1;
 	t->num_levels = -1;
-	t->new_level = -1;
 	t->cur_level = -1;
 	t->last_stored_vid = -1;
 	t->last_stored_eid = -1;
@@ -544,14 +543,19 @@ h5t_close_mesh (
 h5_err_t
 h5t_set_level (
 	h5_file_t* const f,
-	const h5_id_t id
+	const h5_id_t level_id
 	) {
 	h5t_fdata_t* t = f->t;
 
-	if ((id < 0) || (id >= t->num_levels))
-		return HANDLE_H5_OUT_OF_RANGE_ERR (f, "Level", id);
-	t->cur_level = id;
+	if ((level_id < 0) || (level_id >= t->num_levels))
+		return HANDLE_H5_OUT_OF_RANGE_ERR (f, "Level", level_id);
 
+	h5_id_t prev_level = t->cur_level;
+	t->cur_level = level_id;
+
+	if (level_id >= t->num_loaded_levels) {
+		TRY( (t->methods.adjacency->update_internal_structs)(f, prev_level+1) );
+	}
 	return H5_SUCCESS;
 }
 

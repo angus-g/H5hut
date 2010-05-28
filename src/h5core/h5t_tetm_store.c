@@ -75,11 +75,11 @@ get_direct_children_of_edge (
 			   {2,3}  // edge 5
 	};
 	int num_faces = f->t->ref_element->num_faces[1];
-	if ( ( face_idx < 0 ) || ( face_idx >= num_faces ) ) {
-		return  h5_error_internal ( f, __FILE__, __func__, __LINE__ ); 
+	if ((face_idx < 0) || ( face_idx >= num_faces)) {
+		return h5_error_internal (f, __FILE__, __func__, __LINE__); 
 	}
-	children[0] = h5tpriv_build_edge_id ( face_idx, elem_idx+offs[face_idx][0] );
-	children[1] = h5tpriv_build_edge_id ( face_idx, elem_idx+offs[face_idx][1] );
+	children[0] = h5tpriv_build_edge_id (face_idx, elem_idx+offs[face_idx][0]);
+	children[1] = h5tpriv_build_edge_id (face_idx, elem_idx+offs[face_idx][1]);
 	return H5_SUCCESS;
 }
 
@@ -118,14 +118,14 @@ bisect_edge (
 			h5_id_t	face_id = h5tpriv_get_face_idx (
 				retval->items[i] );
 			h5_id_t kids[2], edge0[2], edge1[2];
-			TRY ( get_direct_children_of_edge (
-				      f,
-				      face_id,
-				      tet->local_child_eid,
-				      kids ) );
-			TRY ( h5t_get_vertex_indices_of_edge ( f, kids[0], edge0 ) );
-			TRY ( h5t_get_vertex_indices_of_edge ( f, kids[1], edge1 ) );
-			if ( (edge0[0] == edge1[0]) || (edge0[0] == edge1[1]) )
+			TRY( get_direct_children_of_edge (
+				     f,
+				     face_id,
+				     tet->local_child_eid,
+				     kids) );
+			TRY( h5t_get_vertex_indices_of_edge (f, kids[0], edge0) );
+			TRY( h5t_get_vertex_indices_of_edge (f, kids[1], edge1) );
+			if ((edge0[0] == edge1[0]) || (edge0[0] == edge1[1]))
 				return edge0[0];
 			else
 				return edge0[1];

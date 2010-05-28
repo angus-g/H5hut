@@ -12,8 +12,8 @@ struct h5t_retrieve_methods {
 };
 
 struct h5t_adjacency_methods {
-	h5_err_t (*update_internal_structs)(h5_file_t * const);
-	h5_err_t (*release_internal_structs)(h5_file_t * const);
+	h5_err_t (*update_internal_structs)(h5_file_t* const, h5_id_t);
+	h5_err_t (*release_internal_structs)(h5_file_t* const);
 	h5_err_t (*get_edges_upadjacent_to_vertex)(
 		h5_file_t * const, const h5_id_t, h5_idlist_t**);
 	h5_err_t (*get_triangles_upadjacent_to_vertex)(
@@ -139,11 +139,10 @@ typedef struct h5t_fdata {
 	h5_id_t		mesh_changed;	/* true if new or has been changed */
 	h5_id_t		num_meshes;	/* number of meshes */
 	h5_id_t		cur_level;	/* id of current level */
-	h5_id_t		new_level;	/* idx of the first new level or -1 */
 	h5_size_t	num_levels;	/* number of levels */
-	h5_id_t		level_changed;
-	h5_id_t		storing_data;
+	h5_id_t		num_loaded_levels;
 
+	/*** HDF5 IDs ***/
 	hid_t		topo_gid;	/* grp id of mesh in current
 					   level		*/
 	hid_t		meshes_gid;	/* HDF5 id */

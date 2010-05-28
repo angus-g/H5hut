@@ -21,11 +21,11 @@
 */
 static h5_err_t
 compute_elems_of_vertices (
-	h5_file_t * const f
+	h5_file_t* const f,
+	const h5_id_t from_lvl
 	) {
 	h5t_fdata_t *t = f->t;
-	h5_id_t elem_idx = (t->cur_level <= 0) ?
-		0 : t->num_elems[t->cur_level-1];
+	h5_id_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
 	h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
 	h5_id_t num_elems = t->num_elems[t->num_levels-1];
 	for (;elem_idx < num_elems; elem_idx++, el++) {
@@ -48,11 +48,11 @@ compute_elems_of_vertices (
  */
 static h5_err_t
 compute_elems_of_edges (
-	h5_file_t * const f
+	h5_file_t* const f,
+	const h5_id_t from_lvl
 	) {
 	h5t_fdata_t *t = f->t;
-	h5_id_t elem_idx = (t->cur_level <= 0) ?
-		0 : t->num_elems[t->cur_level-1];
+	h5_id_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
 	h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
 	h5_id_t num_elems = t->num_elems[t->num_levels-1];
 	h5_idlist_t *retval = NULL;
@@ -65,24 +65,6 @@ compute_elems_of_edges (
 				      f, face_idx, elem_idx, &retval ) );
 		}
 	}
-	return H5_SUCCESS;
-}
-
-static h5_err_t
-update_internal_structs (
-	h5_file_t * const f
-	) {
-	clock_t t1 = clock();
-	TRY ( compute_elems_of_vertices ( f ) );
-	clock_t t2 = clock();
-	fprintf ( stderr, "compute_elems_of_vertices(): %f\n",
-		  (float)(t2-t1)/CLOCKS_PER_SEC );
-	t1 = clock();
-	TRY ( compute_elems_of_edges ( f ) );
-	t2 = clock();
-	fprintf ( stderr, "compute_elems_of_edge(): %f\n",
-		  (float)(t2-t1)/CLOCKS_PER_SEC );
-
 	return H5_SUCCESS;
 }
 
@@ -346,7 +328,7 @@ get_edges_downadjacent_to_triangle (
 			     h5tpriv_build_edge_id (face_idx, elem_idx),
 			     children) );
 	}
--	TRY ( h5priv_alloc_idlist (f, list, 8) );
+	TRY ( h5priv_alloc_idlist (f, list, 8) );
 	h5_id_t *edge_idp = children->items;
 	int i;
 	for (i = 0; i < children->num_items; i++, edge_idp++) {
@@ -356,10 +338,28 @@ get_edges_downadjacent_to_triangle (
 	return H5_SUCCESS;
 }
 
+static h5_err_t
+update_internal_structs (
+	h5_file_t* const f,
+	const h5_id_t from_lvl
+	) {
+	clock_t t1 = clock();
+	TRY( compute_elems_of_vertices (f, from_lvl) );
+	clock_t t2 = clock();
+	fprintf (stderr, "compute_elems_of_vertices(): %f\n",
+		 (float)(t2-t1)/CLOCKS_PER_SEC);
+	t1 = clock();
+	TRY( compute_elems_of_edges (f, from_lvl ) );
+	t2 = clock();
+	fprintf (stderr, "compute_elems_of_edge(): %f\n",
+		 (float)(t2-t1)/CLOCKS_PER_SEC);
+
+	return H5_SUCCESS;
+}
 
 static h5_err_t
 release_internal_structs (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
 	/* TO BE WRITTEN @@@ */
 	return H5_SUCCESS;

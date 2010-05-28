@@ -20,21 +20,24 @@
   compute T(V) from current level up to highest levels.
 */
 static h5_err_t
-compute_tets_of_vertices (
-	h5_file_t* const f
+compute_elems_of_vertices (
+	h5_file_t* const f,
+	const h5_id_t from_lvl
 	) {
 	h5t_fdata_t* t = f->t;
-	h5_id_t eid = (t->cur_level <= 0) ? 0 : t->num_elems[t->cur_level-1];
-	h5_elem_ldta_t* tet = tet = &t->elems_ldta[eid];
+	h5_id_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
+	h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
 	h5_id_t num_elems = t->num_elems[t->num_levels-1];
-	for (;eid < num_elems; eid++, tet++) {
-		int i;
-		for (i = 0; i < 4; i++) {
-			h5_id_t vid = tet->local_vids[i];
-			TRY ( h5priv_append_to_idlist (
-				      f,
-				      &t->vertices_data[vid].tv,
-				      h5tpriv_build_vertex_id( i, eid)) );
+	for (;elem_idx < num_elems; elem_idx++, el++) {
+		int face_idx;
+		int num_faces = t->ref_element->num_faces[0];
+		for (face_idx = 0; face_idx < num_faces; face_idx++) {
+			h5_id_t vidx = el->local_vids[face_idx];
+			TRY( h5priv_append_to_idlist (
+				     f,
+				     &t->vertices_data[vidx].tv,
+				     h5tpriv_build_vertex_id (
+					     face_idx, elem_idx)) );
 		}
 	}
 	return H5_SUCCESS;
@@ -44,38 +47,44 @@ compute_tets_of_vertices (
   Compute T(E) from current level up to highest levels.
  */
 static h5_err_t
-compute_tets_of_edges (
-	h5_file_t* const f
+compute_elems_of_edges (
+	h5_file_t* const f,
+	const h5_id_t from_lvl
 	) {
-	h5t_fdata_t* t = f->t;
-	h5_id_t eid = (t->cur_level <= 0) ? 0 : t->num_elems[t->cur_level-1];
-	h5_elem_ldta_t* tet = tet = &t->elems_ldta[eid];
+	h5t_fdata_t *t = f->t;
+	h5_id_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
+	h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
 	h5_id_t num_elems = t->num_elems[t->num_levels-1];
 	h5_idlist_t *retval = NULL;
-	TRY( h5tpriv_resize_te_htab (f, 4*(num_elems-eid)) );
-	for (; eid < num_elems; eid++, tet++) {
-		h5_id_t face;
-		for (face = 0; face < 6; face++) {
-			TRY( h5tpriv_search_te2 (f, face, eid, &retval) );
+	TRY( h5tpriv_resize_te_htab (f, 4*(num_elems-elem_idx)) );
+	for (;elem_idx < num_elems; elem_idx++, el++) {
+		int face_idx;
+		int num_faces = t->ref_element->num_faces[1];
+		for (face_idx = 0; face_idx < num_faces; face_idx++) {
+			TRY( h5tpriv_search_te2 (
+				     f, face_idx, elem_idx, &retval) );
 		}
 	}
 	return H5_SUCCESS;
 }
 
 static h5_err_t
-compute_tets_of_triangles (
-	h5_file_t* const f
+compute_elems_of_triangles (
+	h5_file_t* const f,
+	const h5_id_t from_lvl
 	) {
 	h5t_fdata_t* t = f->t;
-	h5_id_t eid = (t->cur_level <= 0) ? 0 : t->num_elems[t->cur_level-1];
-	h5_elem_ldta_t* tet = tet = &t->elems_ldta[eid];
+	h5_id_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
+	h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
 	h5_id_t num_elems = t->num_elems[t->num_levels-1];
-	h5_idlist_t* retval = NULL;
-	TRY( h5tpriv_resize_td_htab (f, 4*(num_elems-eid)) );
-	for (; eid < num_elems; eid++, tet++) {
-		h5_id_t face;
-		for (face = 0; face < 4; face++) {
-			TRY( h5tpriv_search_td2 (f, face, eid, &retval) );
+	h5_idlist_t *retval = NULL;
+	TRY( h5tpriv_resize_te_htab (f, 4*(num_elems-elem_idx)) );
+	for (;elem_idx < num_elems; elem_idx++, el++) {
+		int face_idx;
+		int num_faces = t->ref_element->num_faces[1];
+		for (face_idx = 0; face_idx < num_faces; face_idx++) {
+			TRY( h5tpriv_search_td2 (
+				     f, face_idx, elem_idx, &retval) );
 		}
 	}
 	return H5_SUCCESS;
@@ -274,7 +283,7 @@ compute_sections_of_triangle (
 	h5_id_t* tri = td->items;
 	h5_id_t* end = td->items+td->num_items;
 	int refined = 0;
-	for (; tri < end; tri++  {
+	for (; tri < end; tri++) {
 		h5_id_t eid = h5tpriv_get_elem_idx (*tri);
 		h5_id_t face_idx =  h5tpriv_get_face_idx (*tri);
 		h5_elem_ldta_t *tet = &t->elems_ldta[eid];
@@ -643,20 +652,21 @@ get_triangles_downadjacent_to_tet (
 
 static h5_err_t
 update_internal_structs (
-	h5_file_t* const f
+	h5_file_t* const f,
+	const h5_id_t from_lvl
 	) {
 	clock_t t1 = clock();
-	TRY( compute_tets_of_vertices (f) );
+	TRY( compute_elems_of_vertices (f, from_lvl) );
 	clock_t t2 = clock();
 	fprintf (stderr, "compute_tets_of_vertices(): %f\n",
 		 (float)(t2-t1)/CLOCKS_PER_SEC);
 	t1 = clock();
-	TRY( compute_tets_of_edges (f) );
+	TRY( compute_elems_of_edges (f, from_lvl) );
 	t2 = clock();
 	fprintf (stderr, "compute_tets_of_edge(): %f\n",
 		 (float)(t2-t1)/CLOCKS_PER_SEC);
 	t1 = clock();
-	TRY( compute_tets_of_triangles (f) );
+	TRY( compute_elems_of_triangles (f, from_lvl) );
 	t2 = clock();
 	fprintf (stderr, "compute_tets_of_triangle(): %f\n",
 		 (float)(t2-t1)/CLOCKS_PER_SEC);

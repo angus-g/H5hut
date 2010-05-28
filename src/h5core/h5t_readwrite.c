@@ -284,7 +284,8 @@ read_elems (
 	) {
 	h5t_fdata_t* t = f->t;
 
-	TRY( (*t->methods.store->alloc_elems)(f, 0, t->num_elems[t->num_levels-1]) );
+	TRY( (*t->methods.store->alloc_elems)(
+		     f, 0, t->num_elems[t->num_levels-1]) );
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
@@ -295,9 +296,8 @@ read_elems (
 
 	TRY( h5tpriv_sort_elems (f) );
 	TRY( h5tpriv_rebuild_global_2_local_map_of_elems (f) );
-
 	TRY( build_elems_ldta (f) );
-	TRY( (*t->methods.adjacency->update_internal_structs)(f) );
+
 	return H5_SUCCESS;
 }
 
@@ -314,6 +314,7 @@ h5_err_t
 h5tpriv_read_mesh (
 	h5_file_t* const f
 	) {
+	h5t_fdata_t* t = f->t;
  	if (f->t->mesh_gid < 0) {
 		TRY( h5tpriv_open_mesh_group (f) );
 	}
@@ -322,6 +323,8 @@ h5tpriv_read_mesh (
 	TRY( read_num_elems (f) );
 	TRY( read_vertices (f) );
 	TRY( read_elems (f) );
+	TRY( (t->methods.adjacency->update_internal_structs)(f, 0) );
 	TRY( read_mtags (f) );
+	t->num_loaded_levels = t->num_levels;
 	return H5_SUCCESS;
 }
