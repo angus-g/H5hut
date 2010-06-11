@@ -12,7 +12,7 @@ on disk.
 All Steps Available on Write
 ----------------------------
 
-Previously, existing steps in a file were only accessable in read-only mode.
+Previously, existing steps in a file were only accessible in read-only mode.
 Now, all steps are available in all modes, including write-truncate and
 write-append. Thus, it is now possible to overwrite existing data in write
 mode. To help alert the user to this possibility, a warning is issued every
@@ -23,9 +23,9 @@ New Throttling Routine
 ----------------------
 
 Previously, a throttle factor of N meant that for P processors, the total
-number of P writes were divided into N batchs of P/N writes.
+number of P writes were divided into N batches of P/N writes.
 
-To better accomodate round-robin lustre striping, the new policy is to
+To better accommodate round-robin lustre striping, the new policy is to
 execute P/N batches of N writes. Thus, matching N to the number of stripes
 results in the desirable 1-1 matching of writers to stripes.
 
@@ -160,7 +160,7 @@ calls.
 Previously, a user could overrun internal buffers for dataset names. Now, a
 fixed limit of 64 chars is imposed. Dataset names that are longer than this are
 truncated and a warning is printed. We expect that most users are using
-short canoncical names like x, px, id, etc.
+short canonical names like x, px, id, etc.
 
 Changes to Existing API
 -----------------------
