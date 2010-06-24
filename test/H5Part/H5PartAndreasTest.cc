@@ -16,8 +16,8 @@ int main(int argc,char *argv[]){
   int N = 10;
   int sz=0;
   double *x,*y,*z;
-  h5part_int64_t *id;
-  H5PartFile *file;
+  h5_int64_t *id;
+  h5_file_t *file;
   int i,t,nt,nds;
   int nprocs,myproc;
 
@@ -47,7 +47,7 @@ int main(int argc,char *argv[]){
     x =(double*)malloc(1+sz*sizeof(double));
     y =(double*)malloc(1+sz*sizeof(double));
     z =(double*)malloc(1+sz*sizeof(double));
-    id=(h5part_int64_t*)malloc(1+sz*sizeof(h5part_int64_t));
+    id=(h5_int64_t*)malloc(1+sz*sizeof(h5_int64_t));
 
     for(i=0;i<sz;i++) {
       x[i]=(double)(i+t)+10.0*(double)myproc;
@@ -101,7 +101,7 @@ int main(int argc,char *argv[]){
   file=H5PartOpenFileParallel("parttest.h5",H5PART_READ,comm);
   H5PartSetStep(file,0);
 
-  nt = H5PartGetNumSteps(file); /* get number of steps in file */
+  nt = H5GetNumSteps(file); /* get number of steps in file */
   nds=H5PartGetNumDatasets(file); /* get number of datasets in timestep 0 */
 
   MPI_Barrier(comm);

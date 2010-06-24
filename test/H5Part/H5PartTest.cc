@@ -28,7 +28,7 @@ int main(int argc,char *argv[]){
   x=(double*)malloc(sz*nprocs*sizeof(double));
   y=(double*)malloc(sz*nprocs*sizeof(double));
   z=(double*)malloc(sz*nprocs*sizeof(double));
-  id=(h5part_int64_t*)malloc(sz*nprocs*sizeof(h5part_int64_t));
+  id=(h5_int64_t*)malloc(sz*nprocs*sizeof(h5_int64_t));
   /* parallel file creation */
   file=H5PartOpenFileParallel("parttest.h5",H5PART_WRITE,comm);
   if(!file) {

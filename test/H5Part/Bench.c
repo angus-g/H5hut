@@ -55,7 +55,7 @@ int main(int argc,char *argv[]){
   int localnp;
   char filename[128]; /*= FILENAME; */
 #ifndef DISABLE_H5PART
-  H5PartFile *f;
+  h5_file_t *f;
 #endif
   char newfilename[128];
   FILE *fd;
