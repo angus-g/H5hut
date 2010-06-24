@@ -3,9 +3,9 @@
 
 #ifdef PARALLEL_IO
 
-const char* ERR_GATHER = "Cannot gather data.";
-const char* ERR_COMM_SIZE = "Cannot get number of processes in my group.";
-const char* ERR_COMM_RANK = "Cannot get rank of the calling process.";
+#define ERR_GATHER "Cannot gather data."
+#define ERR_COMM_SIZE "Cannot get number of processes in my group."
+#define ERR_COMM_RANK "Cannot get rank of the calling process."
 
 h5_err_t
 h5priv_mpi_allgather (
