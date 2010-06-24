@@ -54,14 +54,14 @@ H5Block3dGetProcOf (
 	);
 
 h5_int64_t
-H5Block3dWriteScalarField (
+H5Block3dWriteScalarFieldFloat64 (
 	h5_file_t *f,
 	const char *name,
 	const h5_float64_t *data
 	);
 
 h5_int64_t
-H5Block3dReadScalarField (
+H5Block3dReadScalarFieldFloat64 (
 	h5_file_t *f,
 	const char *name,
 	h5_float64_t *data
@@ -128,10 +128,8 @@ H5Block3dSetFieldSpacing (
 	const h5_float64_t z_spacing
 	);
 
-
-
 h5_int64_t
-H5Block3dWrite3dVectorField (
+H5Block3dWrite3dVectorFieldFloat64 (
 	h5_file_t *f,
 	const char *name,
 	const h5_float64_t *xval,
@@ -140,7 +138,7 @@ H5Block3dWrite3dVectorField (
 	);	
 
 h5_int64_t
-H5Block3dRead3dVectorField (
+H5Block3dRead3dVectorFieldFloat64 (
 	h5_file_t *f,
 	const char *name,
 	h5_float64_t *xval,

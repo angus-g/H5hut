@@ -104,7 +104,6 @@ _normalize_partition (
   \return	H5_SUCCESS or error code
 */
 #ifdef PARALLEL_IO
-jfsdjk fjksdhf jkdsfjksdhfjkds kjf
 static h5_err_t
 _allgather (
 	h5_file_t * const f		/*!< IN: file handle */
@@ -119,7 +118,7 @@ _allgather (
 	if ( mpi_err != MPI_SUCCESS ) return H5_ERR_MPI;
         mpi_err = MPI_Type_commit ( &partition_m );
 	if ( mpi_err != MPI_SUCCESS ) return H5_ERR_MPI;
-	TRY ( _h5_mpi_allgather (
+	TRY ( h5priv_mpi_allgather (
 		      f,
 		      partition,
 		      1,
@@ -1013,16 +1012,6 @@ h5b_read_scalar_field (
 
   \return \c H5_SUCCESS or error code
 */
-h5_err_t
-H5Block3dReadScalarField (
-	h5_file_t *f,			/*!< IN: file handle */
-	const char *name,		/*!< IN: name of dataset to read */
-	h5_float64_t *data		/*!< OUT: ptr to read buffer */
-	) {
-
-	SET_FNAME ( f, __func__ );
-	return h5b_read_scalar_field ( f, name, "0", data, H5T_NATIVE_DOUBLE );
-}
 
 h5_err_t
 H5Block3dReadScalarFieldFloat64 (
@@ -1108,7 +1097,7 @@ h5b_3d_read_3d_vectorfield (
   \return \c H5_SUCCESS or error code
 */
 h5_err_t
-H5Block3dRead3dVectorField (
+H5Block3dRead3dVectorFieldFloat64 (
 	h5_file_t *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to read */
 	h5_float64_t *x_data,		/*!< OUT: ptr to read buffer X axis */
@@ -1303,7 +1292,7 @@ _write_field_data (
   \return \c H5_SUCCESS or error code
 */
 h5_err_t
-H5Block3dWriteScalarField (
+H5Block3dWriteScalarFieldFloat64 (
 	h5_file_t *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
 	const h5_float64_t *data	/*!< IN: scalar data to write */
@@ -1338,7 +1327,7 @@ H5Block3dWriteScalarField (
   \return \c H5_SUCCESS or error code
 */
 h5_err_t
-H5Block3dWrite3dVectorField (
+H5Block3dWrite3dVectorFieldFloat64 (
 	h5_file_t *f,			/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
 	const h5_float64_t *x_data,	/*!< IN: X axis data */
