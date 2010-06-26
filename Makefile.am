@@ -1,9 +1,5 @@
-SUBDIRS =		\
-	doc		\
-	src/C		\
-	src/h5core	\
-	test		\
-	tools
+SUBDIRS = \
+	src
 
 MAINTAINERCLEANFILES = \
 	config.h \
@@ -11,4 +7,3 @@ MAINTAINERCLEANFILES = \
 	config.status \
 	stamp-h.in \
 	stamp-h1
-

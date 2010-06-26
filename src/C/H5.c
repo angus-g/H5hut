@@ -44,7 +44,7 @@
 /*!
   \ingroup h5_c_api_general
   
-  Open file with name \c filename. This function is available in the paralell
+  Open file with name \c filename. This function is available in the parallel
   and serial version. In the serial case \c comm may have any value.
 
   \return File handle.
@@ -53,10 +53,10 @@
 h5_file_t*
 H5OpenFile (
 	const char* filename,		/*!< file name			*/
-	const h5_int32_t oflag,		/*!< file open flags		*/
-	const MPI_Comm comm		/*!< MPI communicator		*/
+	h5_int32_t flags,		/*!< file open flags		*/
+	MPI_Comm comm			/*!< MPI communicator		*/
 	) {
-	return h5_open_file (filename, H5_O_RDWR, comm, __func__); 
+	return h5_open_file (filename, flags, comm, __func__); 
 }
 
 /*!
@@ -108,7 +108,7 @@ H5GetStepNameFormat (
 	h5_file_t* const f,		/*!< Handle to file		*/
 	char* name,			/*!< OUT: Prefix		*/
 	const h5_size_t l_name,		/*!< length of buffer name	*/
-	h5_size_t* width		/*!< OUT: Width of the number	*/
+	int* width			/*!< OUT: Width of the number	*/
 	) {
 	SET_FNAME (f, __func__);
 
@@ -181,6 +181,35 @@ H5TraverseSteps (
 
 	return h5_traverse_steps (f);
 }
+
+/*!
+  \ingroup h5part_performance
+
+  Set the `throttle` factor, which causes HDF5 write and read
+  calls to be issued in that number of batches.
+
+  This can prevent large concurrency parallel applications that
+  use independent writes from overwhelming the underlying
+  parallel file system.
+
+  Throttling only works with the H5_VFD_MPIPOSIX or
+  H5_VFD_INDEPENDENT drivers and is only available in
+  the parallel library.
+
+  \return \c H5_SUCCESS
+*/
+#ifdef PARALLEL_IO
+h5_err_t
+H5SetThrottle (
+	h5_file_t* f,
+	int factor
+	) {
+
+	SET_FNAME( f, __func__ );
+
+	return h5_set_throttle( f, factor );
+}
+#endif // PARALLEL_IO
 
 /*!
   \ingroup h5part_c_api
@@ -261,3 +290,5 @@ H5GetErrno (
 	return h5_get_errno (f);
 }
 /*! @} */
+
+

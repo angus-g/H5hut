@@ -42,7 +42,7 @@ _write_data (
 	h5_int64_t j_dims = layout->j_end - layout->j_start + 1;
 	h5_int64_t k_dims = layout->k_end - layout->k_start + 1;
 
-	printf ( "Writing Step #%lld\n", (long long)f->step_idx );
+	//printf ( "Writing Step #%lld\n", (long long)f->step_idx );
 
 	data = malloc ( i_dims * j_dims * k_dims * sizeof ( *data ) );
 	for ( i = 0; i < i_dims; i++ ) {
@@ -130,21 +130,22 @@ _write_file (
 		myproc, fname );
 
 #ifdef PARALLEL_IO
-	f = H5PartOpenFileParallel (
+	f = H5OpenFile (
 		fname,
 		H5_O_WRONLY,
 		comm
 		);
 #else
-	f = H5PartOpenFile (
+	f = H5OpenFile (
 		fname,
-		H5_O_WRONLY
+		H5_O_WRONLY,
+		0
 		);
 
 #endif
 	if ( f == NULL ) return -1;
 	
-	herr = H5PartSetStep ( f, timestep );
+	herr = H5SetStep ( f, timestep );
 	if ( herr < 0 ) return herr;
 	
 	if ( _write_data ( f, myproc, layout ) < 0 ) {
@@ -179,7 +180,7 @@ _read_data (
 	h5_int64_t j_dims = layout->j_end - layout->j_start + 1;
 	h5_int64_t k_dims = layout->k_end - layout->k_start + 1;
 
-	printf ( "Reading Step #%lld\n", (long long)f->step_idx );
+	//printf ( "Reading Step #%lld\n", (long long)f->step_idx );
 
 	data = malloc ( i_dims * j_dims * k_dims * sizeof ( *data ) );
 

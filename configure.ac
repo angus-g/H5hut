@@ -1,12 +1,12 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5Part], [1.99.0], [h5part@lists.psi.ch], H5Part)
+AC_INIT([H5hut], [1.99.0], [h5part@lists.psi.ch], H5Part)
 
 
 # Ensure that a recent enough version of Autoconf is being used. 
 # If the version of Autoconf being used to create configure is earlier than version, 
 # print an error message to the standard error output and do not create configure.
-#AC_PREREQ(2.59)
+AC_PREREQ(2.59)
 
 
 # should be called right after AC_INIT.
@@ -53,13 +53,6 @@ AC_ARG_WITH(
 	[AC_HELP_STRING([--with-hdf5],
 	[path to HDF5 installation [default=""]])],
 	[HDF5PATH=$withval], [HDF5PATH=""])
-
-AC_ARG_WITH(
-	[mpiposix],
-	[AC_HELP_STRING([--with-mpiposix],
-	[enable MPI-POSIX VFD in HDF5 [default=no]])],
-	[USE_MPIPOSIX=$enableval])
-
 
 ###############################################################################
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
@@ -134,18 +127,7 @@ fi
 # If CC is not already set in the environment, check for gcc and cc, then
 # for other C compilers. 
 # Set output variable CC to the name of the compiler found.
-AC_PROG_CC(pathcc icc cc_r gcc cc)
-
-# AC_PROG_CC doesn't pick up cc_r in Bassi. The following AC_PATH_PROGS
-# is the fix.
-AC_PATH_PROGS([BAS_CC], [cc_r], [], [$PATH])
-
-# if BAS_CC not empty
-if test -n "$BAS_CC"; then
-	AC_MSG_CHECKING([CC setting for Bassi])
-	CC=$BAS_CC
-	AC_MSG_RESULT([CC =  $CC])
-fi 
+AC_PROG_CC(pgcc pathcc icc cc_r gcc cc)
 
 
 # Determine a C++ compiler to use. 
@@ -155,17 +137,7 @@ fi
 # then search for a C++ compiler under the likely names (first g++ and c++
 # then other names). 
 # If none of those checks succeed, then as a last resort set CXX to g++.
-AC_PROG_CXX(pathCC icc cc_r g++ gcc cc)
-
-
-# DAVINCI SPECIFIC!!!
-AC_MSG_CHECKING([for icc linker -lstdc++ flag])
-if test ${CXX} = "icc"; then
-	AC_MSG_RESULT([yes])
-	STDCXX="-lstdc++"
-else
-	AC_MSG_RESULT([no])
-fi
+AC_PROG_CXX(pgCC pathCC icc cc_r g++ gcc cc)
 
 
 # Set output variable INSTALL to the path of a BSD-compatible install program,
@@ -176,7 +148,6 @@ AC_PROG_INSTALL
 
 # AM_INIT_AUTOMAKE is required to use autoconf with automake
 AM_INIT_AUTOMAKE()
-
 
 AC_PROG_RANLIB
 
@@ -203,7 +174,7 @@ AC_MSG_CHECKING([if fortran interface enabled])
 if test "X$USE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 
-	AC_PROG_FC(ifort xlf_r pathf90 g95 g90 ftn gfortran)
+	AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
 	if test -z "$FC" ; then
 		AC_MSG_ERROR([Cannot find a fortran compiler!!!])
 		exit 1
@@ -255,10 +226,6 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 		MPI_Comm_size( comm, &n ); ], 
 		[AC_MSG_RESULT([yes]); r='yes'], [AC_MSG_RESULT([no]); r='no'] )
 
-	if test "X$USE_MPIPOSIX" = "Xyes"; then
-		CFLAGS="${CFLAGS} -DH5PART_MPIPOSIX"
-	fi
- 
 	if test "X$r" = "Xno"; then
 		AC_PATH_PROGS([MPICC], [mpicc mpcc_r], [], [$PATH])
 		AC_PATH_PROGS([MPICXX], [mpicxx mpcc_r], [], [$PATH])
@@ -476,6 +443,9 @@ if test -n "$SAVE_MPIINC"; then
 fi
 
 #CFLAGS="$SAVE_CFLAGS ${CFLAGS}"
+if test -n "$SAVE_CFLAGS"; then
+	CFLAGS=$SAVE_CFLAGS $CFLAGS
+fi
 
 if test -n "$SAVE_FFLAGS"; then
 	FFLAGS=$SAVE_FFLAGS

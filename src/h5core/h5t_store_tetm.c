@@ -165,7 +165,7 @@ refine_tet (
 			f,
 			H5_ERR_INVAL,
 			"Tetrahedron %lld already refined.",
-			elem_idx );
+			(long long)elem_idx );
 	vertices[0] = tet->local_vertex_indices[0];
 	vertices[1] = tet->local_vertex_indices[1];
 	vertices[2] = tet->local_vertex_indices[2];

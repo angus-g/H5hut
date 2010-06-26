@@ -206,7 +206,7 @@ h5priv_insert_idmap (
 	h5_id_t local_id
 	) {
 	if (map->num_items == map->size)
-		return HANDLE_H5_OVERFLOW_ERR (f, "g2lmap", map->size);
+		return HANDLE_H5_OVERFLOW_ERR (f, "g2lmap", (long long)map->size);
 
 	h5_id_t i = h5priv_search_idmap (map, global_id);
 	if (i >= 0)			/* global id already in use ? */

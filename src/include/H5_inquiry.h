@@ -1,7 +1,7 @@
 #ifndef __H5_INQUIRY_H
 #define __H5_INQUIRY_H
 
-h5_size_t
+int
 H5GetNumNodes (
 	h5_file_t * const f
 	);

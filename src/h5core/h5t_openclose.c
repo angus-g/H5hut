@@ -455,7 +455,7 @@ h5t_open_mesh (
 		id = t->num_meshes;
 	}
 	t->mesh_type = type;
-	snprintf (t->mesh_name, sizeof (t->mesh_name), "%lld", id);
+	snprintf (t->mesh_name, sizeof (t->mesh_name), "%lld", (long long)id);
 
 	switch (type) {
 	case H5_OID_TETRAHEDRON:

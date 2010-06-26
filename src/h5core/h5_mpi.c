@@ -3,9 +3,96 @@
 
 #ifdef PARALLEL_IO
 
-#define ERR_GATHER "Cannot gather data."
-#define ERR_COMM_SIZE "Cannot get number of processes in my group."
-#define ERR_COMM_RANK "Cannot get rank of the calling process."
+h5_err_t
+h5priv_mpi_recv(
+	h5_file_t *f,
+	void* buf,
+	const int count,
+	const MPI_Datatype type,
+	const int from,
+	const int tag,
+	const MPI_Comm comm
+	) {
+	int err = MPI_Recv(
+		buf,
+		count,
+		type,
+		from,
+		tag,
+		comm,
+		MPI_STATUS_IGNORE
+		);
+	if (err != MPI_SUCCESS)
+		return h5_error (f, H5_ERR_MPI, "Cannot receive data");
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5priv_mpi_send(
+	h5_file_t *f,
+	void* buf,
+	const int count,
+	const MPI_Datatype type,
+	const int to,
+	const int tag,
+	const MPI_Comm comm
+	) {
+	int err = MPI_Send(
+		buf,
+		count,
+		type,
+		to,
+		tag,
+		comm
+		);
+	if (err != MPI_SUCCESS)
+		return h5_error (f, H5_ERR_MPI, "Cannot send data");
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5priv_mpi_sum (
+	h5_file_t* const f,
+	void* sendbuf,
+        void* recvbuf,
+	const int count,
+	const MPI_Datatype type,
+	const MPI_Comm comm
+	) {
+	int err = MPI_Allreduce(
+		sendbuf,
+		recvbuf,
+		count,
+		type,
+		MPI_SUM,
+		comm
+		);
+	if (err != MPI_SUCCESS)
+		return h5_error (f, H5_ERR_MPI, "Cannot perform sum reduction");
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5priv_mpi_prefix_sum (
+	h5_file_t* const f,
+	void* sendbuf,
+        void* recvbuf,
+	const int count,
+	const MPI_Datatype type,
+	const MPI_Comm comm
+	) {
+	int err = MPI_Scan(
+		sendbuf,
+		recvbuf,
+		count,
+		type,
+		MPI_SUM,
+		comm
+		);
+	if (err != MPI_SUCCESS)
+		return h5_error (f, H5_ERR_MPI, "Cannot perform prefix sum");
+	return H5_SUCCESS;
+}
 
 h5_err_t
 h5priv_mpi_allgather (
@@ -27,7 +114,7 @@ h5priv_mpi_allgather (
 		recvtype,
 		comm);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, ERR_GATHER);
+		return h5_error (f, H5_ERR_MPI, "Cannot gather data");
 	return H5_SUCCESS;
 }
 
@@ -39,7 +126,7 @@ h5priv_mpi_comm_size (
 	) {
 	int err = MPI_Comm_size (comm, size);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, ERR_COMM_SIZE);
+		return h5_error (f, H5_ERR_MPI, "Cannot get communicator size");
 	return H5_SUCCESS;
 }
 
@@ -52,7 +139,9 @@ h5priv_mpi_comm_rank (
 	) {
 	int err = MPI_Comm_rank (comm, rank);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, ERR_COMM_RANK);
+		return h5_error (f, H5_ERR_MPI, "Cannot get this task's rank");
 	return H5_SUCCESS;
 }
-#endif
+
+#endif // PARALLEL_IO
+

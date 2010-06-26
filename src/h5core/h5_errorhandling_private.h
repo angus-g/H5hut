@@ -43,20 +43,20 @@
 	h5_error(						\
 		f,						\
 		H5_ERR_INVAL,					\
-		"Cannot store more than %lld %s", max, otype );
+		"Cannot store more than %lld %s", (long long)max, otype );
 
 #define HANDLE_H5_PARENT_ID_ERR( f, otype, parent_id  )			\
 	h5_error(							\
 		f,							\
 		H5_ERR_INVAL,						\
 		"Impossible parent_id %lld for %s.",	\
-		parent_id, otype );
+		(long long)parent_id, otype );
 
 #define HANDLE_H5_OUT_OF_RANGE_ERR( f, otype, oid )	\
 	h5_error(					\
 		f,					\
 		H5_ERR_INVAL,				\
 		"%s id %lld out of range",		\
-		otype, oid );
+		otype, (long long)oid );
 
 #endif

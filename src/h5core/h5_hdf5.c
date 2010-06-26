@@ -134,7 +134,7 @@ h5priv_get_num_objs_in_hdf5_group (
 
 
 /*
-  Get name of object given by index \c idx in grouop \c loc_id. If name is \c NULL,
+  Get name of object given by index \c idx in group \c loc_id. If name is \c NULL,
   return size of name.
 */
 ssize_t
@@ -306,6 +306,9 @@ h5priv_write_hdf5_dataset (
 	const hid_t xfer_prop,
 	const void* buf
 	) {
+#ifdef PARALLEL_IO
+	TRY ( h5_start_throttle ( f ) );
+#endif
 	herr_t herr = H5Dwrite (
 		dataset_id,
 		type_id,
@@ -320,6 +323,9 @@ h5priv_write_hdf5_dataset (
 			"Write to dataset \"%s\" failed.",	\
 			h5_get_objname (dataset_id));
 
+#ifdef PARALLEL_IO
+	TRY ( h5_end_throttle ( f ) );
+#endif
 	return H5_SUCCESS;
 }
 
@@ -336,6 +342,9 @@ h5priv_read_hdf5_dataset (
 	const hid_t xfer_prop,
 	void* const buf ) {
 
+#ifdef PARALLEL_IO
+	TRY ( h5_start_throttle ( f ) );
+#endif
 	herr_t herr = H5Dread (
 		dataset_id,
 		type_id,
@@ -350,6 +359,9 @@ h5priv_read_hdf5_dataset (
 			"Error reading dataset \"%s\".",
 			h5_get_objname (dataset_id) );
 	
+#ifdef PARALLEL_IO
+	TRY ( h5_end_throttle ( f ) );
+#endif
 	return H5_SUCCESS;
 }
 
@@ -457,6 +469,33 @@ h5priv_select_hyperslab_of_hdf5_dataspace (
 		stride,
 		count,
 		block);
+	if (herr < 0)
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot set select hyperslap region or add the "
+			"specified region");
+	return H5_SUCCESS;
+}
+
+herr_t
+h5priv_select_elements_of_hdf5_dataspace (
+	h5_file_t* const f,
+	hid_t space_id,
+	H5S_seloper_t op,
+	hsize_t nelems,
+	const hsize_t* indices
+	) {
+	herr_t herr;
+	if ( nelems > 0 ) {
+		herr = H5Sselect_elements (
+			space_id,
+			op,
+			nelems,
+			indices);
+	} else {
+		herr = H5Sselect_none ( space_id );
+	}
 	if (herr < 0)
 		return h5_error (
 			f,
@@ -660,13 +699,28 @@ h5priv_set_hdf5_chunk_property (
 	h5_file_t* const f,
 	hid_t plist,
 	int rank,
-	const hsize_t* dims
+	hsize_t* dims
 	) {
 	if (H5Pset_chunk (plist, rank, dims) < 0)
 		return h5_error (
 			f,
 			H5_ERR_HDF5,
 			"Cannot add chunking property to list.");
+
+	return H5_SUCCESS;
+}
+
+herr_t
+h5priv_set_hdf5_layout_property (
+	h5_file_t* const f,
+	hid_t plist,
+	H5D_layout_t layout
+	) {
+	if (H5Pset_layout (plist, layout) < 0)
+		return h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot add layout property to list.");
 
 	return H5_SUCCESS;
 }
@@ -688,7 +742,89 @@ h5priv_set_hdf5_fapl_mpio_property (
 			"file access property list.");
 	return H5_SUCCESS;
 }
+
+h5_err_t
+h5priv_set_hdf5_fapl_mpiposix_property (
+	h5_file_t* const f,
+	hid_t fapl_id,
+	MPI_Comm comm,
+	hbool_t	use_gpfs
+	) {
+	herr_t herr = H5Pset_fapl_mpio (fapl_id, comm, use_gpfs);
+	if (herr < 0)
+		h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot store IO communicator information to the "
+			"file access property list.");
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5priv_set_hdf5_dxpl_mpio_property (
+	h5_file_t* const f,
+	hid_t dxpl_id,
+	H5FD_mpio_xfer_t mode
+	) {
+	herr_t herr = H5Pset_dxpl_mpio (dxpl_id, mode);
+	if (herr < 0)
+		h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot store IO communicator information to the "
+			"dataset transfer property list.");
+	return H5_SUCCESS;
+}
 #endif
+
+h5_err_t
+h5priv_set_hdf5_mdc_property (
+	h5_file_t* const f,
+	hid_t fapl_id,
+	H5AC_cache_config_t *config
+	) {
+	herr_t herr = H5Pset_mdc_config (fapl_id, config);
+	if (herr < 0)
+		h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot store metadata cache configuration in the "
+			"file access property list.");
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5priv_get_hdf5_mdc_property (
+	h5_file_t* const f,
+	hid_t fapl_id,
+	H5AC_cache_config_t *config
+	) {
+	herr_t herr = H5Pget_mdc_config (fapl_id, config);
+	if (herr < 0)
+		h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot get metadata cache configuration in the "
+			"file access property list.");
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5priv_set_hdf5_alignment_property (
+	h5_file_t* const f,
+	hid_t fapl_id,
+	hsize_t threshold,
+	hsize_t alignment
+	) {
+	herr_t herr = H5Pset_alignment (fapl_id, threshold, alignment);
+	if (herr < 0)
+		h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot set alignment in the "
+			"file access property list.");
+	return H5_SUCCESS;
+}
 
 h5_err_t
 h5priv_close_hdf5_property (

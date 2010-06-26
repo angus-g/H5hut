@@ -21,8 +21,8 @@
 h5_file_t *
 H5OpenFile (
 	const char * filename,
-	const h5_int32_t oflag,
-	const MPI_Comm comm
+	h5_int32_t flag,
+	MPI_Comm comm
 	);
 
 h5_err_t
@@ -42,7 +42,7 @@ H5GetStepNameFormat (
 	h5_file_t *f,
 	char *name,
 	const h5_size_t l_name,
-	h5_size_t *width
+	int *width
 	);
 
 h5_err_t
@@ -104,5 +104,13 @@ h5_err_t
 H5GetErrno (
 	h5_file_t * const f
 	);
+
+#ifdef PARALLEL_IO
+h5_err_t
+H5SetThrottle (
+	h5_file_t* f,
+	int factor
+	);
+#endif
 
 #endif

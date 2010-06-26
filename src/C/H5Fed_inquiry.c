@@ -80,7 +80,9 @@ H5FedGetNumVertices (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
 	SET_FNAME (f, __func__);
-	return h5t_get_num_vertices (f, f->myproc);
+	// MLH: can't use field from opaque h5_file_t!
+	//return h5t_get_num_vertices (f, f->myproc);
+	return h5t_get_num_vertices (f, -1);
 }
 
 /*!
@@ -130,7 +132,9 @@ H5FedGetNumElements (
 	h5_file_t* const f
 	) {
 	SET_FNAME (f, __func__);
-	return h5t_get_num_elems (f, f->myproc);
+	// MLH: can't use field from opaque h5_file_t!
+	//return h5t_get_num_elems (f, f->myproc);
+	return h5t_get_num_elems (f, -1);
 }
 
 /*!

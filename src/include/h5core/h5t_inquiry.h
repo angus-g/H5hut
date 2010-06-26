@@ -15,13 +15,13 @@ h5t_get_num_levels (
 h5_size_t
 h5t_get_num_elems (
 	h5_file_t * const f,
-	const h5_id_t cnode_id
+	const h5_id_t cnode
 	);
 
 h5_size_t
 h5t_get_num_vertices (
 	h5_file_t * const f,
-	const h5_id_t cnode_id
+	const h5_id_t cnode
 	);
 
 h5_id_t

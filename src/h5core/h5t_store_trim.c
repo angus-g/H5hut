@@ -163,7 +163,7 @@ refine_triangle (
 			f,
 			H5_ERR_INVAL,
 			"Element %lld already refined.",
-			elem_idx );
+			(long long)elem_idx );
 
 	vertices[0] = el->local_vertex_indices[0];
 	vertices[1] = el->local_vertex_indices[1];

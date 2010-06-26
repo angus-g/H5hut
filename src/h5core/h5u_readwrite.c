@@ -1,264 +1,109 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
-h5_int64_t
-h5u_has_view (
-	h5_file_t *f
-	) {
-	return  ( f->u->viewstart >= 0 ) && ( f->u->viewend >= 0 );
-}
-
-static hid_t
-_get_diskshape_for_reading (
-	h5_file_t *f,
-	hid_t dataset
-	) {
-	struct h5u_fdata *u = f->u;
-	hid_t space;
-
-	TRY( space = h5priv_get_hdf5_dataset_space ( f, dataset ) );
-
-	if ( h5u_has_view ( f ) ) {
-		hsize_t stride;
-		hsize_t count;
-#ifdef HDF5V160
-		hssize_t start;
-#else
-		hsize_t start;
-#endif
-
-		/* so, is this selection inclusive or exclusive? */
-		start = u->viewstart;
-		count = u->viewend - u->viewstart; /* to be inclusive */
-		stride=1;
-
-		/* now we select a subset */
-		if ( u->diskshape > 0 ) {
-			TRY ( h5priv_select_hyperslab_of_hdf5_dataspace (
-				      f,
-				      u->diskshape,
-				      H5S_SELECT_SET,
-				      &start, &stride, &count,
-				      NULL ) );
-		}
-		TRY ( h5priv_select_hyperslab_of_hdf5_dataspace (
-			      f,
-			      space,
-			      H5S_SELECT_SET,
-			      &start, &stride, &count,
-			      NULL ) );
-
-		h5_debug (
-			f,
-			"Selection: range=%d:%d, npoints=%d s=%d",
-			(int)u->viewstart,(int)u->viewend,
-			(int)H5Sget_simple_extent_npoints(space),
-			(int)H5Sget_select_npoints(space) );
-	}
-	return space;
-}
-
-static hid_t
-_get_memshape_for_reading (
-	h5_file_t *f,
-	hid_t dataset
-	) {
-	struct h5u_fdata *u = f->u;
-
-	if ( h5u_has_view ( f ) ) {
-		hsize_t dmax=H5S_UNLIMITED;
-		hsize_t len = u->viewend - u->viewstart;
-		return h5priv_create_hdf5_dataspace ( f, 1, &len, &dmax );
-	} else {
-		return H5S_ALL;
-	}
-}
-
-h5_int64_t
-h5u_get_num_elems (
-	h5_file_t *f			/*!< [in]  Handle to open file */
-	) {
-	hid_t space_id;
-	hid_t dataset_id;
-	char dataset_name[128];
-	char step_name[128];
-	hsize_t nparticles;
-
-	/* Get first dataset in current time-step */
-	sprintf (
-		step_name,
-		"%s#%0*lld",
-		f->prefix_step_name, f->width_step_idx, (long long) f->step_idx );
-
-	TRY( h5_get_hdf5_datasetname_by_idx (
-		     f,
-		     f->step_gid,
-		     0,
-		     dataset_name, sizeof (dataset_name)) );
-	TRY( dataset_id = h5priv_open_hdf5_dataset ( f, f->step_gid, dataset_name ) );
-	TRY( space_id = _get_diskshape_for_reading ( f, dataset_id ) );
-
-	if ( h5u_has_view ( f ) ) {
-		TRY ( nparticles = h5priv_get_selected_npoints_of_hdf5_dataspace (
-			      f, space_id ) );
-	}
-	else {
-		TRY ( nparticles = h5priv_get_npoints_of_hdf5_dataspace (
-			      f, space_id ) );
-	}
-	TRY( h5priv_close_hdf5_dataspace( f, space_id ) );
-	TRY( h5priv_close_hdf5_dataset( f, dataset_id ) );
-
-	return (h5_int64_t) nparticles;
-}
-
-h5_int64_t
-h5u_read_elems (
+h5_err_t
+h5u_read_data (
 	h5_file_t *f,		/*!< [in] Handle to open file */
 	const char *name,	/*!< [in] Name to associate dataset with */
-	void *array,		/*!< [out] Array of data */
+	void *data,		/*!< [out] Array of data */
 	const hid_t type
 	) {
 
+	struct h5u_fdata *u = f->u;
 	hid_t dataset_id;
 	hid_t space_id;
 	hid_t memspace_id;
+	hsize_t ndisk, nread, nmem;
 
 	if ( f->step_gid < 0 ) {
 		TRY( h5_set_step ( f, f->step_idx ) );
 	}
-	TRY( (dataset_id = h5priv_open_hdf5_dataset ( f, f->step_gid, name ) ) );
-	TRY( (space_id = _get_diskshape_for_reading ( f, dataset_id ) ) );
-	TRY( (memspace_id = _get_memshape_for_reading ( f, dataset_id ) ) );
+
+	char name2[H5_DATANAME_LEN];
+	TRY ( h5_normalize_dataset_name ( name, name2 ) );
+
+	TRY( (dataset_id = h5priv_open_hdf5_dataset ( f, f->step_gid, name2 ) ) );
+
+	/* default spaces, if not using a view selection */
+	memspace_id = H5S_ALL;
+	TRY ( space_id = h5priv_get_hdf5_dataset_space(f, dataset_id) );
+
+	/* get the number of elements on disk for the datset */
+	TRY ( ndisk = h5priv_get_npoints_of_hdf5_dataspace(f, space_id) );
+
+	if ( u->diskshape != H5S_ALL )
+	{
+		TRY ( nread = h5priv_get_npoints_of_hdf5_dataspace(f, u->diskshape) );
+
+		/* make sure the disk space selected by the view doesn't
+		 * exceed the size of the dataset */
+		if ( nread <= ndisk ) {
+			/* we no longer need the dataset space... */
+			TRY ( h5priv_close_hdf5_dataspace(f, space_id) );
+			/* ...because it's safe to use the view selection */
+			space_id = f->u->diskshape;
+		} else {
+			/* the view selection is too big?
+			 * fall back to using the dataset space */
+			h5_warn (
+					f,
+					"Ignoring view: dataset[%s] has fewer "
+					"elements on disk (%lld) than are selected "
+					"(%lld).",
+					name2, (long long)ndisk, (long long)nread );
+			nread = ndisk;
+		}
+	}
+	else {
+		/* since the view selection is H5S_ALL, we will
+		 * read all available elements in the dataset space */
+		nread = ndisk;
+	}
+
+	if ( u->memshape != H5S_ALL )
+	{
+		TRY ( nread = h5priv_get_npoints_of_hdf5_dataspace(f, u->memshape) );
+
+		/* make sure the memory space selected by the view has
+		 * enough capacity for the read */
+		if ( nmem >= nread ) {
+			memspace_id = f->u->memshape;
+		} else {
+			/* the view selection is too small?
+			 * fall back to using H5S_ALL */
+			h5_warn (
+					f,
+					"Ignoring view: dataset[%s] has more "
+					"elements selected (%lld) than are available "
+					"in memory (%lld).",
+					name2, (long long)nread, (long long)nmem );
+			memspace_id = H5S_ALL;
+		}
+	}
+
 	TRY( h5priv_read_hdf5_dataset (
-		     f,
-		     dataset_id,
-		     type,
-		     memspace_id,
-		     space_id,
-		     f->xfer_prop,
-		     array ) );
-	TRY( h5priv_close_hdf5_dataspace( f, space_id ) );
-	TRY( h5priv_close_hdf5_dataspace( f, memspace_id ) );
+		f,
+		dataset_id,
+		type,
+		memspace_id,
+		space_id,
+		f->xfer_prop,
+		data ) );
+
+	if ( space_id != f->u->diskshape ) {
+		TRY( h5priv_close_hdf5_dataspace( f, space_id ) );
+	}
+
 	TRY( h5priv_close_hdf5_dataset ( f, dataset_id ) );
 	
 	return H5_SUCCESS;
 }
 
-h5_int64_t
-h5u_set_num_elements (
-	h5_file_t *f,			/*!< [in] Handle to open file */
-	h5_int64_t nparticles	/*!< [in] Number of particles */
-	) {
-	struct h5u_fdata *u = f->u;
-	CHECK_FILEHANDLE( f );
-
-#ifndef PARALLEL_IO
-	/*
-	  if we are not using parallel-IO, there is enough information
-	   to know that we can short circuit this routine.  However,
-	   for parallel IO, this is going to cause problems because
-	   we don't know if things have changed globally
-	*/
-	if ( u->nparticles == nparticles ) {
-		return H5_SUCCESS;
-	}
-#endif
-	TRY( h5priv_close_hdf5_dataspace( f, u->diskshape ) );
-	TRY( h5priv_close_hdf5_dataspace( f, u->memshape ) );
-	TRY( h5priv_close_hdf5_dataspace( f, u->shape ) );
-	u->diskshape = H5S_ALL;
-	u->memshape = H5S_ALL;
-	u->shape = H5S_ALL;
-	u->nparticles =(hsize_t) nparticles;
-#ifndef PARALLEL_IO
-	TRY( u->shape = h5priv_create_hdf5_dataspace (
-		     f,
-		     1,
-		     &(u->nparticles),
-		     NULL ) );
-#else /* PARALLEL_IO */
-	/*
-	  The Gameplan here is to declare the overall size of the on-disk
-	  data structure the same way we do for the serial case.  But
-	  then we must have additional "DataSpace" structures to define
-	  our in-memory layout of our domain-decomposed portion of the particle
-	  list as well as a "selection" of a subset of the on-disk 
-	  data layout that will be written in parallel to mutually exclusive
-	  regions by all of the processors during a parallel I/O operation.
-	  These are f->shape, f->memshape and f->diskshape respectively.
-	*/
-
-	hsize_t start[1];
-
-	hsize_t stride[1];
-	hsize_t count[1];
-	hsize_t total;
-	hsize_t dmax = H5S_UNLIMITED;
-	register int i;
-
-	/*
-	  acquire the number of particles to be written from each MPI process
-	*/
-
-	TRY ( h5priv_mpi_allgather (
-		      f,
-		      &nparticles, 1, MPI_LONG_LONG,
-		      f->u->pnparticles, 1, MPI_LONG_LONG,
-		      f->comm ) );
-
-	if ( f->myproc == 0 ) {
-		h5_debug ( f, "Particle offsets:" );
-		for(i=0;i<f->nprocs;i++) 
-			h5_debug ( f, 
-				   "\tnp=%lld",
-				   (long long) f->u->pnparticles[i] );
-	}
-	/* should I create a selection here? */
-
-	/* compute start offsets */
-	stride[0] = 1;
-	start[0] = 0;
-	for (i=0; i<f->myproc; i++) {
-		start[0] += f->u->pnparticles[i];
-	}
-	
-        /* compute total nparticles */
-	total = 0;
-	for (i=0; i < f->nprocs; i++) {
-		total += f->u->pnparticles[i];
-	}
-
-	/* declare overall datasize */
-	TRY ( f->u->shape = h5priv_create_hdf5_dataspace ( f, 1, &total, &total ) );
-
-	/* declare overall data size  but then will select a subset */
-	TRY ( f->u->diskshape = h5priv_create_hdf5_dataspace ( f, 1, &total, &total) );
-
-	/* declare local memory datasize */
-	TRY ( f->u->memshape = h5priv_create_hdf5_dataspace (
-		      f, 1, &(f->u->nparticles), &dmax ) );
-
-	count[0] = nparticles;
-	TRY ( h5priv_select_hyperslab_of_hdf5_dataspace (
-		      f,
-		      f->u->diskshape,
-		      H5S_SELECT_SET,
-		      start, stride, count,
-		      NULL ) );
-
-	if ( f->step_gid < 0 ) {
-		TRY ( h5_set_step ( f, 0 ) );
-	}
-#endif
-	return H5_SUCCESS;
-}
-
-h5_int64_t
+h5_err_t
 h5u_write_data (
 	h5_file_t *f,		/*!< IN: Handle to open file */
 	const char *name,	/*!< IN: Name to associate array with */
-	const void *array,	/*!< IN: Array to commit to disk */
+	const void *data,	/*!< IN: Array to commit to disk */
 	const hid_t type	/*!< IN: Type of data */
 	) {
 
@@ -266,210 +111,54 @@ h5u_write_data (
 	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
 	struct h5u_fdata *u = f->u;
+	hid_t dset_id;
 
-	return h5_write_data(
-		f,
-		name,
-		array,
-		type,
-		f->step_gid,
-		u->memshape,
-		u->diskshape );
-}
+	char name2[H5_DATANAME_LEN];
+	TRY ( h5_normalize_dataset_name ( name, name2 ) );
 
-h5_int64_t
-h5u_reset_view (
-	h5_file_t *f
-	) {	     
+	if ( u->shape == H5S_ALL )
+		h5_warn(f, "The view is unset or invalid.");
 
-	struct h5u_fdata *u = f->u;
+	/* test for existing dataset */
+	H5E_BEGIN_TRY
+	dset_id = H5Dopen(f->step_gid, name2, H5P_DEFAULT);
+	H5E_END_TRY
 
-	u->viewstart = -1;
-	u->viewend = -1;
-	TRY( h5priv_close_hdf5_dataspace( f, u->shape ) );
-	u->shape = H5S_ALL;
-	TRY( h5priv_close_hdf5_dataspace( f, u->diskshape ) );
-	u->diskshape = H5S_ALL;
-	TRY( h5priv_close_hdf5_dataspace( f, u->memshape ) );
-	u->memshape = H5S_ALL;
-
-	return H5_SUCCESS;
-}
-
-h5_int64_t
-h5u_set_view (
-	h5_file_t *f,			/*!< [in]  Handle to open file */
-	h5_int64_t start,		/*!< [in]  Start particle */
-	h5_int64_t end		/*!< [in]  End particle */
-	) {
-	h5_int64_t herr = 0;
-	hsize_t total;
-	hsize_t stride = 1;
-	hsize_t dmax = H5S_UNLIMITED;
-	struct h5u_fdata *u = f->u;
-
-	h5_debug (
-		f,
-		"Set view (%lld,%lld).",
-		(long long)start,(long long)end);
-
-	herr = h5u_reset_view ( f );
-	if ( herr < 0 ) return herr;
-
-	if ( start == -1 && end == -1 ) return H5_SUCCESS;
-
-	/*
-	  View has been reset so H5PartGetNumParticles will tell
-	  us the total number of particles.
-
-	  For now, we interpret start=-1 to mean 0 and 
-	  end==-1 to mean end of file
-	*/
-	TRY ( total = (hsize_t) h5u_get_num_elems ( f ) );
-
-	if ( start == -1 ) start = 0;
-	if ( end == -1 )   end = total;
-
-	h5_debug ( f, "Total nparticles=%lld", (long long)total );
-
-	/* so, is this selection inclusive or exclusive? 
-	   it appears to be inclusive for both ends of the range.
-	*/
-	if ( end < start ) {
-		h5_warn (
+	if (dset_id > 0) {
+		h5_warn( f,
+			"Dataset %s/%s already exists",
+			h5_get_objname(f->step_gid), name2);
+	} else {
+		TRY( dset_id = h5priv_create_hdf5_dataset (
 			f,
-			"Nonfatal error. "
-			"End of view (%lld) is less than start (%lld).",
-			(long long)end, (long long)start );
-		end = start; /* ensure that we don't have a range error */
+			f->step_gid,
+			name2,
+			type,
+			u->shape,
+			H5P_DEFAULT) );
 	}
-	/* setting up the new view */
-	u->viewstart =  start;
-	u->viewend =    end;
-	u->nparticles = end - start + 1;
-	
-	/* declare overall datasize */
-	TRY ( u->shape = h5priv_create_hdf5_dataspace ( f, 1, &total, &total ) );
-
-	/* declare overall data size  but then will select a subset */
-	TRY ( u->diskshape= h5priv_create_hdf5_dataspace ( f, 1, &total, &total ) );
-
-	/* declare local memory datasize */
-	TRY ( u->memshape = h5priv_create_hdf5_dataspace (
-		      f, 1, &(u->nparticles), &dmax ) );
-
-	TRY ( h5priv_select_hyperslab_of_hdf5_dataspace ( 
-		      f,
-		      u->diskshape,
-		      H5S_SELECT_SET,
-		      (hsize_t*)&start, &stride, &total,
-		      NULL ) );
-
-	return H5_SUCCESS;
-}
-
-h5_int64_t 
-h5u_get_view (
-	h5_file_t *f,
-	h5_int64_t *start,
-	h5_int64_t *end
-	) {
-	struct h5u_fdata *u = f->u;
-	h5_int64_t viewstart = 0;
-	h5_int64_t viewend = 0;
-
-	if ( u->viewstart >= 0 )
-		viewstart = u->viewstart;
-
-	if ( u->viewend >= 0 ) {
-		viewend = u->viewend;
-	}
-	else {
-		viewend = h5u_get_num_elems ( f );
-		if ( viewend < 0 )
-			return HANDLE_H5_GET_NUM_PARTICLES_ERR ( f, viewend );
-	}
-
-	if ( start ) *start = viewstart;
-	if ( end )   *end = viewend;
-
-	return viewend - viewstart;
-}
-
-h5_int64_t
-h5u_set_canonical_view (
-	h5_file_t *f
-	) {
-	h5_int64_t herr = h5u_reset_view ( f );
-	if ( herr < 0 ) return HANDLE_H5_SET_VIEW_ERR( f, herr, -1, -1 );
 
 #ifdef PARALLEL_IO
-	h5_int64_t start = 0;
-	h5_int64_t end = 0;
-	h5_int64_t n = 0;
-	int i = 0;
-	
-	TRY ( n = h5u_get_num_elems ( f ) );
-	/* 
-	   now lets query the attributes for this group to see if there
-	   is a 'pnparticles' group that contains the offsets for the
-	   processors.
-	*/
-	if ( h5_read_attrib (
+	TRY( h5_start_throttle(f) );
+#endif
+	h5_info (f,
+		"Writing dataset %s/%s.",
+		h5_get_objname(f->step_gid), name2); 
+	TRY( h5priv_write_hdf5_dataset (
 		     f,
-		     f->step_gid,
-		     "pnparticles", f->u->pnparticles ) < 0) {
-		/*
-		  Attribute "pnparticles" is not available.  So
-		  subdivide the view into NP mostly equal pieces
-		*/
-		n /= f->nprocs;
-		for ( i=0; i<f->nprocs; i++ ) {
-			f->u->pnparticles[i] = n;
-		}
-	}
-
-	for ( i = 0; i < f->myproc; i++ ){
-		start += f->u->pnparticles[i];
-	}
-	end = start + f->u->pnparticles[f->myproc] - 1;
-	TRY ( h5u_set_view ( f, start, end ) );
-
+		     dset_id,
+		     type,
+		     u->memshape,
+		     u->diskshape,
+		     f->xfer_prop,
+		     data) );
+	TRY( h5priv_close_hdf5_dataset (f, dset_id) );
+#ifdef PARALLEL_IO
+	TRY( h5_end_throttle(f) );
 #endif
 
-	return H5_SUCCESS;
-}
-
-
-/*!
-  Get information about dataset in current index given by its index
- */
-h5_int64_t
-h5u_get_dataset_info (
-	h5_file_t *f,		/*!< [in]  Handle to open file */
-	const h5_int64_t idx,/*!< [in]  Index of the dataset */
-	char *dataset_name,	/*!< [out] Name of dataset */
-	const h5_int64_t len_dataset_name,
-				/*!< [in]  Size of buffer \c dataset_name */
-	h5_int64_t *type,	/*!< [out] Type of data in dataset */
-	h5_int64_t *nelem	/*!< [out] Number of elements. */
-	) {
-
-	TRY( h5_get_hdf5_datasetname_by_idx (
-		     f,
-		     f->step_gid,
-		     idx,
-		     dataset_name, len_dataset_name) );
-
-	if ( nelem ) {
-		*nelem = h5u_get_num_elems ( f );
-		if ( *nelem < 0 ) return *nelem;
-	}
-
-	if ( type ) {
-		*type = h5_get_dataset_type( f, f->step_gid, dataset_name );
-		if ( *type < 0 ) return *type;
-	}
+	f->empty = 0;
 
 	return H5_SUCCESS;
 }
+

@@ -3,6 +3,48 @@
 
 #ifdef PARALLEL_IO
 h5_err_t
+h5priv_mpi_recv(
+	h5_file_t *f,
+	void* buf,
+	const int count,
+	const MPI_Datatype type,
+	const int from,
+	const int tag,
+	const MPI_Comm comm
+	);
+
+h5_err_t
+h5priv_mpi_send(
+	h5_file_t *f,
+	void* buf,
+	const int count,
+	const MPI_Datatype type,
+	const int to,
+	const int tag,
+	const MPI_Comm comm
+	);
+
+h5_err_t
+h5priv_mpi_sum (
+	h5_file_t* const f,
+	void* sendbuf,
+        void* recvbuf,
+	const int count,
+	const MPI_Datatype type,
+	const MPI_Comm comm
+	);
+
+h5_err_t
+h5priv_mpi_prefix_sum (
+	h5_file_t* const f,
+	void* sendbuf,
+        void* recvbuf,
+	const int count,
+	const MPI_Datatype type,
+	const MPI_Comm comm
+	);
+
+h5_err_t
 h5priv_mpi_allgather (
 	h5_file_t* const f,
 	void* sendbuf,

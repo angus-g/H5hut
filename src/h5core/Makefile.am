@@ -98,6 +98,7 @@ libH5Core_a_SOURCES =				\
 	h5t_store_tetm.c			\
 	h5t_store_trim.c			\
 	h5t_tags.c				\
+	h5u_model.c				\
 	h5u_readwrite.c
 
 libH5Core_a_DEPENDENCIES = $(EXTRA_HEADERS)

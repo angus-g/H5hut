@@ -374,6 +374,7 @@ src/C/H5Fed_retrieve.c -text
 src/C/H5Fed_store.c -text
 src/C/H5Fed_tags.c -text
 src/C/H5Part.c -text
+src/C/H5_attrib.c -text
 src/C/H5_inquiry.c -text
 src/C/Makefile.am -text
 src/Fortran/H5BlockF.c -text
@@ -444,6 +445,7 @@ src/h5core/h5t_tags.c -text
 src/h5core/h5t_tags_private.h -text
 src/h5core/h5t_types_private.h -text
 src/h5core/h5u_errorhandling_private.h -text
+src/h5core/h5u_model.c -text
 src/h5core/h5u_readwrite.c -text
 src/h5core/h5u_types_private.h -text
 src/include/H5.h -text
@@ -475,6 +477,7 @@ src/include/h5core/h5t_ref_elements.h -text
 src/include/h5core/h5t_retrieve.h -text
 src/include/h5core/h5t_storemesh.h -text
 src/include/h5core/h5t_tags.h -text
+src/include/h5core/h5u_model.h -text
 src/include/h5core/h5u_readwrite.h -text
 test/H5Block/BlockTestSpecs.txt -text
 test/H5Block/H5BlockDissolveGhosts.c -text

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "h5_core.h"
 #include "h5_core_private.h"
 
@@ -17,23 +18,14 @@ h5_write_data (
 	) {
 	hid_t dset_id;
 
-	h5_info (f, "Writing dataset %s/%s.", h5_get_objname(group_id), name);
+	h5_info (f, "Writing dataset %s/%s.", h5_get_objname(group_id), name); 
 	TRY( dset_id = h5priv_create_hdf5_dataset (
-		     f,
-		     group_id,
-		     name,
-		     type_id,
-		     diskspace_id,
-		     H5P_DEFAULT) );
-	TRY( h5priv_write_hdf5_dataset (
-		     f,
-		     dset_id,
-		     type_id,
-		     memspace_id,
-		     diskspace_id,
-		     f->xfer_prop,
-		     array) );
-	TRY( h5priv_close_hdf5_dataset (f, dset_id) );
+		f,
+		group_id,
+		name,
+		type_id,
+		diskspace_id,
+		H5P_DEFAULT) );
 
 	f->empty = 0;
 
@@ -204,7 +196,7 @@ h5priv_close_step (
 	return H5_SUCCESS;
 }
 
-h5_err_t
+static h5_err_t
 _set_step (
 	h5_file_t* const f,
 	const h5_int64_t step_idx	/*!< [in]  Step to set. */
@@ -299,3 +291,92 @@ h5_has_index (
 		 f->prefix_step_name, f->width_step_idx, (long long)step);
 	return (H5Gget_objinfo(f->file, name, 1, NULL) >= 0);
 }
+
+h5_err_t
+h5_normalize_dataset_name (
+	const char *name,
+	char *name2
+	) {
+
+	if ( strlen(name) > H5_DATANAME_LEN ) {
+		strncpy ( name2, name, H5_DATANAME_LEN - 1 );
+		name2[H5_DATANAME_LEN-1] = '\0';
+	} else {
+		strcpy ( name2, name );
+	}
+
+        return H5_SUCCESS;
+}
+
+#ifdef PARALLEL_IO
+h5_err_t
+h5_set_throttle (
+	h5_file_t* f,
+	int factor
+	) {
+	if ( (f->mode & H5_VFD_INDEPENDENT) || (f->mode & H5_VFD_MPIPOSIX) ) {
+		f->throttle = factor;
+		h5_info (f,
+			"Throttling enabled with factor = %d", f->throttle );
+	} else {
+		h5_warn (f,
+			"Throttling is only permitted with the MPI-POSIX "
+			"or MPI-IO Independent VFD." );
+	}
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5_start_throttle (
+	h5_file_t *f
+	) {
+
+	if (f->throttle > 0) {
+		int token = 1;
+		h5_info (f,
+			"Throttling with factor = %d",
+			f->throttle);
+		if (f->myproc / f->throttle > 0) {
+			h5_debug (f,
+				"[%d] throttle: waiting on token from %d",
+				f->myproc, f->myproc - f->throttle);
+			// wait to receive token before continuing with read
+            TRY( h5priv_mpi_recv(f,
+				&token, 1, MPI_INT,
+				f->myproc - f->throttle, // receive from previous proc
+				f->myproc, // use this proc id as message tag
+				f->comm
+				) );
+		}
+		h5_debug (f,
+			"[%d] throttle: received token",
+			f->myproc);
+	}
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5_end_throttle (
+	h5_file_t *f
+	) {
+
+	if (f->throttle > 0) {
+		int token;
+		if (f->myproc + f->throttle < f->nprocs) {
+			// pass token to next proc 
+			h5_debug (f,
+				"[%d] throttle: passing token to %d",
+				f->myproc, f->myproc + f->throttle);
+			TRY( h5priv_mpi_send(f,
+				&token, 1, MPI_INT,
+				f->myproc + f->throttle, // send to next proc
+				f->myproc + f->throttle, // use the id of the target as tag
+				f->comm
+				) );
+		}
+	}
+	return H5_SUCCESS;
+}
+#endif // PARALLEL_IO
+

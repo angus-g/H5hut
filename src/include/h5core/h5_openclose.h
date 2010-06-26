@@ -23,20 +23,30 @@ h5_int64_t
 h5_set_stepname_fmt (
 	h5_file_t * const f,
 	const char *name,
-	const h5_int64_t width
+	int width
 	);
 
 h5_err_t
 h5_get_stepname_fmt (
 	h5_file_t * const f,
 	char *name,
-	const h5_size_t l_name,
-	h5_size_t *width
+	int l_name,
+	int *width
 	);
 
 h5_err_t
 h5priv_close_step (
 	h5_file_t * const f
+	);
+
+int
+h5_get_num_procs (
+	h5_file_t* const f
+	);
+
+h5_size_t
+h5_get_num_steps (
+	h5_file_t* const f
 	);
 
 h5_int64_t
@@ -59,4 +69,5 @@ h5_err_t
 h5_traverse_steps (
 	h5_file_t * f			/*!< file handle		*/
 	);
+
 #endif

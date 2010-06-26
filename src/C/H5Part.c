@@ -1,5 +1,72 @@
+/*! \mainpage H5Part: A Portable High Performance Parallel Data Interface to HDF5
 
+Particle based simulations of accelerator beam-lines, especially in
+six dimensional phase space, generate vast amounts of data. Even
+though a subset of statistical information regarding phase space or
+analysis needs to be preserved, reading and writing such enormous
+restart files on massively parallel supercomputing systems remains
+challenging. 
+
+H5Part consists of Particles and Block structured Fields.
+
+Developed by:
+
+<UL>
+<LI> Andreas Adelmann (PSI) </LI>
+<LI> Achim Gsell (PSI) </LI>
+<LI> Benedikt Oswald (PSI) </LI>
+
+<LI> Wes Bethel (NERSC/LBNL)</LI>
+<LI> John Shalf (NERSC/LBNL)</LI>
+<LI> Cristina Siegerist (NERSC/LBNL)</LI>
+<LI> Mark Howison (NERSC/LBNL)</LI>
+</UL>
+
+
+Papers: 
+
+<UL>
+<LI> A. Adelmann, R.D. Ryne, C. Siegerist, J. Shalf,"From Visualization to Data Mining with Large Data Sets," <i>
+<a href="http://www.sns.gov/pac05">Particle Accelerator Conference (PAC05)</a></i>, Knoxville TN., May 16-20, 2005. (LBNL-57603)
+<a href="http://vis.lbl.gov/Publications/2005/FPAT082.pdf">FPAT082.pdf</a>
+</LI>
+
+
+<LI> A. Adelmann, R.D. Ryne, J. Shalf, C. Siegerist, "H5Part: A Portable High Performance Parallel Data Interface for Particle Simulations," <i>
+<a href="http://www.sns.gov/pac05">Particle Accelerator Conference (PAC05)</a></i>, Knoxville TN., May 16-20, 2005.
+<a href="http://vis.lbl.gov/Publications/2005/FPAT083.pdf">FPAT083.pdf</a>
+</LI>
+</UL>
+
+For further information contact: <a href="mailto:h5part@lists.psi.ch">h5part</a>
+
+*/
+
+
+/*!
+  \defgroup h5part_c_api H5Part C API
+
+*/
+/*!
+  \ingroup h5part_c_api
+  \defgroup h5part_open 	File Opening and Closing
+*/
+/*!
+  \ingroup h5part_c_api
+  \defgroup h5part_model	Setting up the Data Model
+*/  
+/*!
+  \ingroup h5part_c_api
+  \defgroup h5part_data	Reading and Writing Datasets
+*/  
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>	/* va_arg - System dependent ?! */
 #include <string.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <hdf5.h>
 
 #ifndef WIN32
 #include <unistd.h>
@@ -12,147 +79,117 @@
 #include "h5core/h5_core.h"
 #include "H5Part.h"
 
-/********* Private Variable Declarations *************/
-
-
-/********** Declaration of private functions ******/
-
-
-/*========== File Opening/Closing ===============*/
-
 /*!
-  \ingroup h5part_c_api
-  \defgroup h5part_c_api_openclose	File Opening and Closing
-*/
+  \ingroup h5part_model
 
-/*!
-  \ingroup h5part_c_api_openclose
-
-  Opens file with specified filename. 
-
-  If you open with flag \c H5PART_WRITE, it will truncate any
-  file with the specified filename and start writing to it. If 
-  you open with \c H5PART_APPEND, then you can append new steps.
-  If you open with \c H5PART_READ, then it will open the file
-  readonly.
-
-  The typical extension for these files is \c .h5.
-  
-  h5_file should be treated as an essentially opaque
-  datastructure.  It acts as the file handle, but internally
-  it maintains several key state variables associated with 
-  the file.
-
-  \return	File handle or \c NULL
- */
-h5_file_t *
-H5PartOpenFileParallel (
-	const char *filename,	/*!< [in] The name of the data file to open. */
-	unsigned flags,		/*!< [in] The access mode for the file. */
-	MPI_Comm comm		/*!< [in] MPI communicator */
-) {
-	return h5_open_file ( filename, flags, comm, __func__ );
-}
-
-/*!
-  \ingroup  h5part_c_api_openclose
-
-  Opens file with specified filename. 
-
-  If you open with flag \c H5PART_WRITE, it will truncate any
-  file with the specified filename and start writing to it. If 
-  you open with \c H5PART_APPEND, then you can append new steps.
-  If you open with \c H5PART_READ, then it will open the file
-  readonly.
-
-  The typical extension for these files is \c .h5.
-  
-  h5_file should be treated as an essentially opaque
-  datastructure.  It acts as the file handle, but internally
-  it maintains several key state variables associated with 
-  the file.
-
-  \return	File handle or \c NULL
- */
-
-h5_file_t *
-H5PartOpenFile (
-	const char *filename,	/*!< [in] The name of the data file to open. */
-	unsigned flags		/*!< [in] The access mode for the file. */
-	) {
-
-	MPI_Comm comm = 0;	/* dummy */
-
-	return h5_open_file ( filename, flags, comm, __func__ );
-}
-
-/*!
-  \ingroup h5part_c_api_openclose
-
-  Closes an open file.
-
-  \return	\c H5_SUCCESS or error code
-*/
-h5_int64_t
-H5PartCloseFile (
-	h5_file_t *f		/*!< [in] filehandle of the file to close */
-	) {
-
-	SET_FNAME ( f, __func__ );
-
-	return h5_close_file( f );
-}
-
-/*============== File Writing Functions ==================== */
-
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_c_api_write	File Writing
-*/  
-
-h5_int64_t
-H5PartDefineStepName (
-	h5_file_t *f,
-	const char *name,
-	const h5_int64_t width
-	) {
-	SET_FNAME ( f, __func__ );
-
-	return h5_set_stepname_fmt( f, name, width );
-}
-
-/*!
-  \ingroup h5part_c_api_write
-
-  Set number of particles for current time-step.
-
-  This function's sole purpose is to prevent 
-  needless creation of new HDF5 DataSpace handles if the number of 
-  particles is invariant throughout the simulation. That's its only reason 
-  for existence. After you call this subroutine, all subsequent 
+  Set the number of particles for the current time-step.
+  After you call this subroutine, all subsequent 
   operations will assume this number of particles will be written.
 
+  For the parallel library, the \c nparticles value is the number of
+  particles that the \e individual task will write. You can use
+  a different value on different tasks.
+  This function uses an \c MPI_Allgather
+  call to aggregate each tasks number of particles and determine
+  the appropiate offsets. Because of the use of this MPI collective,
+  it is advisable to call this function as
+  few times as possible when running at large concurrency.
+
+  This function assumes that your particles' data fields are in stored in
+  contiguous 1D arrays.
+  For instance, the fields \e x and \e y for your particles are stored
+  in separate arrays \c x[] and \c y[].
+  
+  If instead you store your particles as tuples, so that the values
+  are arranged \f$ x_1,y_1,x_2,y_2\f$... than you need to setup striding
+  (in this case with value 2) using \ref H5PartSetNumParticlesStrided.
 
   \return	\c H5_SUCCESS or error code
  */
-h5_int64_t
+h5_err_t
 H5PartSetNumParticles (
 	h5_file_t *f,			/*!< [in] Handle to open file */
 	h5_int64_t nparticles	/*!< [in] Number of particles */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-	return h5u_set_num_elements( f, nparticles );
+	h5_int64_t stride = 1;
+	return h5u_set_num_particles( f, nparticles, stride );
 }
 
 /*!
-  \ingroup h5part_c_api_write
+  \ingroup h5part_model
+
+  Set the number of particles for the current time-step.
+  After you call this subroutine, all subsequent 
+  operations will assume this number of particles will be written.
+
+  For the parallel library, the \c nparticles value is the number of
+  particles that the \e individual task will write. You can use
+  a different value on different tasks.
+  This function uses an \c MPI_Allgather
+  call to aggregate each tasks number of particles and determine
+  the appropiate offsets. Because of the use of this MPI collective,
+  it is advisable to call this function as
+  few times as possible when running at large concurrency.
+
+  This function assumes that your particles' data fields are
+  stored tuples. For instance, the fields \e x and \e y of your
+  particles are arranged \f$x_1,y_1,x_2,y_2\f$... in a single data
+  array. In this example, the stride value would be 2.
+  
+  If you instead have a separate array for each fields,
+  such as \c x[] and \c y[],
+  use \ref H5PartSetNumParticles.
+
+  \return	\c H5_SUCCESS or error code
+*/
+h5_err_t
+H5PartSetNumParticlesStrided (
+	h5_file_t *f,			/*!< [in] Handle to open file */
+	h5_int64_t nparticles,	/*!< [in] Number of particles */
+	h5_int64_t stride		/*!< [in] Stride value (e.g. number of fields in the particle array) */
+	) {
+
+	SET_FNAME( f, __func__ );
+
+	return h5u_set_num_particles( f, nparticles, stride );
+}
+
+/*!
+  \ingroup h5part_model
+
+  Define the chunk \c size and enables chunking in the underlying
+  HDF5 layer. When combined with the \c align value in the
+  \ref H5PartOpenFileAlign or \ref H5PartOpenFileParallelAlign
+  function, this causes each group of \c size particles to be
+  padded on disk out to the nearest multiple of \c align bytes.
+
+  Note that this policy wastes disk space, but can improve write
+  bandwidth on parallel filesystems that are sensitive to alignment
+  to stripe boundaries (e.g. lustre).
+
+  \return	\c H5_SUCCESS or error code
+*/
+h5_err_t
+H5PartSetChunkSize (
+	h5_file_t *f,
+	h5_int64_t size
+	) {
+
+	SET_FNAME( f, __func__ );
+
+        return h5u_set_chunk( f, size );
+}
+
+/*!
+  \ingroup h5part_data
 
   Write array of 64 bit floating point data to file.
 
   After setting the number of particles with \c H5PartSetNumParticles() and
-  the current step using \c H5PartSetStep(), you can start writing datasets
+  the current timestep using \c H5SetStep(), you can start writing datasets
   into the file. Each dataset has a name associated with it (chosen by the
   user) in order to facilitate later retrieval. The name of the dataset is
   specified in the parameter \c name, which must be a null-terminated string.
@@ -164,33 +201,71 @@ H5PartSetNumParticles (
   the array can be reconstructed properly on other systems with incompatible
   type representations.
 
-  All data that is written after setting the step is associated with that
-  step. While the number of particles can change for each step, you
-  cannot change the number of particles in the middle of a given step.
+  All data that is written after setting the timestep is associated with that
+  timestep. While the number of particles can change for each timestep, you
+  cannot change the number of particles in the middle of a given timestep.
 
   The data is committed to disk before the routine returns.
 
   \return	\c H5_SUCCESS or error code
  */
-h5_int64_t
+h5_err_t
 H5PartWriteDataFloat64 (
-	h5_file_t *f,			/*!< [in] Handle to open file */
-	const char *name,		/*!< [in] Name to associate array with */
-	const h5_float64_t *array	/*!< [in] Array to commit to disk */
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5_float64_t *data	/*!< [in] Array to commit to disk */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-	return h5u_write_data ( f, name, (void*)array, H5T_NATIVE_DOUBLE );
+	return h5u_write_data( f, name, (void*)data, H5T_NATIVE_DOUBLE );
 }
 
 /*!
-  \ingroup h5part_c_api_write
+  \ingroup h5part_data
+
+  Write array of 32 bit floating point data to file.
+
+  After setting the number of particles with \c H5PartSetNumParticles() and
+  the current timestep using \c H5SetStep(), you can start writing datasets
+  into the file. Each dataset has a name associated with it (chosen by the
+  user) in order to facilitate later retrieval. The name of the dataset is
+  specified in the parameter \c name, which must be a null-terminated string.
+
+  There are no restrictions on naming of datasets, but it is useful to arrive
+  at some common naming convention when sharing data with other groups.
+
+  The writing routines also implicitly store the datatype of the array so that
+  the array can be reconstructed properly on other systems with incompatible
+  type representations.
+
+  All data that is written after setting the timestep is associated with that
+  timestep. While the number of particles can change for each timestep, you
+  cannot change the number of particles in the middle of a given timestep.
+
+  The data is committed to disk before the routine returns.
+
+  \return	\c H5_SUCCESS or error code
+ */
+h5_err_t
+H5PartWriteDataFloat32 (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5_float32_t *data	/*!< [in] Array to commit to disk */
+	) {
+
+	SET_FNAME( f, __func__ );
+
+	return h5u_write_data( f, name, (void*)data, H5T_NATIVE_FLOAT );
+}
+
+/*!
+  \ingroup h5part_data
 
   Write array of 64 bit integer data to file.
 
   After setting the number of particles with \c H5PartSetNumParticles() and
-  the current step using \c H5PartSetStep(), you can start writing datasets
+  the current timestep using \c H5SetStep(), you can start writing datasets
   into the file. Each dataset has a name associated with it (chosen by the
   user) in order to facilitate later retrieval. The name of the dataset is
   specified in the parameter \c name, which must be a null-terminated string.
@@ -202,416 +277,166 @@ H5PartWriteDataFloat64 (
   the array can be reconstructed properly on other systems with incompatible
   type representations.
 
-  All data that is written after setting the step is associated with that
-  step. While the number of particles can change for each step, you
-  cannot change the number of particles in the middle of a given step.
+  All data that is written after setting the timestep is associated with that
+  timestep. While the number of particles can change for each timestep, you
+  cannot change the number of particles in the middle of a given timestep.
 
   The data is committed to disk before the routine returns.
 
   \return	\c H5_SUCCESS or error code
  */
-h5_int64_t
+h5_err_t
 H5PartWriteDataInt64 (
 	h5_file_t *f,		/*!< [in] Handle to open file */
 	const char *name,	/*!< [in] Name to associate array with */
-	const h5_int64_t *array	/*!< [in] Array to commit to disk */
+	const h5_int64_t *data	/*!< [in] Array to commit to disk */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-	return h5u_write_data ( f, name, (void*)array, H5T_NATIVE_INT64 );
+	return h5u_write_data ( f, name, (void*)data, H5T_NATIVE_INT64 );
 }
 
-/********************** reading and writing attribute ************************/
-
-/********************** private functions to handle attributes ***************/
-
-
-/********************** attribute API ****************************************/
-
 /*!
-  \ingroup h5part_c_api
-  \defgroup h5part_c_api_attrib	Reading and Writing Attributes
-*/
+  \ingroup h5part_data
 
-/*!
-  \ingroup h5part_c_api_attrib
+  Write array of 32 bit integer data to file.
 
-  Writes a string attribute bound to a file.
+  After setting the number of particles with \c H5PartSetNumParticles() and
+  the current timestep using \c H5SetStep(), you can start writing datasets
+  into the file. Each dataset has a name associated with it (chosen by the
+  user) in order to facilitate later retrieval. The name of the dataset is
+  specified in the parameter \c name, which must be a null-terminated string.
 
-  This function creates a new attribute \c name with the string \c value as
-  content. The attribute is bound to the file associated with the file handle 
-  \c f.
+  There are no restrictions on naming of datasets, but it is useful to arrive
+  at some common naming convention when sharing data with other groups.
 
-  If the attribute already exists an error will be returned. There
-  is currently no way to change the content of an existing attribute.
+  The writing routines also implicitly store the datatype of the array so that
+  the array can be reconstructed properly on other systems with incompatible
+  type representations.
 
-  \return	\c H5_SUCCESS or error code   
-*/
-h5_int64_t
-H5PartWriteFileAttribString (
+  All data that is written after setting the timestep is associated with that
+  timestep. While the number of particles can change for each timestep, you
+  cannot change the number of particles in the middle of a given timestep.
+
+  The data is committed to disk before the routine returns.
+
+  \return	\c H5_SUCCESS or error code
+ */
+h5_err_t
+H5PartWriteDataInt32 (
 	h5_file_t *f,		/*!< [in] Handle to open file */
-	const char *attrib_name,/*!< [in] Name of attribute to create */
-	const char *attrib_value/*!< [in] Value of attribute */ 
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5_int32_t *data	/*!< [in] Array to commit to disk */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno( f );
-
-	return h5_write_attrib (
-		f,
-		f->root_gid,
-		attrib_name,
-		H5T_NATIVE_CHAR,
-		attrib_value,
-		strlen ( attrib_value ) + 1 );
+	return h5u_write_data ( f, name, (void*)data, H5T_NATIVE_INT32 );
 }
 
 /*!
-  \ingroup h5part_c_api_attrib
+  \ingroup h5part_data
 
-  Writes a string attribute bound to the current time-step.
+  Read array of 64 bit floating point data from file.
 
-  This function creates a new attribute \c name with the string \c value as
-  content. The attribute is bound to the current time step in the file given
-  by the file handle \c f.
+  When retrieving datasets from disk, you ask for them
+  by name. There are no restrictions on naming of arrays,
+  but it is useful to arrive at some common naming
+  convention when sharing data with other groups.
 
-  If the attribute already exists an error will be returned. There
-  is currently no way to change the content of an existing attribute.
-
-  \return	\c H5_SUCCESS or error code   
+  \return	\c H5_SUCCESS or error code
 */
-
-h5_int64_t
-H5PartWriteStepAttribString (
+h5_err_t
+H5PartReadDataFloat64 (
 	h5_file_t *f,		/*!< [in] Handle to open file */
-	const char *attrib_name,/*!< [in] Name of attribute to create */
-	const char *attrib_value/*!< [in] Value of attribute */ 
+	const char *name,	/*!< [in] Name to associate dataset with */
+	h5_float64_t *data	/*!< [out] Array of data */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno( f );
-
-	return h5_write_attrib (
-		f, 
-		f->step_gid,
-		attrib_name,
-		H5T_NATIVE_CHAR,
-		attrib_value,
-		strlen ( attrib_value ) + 1 );
+	return h5u_read_data ( f, name, data, H5T_NATIVE_DOUBLE );
 }
 
 /*!
-  \ingroup h5part_c_api_attrib
+  \ingroup h5part_data
 
-  Writes a attribute bound to the current time-step.
+  Read array of 32 bit floating point data from file.
 
-  This function creates a new attribute \c name with the string \c value as
-  content. The attribute is bound to the current time step in the file given
-  by the file handle \c f.
+  When retrieving datasets from disk, you ask for them
+  by name. There are no restrictions on naming of arrays,
+  but it is useful to arrive at some common naming
+  convention when sharing data with other groups.
 
-  The value of the attribute is given the parameter \c type, which must be one
-  of \c H5T_NATIVE_DOUBLE, \c H5T_NATIVE_INT64 of \c H5T_NATIVE_CHAR, the array
-  \c value and the number of elements \c nelem in the array.
-
-  If the attribute already exists an error will be returned. There
-  is currently no way to change the content of an existing attribute.
-
-  \return	\c H5_SUCCESS or error code   
+  \return	\c H5_SUCCESS or error code
 */
-
-h5_int64_t
-H5PartWriteStepAttrib (
-	h5_file_t *f,			/*!< [in] Handle to open file */
-	const char *attrib_name,	/*!< [in] Name of attribute */
-	const h5_int64_t attrib_type,/*!< [in] Type of value. */
-	const void *attrib_value,	/*!< [in] Value of attribute */ 
-	const h5_int64_t attrib_nelem/*!< [in] Number of elements */
-	){
-
-	SET_FNAME ( f, __func__ );
-
-   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno( f );
-
-	return h5_write_attrib (
-		f,
-		f->step_gid,
-		attrib_name,
-		(hid_t)attrib_type,
-		attrib_value,
-		attrib_nelem );
-}
-
-/*!
-  \ingroup h5part_c_api_attrib
-
-  Writes a attribute bound to a file.
-
-  This function creates a new attribute \c name with the string \c value as
-  content. The attribute is bound to the file file given by the file handle
-  \c f.
-
-  The value of the attribute is given the parameter \c type, which must be one
-  of H5T_NATIVE_DOUBLE, H5T_NATIVE_INT64 of H5T_NATIVE_CHAR, the array \c value
-  and the number of elements \c nelem in the array.
-
-  If the attribute already exists an error will be returned. There
-  is currently no way to change the content of an existing attribute.
-
-  \return	\c H5_SUCCESS or error code   
-*/
-
-h5_int64_t
-H5PartWriteFileAttrib (
-	h5_file_t *f,			/*!< [in] Handle to open file */
-	const char *attrib_name,	/*!< [in] Name of attribute */
-	const h5_int64_t attrib_type,/*!< [in] Type of value. */
-	const void *attrib_value,	/*!< [in] Value of attribute */ 
-	const h5_int64_t attrib_nelem/*!< [in] Number of elements */
+h5_err_t
+H5PartReadDataFloat32 (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate dataset with */
+	h5_float32_t *data	/*!< [out] Array of data */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno( f );
-
-	return h5_write_attrib (
-		f,
-		f->root_gid,
-		attrib_name,
-		(hid_t)attrib_type,
-		attrib_value,
-		attrib_nelem );
+	return h5u_read_data ( f, name, data, H5T_NATIVE_FLOAT );
 }
 
 /*!
-  \ingroup h5part_c_api_attrib
+  \ingroup h5part_data
 
-  Gets the number of attributes bound to the current step.
+  Read array of 64 bit integer data from file.
 
-  \return	Number of attributes bound to current time step or error code.
+  When retrieving datasets from disk, you ask for them
+  by name. There are no restrictions on naming of arrays,
+  but it is useful to arrive at some common naming
+  convention when sharing data with other groups.
+
+  \return	\c H5_SUCCESS or error code
 */
-h5_int64_t
-H5PartGetNumStepAttribs (
-	h5_file_t *f			/*!< [in] Handle to open file */
+h5_err_t
+H5PartReadDataInt64 (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate dataset with */
+	h5_int64_t *data	/*!< [out] Array of data */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno( f );
-
-	return h5_get_num_attribs ( f, f->step_gid );
+	return h5u_read_data ( f, name, data, H5T_NATIVE_INT64 );
 }
 
 /*!
-  \ingroup h5part_c_api_attrib
+  \ingroup h5part_data
 
-  Gets the number of attributes bound to the file.
+  Read array of 32 bit integer data from file.
 
-  \return	Number of attributes bound to file \c f or error code.
+  When retrieving datasets from disk, you ask for them
+  by name. There are no restrictions on naming of arrays,
+  but it is useful to arrive at some common naming
+  convention when sharing data with other groups.
+
+  \return	\c H5_SUCCESS or error code
 */
-h5_int64_t
-H5PartGetNumFileAttribs (
-	h5_file_t *f			/*!< [in] Handle to open file */
+h5_err_t
+H5PartReadDataInt32 (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate dataset with */
+	h5_int32_t *data	/*!< [out] Array of data */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno( f );
-
-	return h5_get_num_attribs ( f, f->root_gid );
+	return h5u_read_data ( f, name, data, H5T_NATIVE_INT32 );
 }
 
 /*!
-  \ingroup h5part_c_api_attrib
-
-  Gets the name, type and number of elements of the step attribute
-  specified by its index.
-
-  This function can be used to retrieve all attributes bound to the
-  current time-step by looping from \c 0 to the number of attribute
-  minus one.  The number of attributes bound to the current
-  time-step can be queried by calling the function
-  \c H5PartGetNumStepAttribs().
-
-  \return	\c H5_SUCCESS or error code 
-*/
-h5_int64_t
-H5PartGetStepAttribInfo (
-	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const h5_int64_t attrib_idx,/*!< [in]  Index of attribute to
-					           get infos about */
-	char *attrib_name,		/*!< [out] Name of attribute */
-	const h5_int64_t len_of_attrib_name,
-					/*!< [in]  length of buffer \c name */
-	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
-	h5_int64_t *attrib_nelem	/*!< [out] Number of elements */
-	) {
-	
-	SET_FNAME ( f, __func__ );
-
-   	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno( f );
-
-	return h5_get_attrib_info (
-		f,
-		f->step_gid,
-		attrib_idx,
-		attrib_name,
-		len_of_attrib_name,
-		attrib_type,
-		attrib_nelem );
-}
-
-/*!
-  \ingroup h5part_c_api_attrib
-
-  Gets the name, type and number of elements of the file attribute
-  specified by its index.
-
-  This function can be used to retrieve all attributes bound to the
-  file \c f by looping from \c 0 to the number of attribute minus
-  one.  The number of attributes bound to file \c f can be queried
-  by calling the function \c H5PartGetNumFileAttribs().
-
-  \return	\c H5_SUCCESS or error code 
-*/
-
-h5_int64_t
-H5PartGetFileAttribInfo (
-	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const h5_int64_t attrib_idx,/*!< [in]  Index of attribute to get
-					           infos about */
-	char *attrib_name,		/*!< [out] Name of attribute */
-	const h5_int64_t len_of_attrib_name,
-					/*!< [in]  length of buffer \c name */
-	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
-	h5_int64_t *attrib_nelem	/*!< [out] Number of elements */
-	) {
-
-	SET_FNAME ( f, __func__ );
-
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
-
-	return h5_get_attrib_info (
-		f,
-		f->root_gid,
-		attrib_idx,
-		attrib_name,
-		len_of_attrib_name,
-		attrib_type,
-		attrib_nelem );
-}
-
-/*!
-  \ingroup h5part_c_api_attrib
-
-  Reads an attribute bound to current time-step.
-
-  \return \c H5_SUCCESS or error code 
-*/
-h5_int64_t
-H5PartReadStepAttrib (
-	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const char *attrib_name,	/*!< [in] Name of attribute to read */
-	void *attrib_value		/*!< [out] Value of attribute */
-	) {
-
-	SET_FNAME ( f, __func__ );
-
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
-
-	return h5_read_attrib ( f, f->step_gid, attrib_name, attrib_value );
-}
-
-/*!
-  \ingroup h5part_c_api_attrib
-
-  Reads an attribute bound to file \c f.
-
-  \return \c H5_SUCCESS or error code 
-*/
-h5_int64_t
-H5PartReadFileAttrib ( 
-	h5_file_t *f,
-	const char *attrib_name,
-	void *attrib_value
-	) {
-
-	SET_FNAME ( f, __func__ );
-
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
-
-	return h5_read_attrib ( f, f->root_gid, attrib_name, attrib_value );
-}
-
-
-/*================== File Reading Routines =================*/
-
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_c_api_read		File Reading
-*/  
-
-/*
-  H5PartSetStep:
-
-
-  So you use this to random-access the file for a particular step.
-  Failure to explicitly set the step on each read will leave you
-  stuck on the same step for *all* of your reads.  That is to say
-  the writes auto-advance the file pointer, but the reads do not
-  (they require explicit advancing by selecting a particular step).
-*/
-
-/*!
-  \ingroup h5part_c_api_read
-
-  Set the current time-step.
-
-  When writing data to a file the current time step must be set first
-  (even if there is only one). In write-mode this function creates a new
-  time-step! You are not allowed to step to an already existing time-step.
-  This prevents you from overwriting existing data. Another consequence is,
-  that you \b must write all data before going to the next time-step.
-
-  In read-mode you can use this function to random-access the file for a
-  particular step.
-
-  \return \c H5_SUCCESS or error code 
-*/
-h5_int64_t
-H5PartSetStep (
-	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const h5_int64_t step	/*!< [in]  Time-step to set. */
-	) {
-
-	SET_FNAME ( f, __func__ );
-
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
-
-	return h5_set_step ( f, step );
-}
-
-/********************** query file structure *********************************/
-
-/*!
-  \ingroup h5part_c_api_read
+  \ingroup h5part_model
 
   Get the number of datasets that are stored at the current time-step.
 
-  \return	number of datasets in current step or error code
+  \return	number of datasets in current timestep or error code
 */
 
 h5_int64_t
@@ -619,14 +444,15 @@ H5PartGetNumDatasets (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME ( f, __func__ );
-	CHECK_FILEHANDLE ( f );
+	SET_FNAME( f, __func__ );
 
-	return  h5_get_num_hdf5_datasets (f, f->step_gid);
+	CHECK_FILEHANDLE( f );
+	
+	return h5u_get_num_datasets(f);
 }
 
 /*!
-  \ingroup h5part_c_api_read
+  \ingroup h5part_model
 
   This reads the name of a dataset specified by it's index in the current
   time-step.
@@ -637,32 +463,34 @@ H5PartGetNumDatasets (
 */
 h5_int64_t
 H5PartGetDatasetName (
-	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const h5_int64_t idx,		/*!< [in]  Index of the dataset */
-	char *name,			/*!< [out] Name of dataset */
-	const h5_int64_t len_of_name	/*!< [in]  Size of buffer \c name */
+	h5_file_t *f,		/*!< [in]  Handle to open file */
+	const h5_int64_t idx,	/*!< [in]  Index of the dataset */
+	char *name,		/*!< [out] Name of dataset */
+	const h5_int64_t len	/*!< [in]  Size of buffer \c name */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
+	CHECK_FILEHANDLE ( f );
+	//CHECK_TIMEGROUP ( f );
 
-	return h5_get_hdf5_datasetname_by_idx (
-		f,
-		f->step_gid,
-		idx,
-		name,
-		len_of_name);
+	return h5u_get_dataset_info(f, idx, name, len, NULL, NULL);
 }
 
 /*!
-  \ingroup h5part_c_api_read
+  \ingroup h5part_model
 
-  Gets the name, type and number of elements of a dataset specified by it's
-  index in the current time-step.
+  Gets the name, type and number of elements of a dataset based on its
+  index in the current timestep.
 
-  Type is one of \c H5T_NATIVE_DOUBLE or \c H5T_NATIVE_INT64.
+  Type is one of the following macros:
+
+  - \c h5_float64 (for \c h5part_float64_t)
+  - \c h5_float32 (for \c h5part_float32_t)
+  - \c h5_int64 (for \c h5part_int64_t)
+  - \c h5_int32 (for \c h5part_int32_t)
+  - \c H5PART_CHAR (for \c char)
+  - \c H5PART_STRING (for \c char*)
 
   \return	\c H5_SUCCESS
 */
@@ -677,23 +505,29 @@ H5PartGetDatasetInfo (
 	h5_int64_t *nelem	/*!< [out] Number of elements. */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
+	CHECK_FILEHANDLE ( f );
+	//CHECK_TIMEGROUP ( f );
 
-	return h5u_get_dataset_info (
-		f, idx, dataset_name, len_dataset_name, type, nelem );
+	return h5u_get_dataset_info(f, idx, dataset_name, len_dataset_name, type, nelem);
 }
 
 /*!
-  \ingroup h5part_c_api_read
+  \ingroup h5part_model
 
-  This gets the number of particles stored in the current step. 
-  It will arbitrarily select a time-step if you haven't already set
-  the step with \c H5PartSetStep().
+  This function returns the number of particles in the first dataset of
+  the current timestep (or in the first timestep if none has been set).
 
-  \return	number of particles in current step or an error
+  If you have neither set the number of particles (read or write)
+  nor set a view (read-only), then this returns the total number of
+  elements on disk of the first dataset if is exists. Otherwise,
+  it returns 0.
+
+  If you have set a view, this return the number of particles
+  in the view.
+
+  \return	number of particles in current timestep or an error
 		code.
  */
 h5_int64_t
@@ -701,58 +535,46 @@ H5PartGetNumParticles (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
+	CHECK_FILEHANDLE( f );
 
-	if ( f->step_gid < 0 ) {
-		h5_int64_t herr = h5_set_step ( f, 0 );
-		if ( herr < 0 ) return herr;
-	}
-
-	return h5u_get_num_elems ( f );
+	return h5u_get_num_particles( f );
 }
 
 /*!
-  \ingroup h5part_c_api_read
+  \ingroup h5part_model
 */
-h5_int64_t
+h5_err_t
 H5PartResetView (
  	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
-	SET_FNAME ( f, __func__ );
 
-	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
-		return h5_get_errno ( f );
-
-	CHECK_READONLY_MODE ( f );
+	SET_FNAME( f, __func__ );
 
 	return h5u_reset_view ( f );
 }
 
 /*!
-  \ingroup h5part_c_api_read
+  \ingroup h5part_model
 */
 h5_int64_t
 H5PartHasView (
  	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
-	SET_FNAME ( f, __func__ );
 
-	CHECK_FILEHANDLE( f );
-	CHECK_READONLY_MODE ( f );
+	SET_FNAME( f, __func__ );
 
-	return  h5u_has_view ( f );
+	return h5u_has_view ( f );
 }
 
-
 /*!
-  \ingroup h5part_c_api_read
+  \ingroup h5part_model
 
   For parallel I/O or for subsetting operations on the datafile, the
   \c H5PartSetView() function allows you to define a subset of the total
-  particle dataset to read.  The concept of "view" works for both serial
+  particle dataset to operate on.
+  The concept of "view" works for both serial
   and for parallel I/O.  The "view" will remain in effect until a new view
   is set, or the number of particles in a dataset changes, or the view is
   "unset" by calling \c H5PartSetView(file,-1,-1);
@@ -762,60 +584,98 @@ H5PartHasView (
   reads).  However, after you set a view, it will return the number of
   particles contained in the view.
 
-  The range is inclusive (the start and the end index).
+  The range is \e inclusive: the end value is the last index of the
+  data.
 
   \return	\c H5_SUCCESS or error code
 */
-h5_int64_t
+h5_err_t
 H5PartSetView (
 	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const h5_int64_t start,	/*!< [in]  Start particle */
-	const h5_int64_t end	/*!< [in]  End particle */
+	h5_int64_t start,	/*!< [in]  Start particle */
+	h5_int64_t end	/*!< [in]  End particle */
 	) {
 
-	SET_FNAME ( f, __func__ );
-
-	CHECK_FILEHANDLE( f );
-	CHECK_READONLY_MODE ( f );
-
-	if ( f->step_gid < 0 ) {
-		h5_int64_t herr = h5_set_step ( f, 0 );
-		if ( herr < 0 ) return herr;
-	}
-
+	SET_FNAME( f, __func__ );
+ 
 	return h5u_set_view ( f, start, end );
 }
 
 /*!
-  \ingroup h5part_c_api_read
+  \ingroup h5part_model
+
+  For parallel I/O or for subsetting operations on the datafile,
+  this function allows you to define a subset of the total
+  dataset to operate on by specifying a list of indices.
+  The concept of "view" works for both serial
+  and for parallel I/O.  The "view" will remain in effect until a new view
+  is set, or the number of particles in a dataset changes, or the view is
+  "unset" by calling \c H5PartSetViewIndices(NULL,0);
+
+  Before you set a view, the \c H5PartGetNumParticles() will return the
+  total number of particles in the current time-step (even for the parallel
+  reads).  However, after you set a view, it will return the number of
+  particles contained in the view.
+
+  \return	\c H5_SUCCESS or error code
+*/
+h5_err_t
+H5PartSetViewIndices (
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	const h5_int64_t *indices,	/*!< [in]  List of indices */
+	h5_int64_t nelems		/*!< [in]  Size of list */
+	) {
+
+	SET_FNAME( f, __func__ );
+
+	return h5u_set_view_indices ( f, indices, nelems );
+}
+
+/*!
+  \ingroup h5part_model
+
+  In MPI-IO collective mode, all MPI tasks must participate in I/O
+  operations. \c H5PartSetViewEmpty() allows a task to participate
+  but with an empty view of the file, so that it contributes no data
+  to the I/O operation.
+
+  \return	\c H5_SUCCESS or error code
+*/
+h5_err_t
+H5PartSetViewEmpty (
+	h5_file_t *f			/*!< [in]  Handle to open file */
+	) {
+
+	SET_FNAME( f, __func__ );
+
+	/* using a null indices list will set an empty view */
+	return h5u_set_view_indices ( f, NULL, 0 );
+}
+
+/*!
+  \ingroup h5part_model
 
    Allows you to query the current view. Start and End
    will be \c -1 if there is no current view established.
    Use \c H5PartHasView() to see if the view is smaller than the
    total dataset.
 
-   \return       the number of elements in the view 
+   \return	number of elements in the view or error code
 */
-h5_int64_t
+h5_err_t
 H5PartGetView (
 	h5_file_t *f,			/*!< [in]  Handle to open file */
 	h5_int64_t *start,		/*!< [out]  Start particle */
-	h5_int64_t *end		/*!< [out]  End particle */
+	h5_int64_t *end			/*!< [out]  End particle */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-	CHECK_FILEHANDLE( f );
-
-	if ( f->step_gid < 0 ) {
-		h5_int64_t herr = h5_set_step ( f, 0 );
-		if ( herr < 0 ) return herr;
-	}
 	return h5u_get_view( f, start, end );
 }
 
 /*!
-  \ingroup h5part_c_api_read
+  \ingroup h5part_model
 
   If it is too tedious to manually set the start and end coordinates
   for a view, the \c H5SetCanonicalView() will automatically select an
@@ -824,143 +684,13 @@ H5PartGetView (
 
   \return		H5_SUCCESS or error code
 */
-/*
-  \note
-  There is a bug in this function:
-  If (NumParticles % f->nprocs) != 0  then
-  the last  (NumParticles % f->nprocs) particles are not handled!
-*/
-
-h5_int64_t
+h5_err_t
 H5PartSetCanonicalView (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	SET_FNAME( f, __func__ );
 
-	h5_int64_t herr;
-
-	CHECK_FILEHANDLE( f );
-	CHECK_READONLY_MODE ( f )
-
-	if ( f->step_gid < 0 ) {
-		herr = h5_set_step ( f, 0 );
-		if ( herr < 0 ) return herr;
-	}
-
-	return h5u_set_canonical_view ( f );
+	return h5u_set_canonical_view( f );
 }
-
-/*!
-  \ingroup h5part_c_api_read
-
-  Read array of 64 bit floating point data from file.
-
-  When retrieving datasets from disk, you ask for them
-  by name. There are no restrictions on naming of arrays,
-  but it is useful to arrive at some common naming
-  convention when sharing data with other groups.
-
-  \return	\c H5_SUCCESS or error code
-*/
-h5_int64_t
-H5PartReadDataFloat64 (
-	h5_file_t *f,		/*!< [in] Handle to open file */
-	const char *name,	/*!< [in] Name to associate dataset with */
-	h5_float64_t *array	/*!< [out] Array of data */
-	) {
-
-	SET_FNAME ( f, __func__ );
-
-	CHECK_FILEHANDLE( f );
-
-	return h5u_read_elems ( f, name, array, H5T_NATIVE_DOUBLE );
-}
-
-/*!
-  \ingroup h5part_c_api_read
-
-  Read array of 64 bit floating point data from file.
-
-  When retrieving datasets from disk, you ask for them
-  by name. There are no restrictions on naming of arrays,
-  but it is useful to arrive at some common naming
-  convention when sharing data with other groups.
-
-  \return	\c H5_SUCCESS or error code
-*/
-h5_int64_t
-H5PartReadDataInt64 (
-	h5_file_t *f,		/*!< [in] Handle to open file */
-	const char *name,	/*!< [in] Name to associate dataset with */
-	h5_int64_t *array	/*!< [out] Array of data */
-	) {
-
-	SET_FNAME ( f, __func__ );
-	CHECK_FILEHANDLE( f );
-
-	return h5u_read_elems ( f, name, array, H5T_NATIVE_INT64 );
-}
-
-/*!
-  \ingroup h5part_c_api_read
-
-  This is the mongo read function that pulls in all of the data for a
-  given step in one shot. It also takes the step as an argument
-  and will call \c H5PartSetStep() internally so that you don't have to 
-  make that call separately.
-
-  \note
-  See also \c H5PartReadDataInt64() and \c H5PartReadDataFloat64() if you want
-  to just read in one of the many datasets.
-
-  \return	\c H5_SUCCESS or error code
-*/
-h5_int64_t
-H5PartReadParticleStep (
-	h5_file_t *f,		/*!< [in]  Handle to open file */
-	h5_int64_t step,	/*!< [in]  Step to read */
-	h5_float64_t *x,	/*!< [out] Buffer for dataset named "x" */
-	h5_float64_t *y,	/*!< [out] Buffer for dataset named "y" */
-	h5_float64_t *z,	/*!< [out] Buffer for dataset named "z" */
-	h5_float64_t *px,	/*!< [out] Buffer for dataset named "px" */
-	h5_float64_t *py,	/*!< [out] Buffer for dataset named "py" */
-	h5_float64_t *pz,	/*!< [out] Buffer for dataset named "pz" */
-	h5_int64_t *id	/*!< [out] Buffer for dataset named "id" */
-	) {
-
-	SET_FNAME ( f, __func__ );
-	h5_int64_t herr;
-
-	CHECK_FILEHANDLE( f );
-
-	herr = h5_set_step ( f, step );
-	if ( herr < 0 ) return herr;
-
-	herr = h5u_read_elems ( f, "x", (void*)x, H5T_NATIVE_DOUBLE );
-	if ( herr < 0 ) return herr;
-
-	herr = h5u_read_elems ( f, "y", (void*)y, H5T_NATIVE_DOUBLE );
-	if ( herr < 0 ) return herr;
-
-	herr = h5u_read_elems ( f, "z", (void*)z, H5T_NATIVE_DOUBLE );
-	if ( herr < 0 ) return herr;
-
-	herr = h5u_read_elems ( f, "px", (void*)px, H5T_NATIVE_DOUBLE );
-	if ( herr < 0 ) return herr;
-
-	herr = h5u_read_elems ( f, "py", (void*)py, H5T_NATIVE_DOUBLE );
-	if ( herr < 0 ) return herr;
-
-	herr = h5u_read_elems ( f, "pz", (void*)pz, H5T_NATIVE_DOUBLE );
-	if ( herr < 0 ) return herr;
-
-	herr = h5u_read_elems ( f, "id", (void*)id, H5T_NATIVE_INT64 );
-	if ( herr < 0 ) return herr;
-
-	return H5_SUCCESS;
-}
-
-/****************** error handling ******************/
-
 

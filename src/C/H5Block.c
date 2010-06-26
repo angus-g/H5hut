@@ -778,7 +778,7 @@ _open_block_group (
 			b->blockgroup = h5priv_open_group (
 				f,
 				f->step_gid,
-				H5BLOCK_GROUPNAME_BLOCK )
+				H5_BLOCKNAME )
 			);
 	}
 	b->step_idx = f->step_idx;
@@ -1366,7 +1366,7 @@ H5BlockGetNumFields (
 	SET_FNAME ( f, __func__ );
 	CHECK_TIMEGROUP( f );
 
-	if ( ! _have_object ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK ) )
+	if ( ! _have_object ( f->step_gid, H5_BLOCKNAME ) )
 		return 0;
 
 	return h5_get_num_hdf5_groups (f, f->b->blockgroup);
@@ -1826,7 +1826,7 @@ H5BlockHasFieldData (
 	SET_FNAME ( f, __func__ );
 	CHECK_TIMEGROUP( f );
 
-	if ( ! _have_object ( f->step_gid, H5BLOCK_GROUPNAME_BLOCK ) ) {
+	if ( ! _have_object ( f->step_gid, H5_BLOCKNAME ) ) {
 		return H5_ERR_NOENTRY;
 	}
 	return H5_SUCCESS;

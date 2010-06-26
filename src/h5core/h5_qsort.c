@@ -95,7 +95,11 @@ swapfunc(a, b, n, swaptype)
 static inline char *
 med3(char *a, char *b, char *c, cmp_t *cmp, void *thunk
 #ifndef I_AM_QSORT_R
+#if __GNUC__
+__attribute__((unused))
+#else
 __unused
+#endif
 #endif
 )
 {

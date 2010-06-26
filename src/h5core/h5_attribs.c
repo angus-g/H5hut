@@ -134,7 +134,7 @@ h5_get_attrib_info (
 */
 h5_ssize_t
 h5_get_num_attribs (
-	h5_file_t* const f,		/*!< handle to open file */
+	h5_file_t* f,		/*!< handle to open file */
 	const hid_t id
 	) {
 	CHECK_FILEHANDLE (f);

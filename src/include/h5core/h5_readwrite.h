@@ -37,4 +37,26 @@ h5_has_index (
 	h5_int64_t step		/*!< [in]  Step number to query */
 	);
 
+h5_err_t
+h5_normalize_dataset_name (
+	const char *name,
+	char *name2
+	);
+
+h5_err_t
+h5_set_throttle (
+	h5_file_t *f,
+	int factor
+	);
+
+h5_err_t
+h5_start_throttle (
+	h5_file_t *f
+	);
+
+h5_err_t
+h5_end_throttle (
+	h5_file_t *f
+	);
+
 #endif

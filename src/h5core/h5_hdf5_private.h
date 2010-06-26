@@ -142,6 +142,15 @@ h5priv_select_hyperslab_of_hdf5_dataspace (
 	const hsize_t* block
 	);
 
+herr_t
+h5priv_select_elements_of_hdf5_dataspace (
+	h5_file_t* const f,
+	hid_t space_id,
+	H5S_seloper_t op,
+	hsize_t nelems,
+	const hsize_t* indices
+	);
+
 hssize_t
 h5priv_get_selected_npoints_of_hdf5_dataspace (
 	h5_file_t* const f,
@@ -211,7 +220,14 @@ h5priv_set_hdf5_chunk_property (
 	h5_file_t* const f,
 	hid_t plist,
 	int ndims,
-	const hsize_t* dim
+	hsize_t* dim
+	);
+
+herr_t
+h5priv_set_hdf5_layout_property (
+	h5_file_t* const f,
+	hid_t plist,
+	H5D_layout_t layout
 	);
 
 #ifdef PARALLEL_IO
@@ -222,7 +238,44 @@ h5priv_set_hdf5_fapl_mpio_property (
 	MPI_Comm comm,
 	MPI_Info info
 	);
+
+h5_err_t
+h5priv_set_hdf5_fapl_mpiposix_property (
+	h5_file_t* const f,
+	hid_t fapl_id,
+	MPI_Comm comm,
+	hbool_t use_gpfs
+	);
+
+h5_err_t
+h5priv_set_hdf5_dxpl_mpio_property (
+	h5_file_t* const f,
+	hid_t dxpl_id,
+	H5FD_mpio_xfer_t mode
+	);
 #endif
+
+h5_err_t
+h5priv_set_hdf5_mdc_property (
+	h5_file_t* const f,
+	hid_t fapl_id,
+	H5AC_cache_config_t *config
+	);
+
+h5_err_t
+h5priv_get_hdf5_mdc_property (
+	h5_file_t* const f,
+	hid_t fapl_id,
+	H5AC_cache_config_t *config
+	);
+
+h5_err_t
+h5priv_set_hdf5_alignment_property (
+	h5_file_t* const f,
+	hid_t fapl_id,
+	hsize_t threshold,
+	hsize_t alignment
+	);
 
 h5_err_t
 h5priv_close_hdf5_property (

@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "h5_core.h"
 

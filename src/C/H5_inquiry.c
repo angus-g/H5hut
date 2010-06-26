@@ -30,13 +30,13 @@
   \return Number of compute notes.
   \return \c -1 on error.
  */
-h5_size_t
+int
 H5GetNumNodes (
 	h5_file_t* const f
 	) {
 	SET_FNAME (f, __func__);
 	CHECK_FILEHANDLE (f);
-	return (h5_size_t)f->nprocs;
+	return h5_get_num_procs(f);
 }
 
 /*!
@@ -60,10 +60,7 @@ H5GetNumSteps (
 	SET_FNAME (f, __func__);
 	CHECK_FILEHANDLE (f);
 
-	return h5_get_num_hdf5_groups_matching_prefix (
-		f,
-		f->step_gid,
-		f->prefix_step_name);
+	return h5_get_num_steps(f);
 }
 
 /*!

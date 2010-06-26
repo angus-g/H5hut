@@ -3,6 +3,9 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#if H5_LUSTRE
+#include <lustre/liblustreapi.h>
+#endif
 
 #include "h5_core.h"
 #include "h5_core_private.h"
@@ -63,13 +66,13 @@ h5upriv_open_file (
 	TRY( f->u = (h5u_fdata_t*)h5priv_alloc (f, NULL, sizeof (*f->u)) );
 	h5u_fdata_t *u = f->u;
 
- 	u->shape = 0;
 	u->diskshape = H5S_ALL;
 	u->memshape = H5S_ALL;
 	u->viewstart = -1;
 	u->viewend = -1;
-	size_t size = f->nprocs * sizeof (h5_int64_t);
-	TRY( u->pnparticles = h5priv_alloc (f, NULL, size) ); 
+        u->viewindexed = 0;
+
+	TRY( u->dcreate_prop = h5priv_create_hdf5_property(f, H5P_DATASET_CREATE) );
 
 	return H5_SUCCESS;
 }
@@ -84,7 +87,7 @@ h5upriv_open_file (
   \return	H5_SUCCESS or error code
 */
 static h5_int64_t
-h5bpriv_open_block (
+h5bpriv_open_file (
 	h5_file_t * const f		/*!< IN: file handle */
 	) {
 	h5b_fdata_t* b; 
@@ -126,13 +129,13 @@ h5_err_t
 h5priv_open_file (
 	h5_file_t* const f,
 	const char* filename,	/*!< The name of the data file to open. */
-	h5_int32_t flags,	/*!< The access mode for the file. */
+	char flags,		/*!< The access mode for the file. */
 	MPI_Comm comm		/*!< MPI communicator */
 	) {
 	h5_info (f, "Opening file %s.", filename);
 
 	TRY( h5priv_set_hdf5_errorhandler (f, H5E_DEFAULT, h5priv_error_handler, NULL) );
-	TRY( h5_set_stepname_fmt (f, H5PART_GROUPNAME_STEP, 0) );
+	TRY( h5_set_stepname_fmt (f, H5_STEPNAME, H5_STEPWIDTH) );
 
 	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
 
@@ -145,41 +148,64 @@ h5priv_open_file (
 	TRY( h5priv_mpi_comm_size (f, comm, &f->nprocs) );
 	TRY( h5priv_mpi_comm_rank (f, comm, &f->myproc) );
 	
-	/* for the SP2... perhaps different for linux */
-	MPI_Info info = MPI_INFO_NULL;
-	
-	/* ks: IBM_large_block_io */
-	MPI_Info_create (&info);
-	MPI_Info_set (info, "IBM_largeblock_io", "true" );
-	TRY( h5priv_set_hdf5_fapl_mpio_property (f, f->access_prop, comm, info) );
-	MPI_Info_free (&info);
-	
-	TRY( f->access_prop = h5priv_create_hdf5_property (f, H5P_FILE_ACCESS) );
-
-	/*TRY ( f->create_prop = h5priv_create_hdf5_property ( f, H5P_FILE_CREATE) );*/
-	f->create_prop = H5P_DEFAULT;
-
 	/* xfer_prop:  also used for parallel I/O, during actual writes
 	   rather than the access_prop which is for file creation. */
-	TRY( f->xfer_prop = h5priv_create_hdf5_property (f, H5P_DATASET_XFER) );
-	
-#ifdef COLLECTIVE_IO
-	if (H5Pset_dxpl_mpio (f->xfer_prop,H5FD_MPIO_COLLECTIVE) < 0) {
-		return HANDLE_H5P_SET_DXPL_MPIO_ERR;
+	TRY( f->xfer_prop = h5priv_create_hdf5_property(f, H5P_DATASET_XFER) );
+	TRY( f->access_prop = h5priv_create_hdf5_property(f, H5P_FILE_ACCESS) );
+	TRY( f->create_prop = h5priv_create_hdf5_property(f, H5P_FILE_CREATE) );
+
+	/* select the HDF5 VFD */
+	if (flags & H5_VFD_MPIPOSIX) {
+		h5_info(f, "Selecting MPI-POSIX VFD");
+		hbool_t use_gpfs = 0; // TODO autodetect GPFS?
+		TRY( h5priv_set_hdf5_fapl_mpiposix_property(f,
+				f->access_prop, comm, use_gpfs) );
+	} else {
+		h5_info(f, "Selecting MPI-IO VFD");
+		TRY( h5priv_set_hdf5_fapl_mpio_property(f,
+				f->access_prop, comm, MPI_INFO_NULL) );
+		if (flags & H5_VFD_INDEPENDENT) {
+			h5_info(f, "MPI-IO: Using independent mode");
+		} else {
+			h5_info(f, "MPI-IO: Using collective mode");
+			TRY( h5priv_set_hdf5_dxpl_mpio_property(f,
+				f->xfer_prop, H5FD_MPIO_COLLECTIVE) );
 		}
-#endif /* COLLECTIVE_IO */
+	}
+
+	/* defer metadata writes */
+	H5AC_cache_config_t config;
+	config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
+	TRY( h5priv_get_hdf5_mdc_property(f, f->access_prop, &config) );
+	config.set_initial_size = 1;
+	config.initial_size = 16 * 1024 * 1024;
+	config.evictions_enabled = 0;
+	config.incr_mode = H5C_incr__off;
+	config.decr_mode = H5C_decr__off;
+	config.flash_incr_mode = H5C_flash_incr__off;
+	TRY( h5priv_set_hdf5_mdc_property(f, f->access_prop, &config) );
 
 #endif /* PARALLEL_IO */
 
-	if (flags == H5_O_RDONLY) {
+#if H5_LUSTRE
+// set alignment
+	lov_user_md lum;
+	llapi_file_get_stripe(filename, &lum);
+	h5_size_t stripe_size = (h5_size_t)lum.lmm_stripe_size;
+	h5info(f, "Found lustre stripe size of %llu bytes", stripe_size);
+	TRY( h5priv_set_hdf5_alignment_property(f,
+				f->access_prop, 0, stripe_size) );
+#endif
+
+	if (flags & H5_O_RDONLY) {
 		f->file = H5Fopen (filename, H5F_ACC_RDONLY, f->access_prop);
 	}
-	else if (flags == H5_O_WRONLY){
+	else if (flags & H5_O_WRONLY){
 		f->file = H5Fcreate (filename, H5F_ACC_TRUNC, f->create_prop,
 				     f->access_prop);
 		f->empty = 1;
 	}
-	else if (flags == H5_O_APPEND || flags == H5_O_RDWR) {
+	else if (flags & H5_O_APPEND || flags & H5_O_RDWR) {
 		int fd = open (filename, O_RDONLY, 0);
 		if ((fd == -1) && (errno == ENOENT)) {
 			f->file = H5Fcreate (filename, H5F_ACC_TRUNC,
@@ -208,6 +234,7 @@ h5priv_open_file (
 	TRY( f->root_gid = h5priv_open_group (f,  f->file, "/" ));
 	f->mode = flags;
 	f->step_gid = -1;
+	f->throttle = 0;
 
 	sprintf (
 		f->step_name,
@@ -215,7 +242,7 @@ h5priv_open_file (
 		f->prefix_step_name, f->width_step_idx, (long long)f->step_idx);
 
 	TRY( h5upriv_open_file (f) );
-	TRY( h5bpriv_open_block (f) );
+	TRY( h5bpriv_open_file (f) );
 	TRY( h5tpriv_open_file (f) );
 	return H5_SUCCESS;
 }
@@ -271,7 +298,7 @@ h5upriv_close_file (
 	struct h5u_fdata* u = f->u;
 
 	f->__errno = H5_SUCCESS;
-	if (u->shape > 0) {
+	if(u->shape != H5S_ALL) {
 		TRY( h5priv_close_hdf5_dataspace (f, u->shape) );
 		u->shape = 0;
 	}
@@ -283,9 +310,7 @@ h5upriv_close_file (
 		TRY( h5priv_close_hdf5_dataspace (f, u->memshape) );
 		u->memshape = 0;
 	}
-	if (u->pnparticles) {
-		free (u->pnparticles);
-	}
+	TRY( h5priv_close_hdf5_property (f, u->dcreate_prop) );
 	return f->__errno;
 }
 
@@ -362,14 +387,16 @@ h5_err_t
 h5_set_stepname_fmt (
 	h5_file_t* const f,
 	const char* name,
-	const h5_int64_t width
+	int width
 	) {
+	if (width < 0) width = 0;
+	else if (width > H5_STEPNAME_LEN - 1) width = H5_STEPNAME_LEN - 1;
 	strncpy (
 		f->prefix_step_name,
 		name,
-		sizeof (f->prefix_step_name) - 1);
-	f->width_step_idx = (int)width;
-	
+		H5_STEPNAME_LEN - 1);
+	f->width_step_idx = width;
+
 	return H5_SUCCESS;
 }
 
@@ -384,8 +411,8 @@ h5_err_t
 h5_get_stepname_fmt (
 	h5_file_t* const f,		/*!< Handle to file		*/
 	char* name,			/*!< OUT: Prefix		*/
-	const h5_size_t l_name,		/*!< length of buffer name	*/
-	h5_size_t* width		/*!< OUT: Width of the number	*/
+	int l_name,			/*!< length of buffer name	*/
+	int* width	        	/*!< OUT: Width of the number	*/
 	) {
 	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
@@ -403,7 +430,38 @@ h5_get_step (
 	) {
 	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
-	
+
+/*!
+  \ingroup h5_core_filehandling
+
+  Get number of processes.
+
+  \return Number of processes or error code
+*/
+int
+h5_get_num_procs (
+	h5_file_t* const f		/*!< file handle		*/
+	) {
+	return f->nprocs;
+}
+
+/*!
+  \ingroup h5_core_filehandling
+
+  Get number of steps.
+
+  \return Number of steps or error code
+*/
+h5_size_t
+h5_get_num_steps(
+	h5_file_t* const f		/*!< file handle		*/
+	) {
+	return h5_get_num_hdf5_groups_matching_prefix (
+		f,
+		f->step_gid,
+		f->prefix_step_name);
+}
+
 /*!
   \ingroup h5_core_filehandling
 
