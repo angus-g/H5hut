@@ -396,6 +396,7 @@ src/h5core/h5_hdf5_private.h -text
 src/h5core/h5_hsearch.c -text
 src/h5core/h5_hsearch_private.h -text
 src/h5core/h5_maps.c -text
+src/h5core/h5_model.c -text
 src/h5core/h5_mpi.c -text
 src/h5core/h5_mpi_private.h -text
 src/h5core/h5_openclose.c -text
