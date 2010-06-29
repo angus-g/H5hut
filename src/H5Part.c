@@ -252,7 +252,7 @@ _H5Part_open_file (
 			}
 		} else if (flags & H5PART_VFD_CORE) {
 			_H5Part_print_info ( "Selecting CORE VFD" );
-			if (H5Pset_fapl_core ( f->access_prop, comm, 0 ) < 0) {
+			if (H5Pset_fapl_core ( f->access_prop, align, 1 ) < 0) {
 				HANDLE_H5P_SET_FAPL_ERR;
 				goto error_cleanup;
 			}
@@ -713,7 +713,11 @@ _set_num_particles (
 	register int i;
 #endif
 
+#ifdef PARALLEL_IO
+	if ( nparticles < 0 )
+#else
 	if ( nparticles <= 0 )
+#endif
 		return HANDLE_H5PART_INVALID_ERR ( "nparticles", nparticles );
 
 	/* prevent invalid stride value */	
@@ -725,6 +729,8 @@ _set_num_particles (
 	} else {
 		stride = (hsize_t) _stride;
 	}
+
+	if ( nparticles == 0 ) stride = 1;
 
 #ifndef PARALLEL_IO
 	/*
@@ -751,11 +757,14 @@ _set_num_particles (
 
 	f->nparticles = (hsize_t) nparticles;
 
-	/* declare local memory datasize with striding */
-	count = f->nparticles * stride;
-	f->memshape = H5Screate_simple ( 1, &count, &dmax );
-	if ( f->memshape < 0 )
-		return HANDLE_H5S_CREATE_SIMPLE_ERR ( f->nparticles );
+	if ( f->nparticles > 0 )
+	{
+		/* declare local memory datasize with striding */
+		count = f->nparticles * stride;
+		f->memshape = H5Screate_simple ( 1, &count, &dmax );
+		if ( f->memshape < 0 )
+			return HANDLE_H5S_CREATE_SIMPLE_ERR ( f->nparticles );
+	}
 
 	/* we need a hyperslab selection if there is striding
 	 * (otherwise, the default H5S_ALL selection is ok)
@@ -796,7 +805,7 @@ _set_num_particles (
 	*/
 
 	ret = MPI_Allgather (
-		&nparticles, 1, MPI_LONG_LONG,
+		(void*)&nparticles, 1, MPI_LONG_LONG,
 		f->pnparticles, 1, MPI_LONG_LONG,
 		f->comm );
 	if ( ret != MPI_SUCCESS) return HANDLE_MPI_ALLGATHER_ERR;
@@ -833,12 +842,16 @@ _set_num_particles (
 
 	count = nparticles;
 	stride = 1;
-	herr = H5Sselect_hyperslab (
-		f->diskshape,
-		H5S_SELECT_SET,
-		&start,
-		&stride,
-		&count, NULL );
+	if ( count > 0 ) {
+		herr = H5Sselect_hyperslab (
+			f->diskshape,
+			H5S_SELECT_SET,
+			&start,
+			&stride,
+			&count, NULL );
+	} else {
+		herr = H5Sselect_none ( f->diskshape );
+	}
 	if ( herr < 0 ) return HANDLE_H5S_SELECT_HYPERSLAB_ERR;
 #endif
 
@@ -2980,34 +2993,6 @@ H5PartSetViewIndices (
 	}
 
 	return _set_view_indices ( f, indices, nelems );
-}
-
-/*!
-  \ingroup h5part_model
-
-  In MPI-IO collective mode, all MPI tasks must participate in I/O
-  operations. \c H5PartSetViewEmpty() allows a task to participate
-  but with an empty view of the file, so that it contributes no data
-  to the I/O operation.
-
-  \return	\c H5PART_SUCCESS or error code
-*/
-h5part_int64_t
-H5PartSetViewEmpty (
-	H5PartFile *f			/*!< [in]  Handle to open file */
-	) {
-
-	SET_FNAME ( "H5PartSetViewEmpty" );
-
-	CHECK_FILEHANDLE( f );
-
-	if ( f->timegroup < 0 ) {
-		h5part_int64_t herr = _H5Part_set_step ( f, 0 );
-		if ( herr < 0 ) return herr;
-	}
-
-        /* using a null indices list will set an empty view */
-	return _set_view_indices ( f, NULL, 0 );
 }
 
 /*!

@@ -18,6 +18,9 @@ doc/Doxyfile -text
 doc/H5X_File_Format.txt -text
 doc/Makefile.am -text
 doc/doxyfooter -text
+examples/core_vfd.c -text
+examples/fields.c -text
+examples/particles.c -text
 examples/simplef.F90 -text
 examples/stridedf.F90 -text
 examples/write_setview.c -text
