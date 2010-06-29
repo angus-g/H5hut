@@ -3,7 +3,7 @@
 
 h5_int64_t
 h5u_get_num_particles (
-	h5_file_t *f			/*!< [in]  Handle to open file */
+	h5_file_t *const f      /*!< [in]  Handle to open file */
 	) {
 	h5_int64_t nparticles;
 	ssize_t exists;
@@ -72,13 +72,11 @@ h5u_get_num_particles (
 	return nparticles;
 }
 
-
-
 h5_int64_t
 h5u_set_num_particles (
-	h5_file_t *f,			/*!< [in] Handle to open file */
-	h5_int64_t nparticles,	/*!< [in] Number of particles */
-	h5_int64_t stride		/*!< [in] Stride of particles in memory */
+	h5_file_t *const f,		/*!< [in] Handle to open file */
+	const h5_int64_t nparticles,	/*!< [in] Number of particles */
+	const h5_int64_t stride		/*!< [in] Stride of particles in memory */
 	) {
 	CHECK_FILEHANDLE( f );
 	struct h5u_fdata *u = f->u;
@@ -200,14 +198,14 @@ h5u_set_num_particles (
 
 h5_int64_t
 h5u_has_view (
-	h5_file_t *f
+	const h5_file_t *const f
 	) {
 	return  ( f->u->viewindexed || ( f->u->viewstart >= 0 && f->u->viewend >= 0 ));
 }
 
 h5_err_t
 h5u_reset_view (
-	h5_file_t *f
+	h5_file_t *const f
 	) {	     
 
 	struct h5u_fdata *u = f->u;
@@ -225,9 +223,9 @@ h5u_reset_view (
 
 h5_err_t
 h5u_set_view (
-	h5_file_t *f,			/*!< [in]  Handle to open file */
+	h5_file_t *const f,		/*!< [in]  Handle to open file */
 	h5_int64_t start,		/*!< [in]  Start particle */
-	h5_int64_t end		/*!< [in]  End particle */
+	h5_int64_t end	        	/*!< [in]  End particle */
 	) {
 
 	h5_int64_t herr = 0;
@@ -308,9 +306,9 @@ h5u_set_view (
 
 h5_int64_t
 h5u_set_view_indices (
-	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const h5_int64_t *indices,	/*!< [in]  List of indices */
-	h5_int64_t nelems		/*!< [in]  Size of list */
+	h5_file_t *const f,	        	/*!< [in]  Handle to open file */
+	const h5_int64_t *const indices,	/*!< [in]  List of indices */
+	const h5_int64_t nelems		        /*!< [in]  Size of list */
 	) {
 
 	hsize_t total;
@@ -375,7 +373,7 @@ h5u_set_view_indices (
 
 h5_int64_t 
 h5u_get_view (
-	h5_file_t *f,
+	h5_file_t *const f,
 	h5_int64_t *start,
 	h5_int64_t *end
 	) {
@@ -410,7 +408,7 @@ h5u_get_view (
 
 h5_int64_t
 h5u_set_canonical_view (
-	h5_file_t *f
+	h5_file_t *const f
 	) {
 	TRY( h5u_reset_view ( f ) );
 
@@ -448,7 +446,7 @@ h5u_set_canonical_view (
 
 h5_int64_t
 h5u_get_num_datasets (
-	h5_file_t *f		/*!< [in]  Handle to open file */
+	h5_file_t *const f		/*!< [in]  Handle to open file */
 	) {
 	ssize_t n;
 	TRY ( n = h5_get_num_hdf5_datasets(f, f->step_gid ) );
@@ -460,8 +458,8 @@ h5u_get_num_datasets (
  */
 h5_int64_t
 h5u_get_dataset_info (
-	h5_file_t *f,		/*!< [in]  Handle to open file */
-	const h5_int64_t idx,/*!< [in]  Index of the dataset */
+	h5_file_t *const f,	/*!< [in]  Handle to open file */
+	const h5_int64_t idx,   /*!< [in]  Index of the dataset */
 	char *dataset_name,	/*!< [out] Name of dataset */
 	const h5_int64_t len_dataset_name,
 				/*!< [in]  Size of buffer \c dataset_name */
@@ -493,8 +491,8 @@ h5u_get_dataset_info (
 
 h5_err_t
 h5u_set_chunk (
-        h5_file_t *f,
-        h5_size_t size
+        h5_file_t *const f,
+        const h5_size_t size
         ) {
 
 	if ( f->u->dcreate_prop == H5P_DEFAULT ) {

@@ -5,8 +5,8 @@
 #include "h5_core.h"
 #include "h5_core_private.h"
 
-static h5_errorhandler_t	h5priv_errhandler = h5_report_errorhandler;
-static h5_int32_t h5priv_debuglevel = 0;
+static h5_errorhandler_t	h5priv_errhandler	= h5_report_errorhandler;
+static h5_int32_t		h5priv_debug_level	= 0;
 
 /*!
   \ingroup h5_core
@@ -34,11 +34,11 @@ const char* const H5_O_MODES[] = {
   \return \c H5_ERR_INVAL if debug level is invalid.
 */
 h5_err_t
-h5_set_debuglevel (
-	h5_id_t debuglevel	/*!< debug level */
+h5_set_debug_level (
+	const h5_id_t level	/*!< debug level */
 	) {
-	if (debuglevel < 0 || debuglevel > 5) return H5_ERR_INVAL;
-	h5priv_debuglevel = debuglevel;
+	if (level < 0 || level > 5) return H5_ERR_INVAL;
+	h5priv_debug_level = level;
 	return H5_SUCCESS;
 }
 
@@ -50,10 +50,10 @@ h5_set_debuglevel (
   \return current debug level
 */
 h5_id_t
-h5_get_debuglevel (
+h5_get_debug_level (
 	void
 	) {
-	return h5priv_debuglevel;
+	return h5priv_debug_level;
 }
 
 /*!
@@ -65,7 +65,7 @@ h5_get_debuglevel (
 */
 h5_err_t
 h5_set_errorhandler (
-	h5_errorhandler_t handler
+	const h5_errorhandler_t handler
 	) {
 	h5priv_errhandler = handler;
 	return H5_SUCCESS;
@@ -94,7 +94,7 @@ h5_get_errorhandler (
 */
 h5_err_t
 h5_get_errno (
-	h5_file_t* const f
+	const h5_file_t* const f
 	) {
 	return f->__errno;
 }
@@ -109,9 +109,9 @@ h5_get_errno (
 void
 h5_set_errno (
 	h5_file_t* const f,
-	h5_err_t h5_errno
+	const h5_err_t errno
 	) {
-	f->__errno = h5_errno;
+	f->__errno = errno;
 }
 
 
@@ -125,12 +125,12 @@ h5_set_errno (
 */
 h5_err_t
 h5_report_errorhandler (
-	h5_file_t* const f,
+	const h5_file_t* const f,
 	const char* fmt,
 	va_list ap
 	) {
 
-	if (h5priv_debuglevel > 0) {
+	if (h5priv_debug_level > 0) {
 		h5_verror (f, fmt, ap);
 	}
 	return f->__errno;
@@ -144,12 +144,12 @@ h5_report_errorhandler (
 */
 h5_err_t
 h5_abort_errorhandler (
-	h5_file_t* const f,
+	const h5_file_t* const f,
 	const char* fmt,
 	va_list ap
 	) {
 
-	if (h5priv_debuglevel > 0) {
+	if (h5priv_debug_level > 0) {
 		h5_verror (f, fmt, ap);
 	}
 	exit (-(int)f->__errno);
@@ -183,7 +183,7 @@ _vprintf (
 h5_err_t
 h5_error (
 	h5_file_t* const f,
-	h5_err_t __errno,
+	const h5_err_t __errno,
 	const char* fmt,
 	...
 	) {
@@ -204,12 +204,12 @@ h5_error (
 */
 void
 h5_verror (
-	h5_file_t* const f,
+	const h5_file_t* const f,
 	const char* fmt,
 	va_list ap
 	) {
 
-	if (h5priv_debuglevel < 1) return;
+	if (h5priv_debug_level < 1) return;
 	_vprintf (stderr, "E", f->__funcname, fmt, ap);
 }
 
@@ -221,11 +221,11 @@ h5_verror (
 */
 void
 h5_vwarn (
-	h5_file_t* const f,
+	const h5_file_t* const f,
 	const char* fmt,
 	va_list ap
 	) {
-	if (h5priv_debuglevel < 2) return;
+	if (h5priv_debug_level < 2) return;
 	_vprintf (stderr, "W", f->__funcname, fmt, ap);
 }
 
@@ -236,8 +236,8 @@ h5_vwarn (
 */
 void
 h5_warn (
-h5_file_t* const f,
-		const char* fmt,
+	const h5_file_t* const f,
+	const char* fmt,
 	...
 	) {
 	va_list ap;
@@ -253,11 +253,11 @@ h5_file_t* const f,
 */
 void
 h5_vinfo (
-	h5_file_t* const f,
+	const h5_file_t* const f,
 	const char* fmt,
 	va_list ap
 	) {
-	if (h5priv_debuglevel < 3) return;
+	if (h5priv_debug_level < 3) return;
 	_vprintf (stdout, "I", f->__funcname, fmt, ap);
 }
 
@@ -268,7 +268,7 @@ h5_vinfo (
 */
 void
 h5_info (
-	h5_file_t* const f,
+	const h5_file_t* const f,
 	const char* fmt,
 	...
 	) {
@@ -285,11 +285,11 @@ h5_info (
 */
 void
 h5_vdebug (
-	h5_file_t* const f,
+	const h5_file_t* const f,
 	const char* fmt,
 	va_list ap
 	) {
-	if (h5priv_debuglevel < 4) return;
+	if (h5priv_debug_level < 4) return;
 	_vprintf (stdout, "D", f->__funcname, fmt, ap);
 }
 
@@ -300,7 +300,7 @@ h5_vdebug (
 */
 void
 h5_debug (
-	h5_file_t* const f,
+	const h5_file_t* const f,
 	const char* fmt,
 	...
 	) {
@@ -330,7 +330,7 @@ h5_set_funcname (
 */
 const char*
 h5_get_funcname (
-	h5_file_t* const f
+	const h5_file_t* const f
 	) {
 	return f->__funcname;
 }

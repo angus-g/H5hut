@@ -191,10 +191,14 @@ h5priv_open_file (
 // set alignment
 	lov_user_md lum;
 	llapi_file_get_stripe(filename, &lum);
-	h5_size_t stripe_size = (h5_size_t)lum.lmm_stripe_size;
-	h5info(f, "Found lustre stripe size of %llu bytes", stripe_size);
+	hsize_t stripe_size = (hsize_t)lum.lmm_stripe_size;
+	h5info(f, "Found lustre stripe size of %lld bytes", (long long)stripe_size);
 	TRY( h5priv_set_hdf5_alignment_property(f,
 				f->access_prop, 0, stripe_size) );
+	hsize_t btree_ik = (stripe_size - 4096) / 96;
+	hsize_t btree_bytes = 64 + 96*btree_ik;
+	h5info(f, "Using %lld bytes for HDF5 btree", (long long)btree_bytes);
+	TRY( h5priv_set_hdf5_btree_ik_property(f, f->create_prop, btree_ik) );
 #endif
 
 	if (flags & H5_O_RDONLY) {

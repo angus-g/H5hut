@@ -1,11 +1,18 @@
 #include "h5_core.h"
 #include "h5_core_private.h"
 
-/*!
-  \ingroup h5_core
-  \defgroup h5_core_attrib	Attribute handling
+static h5_err_t
+_get_hdf5_obj_id(
+	h5_file_t *const f,
+	const char type,
+	hid_t *id
+	) {
+	if (type == H5_ATTRIB_FILE) *id = f->root_gid;
+	else if (type == H5_ATTRIB_STEP) *id = f->step_gid;
+	else h5_error(f, H5_ERR_INVAL, "Attibute flag not recognized");
+	return H5_SUCCESS;
+}
 
-*/
 /*!
   \ingroup h5_core_attrib
 
@@ -18,7 +25,7 @@
 h5_err_t
 h5_read_attrib (
 	h5_file_t* const f,		/*!< handle to open file */
-	const hid_t id,			/*!< id of HDF5 object */
+	const char type,		/*!< FILE or STEP flag */
 	const char* attrib_name,	/*!< name of HDF5 attribute to read */
 	void* const attrib_value	/*!< OUT: attribute value */
 	) {
@@ -27,6 +34,9 @@ h5_read_attrib (
 	hid_t type_id;
 	hid_t mytype;
 	hsize_t nelem;
+
+	hid_t id;
+	TRY( _get_hdf5_obj_id(f, type, &id) );
 
 	TRY( attrib_id = h5priv_open_hdf5_attribute (f, id, attrib_name) );
 	TRY( mytype = h5priv_get_hdf5_attribute_type (f, attrib_id) );
@@ -51,7 +61,7 @@ h5_read_attrib (
 h5_err_t
 h5_write_attrib (
 	h5_file_t* const f,		/*!< handle to open file */
-	const hid_t id,			/*!< id of HDF5 object */
+	const char type,		/*!< FILE or STEP flag */
 	const char* attrib_name,	/*!< name of HDF5 attribute to write */
 	const hid_t attrib_type,	/*!< HDF5 type of attribute */
 	const void* attrib_value,	/*!< value of attribute */
@@ -59,6 +69,9 @@ h5_write_attrib (
 	) {
 	hid_t space_id;
 	hid_t attrib_id;
+
+	hid_t id;
+	TRY( _get_hdf5_obj_id(f, type, &id) );
 
 	TRY( space_id = h5priv_create_hdf5_dataspace (f, 1, &attrib_nelem, NULL) );
 	TRY( attrib_id = h5priv_create_hdf5_attribute ( 
@@ -86,7 +99,7 @@ h5_write_attrib (
 h5_err_t
 h5_get_attrib_info (
 	h5_file_t* const f,		/*!< handle to open file */
-	const hid_t id,			/*!< id of HDF5 object */
+	const char type,		/*!< FILE or STEP flag */
 	const h5_int64_t attrib_idx,	/*!< index of attribute */
 	char* attrib_name,		/*!< OUT: name of attribute */
 	const h5_int64_t len_attrib_name, /*!< buffer length */
@@ -96,6 +109,9 @@ h5_get_attrib_info (
 	hid_t attrib_id;
 	hid_t mytype;
 	hid_t space_id;
+
+	hid_t id;
+	TRY( _get_hdf5_obj_id(f, type, &id) );
 
 	TRY( attrib_id = h5priv_open_hdf5_attribute_idx (
 		      f,
@@ -134,9 +150,12 @@ h5_get_attrib_info (
 */
 h5_ssize_t
 h5_get_num_attribs (
-	h5_file_t* f,		/*!< handle to open file */
-	const hid_t id
+	h5_file_t *const f,	/*!< handle to open file */
+	const char type		/*!< FILE or STEP flag */
 	) {
 	CHECK_FILEHANDLE (f);
+	hid_t id;
+	TRY( _get_hdf5_obj_id(f, type, &id) );
 	return h5priv_get_num_hdf5_attribute (f, id);
 }
+

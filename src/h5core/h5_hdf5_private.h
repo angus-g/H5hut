@@ -272,9 +272,16 @@ h5priv_get_hdf5_mdc_property (
 h5_err_t
 h5priv_set_hdf5_alignment_property (
 	h5_file_t* const f,
-	hid_t fapl_id,
-	hsize_t threshold,
-	hsize_t alignment
+	const hid_t fapl_id,
+	const hsize_t threshold,
+	const hsize_t alignment
+	);
+
+h5_err_t
+h5priv_set_hdf5_btree_ik_property (
+	h5_file_t* const f,
+	const hid_t fcpl_id,
+	const hsize_t btree_ik
 	);
 
 h5_err_t

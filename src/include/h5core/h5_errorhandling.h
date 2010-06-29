@@ -44,18 +44,18 @@
 
 
 h5_err_t
-h5_set_debuglevel (
-	h5_id_t debuglevel
+h5_set_debug_level (
+	const h5_id_t level
 	);
 
 h5_err_t
-h5_get_debuglevel (
+h5_get_debug_level (
 	void
 	);
 
 h5_err_t
 h5_set_errorhandler (
-	h5_errorhandler_t errorhandler
+	const h5_errorhandler_t errorhandler
 	);
 
 h5_errorhandler_t
@@ -65,33 +65,33 @@ h5_get_errorhandler (
 
 h5_err_t
 h5_get_errno (
-	h5_file_t * const f
+	const h5_file_t * const f
 	);
 
 void
 h5_set_errno (
 	h5_file_t * const f,
-	h5_err_t h5_errno
+	const h5_err_t h5_errno
 	);
 
 h5_err_t
 h5_report_errorhandler (
-	h5_file_t * const f,
+	const h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 h5_err_t
 h5_abort_errorhandler (
-	h5_file_t * const f,
+	const h5_file_t * const f,
 	const char *fmt,
 	va_list ap
-	) ;
+	);
 
 h5_err_t
 h5_error (
 	h5_file_t * const f,
-	h5_err_t error_no,
+	const h5_err_t error_no,
 	const char *fmt,
 	...
 	)
@@ -102,21 +102,21 @@ h5_error (
 
 void
 h5_verror (
-	h5_file_t * const f,
+	const h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 void
 h5_vwarn (
-	h5_file_t * const f,
+	const h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 void
 h5_warn (
-	h5_file_t * const f,
+	const h5_file_t * const f,
 	const char *fmt,
 	...
 	)
@@ -127,14 +127,14 @@ __attribute__ ((format (printf, 2, 3)))
 
 void
 h5_vinfo (
-	h5_file_t * const f,
+	const h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 void
 h5_info (
-	h5_file_t * const f,
+	const h5_file_t * const f,
 	const char *fmt,
 	...
 	)
@@ -145,14 +145,14 @@ __attribute__ ((format (printf, 2, 3)))
 
 void
 h5_vdebug (
-	h5_file_t * const f,
+	const h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 void
 h5_debug (
-	h5_file_t * const f,
+	const h5_file_t * const f,
 	const char *fmt,
 	...
 	)
@@ -169,7 +169,7 @@ h5_set_funcname (
 
 const char *
 h5_get_funcname (
-	h5_file_t * const f
+	const h5_file_t * const f
 	);
 
 #endif

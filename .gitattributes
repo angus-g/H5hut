@@ -374,7 +374,7 @@ src/C/H5Fed_retrieve.c -text
 src/C/H5Fed_store.c -text
 src/C/H5Fed_tags.c -text
 src/C/H5Part.c -text
-src/C/H5_attrib.c -text
+src/C/H5_attribs.c -text
 src/C/H5_inquiry.c -text
 src/C/Makefile.am -text
 src/Fortran/H5BlockF.c -text
@@ -458,6 +458,7 @@ src/include/H5Fed_retrieve.h -text
 src/include/H5Fed_store.h -text
 src/include/H5Fed_tags.h -text
 src/include/H5Part.h -text
+src/include/H5_attribs.h -text
 src/include/H5_inquiry.h -text
 src/include/h5core/h5_attribs.h -text
 src/include/h5core/h5_core.h -text

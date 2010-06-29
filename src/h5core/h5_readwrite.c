@@ -280,15 +280,15 @@ h5_get_dataset_type(
 	return type;
 }
 
-h5_int64_t
+h5_err_t
 h5_has_index (
-	h5_file_t* const f,    	/*!< [in]  Handle to open file */
-	h5_int64_t step	       	/*!< [in]  Step number to query */
+	h5_file_t* const f,		/*!< [in]  Handle to open file */
+	const h5_int64_t step	/*!< [in]  Step number to query */
 	) {
-	char name[128];
+	char name[2*H5_STEPNAME_LEN];
 	sprintf (name,
-		 "%s#%0*lld",
-		 f->prefix_step_name, f->width_step_idx, (long long)step);
+		"%s#%0*lld",
+		f->prefix_step_name, f->width_step_idx, (long long)step);
 	return (H5Gget_objinfo(f->file, name, 1, NULL) >= 0);
 }
 
@@ -305,14 +305,14 @@ h5_normalize_dataset_name (
 		strcpy ( name2, name );
 	}
 
-        return H5_SUCCESS;
+	return H5_SUCCESS;
 }
 
 #ifdef PARALLEL_IO
 h5_err_t
 h5_set_throttle (
-	h5_file_t* f,
-	int factor
+	h5_file_t* const f,
+	const int factor
 	) {
 	if ( (f->mode & H5_VFD_INDEPENDENT) || (f->mode & H5_VFD_MPIPOSIX) ) {
 		f->throttle = factor;
@@ -329,7 +329,7 @@ h5_set_throttle (
 
 h5_err_t
 h5_start_throttle (
-	h5_file_t *f
+	h5_file_t* const f
 	) {
 
 	if (f->throttle > 0) {
@@ -358,7 +358,7 @@ h5_start_throttle (
 
 h5_err_t
 h5_end_throttle (
-	h5_file_t *f
+	h5_file_t* const f
 	) {
 
 	if (f->throttle > 0) {

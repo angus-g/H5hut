@@ -5,7 +5,7 @@
 
 h5_err_t
 h5priv_mpi_recv(
-	h5_file_t *f,
+	h5_file_t *const f,
 	void* buf,
 	const int count,
 	const MPI_Datatype type,
@@ -54,7 +54,7 @@ h5_err_t
 h5priv_mpi_sum (
 	h5_file_t* const f,
 	void* sendbuf,
-        void* recvbuf,
+	void* recvbuf,
 	const int count,
 	const MPI_Datatype type,
 	const MPI_Comm comm
@@ -76,7 +76,7 @@ h5_err_t
 h5priv_mpi_prefix_sum (
 	h5_file_t* const f,
 	void* sendbuf,
-        void* recvbuf,
+	void* recvbuf,
 	const int count,
 	const MPI_Datatype type,
 	const MPI_Comm comm

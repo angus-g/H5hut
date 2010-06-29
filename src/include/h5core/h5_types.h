@@ -57,7 +57,7 @@ struct h5_file;
 typedef struct h5_file h5_file_t;
 
 typedef h5_err_t (*h5_errorhandler_t)(
-	struct h5_file * const,
+	const struct h5_file * const,
 	const char*,
 	va_list ap );
 

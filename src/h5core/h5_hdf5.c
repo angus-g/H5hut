@@ -812,9 +812,9 @@ h5priv_get_hdf5_mdc_property (
 h5_err_t
 h5priv_set_hdf5_alignment_property (
 	h5_file_t* const f,
-	hid_t fapl_id,
-	hsize_t threshold,
-	hsize_t alignment
+	const hid_t fapl_id,
+	const hsize_t threshold,
+	const hsize_t alignment
 	) {
 	herr_t herr = H5Pset_alignment (fapl_id, threshold, alignment);
 	if (herr < 0)
@@ -822,6 +822,22 @@ h5priv_set_hdf5_alignment_property (
 			f,
 			H5_ERR_HDF5,
 			"Cannot set alignment in the "
+			"file access property list.");
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5priv_set_hdf5_btree_ik_property (
+	h5_file_t* const f,
+	const hid_t fcpl_id,
+	const hsize_t btree_ik
+	) {
+	herr_t herr = H5Pset_istore_k (fcpl_id, btree_ik);
+	if (herr < 0)
+		h5_error (
+			f,
+			H5_ERR_HDF5,
+			"Cannot set btree size in the "
 			"file access property list.");
 	return H5_SUCCESS;
 }
