@@ -44,7 +44,7 @@ h5priv_error_handler (
 	hid_t estack_id,
 	void* __f
 	) {
-	if (h5_get_debuglevel () >= 5) {
+	if (h5_get_debug_level () >= 5) {
 		H5Eprint (estack_id, stderr);
 	}
 	return 0;
