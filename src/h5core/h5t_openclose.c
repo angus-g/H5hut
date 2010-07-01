@@ -19,7 +19,7 @@ static struct h5t_methods tri_funcs = {
   create several HDF5 types
 */
 static h5_err_t
-_create_array_types (
+create_array_types (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -53,7 +53,7 @@ _create_array_types (
 }
 
 static h5_err_t
-_create_vertex_type (
+create_vertex_type (
 	h5_file_t* const f
 	) {
 	h5_dtypes_t* dtypes = &f->t->dtypes;
@@ -82,7 +82,7 @@ _create_vertex_type (
 }
 
 static h5_err_t
-_create_triangle_type (
+create_triangle_type (
 	h5_file_t* const f
 	) {
 	h5_dtypes_t* dtypes = &f->t->dtypes;
@@ -125,7 +125,7 @@ _create_triangle_type (
 }
 
 static h5_err_t
-_create_tag_types (
+create_tag_types (
 	h5_file_t* const f
 	) {
 	h5_dtypes_t* dtypes = &f->t->dtypes;
@@ -154,7 +154,7 @@ _create_tag_types (
 }
 
 static h5_err_t
-_create_tet_type (
+create_tet_type (
 	h5_file_t* const f
 	) {
 	h5_dtypes_t* dtypes = &f->t->dtypes;
@@ -213,7 +213,7 @@ h5priv_set_dataset_properties (
 #endif
 
 static h5_err_t
-_init_fdata (
+init_fdata (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -338,12 +338,12 @@ h5tpriv_open_file (
 	t->dtypes.h5_int64_t = H5_INT64_T;
 	t->dtypes.h5_float64_t = H5_FLOAT64_T;
 
-	TRY( _create_array_types (f) );
-	TRY( _create_vertex_type (f) );
-	TRY( _create_triangle_type (f) );
-	TRY( _create_tet_type (f) );
-	TRY( _create_tag_types (f) );
-	TRY( _init_fdata (f) );
+	TRY( create_array_types (f) );
+	TRY( create_vertex_type (f) );
+	TRY( create_triangle_type (f) );
+	TRY( create_tet_type (f) );
+	TRY( create_tag_types (f) );
+	TRY( init_fdata (f) );
 
 	return H5_SUCCESS;
 }
@@ -489,7 +489,7 @@ h5t_open_mesh (
 }
 
 static h5_err_t
-_release_elems (
+release_elems (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -503,7 +503,7 @@ _release_elems (
 }
 
 static h5_err_t
-_release_vertices (
+release_vertices (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -516,15 +516,15 @@ _release_vertices (
 }
 
 static h5_err_t
-_release_memory (
+release_memory (
 	h5_file_t* const f
 	) {
 	TRY( h5tpriv_release_tags (f) );
 	if (f->t->methods.adjacency != NULL) {
 		TRY( (*f->t->methods.adjacency->release_internal_structs) (f) );
 	}
-	TRY( _release_elems (f) );
-	TRY( _release_vertices (f) );
+	TRY( release_elems (f) );
+	TRY( release_vertices (f) );
 
 	return H5_SUCCESS;
 }
@@ -534,8 +534,8 @@ h5t_close_mesh (
 	h5_file_t* const f
 	) {
 	TRY( h5tpriv_write_mesh (f) );
-	TRY( _release_memory (f) );
-	TRY( _init_fdata (f) );
+	TRY( release_memory (f) );
+	TRY( init_fdata (f) );
 
 	return H5_SUCCESS;
 }
