@@ -1183,7 +1183,7 @@ h5_get_num_hdf5_groups (
 	) {
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
-	op_data.type = H5G_GROUP;
+	op_data.type = (H5L_type_t)H5G_GROUP;
 	hsize_t start_idx = 0;
 	herr_t herr = H5Literate (loc_id, H5_INDEX_NAME, H5_ITER_INC,
 				  &start_idx,
@@ -1206,7 +1206,7 @@ h5_get_num_hdf5_groups_matching_prefix (
 	) {
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
-	op_data.type = H5G_GROUP;
+	op_data.type = (H5L_type_t)H5G_GROUP;
 	op_data.prefix = prefix;
 	hsize_t start_idx = 0;
 	herr_t herr = H5Literate (loc_id, H5_INDEX_NAME, H5_ITER_INC,
@@ -1232,7 +1232,7 @@ h5_get_hdf5_groupname_by_idx (
 	) {
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
-	op_data.type = H5G_GROUP;
+	op_data.type = (H5L_type_t)H5G_GROUP;
 	op_data.cnt = -1;
 	op_data.queried_idx = idx;
 	hsize_t start_idx = 0;
@@ -1257,7 +1257,7 @@ h5_get_num_hdf5_datasets (
 	) {
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
-	op_data.type = H5G_DATASET;
+	op_data.type = (H5L_type_t)H5G_DATASET;
 	hsize_t start_idx = 0;
 	herr_t herr = H5Literate (loc_id, H5_INDEX_NAME, H5_ITER_INC,
 				  &start_idx,
@@ -1286,7 +1286,7 @@ h5_get_hdf5_datasetname_by_idx (
 	return H5_SUCCESS;
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
-	op_data.type = H5G_DATASET;
+	op_data.type = (H5L_type_t)H5G_DATASET;
 	op_data.cnt = -1;
 	op_data.queried_idx = idx;
 	hsize_t start_idx = 0;
