@@ -134,6 +134,10 @@ h5tpriv_find_te (
 		     &__entry,
 		     &f->t->adjacencies.te_hash) );
 	h5t_te_entry_t* entry = (h5t_te_entry_t*)__entry;
+	if (entry ==NULL) {
+		// not found
+		return H5_NOK;
+	}
 	*retval = &entry->value;
 	return H5_SUCCESS;
 }
