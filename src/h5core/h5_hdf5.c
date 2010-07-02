@@ -750,7 +750,7 @@ h5priv_set_hdf5_fapl_mpiposix_property (
 	MPI_Comm comm,
 	hbool_t	use_gpfs
 	) {
-	herr_t herr = H5Pset_fapl_mpio (fapl_id, comm, use_gpfs);
+	herr_t herr = H5Pset_fapl_mpiposix (fapl_id, comm, use_gpfs);
 	if (herr < 0)
 		h5_error (
 			f,
