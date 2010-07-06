@@ -14,6 +14,11 @@
 #include "h5t_storemesh.h"
 #include "h5t_tags.h"
 
+
+#if !(defined(ULLONG_MAX))
+#define ULLONG_MAX  (ULONG_MAX * 2ULL + 1ULL)
+#endif
+
 /*
  ID's: 64bit
 
