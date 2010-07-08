@@ -460,6 +460,7 @@ src/include/H5Fed_tags.h -text
 src/include/H5Part.h -text
 src/include/H5_attribs.h -text
 src/include/H5_inquiry.h -text
+src/include/H5hut.h -text
 src/include/h5core/h5_attribs.h -text
 src/include/h5core/h5_core.h -text
 src/include/h5core/h5_errno.h -text
