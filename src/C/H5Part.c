@@ -162,7 +162,7 @@ H5PartSetNumParticlesStrided (
 
   Define the chunk \c size and enables chunking in the underlying
   HDF5 layer. When combined with the \c align value in the
-  \ref H5PartOpenFileAlign or \ref H5PartOpenFileParallelAlign
+  \ref H5OpenFileAlign or \ref H5OpenFileParallelAlign
   function, this causes each group of \c size particles to be
   padded on disk out to the nearest multiple of \c align bytes.
 
