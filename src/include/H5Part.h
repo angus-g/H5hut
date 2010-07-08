@@ -49,30 +49,6 @@ extern "C" {
 #define H5PART_FLOAT64		((h5_int64_t)H5T_NATIVE_DOUBLE)
 #define H5PART_CHAR		((h5_int64_t)H5T_NATIVE_CHAR)
 
-/*========== File Opening/Closing ===============*/
-h5_file_t *
-H5PartOpenFile(
-	const char *filename,
-	const unsigned flags
-	);
-
-#define H5PartOpenFileSerial(x,y) H5PartOpenFile(x,y)
-
-#ifdef PARALLEL_IO
-h5_file_t *
-H5PartOpenFileParallel (
-	const char *filename,
-	const unsigned flags,
-	MPI_Comm communicator
-	);
-#endif
-
-
-h5_int64_t
-H5PartCloseFile (
-	h5_file_t *f
-	);
-
 
 /*============== File Writing Functions ==================== */
 h5_int64_t
@@ -103,12 +79,6 @@ H5PartWriteDataInt64 (
 	);
 
 /*================== File Reading Routines =================*/
-h5_int64_t
-H5PartSetStep (
-	h5_file_t *f,
-	const h5_int64_t step
-	);
-
 h5_int64_t
 H5PartGetNumDatasets (
 	h5_file_t *f
@@ -194,89 +164,6 @@ H5PartReadParticleStep (
 	h5_int64_t *id /* and phase */
 	);
 
-/**********==============Attributes Interface============***************/
-/* currently there is file attributes:  Attributes bound to the file
-   and step attributes which are bound to the current step.  You 
-   must set the step explicitly before writing the attributes (just
-   as you must do when you write a new dataset.  Currently there are no
-   attributes that are bound to a particular data array, but this could
-   easily be done if required.
-*/
-h5_int64_t
-H5PartWriteStepAttrib (
-	h5_file_t *f,
-	const char *attrib_name,
-	const h5_int64_t attrib_type,
-	const void *attrib_value,
-	const h5_int64_t attrib_nelem
-	);
-
-h5_int64_t
-H5PartWriteFileAttrib (
-	h5_file_t *f,
-	const char *attrib_name,
-	const h5_int64_t attrib_type,
-	const void *attrib_value,
-	const h5_int64_t attrib_nelem
-	);
-
-h5_int64_t
-H5PartWriteFileAttribString (
-	h5_file_t *f,
-	const char *name,
-	const char *attrib
-	);
-
-h5_int64_t
-H5PartWriteStepAttribString ( 
-	h5_file_t *f,
-	const char *name,
-	const char *attrib
-	);
-
-h5_int64_t
-H5PartGetNumStepAttribs ( /* for current filestep */
-	h5_file_t *f
-	);
-
-h5_int64_t
-H5PartGetNumFileAttribs (
-	h5_file_t *f
-	);
-
-h5_int64_t
-H5PartGetStepAttribInfo (
-	h5_file_t *f,
-	const h5_int64_t attrib_idx,
-	char *attrib_name,
-	const h5_int64_t len_of_attrib_name,
-	h5_int64_t *attrib_type,
-	h5_int64_t *attrib_nelem
-	);
-
-h5_int64_t
-H5PartGetFileAttribInfo (
-	h5_file_t *f,
-	const h5_int64_t idx,
-	char *name,
-	const h5_int64_t maxnamelen,
-	h5_int64_t *type,
-	h5_int64_t *nelem
-	);
-
-h5_int64_t
-H5PartReadStepAttrib (
-	h5_file_t *f,
-	const char *name,
-	void *data
-	);
-
-h5_int64_t
-H5PartReadFileAttrib (
-	h5_file_t *f,
-	const char *name,
-	void *data
-	);
 
 #ifdef __cplusplus
 }
