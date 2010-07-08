@@ -34,7 +34,7 @@ const char* const H5_O_MODES[] = {
   \return \c H5_ERR_INVAL if debug level is invalid.
 */
 h5_err_t
-h5_set_debug_level (
+h5_set_debuglevel (
 	const h5_id_t level	/*!< debug level */
 	) {
 	if (level < 0 || level > 5) return H5_ERR_INVAL;
@@ -50,7 +50,7 @@ h5_set_debug_level (
   \return current debug level
 */
 h5_id_t
-h5_get_debug_level (
+h5_get_debuglevel (
 	void
 	) {
 	return h5priv_debug_level;

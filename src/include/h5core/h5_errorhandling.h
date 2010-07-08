@@ -44,12 +44,12 @@
 
 
 h5_err_t
-h5_set_debug_level (
+h5_set_debuglevel (
 	const h5_id_t level
 	);
 
 h5_err_t
-h5_get_debug_level (
+h5_get_debuglevel (
 	void
 	);
 
