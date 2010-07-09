@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <search.h>
 
-#include "h5_core.h"
+#include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
 void*
@@ -10,7 +10,7 @@ h5priv_alloc (
 	void* ptr,
 	const size_t size
 	) {
-	h5_debug (f, "Allocating %ld bytes.", size); 
+	h5_debug (f, "Allocating %lu bytes.", size); 
 	ptr = realloc (ptr, size);
 	if (ptr == NULL) {
 		h5_error (f, H5_ERR_NOMEM, "Out of memory.");
@@ -25,7 +25,7 @@ h5priv_calloc (
 	const size_t count,
 	const size_t size
 	) {
-	h5_debug (f, "Allocating %ld * %ld bytes.", count, size); 
+	h5_debug (f, "Allocating %lu * %lu bytes.", count, size); 
 	void* ptr = calloc (count, size);
 	if (ptr == NULL) {
 		h5_error (f, H5_ERR_NOMEM, "Out of memory.");
@@ -42,7 +42,7 @@ h5priv_free (
 	if (ptr) free (ptr);
 	return H5_SUCCESS;
 }
-	
+
 void*
 h5priv_tsearch (
 	h5_file_t* const f,

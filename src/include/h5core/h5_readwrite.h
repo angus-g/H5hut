@@ -18,7 +18,7 @@ h5_set_step (
 	const h5_int64_t step	/*!< [in]  Time-step to set. */
 	);
 
-hid_t
+h5_int64_t
 h5_normalize_h5_type (
 	h5_file_t * const f,
 	hid_t type
@@ -39,6 +39,7 @@ h5_has_index (
 
 h5_err_t
 h5_normalize_dataset_name (
+	h5_file_t *const f,
 	const char *name,
 	char *name2
 	);

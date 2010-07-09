@@ -70,5 +70,12 @@ h5u_set_chunk (
         const h5_size_t size
         );
 
+h5_err_t
+h5u_get_chunk (
+	h5_file_t *const f,
+	const char *name,
+	h5_size_t *size
+	);
+
 #endif
 

@@ -7,7 +7,7 @@
 #include <lustre/liblustreapi.h>
 #endif
 
-#include "h5_core.h"
+#include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
 /*!
@@ -27,7 +27,7 @@ h5_check_filehandle (
 	h5_file_t* const f	/*!< filehandle  to check validity of */
 	) {
 
-	if (f == NULL || f->file == 0) {
+	if (f == NULL || f->file == 0 || f->u == NULL || f->b == NULL || f->t == NULL) {
 		return h5_error (
 			f,
 			H5_ERR_BADFD,
@@ -70,7 +70,7 @@ h5upriv_open_file (
 	u->memshape = H5S_ALL;
 	u->viewstart = -1;
 	u->viewend = -1;
-        u->viewindexed = 0;
+	u->viewindexed = 0;
 
 	TRY( u->dcreate_prop = h5priv_create_hdf5_property(f, H5P_DATASET_CREATE) );
 
@@ -104,13 +104,18 @@ h5bpriv_open_file (
 	size = f->nprocs * sizeof (b->write_layout[0]);
 	TRY( b->write_layout = h5priv_alloc (f, NULL, size) );
 
-	b->step_idx = -1;
-	b->blockgroup = -1;
+	size_t n = sizeof (struct h5b_partition) / sizeof (h5_int64_t);
+        TRY( h5priv_mpi_type_contiguous(f,
+			n, MPI_LONG_LONG, &b->partition_mpi_t) );
+
 	b->shape = -1;
 	b->diskshape = -1;
 	b->memshape = -1;
-	b->field_group_id = -1;
+	b->block_gid = -1;
+	b->field_gid = -1;
 	b->have_layout = 0;
+
+	TRY( b->dcreate_prop = h5priv_create_hdf5_property(f, H5P_DATASET_CREATE) );
 
 	return H5_SUCCESS;
 }
@@ -315,6 +320,9 @@ h5upriv_close_file (
 		u->memshape = 0;
 	}
 	TRY( h5priv_close_hdf5_property (f, u->dcreate_prop) );
+	free (f->u);
+	f->u = NULL;
+
 	return f->__errno;
 }
 
@@ -329,15 +337,17 @@ h5upriv_close_file (
   \return	H5_SUCCESS or error code
 */
 static h5_int64_t
-h5bpriv_close_block (
+h5bpriv_close_file (
 	h5_file_t* const f	/*!< IN: file handle */
 	) {
 	struct h5b_fdata* b = f->b;
 
-	TRY( h5priv_close_hdf5_group (f, b->blockgroup) );
+	TRY( h5priv_close_hdf5_group (f, b->block_gid) );
 	TRY( h5priv_close_hdf5_dataspace (f, b->shape) );
 	TRY( h5priv_close_hdf5_dataspace (f, b->diskshape) );
 	TRY( h5priv_close_hdf5_dataspace (f, b->memshape) );
+	TRY( h5priv_close_hdf5_property (f, b->dcreate_prop) );
+	TRY( h5priv_mpi_type_free (f, b->partition_mpi_t) );
 	free (f->b);
 	f->b = NULL;
 
@@ -363,7 +373,7 @@ h5_close_file (
 
 	TRY( h5priv_close_step (f) );
 	TRY( h5upriv_close_file (f) );
-	TRY( h5bpriv_close_block (f) );
+	TRY( h5bpriv_close_file (f) );
 	TRY( h5tpriv_close_file (f) );
 	TRY( h5priv_close_hdf5_group (f, f->step_gid) );
 	TRY( h5priv_close_hdf5_property (f, f->xfer_prop) );
@@ -447,6 +457,20 @@ h5_get_num_procs (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
 	return f->nprocs;
+}
+
+/*!
+  \ingroup h5_core_filehandling
+
+  Provides access to the underlying HDF5 file handle.
+
+  \return Number of steps or error code
+*/
+hid_t
+h5_get_hdf5_file(
+	h5_file_t* const f		/*!< file handle		*/
+	) {
+	return f->file;
 }
 
 /*!

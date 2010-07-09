@@ -2,7 +2,7 @@
 #include <stdarg.h>	/* va_arg - System dependent ?! */
 #include <string.h>
 
-#include "h5_core.h"
+#include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
 static h5_errorhandler_t	h5priv_errhandler	= h5_report_errorhandler;

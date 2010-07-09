@@ -108,7 +108,7 @@ For further information contact: <a href="mailto:h5part@lists.psi.ch">h5part</a>
  */
 h5_err_t
 H5PartSetNumParticles (
-	h5_file_t *f,			/*!< [in] Handle to open file */
+	h5_file_t *f,		/*!< [in] Handle to open file */
 	h5_int64_t nparticles	/*!< [in] Number of particles */
 	) {
 
@@ -147,9 +147,9 @@ H5PartSetNumParticles (
 */
 h5_err_t
 H5PartSetNumParticlesStrided (
-	h5_file_t *f,			/*!< [in] Handle to open file */
+	h5_file_t *f,		/*!< [in] Handle to open file */
 	h5_int64_t nparticles,	/*!< [in] Number of particles */
-	h5_int64_t stride		/*!< [in] Stride value (e.g. number of fields in the particle array) */
+	h5_int64_t stride	/*!< [in] Stride value (e.g. number of fields in the particle array) */
 	) {
 
 	SET_FNAME( f, __func__ );
@@ -161,14 +161,12 @@ H5PartSetNumParticlesStrided (
   \ingroup h5part_model
 
   Define the chunk \c size and enables chunking in the underlying
-  HDF5 layer. When combined with the \c align value in the
-  \ref H5OpenFileAlign or \ref H5OpenFileParallelAlign
-  function, this causes each group of \c size particles to be
-  padded on disk out to the nearest multiple of \c align bytes.
+  HDF5 layer.
 
   Note that this policy wastes disk space, but can improve write
-  bandwidth on parallel filesystems that are sensitive to alignment
-  to stripe boundaries (e.g. lustre).
+  bandwidth on parallel filesystems that are sensitive to write alignment
+  (e.g. lustre). It is only recommended when using the MPI-POSIX or MPI-IO
+  independent VFDs (see \ref H5OpenFile).
 
   \return	\c H5_SUCCESS or error code
 */

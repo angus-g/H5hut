@@ -44,6 +44,11 @@ h5_get_num_procs (
 	h5_file_t* const f
 	);
 
+hid_t
+h5_get_hdf5_file(
+	h5_file_t* const f
+	);
+
 h5_size_t
 h5_get_num_steps (
 	h5_file_t* const f

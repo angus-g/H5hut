@@ -1,9 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>	/* va_arg - System dependent ?! */
 #include <string.h>
 #include <errno.h>
-#include "h5_core.h"
+
+#include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
 const char* ERR_ELEM_NEXIST = "Element with local vertex IDs (%s) doesn't exist!";
@@ -31,4 +29,4 @@ h5tpriv_error_local_elem_nexist (
 
 	return h5_error (f, H5_ERR_NOENTRY, ERR_ELEM_NEXIST, s);
 }
-	
+

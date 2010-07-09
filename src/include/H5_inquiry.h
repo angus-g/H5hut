@@ -16,4 +16,6 @@ H5HasStep (
 	h5_file_t * const f,
 	h5_id_t step
 	);
+
 #endif
+

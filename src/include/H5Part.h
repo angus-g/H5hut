@@ -1,172 +1,149 @@
-/*
-  Header file for declaring the H5Fed application programming
-  interface (API) in the C language.
-  
-  Copyright 2006-2007
- 	Paul Scherrer Institut, Villigen, Switzerland;
- 	Benedikt Oswald;
- 	Achim Gsell
- 	All rights reserved.
- 
-  Authors
- 	Achim Gsell
-  
-  Warning
-	This code is under development.
- 
- */
-#ifndef __H5Part_H
-#define __H5Part_H
+#ifndef __H5PART_H
+#define __H5PART_H
 
-#include <hdf5.h>
+h5_err_t
+H5PartSetNumParticles (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	h5_int64_t nparticles	/*!< [in] Number of particles */
+	);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+h5_err_t
+H5PartSetNumParticlesStrided (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	h5_int64_t nparticles,	/*!< [in] Number of particles */
+	h5_int64_t stride	/*!< [in] Stride value (e.g. number of fields in the particle array) */
+	);
 
-#include "h5core/h5_core.h"
-#include "H5.h"
-#ifdef PARALLEL_IO
-#include <mpi.h>
-#endif
-
-// #define H5PART_SUCCESS		H5_SUCCESS
-#define H5PART_ERR_NOMEM	H5_ERR_NOMEM
-#define H5PART_ERR_INVAL	H5_ERR_INVAL
-#define H5PART_ERR_BADFD	H5_ERR_BADFD
-#define H5PART_ERR_LAYOUT	H5_ERR_LAYOUT
-#define H5PART_ERR_NOENT	H5_ERR_NOENT
-#define H5PART_ERR_NOENTRY	H5_ERR_NOENTRY
-
-#define H5PART_ERR_MPI		H5_ERR_MPI
-#define H5PART_ERR_HDF5		H5_ERR_HDF5
-
-#define H5PART_READ		H5_O_RDONLY
-#define H5PART_WRITE		H5_O_WRONLY
-#define H5PART_APPEND		H5_O_APPEND
-
-#define H5PART_INT64		((h5_int64_t)H5T_NATIVE_INT64)
-#define H5PART_FLOAT64		((h5_int64_t)H5T_NATIVE_DOUBLE)
-#define H5PART_CHAR		((h5_int64_t)H5T_NATIVE_CHAR)
-
-
-/*============== File Writing Functions ==================== */
-h5_int64_t
-H5PartDefineStepName (
+h5_err_t
+H5PartSetChunkSize (
 	h5_file_t *f,
-	const char *name,
-	const h5_int64_t width
+	h5_int64_t size
 	);
 
-h5_int64_t
-H5PartSetNumParticles ( 
-	h5_file_t *f, 
-	const h5_int64_t nparticles
-	);
-
-h5_int64_t
+h5_err_t
 H5PartWriteDataFloat64 (
-	h5_file_t *f,
-	const char *name,
-	const h5_float64_t *array
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5_float64_t *data	/*!< [in] Array to commit to disk */
 	);
 
-h5_int64_t
+h5_err_t
+H5PartWriteDataFloat32 (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5_float32_t *data	/*!< [in] Array to commit to disk */
+	);
+
+h5_err_t
 H5PartWriteDataInt64 (
-	h5_file_t *f,
-	const char *name,
-	const h5_int64_t *array
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5_int64_t *data	/*!< [in] Array to commit to disk */
 	);
 
-/*================== File Reading Routines =================*/
+h5_err_t
+H5PartWriteDataInt32 (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate array with */
+	const h5_int32_t *data	/*!< [in] Array to commit to disk */
+	);
+
+h5_err_t
+H5PartReadDataFloat64 (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate dataset with */
+	h5_float64_t *data	/*!< [out] Array of data */
+	);
+
+h5_err_t
+H5PartReadDataFloat32 (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate dataset with */
+	h5_float32_t *data	/*!< [out] Array of data */
+	);
+
+h5_err_t
+H5PartReadDataInt64 (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate dataset with */
+	h5_int64_t *data	/*!< [out] Array of data */
+	);
+
+h5_err_t
+H5PartReadDataInt32 (
+	h5_file_t *f,		/*!< [in] Handle to open file */
+	const char *name,	/*!< [in] Name to associate dataset with */
+	h5_int32_t *data	/*!< [out] Array of data */
+	);
+
 h5_int64_t
 H5PartGetNumDatasets (
-	h5_file_t *f
+	h5_file_t *f			/*!< [in]  Handle to open file */
 	);
 
 h5_int64_t
 H5PartGetDatasetName (
-	h5_file_t *f,
-	const h5_int64_t idx,
-	char *name,
-	const h5_int64_t maxlen
+	h5_file_t *f,		/*!< [in]  Handle to open file */
+	const h5_int64_t idx,	/*!< [in]  Index of the dataset */
+	char *name,		/*!< [out] Name of dataset */
+	const h5_int64_t len	/*!< [in]  Size of buffer \c name */
 	);
 
 h5_int64_t
 H5PartGetDatasetInfo (
-	h5_file_t *f,
-	const h5_int64_t idx,
-	char *name,
-	const h5_int64_t maxlen,
-	h5_int64_t *type,
-	h5_int64_t *nelem);
-
+	h5_file_t *f,		/*!< [in]  Handle to open file */
+	const h5_int64_t idx,/*!< [in]  Index of the dataset */
+	char *dataset_name,	/*!< [out] Name of dataset */
+	const h5_int64_t len_dataset_name,
+				/*!< [in]  Size of buffer \c dataset_name */
+	h5_int64_t *type,	/*!< [out] Type of data in dataset */
+	h5_int64_t *nelem	/*!< [out] Number of elements. */
+	);
 
 h5_int64_t
 H5PartGetNumParticles (
-	h5_file_t *f
+	h5_file_t *f			/*!< [in]  Handle to open file */
 	);
 
-h5_int64_t
-H5PartSetView (
-	h5_file_t *f,
-	const h5_int64_t start,
-	const h5_int64_t end
-	);
-
-
-h5_int64_t
-H5PartGetView (
-	h5_file_t *f,
-	h5_int64_t *start,
-	h5_int64_t *end
+h5_err_t
+H5PartResetView (
+ 	h5_file_t *f			/*!< [in]  Handle to open file */
 	);
 
 h5_int64_t
 H5PartHasView (
-	h5_file_t *f
+ 	h5_file_t *f			/*!< [in]  Handle to open file */
 	);
 
-h5_int64_t
-H5PartResetView (
-	h5_file_t *f
+h5_err_t
+H5PartSetView (
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	h5_int64_t start,	/*!< [in]  Start particle */
+	h5_int64_t end	/*!< [in]  End particle */
 	);
 
-h5_int64_t
+h5_err_t
+H5PartSetViewIndices (
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	const h5_int64_t *indices,	/*!< [in]  List of indices */
+	h5_int64_t nelems		/*!< [in]  Size of list */
+	);
+
+h5_err_t
+H5PartSetViewEmpty (
+	h5_file_t *f			/*!< [in]  Handle to open file */
+	);
+
+h5_err_t
+H5PartGetView (
+	h5_file_t *f,			/*!< [in]  Handle to open file */
+	h5_int64_t *start,		/*!< [out]  Start particle */
+	h5_int64_t *end			/*!< [out]  End particle */
+	);
+
+h5_err_t
 H5PartSetCanonicalView (
-	h5_file_t *f
+	h5_file_t *f			/*!< [in]  Handle to open file */
 	);
-
-h5_int64_t
-H5PartReadDataFloat64(
-	h5_file_t *f,
-	const char *name,
-	h5_float64_t *array
-	);
-
-h5_int64_t
-H5PartReadDataInt64 (
-	h5_file_t *f,
-	const char *name,
-	h5_int64_t *array
-	);
-
-h5_int64_t
-H5PartReadParticleStep (
-	h5_file_t *f,
-	const h5_int64_t step,
-	h5_float64_t *x, /* particle positions */
-	h5_float64_t *y,
-	h5_float64_t *z,
-	h5_float64_t *px, /* particle momenta */
-	h5_float64_t *py,
-	h5_float64_t *pz,
-	h5_int64_t *id /* and phase */
-	);
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

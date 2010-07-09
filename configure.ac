@@ -207,6 +207,8 @@ if test "X$USE_FORTRAN" = "Xyes"; then
 		AC_MSG_ERROR([Cannot build fortran executables!!!])
 		exit 1
 	fi
+
+        FORTRAN_LIB=libH5hutF.a
 else
 	AC_MSG_RESULT([no])
 fi
@@ -291,7 +293,6 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 		fi
 	fi
 
-	MTARGET="libpH5Part.a"
 	TPTARGET="${TPTARGET} H5PartTestP H5PartAndreasTest Bench"
 	TBTARGET="${TBTARGET} H5BlockTestAttributes"
 	TBTARGET="${TBTARGET} H5BlockParTestScalarField"
@@ -317,7 +318,6 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 			FC=${MPIFC}
 		fi
 
-		MTARGET="${MTARGET} libpH5PartF.a"
 		TPTARGET="${TPTARGET} H5testFpar"
 		TBTARGET="${TBTARGET} H5BlockParTestScalarFieldF"
 	fi
@@ -325,12 +325,10 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 else  # --enable-parallel=no
 	AC_MSG_RESULT([no])
 
-	MTARGET="libH5Part.a"
 	TPTARGET="${TPTARGET} H5test"
 	TBTARGET="${TBTARGET} H5BlockTestAttributes"
 
 	if test "X$USE_FORTRAN" = "Xyes"; then
-		MTARGET="${MTARGET} libH5PartF.a"
 		TPTARGET="${TPTARGET} H5testF"
 		TBTARGET="${TBTARGET} H5BlockTestAttributesF"
 	fi
@@ -442,7 +440,6 @@ if test -n "$SAVE_MPIINC"; then
 	MPIINC=$SAVE_MPIINC
 fi
 
-#CFLAGS="$SAVE_CFLAGS ${CFLAGS}"
 if test -n "$SAVE_CFLAGS"; then
 	CFLAGS=$SAVE_CFLAGS $CFLAGS
 fi
@@ -463,16 +460,6 @@ if test -n "$SAVE_LDFLAGS"; then
 	LDFLAGS=$SAVE_LDFLAGS
 fi
 
-if test -n "$MPICXX"; then
-	TOOLS_CXX=$MPICXX
-	TOOLS_H5PART_LIB="-lpH5Part"
-	TOOLS_HDFLIB="-L$HDF5ROOT/lib -lhdf5"
-else
-	TOOLS_CXX=$CXX
-	TOOLS_H5PART_LIB="-lH5Part"
-	TOOLS_HDFLIB="-L$HDF5ROOT/lib -lhdf5"
-fi
-
 ###############################################################################
 ############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
 ###############################################################################
@@ -490,7 +477,6 @@ AC_SUBST(MPILIB)
 AC_SUBST(MPICC)
 AC_SUBST(MPICXX)
 AC_SUBST(MPIFC)
-AC_SUBST(MTARGET)
 AC_SUBST(TPTARGET)
 AC_SUBST(TBTARGET)
 AC_SUBST(TFTARGET)
@@ -500,10 +486,8 @@ AC_SUBST(FFLAGS)
 AC_SUBST(STDCXX)
 AC_SUBST(UNDERSCORE_H)
 AC_SUBST(BUILD_TOOLS)
+AC_SUBST(FORTRAN_LIB)
 AC_SUBST(LDFLAGS)
-AC_SUBST(TOOLS_CXX)
-AC_SUBST(TOOLS_H5PART_LIB)
-AC_SUBST(TOOLS_HDFLIB)
 
 # Make AC_OUTPUT create each `file' by copying an input file (by default `file.in'),
 # substituting the output variable values.
@@ -531,7 +515,7 @@ AC_MSG_RESULT([ ])
 AC_MSG_RESULT([Host OS:             $host_os])
 AC_MSG_RESULT([Host CPU:            $host_cpu])
 AC_MSG_RESULT([Host vendor:         $host_vendor])
-AC_MSG_RESULT([Build libraries:     $MTARGET])
+AC_MSG_RESULT([Build libraries:     $FORTRAN_LIB])
 AC_MSG_RESULT([Build test programs: $TTARGET])
 AC_MSG_RESULT([Build tools:         $BUILD_TOOLS])
 AC_MSG_RESULT([CC =                 $CC])

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "h5_core.h"
+#include "h5core/h5_core.h"
 
 /*!
   Compare two floating point numbers using integers. See

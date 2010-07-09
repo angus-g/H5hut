@@ -1,49 +1,23 @@
-# src level Makefile.am
+# src/C level Makefile.am
 
-# PATH SETTING (IMPORTED FROM CONFIGURE)
-HDF5ROOT = @HDF5ROOT@
+OBJEXT=o
 
-# COMPILERS
-CC = @CC@
+HDFLIB = -L@HDF5ROOT@/lib -lhdf5 -lz @SZLIB@
+LIBS = $(HDFLIB) @MPILIB@
 
-#INCLUDES
-HDFINC = -I$(HDF5ROOT)/include
-MPIINC = @MPIINC@
-
-INC = $(HDFINC) ${MPIINC} -I../include
-
-# H5Part header file location
-H5PINC = -I@prefix@/include
-
-# COMPILER FLAGS
-CFLAGS = @CFLAGS@ ${INC}
-
-# H5Part compiled library location
-H5PLIB = -L@prefix@/lib
-
-# HDF5 LIBRARY
-HDFLIB = -L$(HDF5ROOT)/lib -lhdf5 -lz $(SZLIB) @LDFLAGS@
-
-# SZ LIBRARY
-SZLIB = @SZLIB@
-
-# Extra files that I wish to include in the dist tar ball.
-EXTRA_DIST = TestUnderscoreC.c TestUnderscore.f $(EXTRA_HEADERS)
-
-# Files that I don't want to include in the dist tar ball
-nodist_include_HEADERS = @UNDERSCORE_H@
-
+INCLUDES = -I../include -I@HDF5ROOT@/include @MPIINC@
 
 # What to build... Will be determined by configure script.
-OBJEXT = o
-lib_LIBRARIES = libH5.a
+lib_LIBRARIES = libH5hutC.a
 
 # Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = libH5.a
+EXTRA_LIBRARIES = libH5hutC.a
 
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS =				\
+	../include/H5hut.h				\
 	../include/H5.h				\
+	../include/H5_inquiry.h			\
 	../include/H5_attribs.h			\
 	../include/H5Block.h			\
 	../include/H5Fed.h			\
@@ -55,7 +29,7 @@ include_HEADERS =				\
 EXTRA_HEADERS =
 
 # Listing of sources
-libH5_a_SOURCES =				\
+libH5hutC_a_SOURCES =				\
 	H5.c					\
 	H5_attribs.c				\
 	H5_inquiry.c				\
@@ -68,19 +42,8 @@ libH5_a_SOURCES =				\
 	H5Fed_tags.c				\
 	H5Part.c
 
-all: ../lib/libH5.a
+all: ../lib/libH5hutC.a
 
-../lib/libH5.a: libH5.a
+../lib/libH5hutC.a: libH5hutC.a
 	-cp $^ $@
 
-%.o : %.c
-	$(CC) $(CFLAGS) $(INC) -c $<
-
-clean:
-	$(RM) -f *~ *.o *.a *.so
-
-distclean: clean
-	$(RM) -f Underscore.h
-	$(RM) -rf .deps
-	$(RM) -rf .libs
-	$(RM) -f Makefile

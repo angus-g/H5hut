@@ -16,8 +16,6 @@
 #ifndef __H5_H
 #define __H5_H
 
-#include "H5_inquiry.h"
-
 h5_file_t *
 H5OpenFile (
 	const char * filename,
@@ -27,6 +25,11 @@ H5OpenFile (
 
 h5_err_t
 H5CloseFile (
+	h5_file_t * f
+	);
+
+h5_err_t
+H5CheckFile (
 	h5_file_t * f
 	);
 

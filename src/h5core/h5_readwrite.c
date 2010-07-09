@@ -1,5 +1,6 @@
 #include <string.h>
-#include "h5_core.h"
+
+#include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
 /*
@@ -234,7 +235,7 @@ h5_set_step (
 /*!
    Normalize HDF5 type
 */
-hid_t
+h5_int64_t
 h5_normalize_h5_type (
 	h5_file_t* const f,
 	hid_t type
@@ -245,14 +246,22 @@ h5_normalize_h5_type (
 	switch (tclass){
 	case H5T_INTEGER:
 		if (size==8) {
-			return H5T_NATIVE_INT64;
+			return H5_INT64_T;
 		}
-		else if (size==1) {
-			return H5T_NATIVE_CHAR;
+		else if (size==4) {
+			return H5_INT32_T;
 		}
 		break;
 	case H5T_FLOAT:
-		return H5T_NATIVE_DOUBLE;
+		if ( size==8 ) {
+			return H5_FLOAT64_T;
+		}
+		else if ( size==4 ) {
+			return H5_FLOAT32_T;
+		}
+		break;
+	case H5T_STRING:
+		return H5_STRING_T;
 	default:
 		; /* NOP */
 	}
@@ -273,7 +282,7 @@ h5_get_dataset_type(
 
 	TRY( dset_id = h5priv_open_hdf5_dataset (f, group_id, dset_name) );
 	TRY( hdf5_type = h5priv_get_hdf5_dataset_type (f, dset_id) );
-	h5_int64_t type = (h5_int64_t)h5_normalize_h5_type (f, hdf5_type);
+	h5_int64_t type = h5_normalize_h5_type (f, hdf5_type);
 	TRY( h5priv_close_hdf5_type (f, hdf5_type) );
 	TRY( h5priv_close_hdf5_dataset (f, dset_id) );
 
@@ -294,6 +303,7 @@ h5_has_index (
 
 h5_err_t
 h5_normalize_dataset_name (
+	h5_file_t *const f,
 	const char *name,
 	char *name2
 	) {
@@ -303,6 +313,14 @@ h5_normalize_dataset_name (
 		name2[H5_DATANAME_LEN-1] = '\0';
 	} else {
 		strcpy ( name2, name );
+	}
+
+	if ( strcmp( name2, H5_BLOCKNAME ) == 0 ) {
+		h5_error (f,
+			H5_ERR_INVAL,
+			"Can't create dataset or field with name '%s' because it is "
+			"reserved by H5Block.",
+			H5_BLOCKNAME);
 	}
 
 	return H5_SUCCESS;

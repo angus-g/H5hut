@@ -77,6 +77,21 @@ H5CloseFile (
 /*!
   \ingroup h5_c_api_general
 
+  Close file.
+
+  \return \c H5_SUCCESS or error code
+*/
+h5_err_t
+H5CheckFile (
+	h5_file_t* const f		/*!< file handle		*/
+	) {
+	SET_FNAME (f, __func__);
+	return h5_check_filehandle (f);
+}
+
+/*!
+  \ingroup h5_c_api_general
+
   Define format of the step names.
 
   Example: ==H5FedDefineStepNameFormat( f, "Step", 6 )== defines step names 

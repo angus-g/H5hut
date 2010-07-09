@@ -1,4 +1,4 @@
-#include "h5_core.h"
+#include "h5core/h5_core.h"
 
 const h5t_ref_element_t h5t_tri_ref_element = {
 	2,

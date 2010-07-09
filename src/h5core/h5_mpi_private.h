@@ -69,5 +69,20 @@ h5priv_mpi_comm_rank (
 	MPI_Comm comm,
 	int* rank
 	);
+
+h5_err_t
+h5priv_mpi_type_contiguous (
+	h5_file_t* const f,
+	const size_t nelems,
+	const MPI_Datatype oldtype,
+	MPI_Datatype *newtype
+	);
+
+h5_err_t
+h5priv_mpi_type_free (
+	h5_file_t* const f,
+	MPI_Datatype *type
+	);
+
 #endif
 #endif

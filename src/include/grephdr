@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "#ifndef __H5_H"
+echo "#define __H5_H"
+echo ""
+grep -P "(?s)^\w+\n[Hh]5\w+\s*\(.*?\)" $1 | sed 's/ {/;\n/'
+echo ""
+echo "#endif"

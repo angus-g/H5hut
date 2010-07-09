@@ -495,11 +495,6 @@ h5u_set_chunk (
         const h5_size_t size
         ) {
 
-	if ( f->u->dcreate_prop == H5P_DEFAULT ) {
-		TRY( f->u->dcreate_prop = h5priv_create_hdf5_property(f,
-						H5P_DATASET_CREATE) );
-	}
-
 	if ( size == 0 )
 	{
 		h5_info(f, "Disabling chunking" );
@@ -511,6 +506,30 @@ h5u_set_chunk (
 		TRY( h5priv_set_hdf5_chunk_property(f,
 					f->u->dcreate_prop, 1, (hsize_t*)&size) );
 	}
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5u_get_chunk (
+	h5_file_t *const f,		/*!< IN: File handle */
+	const char *name, 		/*!< IN: name of dataset */
+	h5_size_t *size			/*!< OUT: chunk size in particles */
+	) {
+
+	hid_t dataset_id;
+	hid_t plist_id;
+	hsize_t hsize;
+
+	TRY( dataset_id = h5priv_open_hdf5_dataset(f, f->step_gid, name) );
+	TRY( plist_id = h5priv_get_hdf5_dataset_create_plist(f, dataset_id) );
+	TRY( h5priv_get_hdf5_chunk_property(f, plist_id, 1, &hsize) );
+	TRY( h5priv_close_hdf5_property(f, plist_id) );
+	TRY( h5priv_close_hdf5_dataset(f, dataset_id) );
+
+	*size = (h5_size_t)hsize;
+
+	h5_info(f, "Found chunk size of %lld particles", (long long)*size);
 
 	return H5_SUCCESS;
 }

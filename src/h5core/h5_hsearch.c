@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include "h5_core.h"
+#include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
 /* [Aho,Sethi,Ullman] Compilers: Principles, Techniques and Tools, 1986

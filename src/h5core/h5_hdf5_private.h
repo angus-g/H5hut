@@ -29,13 +29,13 @@ h5priv_close_hdf5_group (
 	const hid_t group_id
 	);
 
-hsize_t
+h5_ssize_t
 h5priv_get_num_objs_in_hdf5_group (
 	h5_file_t* const f,
 	const hid_t group_id
 	);
 
-ssize_t
+h5_ssize_t
 h5priv_get_hdf5_objname_by_idx (
 	h5_file_t* const f,
 	hid_t loc_id,
@@ -62,14 +62,14 @@ h5priv_create_hdf5_dataset (
 	const hid_t create_proplist
 	);
 
-herr_t
+h5_err_t
 h5priv_close_hdf5_dataset (
 	h5_file_t* const f,
 	const hid_t dataset_id
 	);
 
 
-herr_t
+h5_err_t
 h5priv_write_hdf5_dataset (
 	h5_file_t* const f,
 	const hid_t dataset_id,
@@ -96,20 +96,20 @@ h5priv_get_hdf5_dataset_type (
 	const hid_t dataset_id
 	);
 
-herr_t
+h5_err_t
 h5priv_set_hdf5_dataset_extent (
 	h5_file_t* const f,
 	hid_t dset_id,
 	const hsize_t* size
 	);
 
-hssize_t
+h5_ssize_t
 h5priv_get_npoints_of_hdf5_dataset (
 	h5_file_t* const f,
 	hid_t dset_id
 	);
 
-hssize_t
+h5_ssize_t
 h5priv_get_npoints_of_hdf5_dataset_by_name (
 	h5_file_t* const f,
 	hid_t loc_id,
@@ -125,13 +125,18 @@ h5priv_create_hdf5_dataspace (
 	const hsize_t* maxdims 
 	);
 
+hid_t 
+h5priv_create_hdf5_dataspace_scalar (
+	h5_file_t* const f
+	);
+
 hid_t
 h5priv_get_hdf5_dataset_space (
 	h5_file_t* const f,
 	const hid_t dataset_id
 	);
 
-herr_t
+h5_err_t
 h5priv_select_hyperslab_of_hdf5_dataspace (
 	h5_file_t* const f,
 	hid_t space_id,
@@ -142,7 +147,7 @@ h5priv_select_hyperslab_of_hdf5_dataspace (
 	const hsize_t* block
 	);
 
-herr_t
+h5_err_t
 h5priv_select_elements_of_hdf5_dataspace (
 	h5_file_t* const f,
 	hid_t space_id,
@@ -151,19 +156,19 @@ h5priv_select_elements_of_hdf5_dataspace (
 	const hsize_t* indices
 	);
 
-hssize_t
+h5_ssize_t
 h5priv_get_selected_npoints_of_hdf5_dataspace (
 	h5_file_t* const f,
 	hid_t space_id
 	);
 
-hssize_t
+h5_ssize_t
 h5priv_get_npoints_of_hdf5_dataspace (
 	h5_file_t* const f,
 	hid_t space_id
 	);
 
-herr_t
+h5_err_t
 h5priv_close_hdf5_dataspace (
 	h5_file_t* const f,
 	const hid_t dataspace_id
@@ -193,7 +198,13 @@ h5priv_create_hdf5_type (
 	const size_t size
 	);
 
-herr_t
+hid_t
+h5priv_create_hdf5_string_type(
+	h5_file_t *const f,
+	const hsize_t len
+	);
+
+h5_err_t
 h5priv_insert_hdf5_type (
 	h5_file_t* const f,
 	hid_t dtype_id,
@@ -202,7 +213,7 @@ h5priv_insert_hdf5_type (
 	hid_t field_id
 	);
 
-herr_t
+h5_err_t
 h5priv_close_hdf5_type (
 	h5_file_t* const f,
 	hid_t dtype_id
@@ -215,15 +226,29 @@ h5priv_create_hdf5_property (
 	hid_t cls_id
 	);
 
-herr_t
+hid_t
+h5priv_get_hdf5_dataset_create_plist (
+	h5_file_t* const f,
+	const hid_t dataset_id
+	);
+
+h5_err_t
 h5priv_set_hdf5_chunk_property (
 	h5_file_t* const f,
 	hid_t plist,
-	int ndims,
-	hsize_t* dim
+	int rank,
+	hsize_t* dims
 	);
 
-herr_t
+h5_err_t
+h5priv_get_hdf5_chunk_property (
+	h5_file_t* const f,
+	hid_t plist,
+	int rank,
+	hsize_t* dims
+	);
+
+h5_err_t
 h5priv_set_hdf5_layout_property (
 	h5_file_t* const f,
 	hid_t plist,
@@ -291,14 +316,14 @@ h5priv_close_hdf5_property (
 	);
 
 /*** file ***/
-herr_t
+h5_err_t
 h5priv_close_hdf5_file (
 	h5_file_t* const f,
 	hid_t fileid
 	);
 
 /*** error handling ***/
-herr_t
+h5_err_t
 h5priv_set_hdf5_errorhandler (
 	h5_file_t* const f,
 	hid_t estack_id,
@@ -340,7 +365,7 @@ h5priv_create_hdf5_attribute (
 	hid_t aapl_id
 	);
 
-herr_t
+h5_err_t
 h5priv_read_hdf5_attribute (
 	h5_file_t* const f,
 	hid_t attr_id,
@@ -348,7 +373,7 @@ h5priv_read_hdf5_attribute (
 	void* buf
 	);
 
-herr_t
+h5_err_t
 h5priv_write_hdf5_attribute (
 	h5_file_t* const f,
 	hid_t attr_id,
@@ -356,7 +381,7 @@ h5priv_write_hdf5_attribute (
 	const void* buf
 	);
 
-ssize_t
+h5_ssize_t
 h5priv_get_hdf5_attribute_name (
 	h5_file_t* const f,
 	hid_t attr_id,
@@ -382,14 +407,20 @@ h5priv_get_num_hdf5_attribute (
 	hid_t loc_id
 	);
 
-herr_t
+h5_err_t
 h5priv_close_hdf5_attribute (
 	h5_file_t* const f,
 	hid_t attr_id
 	);
 
+const char*
+h5priv_get_base_type_name (
+	h5_file_t* const f,
+	hid_t base_type_id
+	);
+
 /*** link ***/
-herr_t
+h5_err_t
 h5priv_delete_hdf5_link (
 	h5_file_t* const f,
 	hid_t loc_id,

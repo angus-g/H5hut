@@ -6,6 +6,9 @@
 #define H5_STEPNAME		"Step"
 #define H5_STEPWIDTH		1
 #define H5_BLOCKNAME		"Block"
+#define H5_BLOCKNAME_X		"0"
+#define H5_BLOCKNAME_Y		"0"
+#define H5_BLOCKNAME_Z		"0"
 
 #include "h5_types_private.h"
 
@@ -22,6 +25,7 @@
 #include "h5u_types_private.h"
 
 #include "h5b_errorhandling_private.h"
+#include "h5b_model_private.h"
 
 #include "h5t_core_private.h"
 

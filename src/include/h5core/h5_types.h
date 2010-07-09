@@ -25,7 +25,10 @@
 #define H5_FLOAT32_T		H5T_NATIVE_FLOAT
 #define H5_INT64_T		H5T_NATIVE_INT64
 #define H5_INT32_T		H5T_NATIVE_INT32
+#define H5_STRING_T		H5T_NATIVE_CHAR
 #define H5_COMPOUND_T		H5T_COMPOUND
+
+#define H5_VER_STRING		"2.0.0"
 
 extern const char * const H5_O_MODES[];
 
