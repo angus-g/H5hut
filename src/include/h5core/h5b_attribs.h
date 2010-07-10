@@ -11,6 +11,15 @@ h5_write_field_attrib (
 	const h5_int64_t attrib_nelem		/*!< IN: number of elements */
 	);
 
+h5_err_t
+h5_read_field_attrib (
+	h5_file_t *const f,			/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const char *attrib_name,		/*!< IN: attribute name */
+	const h5_int64_t attrib_type,		/*!< IN: attribute type */
+	void *buffer		                /*!< OUT: attribute value */
+	);
+
 h5_ssize_t
 h5b_get_num_field_attribs (
 	h5_file_t *const f,			/*<! IN: file handle */

@@ -1,5 +1,5 @@
+#include <stdlib.h>
 #include <string.h>
-#include <hdf5.h>
 
 #include "H5hut.h"
 #include "Underscore.h"
@@ -51,35 +51,8 @@
 
 #endif
 
-static char *
-_H5Part_strdupfor2c (
-	const char *s,
-	const ssize_t len
-	) {
-
-	char *dup = (char*)malloc ( len + 1 );
-	strncpy ( dup, s, len );
-	char *p = dup + len;
-	do {
-		*p-- = '\0';
-	} while ( *p == ' ' );
-	return dup;
-}
-
-static char *
-_H5Part_strc2for (
-	char * const str,
-	const ssize_t l_str
-	) {
-
-	size_t len = strlen ( str );
-	memset ( str+len, ' ', l_str-len );
-
-	return str;
-}
-
 static h5_int32_t
-_H5Part_flagsfor2c (
+_flagsfor2c (
 	char * flags
 	) {
 
@@ -98,13 +71,13 @@ _H5Part_flagsfor2c (
 }
 
 /* open/close interface */
-h5_int64_t
+h5_err_t
 h5_openr (
 	const char *file_name,
 	const int l_file_name
 	) {
 
-	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
 
 	h5_file_t* f = H5OpenFile ( file_name2, H5_O_RDONLY, 0 );
 
@@ -112,13 +85,13 @@ h5_openr (
 	return (h5_int64_t)(size_t)f; 
 }
 
-h5_int64_t
+h5_err_t
 h5_openw (
 	const char *file_name,
 	const int l_file_name
 	) {
 
-	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
 
 	h5_file_t* f = H5OpenFile ( file_name2, H5_O_WRONLY, 0 );
 
@@ -126,13 +99,13 @@ h5_openw (
 	return (h5_int64_t)(size_t)f; 
 }
 
-h5_int64_t
+h5_err_t
 h5pt_opena (
 	const char *file_name,
 	const int l_file_name
 	) {
 	
-	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
+	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
 
 	h5_file_t* f = H5OpenFile ( file_name2, H5_O_APPEND, 0 );
 
@@ -141,7 +114,7 @@ h5pt_opena (
 }
 
 #ifdef PARALLEL_IO
-h5_int64_t
+h5_err_t
 h5_openr_par (
 	const char *file_name,
 	MPI_Fint *fcomm,
@@ -151,10 +124,10 @@ h5_openr_par (
 	) {
 
 	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
-	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
-	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
+	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
+	char *flags2 = h5_strdupfor2c ( flags, l_flags );
 
-	h5_int32_t fbits = H5_O_RDONLY | _H5Part_flagsfor2c ( flags2 );
+	h5_int32_t fbits = H5_O_RDONLY | _flagsfor2c ( flags2 );
 
 	h5_file_t* f = H5OpenFile ( file_name2, ccomm, fbits );
 
@@ -163,7 +136,7 @@ h5_openr_par (
 	return (h5_int64_t)(size_t)f; 
 }
 
-h5_int64_t
+h5_err_t
 h5_openw_par (
 	const char *file_name,
 	MPI_Fint *fcomm,
@@ -173,10 +146,10 @@ h5_openw_par (
 	) {
 
 	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
-	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
-	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
+	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
+	char *flags2 = h5_strdupfor2c ( flags, l_flags );
 
-	h5_int32_t fbits = H5_O_WRONLY | _H5Part_flagsfor2c ( flags2 );
+	h5_int32_t fbits = H5_O_WRONLY | _flagsfor2c ( flags2 );
 
 	h5_file_t* f = H5OpenFile ( file_name2, fbits, ccomm );
 
@@ -185,7 +158,7 @@ h5_openw_par (
 	return (h5_int64_t)(size_t)f; 
 }
 
-h5_int64_t
+h5_err_t
 h5pt_opena_par_align (
 	const char *file_name,
 	MPI_Fint *fcomm,
@@ -196,10 +169,10 @@ h5pt_opena_par_align (
 	) {
 	
 	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
-	char *file_name2 = _H5Part_strdupfor2c ( file_name, l_file_name );
-	char *flags2 = _H5Part_strdupfor2c ( flags, l_flags );
+	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
+	char *flags2 = h5_strdupfor2c ( flags, l_flags );
        
-	h5_int32_t fbits = H5_O_APPEND | _H5Part_flagsfor2c ( flags2 );
+	h5_int32_t fbits = H5_O_APPEND | _flagsfor2c ( flags2 );
 
 	h5_file_t* f = H5OpenFile( file_name2, fbits, ccomm );
 
@@ -218,7 +191,16 @@ h5_close (
 	return H5CloseFile ( filehandle );
 }
 
-h5_int64_t
+h5_err_t
+h5_check (
+	const h5_int64_t *f
+	) {
+	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+
+	return H5CheckFile ( filehandle );
+}
+
+h5_err_t
 h5_setstep (
 	const h5_int64_t *f,
 	h5_int64_t *step ) {
@@ -228,7 +210,7 @@ h5_setstep (
 	return H5SetStep ( filehandle, (*step)-1 );
 }
 
-h5_int64_t
+h5_err_t
 h5_getnsteps (
 	const h5_int64_t *f
 	) {
@@ -238,7 +220,7 @@ h5_getnsteps (
 	return H5GetNumSteps ( filehandle );
 }
 
-h5_int64_t
+h5_err_t
 h5_set_verbosity_level (
 	const h5_int64_t *level
 	) {

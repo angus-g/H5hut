@@ -71,9 +71,7 @@
   use the same field dimensions, set the layout only once before the
   first timestep.
 
-  \return \c H5_SUCCESS on success<br>
-  \c H5PART_ERR_MPI<br>
-  \c H5PART_ERR_HDF5
+  \return \c H5_SUCCESS on success
 */
 h5_err_t
 H5Block3dSetView (
@@ -89,6 +87,31 @@ H5Block3dSetView (
 	SET_FNAME( f, __func__ );
 
 	return h5b_3d_set_view(f, i_start, i_end, j_start, j_end, k_start, k_end);
+}
+
+/*!
+  \ingroup h5block_model
+
+  Return partition of processor \c proc as specified with
+  \ref H5Block3dSetView.
+
+  \return \c H5_SUCCESS on success
+*/
+h5_err_t
+H5Block3dGetView (
+	h5_file_t *const f,	/*!< IN: File handle */
+	const int proc,		/*!< IN: Processor to get partition from */
+	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
+	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
+	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
+	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
+	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
+	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
+	) {
+
+	SET_FNAME( f, __func__ );
+
+	return h5b_3d_get_view(f, proc, i_start, i_end, j_start, j_end, k_start, k_end);
 }
 
 /*!
@@ -131,41 +154,14 @@ H5Block3dGetChunk (
 	return h5b_3d_get_chunk(f, field_name, dims);
 }
 
-/*!
-  \ingroup h5block_model
-
-  Return partition of processor \c proc as specified with
-  \c H5Block3dSetView().
-
-  \return \c H5_SUCCESS on success.<br>
-	  \c H5PART_ERR_INVAL if proc is invalid.
-*/
-h5_err_t
-H5Block3dGetView (
-	h5_file_t *const f,	/*!< IN: File handle */
-	const int proc,		/*!< IN: Processor to get partition from */
-	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
-	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
-	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
-	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
-	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
-	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
-	) {
-
-	SET_FNAME( f, __func__ );
-	//CHECK_LAYOUT ( f );
-
-	return h5b_3d_get_view(f, proc, i_start, i_end, j_start, j_end, k_start, k_end);
-}
 
 /*!
   \ingroup h5block_model
 
   Return reduced (ghost-zone free) partition of processor \c proc
-  as specified with \c H5Block3dSetView().
+  as specified with \ref H5Block3dSetView.
 
-  \return \c H5_SUCCESS on success.<br>
-	  \c H5PART_ERR_INVAL if proc is invalid.
+  \return \c H5_SUCCESS on success
 */
 h5_err_t
 H5Block3dGetReducedView (
@@ -180,7 +176,6 @@ H5Block3dGetReducedView (
 	) {
 
 	SET_FNAME( f, __func__ );
-	//CHECK_LAYOUT ( f );
 
 	return h5b_3d_get_reduced_view(f, proc, i_start, i_end, j_start, j_end, k_start, k_end);
 }
@@ -220,7 +215,6 @@ H5BlockGetNumFields (
 	) {
 
 	SET_FNAME( f, __func__ );
-	//CHECK_TIMEGROUP( f );
 
 	return h5b_get_num_fields(f);
 }
@@ -235,7 +229,7 @@ H5BlockGetNumFields (
   This function can be used to retrieve all fields bound to the
   current time-step by looping from \c 0 to the number of fields
   minus one.  The number of fields bound to the current time-step
-  can be queried by calling the function \c H5BlockGetNumFields().
+  can be queried by calling the function \ref H5BlockGetNumFields.
 
   \return \c H5_SUCCESS or error code
 */
@@ -268,9 +262,9 @@ h5_err_t
 H5BlockGetFieldInfoByName (
 	h5_file_t *const f,		/*!< IN: file handle */
 	const char *name,		/*!< IN: field name */
-	h5_int64_t *grid_rank,		/*!< OUT: grid rank */
-	h5_int64_t *grid_dims,		/*!< OUT: grid dimensions */
-	h5_int64_t *field_rank,		/*!< OUT: field rank */
+	h5_size_t *grid_rank,		/*!< OUT: grid rank */
+	h5_size_t *grid_dims,		/*!< OUT: grid dimensions */
+	h5_size_t *field_rank,		/*!< OUT: field rank */
 	h5_int64_t *type		/*!< OUT: datatype */
 	) {
 
@@ -312,29 +306,27 @@ H5BlockWriteFieldAttribString (
 /*!
   \ingroup h5block_attrib
 
-  Write float32 \c values as attribute \c attrib_name of field
-  \c field_name.
+  Read the string value from attribute \c attrib_name of field
+  \c field_name into a \c buffer.
 
   \return \c H5_SUCCESS or error code
 */
 h5_err_t
-H5BlockWriteFieldAttribFloat32 (
+H5BlockReadFieldAttribString (
 	h5_file_t *const f,			/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
-	const char *values,			/*!< IN: attribute value */
-	const h5_size_t nvalues			/*!< IN: number of values */
+	char *buffer			        /*!< OUT: attribute value */
 	) {
 
 	SET_FNAME( f, __func__ );
 
-	return h5_write_field_attrib (
+	return h5_read_field_attrib (
 		f,
 		field_name,
 		attrib_name,
-		H5T_NATIVE_FLOAT,
-		values,
-		nvalues );
+		H5_STRING_T,
+		(void*)buffer);
 }
 
 /*!
@@ -353,5 +345,43 @@ H5BlockGetNumFieldAttribs (
 	SET_FNAME( f, __func__ );
 
 	return h5b_get_num_field_attribs(f, field_name);
+}
+
+/*!
+  \ingroup h5block_attrib
+
+  Gets the name, type and number of elements of the field attribute
+  specified by its index.
+
+  This function can be used to retrieve all attributes bound to the
+  specified field by looping from \c 0 to the number of attribute
+  minus one.  The number of attributes bound to the
+  field can be queried by calling \ref H5BlockGetNumFieldAttribs.
+
+  \return	\c H5_SUCCESS or error code 
+*/
+h5_int64_t
+H5BlockGetFieldAttribInfo (
+	h5_file_t *const f,		/*!< [in]  Handle to open file */
+	const char *field_name,		/*<! IN: field name */
+	const h5_size_t attrib_idx,	/*!< [in]  Index of attribute to
+					           get infos about */
+	char *attrib_name,		/*!< [out] Name of attribute */
+	const h5_size_t len_of_attrib_name,
+					/*!< [in]  length of buffer \c name */
+	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
+	h5_size_t *attrib_nelem         /*!< [out] Number of elements */
+	) {
+	
+	SET_FNAME ( f, __func__ );
+
+	return h5b_get_field_attrib_info (
+		f,
+		field_name,
+		attrib_idx,
+		attrib_name,
+		len_of_attrib_name,
+		attrib_type,
+		attrib_nelem );
 }
 

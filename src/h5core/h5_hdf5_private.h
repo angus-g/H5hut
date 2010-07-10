@@ -68,7 +68,6 @@ h5priv_close_hdf5_dataset (
 	const hid_t dataset_id
 	);
 
-
 h5_err_t
 h5priv_write_hdf5_dataset (
 	h5_file_t* const f,
@@ -420,6 +419,13 @@ h5priv_get_base_type_name (
 	);
 
 /*** link ***/
+h5_err_t
+h5priv_hdf5_link_exists (
+	h5_file_t* const f,
+	const hid_t loc_id,
+	const char* name
+	);
+
 h5_err_t
 h5priv_delete_hdf5_link (
 	h5_file_t* const f,

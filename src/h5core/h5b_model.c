@@ -458,14 +458,8 @@ _dissolve_ghostzones (
 	return H5_SUCCESS;
 }
 
-/*!
-  \ingroup h5block_private
-
-  \internal
-
-*/
-static h5_err_t
-_release_hyperslab (
+h5_err_t
+h5bpriv_release_hyperslab (
 	h5_file_t *const f			/*!< IN: file handle */
 	) {
 	if ( f->b->shape > 0 ) {
@@ -483,8 +477,8 @@ _release_hyperslab (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-_open_block_group (
+h5_err_t
+h5bpriv_open_block_group (
 	h5_file_t *const f		/*!< IN: file handle */
 	) {
 
@@ -497,10 +491,27 @@ _open_block_group (
 
 	if ( b->block_gid < 0 ) {
 		TRY( b->block_gid = h5priv_open_hdf5_group(f,
-			   			 f->step_gid, H5_BLOCKNAME) );
+					f->step_gid, H5_BLOCKNAME) );
 	}
 
 	return H5_SUCCESS;
+}
+
+h5_err_t
+h5bpriv_have_field_group (
+	h5_file_t *const f,			/*!< IN: file handle */
+	const char *name
+	) {
+
+	char name2[H5_DATANAME_LEN];
+	h5_normalize_dataset_name(f, name, name2);
+
+	TRY( h5bpriv_open_block_group ( f ) );
+
+	h5_err_t exists;
+	TRY( exists = h5priv_hdf5_have_link(f, f->b->block_gid, name2) );
+
+	return exists;
 }
 
 h5_err_t
@@ -511,21 +522,13 @@ h5bpriv_open_field_group (
 
 	char name2[H5_DATANAME_LEN];
 	h5_normalize_dataset_name(f, name, name2);
-
-	TRY( _open_block_group ( f ) );
-	TRY( f->b->field_gid = h5priv_open_hdf5_group(f, f->b->block_gid, name2) );
-
-	return H5_SUCCESS;
-}
-
-h5_err_t
-h5bpriv_close_field_group (
-	h5_file_t *const f			/*!< IN: file handle */
-	) {
-
+	
 	if ( f->b->field_gid >= 0 ) {
 		TRY( h5priv_close_hdf5_group(f, f->b->field_gid) );
 	}
+
+	TRY( h5bpriv_open_block_group ( f ) );
+	TRY( f->b->field_gid = h5priv_open_hdf5_group(f, f->b->block_gid, name2) );
 
 	return H5_SUCCESS;
 }
@@ -618,8 +621,6 @@ h5b_3d_get_chunk (
 		(long long)dims[1],
 		(long long)dims[2] );
 
-	TRY( h5bpriv_close_field_group( f ) );
-
 	return H5_SUCCESS;
 }
 
@@ -703,7 +704,7 @@ h5b_get_num_fields (
 	h5_file_t *const f		/*!< IN: File handle */
 	) {
 
-	TRY( _open_block_group(f) );
+	TRY( h5bpriv_open_block_group(f) );
 	return h5priv_get_num_objs_in_hdf5_group( f, f->b->block_gid );
 }
 
@@ -752,7 +753,7 @@ h5b_get_field_info_by_name (
 	TRY( h5priv_close_hdf5_dataspace(f, dataspace_id) );
 	TRY( h5priv_close_hdf5_dataset(f, dataset_id) );
 
-	return h5bpriv_close_field_group(f);
+	return H5_SUCCESS;
 }
 
 h5_err_t
@@ -767,7 +768,7 @@ h5b_get_field_info (
 	h5_int64_t *type			/*!< OUT: datatype */
 	) {
 
-	TRY( _open_block_group(f) );
+	TRY( h5bpriv_open_block_group(f) );
 	TRY( h5priv_get_hdf5_objname_by_idx(
 		f,
 		f->b->block_gid,

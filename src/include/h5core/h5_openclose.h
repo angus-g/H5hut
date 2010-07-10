@@ -75,4 +75,16 @@ h5_traverse_steps (
 	h5_file_t * f			/*!< file handle		*/
 	);
 
+char *
+h5_strdupfor2c (
+	const char *s,
+	const ssize_t len
+	);
+
+char *
+h5_strc2for (
+	char * const str,
+	const ssize_t l_str
+	);
+	
 #endif

@@ -570,7 +570,7 @@ H5GetNumStepAttribs (
   This function can be used to retrieve all attributes bound to the
   file \c f by looping from \c 0 to the number of attribute minus
   one.  The number of attributes bound to file \c f can be queried
-  by calling the function \c H5GetNumFileAttribs().
+  by calling \ref H5GetNumFileAttribs.
 
   \return	\c H5_SUCCESS or error code 
 */
@@ -611,8 +611,7 @@ H5GetFileAttribInfo (
   This function can be used to retrieve all attributes bound to the
   current time-step by looping from \c 0 to the number of attribute
   minus one.  The number of attributes bound to the current
-  time-step can be queried by calling the function
-  \c H5GetNumStepAttribs().
+  time-step can be queried by calling \ref H5GetNumStepAttribs.
 
   \return	\c H5_SUCCESS or error code 
 */

@@ -1167,6 +1167,21 @@ h5priv_close_hdf5_attribute (
 
 /****** L i n k **************************************************************/
 h5_err_t
+h5priv_hdf5_link_exists (
+	h5_file_t* const f,
+	const hid_t loc_id,
+	const char* name
+	) {
+	htri_t exists = H5Lexists ( loc_id, name, H5P_DEFAULT );
+	if (exists < 0 )
+		return h5_error (f,
+			H5_ERR_HDF5,
+			"Cannot query link %s/%s.",
+			h5_get_objname (loc_id), name);
+	return exists;
+}
+
+h5_err_t
 h5priv_delete_hdf5_link (
 	h5_file_t* const f,
 	hid_t loc_id,

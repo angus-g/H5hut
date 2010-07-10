@@ -1,3 +1,3 @@
 # test level Makefile.am
 
-SUBDIRS = h5core C
+SUBDIRS = h5core C Fortran

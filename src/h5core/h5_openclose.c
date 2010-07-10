@@ -44,7 +44,7 @@ h5priv_error_handler (
 	hid_t estack_id,
 	void* __f
 	) {
-	if (h5_get_debug_level () >= 5) {
+	if (h5_get_debuglevel() >= 5) {
 		H5Eprint (estack_id, stderr);
 	}
 	return 0;
@@ -105,7 +105,7 @@ h5bpriv_open_file (
 	TRY( b->write_layout = h5priv_alloc (f, NULL, size) );
 
 	size_t n = sizeof (struct h5b_partition) / sizeof (h5_int64_t);
-        TRY( h5priv_mpi_type_contiguous(f,
+	TRY( h5priv_mpi_type_contiguous(f,
 			n, MPI_LONG_LONG, &b->partition_mpi_t) );
 
 	b->shape = -1;
@@ -347,7 +347,7 @@ h5bpriv_close_file (
 	TRY( h5priv_close_hdf5_dataspace (f, b->diskshape) );
 	TRY( h5priv_close_hdf5_dataspace (f, b->memshape) );
 	TRY( h5priv_close_hdf5_property (f, b->dcreate_prop) );
-	TRY( h5priv_mpi_type_free (f, b->partition_mpi_t) );
+	TRY( h5priv_mpi_type_free (f, &b->partition_mpi_t) );
 	free (f->b);
 	f->b = NULL;
 
@@ -426,7 +426,7 @@ h5_get_stepname_fmt (
 	h5_file_t* const f,		/*!< Handle to file		*/
 	char* name,			/*!< OUT: Prefix		*/
 	int l_name,			/*!< length of buffer name	*/
-	int* width	        	/*!< OUT: Width of the number	*/
+	int* width			/*!< OUT: Width of the number	*/
 	) {
 	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
@@ -504,7 +504,7 @@ h5_has_step (
 	h5_id_t stepno			/*!< step number to check	*/
 	) {
 	char name[128];
-        sprintf (name, "%s#%0*ld",
+	sprintf (name, "%s#%0*ld",
 		 f->prefix_step_name, f->width_step_idx, (long)stepno);
 	return (H5Gget_info_by_name (f->file, name, NULL, H5P_DEFAULT) >= 0);
 }
@@ -518,7 +518,7 @@ h5_has_step (
 */
 h5_err_t
 h5_start_traverse_steps (
-	h5_file_t* const f	       	/*!< file handle		*/
+	h5_file_t* const f		/*!< file handle		*/
 	) {
 	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
@@ -536,3 +536,31 @@ h5_traverse_steps (
 	) {
 	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
+
+char *
+h5_strdupfor2c (
+	const char *s,
+	const ssize_t len
+	) {
+
+	char *dup = (char*)malloc ( len + 1 );
+	strncpy ( dup, s, len );
+	char *p = dup + len;
+	do {
+		*p-- = '\0';
+	} while ( *p == ' ' );
+	return dup;
+}
+
+char *
+h5_strc2for (
+	char * const str,
+	const ssize_t l_str
+	) {
+
+	size_t len = strlen ( str );
+	memset ( str+len, ' ', l_str-len );
+
+	return str;
+}
+

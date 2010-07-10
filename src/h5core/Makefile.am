@@ -17,8 +17,9 @@ EXTRA_HEADERS =					\
 	../include/h5core/h5_readwrite.h	\
 	../include/h5core/h5_types.h		\
 	../include/h5core/h5u_readwrite.h	\
-	../include/h5core/h5u_model.h	        \
-	../include/h5core/h5b_model.h	        \
+	../include/h5core/h5b_readwrite.h	\
+	../include/h5core/h5u_model.h		\
+	../include/h5core/h5b_model.h		\
 	../include/h5core/h5b_attribs.h		\
 	../include/h5core/h5t_adjacencies.h	\
 	../include/h5core/h5t_inquiry.h		\
@@ -39,7 +40,7 @@ EXTRA_HEADERS =					\
 	h5_syscall_private.h			\
 	h5u_errorhandling_private.h             \
 	h5b_errorhandling_private.h		\
-        h5b_model_private.h                     \
+        h5b_model_private.h			\
 	h5t_adjacencies_tetm_private.h		\
 	h5t_adjacencies_trim_private.h		\
 	h5t_consts_private.h			\
@@ -86,8 +87,9 @@ libH5Core_a_SOURCES =				\
 	h5_readwrite.c				\
 	h5_syscall.c				\
 	h5u_readwrite.c                         \
+	h5b_readwrite.c                         \
 	h5u_model.c				\
-        h5b_model.c                             \
+        h5b_model.c				\
         h5b_attribs.c                           \
 	h5t_adjacencies.c			\
 	h5t_adjacencies_tetm.c			\

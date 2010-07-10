@@ -19,7 +19,6 @@
 #ifndef __H5FED_H
 #define __H5FED_H
 
-#include "H5.h"
 #include "H5Fed_adjacency.h"
 #include "H5Fed_inquiry.h"
 #include "H5Fed_retrieve.h"

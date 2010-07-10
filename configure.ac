@@ -193,14 +193,14 @@ if test "X$USE_FORTRAN" = "Xyes"; then
 	fi
 
 	AC_MSG_CHECKING([symbol convention in object files])
-	`cd src && rm -f TestUnderscore.o TestUnderscoreC.o TestUnderscore`
-	`cd src && ${FC} ${FFLAGS} -c TestUnderscore.f`
-	`cd src && ${CC} ${CFLAGS} -c TestUnderscoreC.c`
-	`cd src && ${FC} ${FFLAGS} -o TestUnderscore TestUnderscore.o TestUnderscoreC.o`
+	`cd src/Fortran && rm -f TestUnderscore.o TestUnderscoreC.o TestUnderscore`
+	`cd src/Fortran && ${FC} ${FFLAGS} -c TestUnderscore.f`
+	`cd src/Fortran && ${CC} ${CFLAGS} -c TestUnderscoreC.c`
+	`cd src/Fortran && ${FC} ${FFLAGS} -o TestUnderscore TestUnderscore.o TestUnderscoreC.o`
 
-	if test -f src/TestUnderscore ; then
+	if test -f src/Fortran/TestUnderscore ; then
 		UNDERSCORE_H=Underscore.h
-		`cd src && ./TestUnderscore > Underscore.h`
+		`cd src/Fortran && ./TestUnderscore > Underscore.h`
 		AC_MSG_RESULT([ok])
 	else
 		AC_MSG_RESULT([nok])
@@ -497,6 +497,7 @@ AC_CONFIG_FILES([
 	src/Makefile
 	src/C/Makefile
 	src/h5core/Makefile
+        src/Fortran/Makefile
 	test/Makefile
 	test/H5Part/Makefile
 	test/H5Block/Makefile
@@ -515,7 +516,7 @@ AC_MSG_RESULT([ ])
 AC_MSG_RESULT([Host OS:             $host_os])
 AC_MSG_RESULT([Host CPU:            $host_cpu])
 AC_MSG_RESULT([Host vendor:         $host_vendor])
-AC_MSG_RESULT([Build libraries:     $FORTRAN_LIB])
+AC_MSG_RESULT([Build libraries:     libH5Core.a libH5hutC.a $FORTRAN_LIB])
 AC_MSG_RESULT([Build test programs: $TTARGET])
 AC_MSG_RESULT([Build tools:         $BUILD_TOOLS])
 AC_MSG_RESULT([CC =                 $CC])
