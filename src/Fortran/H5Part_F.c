@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "H5hut.h"
 #include "Underscore.h"
 
@@ -98,16 +100,6 @@ h5pt_setnpoints_strided (
 /*==============Reading Data Characteristics============*/
 
 h5_err_t
-h5pt_getnsteps (
-	const h5_int64_t *f
-	) {
-
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartGetNumSteps ( filehandle );
-}
-
-h5_err_t
 h5pt_getndatasets (
 	const h5_int64_t *f
 	) {
@@ -140,7 +132,7 @@ h5pt_getdatasetname (
 	h5_int64_t herr =  H5PartGetDatasetName (
 		filehandle, *index, name, l_name );
 
-	_h5_strc2for ( name, l_name );
+	h5_strc2for ( name, l_name );
 	return herr;
 }
 

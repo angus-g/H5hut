@@ -277,7 +277,7 @@ h5bl_readfieldattrib_string (
 	char *field_name2 = h5_strdupfor2c ( field_name, l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 
-	h5_err_t herr = H5BlockReadFieldAttrib (
+	h5_err_t herr = H5BlockReadFieldAttribString (
 		filehandle, field_name2, attrib_name2, attrib_value );
 
 	h5_strc2for ( attrib_value, l_attrib_value );

@@ -15,8 +15,8 @@ struct h5b_fdata {
 	h5_size_t i_max;
 	h5_size_t j_max;
 	h5_size_t k_max;
-	struct h5b_partition* user_layout;
-	struct h5b_partition* write_layout;
+	struct h5b_partition user_layout[1];
+	struct h5b_partition write_layout[1];
 	int have_layout;
 
 	hid_t shape;
@@ -29,4 +29,5 @@ struct h5b_fdata {
 	MPI_Datatype partition_mpi_t;
 };
 typedef struct h5b_fdata h5b_fdata_t;
+typedef struct h5b_partition h5b_partition_t;
 #endif

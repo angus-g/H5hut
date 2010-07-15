@@ -200,7 +200,7 @@ h5priv_close_step (
 static h5_err_t
 _set_step (
 	h5_file_t* const f,
-	const h5_int64_t step_idx	/*!< [in]  Step to set. */
+	const h5_id_t step_idx	/*!< [in]  Step to set. */
 	) {
 	f->step_idx = step_idx;
 
@@ -219,10 +219,10 @@ _set_step (
 	return H5_SUCCESS;
 }
 
-h5_int64_t
+h5_err_t
 h5_set_step (
-	h5_file_t* const f,			/*!< [in]  Handle to open file */
-	const h5_int64_t step_idx	/*!< [in]  Step to set. */
+	h5_file_t* const f,		/*!< [in]  Handle to open file */
+	const h5_id_t step_idx		/*!< [in]  Step to set. */
 	) {
 
 	TRY( h5priv_close_step (f) );
@@ -290,15 +290,15 @@ h5_get_dataset_type(
 }
 
 h5_err_t
-h5_has_index (
+h5_has_step (
 	h5_file_t* const f,		/*!< [in]  Handle to open file */
-	const h5_int64_t step	/*!< [in]  Step number to query */
+	const h5_id_t step		/*!< [in]  Step number to query */
 	) {
 	char name[2*H5_STEPNAME_LEN];
 	sprintf (name,
 		"%s#%0*lld",
 		f->prefix_step_name, f->width_step_idx, (long long)step);
-	return (H5Gget_objinfo(f->file, name, 1, NULL) >= 0);
+	return h5priv_hdf5_link_exists(f, f->file, name);
 }
 
 h5_err_t
@@ -309,8 +309,9 @@ h5_normalize_dataset_name (
 	) {
 
 	if ( strlen(name) > H5_DATANAME_LEN ) {
-		strncpy ( name2, name, H5_DATANAME_LEN - 1 );
+		strncpy ( name2, name, H5_DATANAME_LEN-1 );
 		name2[H5_DATANAME_LEN-1] = '\0';
+		h5_warn (f, "Truncated name '%s' to '%s'.", name, name2);
 	} else {
 		strcpy ( name2, name );
 	}
@@ -318,8 +319,8 @@ h5_normalize_dataset_name (
 	if ( strcmp( name2, H5_BLOCKNAME ) == 0 ) {
 		h5_error (f,
 			H5_ERR_INVAL,
-			"Can't create dataset or field with name '%s' because it is "
-			"reserved by H5Block.",
+			"Can't create dataset or field with name '%s' because "
+			"it is reserved by H5Block.",
 			H5_BLOCKNAME);
 	}
 

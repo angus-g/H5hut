@@ -94,13 +94,13 @@ H5CheckFile (
 
   Define format of the step names.
 
-  Example: ==H5FedDefineStepNameFormat( f, "Step", 6 )== defines step names 
+  Example: ==H5SetStepNameFormat( f, "Step", 6 )== defines step names 
   like ==Step#000042==.
 
   \return \c H5_SUCCESS or error code
 */
 h5_err_t
-H5DefineStepNameFormat (
+H5SetStepNameFormat (
 	h5_file_t* const f,		/*!< Handle to file		*/
 	const char* name,		/*!< Prefix			*/
 	const h5_int64_t width		/*!< Width of the number	*/
@@ -140,7 +140,7 @@ H5GetStepNameFormat (
 h5_err_t
 H5SetStep (
 	h5_file_t* const f,		/*!< [in]  Handle to open file */
-	const h5_int64_t step		/*!< [in]  Step to set. */
+	const h5_id_t step		/*!< [in]  Step to set. */
 	) {
 
 	SET_FNAME (f, __func__);
@@ -161,6 +161,68 @@ H5GetStep (
 
 	SET_FNAME (f, __func__);
 	return h5_get_step (f);
+}
+
+/*!
+  \ingroup h5_inquiry
+
+  Get the number of processors.
+
+  \param[in]	f	File handle.
+
+  \return Number of processors.
+  \return \c -1 on error.
+ */
+int
+H5GetNumProcs (
+	h5_file_t* const f
+	) {
+	SET_FNAME (f, __func__);
+	return h5_get_num_procs(f);
+}
+
+/*!
+  \ingroup h5part_c_api_read
+
+  Get the number of time-steps that are currently stored in the file
+  \c f.
+
+  It works for both reading and writing of files, but is probably
+  only typically used when you are reading.
+
+  \param[in]	f	File handle.
+
+  \return	number of time-steps or error code
+*/
+h5_size_t
+H5GetNumSteps (
+	h5_file_t* const f
+	) {
+
+	SET_FNAME (f, __func__);
+
+	return h5_get_num_steps(f);
+}
+
+/*!
+  \ingroup h5_inquiry
+
+  Query whether a particular step already exists in the file.
+
+  \param[in]	f	File handle.
+  \param[in]	stepno	Step number to query for existence
+
+  \return      true or false
+*/
+h5_err_t
+H5HasStep (
+	h5_file_t* const f,
+	h5_id_t stepno
+	) {
+  
+	SET_FNAME (f, __func__);
+
+	return h5_has_step (f, stepno);
 }
 
 /*!

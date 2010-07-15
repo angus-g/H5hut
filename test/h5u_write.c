@@ -41,26 +41,30 @@ test_write_step_attribs(h5_file_t *file, int position)
 	h5_err_t status;
 	char name[ATTR_NAME_SIZE];
 
-	TEST("Writing step attributes");
+	TEST("Writing file attributes");
 
 	get_attr_name(name, "str", position);
 	status = H5WriteStepAttribString(file, name, ATTR_STR_VAL);
 	RETURN(status, H5_SUCCESS, "H5WriteStepAttribString");
 
 	get_attr_name(name, "i32", position);
-	status = H5WriteStepAttribInt32(file, name, ATTR_INT32_VAL, 1);
+        h5_int32_t i32 = ATTR_INT32_VAL;
+	status = H5WriteStepAttribInt32(file, name, &i32, 1);
 	RETURN(status, H5_SUCCESS, "H5WriteStepAttribInt32");
 
 	get_attr_name(name, "i64", position);
-	status = H5WriteStepAttribInt64(file, name, ATTR_INT64_VAL, 1);
+        h5_int64_t i64 = ATTR_INT64_VAL;
+	status = H5WriteStepAttribInt64(file, name, &i64, 1);
 	RETURN(status, H5_SUCCESS, "H5WriteStepAttribInt64");
 
 	get_attr_name(name, "f32", position);
-	status = H5WriteStepAttribFloat32(file, name, ATTR_FLOAT_VAL, 1);
+        h5_float32_t f32 = ATTR_FLOAT_VAL;
+	status = H5WriteStepAttribFloat32(file, name, &f32, 1);
 	RETURN(status, H5_SUCCESS, "H5WriteStepAttribFloat32");
 
 	get_attr_name(name, "f64", position);
-	status = H5WriteStepAttribFloat64(file, name, ATTR_FLOAT_VAL, 1);
+        h5_float64_t f64 = ATTR_FLOAT_VAL;
+	status = H5WriteStepAttribFloat64(file, name, &f64, 1);
 	RETURN(status, H5_SUCCESS, "H5WriteStepAttribFloat64");
 }
 
@@ -81,14 +85,6 @@ test_write_data64(h5_file_t *file, int nparticles, int step)
 	py=(double*)malloc(nparticles*sizeof(double));
 	pz=(double*)malloc(nparticles*sizeof(double));
 	id=(h5_int64_t*)malloc(nparticles*sizeof(h5_int64_t));
-
-	/* invalid stride will produce a warning */
-	status = H5PartSetNumParticlesStrided(file, nparticles, -1);
-	RETURN(status, H5_SUCCESS, "H5PartSetNumParticlesStrided");
-
-	/* invalid nparticles will produce an error */
-	status = H5PartSetNumParticlesStrided(file, -1, 2);
-	RETURN(status, H5_ERR_INVAL, "H5PartSetNumParticlesStrided");
 
 #if PARALLEL_IO
 	TEST("Setting throttle");
@@ -458,8 +454,8 @@ void h5u_test_write4(void)
 	status = H5SetStepNameFormat(file2, LONGNAME, 16);
 	RETURN(status, H5_SUCCESS, "H5SetStepNameFormat");
 
-	status = H5PartSetChunkSize(file1, NPARTICLES);
-	RETURN(status, H5_SUCCESS, "H5PartSetChunkSize");
+	status = H5PartSetChunk(file1, NPARTICLES);
+	RETURN(status, H5_SUCCESS, "H5PartSetChunk");
 
 	test_write_data64(file1, NPARTICLES, NTIMESTEPS-2);
 	test_write_file_attribs(file1, 1);

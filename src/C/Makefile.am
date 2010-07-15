@@ -17,7 +17,6 @@ EXTRA_LIBRARIES = libH5hutC.a
 include_HEADERS =				\
 	../include/H5hut.h			\
 	../include/H5.h				\
-	../include/H5_inquiry.h			\
 	../include/H5_attribs.h			\
 	../include/H5Part.h                     \
 	../include/H5Block.h			\
@@ -35,7 +34,6 @@ EXTRA_HEADERS =
 libH5hutC_a_SOURCES =				\
 	H5.c					\
 	H5_attribs.c				\
-	H5_inquiry.c				\
 	H5Part.c                                \
 	H5Block.c				\
 	H5Block_readwrite.c			\

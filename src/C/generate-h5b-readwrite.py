@@ -14,6 +14,8 @@ h_tail = """
 """
 
 fc_head = """
+#include <stdlib.h>
+
 #include "H5hut.h"
 #include "Underscore.h"
 

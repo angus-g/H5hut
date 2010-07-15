@@ -313,6 +313,18 @@ init_fdata (
 		     t->dsinfo_num_elems_on_level.chunk_dims) );
 	t->dsinfo_num_elems_on_level.access_prop = H5P_DEFAULT;
 
+	/* initialize pointers */
+	t->elems.data =			NULL;
+	t->num_elems =			NULL;
+	t->elems_ldta =			NULL;
+	t->num_elems_on_level =		NULL;
+	t->map_elem_g2l.items =		NULL;
+	t->vertices =			NULL; 
+	t->vertices_data =		NULL;
+	t->num_vertices =		NULL;
+	t->map_vertex_g2l.items =	NULL;
+	t->mtags.names =		NULL;
+
 	return H5_SUCCESS;
 }
 
@@ -344,25 +356,6 @@ h5tpriv_open_file (
 	TRY( create_tet_type (f) );
 	TRY( create_tag_types (f) );
 	TRY( init_fdata (f) );
-
-	return H5_SUCCESS;
-}
-
-/*!
-  \ingroup h5_private
-
-  \internal
-
-  De-initialize topological internal structure.  Open HDF5 objects are 
-  closed and allocated memory freed.
-
-  \return	H5_SUCCESS or error code
-*/
-h5_err_t
-h5tpriv_close_file (
-	h5_file_t* const f		/*!< IN: file handle */
-	) {
-	TRY( h5t_close_mesh (f) );
 
 	return H5_SUCCESS;
 }
@@ -533,7 +526,9 @@ h5_err_t
 h5t_close_mesh (
 	h5_file_t* const f
 	) {
-	TRY( h5tpriv_write_mesh (f) );
+	if (!(f->mode & H5_O_RDONLY)) {
+		TRY( h5tpriv_write_mesh (f) );
+	}
 	TRY( release_memory (f) );
 	TRY( init_fdata (f) );
 
@@ -575,3 +570,25 @@ h5tpriv_alloc_num_vertices (
 
 	return H5_SUCCESS;
 }
+
+/*!
+  \ingroup h5_private
+
+  \internal
+
+  De-initialize topological internal structure.  Open HDF5 objects are 
+  closed and allocated memory freed.
+
+  \return	H5_SUCCESS or error code
+*/
+h5_err_t
+h5tpriv_close_file (
+	h5_file_t* const f		/*!< IN: file handle */
+	) {
+	TRY( release_memory (f) );
+	TRY( h5t_close_mesh (f) );
+
+	return H5_SUCCESS;
+}
+
+

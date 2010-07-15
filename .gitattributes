@@ -376,7 +376,6 @@ src/C/H5Fed_store.c -text
 src/C/H5Fed_tags.c -text
 src/C/H5Part.c -text
 src/C/H5_attribs.c -text
-src/C/H5_inquiry.c -text
 src/C/Makefile.am -text
 src/C/generate-h5b-readwrite.py -text
 src/Fortran/H5.f90 -text
@@ -404,6 +403,8 @@ src/h5core/h5_hdf5.c -text
 src/h5core/h5_hdf5_private.h -text
 src/h5core/h5_hsearch.c -text
 src/h5core/h5_hsearch_private.h -text
+src/h5core/h5_lustre.c -text
+src/h5core/h5_lustre_private.h -text
 src/h5core/h5_maps.c -text
 src/h5core/h5_model.c -text
 src/h5core/h5_mpi.c -text
@@ -473,7 +474,6 @@ src/include/H5Fed_store.h -text
 src/include/H5Fed_tags.h -text
 src/include/H5Part.h -text
 src/include/H5_attribs.h -text
-src/include/H5_inquiry.h -text
 src/include/H5hut.h -text
 src/include/grephdr -text
 src/include/h5core/h5_attribs.h -text
@@ -530,6 +530,9 @@ test/H5Part/H5testF.f -text
 test/H5Part/H5testFpar.f90 -text
 test/H5Part/Makefile.am -text
 test/Makefile.am -text
+test/h5b_read.c -text
+test/h5b_test.c -text
+test/h5b_write.c -text
 test/h5u_read.c -text
 test/h5u_test.c -text
 test/h5u_write.c -text

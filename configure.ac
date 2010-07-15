@@ -19,6 +19,12 @@ AC_CONFIG_HEADER(config.h)
 ###############################################################################
 
 AC_ARG_ENABLE(
+	[debug],
+	[AC_HELP_STRING([--enable-debug],
+	[Compile with debug flags [default=no]])],
+	[USE_DEBUG=$enableval])
+
+AC_ARG_ENABLE(
 	[64],
 	[AC_HELP_STRING([--enable-64],
 	[Compile using 64-bit flags [default=no]])],
@@ -53,6 +59,13 @@ AC_ARG_WITH(
 	[AC_HELP_STRING([--with-hdf5],
 	[path to HDF5 installation [default=""]])],
 	[HDF5PATH=$withval], [HDF5PATH=""])
+
+AC_ARG_WITH(
+	[lustre],
+	[AC_HELP_STRING([--with-lustre],
+	[path to lustre user API [default=""]])],
+	[LUSTREPATH=$withval], [LUSTREPATH=""])
+
 
 ###############################################################################
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
@@ -168,6 +181,15 @@ AC_DEFINE_UNQUOTED(MY_UNAME, "$uname", "")
 ###############################################################################
 ######################## CONFIGURE LINE OPTIONS ###############################
 ###############################################################################
+
+AC_MSG_CHECKING([if debug is enabled])
+
+if test "X$USE_DEBUG" = "Xyes"; then
+    AC_MSG_RESULT([yes])
+    CFLAGS="$CFLAGS -g"
+else
+    AC_MSG_RESULT([no])
+fi
 
 ############################ fortran enabled ##################################
 AC_MSG_CHECKING([if fortran interface enabled])
@@ -361,23 +383,7 @@ else
 	P="$P /usr/local/hdf5"
 	P="$P /usr/local/packages/hdf5"
 	P="$P /apps/hdf5"
-
-	if test "X$USE_PARALLEL" = "Xyes"; then
-		P="$P /usr/local/phdf5"
-		P="$P /usr/local/hdf5/hdf5_par"
-		if test "X$USE_64" = "Xyes"; then
-			P="$P /usr/common/usg/hdf5/64/default/parallel"
-		else
-			P="$P /usr/common/usg/hdf5/32/default/parallel"
-		fi
-	else
-		P="$P /usr/local/hdf5/hdf5_serial"
-		if test "X$USE_64" = "Xyes"; then
-			P="$P /usr/common/usg/hdf5/64/default/serial"
-		else
-			P="$P /usr/common/usg/hdf5/32/default/serial"
-		fi
-	fi
+	P="$P /opt/hdf5"
 fi
 PATH_Search HDF5ROOT "$P" include/hdf5.h
 if test -z "$HDF5ROOT"; then
@@ -402,6 +408,27 @@ PATH_Search ZLIBROOT '/apps/zlib' lib/libz.a
 if test -n "$ZLIBROOT"; then
 	LDFLAGS="$LDFLAGS -L$ZLIBROOT/lib"
 fi
+
+AC_MSG_CHECKING([for lustre API ])
+AC_MSG_RESULT([])
+if test -n "${LUSTREPATH}"; then
+	P=${LUSTREPATH}
+elif test -n "${LUSTRE_DIR}" ; then
+	P=${LUSTRE_DIR}
+else
+	P=''
+	P="$P /usr"
+	P="$P /usr/local"
+	P="$P /usr/local/lustre"
+	P="$P /opt/lustre"
+fi
+PATH_Search LUSTREROOT "$P" usr/include/lustre/liblustreapi.h
+if test -z "$LUSTREROOT"; then
+	AC_MSG_WARN([Couldn't locate the lustre API... building without support for lustre striping!])
+else
+        CFLAGS="$CFLAGS -DH5_USE_LUSTRE"
+fi
+
 
 ###############################################################################
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
@@ -472,6 +499,7 @@ fi
 # If value is given, in addition assign it to variable. 
 AC_SUBST(MPIROOT)
 AC_SUBST(HDF5ROOT)
+AC_SUBST(LUSTREROOT)
 AC_SUBST(MPIINC)
 AC_SUBST(MPILIB)
 AC_SUBST(MPICC)
@@ -531,5 +559,6 @@ AC_MSG_RESULT([MPILIB =             $MPILIB])
 AC_MSG_RESULT([MPIINC =             $MPIINC])
 AC_MSG_RESULT([MPIROOT =            $MPIROOT])
 AC_MSG_RESULT([HDF5ROOT =           $HDF5ROOT])
+AC_MSG_RESULT([LUSTREROOT =         $LUSTREROOT])
 AC_MSG_RESULT([LDFLAGS =            $LDFLAGS])
 AC_MSG_RESULT([ ])

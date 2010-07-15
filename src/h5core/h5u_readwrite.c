@@ -9,6 +9,8 @@ h5u_read_data (
 	const hid_t type
 	) {
 
+	CHECK_TIMEGROUP( f );
+
 	struct h5u_fdata *u = f->u;
 	hid_t dataset_id;
 	hid_t space_id;
@@ -107,9 +109,9 @@ h5u_write_data (
 	const hid_t type	/*!< IN: Type of data */
 	) {
 
-	CHECK_FILEHANDLE ( f );
-	CHECK_WRITABLE_MODE( f );
 	CHECK_TIMEGROUP( f );
+	CHECK_WRITABLE_MODE( f );
+
 	struct h5u_fdata *u = f->u;
 	hid_t dset_id;
 
@@ -138,9 +140,6 @@ h5u_write_data (
 			H5P_DEFAULT) );
 	}
 
-#ifdef PARALLEL_IO
-	TRY( h5_start_throttle(f) );
-#endif
 	h5_info (f,
 		"Writing dataset %s/%s.",
 		h5_get_objname(f->step_gid), name2); 
@@ -153,9 +152,6 @@ h5u_write_data (
 		     f->xfer_prop,
 		     data) );
 	TRY( h5priv_close_hdf5_dataset (f, dset_id) );
-#ifdef PARALLEL_IO
-	TRY( h5_end_throttle(f) );
-#endif
 
 	f->empty = 0;
 

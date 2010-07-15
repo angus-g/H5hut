@@ -2,50 +2,6 @@
 #include "h5_core_private.h"
 
 static h5_err_t
-_create_block_group (
-	h5_file_t *const f		/*!< IN: file handle */
-	) {
-
-	h5_err_t exists;
-	TRY( exists = h5priv_hdf5_link_exists(f, f->step_gid, H5_BLOCKNAME) );
-
-	if (exists > 0) {
-		TRY( h5bpriv_open_block_group(f) );
-	} else {
-		TRY( f->b->block_gid = h5priv_create_hdf5_group(f,
-					f->step_gid, H5_BLOCKNAME) );
-	}
-
-	return H5_SUCCESS;
-}
-
-static h5_err_t
-_create_field_group (
-	h5_file_t *const f,		/*!< IN: file handle */
-	const char *name		/*!< IN: name of field group to create */
-	) {
-
-	struct h5b_fdata *b = f->b;
-
-	TRY( _create_block_group(f) );
-
-	char name2[H5_DATANAME_LEN];
-	h5_normalize_dataset_name(f, name, name2);
-
-	h5_err_t exists;
-	TRY( exists = h5priv_hdf5_link_exists(f, b->block_gid, name2) );
-
-	if (exists > 0) {
-		TRY( h5bpriv_open_field_group(f, name2) );
-	} else {
-		TRY( b->field_gid = h5priv_create_hdf5_group(f,
-						b->block_gid, name2) );
-	}
-
-	return H5_SUCCESS;
-}	
-
-static h5_err_t
 _select_hyperslab_for_writing (
 	h5_file_t *const f		/*!< IN: file handle */
 	) {
@@ -55,9 +11,9 @@ _select_hyperslab_for_writing (
 	*/
 	if ( f->b->shape >= 0 ) return H5_SUCCESS;
 
-	struct h5b_fdata *b = f->b;
-	struct h5b_partition *p = &b->write_layout[f->myproc];
-	struct h5b_partition *q = &b->user_layout[f->myproc];
+	h5b_fdata_t *b = f->b;
+	h5b_partition_t *p = b->write_layout;
+	h5b_partition_t *q = b->user_layout;
 
 	int rank = 3;
 	
@@ -156,7 +112,7 @@ _write_data (
 	) {
 
 	hid_t dataset;
-	struct h5b_fdata *b = f->b;
+	h5b_fdata_t *b = f->b;
 
 	h5_err_t exists;
 	TRY( exists = h5priv_hdf5_link_exists (f, b->field_gid, data_name) );
@@ -203,7 +159,10 @@ h5b_write_scalar_data (
 	const void *data,		/*!< IN: data to write */
 	const hid_t type		/*!< IN: data type */
 	) {
-	TRY( _create_field_group(f, field_name) );
+	CHECK_TIMEGROUP( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_LAYOUT( f );
+	TRY( h5bpriv_create_field_group(f, field_name) );
 	TRY( _select_hyperslab_for_writing(f) );
 	TRY( _write_data(f, field_name, H5_BLOCKNAME_X, data, type) );
 	return H5_SUCCESS;
@@ -218,7 +177,10 @@ h5b_write_vector3d_data (
 	const void *zdata,		/*!< IN: z data to write */
 	const hid_t type		/*!< IN: data type */
 	) {
-	TRY( _create_field_group(f, field_name) );
+	CHECK_TIMEGROUP( f );
+	CHECK_WRITABLE_MODE( f );
+	CHECK_LAYOUT( f );
+	TRY( h5bpriv_create_field_group(f, field_name) );
 	TRY( _select_hyperslab_for_writing(f) );
 	TRY( _write_data(f, field_name, H5_BLOCKNAME_X, xdata, type) );
 	TRY( _write_data(f, field_name, H5_BLOCKNAME_Y, ydata, type) );
@@ -232,8 +194,8 @@ _select_hyperslab_for_reading (
 	const hid_t dataset
 	) {
 
-	struct h5b_fdata *b = f->b;
-	struct h5b_partition *p = &b->user_layout[f->myproc];
+	h5b_fdata_t *b = f->b;
+	h5b_partition_t *p = b->user_layout;
 	int rank;
 	hsize_t field_dims[3];
 	hsize_t start[3] = {
@@ -314,7 +276,7 @@ _read_data (
 	) {
 
 	hid_t dataset;
-	struct h5b_fdata *b = f->b;
+	h5b_fdata_t *b = f->b;
 
 	TRY( dataset = h5priv_open_hdf5_dataset(f, b->field_gid, data_name) );
 	TRY( _select_hyperslab_for_reading(f, dataset) );
@@ -337,6 +299,8 @@ h5b_read_scalar_data (
 	void *data,			/*!< OUT: read bufer */
 	const hid_t type		/*!< IN: data type */
 	) {
+	CHECK_TIMEGROUP( f );
+	CHECK_LAYOUT( f );
 	TRY( h5bpriv_open_field_group(f, field_name) );
 	TRY( _read_data(f, field_name, H5_BLOCKNAME_X, data, type) );
 	return H5_SUCCESS;
@@ -351,6 +315,8 @@ h5b_read_vector3d_data (
 	void *zdata,			/*!< IN: z data to write */
 	const hid_t type		/*!< IN: data type */
 	) {
+	CHECK_TIMEGROUP( f );
+	CHECK_LAYOUT( f );
 	TRY( h5bpriv_open_field_group(f, field_name) );
 	TRY( _read_data(f, field_name, H5_BLOCKNAME_X, xdata, type) );
 	TRY( _read_data(f, field_name, H5_BLOCKNAME_Y, ydata, type) );

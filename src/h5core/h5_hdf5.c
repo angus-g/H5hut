@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include <hdf5.h>
 
@@ -55,7 +56,6 @@ h5priv_open_group (
 	const char* const group_name
 	) {
 	hid_t group_id;
-	herr_t herr = H5Gget_objinfo (loc_id, group_name, 1, NULL);
 
 	/*
 	  check access modes:
@@ -66,7 +66,9 @@ h5priv_open_group (
 	  H5_O_APPEND	x	x  (append datasets to an existing group)
 	*/
 
-	if (herr >= 0) {
+        h5_err_t exists;
+        TRY( exists = h5priv_hdf5_link_exists(f, loc_id, group_name) );
+	if (exists > 0) {
 		h5_info (
 			f,
 			"Opening group %s/%s.",
@@ -87,7 +89,7 @@ h5priv_open_group (
 		return h5_error (
 			f,
 			H5_ERR_HDF5,
-			"Cannot open group \"%s/%s\".",
+			"Cannot open or create group %s/%s.",
 			h5_get_objname (loc_id),
 			group_name);
 
@@ -574,7 +576,7 @@ h5priv_close_hdf5_dataspace (
 	h5_file_t* const f,
 	const hid_t dataspace_id
 	) {
-	if (dataspace_id == 0 || dataspace_id == -1 || dataspace_id == H5S_ALL)
+	if (dataspace_id <= 0 || dataspace_id == H5S_ALL)
 		return H5_SUCCESS; 
 
 	herr_t herr = H5Sclose (dataspace_id);
@@ -582,8 +584,7 @@ h5priv_close_hdf5_dataspace (
 		return h5_error(
 			f,
 			H5_ERR_HDF5,
-			"Cannot terminate access to dataspace \"%s\".",
-			h5_get_objname (dataspace_id)); 
+			"Cannot terminate access to dataspace!");
 
 	return H5_SUCCESS;
 }
@@ -1202,11 +1203,70 @@ h5priv_delete_hdf5_link (
 typedef struct op_data {
 	int queried_idx;
 	int cnt;
-	H5L_type_t type;
+	H5O_type_t type;
 	char *name;
 	size_t len;
 	char *prefix;
+	h5_file_t *f;
 } op_data_t;
+
+static H5O_type_t
+_iter_op_get_obj_type (
+	h5_file_t *const f,
+	const hid_t g_id,
+	const char* name,
+	const H5L_info_t* info
+	) {
+	herr_t herr;
+	H5O_info_t objinfo;
+
+	if ( info->type == H5L_TYPE_EXTERNAL ) {
+		char *buf;
+		TRY( buf = h5priv_alloc(f, NULL, info->u.val_size) );
+
+		herr = H5Lget_val(g_id, name, buf,
+					info->u.val_size, H5P_DEFAULT);
+		if ( herr < 0 )
+			return h5_error(f,
+				H5_ERR_HDF5,
+				"Can't get external link for object '%s'!",
+				name);
+
+		const char *filename;
+		const char *objname;
+		herr = H5Lunpack_elink_val(buf, info->u.val_size, 0,
+							&filename, &objname);
+		if ( herr < 0 )
+			return h5_error(f,
+				H5_ERR_HDF5,
+				"Can't unpack external link for object '%s'!",
+				name);
+
+		h5_debug(f,
+			"Followed external link to file '%s' / object '%s'.",
+			filename, objname);
+
+		free(buf);
+
+		hid_t obj_id = H5Oopen(g_id, name, H5P_DEFAULT);
+		if ( obj_id < 0 )
+			return h5_error(f,
+				H5_ERR_HDF5,
+				"Can't open external link for object '%s'!",
+				name);
+		herr = H5Oget_info(obj_id, &objinfo);	
+	}
+	else { // H5L_TYPE_HARD
+		herr = H5Oget_info_by_name(g_id, name, &objinfo, H5P_DEFAULT);
+	}
+	
+	if ( herr < 0 )
+		return h5_error(f,
+			H5_ERR_HDF5,
+			"Can't query object with name '%s'!", name);
+
+	return objinfo.type;
+}
 
 static herr_t
 iter_op_count (
@@ -1216,10 +1276,9 @@ iter_op_count (
 	void* _op_data
 	) {
 	op_data_t* op_data = (op_data_t*)_op_data;
-
-	if (info->type != op_data->type) {
-		return 0;
-	}
+	H5O_type_t type;
+	TRY( type = _iter_op_get_obj_type(op_data->f, g_id, name, info) );
+	if ( type != op_data->type ) return 0;
 	op_data->cnt++;
 	return 0;
 }
@@ -1232,9 +1291,9 @@ iter_op_idx (
 	void* _op_data
 	) {
 	op_data_t* op_data = (op_data_t*)_op_data;
-	if (info->type != op_data->type) {
-		return 0;
-	}
+	H5O_type_t type;
+	TRY( type = _iter_op_get_obj_type(op_data->f, g_id, name, info) );
+	if ( type != op_data->type ) return 0;
 	op_data->cnt++;
 	/* stop iterating if index is equal cnt */
 	if (op_data->queried_idx == op_data->cnt) {
@@ -1253,14 +1312,13 @@ iter_op_count_match (
 	void* _op_data
 	) {
 	op_data_t* op_data = (op_data_t*)_op_data;
-	if (info->type != op_data->type) {
-		return 0;
-	}
+	H5O_type_t type;
+	TRY( type = _iter_op_get_obj_type(op_data->f, g_id, name, info) );
+	if ( type != op_data->type ) return 0;
 	/* count if prefix matches */
 	if (strncmp (name, op_data->prefix, strlen(op_data->prefix)) == 0) {
 		op_data->cnt++;
 	}
-
 	return 0;
 }
 
@@ -1271,7 +1329,7 @@ h5_get_num_hdf5_groups (
 	) {
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
-	op_data.type = (H5L_type_t)H5G_GROUP;
+	op_data.type = H5O_TYPE_GROUP;
 	hsize_t start_idx = 0;
 	herr_t herr = H5Literate (loc_id, H5_INDEX_NAME, H5_ITER_INC,
 				  &start_idx,
@@ -1294,7 +1352,8 @@ h5_get_num_hdf5_groups_matching_prefix (
 	) {
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
-	op_data.type = (H5L_type_t)H5G_GROUP;
+	op_data.f = f;
+	op_data.type = H5O_TYPE_GROUP;
 	op_data.prefix = prefix;
 	hsize_t start_idx = 0;
 	herr_t herr = H5Literate (loc_id, H5_INDEX_NAME, H5_ITER_INC,
@@ -1316,13 +1375,16 @@ h5_get_hdf5_groupname_by_idx (
 	hid_t loc_id,
 	hsize_t idx,
 	char *name,
-	size_t size
+	size_t len
 	) {
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
-	op_data.type = (H5L_type_t)H5G_GROUP;
+	op_data.f = f;
+	op_data.type = H5O_TYPE_GROUP;
 	op_data.cnt = -1;
 	op_data.queried_idx = idx;
+        op_data.name = name;
+        op_data.len = len;
 	hsize_t start_idx = 0;
 	herr_t herr = H5Literate (loc_id, H5_INDEX_NAME, H5_ITER_INC,
 				  &start_idx,
@@ -1334,7 +1396,6 @@ h5_get_hdf5_groupname_by_idx (
 			"Cannot get name of group with index \"%lu\" in \"%s\".",
 			(long unsigned int)idx, h5_get_objname (loc_id));
 	}
-	strncpy (name, op_data.name, size);
 	return H5_SUCCESS;
 }
 
@@ -1345,7 +1406,8 @@ h5_get_num_hdf5_datasets (
 	) {
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
-	op_data.type = (H5L_type_t)H5G_DATASET;
+	op_data.f = f;
+	op_data.type = H5O_TYPE_DATASET;
 	hsize_t start_idx = 0;
 	herr_t herr = H5Literate (loc_id, H5_INDEX_NAME, H5_ITER_INC,
 				  &start_idx,
@@ -1369,14 +1431,16 @@ h5_get_hdf5_datasetname_by_idx (
 	hid_t loc_id,
 	hsize_t idx,
 	char *name,
-	size_t size
+	size_t len
 	) {
-	return H5_SUCCESS;
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
-	op_data.type = (H5L_type_t)H5G_DATASET;
+	op_data.f = f;
+	op_data.type = H5O_TYPE_DATASET;
 	op_data.cnt = -1;
 	op_data.queried_idx = idx;
+        op_data.name = name;
+        op_data.len = len;
 	hsize_t start_idx = 0;
 	herr_t herr = H5Literate (loc_id, H5_INDEX_NAME, H5_ITER_INC,
 				  &start_idx,
@@ -1388,7 +1452,6 @@ h5_get_hdf5_datasetname_by_idx (
 			"Cannot get name of dataset with index \"%lu\" in \"%s\".",
 			(long unsigned int)idx, h5_get_objname (loc_id));
 	}
-	strncpy (name, op_data.name, size);
 	return H5_SUCCESS;
 }
 

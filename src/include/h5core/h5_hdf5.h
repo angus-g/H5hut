@@ -20,7 +20,7 @@ h5_get_hdf5_groupname_by_idx (
 	hid_t loc_id,
 	hsize_t idx,
 	char *name,
-	size_t size
+	size_t len
 	);
 
 ssize_t
@@ -35,7 +35,7 @@ h5_get_hdf5_datasetname_by_idx (
 	hid_t loc_id,
 	hsize_t idx,
 	char *name,
-	size_t size
+	size_t len
 	);
 
 const char *

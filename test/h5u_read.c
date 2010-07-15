@@ -92,10 +92,12 @@ test_read_data64(h5_file_t *file, int nparticles, int step)
 {
 	int i,t;
 	int rank, nprocs;
-	h5_int64_t status, val, start, end, type, size;
+	h5_err_t status;
+        h5_int64_t val, start, end, type;
 	char name1[4];
 	char name2[8];
-	h5_int64_t indices[8];
+	h5_id_t indices[8];
+        h5_size_t size;
 
 	double *x,*y,*z;
 	double *px,*py,*pz;
@@ -194,7 +196,7 @@ test_read_data64(h5_file_t *file, int nparticles, int step)
 		indices[2] = rank*2 + 9;
 		indices[3] = rank*2 + 7;
 
-		status = H5PartSetViewIndices(file, indices, -1);
+		status = H5PartSetViewIndices(file, indices, 0);
 		RETURN(status, H5_SUCCESS, "H5PartSetViewIndices");
 
 		status = H5PartReadDataFloat64(file, "x", x);
@@ -226,9 +228,26 @@ test_read_data64(h5_file_t *file, int nparticles, int step)
 		status = H5PartSetCanonicalView(file);
 		RETURN(status, H5_SUCCESS, "H5PartSetCanonicalView");
 
-		status = H5PartReadParticleStep (
-			file, t, x, y, z, px, py, pz, id);
-		RETURN(status, H5_SUCCESS, "H5PartReadParticleStep");
+		status = H5PartReadDataFloat64(file, "x", x);
+		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat64");
+
+		status = H5PartReadDataFloat64(file, "y", y);
+		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat64");
+
+		status = H5PartReadDataFloat64(file, "z", z);
+		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat64");
+		
+		status = H5PartReadDataFloat64(file, "px", px);
+		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat64");
+
+		status = H5PartReadDataFloat64(file, "py", py);
+		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat64");
+
+		status = H5PartReadDataFloat64(file, "pz", pz);
+		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat64");
+		
+		status = H5PartReadDataInt64(file, "id", id);
+		RETURN(status, H5_SUCCESS, "H5PartReadDataInt64");
 
 		for (i=0; i<nparticles; i++)
 		{

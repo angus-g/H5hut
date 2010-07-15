@@ -17,75 +17,46 @@
 
 static void
 _normalize_partition (
-	struct h5b_partition *p	/*!< IN/OUT: partition */
+	h5b_partition_t *const p	/*!< IN/OUT: partition */
 	) {
-	h5_int64_t x;
+	h5_size_t tmp;
 
 	if ( p->i_start > p->i_end ) {
-		x = p->i_start;
+		tmp = p->i_start;
 		p->i_start = p->i_end;
-		p->i_end = x;
+		p->i_end = tmp;
 	}
 	if ( p->j_start > p->j_end ) {
-		x = p->j_start;
+		tmp = p->j_start;
 		p->j_start = p->j_end;
-		p->j_end = x;
+		p->j_end = tmp;
 	}
 	if ( p->k_start > p->k_end ) {
-		x = p->k_start;
+		tmp = p->k_start;
 		p->k_start = p->k_end;
-		p->k_end = x;
+		p->k_end = tmp;
 	}
 }
 
-/*!
-  \ingroup h5block_private
-
-  \internal
-
-  Gather layout to all processors
-
-  \return	H5_SUCCESS or error code
-*/
-static h5_err_t
-_allgather (
-	h5_file_t *const f		/*!< IN: file handle */
-	) {
-#ifdef PARALLEL_IO
-	struct h5b_partition *partition = &f->b->user_layout[f->myproc];
-	struct h5b_partition *layout = f->b->user_layout;
-
-	TRY( h5priv_mpi_allgather(f,
-		partition, 1, f->b->partition_mpi_t,
-		layout, 1, f->b->partition_mpi_t, f->comm) );
-#endif
-	return H5_SUCCESS;
-}
-
-/*!
-  \ingroup h5block_private
-
-  \internal
-
-  Get dimension sizes of block.  These informations are stored inside the
-  block structure.
-*/
+/* MLH: this could be improved with an MPI_Reduce and MAX operator...
+ * but the user_layout array-of-structs would need to be a struct-of-arrays */
 static void
-_get_dimension_sizes (
-	h5_file_t *const f			/*!< IN: file handle */
+_get_max_dimensions (
+	h5_file_t *const f,
+	h5b_partition_t *const user_layout
 	) {
 	int proc;
-	struct h5b_fdata *b = f->b;
-	struct h5b_partition *partition = b->user_layout;
+	h5b_fdata_t *b = f->b;
+	h5b_partition_t *p = user_layout;
 
 	b->i_max = 0;
 	b->j_max = 0;
 	b->k_max = 0;
 
-	for ( proc = 0; proc < f->nprocs; proc++, partition++ ) {
-		if ( partition->i_end > b->i_max ) b->i_max = partition->i_end;
-		if ( partition->j_end > b->j_max ) b->j_max = partition->j_end;
-		if ( partition->k_end > b->k_max ) b->k_max = partition->k_end;
+	for ( proc = 0; proc < f->nprocs; proc++, p++ ) {
+		if ( p->i_end > b->i_max ) b->i_max = p->i_end;
+		if ( p->j_end > b->j_max ) b->j_max = p->j_end;
+		if ( p->k_end > b->k_max ) b->k_max = p->k_end;
 	}
 }
 
@@ -105,8 +76,8 @@ _get_dimension_sizes (
 */
 static int
 _have_ghostzone (
-	const struct h5b_partition *p,	/*!< IN: partition \c p */
-	const struct h5b_partition *q	/*!< IN: partition \c q */
+	const h5b_partition_t *const p,	/*!< IN: partition \c p */
+	const h5b_partition_t *const q	/*!< IN: partition \c q */
 	) {
 	return ( ! ( _NO_GHOSTZONE ( p, q ) || _NO_GHOSTZONE ( q, p ) ) );
 }
@@ -122,7 +93,7 @@ _have_ghostzone (
 */
 static h5_int64_t
 _volume_of_partition (
-	const struct h5b_partition *p	/*!< IN: partition */
+	const h5b_partition_t *const p	/*!< IN: partition */
 	) {
 	return (p->i_end - p->i_start)
 		* (p->j_end - p->j_start)
@@ -144,8 +115,8 @@ _volume_of_partition (
 */
 static h5_int64_t
 _volume_of_ghostzone (
-	const struct h5b_partition *p, /*!< IN: ptr to first partition */
-	const struct h5b_partition *q  /*!< IN: ptr to second partition */
+	const h5b_partition_t *const p,	/*!< IN: ptr to first partition */
+	const h5b_partition_t *const q	/*!< IN: ptr to second partition */
 	) {
 
 	h5_int64_t dx = MIN ( p->i_end, q->i_end )
@@ -171,8 +142,8 @@ _volume_of_ghostzone (
 */
 static h5_int64_t
 _dissolve_X_ghostzone (
-	struct h5b_partition *p,	/*!< IN/OUT: ptr to first partition */
-	struct h5b_partition *q	/*!< IN/OUT: ptr to second partition */
+	h5b_partition_t *const p,	/*!< IN/OUT: ptr to first partition */
+	h5b_partition_t *const q	/*!< IN/OUT: ptr to second partition */
 	) {
 
 	if ( p->i_start > q->i_start )
@@ -199,8 +170,8 @@ _dissolve_X_ghostzone (
 */
 static h5_int64_t
 _dissolve_Y_ghostzone (
-	struct h5b_partition *p,	/*!< IN/OUT: ptr to first partition */
-	struct h5b_partition *q	/*!< IN/OUT: ptr to second partition */
+	h5b_partition_t *const p,	/*!< IN/OUT: ptr to first partition */
+	h5b_partition_t *const q	/*!< IN/OUT: ptr to second partition */
 	) {
 
 	if ( p->j_start > q->j_start )
@@ -227,8 +198,8 @@ _dissolve_Y_ghostzone (
 */
 static h5_int64_t
 _dissolve_Z_ghostzone (
-	struct h5b_partition *p,	/*!< IN/OUT: ptr to first partition */
-	struct h5b_partition *q	/*!< IN/OUT: ptr to second partition */
+	h5b_partition_t *const p,	/*!< IN/OUT: ptr to first partition */
+	h5b_partition_t *const q	/*!< IN/OUT: ptr to second partition */
 	) {
 
 	if ( p->k_start > q->k_start )
@@ -256,17 +227,17 @@ _dissolve_Z_ghostzone (
 
   \return H5_SUCCESS or error code.
 */
-static h5_int64_t
+static h5_err_t
 _dissolve_ghostzone (
 	h5_file_t *const f,
-	struct h5b_partition *p,	/*!< IN/OUT: ptr to first partition */
-	struct h5b_partition *q	/*!< IN/OUT: ptr to second partition */
+	h5b_partition_t *const p,	/*!< IN/OUT: ptr to first partition */
+	h5b_partition_t *const q	/*!< IN/OUT: ptr to second partition */
 	) {
 
-	struct h5b_partition p_;
-	struct h5b_partition q_;
-	struct h5b_partition p_best;
-	struct h5b_partition q_best;
+	h5b_partition_t p_;
+	h5b_partition_t q_;
+	h5b_partition_t p_best;
+	h5b_partition_t q_best;
 	h5_int64_t vol;
 	h5_int64_t max_vol = 0;
 
@@ -338,36 +309,36 @@ _dissolve_ghostzone (
 
   \return H5_SUCCESS or error code.
 */
-static h5_int64_t
+static h5_err_t
 _dissolve_ghostzones (
-	h5_file_t *const f	/*!< IN: file handle */
+	h5_file_t *const f,
+	const h5b_partition_t *const user_layout,
+	h5b_partition_t *const write_layout
 	) {
 
-	struct h5b_fdata *b = f->b;
-	struct h5b_partition *p;
-	struct h5b_partition *q;
+	h5b_partition_t *p;
+	h5b_partition_t *q;
 	int proc_p, proc_q;
 
 	struct list {
 		struct list *prev;
 		struct list *next;
-		struct h5b_partition *p;
-		struct h5b_partition *q;
+		h5b_partition_t *p;
+		h5b_partition_t *q;
 		h5_int64_t vol;
 	} *p_begin, *p_el, *p_max, *p_end, *p_save;
 
-	memcpy ( b->write_layout, b->user_layout,
-		 f->nprocs * sizeof (*f->b->user_layout) );
+	memcpy( write_layout, user_layout, f->nprocs*sizeof(h5b_partition_t) );
 
 	TRY( p_begin = (struct list*)h5priv_alloc(f, NULL, sizeof(*p_begin)) );
 	p_max = p_end = p_begin;
 	
-	memset ( p_begin, 0, sizeof ( *p_begin ) );
+	memset( p_begin, 0, sizeof ( *p_begin ) );
 
-	for ( proc_p = 0, p = b->write_layout;
+	for ( proc_p = 0, p = write_layout;
 		proc_p < f->nprocs-1;
 		proc_p++, p++ ) {
-		for ( proc_q = proc_p+1, q = &b->write_layout[proc_q];
+		for ( proc_q = proc_p+1, q = &write_layout[proc_q];
 			proc_q < f->nprocs;
 			proc_q++, q++ ) {
 
@@ -416,45 +387,6 @@ _dissolve_ghostzones (
 	}
 	free ( p_begin );
 
-	p = &b->user_layout[f->myproc];
-	h5_debug (f,
-		"PROC[%d]: User layout: %lld:%lld, %lld:%lld, %lld:%lld",
-		f->myproc,
-		(long long)p->i_start, (long long)p->i_end,
-		(long long)p->j_start, (long long)p->j_end,
-		(long long)p->k_start, (long long)p->k_end );
-	/* more detailed debug output: all procs report their view
-	   of all other procs */
-	for ( proc_p = 0, p = b->user_layout;
-		proc_p < f->nprocs;
-		proc_p++, p++ ) {
-		h5_debug (f,
-			"PROC[%d]: proc[%d]: User layout: %lld:%lld, %lld:%lld, %lld:%lld  ",
-			f->myproc, proc_p,
-			(long long)p->i_start, (long long)p->i_end,
-			(long long)p->j_start, (long long)p->j_end,
-			(long long)p->k_start, (long long)p->k_end );
-	}
-
-	p = &b->write_layout[f->myproc];
-	h5_debug (f,
-		"PROC[%d]: Ghost-zone layout: %lld:%lld, %lld:%lld, %lld:%lld",
-		f->myproc,
-		(long long)p->i_start, (long long)p->i_end,
-		(long long)p->j_start, (long long)p->j_end,
-		(long long)p->k_start, (long long)p->k_end );
-	/* more detailed debug output: all procs report their view
-	   of all other procs */
-	for ( proc_p = 0, p = b->write_layout;
-		proc_p < f->nprocs;
-		proc_p++, p++ ) {
-		h5_debug (f,
-			"PROC[%d]: proc[%d]: Ghost-zone layout: %lld:%lld, %lld:%lld, %lld:%lld  ",
-			f->myproc, proc_p,
-			(long long)p->i_start, (long long)p->i_end,
-			(long long)p->j_start, (long long)p->j_end,
-			(long long)p->k_start, (long long)p->k_end );
-	}
 	return H5_SUCCESS;
 }
 
@@ -482,15 +414,31 @@ h5bpriv_open_block_group (
 	h5_file_t *const f		/*!< IN: file handle */
 	) {
 
-	struct h5b_fdata *b = f->b;
+	h5b_fdata_t *b = f->b;
 
-	if ( b->block_gid >= 0) {
-		TRY( h5priv_close_hdf5_group(f, b->block_gid) );
-		b->block_gid = -1;
-	}
+	TRY( h5priv_close_hdf5_group(f, b->block_gid) );
+	b->block_gid = h5priv_open_hdf5_group(f, f->step_gid, H5_BLOCKNAME);
+	if (f->b->block_gid < 0)
+		return h5_error(f,
+			H5_ERR_INVAL,
+			"Time step does not contain H5Block data!");
 
-	if ( b->block_gid < 0 ) {
-		TRY( b->block_gid = h5priv_open_hdf5_group(f,
+	return H5_SUCCESS;
+}
+
+static h5_err_t
+_create_block_group (
+	h5_file_t *const f		/*!< IN: file handle */
+	) {
+
+	h5_err_t exists;
+	TRY( exists = h5priv_hdf5_link_exists(f, f->step_gid, H5_BLOCKNAME) );
+
+	if (exists > 0) {
+		TRY( h5bpriv_open_block_group(f) );
+	} else {
+		TRY( h5priv_close_hdf5_group(f, f->b->block_gid) );
+		TRY( f->b->block_gid = h5priv_create_hdf5_group(f,
 					f->step_gid, H5_BLOCKNAME) );
 	}
 
@@ -506,10 +454,10 @@ h5bpriv_have_field_group (
 	char name2[H5_DATANAME_LEN];
 	h5_normalize_dataset_name(f, name, name2);
 
-	TRY( h5bpriv_open_block_group ( f ) );
+	TRY( h5bpriv_open_block_group(f) );
 
 	h5_err_t exists;
-	TRY( exists = h5priv_hdf5_have_link(f, f->b->block_gid, name2) );
+	TRY( exists = h5priv_hdf5_link_exists(f, f->b->block_gid, name2) );
 
 	return exists;
 }
@@ -523,15 +471,43 @@ h5bpriv_open_field_group (
 	char name2[H5_DATANAME_LEN];
 	h5_normalize_dataset_name(f, name, name2);
 	
-	if ( f->b->field_gid >= 0 ) {
-		TRY( h5priv_close_hdf5_group(f, f->b->field_gid) );
-	}
-
-	TRY( h5bpriv_open_block_group ( f ) );
-	TRY( f->b->field_gid = h5priv_open_hdf5_group(f, f->b->block_gid, name2) );
+	TRY( h5priv_close_hdf5_group(f, f->b->field_gid) );
+	TRY( h5bpriv_open_block_group(f) );
+	f->b->field_gid = h5priv_open_hdf5_group(f, f->b->block_gid, name2);
+	if (f->b->field_gid < 0)
+		return h5_error(f,
+			H5_ERR_INVAL,
+			"Field '%s' does not exist!", name2);
 
 	return H5_SUCCESS;
 }
+
+h5_err_t
+h5bpriv_create_field_group (
+	h5_file_t *const f,		/*!< IN: file handle */
+	const char *name		/*!< IN: name of field group to create */
+	) {
+
+	h5b_fdata_t *b = f->b;
+
+	TRY( _create_block_group(f) );
+
+	char name2[H5_DATANAME_LEN];
+	h5_normalize_dataset_name(f, name, name2);
+
+	h5_err_t exists;
+	TRY( exists = h5priv_hdf5_link_exists(f, b->block_gid, name2) );
+
+	if (exists > 0) {
+		TRY( h5bpriv_open_field_group(f, name2) );
+	} else {
+		TRY( h5priv_close_hdf5_group(f, f->b->field_gid) );
+		TRY( b->field_gid = h5priv_create_hdf5_group(f,
+						b->block_gid, name2) );
+	}
+
+	return H5_SUCCESS;
+}	
 
 h5_err_t
 h5b_3d_set_view (
@@ -544,21 +520,58 @@ h5b_3d_set_view (
 	const h5_size_t k_end		/*!< IN: end index of \c k	*/
 	) {
 
-	struct h5b_fdata *b = f->b;
-	struct h5b_partition *p = &b->user_layout[f->myproc];
+	h5b_partition_t *p = f->b->user_layout;
 	p->i_start = i_start;
 	p->i_end =   i_end;
 	p->j_start = j_start;
 	p->j_end =   j_end;
 	p->k_start = k_start;
 	p->k_end =   k_end;
+	_normalize_partition(p);
 
-	_normalize_partition ( p );
-	TRY( _allgather( f ) );
-	_get_dimension_sizes ( f );
-	TRY( _dissolve_ghostzones ( f ) );
-	TRY( _release_hyperslab ( f ) );
+#ifdef PARALLEL_IO
+	h5b_fdata_t *b = f->b;
+	h5b_partition_t *user_layout;
+	h5b_partition_t *write_layout;
+
+	size_t size = f->nprocs * sizeof (h5b_partition_t);
+	TRY( user_layout = h5priv_alloc (f, NULL, size) );
+	TRY( write_layout = h5priv_alloc (f, NULL, size) );
+
+	TRY( h5priv_mpi_allgather(f,
+		p, 1, f->b->partition_mpi_t,
+		user_layout, 1, f->b->partition_mpi_t, f->comm) );
+
+	_get_max_dimensions(f, user_layout);
+
+	TRY( _dissolve_ghostzones(f, user_layout, write_layout) );
+	b->user_layout[0] = user_layout[f->myproc];
+	b->write_layout[0] = write_layout[f->myproc];
 	b->have_layout = 1;
+
+	p = b->user_layout;
+	h5_debug (f,
+		"[%d] User layout: %lld:%lld, %lld:%lld, %lld:%lld",
+		f->myproc,
+		(long long)p->i_start, (long long)p->i_end,
+		(long long)p->j_start, (long long)p->j_end,
+		(long long)p->k_start, (long long)p->k_end );
+
+	p = b->write_layout;
+	h5_debug (f,
+		"[%d] Ghost-zone layout: %lld:%lld, %lld:%lld, %lld:%lld",
+		f->myproc,
+		(long long)p->i_start, (long long)p->i_end,
+		(long long)p->j_start, (long long)p->j_end,
+		(long long)p->k_start, (long long)p->k_end );
+
+
+
+	free(user_layout);
+	free(write_layout);
+
+	TRY( h5bpriv_release_hyperslab(f) );
+#endif
 
 	return H5_SUCCESS;
 }
@@ -597,7 +610,7 @@ h5b_3d_get_chunk (
 
 	CHECK_TIMEGROUP ( f );
 
-	struct h5b_fdata *b = f->b;
+	h5b_fdata_t *b = f->b;
 
 	TRY( h5bpriv_open_field_group ( f, field_name ) );
 
@@ -639,7 +652,7 @@ h5b_3d_get_view (
 	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
 		return h5_error(f, H5_ERR_INVAL, "Invalid processor id %d!", proc);
 
-	struct h5b_partition *p = &f->b->user_layout[(size_t)proc];
+	h5b_partition_t *p = &f->b->user_layout[(size_t)proc];
 
 	*i_start = p->i_start;
 	*i_end =   p->i_end;
@@ -666,7 +679,7 @@ h5b_3d_get_reduced_view (
 	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
 		return h5_error(f, H5_ERR_INVAL, "Invalid processor id %d!", proc);
 
-	struct h5b_partition *p = &f->b->write_layout[(size_t)proc];
+	h5b_partition_t *p = &f->b->write_layout[(size_t)proc];
 
 	*i_start = p->i_start;
 	*i_end =   p->i_end;
@@ -686,7 +699,7 @@ h5b_3d_get_proc (
 	const h5_int64_t k		/*!< IN: \c k coordinate */
 	) {
 
-	struct h5b_partition *layout = f->b->write_layout;
+	h5b_partition_t *layout = f->b->write_layout;
 	int proc;
 
 	for ( proc = 0; proc < f->nprocs; proc++, layout++ ) {
@@ -704,6 +717,8 @@ h5b_get_num_fields (
 	h5_file_t *const f		/*!< IN: File handle */
 	) {
 
+	CHECK_TIMEGROUP( f );
+
 	TRY( h5bpriv_open_block_group(f) );
 	return h5priv_get_num_objs_in_hdf5_group( f, f->b->block_gid );
 }
@@ -712,14 +727,16 @@ h5_err_t
 h5b_get_field_info_by_name (
 	h5_file_t *const f,			/*!< IN: file handle */
 	const char *name,			/*!< OUT: field name */
-	h5_size_t *grid_rank,			/*!< OUT: grid rank */
-	h5_size_t *grid_dims,			/*!< OUT: grid dimensions */
 	h5_size_t *field_rank,			/*!< OUT: field rank */
+	h5_size_t *field_dims,			/*!< OUT: field dimensions */
+	h5_size_t *elem_rank,			/*!< OUT: element rank */
 	h5_int64_t *type			/*!< OUT: datatype */
 	) {
 
+	CHECK_TIMEGROUP( f );
+
 	hsize_t dims[16]; /* give it plenty of space even though we don't expect rank > 3 */
-	hsize_t _grid_rank, _field_rank;
+	hsize_t _field_rank, _elem_rank;
 	h5_size_t i, j;
 
 	TRY( h5bpriv_open_field_group(f, name) );
@@ -731,18 +748,18 @@ h5b_get_field_info_by_name (
 			 		f->b->field_gid, H5_BLOCKNAME_X) );
 	TRY( dataspace_id = h5priv_get_hdf5_dataset_space(f, dataset_id) );
 
-	TRY( _grid_rank = h5priv_get_dims_of_hdf5_dataspace(f,
+	TRY( _field_rank = h5priv_get_dims_of_hdf5_dataspace(f,
 						dataspace_id, dims, NULL) );
-	if ( grid_rank ) *grid_rank = (h5_size_t) _grid_rank;
+	if ( field_rank ) *field_rank = (h5_size_t) _field_rank;
  
-	if ( grid_dims ) {
-		for ( i = 0, j = _grid_rank-1; i < _grid_rank; i++, j-- )
-			grid_dims[i] = (h5_size_t)dims[j];
+	if ( field_dims ) {
+		for ( i = 0, j = _field_rank-1; i < _field_rank; i++, j-- )
+			field_dims[i] = (h5_size_t)dims[j];
 	}
 
-	TRY( _field_rank = h5priv_get_num_objs_in_hdf5_group(f,
-						    f->b->block_gid) );
-	if ( field_rank ) *field_rank = (h5_size_t) _field_rank;
+	TRY( _elem_rank = h5priv_get_num_objs_in_hdf5_group(f,
+						    f->b->field_gid) );
+	if ( elem_rank ) *elem_rank = (h5_size_t) _elem_rank;
 
 	hid_t h5type;
 	TRY( h5type = h5priv_get_hdf5_dataset_type(f, dataset_id) );
@@ -762,11 +779,13 @@ h5b_get_field_info (
 	const h5_size_t idx,			/*!< IN: index of field */
 	char *name,				/*!< OUT: field name */
 	const h5_size_t len_name,		/*!< IN: buffer size */
-	h5_size_t *grid_rank,			/*!< OUT: grid rank */
-	h5_size_t *grid_dims,			/*!< OUT: grid dimensions */
 	h5_size_t *field_rank,			/*!< OUT: field rank */
+	h5_size_t *field_dims,			/*!< OUT: field dimensions */
+	h5_size_t *elem_rank,			/*!< OUT: element rank */
 	h5_int64_t *type			/*!< OUT: datatype */
 	) {
+
+	CHECK_TIMEGROUP( f );
 
 	TRY( h5bpriv_open_block_group(f) );
 	TRY( h5priv_get_hdf5_objname_by_idx(
@@ -777,6 +796,6 @@ h5b_get_field_info (
 		(size_t)len_name) );
 
 	return h5b_get_field_info_by_name(f,
-				name, grid_rank, grid_dims, field_rank, type);
+				name, field_rank, field_dims, elem_rank, type);
 }
 

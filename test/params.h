@@ -9,6 +9,10 @@
  * made in the read tests! */
 #define NPARTICLES 99
 
+#define NBLOCKX 16
+#define NBLOCKY 12
+#define NBLOCKZ 18
+
 /* do not increase this value past 32! */
 #define MAX_MPI_TASKS 32
 

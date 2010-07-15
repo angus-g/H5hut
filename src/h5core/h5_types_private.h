@@ -29,7 +29,7 @@ struct h5_file {
 	hid_t	xfer_prop;		/* dataset transfer properties	*/
 	hid_t	access_prop;		/* file access properties	*/
 	hid_t	create_prop;		/* file create properties	*/
-	hid_t	root_gid;		/* id of root group		*/
+	hid_t	root_gid;		/* id of root   		*/
 	hid_t	step_gid;		/* id of current step		*/
 
 	/* step internal data						*/

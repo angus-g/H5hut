@@ -31,10 +31,12 @@ h5_read_attrib (
 	const hid_t attrib_type,	/*!< HDF5 type of attribute */
 	void* const attrib_value	/*!< OUT: attribute value */
 	) {
+
+	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
+
 	hid_t attrib_id;
 	hid_t space_id;
 	hid_t type_id;
-	hid_t mytype;
 
 	hid_t id;
 	TRY( _get_hdf5_obj_id(f, mode, &id) );
@@ -56,7 +58,7 @@ h5_read_attrib (
 	TRY( space_id = h5priv_get_hdf5_attribute_dataspace (f, attrib_id) );
 	TRY( h5priv_read_hdf5_attribute (f, attrib_id, type_id, attrib_value) );
 	TRY( h5priv_close_hdf5_dataspace(f, space_id) );
-	TRY( h5priv_close_hdf5_type(f, mytype) );
+	TRY( h5priv_close_hdf5_type(f, type_id) );
 	TRY( h5priv_close_hdf5_attribute (f, attrib_id) );
 
 	return H5_SUCCESS;
@@ -78,6 +80,10 @@ h5_write_attrib (
 	const void* attrib_value,	/*!< value of attribute */
 	const hsize_t attrib_nelem	/*!< number of elements (dimension) */
 	) {
+
+	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
+	CHECK_WRITABLE_MODE( f );
+
 	hid_t space_id;
 	hid_t attrib_id;
         hid_t type_id;
@@ -131,6 +137,9 @@ h5_get_attrib_info (
 	h5_int64_t* attrib_type,		/*!< OUT: H5 type of attribute */
 	h5_size_t* attrib_nelem			/*!< OUT: number of elements */
 	) {
+
+	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
+
 	hid_t attrib_id;
 	hid_t mytype;
 	hid_t space_id;
@@ -178,7 +187,7 @@ h5_get_num_attribs (
 	h5_file_t *const f,	/*!< handle to open file */
 	const char mode		/*!< FILE or STEP flag */
 	) {
-	CHECK_FILEHANDLE (f);
+	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 	hid_t id;
 	TRY( _get_hdf5_obj_id(f, mode, &id) );
 	return h5priv_get_num_hdf5_attribute (f, id);

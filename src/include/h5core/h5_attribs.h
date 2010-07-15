@@ -1,5 +1,5 @@
-#ifndef __H5_ATTRIBS_H
-#define __H5_ATTRIBS_H
+#ifndef __H5CORE_ATTRIBS_H
+#define __H5CORE_ATTRIBS_H
 
 #define H5_ATTRIB_FILE 0
 #define H5_ATTRIB_STEP 1

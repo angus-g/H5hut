@@ -1,5 +1,7 @@
 SUBDIRS = \
-	src
+	src \
+	test \
+	tools
 
 MAINTAINERCLEANFILES = \
 	config.h \

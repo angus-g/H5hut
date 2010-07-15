@@ -3,9 +3,6 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#if H5_LUSTRE
-#include <lustre/liblustreapi.h>
-#endif
 
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
@@ -27,7 +24,7 @@ h5_check_filehandle (
 	h5_file_t* const f	/*!< filehandle  to check validity of */
 	) {
 
-	if (f == NULL || f->file == 0 || f->u == NULL || f->b == NULL || f->t == NULL) {
+	if (f == NULL || f->file < 0 || f->u == NULL || f->b == NULL || f->t == NULL) {
 		return h5_error (
 			f,
 			H5_ERR_BADFD,
@@ -59,13 +56,14 @@ h5priv_error_handler (
 
   \return	H5_SUCCESS or error code
 */
-static h5_int64_t
+static h5_err_t
 h5upriv_open_file (
 	h5_file_t* const f		/*!< IN: file handle */
 	) {
 	TRY( f->u = (h5u_fdata_t*)h5priv_alloc (f, NULL, sizeof (*f->u)) );
 	h5u_fdata_t *u = f->u;
 
+        u->shape = -1;
 	u->diskshape = H5S_ALL;
 	u->memshape = H5S_ALL;
 	u->viewstart = -1;
@@ -86,7 +84,7 @@ h5upriv_open_file (
 
   \return	H5_SUCCESS or error code
 */
-static h5_int64_t
+static h5_err_t
 h5bpriv_open_file (
 	h5_file_t * const f		/*!< IN: file handle */
 	) {
@@ -99,14 +97,12 @@ h5bpriv_open_file (
 	b = f->b;
 	memset (b, 0, sizeof (*b));
 
-	size_t size = f->nprocs * sizeof (b->user_layout[0]);
-	TRY( b->user_layout = h5priv_alloc (f, NULL, size) );
-	size = f->nprocs * sizeof (b->write_layout[0]);
-	TRY( b->write_layout = h5priv_alloc (f, NULL, size) );
-
 	size_t n = sizeof (struct h5b_partition) / sizeof (h5_int64_t);
 	TRY( h5priv_mpi_type_contiguous(f,
 			n, MPI_LONG_LONG, &b->partition_mpi_t) );
+
+	memset (b->user_layout, 0, sizeof(*b->user_layout));
+	memset (b->write_layout, 0, sizeof(*b->write_layout));
 
 	b->shape = -1;
 	b->diskshape = -1;
@@ -177,33 +173,10 @@ h5priv_open_file (
 				f->xfer_prop, H5FD_MPIO_COLLECTIVE) );
 		}
 	}
-
-	/* defer metadata writes */
-	H5AC_cache_config_t config;
-	config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
-	TRY( h5priv_get_hdf5_mdc_property(f, f->access_prop, &config) );
-	config.set_initial_size = 1;
-	config.initial_size = 16 * 1024 * 1024;
-	config.evictions_enabled = 0;
-	config.incr_mode = H5C_incr__off;
-	config.decr_mode = H5C_decr__off;
-	config.flash_incr_mode = H5C_flash_incr__off;
-	TRY( h5priv_set_hdf5_mdc_property(f, f->access_prop, &config) );
-
 #endif /* PARALLEL_IO */
 
-#if H5_LUSTRE
-// set alignment
-	lov_user_md lum;
-	llapi_file_get_stripe(filename, &lum);
-	hsize_t stripe_size = (hsize_t)lum.lmm_stripe_size;
-	h5info(f, "Found lustre stripe size of %lld bytes", (long long)stripe_size);
-	TRY( h5priv_set_hdf5_alignment_property(f,
-				f->access_prop, 0, stripe_size) );
-	hsize_t btree_ik = (stripe_size - 4096) / 96;
-	hsize_t btree_bytes = 64 + 96*btree_ik;
-	h5info(f, "Using %lld bytes for HDF5 btree", (long long)btree_bytes);
-	TRY( h5priv_set_hdf5_btree_ik_property(f, f->create_prop, btree_ik) );
+#ifdef H5_USE_LUSTRE
+        TRY( h5_optimize_for_lustre(f, filename) );
 #endif
 
 	if (flags & H5_O_RDONLY) {
@@ -240,7 +213,7 @@ h5priv_open_file (
 			H5_ERR_HDF5,
 			"Cannot open file \"%s\" with mode \"%d\"",
 			filename, flags);
-	TRY( f->root_gid = h5priv_open_group (f,  f->file, "/" ));
+	TRY( f->root_gid = h5priv_open_hdf5_group (f,  f->file, "/" ) );
 	f->mode = flags;
 	f->step_gid = -1;
 	f->throttle = 0;
@@ -300,25 +273,16 @@ h5_open_file (
 
   \return	H5_SUCCESS or error code
 */
-static h5_int64_t
+static h5_err_t
 h5upriv_close_file (
 	h5_file_t* const f	/*!< file handle */
 	) {
 	struct h5u_fdata* u = f->u;
 
 	f->__errno = H5_SUCCESS;
-	if(u->shape != H5S_ALL) {
-		TRY( h5priv_close_hdf5_dataspace (f, u->shape) );
-		u->shape = 0;
-	}
-	if(u->diskshape != H5S_ALL) {
-		TRY( h5priv_close_hdf5_dataspace (f, u->diskshape) );
-		u->diskshape = 0;
-	}
-	if(u->memshape != H5S_ALL) {
-		TRY( h5priv_close_hdf5_dataspace (f, u->memshape) );
-		u->memshape = 0;
-	}
+	TRY( h5priv_close_hdf5_dataspace (f, u->shape) );
+	TRY( h5priv_close_hdf5_dataspace (f, u->diskshape) );
+	TRY( h5priv_close_hdf5_dataspace (f, u->memshape) );
 	TRY( h5priv_close_hdf5_property (f, u->dcreate_prop) );
 	free (f->u);
 	f->u = NULL;
@@ -336,13 +300,14 @@ h5upriv_close_file (
 
   \return	H5_SUCCESS or error code
 */
-static h5_int64_t
+static h5_err_t
 h5bpriv_close_file (
 	h5_file_t* const f	/*!< IN: file handle */
 	) {
 	struct h5b_fdata* b = f->b;
 
 	TRY( h5priv_close_hdf5_group (f, b->block_gid) );
+	TRY( h5priv_close_hdf5_group (f, b->field_gid) );
 	TRY( h5priv_close_hdf5_dataspace (f, b->shape) );
 	TRY( h5priv_close_hdf5_dataspace (f, b->diskshape) );
 	TRY( h5priv_close_hdf5_dataspace (f, b->memshape) );
@@ -488,25 +453,6 @@ h5_get_num_steps(
 		f,
 		f->step_gid,
 		f->prefix_step_name);
-}
-
-/*!
-  \ingroup h5_core_filehandling
-
-  Check whether step with number \c stepno exists.
-
-  \return True (value != 0) if step with \c stepno exists.
-  \return False (0) otherwise
-*/
-h5_err_t
-h5_has_step (
-	h5_file_t* const f,		/*!< file handle		*/
-	h5_id_t stepno			/*!< step number to check	*/
-	) {
-	char name[128];
-	sprintf (name, "%s#%0*ld",
-		 f->prefix_step_name, f->width_step_idx, (long)stepno);
-	return (H5Gget_info_by_name (f->file, name, NULL, H5P_DEFAULT) >= 0);
 }
 
 /*!

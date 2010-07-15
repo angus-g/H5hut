@@ -16,7 +16,6 @@
 #ifndef __H5_H
 #define __H5_H
 
-#include "H5_inquiry.h"
 #include "H5_attribs.h"
 
 h5_file_t *
@@ -54,12 +53,28 @@ H5GetStepNameFormat (
 h5_err_t
 H5SetStep (
 	h5_file_t *f,
-	const h5_int64_t step
+	const h5_id_t step
 	);
 
 h5_int64_t
 H5GetStep (
 	h5_file_t *f
+	);
+
+int
+H5GetNumProcs (
+	h5_file_t * const f
+	);
+
+h5_size_t
+H5GetNumSteps (
+	h5_file_t * const f
+	);
+
+h5_err_t
+H5HasStep (
+	h5_file_t * const f,
+	h5_id_t step
 	);
 
 h5_err_t

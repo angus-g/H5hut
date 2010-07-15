@@ -11,7 +11,7 @@ h5_write_field_attrib (
 	const h5_int64_t attrib_nelem		/*!< IN: number of elements */
 	) {
 
-	TRY( h5bpriv_open_field_group(f, field_name) );
+	TRY( h5bpriv_create_field_group(f, field_name) );
 
 	TRY( h5_write_attrib (
 		f,

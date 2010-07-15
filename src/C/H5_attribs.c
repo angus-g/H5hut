@@ -161,7 +161,7 @@ H5WriteStepAttribFloat64 (
 		f,
 		H5_ATTRIB_STEP,
 		name,
-		H5T_NATIVE_FLOAT,
+		H5T_NATIVE_DOUBLE,
 		values,
 		nelems );
 }

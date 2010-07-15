@@ -26,7 +26,7 @@
 		return h5_error (					\
 			f,						\
 			H5_ERR_INVAL,					\
-			"Internal error: step_gid <= 0.");
+			"Time step is invalid! Have you set the time step?");
 
 #define h5_error_not_implemented( f, file, func, lino )		     \
 	h5_error(						     \

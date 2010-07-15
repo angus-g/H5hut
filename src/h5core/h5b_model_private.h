@@ -14,6 +14,12 @@ h5bpriv_open_field_group (
 	);
 
 h5_err_t
+h5bpriv_create_field_group (
+	h5_file_t *const f,		/*!< IN: file handle */
+	const char *name		/*!< IN: name of field group to create */
+	);
+
+h5_err_t
 h5bpriv_open_block_group (
 	h5_file_t *const f			/*!< IN: file handle */
 	);

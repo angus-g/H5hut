@@ -1,14 +1,16 @@
 #ifndef __H5_CORE_PRIVATE_H
 #define __H5_CORE_PRIVATE_H
 
-#define H5_DATANAME_LEN		128
-#define H5_STEPNAME_LEN		128
+/* WARNING! Changing these values will alter the data model and introduce
+ * file incompatibilities with previous versions. */
+#define H5_DATANAME_LEN		64
+#define H5_STEPNAME_LEN		64
 #define H5_STEPNAME		"Step"
 #define H5_STEPWIDTH		1
 #define H5_BLOCKNAME		"Block"
 #define H5_BLOCKNAME_X		"0"
-#define H5_BLOCKNAME_Y		"0"
-#define H5_BLOCKNAME_Z		"0"
+#define H5_BLOCKNAME_Y		"1"
+#define H5_BLOCKNAME_Z		"2"
 
 #include "h5_types_private.h"
 
@@ -20,6 +22,9 @@
 #include "h5_qsort_private.h"
 #include "h5_readwrite_private.h"
 #include "h5_syscall_private.h"
+#ifdef H5_USE_LUSTRE
+#include "h5_lustre_private.h"
+#endif
 
 #include "h5b_types_private.h"
 #include "h5u_types_private.h"

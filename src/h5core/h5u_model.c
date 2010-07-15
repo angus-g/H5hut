@@ -1,45 +1,11 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
-h5_int64_t
+h5_ssize_t
 h5u_get_num_particles (
 	h5_file_t *const f      /*!< [in]  Handle to open file */
 	) {
 	h5_int64_t nparticles;
-	ssize_t exists;
-
-	/* returns 0 if there are no datasets on disk */
-	TRY ( exists = h5_get_num_hdf5_datasets(f, f->step_gid ) );
-	if ( exists == 0 )
-	{
-		/* try to recover number of particles from a previous
-		 * H5PartSetNumParticles call. */
-#ifdef PARALLEL_IO
-		hsize_t total;
-		TRY( h5priv_mpi_sum(f,
-			&(f->u->nparticles), &total,
-			1, MPI_LONG_LONG, f->comm) );
-		nparticles = (h5_int64_t)total;
-#else
-		nparticles = (h5_int64_t)f->u->nparticles;
-#endif
-		if ( nparticles > 0 ) {
-			h5_debug (
-					f,
-					"Using existing view to report "
-					"nparticles = %lld", (long long)nparticles );
-			return nparticles;
-		}
-		else {
-			h5_warn (
-					f,
-					"There are no datasets in the current timestep "
-					"nor existing views: "
-					"reporting 0 particles.");
-			return 0;
-		}
-
-	}
 
 	/* if a view exists, use its size as the number of particles */
 	if ( h5u_has_view ( f ) )
@@ -47,38 +13,52 @@ h5u_get_num_particles (
 		TRY( nparticles = h5priv_get_selected_npoints_of_hdf5_dataspace(
 			    f,
 			    f->u->diskshape) );
-		h5_debug(
-				f,
-				"Found %lld points with H5Sget_select_npoints",
-				(long long)nparticles );
+		h5_debug(f,
+			"Found %lld particles in existing view.",
+			(long long)nparticles );
 	}
-	/* otherwise, report all particles on disk in the first dataset
-	 * for this timestep */
-	else
-	{
+	else if ( f->u->shape > 0 ) {
+		TRY( nparticles = h5priv_get_npoints_of_hdf5_dataspace(f, f->u->shape) );
+		h5_debug(f,
+			"Found %lld particles from previous H5PartSetNumParticles call.",
+			(long long)nparticles );
+	}
+	else {
+		/* otherwise, report all particles on disk in the first dataset
+		 * for this timestep */
 		char dataset_name[H5_DATANAME_LEN];
-		TRY( h5priv_get_hdf5_objname_by_idx(
+		dataset_name[0] = '\0';
+		h5_err_t exists = h5_get_hdf5_datasetname_by_idx(
 				f,
 				f->step_gid,
 				0,
 				dataset_name,
-				H5_DATANAME_LEN) );
-		TRY( nparticles = h5priv_get_npoints_of_hdf5_dataset_by_name (
+				H5_DATANAME_LEN);
+		if ( exists < 0 )
+			return h5_error(f,
+				H5_ERR_INVAL,
+				"Cannot determine the number of particles: "
+				"H5PartSetNumParticles has not been called, "
+				"no view has been set, and there are no "
+				"data sets for this time step!");
+		TRY( nparticles = h5priv_get_npoints_of_hdf5_dataset_by_name(
 			f,
 			f->step_gid,
-			dataset_name ) );
+			dataset_name) );
+		h5_debug(f,
+			"Found %lld particles in the first data set of this time step.",
+			(long long)nparticles );
 	}
 
 	return nparticles;
 }
 
-h5_int64_t
+h5_err_t
 h5u_set_num_particles (
 	h5_file_t *const f,		/*!< [in] Handle to open file */
-	const h5_int64_t nparticles,	/*!< [in] Number of particles */
-	const h5_int64_t stride		/*!< [in] Stride of particles in memory */
+	const h5_size_t nparticles,	/*!< [in] Number of particles */
+	const h5_size_t stride		/*!< [in] Stride of particles in memory */
 	) {
-	CHECK_FILEHANDLE( f );
 	struct h5u_fdata *u = f->u;
 
 	hsize_t hstride;
@@ -88,22 +68,14 @@ h5u_set_num_particles (
 	hsize_t dmax = H5S_UNLIMITED;
 
 	if ( nparticles <= 0 )
-		return h5_error(
-				f,
+		return h5_error(f,
 				H5_ERR_INVAL,
 				"Invalid number particles: %lld!\n",
 				(long long)nparticles);
 
-	/* prevent invalid stride value */	
-	if (stride < 1)
-	{
-		h5_warn (
-				f,
-				"Stride < 1 was specified: changing to 1." );
-		hstride = 1;
-	} else {
-		hstride = (hsize_t)stride;
-	}
+	hstride = (hsize_t)stride;
+	if ( hstride > 1 )
+		h5_debug( f, "Striding by %lld elements.", (long long)hstride);
 
 #ifndef PARALLEL_IO
 	/*
@@ -135,22 +107,16 @@ h5u_set_num_particles (
 	{
 		start = 0;
 		count = u->nparticles;
-		TRY( h5priv_select_hyperslab_of_hdf5_dataspace(
-					f,
+		TRY( h5priv_select_hyperslab_of_hdf5_dataspace(f,
 					u->memshape,
 					H5S_SELECT_SET,
-					&start,
-					&hstride,
-					&count, NULL ) );
+					&start, &hstride, &count,
+					NULL) );
 	}
 
 #ifndef PARALLEL_IO
 	count = u->nparticles;
-	TRY( u->shape = h5priv_create_hdf5_dataspace (
-		     f,
-		     1,
-		     &count,
-		     NULL ) );
+	TRY( u->shape = h5priv_create_hdf5_dataspace(f, 1, &count, NULL) );
 	u->viewstart = 0;
 	u->viewend   = nparticles - 1; // view range is *inclusive*
 #else /* PARALLEL_IO */
@@ -173,30 +139,33 @@ h5u_set_num_particles (
                     &(u->nparticles), &total, 1, MPI_LONG_LONG, f->comm ) );
         TRY( h5priv_mpi_prefix_sum(f,
                     &(u->nparticles), &start, 1, MPI_LONG_LONG, f->comm ) );
+	start -= u->nparticles;
+
+	h5_debug(f, "Total particles across all processors: %lld.",
+							(long long)total);
 
 	u->viewstart = start;
 	u->viewend   = start + u->nparticles - 1; // view range is *inclusive*
 	
 	/* declare overall datasize */
 	count = total;
-	TRY ( u->shape = h5priv_create_hdf5_dataspace (f, 1, &count, NULL) );
+	TRY( u->shape = h5priv_create_hdf5_dataspace(f, 1, &count, NULL) );
 
 	/* declare overall data size  but then will select a subset */
-	TRY ( u->diskshape = h5priv_create_hdf5_dataspace (f, 1, &count, NULL) );
+	TRY( u->diskshape = h5priv_create_hdf5_dataspace(f, 1, &count, NULL) );
 
 	count = nparticles;
 	hstride = 1;
-	TRY ( h5priv_select_hyperslab_of_hdf5_dataspace (
-			f,
+	TRY( h5priv_select_hyperslab_of_hdf5_dataspace(f,
 			u->diskshape,
 			H5S_SELECT_SET,
 			&start, &hstride, &count,
-			NULL ) );
+			NULL) );
 #endif
 	return H5_SUCCESS;
 }
 
-h5_int64_t
+h5_err_t
 h5u_has_view (
 	const h5_file_t *const f
 	) {
@@ -264,8 +233,6 @@ h5u_set_view (
 	if ( start == -1 ) start = 0;
 	if ( end == -1 )   end = total - 1; // range is *inclusive*
 
-	h5_debug ( f, "Total nparticles=%lld", (long long)total );
-
 	/* so, is this selection inclusive or exclusive? 
 	   it appears to be inclusive for both ends of the range.
 	*/
@@ -282,7 +249,9 @@ h5u_set_view (
 	u->viewend =    end;
 	u->nparticles = end - start + 1;
 	
-	h5_debug ( f, "nparticles=%lld", (long long)u->nparticles );
+	h5_debug (f,
+		"This view selected %lld particles.",
+		(long long)u->nparticles );
 
 	/* declare overall data size  but then will select a subset */
 	TRY ( u->diskshape = h5priv_create_hdf5_dataspace ( f, 1, &total, NULL ) );
@@ -304,11 +273,11 @@ h5u_set_view (
 	return H5_SUCCESS;
 }
 
-h5_int64_t
+h5_err_t
 h5u_set_view_indices (
 	h5_file_t *const f,	        	/*!< [in]  Handle to open file */
-	const h5_int64_t *const indices,	/*!< [in]  List of indices */
-	const h5_int64_t nelems		        /*!< [in]  Size of list */
+	const h5_id_t *const indices,		/*!< [in]  List of indices */
+	const h5_size_t nelems		        /*!< [in]  Size of list */
 	) {
 
 	hsize_t total;
@@ -338,19 +307,12 @@ h5u_set_view_indices (
 		return H5_SUCCESS;
 	}
 
-	h5_debug ( f, "Total nparticles=%lld", (long long)total );
-
 	if ( total == 0 ) return H5_SUCCESS;
 
-	/* check length of list */
-	if ( nelems < 0 ) {
-		h5_warn (f,
-			"Array of view indices has length < 0: "
-			"resetting view.");
-		u->nparticles = 0;
-	} else {
-		u->nparticles = (hsize_t) nelems;
-	}
+	u->nparticles = (hsize_t) nelems;
+	h5_debug (f,
+		"This view selected %lld particles.",
+		(long long)u->nparticles );
 
 	/* declare overall data size  but then will select a subset */
 	TRY ( u->diskshape = h5priv_create_hdf5_dataspace ( f, 1, &total, NULL ) );
@@ -371,7 +333,7 @@ h5u_set_view_indices (
 	return H5_SUCCESS;
 }
 
-h5_int64_t 
+h5_err_t
 h5u_get_view (
 	h5_file_t *const f,
 	h5_int64_t *start,
@@ -444,7 +406,7 @@ h5u_set_canonical_view (
 	return H5_SUCCESS;
 }
 
-h5_int64_t
+h5_ssize_t
 h5u_get_num_datasets (
 	h5_file_t *const f		/*!< [in]  Handle to open file */
 	) {
@@ -456,15 +418,15 @@ h5u_get_num_datasets (
 /*!
   Get information about dataset in current index given by its index
  */
-h5_int64_t
+h5_err_t
 h5u_get_dataset_info (
 	h5_file_t *const f,	/*!< [in]  Handle to open file */
-	const h5_int64_t idx,   /*!< [in]  Index of the dataset */
+	const h5_id_t idx,	/*!< [in]  Index of the dataset */
 	char *dataset_name,	/*!< [out] Name of dataset */
-	const h5_int64_t len_dataset_name,
+	const h5_size_t len_dataset_name,
 				/*!< [in]  Size of buffer \c dataset_name */
 	h5_int64_t *type,	/*!< [out] Type of data in dataset */
-	h5_int64_t *nelem	/*!< [out] Number of elements. */
+	h5_size_t *nelem	/*!< [out] Number of elements. */
 	) {
 
 	TRY( h5_get_hdf5_datasetname_by_idx (

@@ -6,7 +6,7 @@
 #include "h5_core_private.h"
 
 static h5_errorhandler_t	h5priv_errhandler	= h5_report_errorhandler;
-static h5_int32_t		h5priv_debug_level	= 0;
+static h5_int32_t		h5priv_debug_level	= 1;
 
 /*!
   \ingroup h5_core

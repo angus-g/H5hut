@@ -1,4 +1,6 @@
 
+#include <stdlib.h>
+
 #include "H5hut.h"
 #include "Underscore.h"
 

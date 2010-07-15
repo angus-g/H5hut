@@ -51,6 +51,29 @@ h5priv_mpi_send(
 }
 
 h5_err_t
+h5priv_mpi_bcast (
+	h5_file_t* const f,
+	void* buf,
+	const int count,
+	const MPI_Datatype type,
+	const int root,
+	const MPI_Comm comm
+	) {
+	int err = MPI_Bcast(
+		buf,
+		count,
+		type,
+		root,
+		comm
+		);
+	if (err != MPI_SUCCESS)
+		return h5_error (f, H5_ERR_MPI, "Cannot perform broadcast");
+	return H5_SUCCESS;
+}
+
+
+
+h5_err_t
 h5priv_mpi_sum (
 	h5_file_t* const f,
 	void* sendbuf,

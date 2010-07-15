@@ -68,9 +68,9 @@ h5_err_t
 h5b_get_field_info_by_name (
 	h5_file_t *const f,			/*!< IN: file handle */
 	const char *name,			/*!< OUT: field name */
-	h5_size_t *grid_rank,			/*!< OUT: grid rank */
-	h5_size_t *grid_dims,			/*!< OUT: grid dimensions */
 	h5_size_t *field_rank,			/*!< OUT: field rank */
+	h5_size_t *field_dims,			/*!< OUT: field dimensions */
+	h5_size_t *elem_rank,			/*!< OUT: element rank */
 	h5_int64_t *type			/*!< OUT: datatype */
 	);
 
@@ -80,9 +80,9 @@ h5b_get_field_info (
 	const h5_size_t idx,			/*!< IN: index of field */
 	char *name,				/*!< OUT: field name */
 	const h5_size_t len_name,		/*!< IN: buffer size */
-	h5_size_t *grid_rank,			/*!< OUT: grid rank */
-	h5_size_t *grid_dims,			/*!< OUT: grid dimensions */
 	h5_size_t *field_rank,			/*!< OUT: field rank */
+	h5_size_t *field_dims,			/*!< OUT: field dimensions */
+	h5_size_t *elem_rank,			/*!< OUT: element rank */
 	h5_int64_t *type			/*!< OUT: datatype */
 	);
 

@@ -109,12 +109,12 @@ For further information contact: <a href="mailto:h5part@lists.psi.ch">h5part</a>
 h5_err_t
 H5PartSetNumParticles (
 	h5_file_t *f,		/*!< [in] Handle to open file */
-	h5_int64_t nparticles	/*!< [in] Number of particles */
+	h5_size_t nparticles	/*!< [in] Number of particles */
 	) {
 
 	SET_FNAME( f, __func__ );
 
-	h5_int64_t stride = 1;
+	h5_size_t stride = 1;
 	return h5u_set_num_particles( f, nparticles, stride );
 }
 
@@ -148,8 +148,8 @@ H5PartSetNumParticles (
 h5_err_t
 H5PartSetNumParticlesStrided (
 	h5_file_t *f,		/*!< [in] Handle to open file */
-	h5_int64_t nparticles,	/*!< [in] Number of particles */
-	h5_int64_t stride	/*!< [in] Stride value (e.g. number of fields in the particle array) */
+	h5_size_t nparticles,	/*!< [in] Number of particles */
+	h5_size_t stride	/*!< [in] Stride value (e.g. number of fields in the particle array) */
 	) {
 
 	SET_FNAME( f, __func__ );
@@ -171,9 +171,9 @@ H5PartSetNumParticlesStrided (
   \return	\c H5_SUCCESS or error code
 */
 h5_err_t
-H5PartSetChunkSize (
+H5PartSetChunk (
 	h5_file_t *f,
-	h5_int64_t size
+	h5_size_t size
 	) {
 
 	SET_FNAME( f, __func__ );
@@ -437,15 +437,13 @@ H5PartReadDataInt32 (
   \return	number of datasets in current timestep or error code
 */
 
-h5_int64_t
+h5_ssize_t
 H5PartGetNumDatasets (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
 	SET_FNAME( f, __func__ );
 
-	CHECK_FILEHANDLE( f );
-	
 	return h5u_get_num_datasets(f);
 }
 
@@ -459,18 +457,15 @@ H5PartGetNumDatasets (
 
   \result	\c H5_SUCCESS
 */
-h5_int64_t
+h5_err_t
 H5PartGetDatasetName (
 	h5_file_t *f,		/*!< [in]  Handle to open file */
-	const h5_int64_t idx,	/*!< [in]  Index of the dataset */
+	const h5_id_t idx,	/*!< [in]  Index of the dataset */
 	char *name,		/*!< [out] Name of dataset */
-	const h5_int64_t len	/*!< [in]  Size of buffer \c name */
+	const h5_size_t len	/*!< [in]  Size of buffer \c name */
 	) {
 
 	SET_FNAME( f, __func__ );
-
-	CHECK_FILEHANDLE ( f );
-	//CHECK_TIMEGROUP ( f );
 
 	return h5u_get_dataset_info(f, idx, name, len, NULL, NULL);
 }
@@ -481,32 +476,27 @@ H5PartGetDatasetName (
   Gets the name, type and number of elements of a dataset based on its
   index in the current timestep.
 
-  Type is one of the following macros:
+  Type is one of the following values:
 
-  - \c h5_float64 (for \c h5part_float64_t)
-  - \c h5_float32 (for \c h5part_float32_t)
-  - \c h5_int64 (for \c h5part_int64_t)
-  - \c h5_int32 (for \c h5part_int32_t)
-  - \c H5PART_CHAR (for \c char)
-  - \c H5PART_STRING (for \c char*)
+  - \c H5_FLOAT64_T (for \c h5_float64_t)
+  - \c H5_FLOAT32_T (for \c h5_float32_t)
+  - \c H5_INT64_T (for \c h5_int64_t)
+  - \c H5_INT32_T (for \c h5_int32_t)
 
   \return	\c H5_SUCCESS
 */
-h5_int64_t
+h5_err_t
 H5PartGetDatasetInfo (
 	h5_file_t *f,		/*!< [in]  Handle to open file */
-	const h5_int64_t idx,/*!< [in]  Index of the dataset */
+	const h5_id_t idx,	/*!< [in]  Index of the dataset */
 	char *dataset_name,	/*!< [out] Name of dataset */
-	const h5_int64_t len_dataset_name,
+	const h5_size_t len_dataset_name,
 				/*!< [in]  Size of buffer \c dataset_name */
 	h5_int64_t *type,	/*!< [out] Type of data in dataset */
-	h5_int64_t *nelem	/*!< [out] Number of elements. */
+	h5_size_t *nelem	/*!< [out] Number of elements. */
 	) {
 
 	SET_FNAME( f, __func__ );
-
-	CHECK_FILEHANDLE ( f );
-	//CHECK_TIMEGROUP ( f );
 
 	return h5u_get_dataset_info(f, idx, dataset_name, len_dataset_name, type, nelem);
 }
@@ -514,21 +504,25 @@ H5PartGetDatasetInfo (
 /*!
   \ingroup h5part_model
 
-  This function returns the number of particles in the first dataset of
-  the current timestep (or in the first timestep if none has been set).
+  This function returns the number of particles in this processor's view,
+  if a view has been set.
 
-  If you have neither set the number of particles (read or write)
-  nor set a view (read-only), then this returns the total number of
-  elements on disk of the first dataset if is exists. Otherwise,
-  it returns 0.
+  If not, it returns the total number of particles across all processors
+  from the last \ref H5PartSetNumParticles call.
 
-  If you have set a view, this return the number of particles
-  in the view.
+  If you have neither set the number of particles
+  nor set a view, then this returns the total number of
+  particles in the first data set of the current time step.
+  Note that H5Part assumes that all data sets within a given time step
+  have the same number of particles (although the number particles can
+  vary across time steps).
+  
+  If none of these conditions are met, an error is thrown.
 
   \return	number of particles in current timestep or an error
 		code.
  */
-h5_int64_t
+h5_ssize_t
 H5PartGetNumParticles (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
@@ -556,7 +550,7 @@ H5PartResetView (
 /*!
   \ingroup h5part_model
 */
-h5_int64_t
+h5_err_t
 H5PartHasView (
  	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
@@ -569,15 +563,15 @@ H5PartHasView (
 /*!
   \ingroup h5part_model
 
-  For parallel I/O or for subsetting operations on the datafile, the
-  \c H5PartSetView() function allows you to define a subset of the total
+  For parallel I/O or for subsetting operations on the datafile,
+  this function allows you to define a subset of the total
   particle dataset to operate on.
   The concept of "view" works for both serial
   and for parallel I/O.  The "view" will remain in effect until a new view
   is set, or the number of particles in a dataset changes, or the view is
   "unset" by calling \c H5PartSetView(file,-1,-1);
 
-  Before you set a view, the \c H5PartGetNumParticles() will return the
+  Before you set a view, \ref H5PartGetNumParticles will return the
   total number of particles in the current time-step (even for the parallel
   reads).  However, after you set a view, it will return the number of
   particles contained in the view.
@@ -620,8 +614,8 @@ H5PartSetView (
 h5_err_t
 H5PartSetViewIndices (
 	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const h5_int64_t *indices,	/*!< [in]  List of indices */
-	h5_int64_t nelems		/*!< [in]  Size of list */
+	const h5_id_t *indices,		/*!< [in]  List of indices */
+	h5_size_t nelems		/*!< [in]  Size of list */
 	) {
 
 	SET_FNAME( f, __func__ );

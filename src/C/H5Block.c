@@ -226,6 +226,9 @@ H5BlockGetNumFields (
   Get the name, rank and dimensions of the field specified by the
   index \c idx.
 
+  \c elem_rank reports the rank of the elements in the field
+  (e.g. scalar or vector).
+
   This function can be used to retrieve all fields bound to the
   current time-step by looping from \c 0 to the number of fields
   minus one.  The number of fields bound to the current time-step
@@ -239,22 +242,23 @@ H5BlockGetFieldInfo (
 	const h5_size_t idx,			/*!< IN: index of field */
 	char *name,				/*!< OUT: field name */
 	const h5_size_t len_name,		/*!< IN: buffer size */
-	h5_size_t *grid_rank,			/*!< OUT: grid rank */
-	h5_size_t *grid_dims,			/*!< OUT: grid dimensions */
 	h5_size_t *field_rank,			/*!< OUT: field rank */
+	h5_size_t *field_dims,			/*!< OUT: field dimensions */
+	h5_size_t *elem_rank,			/*!< OUT: element rank */
 	h5_int64_t *type			/*!< OUT: datatype */
 	) {
 
 	SET_FNAME( f, __func__ );
 
-	return h5b_get_field_info (
-		f, idx, name, len_name, grid_rank, grid_dims, field_rank, type);
+	return h5b_get_field_info (f,
+		idx, name, len_name, field_rank, field_dims, elem_rank, type);
 }
 
 /*!
   \ingroup h5block_model
 
   Get the rank and dimensions of the field specified by its name.
+  See \ref H5BlockGetFieldInfo.
 
   \return \c H5_SUCCESS or error code
 */
@@ -262,16 +266,16 @@ h5_err_t
 H5BlockGetFieldInfoByName (
 	h5_file_t *const f,		/*!< IN: file handle */
 	const char *name,		/*!< IN: field name */
-	h5_size_t *grid_rank,		/*!< OUT: grid rank */
-	h5_size_t *grid_dims,		/*!< OUT: grid dimensions */
-	h5_size_t *field_rank,		/*!< OUT: field rank */
+	h5_size_t *field_rank,			/*!< OUT: field rank */
+	h5_size_t *field_dims,			/*!< OUT: field dimensions */
+	h5_size_t *elem_rank,			/*!< OUT: element rank */
 	h5_int64_t *type		/*!< OUT: datatype */
 	) {
 
 	SET_FNAME( f, __func__ );
 
-	return h5b_get_field_info_by_name (
-		f, name, grid_rank, grid_dims, field_rank, type );
+	return h5b_get_field_info_by_name (f,
+		name, field_rank, field_dims, elem_rank, type );
 }
 
 /********************** reading and writing attribute ************************/

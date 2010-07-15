@@ -38,6 +38,7 @@ EXTRA_HEADERS =					\
 	h5_qsort_private.h			\
 	h5_readwrite_private.h			\
 	h5_syscall_private.h			\
+	h5_lustre_private.h			\
 	h5u_errorhandling_private.h             \
 	h5b_errorhandling_private.h		\
         h5b_model_private.h			\
@@ -64,16 +65,16 @@ nodist_include_HEADERS =
 
 #OBJEXT = o
 # What to build... Will be determined by configure script.
-lib_LIBRARIES = libH5Core.a
+lib_LIBRARIES = libH5hut.a
 
 # Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = libH5Core.a
+EXTRA_LIBRARIES = libH5hut.a
 
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS =
 
 # Listing of sources
-libH5Core_a_SOURCES =				\
+libH5hut_a_SOURCES =				\
 	h5_attribs.c				\
 	h5_errorhandling.c			\
 	h5_fcmp.c				\
@@ -86,6 +87,7 @@ libH5Core_a_SOURCES =				\
 	h5_qsort_r.c				\
 	h5_readwrite.c				\
 	h5_syscall.c				\
+	h5_lustre.c				\
 	h5u_readwrite.c                         \
 	h5b_readwrite.c                         \
 	h5u_model.c				\
@@ -110,12 +112,12 @@ libH5Core_a_SOURCES =				\
 	h5t_store_trim.c			\
 	h5t_tags.c
 
-libH5Core_a_DEPENDENCIES = $(EXTRA_HEADERS)
+libH5hut_a_DEPENDENCIES = $(EXTRA_HEADERS)
 
-all: ../lib/libH5Core.a
+all: ../lib/libH5hut.a
 
-../lib/libH5Core.a: libH5Core.a
+../lib/libH5hut.a: libH5hut.a
 	-cp $^ $@
 
-$(libH5Core_a_OBJECTS): $(libH5Core_a_DEPENDENCIES)
+$(libH5hut_a_OBJECTS): $(libH5hut_a_DEPENDENCIES)
 

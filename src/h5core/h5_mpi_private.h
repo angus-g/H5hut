@@ -25,6 +25,16 @@ h5priv_mpi_send(
 	);
 
 h5_err_t
+h5priv_mpi_bcast (
+	h5_file_t* const f,
+	void* buf,
+	const int count,
+	const MPI_Datatype type,
+	const int root,
+	const MPI_Comm comm
+	);
+
+h5_err_t
 h5priv_mpi_sum (
 	h5_file_t* const f,
 	void* sendbuf,
