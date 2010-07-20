@@ -1,8 +1,10 @@
 #ifndef __H5BLOCK_H
 #define __H5BLOCK_H
 
-#include "H5.h"
-#include "H5Block_readwrite.h"
+h5_int64_t
+H5Block3dHasView (
+	h5_file_t *const f	/*!< IN: File handle */
+	);
 
 h5_err_t
 H5Block3dSetView (
@@ -18,13 +20,23 @@ H5Block3dSetView (
 h5_err_t
 H5Block3dGetView (
 	h5_file_t *const f,	/*!< IN: File handle */
-	const int proc,		/*!< IN: Processor to get partition from */
 	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
 	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
 	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
 	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
 	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
 	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
+	);
+
+h5_err_t
+H5Block3dGetReducedView (
+	h5_file_t *const f,	/*!< IN: File handle */
+	h5_size_t *i_start,	/*!< OUT: start index of \c i */ 
+	h5_size_t *i_end,	/*!< OUT: end index of \c i */  
+	h5_size_t *j_start,	/*!< OUT: start index of \c j */ 
+	h5_size_t *j_end,	/*!< OUT: end index of \c j */ 
+	h5_size_t *k_start,	/*!< OUT: start index of \c j */ 
+	h5_size_t *k_end	/*!< OUT: end index of \c j */ 
 	);
 
 h5_err_t
@@ -43,23 +55,36 @@ H5Block3dGetChunk (
 	);
 
 h5_err_t
-H5Block3dGetReducedView (
-	h5_file_t *const f,	/*!< IN: File handle */
-	const int proc,		/*!< IN: Processor to get partition from */
-	h5_size_t *i_start,	/*!< OUT: start index of \c i */ 
-	h5_size_t *i_end,	/*!< OUT: end index of \c i */  
-	h5_size_t *j_start,	/*!< OUT: start index of \c j */ 
-	h5_size_t *j_end,	/*!< OUT: end index of \c j */ 
-	h5_size_t *k_start,	/*!< OUT: start index of \c j */ 
-	h5_size_t *k_end	/*!< OUT: end index of \c j */ 
+H5Block3dSetGrid (
+	h5_file_t *const f,		/*!< IN: File handle */
+	const h5_size_t i,		/*!< IN: dimension in \c i */ 
+	const h5_size_t j,		/*!< IN: dimension in \c j */  
+	const h5_size_t k		/*!< IN: dimension in \c k */ 
 	);
 
-int
-H5Block3dGetProc (
+h5_err_t
+H5Block3dGetGridCoords (
 	h5_file_t *const f,		/*!< IN: File handle */
-	const h5_int64_t i,		/*!< IN: \c i coordinate */
-	const h5_int64_t j,		/*!< IN: \c j coordinate */
-	const h5_int64_t k		/*!< IN: \c k coordinate */
+	const int proc,			/*!< IN: MPI processor */
+	h5_int64_t *i,			/*!< OUT: index in \c i */ 
+	h5_int64_t *j,			/*!< OUT: index in \c j */  
+	h5_int64_t *k			/*!< OUT: index in \c k */ 
+	);
+
+h5_err_t
+H5Block3dSetDims (
+	h5_file_t *const f,		/*!< IN: File handle */
+	const h5_size_t i,		/*!< IN: dimension in \c i */ 
+	const h5_size_t j,		/*!< IN: dimension in \c j */  
+	const h5_size_t k		/*!< IN: dimension in \c k */ 
+	);
+
+h5_err_t
+H5Block3dSetHalo (
+	h5_file_t *const f,		/*!< IN: File handle */
+	const h5_size_t i,		/*!< IN: radius in \c i */ 
+	const h5_size_t j,		/*!< IN: radius in \c j */  
+	const h5_size_t k		/*!< IN: radius in \c k */ 
 	);
 
 h5_size_t
@@ -113,15 +138,15 @@ H5BlockGetNumFieldAttribs (
 
 h5_int64_t
 H5BlockGetFieldAttribInfo (
-	h5_file_t *const f,		/*!< [in]  Handle to open file */
+	h5_file_t *const f,		/*<! IN: Handle to open file */
 	const char *field_name,		/*<! IN: field name */
-	const h5_size_t attrib_idx,	/*!< [in]  Index of attribute to
+	const h5_size_t attrib_idx,	/*<! IN: Index of attribute to
 					           get infos about */
-	char *attrib_name,		/*!< [out] Name of attribute */
+	char *attrib_name,		/*<! OUT: Name of attribute */
 	const h5_size_t len_of_attrib_name,
-					/*!< [in]  length of buffer \c name */
-	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
-	h5_size_t *attrib_nelem         /*!< [out] Number of elements */
+					/*<! IN: length of buffer \c name */
+	h5_int64_t *attrib_type,	/*<! OUT: Type of value. */
+	h5_size_t *attrib_nelem         /*<! OUT: Number of elements */
 	);
 
 

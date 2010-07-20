@@ -554,6 +554,7 @@ tools/H5PartMerge/src/optparse.cpp -text
 tools/H5PartMerge/src/optparse.hh -text
 tools/Makefile.am -text
 tools/README -text
+tools/h5hutcc.in -text
 tools/h5pAttrib.cc -text
 tools/h5pToGNUplot.cc -text
 tools/homdynToH5p.cc -text

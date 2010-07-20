@@ -30,19 +30,13 @@
   functions.
 */
 
-
-/*!
-  \ingroup h5_c_api
-  \defgroup h5_c_api_general
-*/
-
 #include "h5core/h5_core.h"
 #include "H5.h"
 
 /******	General routines *****************************************************/
 
 /*!
-  \ingroup h5_c_api_general
+  \ingroup h5hut_file
   
   Open file with name \c filename. This function is available in the parallel
   and serial version. In the serial case \c comm may have any value.
@@ -60,7 +54,7 @@ H5OpenFile (
 }
 
 /*!
-  \ingroup h5_c_api_general
+  \ingroup h5hut_file
 
   Close file.
 
@@ -75,7 +69,7 @@ H5CloseFile (
 }
 
 /*!
-  \ingroup h5_c_api_general
+  \ingroup h5hut_file
 
   Close file.
 
@@ -90,7 +84,7 @@ H5CheckFile (
 }
 
 /*!
-  \ingroup h5_c_api_general
+  \ingroup h5hut_model
 
   Define format of the step names.
 
@@ -111,7 +105,7 @@ H5SetStepNameFormat (
 }
 
 /*!
-  \ingroup h5_c_api_general
+  \ingroup h5hut_model
 
   Get format of the step names.
 
@@ -131,7 +125,7 @@ H5GetStepNameFormat (
 }
 
 /*!
-  \ingroup h5_c_api_general
+  \ingroup h5hut_model
 
   Set the current step.
 
@@ -148,7 +142,7 @@ H5SetStep (
 }
 
 /*!
-  \ingroup h5_c_api_general
+  \ingroup h5hut_model
 
   Get current step.
 
@@ -164,7 +158,7 @@ H5GetStep (
 }
 
 /*!
-  \ingroup h5_inquiry
+  \ingroup h5hut_file
 
   Get the number of processors.
 
@@ -182,7 +176,7 @@ H5GetNumProcs (
 }
 
 /*!
-  \ingroup h5part_c_api_read
+  \ingroup h5hut_model
 
   Get the number of time-steps that are currently stored in the file
   \c f.
@@ -226,7 +220,7 @@ H5HasStep (
 }
 
 /*!
-  \ingroup h5_c_api_general
+  \ingroup h5hut_model
 
   Start traversing steps.
 
@@ -243,7 +237,7 @@ H5StartTraverseSteps (
 }
 
 /*!
-  \ingroup h5_c_api_general
+  \ingroup h5hut_model
 
   Traverse steps.
 
@@ -260,7 +254,7 @@ H5TraverseSteps (
 }
 
 /*!
-  \ingroup h5part_performance
+  \ingroup h5hut_file
 
   Set the `throttle` factor, which causes HDF5 write and read
   calls to be issued in that number of batches.
@@ -289,12 +283,7 @@ H5SetThrottle (
 #endif // PARALLEL_IO
 
 /*!
-  \ingroup h5part_c_api
-  \defgroup h5part_c_api_errhandling	Error Handling
-*/
-
-/*!
-  \ingroup h5part_c_api_errhandling
+  \ingroup h5hut_error
 
   Set verbosity level to \c level.
 
@@ -308,7 +297,7 @@ H5SetVerbosityLevel (
 }
 
 /*!
-  \ingroup h5part_c_api_errhandling
+  \ingroup h5hut_error
 
   Set error handler to \c handler.
 
@@ -322,7 +311,7 @@ H5SetErrorHandler (
 }
 
 /*!
-  \ingroup h5part_c_api_errhandling
+  \ingroup h5hut_error
 
   Get current error handler.
 
@@ -354,7 +343,7 @@ H5AbortErrorhandler (
 }
 
 /*!
-  \ingroup h5part_c_api_errhandling
+  \ingroup h5hut_error
 
   Get last error code.
 
@@ -366,6 +355,5 @@ H5GetErrno (
 	) {
 	return h5_get_errno (f);
 }
-/*! @} */
 
 

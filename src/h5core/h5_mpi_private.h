@@ -94,5 +94,25 @@ h5priv_mpi_type_free (
 	MPI_Datatype *type
 	);
 
+h5_err_t
+h5priv_mpi_cart_create (
+	h5_file_t* const f,
+	MPI_Comm old_comm,
+	int ndims,
+	int *dims,
+	int *period,
+	int *reorder,
+	MPI_Comm *new_comm
+	);
+
+h5_err_t
+h5priv_mpi_cart_coords (
+	h5_file_t* const f,
+	MPI_Comm comm,
+	int rank,
+	int maxdim,
+	int *coords
+	);
+
 #endif
 #endif

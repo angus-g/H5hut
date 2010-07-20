@@ -111,6 +111,68 @@ test_write_data64(h5_file_t *file, int step)
 	}
 }
 
+static void
+test_write_data32(h5_file_t *file, int step)
+{
+	extern h5_size_t grid[3];
+
+	int i,t;
+	h5_int64_t status, val;
+
+	float *e;
+	float *ex,*ey,*ez;
+	int *id;
+
+	const size_t nelems = NBLOCKX * (NBLOCKY+2) * (NBLOCKZ+4);
+
+	e=(float*)malloc(nelems*sizeof(double));
+	ex=(float*)malloc(nelems*sizeof(double));
+	ey=(float*)malloc(nelems*sizeof(double));
+	ez=(float*)malloc(nelems*sizeof(double));
+	id=(int*)malloc(nelems*sizeof(int));
+
+	TEST("Writing 32-bit data");
+
+	for (t=step; t<step+NTIMESTEPS; t++)
+	{
+		for (i=0; i<nelems; i++)
+		{
+			e[i]   = 0.0 + (float)(i+nelems*t);
+			ex[i]  = 0.1 + (float)(i+nelems*t);
+			ey[i]  = 0.2 + (float)(i+nelems*t);
+			ez[i]  = 0.3 + (float)(i+nelems*t);
+			id[i] = i + nelems*t;
+		}
+
+		val = H5HasStep(file, t);
+
+		status = H5SetStep(file, t);
+		RETURN(status, H5_SUCCESS, "H5SetStep");
+
+		if (val == 0) test_write_field_attribs(file, "e", t);
+
+		status = H5Block3dSetGrid(file, grid[0], grid[1], grid[2]);
+		RETURN(status, H5_SUCCESS, "H5Block3dSetGrid");
+
+		status = H5Block3dSetDims(file, NBLOCKX, NBLOCKY, NBLOCKZ);
+		RETURN(status, H5_SUCCESS, "H5Block3dSetDims");
+
+		status = H5Block3dSetHalo(file, 0, 1, 2);
+		RETURN(status, H5_SUCCESS, "H5Block3dSetHalo");
+
+		status = H5Block3dWriteScalarFieldFloat32(file, "e", e);
+		RETURN(status, H5_SUCCESS, "H5Block3dWriteScalarFieldFloat32");
+
+		status = H5Block3dWriteVector3dFieldFloat32(file,
+			"E", ex, ey, ez);
+		RETURN(status, H5_SUCCESS,
+			"H5Block3dWriteVector3dFieldFloat32");
+	
+		status = H5Block3dWriteScalarFieldInt32(file, "id", id);
+		RETURN(status, H5_SUCCESS, "H5Block3dWriteScalarFieldInt32");
+	}
+}
+
 void h5b_test_write1(void)
 {
 	h5_file_t *file1;
@@ -129,3 +191,28 @@ void h5b_test_write1(void)
 	RETURN(status, H5_SUCCESS, "H5CloseFile");
 }
 
+void h5b_test_write2(void)
+{
+	h5_file_t *file1;
+	h5_file_t *file2;
+
+	h5_err_t status;
+
+	TEST("Opening file twice, write-append + read-only");
+	file1 = H5OpenFile(FILENAME, H5_O_APPEND, MPI_COMM_WORLD);
+
+	status = H5CheckFile(file1);
+	RETURN(status, H5_SUCCESS, "H5CheckFile");
+
+	file2 = H5OpenFile(FILENAME, H5_O_RDONLY, MPI_COMM_WORLD);
+
+	status = H5CheckFile(file2);
+	RETURN(status, H5_SUCCESS, "H5CheckFile");
+
+	test_write_data32(file1, NTIMESTEPS+1);
+
+	status = H5CloseFile(file1);
+	RETURN(status, H5_SUCCESS, "H5CloseFile");
+	status = H5CloseFile(file2);
+	RETURN(status, H5_SUCCESS, "H5CloseFile");
+}

@@ -59,6 +59,23 @@
 
 /********************** defining the layout **********************************/
 
+/*!
+  \ingroup h5block_model
+
+  Tests whether a view has been set, either directly with
+  \ref H5Block3dSetView or indirectly with \ref H5Block3dSetGrid.
+
+  \return 0 on false, 1 on true
+*/
+h5_int64_t
+H5Block3dHasView (
+	h5_file_t *const f	/*!< IN: File handle */
+	) {
+
+	SET_FNAME( f, __func__ );
+
+	return h5b_3d_has_view(f);
+}
 
 /*!
   \ingroup h5block_model
@@ -92,15 +109,13 @@ H5Block3dSetView (
 /*!
   \ingroup h5block_model
 
-  Return partition of processor \c proc as specified with
-  \ref H5Block3dSetView.
+  Return the view of this processor.
 
   \return \c H5_SUCCESS on success
 */
 h5_err_t
 H5Block3dGetView (
 	h5_file_t *const f,	/*!< IN: File handle */
-	const int proc,		/*!< IN: Processor to get partition from */
 	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
 	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
 	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
@@ -111,7 +126,30 @@ H5Block3dGetView (
 
 	SET_FNAME( f, __func__ );
 
-	return h5b_3d_get_view(f, proc, i_start, i_end, j_start, j_end, k_start, k_end);
+	return h5b_3d_get_view(f, i_start, i_end, j_start, j_end, k_start, k_end);
+}
+
+/*!
+  \ingroup h5block_model
+
+  Return the reduced (ghost-zone free) view of this processor.
+
+  \return \c H5_SUCCESS on success
+*/
+h5_err_t
+H5Block3dGetReducedView (
+	h5_file_t *const f,	/*!< IN: File handle */
+	h5_size_t *i_start,	/*!< OUT: start index of \c i */ 
+	h5_size_t *i_end,	/*!< OUT: end index of \c i */  
+	h5_size_t *j_start,	/*!< OUT: start index of \c j */ 
+	h5_size_t *j_end,	/*!< OUT: end index of \c j */ 
+	h5_size_t *k_start,	/*!< OUT: start index of \c j */ 
+	h5_size_t *k_end	/*!< OUT: end index of \c j */ 
+	) {
+
+	SET_FNAME( f, __func__ );
+
+	return h5b_3d_get_reduced_view(f, i_start, i_end, j_start, j_end, k_start, k_end);
 }
 
 /*!
@@ -154,52 +192,102 @@ H5Block3dGetChunk (
 	return h5b_3d_get_chunk(f, field_name, dims);
 }
 
-
 /*!
   \ingroup h5block_model
 
-  Return reduced (ghost-zone free) partition of processor \c proc
-  as specified with \ref H5Block3dSetView.
+  Define an underlying 3D Cartesian grid on the processors with dimensions
+  (\c i,\c j,\c k). You can look up a processor's index into the grid
+  using \ref H5Block3dGetGridCoords.
+
+  This function can be used in conjunction with \ref H5Block3dSetDims
+  to setup the view for a regular grid.
+
+  The product of the dimensions must equal the size of the MPI communicator.
 
   \return \c H5_SUCCESS on success
 */
 h5_err_t
-H5Block3dGetReducedView (
-	h5_file_t *const f,	/*!< IN: File handle */
-	const int proc,		/*!< IN: Processor to get partition from */
-	h5_size_t *i_start,	/*!< OUT: start index of \c i */ 
-	h5_size_t *i_end,	/*!< OUT: end index of \c i */  
-	h5_size_t *j_start,	/*!< OUT: start index of \c j */ 
-	h5_size_t *j_end,	/*!< OUT: end index of \c j */ 
-	h5_size_t *k_start,	/*!< OUT: start index of \c j */ 
-	h5_size_t *k_end	/*!< OUT: end index of \c j */ 
+H5Block3dSetGrid (
+	h5_file_t *const f,		/*!< IN: File handle */
+	const h5_size_t i,		/*!< IN: dimension in \c i */ 
+	const h5_size_t j,		/*!< IN: dimension in \c j */  
+	const h5_size_t k		/*!< IN: dimension in \c k */ 
 	) {
 
 	SET_FNAME( f, __func__ );
 
-	return h5b_3d_get_reduced_view(f, proc, i_start, i_end, j_start, j_end, k_start, k_end);
+	return h5b_3d_set_grid(f, i, j, k);
 }
 
 /*!
   \ingroup h5block_model
 
-  Returns the processor computing the reduced (ghostzone-free) 
-  partition given by the coordinates \c i, \c j and \c k.
+  Look up the index (\c i, \c j, \c k) in the grid belonging to MPI processor
+  \c proc.
 
-  \return \c H5_SUCCESS or error code
+  \return \c H5_SUCCESS on success
 */
-int
-H5Block3dGetProc (
+h5_err_t
+H5Block3dGetGridCoords (
 	h5_file_t *const f,		/*!< IN: File handle */
-	const h5_int64_t i,		/*!< IN: \c i coordinate */
-	const h5_int64_t j,		/*!< IN: \c j coordinate */
-	const h5_int64_t k		/*!< IN: \c k coordinate */
+	const int proc,			/*!< IN: MPI processor */
+	h5_int64_t *i,			/*!< OUT: index in \c i */ 
+	h5_int64_t *j,			/*!< OUT: index in \c j */  
+	h5_int64_t *k			/*!< OUT: index in \c k */ 
 	) {
 
 	SET_FNAME( f, __func__ );
-	//CHECK_LAYOUT ( f );
 
-        return h5b_3d_get_proc(f, i, j, k);
+	return h5b_3d_get_grid_coords(f, proc, i, j, k);
+}
+
+/*!
+  \ingroup h5block_model
+
+  Set the dimensions of each processor's block when the field is a regular
+  grid.
+  
+  A grid must be already set with \ref H5Block3dSetGrid, and all processors
+  must specify the same dimensions.
+
+  \return \c H5_SUCCESS on success
+*/
+h5_err_t
+H5Block3dSetDims (
+	h5_file_t *const f,		/*!< IN: File handle */
+	const h5_size_t i,		/*!< IN: dimension in \c i */ 
+	const h5_size_t j,		/*!< IN: dimension in \c j */  
+	const h5_size_t k		/*!< IN: dimension in \c k */ 
+	) {
+
+	SET_FNAME( f, __func__ );
+
+	return h5b_3d_set_dims(f, i, j, k);
+}
+
+/*!
+  \ingroup h5block_model
+
+  Sets the additional cells (\c i, \c j, \c k) in each direction to use as
+  the `halo` region (or `ghost zone`) that overlaps between neighboring
+  processors on the grid.
+
+  A grid with dimensions must already be set with \ref H5Block3dSetGrid and
+  \ref H5Block3dSetDims, and all processors must specify the same halo radii.
+
+  \return \c H5_SUCCESS on success
+*/
+h5_err_t
+H5Block3dSetHalo (
+	h5_file_t *const f,		/*!< IN: File handle */
+	const h5_size_t i,		/*!< IN: radius in \c i */ 
+	const h5_size_t j,		/*!< IN: radius in \c j */  
+	const h5_size_t k		/*!< IN: radius in \c k */ 
+	) {
+
+	SET_FNAME( f, __func__ );
+
+	return h5b_3d_set_halo(f, i, j, k);
 }
 
 /*!
@@ -366,15 +454,15 @@ H5BlockGetNumFieldAttribs (
 */
 h5_int64_t
 H5BlockGetFieldAttribInfo (
-	h5_file_t *const f,		/*!< [in]  Handle to open file */
+	h5_file_t *const f,		/*<! IN: Handle to open file */
 	const char *field_name,		/*<! IN: field name */
-	const h5_size_t attrib_idx,	/*!< [in]  Index of attribute to
+	const h5_size_t attrib_idx,	/*<! IN: Index of attribute to
 					           get infos about */
-	char *attrib_name,		/*!< [out] Name of attribute */
+	char *attrib_name,		/*<! OUT: Name of attribute */
 	const h5_size_t len_of_attrib_name,
-					/*!< [in]  length of buffer \c name */
-	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
-	h5_size_t *attrib_nelem         /*!< [out] Number of elements */
+					/*<! IN: length of buffer \c name */
+	h5_int64_t *attrib_type,	/*<! OUT: Type of value. */
+	h5_size_t *attrib_nelem         /*<! OUT: Number of elements */
 	) {
 	
 	SET_FNAME ( f, __func__ );

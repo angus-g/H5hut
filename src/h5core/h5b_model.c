@@ -4,6 +4,9 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
+#define MIN( x, y ) ( (x) <= (y) ? (x) : (y) )  
+#define MAX( x, y ) ( (x) >= (y) ? (x) : (y) )  
+
 /*!
   \note
   A partition must not be part of another partition.
@@ -20,6 +23,10 @@ _normalize_partition (
 	h5b_partition_t *const p	/*!< IN/OUT: partition */
 	) {
 	h5_size_t tmp;
+
+	p->i_start = MAX(0, p->i_start);
+	p->j_start = MAX(0, p->j_start);
+	p->k_start = MAX(0, p->k_start);
 
 	if ( p->i_start > p->i_end ) {
 		tmp = p->i_start;
@@ -100,9 +107,6 @@ _volume_of_partition (
 		* (p->k_end - p->k_start);
 
 }
-
-#define MIN( x, y ) ( (x) <= (y) ? (x) : (y) )  
-#define MAX( x, y ) ( (x) >= (y) ? (x) : (y) )  
 
 /*!
   \ingroup h5block_private
@@ -509,6 +513,13 @@ h5bpriv_create_field_group (
 	return H5_SUCCESS;
 }	
 
+h5_int64_t
+h5b_3d_has_view (
+	h5_file_t *const f		/*!< IN: File handle		*/
+	) {
+	return f->b->have_layout;
+}
+
 h5_err_t
 h5b_3d_set_view (
 	h5_file_t *const f,		/*!< IN: File handle		*/
@@ -577,6 +588,52 @@ h5b_3d_set_view (
 }
 
 h5_err_t
+h5b_3d_get_view (
+	h5_file_t *const f,	/*!< IN: File handle */
+	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
+	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
+	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
+	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
+	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
+	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
+	) {
+
+	h5b_partition_t *p = f->b->user_layout;
+
+	*i_start = p->i_start;
+	*i_end =   p->i_end;
+	*j_start = p->j_start;
+	*j_end =   p->j_end;
+	*k_start = p->k_start;
+	*k_end =   p->k_end;
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5b_3d_get_reduced_view (
+	h5_file_t *const f,	/*!< IN: File handle */
+	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
+	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
+	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
+	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
+	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
+	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
+	) {
+
+	h5b_partition_t *p = f->b->write_layout;
+
+	*i_start = p->i_start;
+	*i_end =   p->i_end;
+	*j_start = p->j_start;
+	*j_end =   p->j_end;
+	*k_start = p->k_start;
+	*k_end =   p->k_end;
+
+	return H5_SUCCESS;
+}
+
+h5_err_t
 h5b_3d_set_chunk (
 	h5_file_t *const f,		/*!< IN: File handle */
 	const h5_size_t i,		/*!< IN: size of \c i */ 
@@ -638,78 +695,145 @@ h5b_3d_get_chunk (
 }
 
 h5_err_t
-h5b_3d_get_view (
-	h5_file_t *const f,	/*!< IN: File handle */
-	const int proc,		/*!< IN: Processor to get partition from */
-	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
-	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
-	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
-	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
-	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
-	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
+h5b_3d_set_grid (
+	h5_file_t *const f,		/*!< IN: File handle */
+	const h5_size_t i,		/*!< IN: dimension in \c i */ 
+	const h5_size_t j,		/*!< IN: dimension in \c j */  
+	const h5_size_t k		/*!< IN: dimension in \c k */ 
 	) {
 
-	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
-		return h5_error(f, H5_ERR_INVAL, "Invalid processor id %d!", proc);
+	if (i*j*k != f->nprocs) {
+		return h5_error(f, H5_ERR_INVAL,
+			"Grid dimensions (%lld,%lld,%lld) do not multiply "
+			"out to %d MPI processors!",
+			(long long)i,
+			(long long)j,
+			(long long)k,
+			f->nprocs);
+	}
 
-	h5b_partition_t *p = &f->b->user_layout[(size_t)proc];
+	f->b->k_grid = i;
+	f->b->j_grid = j;
+	f->b->i_grid = k;
 
-	*i_start = p->i_start;
-	*i_end =   p->i_end;
-	*j_start = p->j_start;
-	*j_end =   p->j_end;
-	*k_start = p->k_start;
-	*k_end =   p->k_end;
+	int dims[3] = { k, j, i };
+	int period[3] = { 0, 0, 0 };
+	TRY( h5priv_mpi_cart_create(f,
+		f->comm, 3, dims, period, period, &f->b->cart_comm) );
+
+	f->b->have_grid = 1;
 
 	return H5_SUCCESS;
 }
 
 h5_err_t
-h5b_3d_get_reduced_view (
-	h5_file_t *const f,	/*!< IN: File handle */
-	const int proc,		/*!< IN: Processor to get partition from */
-	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
-	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
-	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
-	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
-	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
-	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
+h5b_3d_get_grid_coords (
+	h5_file_t *const f,		/*!< IN: File handle */
+	const int proc,			/*!< IN: MPI processor */
+	h5_int64_t *i,			/*!< OUT: index in \c i */ 
+	h5_int64_t *j,			/*!< OUT: index in \c j */  
+	h5_int64_t *k			/*!< OUT: index in \c k */ 
 	) {
 
-	if ( ( proc < 0 ) || ( proc >= f->nprocs ) )
-		return h5_error(f, H5_ERR_INVAL, "Invalid processor id %d!", proc);
+	if ( ! f->b->have_grid )
+		return h5_error(f, H5_ERR_INVAL,
+			"Grid dimensions have not been set!");
 
-	h5b_partition_t *p = &f->b->write_layout[(size_t)proc];
+    	int coords[3];
+	TRY( h5priv_mpi_cart_coords(f, f->b->cart_comm, proc, 3, coords) );
+	*k = coords[0];
+	*j = coords[1];
+	*i = coords[2];
+	return H5_SUCCESS;
+}
 
-	*i_start = p->i_start;
-	*i_end =   p->i_end;
-	*j_start = p->j_start;
-	*j_end =   p->j_end;
-	*k_start = p->k_start;
-	*k_end =   p->k_end;
+h5_err_t
+h5b_3d_set_dims (
+	h5_file_t *const f,		/*!< IN: File handle */
+	const h5_size_t i,		/*!< IN: dimension in \c i */ 
+	const h5_size_t j,		/*!< IN: dimension in \c j */  
+	const h5_size_t k		/*!< IN: dimension in \c k */ 
+	) {
+
+	if ( ! f->b->have_grid )
+		return h5_error(f, H5_ERR_INVAL,
+			"Grid dimensions have not been set!");
+
+	h5_size_t dims[3] = { k, j, i };
+	h5_size_t check_dims[3] = { k, j, i };
+
+	TRY( h5priv_mpi_bcast(f,
+		check_dims, 3, MPI_LONG_LONG, 0, f->comm) );
+
+	if (	dims[0] != check_dims[0] ||
+		dims[1] != check_dims[1] ||
+		dims[2] != check_dims[2]
+	) {
+		return h5_error(f, H5_ERR_INVAL,
+			"[%d] Block dimensions do not agree: "
+			"(%lld,%lld,%lld) != (%lld,%lld,%lld)!",
+			f->myproc,
+			(long long)dims[0], (long long)dims[1], (long long)dims[2],
+			(long long)check_dims[0], (long long)check_dims[1], (long long)check_dims[2]);
+	}
+
+	h5_int64_t coords[3];
+	TRY( h5b_3d_get_grid_coords(f,
+		f->myproc, coords+0, coords+1, coords+2) );
+
+	h5b_fdata_t *b = f->b;
+
+	b->user_layout->i_start =	 coords[2]*dims[2];
+	b->user_layout->i_end =		(coords[2]+1)*dims[2] - 1;
+	b->user_layout->j_start =	 coords[1]*dims[1];
+	b->user_layout->j_end =		(coords[1]+1)*dims[1] - 1;
+	b->user_layout->k_start =	 coords[0]*dims[0];
+	b->user_layout->k_end =		(coords[0]+1)*dims[0] - 1;
+
+	b->write_layout[0] = b->user_layout[0];
+
+	b->i_max = b->i_grid * dims[2] - 1;
+	b->j_max = b->j_grid * dims[1] - 1;
+	b->k_max = b->k_grid * dims[0] - 1;
+
+	b->have_layout = 1;
 
 	return H5_SUCCESS;
 }
 
-int
-h5b_3d_get_proc (
+h5_err_t
+h5b_3d_set_halo (
 	h5_file_t *const f,		/*!< IN: File handle */
-	const h5_int64_t i,		/*!< IN: \c i coordinate */
-	const h5_int64_t j,		/*!< IN: \c j coordinate */
-	const h5_int64_t k		/*!< IN: \c k coordinate */
+	const h5_size_t i,		/*!< IN: radius in \c i */ 
+	const h5_size_t j,		/*!< IN: radius in \c j */  
+	const h5_size_t k		/*!< IN: radius in \c k */ 
 	) {
 
-	h5b_partition_t *layout = f->b->write_layout;
-	int proc;
+	if ( ! f->b->have_grid )
+		return h5_error(f, H5_ERR_INVAL,
+			"Grid dimensions have not been set!");
+	else if ( ! f->b->have_layout )
+		return h5_error(f, H5_ERR_INVAL,
+			"Block dimensions for grid have not been set!");
 
-	for ( proc = 0; proc < f->nprocs; proc++, layout++ ) {
-		if ( (layout->i_start <= i) && (i <= layout->i_end) &&
-		     (layout->j_start <= j) && (j <= layout->j_end) &&
-		     (layout->k_start <= k) && (k <= layout->k_end) ) 
-			return proc;
-	}
-	
-	return -1;
+	h5b_fdata_t *b = f->b;
+
+	b->user_layout->i_start	-= k;
+	b->user_layout->i_end	+= k;
+	b->user_layout->j_start	-= j;
+	b->user_layout->j_end	+= j;
+	b->user_layout->k_start	-= i;
+	b->user_layout->k_end	+= i;
+
+	b->user_layout->i_start = MAX(0, b->user_layout->i_start);
+	b->user_layout->j_start = MAX(0, b->user_layout->j_start);
+	b->user_layout->k_start = MAX(0, b->user_layout->k_start);
+
+	b->user_layout->i_end = MIN(b->i_max, b->user_layout->i_end);
+	b->user_layout->j_end = MIN(b->j_max, b->user_layout->j_end);
+	b->user_layout->k_end = MIN(b->k_max, b->user_layout->k_end);
+
+	return H5_SUCCESS;
 }
 
 h5_ssize_t

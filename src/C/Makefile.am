@@ -2,10 +2,8 @@
 
 OBJEXT=o
 
-HDFLIB = -L@HDF5ROOT@/lib -lhdf5 -lz @SZLIB@
-LIBS = $(HDFLIB) @MPILIB@
-
-INCLUDES = -I../include -I@HDF5ROOT@/include @MPIINC@
+LIBS = @LIBS@
+INCLUDES = -I../include @INCLUDES@
 
 # What to build... Will be determined by configure script.
 lib_LIBRARIES = libH5hutC.a

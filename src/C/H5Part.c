@@ -1,65 +1,3 @@
-/*! \mainpage H5Part: A Portable High Performance Parallel Data Interface to HDF5
-
-Particle based simulations of accelerator beam-lines, especially in
-six dimensional phase space, generate vast amounts of data. Even
-though a subset of statistical information regarding phase space or
-analysis needs to be preserved, reading and writing such enormous
-restart files on massively parallel supercomputing systems remains
-challenging. 
-
-H5Part consists of Particles and Block structured Fields.
-
-Developed by:
-
-<UL>
-<LI> Andreas Adelmann (PSI) </LI>
-<LI> Achim Gsell (PSI) </LI>
-<LI> Benedikt Oswald (PSI) </LI>
-
-<LI> Wes Bethel (NERSC/LBNL)</LI>
-<LI> John Shalf (NERSC/LBNL)</LI>
-<LI> Cristina Siegerist (NERSC/LBNL)</LI>
-<LI> Mark Howison (NERSC/LBNL)</LI>
-</UL>
-
-
-Papers: 
-
-<UL>
-<LI> A. Adelmann, R.D. Ryne, C. Siegerist, J. Shalf,"From Visualization to Data Mining with Large Data Sets," <i>
-<a href="http://www.sns.gov/pac05">Particle Accelerator Conference (PAC05)</a></i>, Knoxville TN., May 16-20, 2005. (LBNL-57603)
-<a href="http://vis.lbl.gov/Publications/2005/FPAT082.pdf">FPAT082.pdf</a>
-</LI>
-
-
-<LI> A. Adelmann, R.D. Ryne, J. Shalf, C. Siegerist, "H5Part: A Portable High Performance Parallel Data Interface for Particle Simulations," <i>
-<a href="http://www.sns.gov/pac05">Particle Accelerator Conference (PAC05)</a></i>, Knoxville TN., May 16-20, 2005.
-<a href="http://vis.lbl.gov/Publications/2005/FPAT083.pdf">FPAT083.pdf</a>
-</LI>
-</UL>
-
-For further information contact: <a href="mailto:h5part@lists.psi.ch">h5part</a>
-
-*/
-
-
-/*!
-  \defgroup h5part_c_api H5Part C API
-
-*/
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_open 	File Opening and Closing
-*/
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_model	Setting up the Data Model
-*/  
-/*!
-  \ingroup h5part_c_api
-  \defgroup h5part_data	Reading and Writing Datasets
-*/  
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>	/* va_arg - System dependent ?! */
@@ -536,6 +474,10 @@ H5PartGetNumParticles (
 
 /*!
   \ingroup h5part_model
+
+  Reset the view.
+
+  \return	\c H5_SUCCESS
 */
 h5_err_t
 H5PartResetView (
@@ -549,6 +491,12 @@ H5PartResetView (
 
 /*!
   \ingroup h5part_model
+
+  Check whether a view has been set, either automatically with
+  \ref H5PartSetNumParticles or manually with \ref H5PartSetView
+  or \ref H5PartSetViewIndices.
+
+  \return 0 for false or 1 for true
 */
 h5_err_t
 H5PartHasView (

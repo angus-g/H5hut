@@ -2,10 +2,8 @@
 
 OBJEXT=o
 
-HDFLIB = -L@HDF5ROOT@/lib -lhdf5 -lz @SZLIB@
-LIBS = $(HDFLIB) @MPILIB@
-
-INCLUDES = -I../include -I@HDF5ROOT@/include @MPIINC@
+LIBS = @LIBS@
+INCLUDES = -I../include @INCLUDES@
 
 EXTRA_HEADERS =					\
 	../include/h5core/h5_attribs.h		\

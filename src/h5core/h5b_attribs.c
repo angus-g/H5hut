@@ -59,15 +59,6 @@ h5b_get_num_field_attribs (
 	return n;
 }
 
-/*!
-  \ingroup h5block_attrib
-
-  Query information about a attribute given by index \c attrib_idx and
-  field name \c field_name. The function returns the name of the attribute,
-  the type of the attribute and the number of elements of this type.
-
-  \return \c H5_SUCCESS or error code
-*/
 h5_err_t
 h5b_get_field_attrib_info (
 	h5_file_t *const f,			/*!< IN: file handle */

@@ -230,7 +230,7 @@ _select_hyperslab_for_reading (
 			"Is the file corrupt?");
 
 	h5_debug (f,
-		"PROC[%d]: field_dims: (%lld,%lld,%lld)",
+		"[%d]: field_dims: (%lld,%lld,%lld)",
 		f->myproc,
 		(long long)field_dims[2],
 		(long long)field_dims[1],

@@ -4,11 +4,10 @@
 
 OBJEXT=o
 
-HDFLIB = -L@HDF5ROOT@/lib -lhdf5 -lz @SZLIB@ -lm
-H5LIB = -L../src/lib -lH5hutC -lH5hut
-LIBS = $(H5LIB) $(HDFLIB) @MPILIB@
+LDFLAGS = -L../src/lib @LDFLAGS@
+LIBS = -lH5hutC -lH5hut @LIBS@
 
-INCLUDES = -I../src/include -I@HDF5ROOT@/include @MPIINC@
+INCLUDES = -I../src/include @INCLUDES@
 
 noinst_PROGRAMS = h5u_test h5b_test
 

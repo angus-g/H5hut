@@ -19,6 +19,12 @@ struct h5b_fdata {
 	struct h5b_partition write_layout[1];
 	int have_layout;
 
+	MPI_Comm cart_comm;
+	h5_size_t i_grid;
+	h5_size_t j_grid;
+	h5_size_t k_grid;
+	int have_grid;
+
 	hid_t shape;
 	hid_t memshape;
 	hid_t diskshape;

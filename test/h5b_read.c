@@ -178,6 +178,68 @@ test_read_data64(h5_file_t *file, int step)
 	}
 }
 
+static void
+test_read_data32(h5_file_t *file, int step)
+{
+	extern h5_size_t grid[3];
+
+	int t;
+	h5_err_t status;
+
+	float *e;
+	float *ex,*ey,*ez;
+	int *id;
+
+	const size_t nelems = NBLOCKX * NBLOCKY * NBLOCKZ;
+
+	e=(float*)malloc(nelems*sizeof(double));
+	ex=(float*)malloc(nelems*sizeof(double));
+	ey=(float*)malloc(nelems*sizeof(double));
+	ez=(float*)malloc(nelems*sizeof(double));
+	id=(int*)malloc(nelems*sizeof(int));
+
+	TEST("Reading 32-bit data");
+
+	for (t=step; t<step+NTIMESTEPS; t++)
+	{
+		h5_int64_t val;
+		val = H5HasStep(file, t);
+		IVALUE(val, 1, "has step");
+
+		status = H5SetStep(file, t);
+		RETURN(status, H5_SUCCESS, "H5SetStep");
+
+		test_read_field_attribs(file, "e", t);
+
+		status = H5Block3dSetGrid(file, grid[0], grid[1], grid[2]);
+		RETURN(status, H5_SUCCESS, "H5Block3dSetGrid");
+
+		status = H5Block3dSetDims(file, NBLOCKX, NBLOCKY, NBLOCKZ);
+		RETURN(status, H5_SUCCESS, "H5Block3dSetDims");
+
+		status = H5Block3dReadScalarFieldFloat32(file, "e", e);
+		RETURN(status, H5_SUCCESS, "H5Block3dReadScalarFieldFloat32");
+
+		status = H5Block3dReadVector3dFieldFloat32(file,
+			"E", ex, ey, ez);
+		RETURN(status, H5_SUCCESS,
+			"H5Block3dReadVector3dFieldFloat32");
+	
+		status = H5Block3dReadScalarFieldInt32(file, "id", id);
+		RETURN(status, H5_SUCCESS, "H5Block3dReadScalarFieldInt32");
+
+		int i;
+		for (i=0; i<nelems; i++)
+		{
+			FVALUE(e[i] , 0.0 + (float)(i+nelems*t), " e data");
+			FVALUE(ex[i], 0.1 + (float)(i+nelems*t), " ex data");
+			FVALUE(ey[i], 0.2 + (float)(i+nelems*t), " ey data");
+			FVALUE(ez[i], 0.3 + (float)(i+nelems*t), " ez data");
+			IVALUE(id[i],              (i+nelems*t), " id data");
+		}
+	}
+}
+
 void h5b_test_read1(void)
 {
 	h5_file_t *file1;
@@ -192,6 +254,30 @@ void h5b_test_read1(void)
 	test_read_data64(file1, 1);
 
 	status = H5CloseFile(file1);
+	RETURN(status, H5_SUCCESS, "H5CloseFile");
+}
+
+void h5b_test_read2(void)
+{
+	h5_file_t *file1;
+	h5_file_t *file2;
+
+	h5_int64_t status;
+
+	TEST("Opening file twice, read-only");
+	file1 = H5OpenFile(FILENAME, H5_O_RDONLY, MPI_COMM_WORLD);
+	status = H5CheckFile(file1);
+	RETURN(status, H5_SUCCESS, "H5CheckFile");
+
+	file2 = H5OpenFile(FILENAME, H5_O_RDONLY, MPI_COMM_WORLD);
+	status = H5CheckFile(file2);
+	RETURN(status, H5_SUCCESS, "H5CheckFile");
+
+	test_read_data32(file1, NTIMESTEPS+1);
+
+	status = H5CloseFile(file1);
+	RETURN(status, H5_SUCCESS, "H5CloseFile");
+	status = H5CloseFile(file2);
 	RETURN(status, H5_SUCCESS, "H5CloseFile");
 }
 

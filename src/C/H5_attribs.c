@@ -7,7 +7,7 @@
 /*** WRITE ***/
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Write an attribute \c name with the string \c value to
   the file root ("/").
@@ -33,7 +33,7 @@ H5WriteFileAttribString (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Write an attribute \c name with the string \c value to
   the current timestep.
@@ -59,7 +59,7 @@ H5WriteStepAttribString (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Write an attribute \c name with float32 \c values to
   the file root ("/").
@@ -86,7 +86,7 @@ H5WriteFileAttribFloat32 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Write an attribute \c name with float32 \c values to
   the current time step.
@@ -113,7 +113,7 @@ H5WriteStepAttribFloat32 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Write an attribute \c name with float64 \c values to
   the file root ("/").
@@ -140,7 +140,7 @@ H5WriteFileAttribFloat64 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Write an attribute \c name with float64 \c values to
   the current time step.
@@ -167,7 +167,7 @@ H5WriteStepAttribFloat64 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Write an attribute \c name with int32 \c values to
   the file root ("/").
@@ -194,7 +194,7 @@ H5WriteFileAttribInt32 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Write an attribute \c name with int32 \c values to
   the current time step.
@@ -221,7 +221,7 @@ H5WriteStepAttribInt32 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Write an attribute \c name with int64 \c values to
   the file root ("/").
@@ -248,7 +248,7 @@ H5WriteFileAttribInt64 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Write an attribute \c name with int64 \c values to
   the current time step.
@@ -277,7 +277,7 @@ H5WriteStepAttribInt64 (
 /*** READ ***/
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Read a string into a \c buffer from an attribute \c name
   in the file root ("/").
@@ -302,7 +302,7 @@ H5ReadFileAttribString (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Read a string into a \c buffer from an attribute \c name
   in the current timestep.
@@ -327,7 +327,7 @@ H5ReadStepAttribString (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Read int32 values into a \c buffer from an attribute \c name
   in the file root ("/").
@@ -352,7 +352,7 @@ H5ReadFileAttribInt32 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Read int32 values into a \c buffer from an attribute \c name
   in the current time step.
@@ -377,7 +377,7 @@ H5ReadStepAttribInt32 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Read int64 values into a \c buffer from an attribute \c name
   in the file root ("/").
@@ -402,7 +402,7 @@ H5ReadFileAttribInt64 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Read int64 values into a \c buffer from an attribute \c name
   in the current time step.
@@ -427,7 +427,7 @@ H5ReadStepAttribInt64 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Read float32 values into a \c buffer from an attribute \c name
   in the file root ("/").
@@ -452,7 +452,7 @@ H5ReadFileAttribFloat32 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Read float32 values into a \c buffer from an attribute \c name
   in the current time step.
@@ -477,7 +477,7 @@ H5ReadStepAttribFloat32 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Read float64 values into a \c buffer from an attribute \c name
   in the file root ("/").
@@ -502,7 +502,7 @@ H5ReadFileAttribFloat64 (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Read float64 values into a \c buffer from an attribute \c name
   in the current time step.
@@ -529,7 +529,7 @@ H5ReadStepAttribFloat64 (
 /*** QUERY ***/
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Gets the number of attributes in the file's root ("/").
 
@@ -545,7 +545,7 @@ H5GetNumFileAttribs (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Gets the number of attributes bound to the current step.
 
@@ -562,7 +562,7 @@ H5GetNumStepAttribs (
 
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Gets the name, type and number of elements of the file attribute
   specified by its index.
@@ -603,7 +603,7 @@ H5GetFileAttribInfo (
 }
 
 /*!
-  \ingroup h5_attrib
+  \ingroup h5hut_attrib
 
   Gets the name, type and number of elements of the step attribute
   specified by its index.

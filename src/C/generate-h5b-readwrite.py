@@ -98,7 +98,7 @@ H5Block#DIM#dReadScalarField#TYPE_ABV# (
 """
 
 write_scalar_fi = """
-!> \\ingroup h5blockf_data
+!> \\ingroup h5block_data_f
 !! See \\ref H5Block#DIM#dWriteScalarField#TYPE_ABV#
 !! \\return 0 on success or error code
 !<
@@ -110,7 +110,7 @@ END FUNCTION
 """
 
 read_scalar_fi = """
-!> \\ingroup h5blockf_data
+!> \\ingroup h5block_data_f
 !! See \\ref H5Block#DIM#dReadScalarField#TYPE_ABV#
 !! \\return 0 on success or error code
 !<
@@ -258,7 +258,7 @@ H5Block#DIM#dReadVector3dField#TYPE_ABV# (
 """
 
 write_vector_fi = """ 
-!> \\ingroup h5blockf_data
+!> \\ingroup h5block_data_f
 !! See \\ref H5Block#DIM#dWriteVector3dField#TYPE_ABV#
 !! \\return 0 on success or error code
 !<
@@ -272,7 +272,7 @@ END FUNCTION
 """
 
 read_vector_fi = """
-!> \\ingroup h5blockf_data
+!> \\ingroup h5block_data_f
 !! See \\ref H5Block#DIM#dReadVector3dField#TYPE_ABV#
 !! \\return 0 on success or error code
 !<
@@ -385,7 +385,7 @@ H5BlockWriteFieldAttrib#TYPE_ABV# (
 """
 
 write_attr_fi = """
-!> \\ingroup h5_attrib_f
+!> \\ingroup h5block_attrib_f
 !! See \\ref H5BlockWriteFieldAttrib#TYPE_ABV#
 !! \\return 0 on success or error code
 !<
@@ -469,7 +469,7 @@ H5BlockReadFieldAttrib#TYPE_ABV# (
 """
 
 read_attr_fi = """
-!> \\ingroup h5_attrib_f
+!> \\ingroup h5block_attrib_f
 !! See \\ref H5BlockReadFieldAttrib#TYPE_ABV#
 !! \\return 0 on success or error code
 !<

@@ -16,8 +16,6 @@
 #ifndef __H5_H
 #define __H5_H
 
-#include "H5_attribs.h"
-
 h5_file_t *
 H5OpenFile (
 	const char * filename,

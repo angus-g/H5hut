@@ -26,9 +26,9 @@
 #define h5bl_3d_getreducedview F77NAME (			\
 					h5bl_3d_getreducedview_,\
 					H5BL_3D_GETREDUCEDVIEW )
-#define h5bl_3d_getproc F77NAME (					\
-					h5bl_getproc_,		\
-					H5BL_GETPROC )
+#define h5bl_3d_hasview F77NAME (					\
+					h5bl_hasview_,		\
+					H5BL_HASVIEW )
 #define h5bl_getnumfields F77NAME (					\
 					h5bl_getnumfields_,		\
 					H5BL_GETNUMFIELDS )
@@ -85,7 +85,6 @@ h5bl_3d_setchunk (
 h5_err_t
 h5bl_3d_getview (
 	h5_int64_t *f,		/*!< file handle */
-	const h5_int64_t *proc,
 	h5_int64_t *i_start,	/*!< start index of i */
 	h5_int64_t *i_end,		/*!< end index of i */
 	h5_int64_t *j_start,	/*!< start index of j */
@@ -98,7 +97,6 @@ h5bl_3d_getview (
 
 	h5_err_t herr = H5Block3dGetView (
 		filehandle,
-		*proc,
 		i_start, i_end, j_start, j_end, k_start, k_end );
 	if ( herr < 0 ) return herr;
 
@@ -115,7 +113,6 @@ h5bl_3d_getview (
 h5_err_t
 h5bl_3d_getreducedview (
 	h5_int64_t *f,
-	const h5_int64_t *proc,
 	h5_int64_t *i_start, 
 	h5_int64_t *i_end,
 	h5_int64_t *j_start,
@@ -128,7 +125,6 @@ h5bl_3d_getreducedview (
 
 	h5_err_t herr = H5Block3dGetReducedView (
 		filehandle,
-		*proc,
 		i_start, i_end, j_start, j_end, k_start, k_end );
 	if ( herr < 0 ) return herr;
 
@@ -142,17 +138,14 @@ h5bl_3d_getreducedview (
 	return H5_SUCCESS;
 }
 
-h5_err_t
-h5bl_3d_getproc (
-	h5_int64_t *f,
-	const h5_int64_t *i,
-	const h5_int64_t *j,
-	const h5_int64_t *k
+h5_int64_t
+h5bl_3d_hasview (
+	h5_int64_t *f
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
 
-	return H5Block3dGetProc ( filehandle, (*i)-1, (*j)-1, (*k)-1 );
+	return H5Block3dHasView ( filehandle );
 }
 
 h5_err_t

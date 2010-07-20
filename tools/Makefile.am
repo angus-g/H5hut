@@ -2,11 +2,10 @@
 
 OBJEXT=o
 
-HDFLIB = -L@HDF5ROOT@/lib -lhdf5 -lz @SZLIB@
-H5LIB = -L../src/lib -lH5hutC -lH5core
-LIBS = $(H5LIB) $(HDFLIB) @MPILIB@
+LDFLAGS = -L../src/lib @LFLAGS@
+LIBS = -lH5hutC -lH5hut @LIBS@
 
-INCLUDES = -I../src/include -I@HDF5ROOT@/include @MPIINC@
+INCLUDES = -I../src/include @INCLUDES@
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
 bin_PROGRAMS = @BUILD_TOOLS@

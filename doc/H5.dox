@@ -1,50 +1,139 @@
-/*! \mainpage H5Part: A Portable High Performance Parallel Data Interface to HDF5
+/*!
+\mainpage H5hut: A High-Performance I/O Library for Particle-based Simulations
 
-Particle based simulations of accelerator beam-lines, especially in
-six dimensional phase space, generate vast amounts of data. Even
-though a subset of statistical information regarding phase space or
-analysis needs to be preserved, reading and writing such enormous
-restart files on massively parallel supercomputing systems remains
-challenging. 
+Particle-based simulations running on large high-performance computing systems
+over many time steps can generate an enormous amount of particle- and
+field-based data for post-processing and analysis. Achieving high-performance
+I/O for this data, effectively managing it on disk, and interfacing it with
+analysis and visualization tools can be challenging, especially for domain
+scientists who do not have I/O and data management expertise. We present the
+H5hut library, an implementation of several data models for particle-based
+simulations that encapsulates the complexity of HDF5 and is simple to use, yet
+does not compromise performance.
 
-H5Part consists of Particles and Block structured Fields.
-
-Developed by:
+Developers:
 
 <UL>
 <LI> Andreas Adelmann (PSI) </LI>
 <LI> Achim Gsell (PSI) </LI>
 <LI> Benedikt Oswald (PSI) </LI>
+<LI> Mark Howison (NERSC/LBNL) </LI>
+<LI> Prabhat (NERSC/LBNL) </LI>
+<LI> Wes Bethel (NERSC/LBNL) </LI>
+</UL>
 
-<LI> Wes Bethel (NERSC/LBNL)</LI>
+Previous developers:
+
+<UL>
 <LI> John Shalf (NERSC/LBNL)</LI>
 <LI> Cristina Siegerist (NERSC/LBNL)</LI>
 </UL>
 
-For further information contact: <a href="mailto:h5part@lists.psi.ch">h5part</a>
+For more information, please contact the <a href="mailto:h5part@lists.psi.ch">h5part</a> mailing list.
 
-Last modified on April 19, 2007.
-
-*/
-
-
-/*!
-  \defgroup h5_core  H5 core functions 
 */
 
 /*!
-  \defgroup h5_c_api H5 C API
+  \defgroup h5hut_c_api H5hut C API
 */
+/*!
+  \ingroup h5hut_c_api
+  \defgroup h5hut_file File Handling
+*/
+/*!
+  \ingroup h5hut_c_api
+  \defgroup h5hut_error Error Handling
+*/
+/*!
+  \ingroup h5hut_c_api
+  \defgroup h5hut_model Setting up the Data Model
+*/
+/*!
+  \ingroup h5hut_c_api
+  \defgroup h5hut_attrib Reading and Writing Attributes
+*/  
+
 
 /*!
   \defgroup h5part_c_api H5Part C API
 */
+/*!
+  \ingroup h5part_c_api
+  \defgroup h5part_model	Setting up the Data Model
+*/
+/*!
+  \ingroup h5part_c_api
+  \defgroup h5part_data		Reading and Writing Datasets
+*/  
+
 
 /*!
   \defgroup h5block_c_api H5Block C API
 */
+*/!
+  \ingroup h5block_c_api
+  \defgroup h5block_model Setting up the Data Model
+*/
+  \ingroup h5block_c_api
+  \defgroup h5block_data Reading and Writing Datasets
+*/
+  \ingroup h5block_c_api
+  \defgroup h5block_attrib Reading and Writing Attributes
+*/
+
+
 
 /*!
   \defgroup h5fed_c_api H5Fed C API
+*/
+
+
+/*!
+  \defgroup h5hut_f90_api H5hut F90 API
+*/
+
+/*!
+  \ingroup h5hut_f90_api
+  \defgroup h5hut_file_f File Handling
+*/
+
+/*!
+  \ingroup h5hut_f90_api
+  \defgroup h5hut_model_f Setting up the Data Model
+*/
+
+/*!
+  \ingroup h5hut_f90_api
+  \defgroup h5hut_attrib_f Reading and Writing Attributes
+!<
+
+
+/*!
+  \defgroup h5part_f90_api H5Part F90 API
+*/
+/*!
+  \ingroup h5part_f90_api
+  \defgroup h5part_model_f Setting up the Data Model
+*/
+/*!
+  \ingroup h5part_f90_api
+  \defgroup h5part_data_f Reading and Writing Datasets
+*/
+
+
+/*!
+  \defgroup h5block_f90_api H5Block F90 API
+*/
+/*!
+  \ingroup h5block_f90_api
+  \defgroup h5block_model_f Setting up the Data Model
+*/
+/*!
+  \ingroup h5block_f90_api
+  \defgroup h5block_data_f Reading and Writing Datasets
+*/
+/*!
+  \ingroup h5block_f90_api
+  \defgroup h5block_attrib_f Reading and Writing Attributes
 */
 

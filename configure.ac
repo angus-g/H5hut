@@ -77,13 +77,13 @@ SAVE_FC=$FC
 SAVE_MPICC=$MPICC
 SAVE_MPICXX=$MPICXX
 SAVE_MPIFC=$MPIFC
-SAVE_MPILIB=$MPILIB
-SAVE_MPIINC=$MPIINC
 SAVE_CFLAGS=$CFLAGS
 SAVE_FFLAGS=$FFLAGS
+SAVE_INCLUDES=$INCLUDES
+SAVE_LDFLAGS=$LDFLAGS
+SAVE_LIBS=$LIBS
 SAVE_MPIROOT=$MPIROOT
 SAVE_HDF5ROOT=$HDF5ROOT
-SAVE_LDFLAGS=$LDFLAGS
 
 ###############################################################################
 ############### PATH SERACH FUNCTION - to be used later... ####################
@@ -241,7 +241,7 @@ AC_MSG_CHECKING([if parallel interface enabled])
 if test "X$USE_PARALLEL" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 
-	CFLAGS="${CFLAGS} -DPARALLEL_IO -DH5_HAVE_PARALLEL -DMPICH_IGNORE_CXX_SEEK"
+	CFLAGS="${CFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
 
 	AC_MSG_CHECKING([if we can compile MPI code without setting flags])
 	AC_TRY_LINK([#include "mpi.h"], [
@@ -288,8 +288,7 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 		fi
 
 		if test -z "$MPICC" -o -z "$MPICXX"; then 
-			MPIINC="${MPIINC} -I${MPIROOT}/include"
-			FFLAGS="${FFLAGS} -I${MPIROOT}/include"
+			INCLUDES="${INCLUDES} -I${MPIROOT}/include"
 			AC_MSG_CHECKING([for name of MPI lib ])
 			if test -e ${MPIROOT}/lib/libmpi.a; then
 				MPILIB="-L${MPIROOT}/lib -lmpi"
@@ -391,22 +390,19 @@ if test -z "$HDF5ROOT"; then
 	exit 1
 fi
 
+INCLUDES="$INCLUDES -I$HDF5ROOT/include"
+LDFLAGS="$LDFLAGS -L$HDF5ROOT/lib"
+LIBS="$LIBS -lhdf5"
+
 AC_MSG_CHECKING([if we need to link to libsz ])
 if test -n "$HDF5ROOT"; then
 	if test -f $HDF5ROOT/lib/libsz.a; then
 		AC_MSG_RESULT([yes])
-		SZLIB="-L$HDF5ROOT/lib/ -lsz"
+		LDFLAGS="$LDFLAGS -L$HDF5ROOT/lib"
+                LIBS="$LIBS -lsz"
 	else
 		AC_MSG_RESULT([no])
-		SZLIB=""
 	fi
-fi
-
-AC_MSG_CHECKING([for static zlib root ])
-AC_MSG_RESULT([ ])
-PATH_Search ZLIBROOT '/apps/zlib' lib/libz.a
-if test -n "$ZLIBROOT"; then
-	LDFLAGS="$LDFLAGS -L$ZLIBROOT/lib"
 fi
 
 AC_MSG_CHECKING([for lustre API ])
@@ -427,7 +423,12 @@ if test -z "$LUSTREROOT"; then
 	AC_MSG_WARN([Couldn't locate the lustre API... building without support for lustre striping!])
 else
         CFLAGS="$CFLAGS -DH5_USE_LUSTRE"
+        INCLUDES="$INCLUDES -I$LUSTREROOT/include"
+        LDFLAGS="LDFLAGS -L$LUSTREROOT/lib"
+        LIBS="$LIBS -llustreapi"
 fi
+
+LIBS="$LIBS -lz -lm"
 
 
 ###############################################################################
@@ -459,20 +460,24 @@ if test -n "$SAVE_MPIFC"; then
 	MPIFC=$SAVE_MPIFC
 fi
 
-if test -n "$SAVE_MPILIB"; then
-	MPILIB=$SAVE_MPILIB
-fi
-
-if test -n "$SAVE_MPIINC"; then
-	MPIINC=$SAVE_MPIINC
-fi
-
 if test -n "$SAVE_CFLAGS"; then
 	CFLAGS=$SAVE_CFLAGS $CFLAGS
 fi
 
 if test -n "$SAVE_FFLAGS"; then
 	FFLAGS=$SAVE_FFLAGS
+fi
+
+if test -n "$SAVE_INCLUDES"; then
+	INCLUDES=$SAVE_INCLUDES
+fi
+
+if test -n "$SAVE_LDFLAGS"; then
+	LDFLAGS=$SAVE_LDFLAGS
+fi
+
+if test -n "$SAVE_LIBS"; then
+	LIBS=$SAVE_LIBS
 fi
 
 if test -n "$SAVE_MPIROOT"; then
@@ -483,39 +488,34 @@ if test -n "$SAVE_HDF5ROOT"; then
 	HDF5ROOT=$SAVE_HDF5ROOT
 fi
 
-if test -n "$SAVE_LDFLAGS"; then
-	LDFLAGS=$SAVE_LDFLAGS
-fi
-
 ###############################################################################
 ############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
 ###############################################################################
 # AC_SUBST (variable, [value])
-# Create an output variable from a shell variable. 
-# Make AC_OUTPUT substitute the variable variable into output files (typically one or more `Makefile's). 
-# This means that AC_OUTPUT will replace instances of `@variable@' in input files with the value that 
-# the shell variable variable has when AC_OUTPUT is called. 
-# This value of variable should not contain literal newlines.
-# If value is given, in addition assign it to variable. 
+# Create an output variable from a shell variable.  Make AC_OUTPUT substitute
+# the variable variable into output files (typically one or more `Makefile's).
+# This means that AC_OUTPUT will replace instances of `@variable@' in input
+# files with the value that the shell variable variable has when AC_OUTPUT is
+# called.  This value of variable should not contain literal newlines.  If
+# value is given, in addition assign it to variable. 
 AC_SUBST(MPIROOT)
 AC_SUBST(HDF5ROOT)
 AC_SUBST(LUSTREROOT)
-AC_SUBST(MPIINC)
-AC_SUBST(MPILIB)
 AC_SUBST(MPICC)
 AC_SUBST(MPICXX)
 AC_SUBST(MPIFC)
 AC_SUBST(TPTARGET)
 AC_SUBST(TBTARGET)
 AC_SUBST(TFTARGET)
-AC_SUBST(SZLIB)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
+AC_SUBST(INCLUDES)
+AC_SUBST(LDFLAGS)
+AC_SUBST(LIBS)
 AC_SUBST(STDCXX)
 AC_SUBST(UNDERSCORE_H)
 AC_SUBST(BUILD_TOOLS)
 AC_SUBST(FORTRAN_LIB)
-AC_SUBST(LDFLAGS)
 
 # Make AC_OUTPUT create each `file' by copying an input file (by default `file.in'),
 # substituting the output variable values.
@@ -531,6 +531,7 @@ AC_CONFIG_FILES([
 	test/H5Block/Makefile
 	test/H5Fed/Makefile
 	tools/Makefile
+	tools/h5hutcc
 ])
 
 AC_OUTPUT
@@ -544,7 +545,7 @@ AC_MSG_RESULT([ ])
 AC_MSG_RESULT([Host OS:             $host_os])
 AC_MSG_RESULT([Host CPU:            $host_cpu])
 AC_MSG_RESULT([Host vendor:         $host_vendor])
-AC_MSG_RESULT([Build libraries:     libH5Core.a libH5hutC.a $FORTRAN_LIB])
+AC_MSG_RESULT([Build libraries:     libH5hut.a libH5hutC.a $FORTRAN_LIB])
 AC_MSG_RESULT([Build test programs: $TTARGET])
 AC_MSG_RESULT([Build tools:         $BUILD_TOOLS])
 AC_MSG_RESULT([CC =                 $CC])
@@ -555,10 +556,10 @@ AC_MSG_RESULT([MPICXX =             $MPICXX])
 AC_MSG_RESULT([MPIFC =              $MPIFC])
 AC_MSG_RESULT([CFLAGS =             $CFLAGS])
 AC_MSG_RESULT([FFLAGS =             $FFLAGS])
-AC_MSG_RESULT([MPILIB =             $MPILIB])
-AC_MSG_RESULT([MPIINC =             $MPIINC])
+AC_MSG_RESULT([INCLUDES =           $INCLUDES])
+AC_MSG_RESULT([LDFLAGS =            $LDFLAGS])
+AC_MSG_RESULT([LIBS =               $LIBS])
 AC_MSG_RESULT([MPIROOT =            $MPIROOT])
 AC_MSG_RESULT([HDF5ROOT =           $HDF5ROOT])
 AC_MSG_RESULT([LUSTREROOT =         $LUSTREROOT])
-AC_MSG_RESULT([LDFLAGS =            $LDFLAGS])
 AC_MSG_RESULT([ ])

@@ -5,9 +5,9 @@
    \struct h5_file
 
    This is an essentially opaque datastructure that
-   acts as the filehandle for all practical purposes.
-   It is created by H5PartOpenFile<xx>() and destroyed by
-   H5PartCloseFile().  
+   acts as a filehandle and is defined as type \c h5_file_t.
+   It is created by \ref H5OpenFile and destroyed by
+   \ref H5CloseFile.
 */
 struct h5_file {
 	hid_t		file;		/* file id -> fid		*/

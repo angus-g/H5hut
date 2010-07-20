@@ -188,9 +188,40 @@ h5priv_mpi_type_free (
 	h5_file_t* const f,
 	MPI_Datatype *type
 	) {
-	int err = MPI_Type_free ( type );
+	int err = MPI_Type_free( type );
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot free MPI type");
+		return h5_error(f, H5_ERR_MPI, "Cannot free MPI type");
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5priv_mpi_cart_create (
+	h5_file_t* const f,
+	MPI_Comm old_comm,
+	int ndims,
+	int *dims,
+	int *period,
+	int *reorder,
+	MPI_Comm *new_comm
+	) {
+	int err = MPI_Cart_create(
+		old_comm, ndims, dims, period, reorder, new_comm);
+	if (err != MPI_SUCCESS)
+		return h5_error(f, H5_ERR_MPI, "Cannot create cartesian grid");
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5priv_mpi_cart_coords (
+	h5_file_t* const f,
+	MPI_Comm comm,
+	int rank,
+	int maxdim,
+	int *coords
+	) {
+	int err = MPI_Cart_coords( comm, rank, maxdim, coords );
+	if (err != MPI_SUCCESS)
+		return h5_error(f, H5_ERR_MPI, "Cannot create cartesian grid");
 	return H5_SUCCESS;
 }
 
