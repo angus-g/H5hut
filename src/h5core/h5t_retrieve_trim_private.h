@@ -1,5 +1,0 @@
-#ifndef __H5T_TRIM_RETRIEVE_PRIVATE_H
-#define __H5T_TRIM_RETRIEVE_PRIVATE_H
-
-extern struct h5t_retrieve_methods h5tpriv_trim_retrieve_methods;
-#endif
