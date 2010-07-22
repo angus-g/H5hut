@@ -719,7 +719,7 @@ h5b_3d_set_grid (
 	int dims[3] = { k, j, i };
 	int period[3] = { 0, 0, 0 };
 	TRY( h5priv_mpi_cart_create(f,
-		f->comm, 3, dims, period, period, &f->b->cart_comm) );
+		f->comm, 3, dims, period, 0, &f->b->cart_comm) );
 
 	f->b->have_grid = 1;
 

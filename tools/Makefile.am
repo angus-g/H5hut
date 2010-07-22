@@ -23,3 +23,6 @@ h5pToGNUplot_SOURCES = h5pToGNUplot.cc
 
 #homdynToH5p_SOURCES = homdynToH5p.cc
 
+install-exec-local:
+	@$(INSTALL) h5hutcc $(DESTDIR)$(bindir)/h5hutcc
+

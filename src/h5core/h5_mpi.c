@@ -201,7 +201,7 @@ h5priv_mpi_cart_create (
 	int ndims,
 	int *dims,
 	int *period,
-	int *reorder,
+	int reorder,
 	MPI_Comm *new_comm
 	) {
 	int err = MPI_Cart_create(
