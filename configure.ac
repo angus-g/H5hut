@@ -14,6 +14,11 @@ AC_PREREQ(2.59)
 # The AC_CONFIG_HEADERS macro selects this kind of output.
 AC_CONFIG_HEADER(config.h)
 
+
+BINDINGS=''
+BUILD_LIBS='libH5hut'
+USE_C='yes'
+
 ###############################################################################
 ################# --enable-xxx and --with-xxx Argument ########################
 ###############################################################################
@@ -29,6 +34,12 @@ AC_ARG_ENABLE(
 	[AC_HELP_STRING([--enable-64],
 	[Compile using 64-bit flags [default=no]])],
 	[USE_64=$enableval])
+
+AC_ARG_ENABLE(
+	[c],
+	[AC_HELP_STRING([--enable-c],
+	[Compile the C interface [default=yes]])],
+	[USE_C=$enableval])
 
 AC_ARG_ENABLE(
 	[fortran],
@@ -65,7 +76,6 @@ AC_ARG_WITH(
 	[AC_HELP_STRING([--with-lustre],
 	[path to lustre user API [default=""]])],
 	[LUSTREPATH=$withval], [LUSTREPATH=""])
-
 
 ###############################################################################
 ################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
@@ -192,9 +202,20 @@ else
 fi
 
 ############################ fortran enabled ##################################
+AC_MSG_CHECKING([if C interface enabled])
+if test "X$USE_C" = "Xyes"; then
+	AC_MSG_RESULT([yes])
+	BINDINGS="$BINDINGS C"
+        BUILD_LIBS="$BUILD_LIBS libH5hutC"
+fi
+
+############################ fortran enabled ##################################
 AC_MSG_CHECKING([if fortran interface enabled])
 if test "X$USE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
+	BINDINGS="$BINDINGS Fortran"
+        BUILD_LIBS="$BUILD_LIBS libH5hutF"
+
 
 	AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
 	if test -z "$FC" ; then
@@ -230,7 +251,6 @@ if test "X$USE_FORTRAN" = "Xyes"; then
 		exit 1
 	fi
 
-        FORTRAN_LIB=libH5hutF.a
 else
 	AC_MSG_RESULT([no])
 fi
@@ -516,6 +536,7 @@ AC_SUBST(STDCXX)
 AC_SUBST(UNDERSCORE_H)
 AC_SUBST(BUILD_TOOLS)
 AC_SUBST(FORTRAN_LIB)
+AC_SUBST(BINDINGS)
 
 # Make AC_OUTPUT create each `file' by copying an input file (by default `file.in'),
 # substituting the output variable values.
@@ -545,7 +566,7 @@ AC_MSG_RESULT([ ])
 AC_MSG_RESULT([Host OS:             $host_os])
 AC_MSG_RESULT([Host CPU:            $host_cpu])
 AC_MSG_RESULT([Host vendor:         $host_vendor])
-AC_MSG_RESULT([Build libraries:     libH5hut.a libH5hutC.a $FORTRAN_LIB])
+AC_MSG_RESULT([Build libraries:     $BUILD_LIBS])
 AC_MSG_RESULT([Build test programs: $TTARGET])
 AC_MSG_RESULT([Build tools:         $BUILD_TOOLS])
 AC_MSG_RESULT([CC =                 $CC])
