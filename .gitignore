@@ -60,3 +60,4 @@ test/Makefile.in
 tools/.deps
 tools/Makefile
 tools/Makefile.in
+tools/h5hutcc
