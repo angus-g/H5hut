@@ -3,6 +3,8 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
+#define num_elems_on_cur_level	f->t->num_elems[f->t->cur_level]
+
 /*
   Skip elements which have been refined on a level <= the current one.
 */
@@ -11,18 +13,17 @@ h5tpriv_skip_to_next_elem_on_level (
 	h5_file_t* f,
 	h5t_entity_iterator_t* iter
 	) {
-	h5t_fdata_t* t = f->t;
-	h5_elem_ldta_t* el_dta;
-	int num_elems = t->num_elems[t->cur_level];
+	h5_generic_elem_t* el;
 	do {
 		iter->elem_idx++;
-		if (iter->elem_idx >= num_elems) {
+		if (iter->elem_idx >= num_elems_on_cur_level) {
 			return H5_NOK;
 		}
-		el_dta = &t->elems_ldta[iter->elem_idx];
-	} while (h5tpriv_elem_is_on_cur_level (f, el_dta) == H5_NOK);
+		el = h5tpriv_get_loc_elem (f, iter->elem_idx);
+	} while (h5tpriv_elem_is_on_cur_level (f, el) == H5_NOK);
 	return H5_SUCCESS;
 }
+
 
 /*
   Test whether given element is on current level. This is the case, if
@@ -32,12 +33,11 @@ h5tpriv_skip_to_next_elem_on_level (
 h5_err_t
 h5tpriv_elem_is_on_cur_level (
 	h5_file_t* const f,
-	h5_elem_ldta_t *el_dta 
+	h5_generic_elem_t *el 
 	) {
 	h5t_fdata_t* t = f->t;
-	if ( (el_dta->level_id > t->cur_level) ||
-	     ( (el_dta->local_child_idx >= 0) &&
-	       (el_dta->local_child_idx < t->num_elems[t->cur_level]) ) ) {
+	if ( (el->level_idx > t->cur_level) ||
+	     (el->child_idx >= 0 && el->child_idx < num_elems_on_cur_level) ) {
 		return H5_NOK;
 	}
 	return H5_SUCCESS;
@@ -79,11 +79,10 @@ iterate_faces (
 	h5_file_t* const f,
 	h5t_entity_iterator_t* iter
 	) {
-	h5t_fdata_t* t = f->t;
 	h5_idlist_t* entry;
 	h5_size_t i;
-	int dim = iter->ref_element->dim - iter->codim;
-	int num_faces = iter->ref_element->num_faces[dim] - 1;
+	int dim = iter->ref_elem->dim - iter->codim;
+	int num_faces = iter->ref_elem->num_faces[dim] - 1;
 	do {
 		if (iter->face_idx >= num_faces) {
 			if (h5tpriv_skip_to_next_elem_on_level (f, iter) == H5_NOK) {
@@ -102,12 +101,12 @@ iterate_faces (
 		TRY( (iter->find)(f, iter->face_idx,
 				  iter->elem_idx, &entry) );
 		i = -1;
-		h5_elem_ldta_t *el_dta;
+		h5_generic_elem_t *el;
 		do {
 			i++;
-			h5_id_t eid = h5tpriv_get_elem_idx (entry->items[i]);
-			el_dta = &t->elems_ldta[eid];
-		} while (h5tpriv_elem_is_on_cur_level (f, el_dta) == H5_NOK);
+			h5_id_t idx = h5tpriv_get_elem_idx (entry->items[i]);
+			el = h5tpriv_get_loc_elem (f, idx);
+		} while (h5tpriv_elem_is_on_cur_level (f, el) == H5_NOK);
 	} while (iter->elem_idx != h5tpriv_get_elem_idx(entry->items[i]));
 	
 	return entry->items[0];
@@ -147,7 +146,7 @@ h5t_end_iterate_entities (
 	iter->face_idx = -1;
 	iter->elem_idx = -1;
 	iter->codim = -1;
-	iter->ref_element = NULL;
+	iter->ref_elem = NULL;
 	iter->find = NULL;
 	return H5_SUCCESS;
 }
@@ -164,7 +163,7 @@ h5t_get_vertex_coords_by_index (
 }
 
 h5_err_t
-h5t_get_vertrex_coords_by_id (
+h5t_get_vertex_coords_by_id (
 	h5_file_t* const f,
 	h5_id_t vertex_id,
 	h5_float64_t P[3]

@@ -65,7 +65,7 @@ write_elems (
 		     &t->dsinfo_elems,
 		     open_space_all,
 		     open_space_all,
-		     t->elems.data) );
+		     t->glb_elems.data) );
 
 	TRY( h5priv_write_dataset_by_name (
 		     f,
@@ -231,52 +231,7 @@ open_file_space_elems (
 	return H5S_ALL;
 }
 
-/*
-  setup structure "elems_data" with local ids for each element:
-  - translate the global vertex id's of each element to their
-    local id's
-  - translate the global parent id of each element to the
-    corresponding local id.
-*/
-static h5_err_t
-build_elems_ldta (
-	h5_file_t* const f
-	) {
-	h5t_fdata_t* t = f->t;
-	h5_id_t local_eid = 0;
-	h5_id_t num_elems = t->num_elems[t->num_levels-1];
-	h5_id_t level_id = 0;
 
-	void* elp = t->elems.data;
-	h5_elem_t* el;
-	h5_elem_ldta_t* el_data = t->elems_ldta;
-	int num_vertices = t->ref_element->num_faces[0];
-	for (local_eid=0;
-	     local_eid < num_elems;
-	     local_eid++, elp+=h5tpriv_sizeof_elem[t->mesh_type], el_data++) {
-		el = (h5_elem_t*)elp;
-		TRY( h5t_map_global_vertex_indices2local (
-			     f,
-			     el->global_vertex_indices,
-			     num_vertices,
-			     el_data->local_vertex_indices) );
-		if (el->global_parent_idx >= 0)
-			TRY( el_data->local_parent_idx =
-			     h5t_map_global_elem_idx2local (
-				     f, el->global_parent_idx) );
-		
-		if (el->global_child_idx >= 0)
-			TRY( el_data->local_child_idx =
-			     h5t_map_global_elem_idx2local (
-				     f, el->global_child_idx) );
-		
-		if (local_eid >= t->num_elems[level_id]) {
-			level_id++;
-		}
-		el_data->level_id = level_id;
-	}
-	return H5_SUCCESS;
-}
 
 static h5_err_t
 read_elems (
@@ -292,11 +247,11 @@ read_elems (
 		     &t->dsinfo_elems,
 		     open_mem_space_elems,
 		     open_file_space_elems,
-		     t->elems.data) );
+		     t->glb_elems.data) );
 
 	TRY( h5tpriv_sort_elems (f) );
 	TRY( h5tpriv_rebuild_global_2_local_map_of_elems (f) );
-	TRY( build_elems_ldta (f) );
+	TRY( (*f->t->methods.read->init_loc_elems_struct) (f) );
 
 	return H5_SUCCESS;
 }

@@ -1088,7 +1088,7 @@ h5priv_write_hdf5_attribute (
 	return H5_SUCCESS;
 }
 
-ssize_t
+h5_ssize_t
 h5priv_get_hdf5_attribute_name (
 	h5_file_t * const f,
 	hid_t attr_id,
@@ -1101,7 +1101,7 @@ h5priv_get_hdf5_attribute_name (
 			f,
 			H5_ERR_HDF5,
 			"Cannot get attribute name." );
-	return size;
+	return (h5_size_t)size;
 }
 
 hid_t

@@ -1,6 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>	/* va_arg - System dependent ?! */
 #include <string.h>
 #include <errno.h>
-
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
@@ -16,7 +18,7 @@ h5tpriv_error_local_elem_nexist (
 	int num_chars_printed = snprintf (s, sizeof(s), "%lld,",
 					  (long long)local_vertex_indices[0]);
 	int i;
-	int num_vertices = t->ref_element->num_faces[0];
+	int num_vertices = t->ref_elem->num_faces[0];
 	for (i = 1; i < num_vertices; i++) {
 		num_chars_printed += snprintf (
 			s + num_chars_printed, sizeof (s) - num_chars_printed,
@@ -29,4 +31,4 @@ h5tpriv_error_local_elem_nexist (
 
 	return h5_error (f, H5_ERR_NOENTRY, ERR_ELEM_NEXIST, s);
 }
-
+	

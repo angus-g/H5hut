@@ -9,8 +9,11 @@ h5tpriv_skip_to_next_elem_on_level (
 
 h5_err_t
 h5tpriv_elem_is_on_cur_level (
-	h5_file_t * const f,
-	h5_elem_ldta_t *el_dta 
+	h5_file_t* const f,
+	h5_generic_elem_t* el
 	);
+
+extern struct h5t_retrieve_methods h5tpriv_trim_retrieve_methods;
+extern struct h5t_retrieve_methods h5tpriv_tetm_retrieve_methods;
 
 #endif

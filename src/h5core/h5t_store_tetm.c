@@ -10,44 +10,26 @@ alloc_tets (
 	const size_t new
 	) {
 	h5t_fdata_t *t = f->t;
-	const size_t nvertices = 4;
 
 	/* alloc mem for elements */
-	TRY ( t->elems.tets = h5priv_alloc (
+	TRY ( t->glb_elems.tets = h5priv_alloc (
 		      f,
-		      t->elems.tets,
-		      new * sizeof(t->elems.tets[0]) ) );
+		      t->glb_elems.tets,
+		      new * sizeof(t->glb_elems.tets[0]) ) );
 	memset (
-		t->elems.tets + cur,
+		t->glb_elems.tets + cur,
 		-1,
-		(new-cur) * sizeof(t->elems.tets[0]) );
+		(new-cur) * sizeof(t->glb_elems.tets[0]) );
 
 	/* alloc mem for local data of elements */
-	TRY ( t->elems_ldta = h5priv_alloc (
+	TRY ( t->loc_elems.tets = h5priv_alloc (
 		      f,
-		      t->elems_ldta,
-		      new * sizeof (t->elems_ldta[0]) ) );
+		      t->loc_elems.tets,
+		      new * sizeof (t->loc_elems.tets[0]) ) );
 	memset (
-		t->elems_ldta + cur,
+		t->loc_elems.tets + cur,
 		-1,
-		(new-cur) * sizeof (t->elems_ldta[0]) );
-
-	/* alloc mem for local vertex IDs of elements */
-	TRY ( t->elems_lvids = h5priv_alloc (
-		      f,
-		      t->elems_lvids,
-		      new * sizeof(t->elems_lvids[0]) * nvertices ) );
-	memset (
-		t->elems_lvids + cur * nvertices,
-		-1,
-		(new-cur) * sizeof(t->elems_lvids[0]) * nvertices );
-
-	/* re-init pointer to local vertex id in local data structure */
-	h5_id_t *p = t->elems_lvids;
-	h5_id_t id;
-	for ( id = 0; id < new; id++, p+=nvertices ) {
-		t->elems_ldta[id].local_vertex_indices = p;
-	}
+		(new-cur) * sizeof (t->loc_elems.tets[0]) );
 
 	/* alloc mem for global to local ID mapping */
 	TRY ( h5priv_alloc_idmap ( f, &t->map_elem_g2l, new ) );
@@ -74,7 +56,7 @@ get_direct_children_of_edge (
 			   {1,3}, // edge 4
 			   {2,3}  // edge 5
 	};
-	int num_faces = f->t->ref_element->num_faces[1];
+	int num_faces = f->t->ref_elem->num_faces[1];
 	if ((face_idx < 0) || ( face_idx >= num_faces)) {
 		return h5_error_internal (f, __FILE__, __func__, __LINE__); 
 	}
@@ -93,24 +75,23 @@ get_direct_children_of_edge (
 static h5_id_t
 bisect_edge (
 	h5_file_t* const f,
-	h5_id_t face_id,
-	h5_id_t elem_id
+	const h5_id_t face_idx,
+	const h5_id_t elem_idx
 	) {
-	h5t_fdata_t *t = f->t;
-	h5_id_t vids[2];
-	h5_idlist_t *retval;
+	h5t_fdata_t* t = f->t;
+	h5_idlist_t* retval;
 	/*
 	  get all elements sharing the given edge
 	 */
-	TRY( h5tpriv_find_te2 (f, face_id, elem_id, &retval) );
+	TRY( h5tpriv_find_te2 (f, face_idx, elem_idx, &retval) );
 	/*
 	  check wether one of the found elements has been refined
 	 */
 	size_t i;
 	for ( i = 0; i < retval->num_items; i++ ) {
-		h5_id_t local_id = h5tpriv_get_elem_idx ( retval->items[i] );
-		h5_elem_ldta_t *tet = &t->elems_ldta[local_id];
-		if ( tet->local_child_idx >= 0 ) {
+		h5_id_t idx = h5tpriv_get_elem_idx ( retval->items[i] );
+		h5_id_t child_idx = h5tpriv_get_loc_elem_child_idx (f, idx);
+		if ( child_idx >= 0 ) {
 			/*
 			  this element has been refined!
 			  return bisecting point
@@ -121,7 +102,7 @@ bisect_edge (
 			TRY( get_direct_children_of_edge (
 				     f,
 				     face_id,
-				     tet->local_child_idx,
+				     child_idx,
 				     kids) );
 			TRY( h5t_get_vertex_indices_of_edge (f, kids[0], edge0) );
 			TRY( h5t_get_vertex_indices_of_edge (f, kids[1], edge1) );
@@ -134,8 +115,10 @@ bisect_edge (
 	/*
 	  None of the elements has been refined -> add new vertex.
 	 */
-	h5_float64_t *P0 = t->vertices[vids[0]].P;
-	h5_float64_t *P1 = t->vertices[vids[1]].P;
+	h5_id_t indices[2];
+	TRY( h5t_get_vertex_indices_of_edge2 (f, face_idx, elem_idx, indices) );
+	h5_float64_t *P0 = t->vertices[indices[0]].P;
+	h5_float64_t *P1 = t->vertices[indices[1]].P;
 	h5_float64_t P[3];
 
 	P[0] = ( P0[0] + P1[0] ) / 2.0;
@@ -158,18 +141,18 @@ refine_tet (
 	h5t_fdata_t* t = f->t;
 	h5_id_t vertices[10];
 	h5_id_t elem_idx_of_first_child;
-	h5_elem_ldta_t *tet = &t->elems_ldta[elem_idx];
+	h5_tet_t* el = &t->loc_elems.tets[elem_idx];
 
-	if ( tet->local_child_idx >= 0 )
+	if ( el->child_idx >= 0 )
 		return h5_error (
 			f,
 			H5_ERR_INVAL,
 			"Tetrahedron %lld already refined.",
 			(long long)elem_idx );
-	vertices[0] = tet->local_vertex_indices[0];
-	vertices[1] = tet->local_vertex_indices[1];
-	vertices[2] = tet->local_vertex_indices[2];
-	vertices[3] = tet->local_vertex_indices[3];
+	vertices[0] = el->vertex_indices[0];
+	vertices[1] = el->vertex_indices[1];
+	vertices[2] = el->vertex_indices[2];
+	vertices[3] = el->vertex_indices[3];
 
 	vertices[4] = bisect_edge (f, 0, elem_idx);
 	vertices[5] = bisect_edge (f, 1, elem_idx);
@@ -231,15 +214,23 @@ refine_tet (
 	new_elem[3] = vertices[9];
 	TRY( h5t_store_elem (f, elem_idx, new_elem) );
 
-	t->elems.tets[elem_idx].global_child_idx = elem_idx_of_first_child;
-	t->elems_ldta[elem_idx].local_child_idx = elem_idx_of_first_child;
+	t->glb_elems.tets[elem_idx].child_idx = elem_idx_of_first_child;
+	t->loc_elems.tets[elem_idx].child_idx = elem_idx_of_first_child;
 	t->num_elems_on_level[t->cur_level]--;
 
 	return elem_idx_of_first_child;
 }
 
+h5_err_t
+end_store_elems (
+	h5_file_t* f
+	) {
+	return H5_SUCCESS;
+}
+
 struct h5t_store_methods h5tpriv_tetm_store_methods = {
 	alloc_tets,
 	refine_tet,
+	end_store_elems,
 	get_direct_children_of_edge
 };

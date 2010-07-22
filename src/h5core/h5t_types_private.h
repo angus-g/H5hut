@@ -1,14 +1,147 @@
 #ifndef __H5T_TYPES_PRIVATE_H
 #define __H5T_TYPES_PRIVATE_H
 
+typedef struct h5_vertex {
+	h5_id_t		global_idx;
+	h5_coord3d_t	P;
+} h5_vertex_t;
+
+typedef struct h5_vertex_data {
+	h5_idlist_t	tv;
+} h5_vertex_data_t;
+
+typedef struct h5_triangle {
+	h5_id_t		idx;
+	h5_id_t		parent_idx;
+	h5_id_t		child_idx;
+	h5_id_t		level_idx;
+	h5_3id_t	vertex_indices;
+	h5_3id_t	neighbor_indices;
+} h5_triangle_t;
+
+typedef struct h5_tetrahedron {
+	h5_id_t		idx;
+	h5_id_t		parent_idx;
+	h5_id_t		child_idx;
+	h5_id_t		level_idx;
+	h5_4id_t	vertex_indices;
+	h5_4id_t	neighbor_indices;
+} h5_tetrahedron_t;
+typedef h5_tetrahedron_t	h5_tet_t;
+
+typedef struct h5_generic_elem {
+	h5_id_t		idx;
+	h5_id_t		parent_idx;
+	h5_id_t		child_idx;
+	h5_id_t		level_idx;
+	h5_id_t		indices[1];
+} h5_generic_elem_t;
+
+
+typedef union h5_elems {
+	h5_tet_t	*tets;
+	h5_triangle_t	*tris;
+	void		*data;
+} h5_elems_t;
+
+/*** type ids' for compound types ***/
+typedef struct h5_dtypes {
+	hid_t		h5_id_t;		/* ID's */
+	hid_t		h5_int64_t;		/* 64 bit signed integer */
+	hid_t		h5_float64_t;		/* 64 bit floating point */
+	hid_t		h5_coord3d_t;		/* 3-tuple of 64-bit float */
+	hid_t		h5_3id_t;		/* 3-tuple of ID's */
+	hid_t		h5_4id_t;		/* 4-tuple of ID's */
+	hid_t		h5_vertex_t;		/* vertex structure */
+	hid_t		h5_triangle_t;		/* triangle structure */
+	hid_t		h5_tet_t;		/* tetrahedron structure */
+	hid_t		h5t_tag_idx_t;
+} h5_dtypes_t;
+
+typedef struct h5t_adjacencies {
+	h5_hashtable_t te_hash;
+	h5_hashtable_t td_hash;
+} h5t_adjacencies_t;
+
 struct h5t_store_methods {
 	h5_err_t (*alloc_elems)(h5_file_t* const, const size_t, const size_t);
 	h5_id_t (*refine_elem)(h5_file_t* const, const h5_id_t);
+	h5_err_t (*end_store_elems)(h5_file_t* const);
 	h5_id_t (*get_direct_children_of_edge)(h5_file_t* const, const h5_id_t, const h5_id_t, h5_id_t*);
 };
 
 struct h5t_retrieve_methods {
 	h5_err_t (*init_iterator)(h5_file_t* const, h5t_entity_iterator_t*, const int);
+};
+
+
+struct h5t_access_methods {
+	h5_generic_elem_t* (*get_loc_elem)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*get_loc_elem_idx)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*set_loc_elem_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t (*get_loc_elem_parent_idx)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*set_loc_elem_parent_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t (*get_loc_elem_child_idx)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*set_loc_elem_child_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t (*get_loc_elem_level_idx)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*set_loc_elem_level_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t* (*get_loc_elem_vertex_indices)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*get_loc_elem_vertex_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t (*set_loc_elem_vertex_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t, const h5_id_t);
+	h5_id_t* (*get_loc_elem_neighbor_indices)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*get_loc_elem_neighbor_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t (*set_loc_elem_neighbor_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t, const h5_id_t);
+
+	h5_generic_elem_t* (*get_glb_elem)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*get_glb_elem_idx)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*set_glb_elem_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t (*get_glb_elem_parent_idx)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*set_glb_elem_parent_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t (*get_glb_elem_child_idx)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*set_glb_elem_child_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t (*get_glb_elem_level_idx)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*set_glb_elem_level_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t* (*get_glb_elem_vertex_indices)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*get_glb_elem_vertex_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t (*set_glb_elem_vertex_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t, const h5_id_t);
+	h5_id_t* (*get_glb_elem_neighbor_indices)(
+		h5_file_t* const, const h5_id_t);
+	h5_id_t (*get_glb_elem_neighbor_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t);
+	h5_id_t (*set_glb_elem_neighbor_idx)(
+		h5_file_t* const, const h5_id_t, const h5_id_t, const h5_id_t);
+
+};
+
+struct h5t_read_methods {
+	h5_err_t (*init_loc_elems_struct)(h5_file_t* const);
 };
 
 struct h5t_adjacency_methods {
@@ -40,101 +173,21 @@ struct h5t_adjacency_methods {
 		h5_file_t * const, const h5_id_t, h5_idlist_t**);
 };
 
-struct h5t_methods {
+typedef struct h5t_methods {
+	struct h5t_read_methods *read;
 	struct h5t_store_methods *store;
 	struct h5t_retrieve_methods *retrieve;
+	struct h5t_access_methods *access;
 	struct h5t_adjacency_methods *adjacency;
-};
+} h5t_methods_t;
 
-typedef struct h5_vertex {
-	h5_id_t		global_idx;
-	h5_coord3d_t	P;
-} h5_vertex_t;
-
-typedef struct h5_vertex_data {
-	h5_idlist_t	tv;
-} h5_vertex_data_t;
-
-typedef struct h5_triangle {
-	h5_id_t		global_idx;
-	h5_id_t		global_parent_idx;
-	h5_id_t		global_child_idx;
-	h5_3id_t	global_vertex_indices;
-} h5_triangle_t;
-
-typedef struct h5_tetrahedron {
-	h5_id_t		global_idx;
-	h5_id_t		global_parent_idx;
-	h5_id_t		global_child_idx;
-	h5_4id_t	global_vertex_indices;
-} h5_tetrahedron_t;
-typedef h5_tetrahedron_t	h5_tet_t;
-
-typedef struct h5_elem {
-	h5_id_t		global_idx;
-	h5_id_t		global_parent_idx;
-	h5_id_t		global_child_idx;
-	h5_id_t		global_vertex_indices[1];
-} h5_elem_t;
-
-typedef struct h5_elem_ldta {
-	h5_id_t		local_parent_idx;
-	h5_id_t		local_child_idx;
-	h5_id_t		level_id;
-	h5_id_t		*local_vertex_indices;
-} h5_elem_ldta_t;
-
-
-typedef union h5_elems {
-	h5_tet_t	*tets;
-	h5_triangle_t	*tris;
-	void		*data;
-} h5_elems_t;
-
-
-
-
-typedef struct boundary {
-	char		name[16];
-	char		label[256];
-	h5_id_t		id;			/* name of boundary as integer */
-	h5_id_t		changed;		/* true if boundary is new or
-						   has been changed */
-	h5_id_t		gid;			/* hdf5 grp id boundary */
-	h5_id_t		*faces;
-	h5_id_t		*lfaces;
-	h5_size_t	*num_faces;		/* addit. num of faces per level */
-	h5_size_t	*num_faces_on_level;	/* real num of faces per level */
-	
-	h5_id_t		last_accessed_face;
-	h5_dsinfo_t	dsinfo;
-} boundary_t;
-
-/*** type ids' for compound types ***/
-typedef struct h5_dtypes {
-	hid_t		h5_id_t;		/* ID's */
-	hid_t		h5_int64_t;		/* 64 bit signed integer */
-	hid_t		h5_float64_t;		/* 64 bit floating point */
-	hid_t		h5_coord3d_t;		/* 3-tuple of 64-bit float */
-	hid_t		h5_3id_t;		/* 3-tuple of ID's */
-	hid_t		h5_4id_t;		/* 4-tuple of ID's */
-	hid_t		h5_vertex_t;		/* vertex structure */
-	hid_t		h5_triangle_t;		/* triangle structure */
-	hid_t		h5_tet_t;		/* tetrahedron structure */
-	hid_t		h5t_tag_idx_t;
-} h5_dtypes_t;
-
-typedef struct h5t_adjacencies {
-	h5_hashtable_t te_hash;
-	h5_hashtable_t td_hash;
-} h5t_adjacencies_t;
 
 typedef struct h5t_fdata {
 	/*** book-keeping ***/
 	char		mesh_name[16];
 	char		mesh_label[256];
 	h5_oid_t	mesh_type;	/* object id of element type */
-	const h5t_ref_element_t*  ref_element;
+	const h5t_ref_elem_t*  ref_elem;
 	h5_id_t		cur_mesh;	/* id of current mesh */
 	h5_id_t		mesh_changed;	/* true if new or has been changed */
 	h5_id_t		num_meshes;	/* number of meshes */
@@ -166,9 +219,9 @@ typedef struct h5t_fdata {
 	
 
 	/*** Elements ***/
-	h5_elems_t	elems;
-	h5_elem_ldta_t	*elems_ldta;	/* local, per element data */
-	h5_id_t		*elems_lvids;
+	h5_elems_t	glb_elems;
+	h5_elems_t	loc_elems;
+
 	h5_size_t	*num_elems;
 	h5_size_t	*num_elems_on_level;
 	h5_idmap_t	map_elem_g2l;	/* map global id to local id */
@@ -188,13 +241,6 @@ typedef struct h5t_fdata {
 
 	h5_idlist_t	marked_entities;
 
-#if 0
-	/*** Boundary Meshes ***/
-	h5_id_t		num_boundaries;		/* number of boundaries */
-	h5_id_t		boundaries_gid;		/* hdf5 grp id container group */
-
-	boundary_t	boundary;
-#endif
 	/*** Adjacencies ***/
 	h5t_adjacencies_t adjacencies;
 

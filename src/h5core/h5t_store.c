@@ -63,28 +63,26 @@ assign_global_elem_indices (
 	  simple in serial runs: global index = local index
 	*/
 	h5_id_t local_idx = (t->cur_level == 0) ? 0 : t->num_elems[t->cur_level-1];
-
+	int num_vertices = t->ref_elem->num_faces[0];
+	
 	for (; local_idx < t->num_elems[t->cur_level]; local_idx++) {
-		h5_elem_t *elem;
-		h5_elem_ldta_t *elem_ldta = &t->elems_ldta[local_idx];
-		switch ( t->mesh_type ) {
-		case H5_OID_TETRAHEDRON:
-			elem = (h5_elem_t*)&t->elems.tets[local_idx];
-			break;
-		case H5_OID_TRIANGLE:
-			elem = (h5_elem_t*)&t->elems.tris[local_idx];
-			break;
-		default:
-			return h5_error_internal (f,__FILE__,__func__,__LINE__);
-		}
-		elem->global_idx = local_idx;
-		elem->global_parent_idx = elem_ldta->local_parent_idx;
-		elem->global_child_idx = elem_ldta->local_child_idx;
-		int i;
-		int num_vertices = t->ref_element->num_faces[0];
-		for (i = 0; i < num_vertices; i++) {
-			elem->global_vertex_indices[i] = elem_ldta->local_vertex_indices[i];
-		}
+		h5_generic_elem_t *loc_elem = h5tpriv_get_loc_elem (f, local_idx);
+		h5_generic_elem_t *glb_elem = h5tpriv_get_glb_elem (f, local_idx);
+
+		glb_elem->idx = local_idx;
+		glb_elem->parent_idx = loc_elem->parent_idx;
+		glb_elem->child_idx = loc_elem->child_idx;
+
+		h5_id_t* glb_indices = h5tpriv_get_glb_elem_vertex_indices (f, local_idx);
+		h5_id_t* loc_indices = h5tpriv_get_loc_elem_vertex_indices (f, local_idx);
+
+		memcpy (glb_indices, loc_indices, num_vertices*sizeof(*glb_indices));
+
+		glb_indices = h5tpriv_get_glb_elem_neighbor_indices (f, local_idx);
+		loc_indices = h5tpriv_get_loc_elem_neighbor_indices (f, local_idx);
+
+		memcpy (glb_indices, loc_indices, num_vertices*sizeof(*glb_indices));
+
 	}
 
 	return H5_SUCCESS;
@@ -232,8 +230,8 @@ h5t_begin_store_elems (
 h5_id_t
 h5t_store_elem (
 	h5_file_t* const f,
-	const h5_id_t elem_idx_of_parent,
-	const h5_id_t* vertices
+	const h5_id_t parent_idx,
+	const h5_id_t* vertex_indices
 	) {
 	h5t_fdata_t* t = f->t;
 
@@ -248,29 +246,30 @@ h5t_store_elem (
 			t->num_elems[t->cur_level] );
 
 	/* check parent id */
-	if ((t->cur_level == 0 && elem_idx_of_parent != -1) ||
-	    (t->cur_level >  0 && elem_idx_of_parent < 0) ||
+	if ((t->cur_level == 0 && parent_idx != -1) ||
+	    (t->cur_level >  0 && parent_idx < 0) ||
 	    (t->cur_level >  0
-	     && elem_idx_of_parent >= t->num_elems[t->cur_level-1])
+	     && parent_idx >= t->num_elems[t->cur_level-1])
 		) {
 		return HANDLE_H5_PARENT_ID_ERR (
-			f,
-			h5tpriv_map_oid2str (t->mesh_type),
-			elem_idx_of_parent);
+			f, h5tpriv_map_oid2str (t->mesh_type), parent_idx);
 	}
-	h5_id_t elem_idx = ++t->last_stored_eid;
-	h5_elem_ldta_t* elem_ldta = &t->elems_ldta[elem_idx];
 
-	elem_ldta->local_parent_idx = elem_idx_of_parent;
-	elem_ldta->local_child_idx = -1;
-	elem_ldta->level_id = t->cur_level;
-	int num_vertices = t->ref_element->num_faces[0];
-	memcpy (elem_ldta->local_vertex_indices, vertices,
-		 sizeof (*vertices) * num_vertices);
-	h5tpriv_sort_local_vertex_indices (f, elem_ldta->local_vertex_indices,
-					   num_vertices);
+	/* store elem data (but neighbors) */
+	h5_id_t elem_idx = ++t->last_stored_eid;
+	h5tpriv_set_loc_elem_idx (f, elem_idx, elem_idx);
+	h5tpriv_set_loc_elem_parent_idx (f, elem_idx, parent_idx);
+	h5tpriv_set_loc_elem_child_idx (f, elem_idx, -1);
+	h5tpriv_set_loc_elem_level_idx (f, elem_idx, t->cur_level);
+
+	h5_id_t* loc_elem_vertex_indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
+	int num_vertices = t->ref_elem->num_faces[0];
+	memcpy (loc_elem_vertex_indices, vertex_indices, sizeof (*vertex_indices) * num_vertices);
+	h5tpriv_sort_local_vertex_indices (f, loc_elem_vertex_indices, num_vertices);
+
+	/* add edges to directory which maps edges to elements */
 	h5_id_t face_idx;
-	int num_faces = t->ref_element->num_faces[1];
+	int num_faces = t->ref_elem->num_faces[1];
 	h5_idlist_t* retval;
 	for (face_idx = 0; face_idx < num_faces; face_idx++) {
 		// add edges to neighbour struct
@@ -294,7 +293,8 @@ h5t_end_store_elems (
 
 	TRY( h5tpriv_sort_elems (f) );
 	TRY( h5tpriv_rebuild_global_2_local_map_of_elems (f) );
-	TRY( (t->methods.adjacency->update_internal_structs)(f, t->cur_level) );
+
+	TRY( (t->methods.store->end_store_elems)(f) );
 
 	return H5_SUCCESS;
 }

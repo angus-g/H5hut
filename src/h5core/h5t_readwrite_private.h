@@ -22,4 +22,7 @@ h5tpriv_write_mesh (
 	h5_file_t * const f
 	);
 
+extern struct h5t_read_methods h5tpriv_read_trim_methods;
+extern struct h5t_read_methods h5tpriv_read_tetm_methods;
+
 #endif

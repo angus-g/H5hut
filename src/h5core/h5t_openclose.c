@@ -4,14 +4,18 @@
 #include "h5_core_private.h"
 
 static struct h5t_methods tet_funcs = {
+	&h5tpriv_read_tetm_methods,
 	&h5tpriv_tetm_store_methods,
 	&h5tpriv_tetm_retrieve_methods,
+	&h5tpriv_access_tetm_methods,
 	&h5tpriv_tetm_adjacency_methods
 };
 
 static struct h5t_methods tri_funcs = {
+	&h5tpriv_read_trim_methods,
 	&h5tpriv_trim_store_methods,
 	&h5tpriv_trim_retrieve_methods,
+	&h5tpriv_access_trim_methods,
 	&h5tpriv_trim_adjacency_methods
 };
 
@@ -96,29 +100,36 @@ create_triangle_type (
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_triangle_t,
-			"global_idx",
-			HOFFSET (struct h5_triangle, global_idx),
+			"idx",
+			HOFFSET (struct h5_triangle, idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_triangle_t,
-			"global_parent_idx",
-			HOFFSET (struct h5_triangle, global_parent_idx),
+			"parent_idx",
+			HOFFSET (struct h5_triangle, parent_idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_triangle_t,
-			"global_child_idx",
-			HOFFSET(struct h5_triangle, global_child_idx),
+			"child_idx",
+			HOFFSET(struct h5_triangle, child_idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_triangle_t,
-			"global_vertex_indices",
-			HOFFSET (struct h5_triangle, global_vertex_indices),
+			"vertex_indices",
+			HOFFSET (struct h5_triangle, vertex_indices),
+			dtypes->h5_3id_t) );
+	TRY(
+		h5priv_insert_hdf5_type (
+			f,
+			dtypes->h5_triangle_t,
+			"neighbor_indices",
+			HOFFSET(struct h5_triangle, neighbor_indices),
 			dtypes->h5_3id_t) );
 
 	return H5_SUCCESS;
@@ -168,29 +179,36 @@ create_tet_type (
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_tet_t,
-			"global_idx",
-			HOFFSET (struct h5_tetrahedron, global_idx),
+			"idx",
+			HOFFSET (struct h5_tetrahedron, idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_tet_t,
-			"global_parent_idx",
-			HOFFSET (struct h5_tetrahedron, global_parent_idx),
+			"parent_idx",
+			HOFFSET (struct h5_tetrahedron, parent_idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_tet_t,
-			"global_child_idx",
-			HOFFSET (struct h5_tetrahedron, global_child_idx),
+			"child_idx",
+			HOFFSET (struct h5_tetrahedron, child_idx),
 			H5T_NATIVE_INT32) );
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_tet_t,
-			"global_vertex_indices",
-			HOFFSET (struct h5_tetrahedron, global_vertex_indices),
+			"vertex_indices",
+			HOFFSET (struct h5_tetrahedron, vertex_indices),
+			dtypes->h5_4id_t) );
+	TRY(
+		h5priv_insert_hdf5_type (
+			f,
+			dtypes->h5_triangle_t,
+			"neighbor_indices",
+			HOFFSET(struct h5_triangle, neighbor_indices),
 			dtypes->h5_4id_t) );
 
 	return H5_SUCCESS;
@@ -228,6 +246,18 @@ init_fdata (
 	t->topo_gid = -1;
 	t->meshes_gid = -1;
 	t->mesh_gid = -1;
+
+	/* initialize pointers */
+	t->glb_elems.data =		NULL;
+	t->loc_elems.data =		NULL;
+	t->num_elems =			NULL;
+	t->num_elems_on_level =		NULL;
+	t->map_elem_g2l.items =		NULL;
+	t->vertices =			NULL; 
+	t->vertices_data =		NULL;
+	t->num_vertices =		NULL;
+	t->map_vertex_g2l.items =	NULL;
+	t->mtags.names =		NULL;
 
 	/* vertices */
 	strcpy (t->dsinfo_vertices.name, "Vertices");
@@ -313,17 +343,7 @@ init_fdata (
 		     t->dsinfo_num_elems_on_level.chunk_dims) );
 	t->dsinfo_num_elems_on_level.access_prop = H5P_DEFAULT;
 
-	/* initialize pointers */
-	t->elems.data =			NULL;
-	t->num_elems =			NULL;
-	t->elems_ldta =			NULL;
-	t->num_elems_on_level =		NULL;
-	t->map_elem_g2l.items =		NULL;
-	t->vertices =			NULL; 
-	t->vertices_data =		NULL;
-	t->num_vertices =		NULL;
-	t->map_vertex_g2l.items =	NULL;
-	t->mtags.names =		NULL;
+
 
 	return H5_SUCCESS;
 }
@@ -454,12 +474,12 @@ h5t_open_mesh (
 	case H5_OID_TETRAHEDRON:
 		t->dsinfo_elems.type_id = t->dtypes.h5_tet_t;
 		t->methods = tet_funcs;
-		t->ref_element = &h5t_tet_ref_element;
+		t->ref_elem = &h5t_tet_ref_elem;
 		break;
 	case H5_OID_TRIANGLE:
 		t->dsinfo_elems.type_id = t->dtypes.h5_triangle_t;
 		t->methods = tri_funcs;
-		t->ref_element = &h5t_tri_ref_element;
+		t->ref_elem = &h5t_tri_ref_elem;
 		break;
 	default:
 		return h5_error_internal (f, __FILE__, __func__, __LINE__);
@@ -486,9 +506,9 @@ release_elems (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
-	TRY( h5priv_free (f, t->elems.data) );
+	TRY( h5priv_free (f, t->glb_elems.data) );
+	TRY( h5priv_free (f, t->loc_elems.data) );
 	TRY( h5priv_free (f, t->num_elems) );
-	TRY( h5priv_free (f, t->elems_ldta) );
 	TRY( h5priv_free (f, t->num_elems_on_level) );
 	TRY( h5priv_free (f, t->map_elem_g2l.items) );
 
@@ -590,5 +610,3 @@ h5tpriv_close_file (
 
 	return H5_SUCCESS;
 }
-
-

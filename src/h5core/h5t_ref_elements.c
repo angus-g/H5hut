@@ -1,6 +1,6 @@
 #include "h5core/h5_core.h"
 
-const h5t_ref_element_t h5t_tri_ref_element = {
+const h5t_ref_elem_t h5t_tri_ref_elem = {
 	2,
 	{3, 3, 1}, // #vertices, #edges, #triangles
 	{
@@ -16,7 +16,7 @@ const h5t_ref_element_t h5t_tri_ref_element = {
 	{{0.0, 0.0}, {1.0, 0.0}, {0.0, 1.0}},
 };
 
-const h5t_ref_element_t h5t_tet_ref_element = {
+const h5t_ref_elem_t h5t_tet_ref_elem = {
 	3,
 	{4, 6, 4, 1}, // #vertices, #edges, #triangles, #tetrahedra
 	{

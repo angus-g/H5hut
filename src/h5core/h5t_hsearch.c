@@ -299,6 +299,9 @@ h5tpriv_find_td2 (
 	return h5tpriv_find_td (f, &item, retval);
 }
 
+/*
+  Return list of elements sharing the same vertex.
+ */
 h5_err_t
 h5tpriv_find_tv2 (
 	h5_file_t* const f,
@@ -306,11 +309,11 @@ h5tpriv_find_tv2 (
 	h5_id_t elem_idx,
 	h5_idlist_t** retval
 	) {
-	/*
-	  map (cid,el_idx) to local index of vertex
-	*/
-	h5_id_t vertex_idx = f->t->elems_ldta[elem_idx].local_vertex_indices[face_idx];
-	*retval = &f->t->vertices_data[vertex_idx].tv;
+
+	h5_id_t idx = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx);
+	*retval = &f->t->vertices_data[idx].tv;
 
 	return H5_SUCCESS;
 }
+
+

@@ -26,13 +26,13 @@ compute_elems_of_vertices (
 	) {
 	h5t_fdata_t *t = f->t;
 	h5_id_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
-	h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
+	h5_triangle_t *el = &t->loc_elems.tris[elem_idx];
 	h5_id_t num_elems = t->num_elems[t->num_levels-1];
 	for (;elem_idx < num_elems; elem_idx++, el++) {
 		int face_idx;
-		int num_faces = t->ref_element->num_faces[0];
+		int num_faces = t->ref_elem->num_faces[0];
 		for (face_idx = 0; face_idx < num_faces; face_idx++) {
-			h5_id_t vidx = el->local_vertex_indices[face_idx];
+			h5_id_t vidx = el->vertex_indices[face_idx];
 			TRY( h5priv_append_to_idlist (
 				     f,
 				     &t->vertices_data[vidx].tv,
@@ -53,13 +53,12 @@ compute_elems_of_edges (
 	) {
 	h5t_fdata_t *t = f->t;
 	h5_id_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
-	h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
 	h5_id_t num_elems = t->num_elems[t->num_levels-1];
 	h5_idlist_t *retval = NULL;
 	TRY( h5tpriv_resize_te_htab (f, 4*(num_elems-elem_idx)) );
-	for (;elem_idx < num_elems; elem_idx++, el++) {
+	for (;elem_idx < num_elems; elem_idx++) {
 		int face_idx;
-		int num_faces = t->ref_element->num_faces[1];
+		int num_faces = t->ref_elem->num_faces[1];
 		for (face_idx = 0; face_idx < num_faces; face_idx++) {
 			TRY ( h5tpriv_search_te2 (
 				      f, face_idx, elem_idx, &retval ) );
@@ -88,7 +87,7 @@ compute_children_of_edge (
 	for ( ; edge < end; edge++ ) {
 		h5_id_t elem_idx = h5tpriv_get_elem_idx ( *edge );
 		h5_id_t face_idx =  h5tpriv_get_face_idx ( *edge );
-		h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
+		h5_generic_elem_t *el = (h5_generic_elem_t*)&t->loc_elems.tris[elem_idx];
 		if ( h5tpriv_elem_is_on_cur_level ( f, el ) == H5_OK ) {
 			TRY ( h5priv_append_to_idlist (
 				      f, children, *edge )
@@ -98,7 +97,7 @@ compute_children_of_edge (
 			TRY ( t->methods.store->get_direct_children_of_edge (
 				      f,
 				      face_idx,
-				      el->local_child_idx,
+				      el->child_idx,
 				      kids ) );
 			TRY ( compute_children_of_edge (
 				      f, kids[0], children ) );
@@ -133,14 +132,14 @@ compute_sections_of_edge (
 	for ( ; edge < end; edge++ ) {
 		h5_id_t eid = h5tpriv_get_elem_idx ( *edge );
 		h5_id_t face_id =  h5tpriv_get_face_idx ( *edge );
-		h5_elem_ldta_t *el = &t->elems_ldta[eid];
+		h5_generic_elem_t *el = (h5_generic_elem_t*)&t->loc_elems.tris[eid];
 		if ( ! h5tpriv_elem_is_on_cur_level ( f, el ) == H5_OK ) {
 			refined = 1;
 			h5_id_t kids[2];
 			TRY ( t->methods.store->get_direct_children_of_edge (
 				      f,
 				      face_id,
-				      el->local_child_idx,
+				      el->child_idx,
 				      kids ) );
 			TRY ( compute_sections_of_edge (
 				      f, kids[0], children ) );
@@ -181,15 +180,15 @@ get_edges_upadjacent_to_vertex (
 	) {
 	TRY ( h5priv_alloc_idlist ( f, list, 8 ) );
 	
-	h5t_fdata_t *t = f->t;
-	h5_idlist_t *tv = &t->vertices_data[entity_id].tv;
+	h5t_fdata_t* t = f->t;
+	h5_idlist_t* tv = &t->vertices_data[entity_id].tv;
 	h5_size_t i;
 
-	h5_id_t *vertex_idp = tv->items;
+	h5_id_t* vertex_idp = tv->items;
 	for ( i = 0; i < tv->num_items; i++, vertex_idp++ ) {
 		h5_id_t elem_idx = h5tpriv_get_elem_idx ( *vertex_idp );
 		h5_id_t face_idx = h5tpriv_get_face_idx ( *vertex_idp );
-		h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
+		h5_generic_elem_t* el = (h5_generic_elem_t*)&t->loc_elems.tris[elem_idx];
 
 		if ( h5tpriv_elem_is_on_cur_level ( f, el ) == H5_NOK ) {
 			continue;
@@ -221,7 +220,7 @@ get_triangles_upadjacent_to_vertex (
 	h5_id_t *vertex_id = tv->items;
 	for ( i = 0; i < tv->num_items; i++, vertex_id++ ) {
 		h5_id_t elem_id = h5tpriv_get_elem_idx ( *vertex_id );
-		h5_elem_ldta_t *el = &t->elems_ldta[elem_id];
+		h5_generic_elem_t* el = (h5_generic_elem_t*)&t->loc_elems.tris[elem_id];
 
 		if ( h5tpriv_elem_is_on_cur_level ( f, el ) == H5_NOK ) {
 			continue;
@@ -289,7 +288,7 @@ get_vertices_downadjacent_to_triangle (
 	h5_id_t elem_idx = h5tpriv_get_elem_idx ( entity_id );
 	// loop over all edges of triangle
 	h5_id_t face_idx;
-	h5_id_t num_faces = f->t->ref_element->num_faces[1];
+	h5_id_t num_faces = f->t->ref_elem->num_faces[1];
 	for (face_idx = 0; face_idx < num_faces; face_idx++) {
 		TRY( compute_sections_of_edge (
 			     f,
@@ -321,7 +320,7 @@ get_edges_downadjacent_to_triangle (
 	h5_id_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	// loop over all edges of triangle
 	h5_id_t face_idx;
-	h5_id_t num_faces = f->t->ref_element->num_faces[1];
+	h5_id_t num_faces = f->t->ref_elem->num_faces[1];
 	for ( face_idx = 0; face_idx < num_faces; face_idx++ ) {
 		TRY( compute_sections_of_edge (
 			     f,

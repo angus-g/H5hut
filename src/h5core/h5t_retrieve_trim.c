@@ -12,8 +12,8 @@ begin_iterate_entities (
 	iter->face_idx = -1;
 	iter->elem_idx = -1;
 	iter->codim = codim;
-	iter->ref_element = f->t->ref_element;
-	switch (iter->ref_element->dim - codim) {
+	iter->ref_elem = f->t->ref_elem;
+	switch (iter->ref_elem->dim - codim) {
 	case 0: // iterate vertices
 		iter->find = h5tpriv_find_tv2;
 		return h5tpriv_skip_to_next_elem_on_level (f, iter);
@@ -29,5 +29,5 @@ begin_iterate_entities (
 }
 
 struct h5t_retrieve_methods h5tpriv_trim_retrieve_methods = {
-	begin_iterate_entities
+	begin_iterate_entities,
 };

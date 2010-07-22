@@ -10,44 +10,26 @@ alloc_triangles (
 	const size_t new
 	) {
 	h5t_fdata_t *t = f->t;
-	const size_t nvertices = 3;
 
 	/* alloc mem for elements */
-	TRY ( t->elems.tris = h5priv_alloc (
+	TRY ( t->glb_elems.tris = h5priv_alloc (
 		      f,
-		      t->elems.tris,
-		      new * sizeof(t->elems.tris[0]) ) );
+		      t->glb_elems.tris,
+		      new * sizeof(t->glb_elems.tris[0]) ) );
 	memset (
-		t->elems.tris + cur,
+		t->glb_elems.tris + cur,
 		-1,
-		(new-cur) * sizeof(t->elems.tris[0]) );
+		(new-cur) * sizeof(t->glb_elems.tris[0]) );
 
 	/* alloc mem for local data of elements */
-	TRY ( t->elems_ldta = h5priv_alloc (
+	TRY ( t->loc_elems.tris = h5priv_alloc (
 		      f,
-		      t->elems_ldta,
-		      new * sizeof (t->elems_ldta[0]) ) );
+		      t->loc_elems.tris,
+		      new * sizeof (t->loc_elems.tris[0]) ) );
 	memset (
-		t->elems_ldta + cur,
+		t->glb_elems.tris + cur,
 		-1,
-		(new-cur) * sizeof (t->elems_ldta[0]) );
-
-	/* alloc mem for local vertex IDs of elements */
-	TRY ( t->elems_lvids = h5priv_alloc (
-		      f,
-		      t->elems_lvids,
-		      new * sizeof(t->elems_lvids[0]) * nvertices ) );
-	memset (
-		t->elems_lvids + cur * sizeof(t->elems_lvids[0]) * nvertices,
-		-1,
-		(new-cur) * sizeof(t->elems_lvids[0]) * nvertices );
-
-	/* re-init pointer to local vertex id in local data structure */
-	h5_id_t *p = t->elems_lvids;
-	h5_id_t id;
-	for ( id = 0; id < new; id++, p+=nvertices ) {
-		t->elems_ldta[id].local_vertex_indices = p;
-	}
+		(new-cur) * sizeof (t->loc_elems.tris[0]) );
 
 	/* alloc mem for global to local ID mapping */
 	TRY ( h5priv_alloc_idmap ( f, &t->map_elem_g2l, new ) );
@@ -62,7 +44,7 @@ get_direct_children_of_edge (
 	const h5_id_t elem_idx, // index of the first child!
 	h5_id_t	children[2]
 	) {
-	int num_faces = f->t->ref_element->num_faces[1];
+	int num_faces = f->t->ref_elem->num_faces[1];
 	/*
 	  Please note: The face index of the children and the father is
 	  always the same. The only think we have to know, is the offset
@@ -89,12 +71,12 @@ get_direct_children_of_edge (
 
 static h5_id_t
 bisect_edge (
-	h5_file_t * const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx
+	h5_file_t* const f,
+	const h5_id_t face_idx,
+	const h5_id_t elem_idx
 	) {
-	h5t_fdata_t *t = f->t;
-	h5_idlist_t *retval;
+	h5t_fdata_t* t = f->t;
+	h5_idlist_t* retval;
 	/*
 	  get all elements sharing the given edge
 	 */
@@ -104,9 +86,9 @@ bisect_edge (
 	 */
 	size_t i;
 	for ( i = 0; i < retval->num_items; i++ ) {
-		h5_id_t local_id = h5tpriv_get_elem_idx ( retval->items[i] );
-		h5_elem_ldta_t *tet = &t->elems_ldta[local_id];
-		if ( tet->local_child_idx >= 0 ) {
+		h5_id_t idx = h5tpriv_get_elem_idx ( retval->items[i] );
+		h5_id_t child_idx = h5tpriv_get_loc_elem_child_idx (f, idx);
+		if ( child_idx >= 0 ) {
 			/*
 			  this element has been refined!
 			  return bisecting point
@@ -117,7 +99,7 @@ bisect_edge (
 			TRY ( get_direct_children_of_edge (
 				      f,
 				      face_id,
-				      tet->local_child_idx,
+				      child_idx,
 				      kids ) );
 			TRY ( h5t_get_vertex_indices_of_edge ( f, kids[0], edge0 ) );
 			TRY ( h5t_get_vertex_indices_of_edge ( f, kids[1], edge1 ) );
@@ -130,10 +112,10 @@ bisect_edge (
 	/*
 	  None of the elements has been refined -> add new vertex.
 	 */
-	h5_id_t vindices[2];
-	TRY( h5t_get_vertex_indices_of_edge2 (f, face_idx, elem_idx, vindices) );
-	h5_float64_t *P0 = t->vertices[vindices[0]].P;
-	h5_float64_t *P1 = t->vertices[vindices[1]].P;
+	h5_id_t indices[2];
+	TRY( h5t_get_vertex_indices_of_edge2 (f, face_idx, elem_idx, indices) );
+	h5_float64_t *P0 = t->vertices[indices[0]].P;
+	h5_float64_t *P1 = t->vertices[indices[1]].P;
 	h5_float64_t P[3];
 
 	P[0] = ( P0[0] + P1[0] ) / 2.0;
@@ -156,18 +138,18 @@ refine_triangle (
 	h5t_fdata_t *t = f->t;
 	h5_id_t vertices[6];	// local vertex indices
 	h5_id_t elem_idx_of_first_child;
-	h5_elem_ldta_t *el = &t->elems_ldta[elem_idx];
+	h5_triangle_t *el = &t->loc_elems.tris[elem_idx];
 
-	if ( el->local_child_idx >= 0 )
+	if ( el->child_idx >= 0 )
 		return h5_error (
 			f,
 			H5_ERR_INVAL,
 			"Element %lld already refined.",
 			(long long)elem_idx );
 
-	vertices[0] = el->local_vertex_indices[0];
-	vertices[1] = el->local_vertex_indices[1];
-	vertices[2] = el->local_vertex_indices[2];
+	vertices[0] = el->vertex_indices[0];
+	vertices[1] = el->vertex_indices[1];
+	vertices[2] = el->vertex_indices[2];
 
 	vertices[3] = bisect_edge( f, 0, elem_idx );
 	vertices[4] = bisect_edge( f, 1, elem_idx );
@@ -195,15 +177,78 @@ refine_triangle (
 	new_elem[2] = vertices[5];
 	TRY( h5t_store_elem (f, elem_idx, new_elem) );
 
-	t->elems.tris[elem_idx].global_child_idx = elem_idx_of_first_child;
-	t->elems_ldta[elem_idx].local_child_idx = elem_idx_of_first_child;
+	t->glb_elems.tris[elem_idx].child_idx = elem_idx_of_first_child;
+	t->loc_elems.tris[elem_idx].child_idx = elem_idx_of_first_child;
 	t->num_elems_on_level[t->cur_level]--;
 
 	return elem_idx_of_first_child;
 }
 
+/*
+  Compute the neighbors in the macro-grid. 
+ */
+static h5_err_t
+compute_neighbors_in_macrogrid (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t *t = f->t;
+	h5_id_t elem_idx = 0;
+	h5_triangle_t *el = &t->loc_elems.tris[0];
+	h5_id_t num_elems = t->num_elems[0];
+	for (;elem_idx < num_elems; elem_idx++, el++) {
+		int face_idx = 0;
+		for (; face_idx < 3; face_idx++) {
+			h5_idlist_t* te;
+
+			TRY( h5tpriv_find_te2 (
+				     f,
+				     face_idx,
+				     elem_idx,
+				     &te) );
+			if (te == NULL) {
+			} else {
+			}
+		}
+	}
+	return H5_SUCCESS;
+}
+
+static h5_err_t
+compute_neighbors_for_refined_elems (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t *t = f->t;
+	return H5_SUCCESS;
+}
+
+static h5_err_t
+compute_neighbors (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t *t = f->t;
+
+	if (t->cur_level == 0) {
+		TRY( compute_neighbors_in_macrogrid (f) );
+	} else {
+		TRY( compute_neighbors_for_refined_elems (f) );
+	}
+	return H5_SUCCESS;
+}
+
+static h5_err_t
+end_store_elems (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t *t = f->t;
+
+	TRY( (t->methods.adjacency->update_internal_structs)(f, t->cur_level) );
+	TRY( compute_neighbors (f) );
+	return H5_SUCCESS;
+}
+
 struct h5t_store_methods h5tpriv_trim_store_methods = {
 	alloc_triangles,
 	refine_triangle,
+	end_store_elems,
 	get_direct_children_of_edge
 };
