@@ -31,7 +31,7 @@ begin_iterate_entities (
 	}
 }
 
-struct h5t_retrieve_methods h5tpriv_trim_retrieve_methods = {
+struct h5t_retrieve_methods h5tpriv_tetm_retrieve_methods = {
 	begin_iterate_entities,
 };
 	

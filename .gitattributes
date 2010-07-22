@@ -445,6 +445,7 @@ src/h5core/h5t_openclose.c -text
 src/h5core/h5t_openclose_private.h -text
 src/h5core/h5t_readwrite.c -text
 src/h5core/h5t_readwrite_private.h -text
+src/h5core/h5t_readwrite_tetm.c -text
 src/h5core/h5t_readwrite_trim.c -text
 src/h5core/h5t_ref_elements.c -text
 src/h5core/h5t_retrieve.c -text

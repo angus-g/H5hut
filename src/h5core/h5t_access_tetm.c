@@ -69,7 +69,7 @@ get_loc_elem_level_idx (
 	h5_file_t* const f,
 	const h5_id_t elem_idx
 	) {
-	return f->t->loc_elems.tets[elem_idx].level_idx;
+	return f->t->loc_elems.tets[elem_idx].idx;
 }
 
 static h5_id_t
@@ -78,7 +78,7 @@ set_loc_elem_level_idx (
 	const h5_id_t elem_idx,
 	const h5_id_t level_idx
 	) {
-	f->t->loc_elems.tets[elem_idx].level_idx = level_idx;
+	f->t->loc_elems.tets[elem_idx].idx = level_idx;
 	return level_idx;
 }
 
@@ -207,7 +207,7 @@ get_glb_elem_level_idx (
 	h5_file_t* const f,
 	const h5_id_t elem_idx
 	) {
-	return f->t->glb_elems.tets[elem_idx].level_idx;
+	return f->t->loc_elems.tets[elem_idx].idx;
 }
 
 static h5_id_t
@@ -216,7 +216,7 @@ set_glb_elem_level_idx (
 	const h5_id_t elem_idx,
 	const h5_id_t level_idx
 	) {
-	f->t->glb_elems.tets[elem_idx].level_idx = level_idx;
+	f->t->loc_elems.tets[elem_idx].idx = level_idx;
 	return level_idx;
 }
 

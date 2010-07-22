@@ -14,7 +14,6 @@ typedef struct h5_triangle {
 	h5_id_t		idx;
 	h5_id_t		parent_idx;
 	h5_id_t		child_idx;
-	h5_id_t		level_idx;
 	h5_3id_t	vertex_indices;
 	h5_3id_t	neighbor_indices;
 } h5_triangle_t;
@@ -23,7 +22,6 @@ typedef struct h5_tetrahedron {
 	h5_id_t		idx;
 	h5_id_t		parent_idx;
 	h5_id_t		child_idx;
-	h5_id_t		level_idx;
 	h5_4id_t	vertex_indices;
 	h5_4id_t	neighbor_indices;
 } h5_tetrahedron_t;
@@ -33,7 +31,6 @@ typedef struct h5_generic_elem {
 	h5_id_t		idx;
 	h5_id_t		parent_idx;
 	h5_id_t		child_idx;
-	h5_id_t		level_idx;
 	h5_id_t		indices[1];
 } h5_generic_elem_t;
 

@@ -70,6 +70,6 @@ init_struct_elems_ldta (
 }
 #endif
 
-struct h5t_read_methods h5tpriv_read_trim_methods = {
+struct h5t_read_methods h5tpriv_read_tetm_methods = {
 	init_loc_elems_struct
 };

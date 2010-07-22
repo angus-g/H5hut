@@ -99,6 +99,8 @@ libH5hut_a_SOURCES =				\
 	h5t_map.c				\
 	h5t_openclose.c				\
 	h5t_readwrite.c				\
+	h5t_readwrite_trim.c			\
+	h5t_readwrite_tetm.c			\
 	h5t_ref_elements.c			\
 	h5t_retrieve.c				\
 	h5t_retrieve_tetm.c			\

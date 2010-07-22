@@ -33,10 +33,10 @@ h5tpriv_skip_to_next_elem_on_level (
 h5_err_t
 h5tpriv_elem_is_on_cur_level (
 	h5_file_t* const f,
-	h5_generic_elem_t *el 
+	h5_generic_elem_t *el // ptr to local element
 	) {
 	h5t_fdata_t* t = f->t;
-	if ( (el->level_idx > t->cur_level) ||
+	if ( (el->idx > t->cur_level) ||
 	     (el->child_idx >= 0 && el->child_idx < num_elems_on_cur_level) ) {
 		return H5_NOK;
 	}
