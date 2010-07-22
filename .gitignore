@@ -21,6 +21,9 @@ src/C++/Makefile.in
 src/C/.deps
 src/C/Makefile
 src/C/Makefile.in
+src/Fortran/.deps
+src/Fortran/Makefile
+src/Fortran/Makefile.in
 src/Makefile
 src/Makefile.in
 src/h5core/.deps
