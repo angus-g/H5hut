@@ -1,6 +1,7 @@
 #include <stdlib.h>
+#include <string.h>
 
-#include "H5hut.h"
+#include "h5core/h5_core.h"
 #include "Underscore.h"
 
 #if defined(F77_SINGLE_UNDERSCORE)
@@ -61,8 +62,8 @@ h5bl_3d_setview (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5Block3dSetView (
+	h5_set_funcname( filehandle, __func__ );
+	return h5b_3d_set_view (
 		filehandle,
 		*i_start-1, *i_end-1,
 		*j_start-1, *j_end-1,
@@ -78,34 +79,36 @@ h5bl_3d_setchunk (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5Block3dSetChunk ( filehandle, *i, *j, *k );
+	h5_set_funcname( filehandle, __func__ );
+	return h5b_3d_set_chunk ( filehandle, *i, *j, *k );
 }
 
 h5_err_t
 h5bl_3d_getview (
-	h5_int64_t *f,		/*!< file handle */
-	h5_int64_t *i_start,	/*!< start index of i */
-	h5_int64_t *i_end,		/*!< end index of i */
-	h5_int64_t *j_start,	/*!< start index of j */
-	h5_int64_t *j_end,		/*!< end index of j */
-	h5_int64_t *k_start,	/*!< start index of k */
-	h5_int64_t *k_end		/*!< end index of k */
+	h5_int64_t *f,
+	h5_int64_t *i_start,
+	h5_int64_t *i_end,
+	h5_int64_t *j_start,
+	h5_int64_t *j_end,
+	h5_int64_t *k_start,
+	h5_int64_t *k_end
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
+        h5_size_t view[6];
 
-	h5_err_t herr = H5Block3dGetView (
+	h5_err_t herr = h5b_3d_get_view (
 		filehandle,
-		i_start, i_end, j_start, j_end, k_start, k_end );
+                view+0, view+1, view+2, view+3, view+4, view+5 );
 	if ( herr < 0 ) return herr;
 
-	(*i_start)++;
-	(*i_end)++;
-	(*j_start)++;
-	(*j_end)++;
-	(*k_start)++;
-	(*k_end)++;
+	*i_start = view[0]+1;
+	*i_end   = view[1]+1;
+	*j_start = view[2]+1;
+	*j_end   = view[3]+1;
+	*k_start = view[4]+1;
+	*k_end   = view[5]+1;
 
 	return H5_SUCCESS;
 }
@@ -122,18 +125,20 @@ h5bl_3d_getreducedview (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
+        h5_size_t view[6];
 
-	h5_err_t herr = H5Block3dGetReducedView (
+	h5_err_t herr = h5b_3d_get_reduced_view (
 		filehandle,
-		i_start, i_end, j_start, j_end, k_start, k_end );
+                view+0, view+1, view+2, view+3, view+4, view+5 );
 	if ( herr < 0 ) return herr;
 
-	(*i_start)++;
-	(*i_end)++;
-	(*j_start)++;
-	(*j_end)++;
-	(*k_start)++;
-	(*k_end)++;
+	*i_start = view[0]+1;
+	*i_end   = view[1]+1;
+	*j_start = view[2]+1;
+	*j_end   = view[3]+1;
+	*k_start = view[4]+1;
+	*k_end   = view[5]+1;
 
 	return H5_SUCCESS;
 }
@@ -144,8 +149,8 @@ h5bl_3d_hasview (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5Block3dHasView ( filehandle );
+	h5_set_funcname( filehandle, __func__ );
+	return h5b_3d_has_view ( filehandle );
 }
 
 h5_err_t
@@ -154,8 +159,8 @@ h5bl_getnumfields (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5BlockGetNumFields ( filehandle );
+	h5_set_funcname( filehandle, __func__ );
+	return h5b_get_num_fields ( filehandle );
 }
 
 h5_err_t
@@ -163,18 +168,18 @@ h5bl_getfieldinfo (
 	h5_int64_t *f,
 	const h5_int64_t *idx,
 	char *field_name,
-	h5_size_t *grid_rank,
-	h5_size_t *grid_dims,
+	h5_size_t *field_rank,
 	h5_size_t *field_dims,
+	h5_size_t *elem_rank,
 	h5_int64_t *type,
 	const int l_field_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	h5_err_t herr = H5BlockGetFieldInfo (
+	h5_set_funcname( filehandle, __func__ );
+	h5_err_t herr = h5b_get_field_info (
 		filehandle, *idx, field_name, l_field_name,
-		grid_rank, grid_dims, field_dims, type );
+		field_rank, field_dims, elem_rank, type );
 	h5_strc2for ( field_name, l_field_name );
 	return herr;
 }
@@ -191,13 +196,15 @@ h5bl_writefieldattrib_string (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *field_name2 = h5_strdupfor2c ( field_name, l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	char *attrib_value2 = h5_strdupfor2c ( attrib_value, l_attrib_value );
 
-	h5_err_t herr = H5BlockWriteFieldAttribString (
-		filehandle, field_name2, attrib_name2, attrib_value2 );
+	h5_err_t herr = h5_write_field_attrib (
+		filehandle, field_name2, attrib_name2,
+		H5T_NATIVE_CHAR, attrib_value2, strlen(attrib_value2)+1 );
 
 	free ( field_name2 );
 	free ( attrib_name2 );
@@ -214,10 +221,11 @@ h5bl_getnfieldattribs (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *field_name2 = h5_strdupfor2c ( field_name, l_field_name );
 
-	h5_err_t herr = H5BlockGetNumFieldAttribs (
+	h5_err_t herr = h5b_get_num_field_attribs (
 		filehandle, field_name2 );
 	
 	free ( field_name2 );
@@ -236,12 +244,13 @@ h5bl_getfieldattribinfo (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	h5_int64_t	attrib_type;
 
 	char *field_name2 = h5_strdupfor2c ( field_name,   l_field_name );
 
-	h5_err_t herr = H5BlockGetFieldAttribInfo (
+	h5_err_t herr = h5b_get_field_attrib_info (
 		filehandle, field_name2, *attrib_idx,
 		attrib_name, l_attrib_name,
 		&attrib_type,
@@ -266,12 +275,14 @@ h5bl_readfieldattrib_string (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *field_name2 = h5_strdupfor2c ( field_name, l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 
-	h5_err_t herr = H5BlockReadFieldAttribString (
-		filehandle, field_name2, attrib_name2, attrib_value );
+	h5_err_t herr = h5_read_field_attrib (
+		filehandle, field_name2, attrib_name2,
+		H5_STRING_T, attrib_value );
 
 	h5_strc2for ( attrib_value, l_attrib_value );
 

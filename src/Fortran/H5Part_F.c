@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "H5hut.h"
+#include "h5core/h5_core.h"
 #include "Underscore.h"
 
 #if defined(F77_SINGLE_UNDERSCORE)
@@ -81,8 +81,8 @@ h5pt_setnpoints (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartSetNumParticles ( filehandle, *np );
+	h5_set_funcname( filehandle, __func__ );
+	return h5u_set_num_particles ( filehandle, *np, 1 );
 }
 
 h5_err_t
@@ -93,30 +93,30 @@ h5pt_setnpoints_strided (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartSetNumParticlesStrided ( filehandle, *np, *stride );
+	h5_set_funcname( filehandle, __func__ );
+	return h5u_set_num_particles ( filehandle, *np, *stride );
 }
 
 /*==============Reading Data Characteristics============*/
 
-h5_err_t
+h5_int64_t
 h5pt_getndatasets (
 	const h5_int64_t *f
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartGetNumDatasets ( filehandle );
+	h5_set_funcname( filehandle, __func__ );
+	return h5u_get_num_datasets ( filehandle );
 }
 
-h5_err_t
+h5_int64_t
 h5pt_getnpoints (
 	const h5_int64_t *f
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartGetNumParticles ( filehandle );
+	h5_set_funcname( filehandle, __func__ );
+	return h5u_get_num_particles ( filehandle );
 }
 
 h5_err_t
@@ -128,10 +128,9 @@ h5pt_getdatasetname (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	h5_int64_t herr =  H5PartGetDatasetName (
-		filehandle, *index, name, l_name );
-
+	h5_set_funcname( filehandle, __func__ );
+	h5_err_t herr =  h5u_get_dataset_info (
+		filehandle, *index, name, l_name, NULL, NULL );
 	h5_strc2for ( name, l_name );
 	return herr;
 }
@@ -146,8 +145,8 @@ h5pt_setview (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartSetView ( filehandle, *start, *end );
+	h5_set_funcname( filehandle, __func__ );
+	return h5u_set_view ( filehandle, *start, *end );
 }
 
 h5_err_t
@@ -158,18 +157,8 @@ h5pt_setview_indices (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartSetViewIndices ( filehandle, indices, *nelem );
-}
-
-h5_err_t
-h5pt_setview_empty (
-	const h5_int64_t *f
-	) {
-
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartSetViewEmpty ( filehandle );
+	h5_set_funcname( filehandle, __func__ );
+	return h5u_set_view_indices ( filehandle, indices, *nelem );
 }
 
 h5_err_t
@@ -178,8 +167,8 @@ h5pt_resetview (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartResetView ( filehandle );
+	h5_set_funcname( filehandle, __func__ );
+	return h5u_reset_view ( filehandle );
 }
 
 h5_err_t
@@ -188,8 +177,8 @@ h5pt_hasview (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartHasView ( filehandle );
+	h5_set_funcname( filehandle, __func__ );
+	return h5u_has_view ( filehandle );
 }
 
 h5_err_t
@@ -200,8 +189,8 @@ h5pt_getview (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5PartGetView ( filehandle, start, end);
+	h5_set_funcname( filehandle, __func__ );
+	return h5u_get_view ( filehandle, start, end);
 }
 
 
@@ -214,14 +203,11 @@ h5pt_writedata_r8 (
 	const int l_name ) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *name2 = h5_strdupfor2c ( name, l_name );
-
-	h5_int64_t herr = H5PartWriteDataFloat64 (
-		filehandle, name2, data );
-
+	h5_err_t herr = h5u_write_data (
+		filehandle, name2, (void*)data, H5T_NATIVE_DOUBLE );
 	free ( name2 );
-
 	return herr;
 }
 
@@ -233,14 +219,11 @@ h5pt_writedata_r4 (
 	const int l_name ) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *name2 = h5_strdupfor2c ( name, l_name );
-
-	h5_int64_t herr = H5PartWriteDataFloat32 (
-		filehandle, name2, data );
-
+	h5_err_t herr = h5u_write_data (
+		filehandle, name2, (void*)data, H5T_NATIVE_FLOAT );
 	free ( name2 );
-
 	return herr;
 }
 
@@ -252,14 +235,11 @@ h5pt_writedata_i8 (
 	const int l_name ) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *name2 = h5_strdupfor2c ( name, l_name );
-
-	h5_int64_t herr = H5PartWriteDataInt64 (
-		filehandle, name2, data );
-
+	h5_err_t herr = h5u_write_data (
+		filehandle, name2, (void*)data, H5T_NATIVE_INT64 );
 	free ( name2 );
-
 	return herr;
 }
 
@@ -271,14 +251,11 @@ h5pt_writedata_i4 (
 	const int l_name ) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *name2 = h5_strdupfor2c ( name, l_name );
-
-	h5_int64_t herr = H5PartWriteDataInt32 (
-		filehandle, name2, data );
-
+	h5_err_t herr = h5u_write_data (
+		filehandle, name2, (void*)data, H5T_NATIVE_INT32 );
 	free ( name2 );
-
 	return herr;
 }
 
@@ -288,17 +265,15 @@ h5_err_t
 h5pt_readdata_r8 (
 	const h5_int64_t *f,
 	const char *name,
-	h5_float64_t *array,
+	h5_float64_t *data,
 	const int l_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *name2 = h5_strdupfor2c ( name, l_name );
-
-	h5_int64_t herr = H5PartReadDataFloat64 (
-		filehandle, name2, array );
-
+	h5_err_t herr = h5u_read_data (
+		filehandle, name2, data, H5T_NATIVE_DOUBLE );
 	free ( name2 );
 	return herr;
 }
@@ -307,17 +282,15 @@ h5_err_t
 h5pt_readdata_r4 (
 	const h5_int64_t *f,
 	const char *name,
-	h5_float32_t *array,
+	h5_float32_t *data,
 	const int l_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *name2 = h5_strdupfor2c ( name, l_name );
-
-	h5_int64_t herr = H5PartReadDataFloat32 (
-		filehandle, name2, array );
-
+	h5_err_t herr = h5u_read_data (
+		filehandle, name2, data, H5T_NATIVE_FLOAT );
 	free ( name2 );
 	return herr;
 }
@@ -326,16 +299,15 @@ h5_err_t
 h5pt_readdata_i8 (
 	const h5_int64_t *f,
 	const char *name,
-	h5_int64_t *array,
+	h5_int64_t *data,
 	const int l_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *name2 = h5_strdupfor2c ( name, l_name );
-
-	h5_int64_t herr = H5PartReadDataInt64 (
-		filehandle, name2, array );
+	h5_err_t herr = h5u_read_data (
+		filehandle, name2, data, H5T_NATIVE_INT64 );
 
 	free ( name2 );
 	return herr;
@@ -345,17 +317,15 @@ h5_err_t
 h5pt_readdata_i4 (
 	const h5_int64_t *f,
 	const char *name,
-	h5_int32_t *array,
+	h5_int32_t *data,
 	const int l_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *name2 = h5_strdupfor2c ( name, l_name );
-
-	h5_int64_t herr = H5PartReadDataInt32 (
-		filehandle, name2, array );
-
+	h5_err_t herr = h5u_read_data (
+		filehandle, name2, data, H5T_NATIVE_INT32 );
 	free ( name2 );
 	return herr;
 }

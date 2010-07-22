@@ -130,11 +130,6 @@ H5PartSetViewIndices (
 	);
 
 h5_err_t
-H5PartSetViewEmpty (
-	h5_file_t *f			/*!< [in]  Handle to open file */
-	);
-
-h5_err_t
 H5PartGetView (
 	h5_file_t *f,			/*!< [in]  Handle to open file */
 	h5_int64_t *start,		/*!< [out]  Start particle */

@@ -188,7 +188,7 @@ H5GetNumProcs (
 
   \return	number of time-steps or error code
 */
-h5_size_t
+h5_ssize_t
 H5GetNumSteps (
 	h5_file_t* const f
 	) {

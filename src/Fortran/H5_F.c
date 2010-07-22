@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "H5hut.h"
+#include "h5core/h5_core.h"
 #include "Underscore.h"
 
 #if defined(F77_SINGLE_UNDERSCORE)
@@ -78,9 +78,7 @@ h5_openr (
 	) {
 
 	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
-
-	h5_file_t* f = H5OpenFile ( file_name2, H5_O_RDONLY, 0 );
-
+	h5_file_t* f = h5_open_file ( file_name2, H5_O_RDONLY, 0, __func__ );
 	free ( file_name2 );
 	return (h5_int64_t)(size_t)f; 
 }
@@ -92,9 +90,7 @@ h5_openw (
 	) {
 
 	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
-
-	h5_file_t* f = H5OpenFile ( file_name2, H5_O_WRONLY, 0 );
-
+	h5_file_t* f = h5_open_file ( file_name2, H5_O_WRONLY, 0, __func__ );
 	free ( file_name2 );
 	return (h5_int64_t)(size_t)f; 
 }
@@ -106,9 +102,7 @@ h5pt_opena (
 	) {
 	
 	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
-
-	h5_file_t* f = H5OpenFile ( file_name2, H5_O_APPEND, 0 );
-
+	h5_file_t* f = h5_open_file ( file_name2, H5_O_APPEND, 0, __func__ );
 	free ( file_name2 );
 	return (h5_int64_t)(size_t)f;
 }
@@ -129,7 +123,7 @@ h5_openr_par (
 
 	h5_int32_t fbits = H5_O_RDONLY | _flagsfor2c ( flags2 );
 
-	h5_file_t* f = H5OpenFile ( file_name2, ccomm, fbits );
+	h5_file_t* f = h5_open_file ( file_name2, fbits, ccomm, __func__  );
 
 	free ( file_name2 );
 	free ( flags2 );
@@ -151,7 +145,7 @@ h5_openw_par (
 
 	h5_int32_t fbits = H5_O_WRONLY | _flagsfor2c ( flags2 );
 
-	h5_file_t* f = H5OpenFile ( file_name2, fbits, ccomm );
+	h5_file_t* f = h5_open_file ( file_name2, ccomm, fbits, __func__ );
 
 	free ( file_name2 );
 	free ( flags2 );
@@ -174,7 +168,7 @@ h5pt_opena_par_align (
        
 	h5_int32_t fbits = H5_O_APPEND | _flagsfor2c ( flags2 );
 
-	h5_file_t* f = H5OpenFile( file_name2, fbits, ccomm );
+	h5_file_t* f = H5OpenFile( file_name2, ccomm, fbits, __func__ );
 
 	free ( file_name2 );
 	free ( flags2 );
@@ -186,18 +180,20 @@ h5_err_t
 h5_close (
 	const h5_int64_t *f
 	) {
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
 
-	return H5CloseFile ( filehandle );
+	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
+	return h5_close_file ( filehandle );
 }
 
 h5_err_t
 h5_check (
 	const h5_int64_t *f
 	) {
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
 
-	return H5CheckFile ( filehandle );
+	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
+	return h5_check_filehandle ( filehandle );
 }
 
 h5_err_t
@@ -206,24 +202,24 @@ h5_setstep (
 	h5_int64_t *step ) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5SetStep ( filehandle, (*step)-1 );
+	h5_set_funcname( filehandle, __func__ );
+	return h5_set_step ( filehandle, (*step)-1 );
 }
 
-h5_err_t
+h5_ssize_t
 h5_getnsteps (
 	const h5_int64_t *f
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5GetNumSteps ( filehandle );
+	h5_set_funcname( filehandle, __func__ );
+	return h5_get_num_steps ( filehandle );
 }
 
 h5_err_t
 h5_set_verbosity_level (
 	const h5_int64_t *level
 	) {
-	return H5SetVerbosityLevel ( *level );
+	return h5_set_debuglevel ( *level );
 }
 

@@ -66,14 +66,6 @@ INTEGER*8 FUNCTION h5pt_setview_indices (filehandle,indices,nelem)
 END FUNCTION
 
 !> \ingroup h5part_model_f
-!! See \ref H5PartSetViewEmpty
-!! \return 0 on success or error code
-!<
-INTEGER*8 FUNCTION h5pt_setview_empty (filehandle)
-    INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
-END FUNCTION
-
-!> \ingroup h5part_model_f
 !! See \ref H5PartResetView
 !! \return 0 on success or error code
 !<

@@ -16,7 +16,7 @@ h_tail = """
 fc_head = """
 #include <stdlib.h>
 
-#include "H5hut.h"
+#include "h5core/h5_core.h"
 #include "Underscore.h"
 
 #if defined(F77_SINGLE_UNDERSCORE)
@@ -137,12 +137,10 @@ h5bl_#DIM#d_write_scalar_field_#TYPE_F90_ABV# (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *field_name2 =  h5_strdupfor2c ( field_name, l_field_name );
-
-	h5_err_t herr = H5Block#DIM#dWriteScalarField#TYPE_ABV# (
-		filehandle, field_name2, data );
-
+	h5_err_t herr = h5b_write_scalar_data (
+		filehandle, field_name2, (void*)data, #TYPE_HDF5# );
 	free ( field_name2 );
 	return herr;
 }
@@ -164,12 +162,10 @@ h5bl_#DIM#d_read_scalar_field_#TYPE_F90_ABV# (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *field_name2 =  h5_strdupfor2c ( field_name,  l_field_name );
-
-	h5_err_t herr = H5Block#DIM#dWriteScalarField#TYPE_ABV# (
-		filehandle, field_name2, data );
-
+	h5_err_t herr = h5b_read_scalar_data (
+		filehandle, field_name2, data, #TYPE_HDF5# );
 	free ( field_name2 );
 	return herr;
 }
@@ -303,12 +299,11 @@ h5bl_#DIM#d_write_vector3d_field_#TYPE_F90_ABV# (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *field_name2 =  h5_strdupfor2c ( field_name,  l_field_name );
-
-	h5_err_t herr = H5Block#DIM#dWriteVector3dField#TYPE_ABV# (
-		filehandle, field_name2, xval, yval, zval );
-
+	h5_err_t herr = h5b_write_vector3d_data (
+		filehandle, field_name2,
+		(void*)xval, (void*)yval, (void*)zval, #TYPE_HDF5# );
 	free ( field_name2 );
 	return herr;
 }
@@ -332,12 +327,11 @@ h5bl_#DIM#d_read_vector3d_field_#TYPE_F90_ABV# (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *field_name2 =  h5_strdupfor2c ( field_name,  l_field_name );
-
-	h5_err_t herr = H5Block#DIM#dReadVector3dField#TYPE_ABV# (
-		filehandle, field_name2, xval, yval, zval );
-
+	h5_err_t herr = h5b_read_vector3d_data (
+		filehandle, field_name2,
+		(void*)xval, (void*)yval, (void*)zval, #TYPE_HDF5# );
 	free ( field_name2 );
 	return herr;
 }
@@ -417,13 +411,12 @@ h5bl_writefieldattrib_#TYPE_F90_ABV# (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
-
-	h5_err_t herr = H5BlockWriteFieldAttrib#TYPE_ABV# (
-		filehandle, field_name2, attrib_name2, values, *nvalues );
-
+	h5_err_t herr = h5_write_field_attrib (
+		filehandle, field_name2, attrib_name2,
+		#TYPE_HDF5#, values, *nvalues );
 	free ( field_name2 );
 	free ( attrib_name2 );
 	return herr;
@@ -499,13 +492,11 @@ h5bl_readfieldattrib_#TYPE_F90_ABV# (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
+	h5_set_funcname( filehandle, __func__ );
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
-
-	h5_err_t herr = H5BlockReadFieldAttrib#TYPE_ABV# (
-		filehandle, field_name2, attrib_name2, values );
-
+	h5_err_t herr = h5_read_field_attrib (
+		filehandle, field_name2, attrib_name2, #TYPE_HDF5#, values );
 	free ( field_name2 );
 	free ( attrib_name2 );
 	return herr;

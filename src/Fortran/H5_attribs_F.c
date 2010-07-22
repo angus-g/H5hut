@@ -1,6 +1,7 @@
 #include <stdlib.h>
+#include <string.h>
 
-#include "H5hut.h"
+#include "h5core/h5_core.h"
 #include "Underscore.h"
 
 #if defined(F77_SINGLE_UNDERSCORE)
@@ -39,12 +40,14 @@ h5_writefileattrib_string (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *attrib_name2 = h5_strdupfor2c (attrib_name,l_attrib_name);
 	char *attrib_value2= h5_strdupfor2c (attrib_value,l_attrib_value);
 
-	h5_err_t herr = H5WriteFileAttribString (
-		filehandle, attrib_name2, attrib_value2 );
+	h5_err_t herr = h5_write_attrib (
+		filehandle, H5_ATTRIB_FILE, attrib_name2,
+		H5T_NATIVE_CHAR, attrib_value2, strlen(attrib_value2)+1 );
 
 	free ( attrib_name2 );
 	free ( attrib_value2 );
@@ -61,38 +64,17 @@ h5_writestepattrib_string (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *attrib_name2 = h5_strdupfor2c (attrib_name,l_attrib_name);
 	char *attrib_value2= h5_strdupfor2c (attrib_value,l_attrib_value);
 
-	h5_err_t herr = H5WriteStepAttribString (
-		filehandle, attrib_name2, attrib_value2 );
+	h5_err_t herr = h5_write_attrib (
+		filehandle, H5_ATTRIB_STEP, attrib_name2,
+		H5T_NATIVE_CHAR, attrib_value2, strlen(attrib_value2)+1 );
 
 	free ( attrib_name2 );
 	free ( attrib_value2 );
-	return herr;
-}
-
-
-h5_err_t
-h5_readstepattrib_string (
-	const h5_int64_t *f,
-	const char *attrib_name,
-	char *attrib_value,
-	const int l_attrib_name,
-	const int l_attrib_value
-	) {
-
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	
-	char * attrib_name2 = h5_strdupfor2c (attrib_name,l_attrib_name);
-
-	h5_err_t herr = H5ReadStepAttribString (
-		filehandle, attrib_name2, attrib_value );
-
-	h5_strc2for ( attrib_value, l_attrib_value );
-
-	free ( attrib_name2 );
 	return herr;
 }
 
@@ -106,17 +88,44 @@ h5_readfileattrib_string (
 	) {
 		
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char * attrib_name2 = h5_strdupfor2c (attrib_name,l_attrib_name);
 
-	h5_err_t herr = H5ReadFileAttribString (
-		filehandle, attrib_name2, attrib_value );
+	h5_err_t herr = h5_read_attrib (
+		filehandle, H5_ATTRIB_FILE, attrib_name2,
+		H5_STRING_T, attrib_value );
 
 	h5_strc2for ( attrib_value, l_attrib_value );
 
 	free ( attrib_name2 );
 	return herr;
 }
+
+h5_err_t
+h5_readstepattrib_string (
+	const h5_int64_t *f,
+	const char *attrib_name,
+	char *attrib_value,
+	const int l_attrib_name,
+	const int l_attrib_value
+	) {
+
+	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
+	
+	char * attrib_name2 = h5_strdupfor2c (attrib_name,l_attrib_name);
+
+	h5_err_t herr = h5_read_attrib (
+		filehandle, H5_ATTRIB_STEP, attrib_name2,
+		H5_STRING_T, attrib_value );
+
+	h5_strc2for ( attrib_value, l_attrib_value );
+
+	free ( attrib_name2 );
+	return herr;
+}
+
 
 #if ! defined(F77_NO_UNDERSCORE)
 #define h5_writefileattrib_r8 F77NAME ( \
@@ -129,16 +138,18 @@ h5_writefileattrib_r8 (
 	h5_int64_t *f,
 	const char *name,
 	const h5_float64_t *data,
-	const h5_float64_t *nelem,
+	const h5_int64_t *nelem,
 	const int l_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5WriteFileAttribFloat64(
-					filehandle, name2, data, *nelem);
+	h5_err_t herr = h5_write_attrib(
+		filehandle, H5_ATTRIB_FILE, name2,
+		H5T_NATIVE_DOUBLE, data, (hsize_t) *nelem);
 
 	free ( name2 );
 	return herr;
@@ -159,10 +170,12 @@ h5_readfileattrib_r8 (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5ReadFileAttribFloat64(filehandle, name2, data);
+	h5_err_t herr = h5_read_attrib(
+		filehandle, H5_ATTRIB_FILE, name2, H5_FLOAT64_T, data);
 
 	free ( name2 );
 	return herr;
@@ -179,16 +192,18 @@ h5_writefileattrib_r4 (
 	h5_int64_t *f,
 	const char *name,
 	const h5_float32_t *data,
-	const h5_float32_t *nelem,
+	const h5_int64_t *nelem,
 	const int l_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5WriteFileAttribFloat32(
-					filehandle, name2, data, *nelem);
+	h5_err_t herr = h5_write_attrib(
+		filehandle, H5_ATTRIB_FILE, name2,
+		H5T_NATIVE_FLOAT, data, (hsize_t) *nelem);
 
 	free ( name2 );
 	return herr;
@@ -209,10 +224,12 @@ h5_readfileattrib_r4 (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5ReadFileAttribFloat32(filehandle, name2, data);
+	h5_err_t herr = h5_read_attrib(
+		filehandle, H5_ATTRIB_FILE, name2, H5_FLOAT32_T, data);
 
 	free ( name2 );
 	return herr;
@@ -234,10 +251,13 @@ h5_writefileattrib_i8 (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5WriteFileAttribInt64(filehandle, name2, data, *nelem);
+	h5_err_t herr = h5_write_attrib(
+		filehandle, H5_ATTRIB_FILE, name2,
+		H5T_NATIVE_INT64, data, (hsize_t) *nelem);
 
 	free ( name2 );
 	return herr;
@@ -258,10 +278,12 @@ h5_readfileattrib_i8 (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5ReadFileAttribInt64(filehandle, name2, data);
+	h5_err_t herr = h5_read_attrib(
+		filehandle, H5_ATTRIB_FILE, name2, H5_INT64_T, data);
 
 	free ( name2 );
 	return herr;
@@ -278,15 +300,18 @@ h5_writefileattrib_i4 (
 	h5_int64_t *f,
 	const char *name,
 	const h5_int32_t *data,
-	const h5_int32_t *nelem,
+	const h5_int64_t *nelem,
 	const int l_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5WriteFileAttribInt32(filehandle, name2, data, *nelem);
+	h5_err_t herr = h5_write_attrib(
+		filehandle, H5_ATTRIB_FILE, name2,
+		H5T_NATIVE_INT32, data, (hsize_t) *nelem);
 
 	free ( name2 );
 	return herr;
@@ -307,10 +332,12 @@ h5_readfileattrib_i4 (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5ReadFileAttribInt32(filehandle, name2, data);
+	h5_err_t herr = h5_read_attrib(
+		filehandle, H5_ATTRIB_FILE, name2, H5_INT32_T, data);
 
 	free ( name2 );
 	return herr;
@@ -327,16 +354,18 @@ h5_writestepattrib_r8 (
 	h5_int64_t *f,
 	const char *name,
 	const h5_float64_t *data,
-	const h5_float64_t *nelem,
+	const h5_int64_t *nelem,
 	const int l_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5WriteStepAttribFloat64(
-					filehandle, name2, data, *nelem);
+	h5_err_t herr = h5_write_attrib(
+		filehandle, H5_ATTRIB_STEP, name2,
+		H5T_NATIVE_DOUBLE, data, (hsize_t) *nelem);
 
 	free ( name2 );
 	return herr;
@@ -357,10 +386,12 @@ h5_readstepattrib_r8 (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5ReadStepAttribFloat64(filehandle, name2, data);
+	h5_err_t herr = h5_read_attrib(
+		filehandle, H5_ATTRIB_STEP, name2, H5_FLOAT64_T, data);
 
 	free ( name2 );
 	return herr;
@@ -377,16 +408,18 @@ h5_writestepattrib_r4 (
 	h5_int64_t *f,
 	const char *name,
 	const h5_float32_t *data,
-	const h5_float32_t *nelem,
+	const h5_int64_t *nelem,
 	const int l_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5WriteStepAttribFloat32(
-					filehandle, name2, data, *nelem);
+	h5_err_t herr = h5_write_attrib(
+		filehandle, H5_ATTRIB_STEP, name2,
+		H5T_NATIVE_FLOAT, data, (hsize_t) *nelem);
 
 	free ( name2 );
 	return herr;
@@ -407,10 +440,12 @@ h5_readstepattrib_r4 (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5ReadStepAttribFloat32(filehandle, name2, data);
+	h5_err_t herr = h5_read_attrib(
+		filehandle, H5_ATTRIB_STEP, name2, H5_FLOAT32_T, data);
 
 	free ( name2 );
 	return herr;
@@ -432,10 +467,13 @@ h5_writestepattrib_i8 (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5WriteStepAttribInt64(filehandle, name2, data, *nelem);
+	h5_err_t herr = h5_write_attrib(
+		filehandle, H5_ATTRIB_STEP, name2,
+		H5T_NATIVE_INT64, data, (hsize_t) *nelem);
 
 	free ( name2 );
 	return herr;
@@ -456,10 +494,12 @@ h5_readstepattrib_i8 (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5ReadStepAttribInt64(filehandle, name2, data);
+	h5_err_t herr = h5_read_attrib(
+		filehandle, H5_ATTRIB_STEP, name2, H5_INT64_T, data);
 
 	free ( name2 );
 	return herr;
@@ -476,15 +516,18 @@ h5_writestepattrib_i4 (
 	h5_int64_t *f,
 	const char *name,
 	const h5_int32_t *data,
-	const h5_int32_t *nelem,
+	const h5_int64_t *nelem,
 	const int l_name
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5WriteStepAttribInt32(filehandle, name2, data, *nelem);
+	h5_err_t herr = h5_write_attrib(
+		filehandle, H5_ATTRIB_STEP, name2,
+		H5T_NATIVE_INT32, data, (hsize_t) *nelem);
 
 	free ( name2 );
 	return herr;
@@ -505,10 +548,12 @@ h5_readstepattrib_i4 (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
 	char *name2 = h5_strdupfor2c ( name, l_name );
 
-	h5_err_t herr = H5ReadStepAttribInt32(filehandle, name2, data);
+	h5_err_t herr = h5_read_attrib(
+		filehandle, H5_ATTRIB_STEP, name2, H5_INT32_T, data);
 
 	free ( name2 );
 	return herr;
@@ -533,24 +578,49 @@ h5_readstepattrib_i4 (
 
 #endif
 
-h5_err_t
-h5_getnstepattribs (
-	const h5_int64_t *f
-	) {
-
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-
-	return H5GetNumStepAttribs ( filehandle );
-}
-
-h5_err_t
+h5_int64_t
 h5_getnfileattribs (
 	const h5_int64_t *f
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 
-	return H5GetNumFileAttribs ( filehandle );
+	return h5_get_num_attribs ( filehandle, H5_ATTRIB_FILE );
+}
+
+h5_int64_t
+h5_getnstepattribs (
+	const h5_int64_t *f
+	) {
+
+	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
+
+	return h5_get_num_attribs ( filehandle, H5_ATTRIB_STEP );
+}
+
+h5_err_t
+h5_getfileattribinfo (
+	const h5_int64_t *f,
+	const h5_int64_t *idx,
+	char *name,
+	h5_int64_t *nelem,
+	const int l_name ) {
+
+	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
+	h5_int64_t type;
+	h5_size_t nelem2;
+
+	h5_err_t herr = h5_get_attrib_info ( 
+		filehandle, H5_ATTRIB_FILE, (h5_size_t)*idx,
+		name, l_name, &type, &nelem2);
+
+	*nelem = (h5_int64_t)nelem2;
+
+	h5_strc2for( name, l_name );
+	return herr;
 }
 
 h5_err_t
@@ -563,30 +633,18 @@ h5_getstepattribinfo (
 	) {
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
+	h5_set_funcname( filehandle, __func__ );
 	h5_int64_t type;
+	h5_size_t nelem2;
 
-	h5_err_t herr = H5GetStepAttribInfo ( 
-		filehandle, *idx, name, l_name, &type, nelem);
+	h5_err_t herr = h5_get_attrib_info ( 
+		filehandle, H5_ATTRIB_STEP, (h5_size_t)*idx,
+		name, l_name, &type, &nelem2);
+
+	*nelem = (h5_int64_t)nelem2;
 
 	h5_strc2for( name, l_name );
 	return herr;
 }
 
-h5_err_t
-h5_getfileattribinfo (
-	const h5_int64_t *f,
-	const h5_int64_t *idx,
-	char *name,
-	h5_int64_t *nelem,
-	const int l_name ) {
-
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_int64_t type;
-
-	h5_err_t herr = H5GetFileAttribInfo ( 
-		filehandle, *idx, name, l_name, &type, nelem);
-
-	h5_strc2for( name, l_name );
-	return herr;
-}
 

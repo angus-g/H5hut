@@ -574,27 +574,6 @@ H5PartSetViewIndices (
 /*!
   \ingroup h5part_model
 
-  In MPI-IO collective mode, all MPI tasks must participate in I/O
-  operations. \c H5PartSetViewEmpty() allows a task to participate
-  but with an empty view of the file, so that it contributes no data
-  to the I/O operation.
-
-  \return	\c H5_SUCCESS or error code
-*/
-h5_err_t
-H5PartSetViewEmpty (
-	h5_file_t *f			/*!< [in]  Handle to open file */
-	) {
-
-	SET_FNAME( f, __func__ );
-
-	/* using a null indices list will set an empty view */
-	return h5u_set_view_indices ( f, NULL, 0 );
-}
-
-/*!
-  \ingroup h5part_model
-
    Allows you to query the current view. Start and End
    will be \c -1 if there is no current view established.
    Use \c H5PartHasView() to see if the view is smaller than the
