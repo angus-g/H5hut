@@ -424,7 +424,11 @@ src/h5core/h5b_model.c -text
 src/h5core/h5b_model_private.h -text
 src/h5core/h5b_readwrite.c -text
 src/h5core/h5b_types_private.h -text
+src/h5core/h5t_access_private.h -text
+src/h5core/h5t_access_tetm.c -text
+src/h5core/h5t_access_trim.c -text
 src/h5core/h5t_adjacencies.c -text
+src/h5core/h5t_adjacencies_private.h -text
 src/h5core/h5t_adjacencies_tetm.c -text
 src/h5core/h5t_adjacencies_tetm_private.h -text
 src/h5core/h5t_adjacencies_trim.c -text
@@ -443,6 +447,7 @@ src/h5core/h5t_openclose.c -text
 src/h5core/h5t_openclose_private.h -text
 src/h5core/h5t_readwrite.c -text
 src/h5core/h5t_readwrite_private.h -text
+src/h5core/h5t_readwrite_trim.c -text
 src/h5core/h5t_ref_elements.c -text
 src/h5core/h5t_retrieve.c -text
 src/h5core/h5t_retrieve_private.h -text
