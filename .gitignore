@@ -29,7 +29,7 @@ src/Makefile.in
 src/h5core/.deps
 src/h5core/Makefile
 src/h5core/Makefile.in
-src/include/H5hutF.h[!!-~]added[!!-~]to[!!-~]ignore-list
+src/include/H5hutF.h
 /stamp-h1
 /svn-prop.tmp
 test/H5Block/H5BlockParTestScalarField
