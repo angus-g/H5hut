@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "H5Part.h"
-#include "H5Fed.h"
+#include "H5hut.h"
 
 #define PRINT_UPADJACENCIES 1
 #define PRINT_DOWNADJACENCIES 0

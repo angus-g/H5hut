@@ -6,7 +6,7 @@ LIBS = @LIBS@
 INCLUDES = -I../include @INCLUDES@
 
 # What to build... Will be determined by configure script.
-lib_LIBRARIES = libH5hutC.a
+lib_LIBRARIES = @LIB_C@
 
 # Listing of all possible targets that I may build.
 EXTRA_LIBRARIES = libH5hutC.a
@@ -20,6 +20,7 @@ include_HEADERS =				\
 	../include/H5Block.h			\
 	../include/H5Block_readwrite.h		\
 	../include/H5Fed.h			\
+	../include/H5Fed_adjacency.h		\
 	../include/H5Fed_inquiry.h		\
 	../include/H5Fed_retrieve.h		\
 	../include/H5Fed_store.h		\
@@ -42,8 +43,5 @@ libH5hutC_a_SOURCES =				\
 	H5Fed_store.c				\
 	H5Fed_tags.c
 
-all: ../lib/libH5hutC.a
-
-../lib/libH5hutC.a: libH5hutC.a
-	-cp $^ $@
+clean: cleam-am
 

@@ -8,6 +8,7 @@ INCLUDES = -I../include @INCLUDES@
 EXTRA_HEADERS =					\
 	../include/h5core/h5_attribs.h		\
 	../include/h5core/h5_core.h		\
+	../include/h5core/h5_errno.h		\
 	../include/h5core/h5_errorhandling.h	\
 	../include/h5core/h5_hdf5.h		\
 	../include/h5core/h5_maps.h		\
@@ -20,6 +21,7 @@ EXTRA_HEADERS =					\
 	../include/h5core/h5b_model.h		\
 	../include/h5core/h5b_attribs.h		\
 	../include/h5core/h5t_adjacencies.h	\
+	../include/h5core/h5t_core.h		\
 	../include/h5core/h5t_inquiry.h		\
 	../include/h5core/h5t_map.h		\
 	../include/h5core/h5t_openclose.h	\
@@ -28,44 +30,45 @@ EXTRA_HEADERS =					\
 	../include/h5core/h5t_retrieve.h	\
 	../include/h5core/h5t_storemesh.h	\
 	../include/h5core/h5t_tags.h		\
+	h5b_errorhandling_private.h		\
+	h5b_model_private.h			\
+	h5b_types_private.h			\
+	h5_core_private.h			\
 	h5_errorhandling_private.h		\
 	h5_fcmp_private.h			\
 	h5_hdf5_private.h			\
 	h5_hsearch_private.h			\
+	h5_lustre_private.h			\
 	h5_mpi_private.h			\
 	h5_qsort_private.h			\
 	h5_readwrite_private.h			\
 	h5_syscall_private.h			\
-	h5_lustre_private.h			\
-	h5u_errorhandling_private.h             \
-	h5b_errorhandling_private.h		\
-        h5b_model_private.h			\
 	h5t_access_private.h			\
 	h5t_adjacencies_private.h		\
 	h5t_consts_private.h			\
+	h5t_core_private.h			\
 	h5t_errorhandling_private.h		\
 	h5t_hsearch_private.h			\
+	h5t_map_private.h			\
 	h5t_openclose_private.h			\
 	h5t_readwrite_private.h			\
 	h5t_retrieve_private.h			\
 	h5t_store_private.h			\
-	h5t_tags_private.h
+	h5t_store_trim_private.h		\
+	h5t_tags_private.h			\
+	h5t_types_private.h			\
+	h5_types_private.h			\
+	h5u_errorhandling_private.h		\
+	h5u_types_private.h
 
 # Extra files that I wish to include in the dist tar ball.
 EXTRA_DIST = $(EXTRA_HEADERS)
 
-# Files that I don't want to include in the dist tar ball
-nodist_include_HEADERS =
-
-#OBJEXT = o
 # What to build... Will be determined by configure script.
 lib_LIBRARIES = libH5hut.a
 
 # Listing of all possible targets that I may build.
 EXTRA_LIBRARIES = libH5hut.a
-
-# Header files that I wish to install in $(prefix)/include
-include_HEADERS =
 
 # Listing of sources
 libH5hut_a_SOURCES =				\
@@ -112,10 +115,9 @@ libH5hut_a_SOURCES =				\
 
 libH5hut_a_DEPENDENCIES = $(EXTRA_HEADERS)
 
-all: ../lib/libH5hut.a
+install-exec-local:
+	@$(INSTALL) -d $(DESTDIR)$(includedir)/h5core
+	@$(INSTALL) -m644 ../include/h5core/*.h $(DESTDIR)$(includedir)/h5core/
 
-../lib/libH5hut.a: libH5hut.a
-	-cp $^ $@
-
-$(libH5hut_a_OBJECTS): $(libH5hut_a_DEPENDENCIES)
+clean: clean-am
 

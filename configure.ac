@@ -1,6 +1,6 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5hut], [1.99.0], [h5part@lists.psi.ch], H5Part)
+AC_INIT([H5hut], [1.99.0], [h5part@lists.psi.ch], H5hut)
 
 
 # Ensure that a recent enough version of Autoconf is being used. 
@@ -14,9 +14,7 @@ AC_PREREQ(2.59)
 # The AC_CONFIG_HEADERS macro selects this kind of output.
 AC_CONFIG_HEADER(config.h)
 
-
-BINDINGS=''
-BUILD_LIBS='libH5hut'
+BUILD_LIBS='libH5hut.a'
 USE_C='yes'
 
 ###############################################################################
@@ -53,12 +51,6 @@ AC_ARG_ENABLE(
 	[Compile the MPI/IO interface [default=no]])],
 	[USE_PARALLEL=$enableval])
 
-AC_ARG_ENABLE(
-	[tools],
-	[AC_HELP_STRING([--enable-tools],
-	[Compile h5part tools [default=no]])],
-	[USE_TOOLS=$enableval])
-
 AC_ARG_WITH(
 	[mpi],
 	[AC_HELP_STRING([--with-mpi],
@@ -83,12 +75,9 @@ AC_ARG_WITH(
 
 SAVE_CC=$CC
 SAVE_CXX=$CXX
-SAVE_FC=$FC
 SAVE_MPICC=$MPICC
 SAVE_MPICXX=$MPICXX
-SAVE_MPIFC=$MPIFC
 SAVE_CFLAGS=$CFLAGS
-SAVE_FFLAGS=$FFLAGS
 SAVE_INCLUDES=$INCLUDES
 SAVE_LDFLAGS=$LDFLAGS
 SAVE_LIBS=$LIBS
@@ -206,7 +195,10 @@ AC_MSG_CHECKING([if C interface enabled])
 if test "X$USE_C" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 	BINDINGS="$BINDINGS C"
-        BUILD_LIBS="$BUILD_LIBS libH5hutC"
+	LIB_C="libH5hutC.a"
+	BUILD_LIBS="$BUILD_LIBS $LIB_C"
+	BUILD_TESTS="$BUILD_TESTS h5u_test h5b_test"
+	BUILD_TOOLS="$BUILD_TOOLS h5hutcc"
 fi
 
 ############################ fortran enabled ##################################
@@ -214,8 +206,8 @@ AC_MSG_CHECKING([if fortran interface enabled])
 if test "X$USE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 	BINDINGS="$BINDINGS Fortran"
-        BUILD_LIBS="$BUILD_LIBS libH5hutF"
-
+	LIB_FORTRAN="libH5hutF.a"
+        BUILD_LIBS="$BUILD_LIBS $LIB_FORTRAN"
 
 	AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
 	if test -z "$FC" ; then
@@ -375,14 +367,6 @@ else  # --enable-parallel=no
 	fi
 fi
 
-AC_MSG_CHECKING([wheter tools are enabled])
-if test "X$USE_TOOLS" = "Xyes"; then
-	AC_MSG_RESULT([yes])
-	BUILD_TOOLS="h5pAttrib h5pToGNUplot # homdynToH5p"
-else
-	AC_MSG_RESULT([no])
-fi
-
 ###############################################################################
 ######################### PATH CHECKING & SETTING #############################
 ###############################################################################
@@ -443,8 +427,8 @@ if test -z "$LUSTREROOT"; then
 	AC_MSG_WARN([Couldn't locate the lustre API... building without support for lustre striping!])
 else
         CFLAGS="$CFLAGS -DH5_USE_LUSTRE"
-        INCLUDES="$INCLUDES -I$LUSTREROOT/include"
-        LDFLAGS="LDFLAGS -L$LUSTREROOT/lib"
+        INCLUDES="$INCLUDES -I$LUSTREROOT/usr/include"
+        LDFLAGS="$LDFLAGS -L$LUSTREROOT/usr/lib"
         LIBS="$LIBS -llustreapi"
 fi
 
@@ -532,25 +516,22 @@ AC_SUBST(FFLAGS)
 AC_SUBST(INCLUDES)
 AC_SUBST(LDFLAGS)
 AC_SUBST(LIBS)
-AC_SUBST(STDCXX)
 AC_SUBST(UNDERSCORE_H)
-AC_SUBST(BUILD_TOOLS)
-AC_SUBST(FORTRAN_LIB)
+AC_SUBST(LIB_C)
+AC_SUBST(LIB_FORTRAN)
 AC_SUBST(BINDINGS)
+AC_SUBST(BUILD_TESTS)
+AC_SUBST(BUILD_TOOLS)
 
 # Make AC_OUTPUT create each `file' by copying an input file (by default `file.in'),
 # substituting the output variable values.
 AC_CONFIG_FILES([
 	Makefile
-	doc/Makefile
 	src/Makefile
 	src/C/Makefile
 	src/h5core/Makefile
         src/Fortran/Makefile
 	test/Makefile
-	test/H5Part/Makefile
-	test/H5Block/Makefile
-	test/H5Fed/Makefile
 	tools/Makefile
 	tools/h5hutcc
 ])

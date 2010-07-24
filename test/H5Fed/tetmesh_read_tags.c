@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <hdf5.h>
-#include "H5Part.h"
-#include "H5Fed.h"
+
+#include "H5hut.h"
 
 #ifndef PARALLEL_IO
 #ifndef MPI_COMM_WORLD

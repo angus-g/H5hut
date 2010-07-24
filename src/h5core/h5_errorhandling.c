@@ -152,7 +152,11 @@ h5_abort_errorhandler (
 	if (h5priv_debug_level > 0) {
 		h5_verror (f, fmt, ap);
 	}
+#ifdef PARALLEL_IO
+        MPI_Abort(f->comm, -(int)f->__errno);
+#else
 	exit (-(int)f->__errno);
+#endif
 }
 
 static void

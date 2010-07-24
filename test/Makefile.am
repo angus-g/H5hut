@@ -4,15 +4,15 @@
 
 OBJEXT=o
 
-LDFLAGS = -L../src/lib @LDFLAGS@
+AM_LDFLAGS = -L../src/h5core -L../src/C @LDFLAGS@
 LIBS = -lH5hutC -lH5hut @LIBS@
 
 INCLUDES = -I../src/include @INCLUDES@
 
-noinst_PROGRAMS = h5u_test h5b_test
+noinst_PROGRAMS = @BUILD_TESTS@
 
 TESTS_ENVIRONMENT = env LD_LIBRARY_PATH=@HDF5ROOT@/lib:$(LD_LIBRARY_PATH)
-TESTS = h5u_test h5b_test
+TESTS = @BUILD_TESTS@
 
 EXTRA_PROGRAMS = h5u_test h5b_test
 
@@ -25,8 +25,8 @@ h5u_test_SOURCES =	\
 		params.h
 
 h5u_test_DEPENDENCIES = \
-		../src/lib/libH5hut.a \
-		../src/lib/libH5hutC.a
+		../src/h5core/libH5hut.a \
+		../src/C/libH5hutC.a
 
 h5b_test_SOURCES =	\
 		h5b_test.c \
@@ -37,8 +37,8 @@ h5b_test_SOURCES =	\
 		params.h
 
 h5b_test_DEPENDENCIES = \
-		../src/lib/libH5hut.a \
-		../src/lib/libH5hutC.a
+		../src/h5core/libH5hut.a \
+		../src/C/libH5hutC.a
 
 clean: clean-am
 	rm -f *.h5

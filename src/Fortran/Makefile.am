@@ -23,7 +23,7 @@ EXTRA_DIST =		TestUnderscoreC.c \
 nodist_include_HEADERS = ../include/H5hutF.h
 
 # What to build... Will be determined by configure script.
-lib_LIBRARIES = @FORTRAN_LIB@
+lib_LIBRARIES = @LIB_FORTRAN@
 
 # Listing of all possible targets that I may build.
 EXTRA_LIBRARIES = libH5hutF.a
@@ -34,11 +34,11 @@ libH5hutF_a_SOURCES =	H5_F.c \
 			H5Block_F.c \
 			H5Block_readwrite_F.c
 
-all: ../include/H5hutF.h ../lib/libH5hutF.a
+libH5hutF_a_DEPENDENCIES = ../include/H5hutF.h
 
 ../include/H5hutF.h: $(F90_FILES)
 	awk '/INTEGER\*8 FUNCTION/{print "\t" $$1 " " $$3}' $^ >$@
 
-../lib/libH5hutF.a: libH5hutF.a
-	-cp $^ $@
+clean: clean-am
+	$(RM) ../include/H5hutF.h
 

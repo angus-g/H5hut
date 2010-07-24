@@ -28,7 +28,7 @@ _print_stripe_info(struct lov_user_md *lum)
 }
 
 static ssize_t
-_get_lustre_stripe_size ( const char *path )
+_get_lustre_stripe_size(h5_file_t *const f,  const char *path )
 {
 	size_t nbytes = sizeof(struct lov_user_md) +
 				INIT_ALLOC_NUM_OSTS * sizeof(struct lov_user_ost_data);
@@ -89,7 +89,7 @@ _get_lustre_stripe_size ( const char *path )
 	return stripe_size;
 }
 
-herr_t
+h5_err_t
 h5_optimize_for_lustre (
 	h5_file_t *const f,
 	const char *filename
@@ -114,17 +114,19 @@ h5_optimize_for_lustre (
 		}
 		else fclose(test);
 
-		stripe_size = _get_lustre_stripe_size(path);
+		stripe_size = _get_lustre_stripe_size(f, path);
 
 		free(path);
 	}
 
 	TRY( h5priv_mpi_bcast(f, &stripe_size, 1, MPI_LONG_LONG, 0, f->comm) );
-	h5_info(f, "Found lustre stripe size of %lld bytes", (long long)stripe_size);
+	h5_info(f, MSG_HEADER
+		"Found lustre stripe size of %lld bytes",
+		(long long)stripe_size);
 
 	hsize_t btree_ik = (stripe_size - 4096) / 96;
 	hsize_t btree_bytes = 64 + 96*btree_ik;
-	h5_info(f,
+	h5_info(f, MSG_HEADER
 		"Setting HDF5 btree ik to %lld (= %lld bytes at rank 3)",
 		(long long)btree_ik, (long long)btree_bytes);
 	TRY( h5priv_set_hdf5_btree_ik_property(f, f->create_prop, btree_ik) );
@@ -133,21 +135,19 @@ h5_optimize_for_lustre (
 	TRY( h5priv_set_hdf5_alignment_property(f,
 				f->access_prop, 0, stripe_size) );
 
-	if (_verbose) {
-		fprintf(MSG_STREAM, MSG_HEADER "disabling metadata cache flushes.\n");
-	}
+	h5_info(f, MSG_HEADER "Disabling metadata cache flushes.");
 	/* disable metadata cache flushes */
 	/* defer metadata writes */
 	H5AC_cache_config_t config;
 	config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
-	TRY( H5Pget_mdc_config( fapl_id, &config ) );
+	TRY( H5Pget_mdc_config( f->access_prop, &config ) );
 	config.set_initial_size = 1;
 	config.initial_size = 16 * 1024 * 1024;
 	config.evictions_enabled = 0;
 	config.incr_mode = H5C_incr__off;
 	config.decr_mode = H5C_decr__off;
 	config.flash_incr_mode = H5C_flash_incr__off;
-	TRY( H5Pset_mdc_config( fapl_id, &config ) );
+	TRY( H5Pset_mdc_config( f->access_prop, &config ) );
 
 	return H5_SUCCESS;
 }

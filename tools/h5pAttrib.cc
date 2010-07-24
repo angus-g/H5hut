@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <cctype>
 #include <string.h>
-#include <hdf5.h>
-#include "H5Part.h"
+
+#include "H5hut.h"
 
 #define MAX_LEN 100
 
@@ -17,11 +17,11 @@
 int get_option(int argc, const char **argv, const char *opts, const struct long_options *l_opts);
 static void print_help();
 static void free_handler(struct arg_handler *hand, int len);
-static void print_all(H5PartFile* file);
-static void print_nstep(H5PartFile* file, char * garbage);
-static void print_file_attributes(H5PartFile* file, char * garbage);
-static void print_step_attributes(H5PartFile* file, char *attr);
-static void print_dataset(H5PartFile* file, char *attr);
+static void print_all(h5_file_t* file);
+static void print_nstep(h5_file_t* file, char * garbage);
+static void print_file_attributes(h5_file_t* file, char * garbage);
+static void print_step_attributes(h5_file_t* file, char *attr);
+static void print_dataset(h5_file_t* file, char *attr);
 static struct arg_handler* function_assign(int argc, const char *argv[]);
 
 /* Global variables */
@@ -66,7 +66,7 @@ static struct long_options l_opts[] =
 
 /* a structure for handling the order command-line parameters come in */
 struct arg_handler {
-    void (*func)(H5PartFile *, char *);
+    void (*func)(h5_file_t *, char *);
     char *obj;
 };
 
@@ -335,27 +335,27 @@ static void print_help()
 }
 
 /* For priting everything (default option when no flags provided.) */
-static void print_all(H5PartFile* file)
+static void print_all(h5_file_t* file)
 {
    int nt;
 
    char file_attrib[MAX_LEN];
-   h5part_int64_t type;
-   h5part_int64_t num_elem;
-   h5part_int64_t num_attrib;
+   h5_int64_t type;
+   h5_int64_t num_elem;
+   h5_int64_t num_attrib;
    char step_attrib[MAX_LEN];
-   h5part_int64_t i, j, k;
-   h5part_int64_t count;
+   h5_int64_t i, j, k;
+   h5_int64_t count;
    void* value = NULL;
-   h5part_int64_t timestep_ctr;
+   h5_int64_t timestep_ctr;
 
    char data_name[MAX_LEN];
-   h5part_int64_t num_dataset;
-   h5part_int64_t nparticles;
+   h5_int64_t num_dataset;
+   h5_int64_t nparticles;
 
    fprintf(stdout, "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
    fprintf(stdout, "\n");
-   nt=H5PartGetNumSteps(file);
+   nt=H5GetNumSteps(file);
    fprintf(stdout, "There are total %d number of timesteps.\n",nt);
 
    fprintf(stdout, "\nDump result for \"%s\"...\n\n", global_fname);
@@ -364,25 +364,33 @@ static void print_all(H5PartFile* file)
 
    if(print_header)
    {
-      num_attrib = H5PartGetNumFileAttribs(file);
+      num_attrib = H5GetNumFileAttribs(file);
 
       for(i=0; i<num_attrib; i++)
       {
-         H5PartGetFileAttribInfo(file, i, file_attrib, MAX_LEN, &type, &num_elem);
+         H5GetFileAttribInfo(file, i, file_attrib, MAX_LEN, &type, &num_elem);
          fprintf(stdout, "\tAttribute #%lld = %s\n",(long long)i,file_attrib);
          fprintf(stdout, "\tThere are %lld elements in the attribute\n",(long long)num_elem);
 
-         if (type == H5T_NATIVE_INT64)
+         if (type == H5_INT64_T)
          {
-            fprintf(stdout, "\tAttribute Type: H5T_NATIVE_INT64\n");
+            fprintf(stdout, "\tAttribute Type: H5_INT64_T\n");
          }
-         else if (type == H5T_NATIVE_CHAR)
+         else if (type == H5_INT32_T)
          {
-            fprintf(stdout, "\tAttribute Type: H5T_NATIVE_CHAR\n");
+            fprintf(stdout, "\tAttribute Type: H5_INT32_T\n");
          }
-         else if (type == H5T_NATIVE_DOUBLE)
+         else if (type == H5_FLOAT64_T)
          {
-            fprintf(stdout, "\tAttribute Type: H5T_NATIVE_DOUBLE\n");
+            fprintf(stdout, "\tAttribute Type: H5_FLOAT64_T\n");
+         }
+         else if (type == H5_FLOAT32_T)
+         {
+            fprintf(stdout, "\tAttribute Type: H5_FLOAT32_T\n");
+         }
+         else if (type == H5_STRING_T)
+         {
+            fprintf(stdout, "\tAttribute Type: H5_STRING_T\n");
          }
          else
          {
@@ -396,18 +404,18 @@ static void print_all(H5PartFile* file)
    }
    else
    {
-      num_attrib = H5PartGetNumFileAttribs(file);
+      num_attrib = H5GetNumFileAttribs(file);
 
       for(i=0; i<num_attrib; i++)
       {
-         H5PartGetFileAttribInfo(file, i, file_attrib, MAX_LEN, &type, &num_elem);
+         H5GetFileAttribInfo(file, i, file_attrib, MAX_LEN, &type, &num_elem);
          fprintf(stdout, "\tAttribute #%lld = %s\n",(long long)i,file_attrib);
          fprintf(stdout, "\tThere are %lld elements in the attribute\n",(long long)num_elem);
 
          if (type == H5T_NATIVE_INT64)
          {
-            value = (h5part_int64_t*)malloc(sizeof(h5part_int64_t)*num_elem);
-            H5PartReadFileAttrib(file, file_attrib, (h5part_int64_t*)value);
+            value = (h5_int64_t*)malloc(sizeof(h5_int64_t)*num_elem);
+            H5PartReadFileAttrib(file, file_attrib, (h5_int64_t*)value);
 
             fprintf(stdout, "\tAttribute Type: H5T_NATIVE_INT64\n");
 
@@ -546,8 +554,8 @@ static void print_all(H5PartFile* file)
 
              if (type == H5T_NATIVE_INT64)
              {
-                value = (long long int*)malloc(sizeof(h5part_int64_t)*num_elem);
-                H5PartReadStepAttrib(file, step_attrib, (h5part_int64_t*)value);
+                value = (long long int*)malloc(sizeof(h5_int64_t)*num_elem);
+                H5PartReadStepAttrib(file, step_attrib, (h5_int64_t*)value);
 
                 fprintf(stdout, "\tAttribute Type: H5T_NATIVE_INT64\n");
 
@@ -675,8 +683,8 @@ static void print_all(H5PartFile* file)
 
             if (type == H5T_NATIVE_INT64)
             {
-               value = (h5part_int64_t*)malloc(sizeof(h5part_int64_t)*nparticles);
-               H5PartReadDataInt64(file, data_name, (h5part_int64_t*)value);
+               value = (h5_int64_t*)malloc(sizeof(h5_int64_t)*nparticles);
+               H5PartReadDataInt64(file, data_name, (h5_int64_t*)value);
                fprintf(stdout, "\tDataset Type: H5T_NATIVE_INT64\n");
                fprintf(stdout, "\tPrinting %lld element value(s):\n", (long long)nparticles);
 
@@ -745,7 +753,7 @@ static void print_all(H5PartFile* file)
 }
 
 /* For printing number of timesteps in the file */
-static void print_nstep(H5PartFile* file, char * garbage)
+static void print_nstep(h5_file_t* file, char * garbage)
 {
     int nt;
 
@@ -758,14 +766,14 @@ static void print_nstep(H5PartFile* file, char * garbage)
 }
 
 /* For printing file attributes */
-static void print_file_attributes(H5PartFile* file, char * garbage)
+static void print_file_attributes(h5_file_t* file, char * garbage)
 {
     char file_attrib[MAX_LEN];
-    h5part_int64_t type;
-    h5part_int64_t num_elem;
-    h5part_int64_t num_attrib;
-    h5part_int64_t i, j, k;
-    h5part_int64_t count;
+    h5_int64_t type;
+    h5_int64_t num_elem;
+    h5_int64_t num_attrib;
+    h5_int64_t i, j, k;
+    h5_int64_t count;
     void* value = NULL;
 
     if(print_header)
@@ -820,8 +828,8 @@ static void print_file_attributes(H5PartFile* file, char * garbage)
 
           if (type == H5T_NATIVE_INT64)
           {
-             value = (h5part_int64_t*)malloc(sizeof(h5part_int64_t)*num_elem);
-             H5PartReadFileAttrib(file, file_attrib, (h5part_int64_t*)value);
+             value = (h5_int64_t*)malloc(sizeof(h5_int64_t)*num_elem);
+             H5PartReadFileAttrib(file, file_attrib, (h5_int64_t*)value);
 
              fprintf(stdout, "Attribute Type: H5T_NATIVE_INT64\n");
 
@@ -914,14 +922,14 @@ static void print_file_attributes(H5PartFile* file, char * garbage)
 }
 
 /* For printing step attribute names [& values] */
-static void print_step_attributes(H5PartFile* file, char *attr)
+static void print_step_attributes(h5_file_t* file, char *attr)
 {
     char step_attrib[MAX_LEN];
-    h5part_int64_t type;
-    h5part_int64_t num_elem;
-    h5part_int64_t num_attrib;
-    h5part_int64_t i, j, k;
-    h5part_int64_t count;
+    h5_int64_t type;
+    h5_int64_t num_elem;
+    h5_int64_t num_attrib;
+    h5_int64_t i, j, k;
+    h5_int64_t count;
     void* value = NULL;
 
     if(print_header)
@@ -960,8 +968,8 @@ static void print_step_attributes(H5PartFile* file, char *attr)
 
           if (type == H5T_NATIVE_INT64)
           {
-             value = (h5part_int64_t*)malloc(sizeof(h5part_int64_t)*num_elem);
-             H5PartReadStepAttrib(file, step_attrib, (h5part_int64_t*)value);
+             value = (h5_int64_t*)malloc(sizeof(h5_int64_t)*num_elem);
+             H5PartReadStepAttrib(file, step_attrib, (h5_int64_t*)value);
 
              fprintf(stdout, "Attribute Type is H5T_NATIVE_INT64\n");
 
@@ -1054,14 +1062,14 @@ static void print_step_attributes(H5PartFile* file, char *attr)
 }
 
 /* For printing dataset names [& values] */
-static void print_dataset(H5PartFile* file, char *attr)
+static void print_dataset(h5_file_t* file, char *attr)
 {
     char data_name[MAX_LEN];
     int i, j, k;
     long count;
-    h5part_int64_t type;
+    h5_int64_t type;
     int num_dataset;
-    h5part_int64_t nparticles;
+    h5_int64_t nparticles;
     void* value = NULL;
 
 
@@ -1108,7 +1116,7 @@ static void print_dataset(H5PartFile* file, char *attr)
        fprintf(stdout, "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
        fprintf(stdout, "\nPrinting names of datasets for: %s ...\n", global_fname);
        fprintf(stdout, "\n");
-       H5PartSetStep(file,atoi(attr));
+       H5SetStep(file,atoi(attr));
        num_dataset = H5PartGetNumDatasets(file);
        fprintf(stdout, "The number of datasets for timestep #%d is %d ...\n\n", atoi(attr), num_dataset);
 
@@ -1119,8 +1127,8 @@ static void print_dataset(H5PartFile* file, char *attr)
 
           if (type == H5T_NATIVE_INT64)
           {
-             value = (h5part_int64_t*)malloc(sizeof(h5part_int64_t)*nparticles);
-             H5PartReadDataInt64(file, data_name, (h5part_int64_t*)value);
+             value = (h5_int64_t*)malloc(sizeof(h5_int64_t)*nparticles);
+             H5PartReadDataInt64(file, data_name, (h5_int64_t*)value);
              fprintf(stdout, "Dataset Type is H5T_NATIVE_INT64\n");
              fprintf(stdout, "Printing %lld element value(s):\n", (long long)nparticles);
 
@@ -1206,7 +1214,7 @@ int main(int argc, const char *argv[])
    /* Numerous variables */
    struct arg_handler   *hand = NULL;
    int                   i;
-   H5PartFile           *h5file = NULL;
+   h5_file_t           *h5file = NULL;
    const char         *fname = NULL;
 
    //h5pAttrib_function_table = &major_function_table;
@@ -1228,7 +1236,7 @@ int main(int argc, const char *argv[])
    /* Process accordingly */
    fname = argv[opt_ind];
    global_fname = fname; // To use in funtions
-   h5file = H5PartOpenFile(fname,H5PART_READ);
+   h5file = H5OpenFile(fname,H5_O_RDONLY,0);
 
    if ( h5file == NULL )
    {
@@ -1253,7 +1261,7 @@ int main(int argc, const char *argv[])
    }
 
    free_handler(hand, argc);
-   H5PartCloseFile(h5file);
+   H5CloseFile(h5file);
    fprintf(stdout,"done\n");
    return 0;
 }

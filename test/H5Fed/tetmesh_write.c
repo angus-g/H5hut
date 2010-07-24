@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "H5Part.h"
-#include "H5Fed.h"
+#include "H5hut.h"
 
 #ifndef PARALLEL_IO
 #ifndef MPI_COMM_WORLD

@@ -2,27 +2,26 @@
 
 OBJEXT=o
 
-LDFLAGS = -L../src/lib @LFLAGS@
+AM_LDFLAGS = -L../src/lib @LFLAGS@
 LIBS = -lH5hutC -lH5hut @LIBS@
 
 INCLUDES = -I../src/include @INCLUDES@
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
-bin_PROGRAMS = @BUILD_TOOLS@
+bin_SCRIPTS = @BUILD_TOOLS@
 
 # Listing of all programs that maybe built. (Has to know statically...)
-EXTRA_PROGRAMS = h5pAttrib h5pToGNUplot # homdynToH5p
+EXTRA_SCRIPTS = h5hutcc
 
 # Extra files that I wish to include in the dist tar ball.
-EXTRA_DIST = h5pAttrib.cc h5pToGNUplot.cc## TO BE TAILORED LATER...
+#EXTRA_DIST = h5pAttrib.cc h5pToGNUplot.cc## TO BE TAILORED LATER...
 
 # Listing of sources
-h5pAttrib_SOURCES = h5pAttrib.cc
+#h5pAttrib_SOURCES = h5pAttrib.cc
 
-h5pToGNUplot_SOURCES = h5pToGNUplot.cc
+#h5pToGNUplot_SOURCES = h5pToGNUplot.cc
 
 #homdynToH5p_SOURCES = homdynToH5p.cc
 
-install-exec-local:
-	@$(INSTALL) h5hutcc $(DESTDIR)$(bindir)/h5hutcc
+clean: clean-am
 

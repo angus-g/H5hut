@@ -3,8 +3,7 @@
 #include <time.h>
 #include <string.h>
 
-#include "H5Part.h"
-#include "H5Fed.h"
+#include "H5hut.h"
 
 const h5_oid_t MESH_TYPE = H5_TETRAHEDRAL_MESH;
 const char* FNAME = "simple_tet.h5";

@@ -1,17 +1,10 @@
-DOXYGROUPS = \
-	h5part__attrib \
-	h5part__errhandle \
-	h5part__openclose \
-	h5part__read \
-	h5part__write \
-	h5block__c__api 
-
 EXTRA_DIST = \
-	Doxyfile doxyfooter
+	Doxyfile \
+        H5.dox
 
 all:
 
-doc:	doxydoc
+doc:
 
 doxydoc:
 	doxygen

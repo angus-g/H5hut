@@ -2,9 +2,6 @@
 
 OBJEXT = o
 
-# PATH SETTING
-HDF5ROOT = @HDF5ROOT@
-
 # COMPILER SETTING
 CXX = @CXX@
 FC = @FC@
@@ -13,30 +10,14 @@ MPICXX = @MPICXX@
 MPICC = @MPICC@
 
 # COMPILER FLAG SETTING
-CFLAGS = @CFLAGS@
-FFLAGS = @FFLAGS@ @MPIINC@
+AM_CFLAGS = @CFLAGS@
+FFLAGS = @FFLAGS@
 
-# LIBRARIES
-SZLIB = @SZLIB@
-HDFLIB = -L$(HDF5ROOT)/lib -lhdf5 -lz $(SZLIB) @LDFLAGS@
-MPILIB = @MPILIB@
-H5LIB = -L${abs_top_builddir}/src/lib -lH5Core -lH5
+AM_LDFLAGS = -L../../src/lib @LDFLAGS@
+LIBS = -lH5hutC -lH5hut @LIBS@
+INCLUDES = -I../../src/include @INCLUDES@
 
-LIBS = ${H5LIB} $(HDFLIB) $(MPILIB) -lm @STDCXX@
-
-# H5Part compiled library location
-# H5PLIB = -L@prefix@/lib
-
-# INCLUDES
-HDFINC = -I$(HDF5ROOT)/include
-MPIINC = @MPIINC@
-H5INC = -I${abs_top_builddir}/src/include
-
-INC = $(HDFINC) $(MPIINC) $(H5INC)
-
-
-# What to build... make install will place these files in the $(prefix)/bin directory.
-bin_PROGRAMS =					\
+noinst_PROGRAMS =				\
 		tetmesh_write			\
 		tetmesh_write2			\
 		tetmesh_read			\
@@ -48,12 +29,6 @@ bin_PROGRAMS =					\
 
 #		map_tet2globalid \
 #		map_triangle2globalid
-
-# Some useful scripts that I wish to place in the $(prefix)/bin directory.
-bin_SCRIPTS =
-
-# Listing of all programs that maybe built. (Has to know statically...)
-EXTRA_PROGRAMS =
 
 # Extra files that I wish to include in the dist tar ball.
 EXTRA_DIST =					\
@@ -70,27 +45,8 @@ EXTRA_DIST =					\
 #		map_triangle2globalid.c \
 #		$(bin_SCRIPTS)
 
-all:	$(bin_PROGRAMS)
+all:	$(noinst_PROGRAMS)
 
-###############################################################################
-% : %.o
-	$(CC) -o $@ $< $(H5LIB) $(LIBS)
-
-%.o : %.c
-	$(CC) $(CFLAGS) $(INC) -g -c $<
-
-%.o : %.f90
-	${FC} $(FFLAGS) -c $(H5INC) $<
-
-###############################################################################
-clean:
-	${RM} -f *~ *.o  ${bin_PROGRAMS}
-
-distclean: clean
-	${RM} -rf .deps
-	${RM} -rf .libs
-	${RM} -f parttest.h5
-	${RM} -rf config.status config.log config.h Makefile
-
-
+clean: clean-am
+	rm -f *.h5
 

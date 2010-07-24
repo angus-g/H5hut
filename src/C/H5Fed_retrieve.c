@@ -107,7 +107,7 @@ H5FedGetVertexCoordByID (
 	h5_float64_t P[3]
 	) {
 	SET_FNAME (f, __func__);
-	return h5t_get_vertrex_coords_by_id (f, vertex_id, P);
+	return h5t_get_vertex_coords_by_id (f, vertex_id, P);
 }
 
 h5_err_t
