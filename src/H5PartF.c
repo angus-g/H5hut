@@ -100,9 +100,6 @@
 #define h5pt_setview_indices F77NAME (					\
 					h5pt_setview_indices_,		\
 					H5PT_SETVIEW_INDICES )
-#define h5pt_setview_empty F77NAME (					\
-					h5pt_setview_empty_,		\
-					H5PT_SETVIEW_EMPTY )
 #define h5pt_resetview F77NAME (					\
 					h5pt_resetview_,		\
 					H5PT_RESETVIEW )
@@ -639,16 +636,6 @@ h5pt_setview_indices (
 	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
 	return H5PartSetViewIndices ( filehandle, indices, *nelem );
-}
-
-h5part_int64_t
-h5pt_setview_empty (
-	const h5part_int64_t *f
-	) {
-
-	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
-
-	return H5PartSetViewEmpty ( filehandle );
 }
 
 h5part_int64_t

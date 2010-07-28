@@ -8,12 +8,15 @@ program H5PartTest
   integer*8 :: file_id, status, npoints, i
   real*8, allocatable :: particles(:)
   integer*8, allocatable :: id(:)
+  real*8 :: r8val
+  integer*8 :: i8val
 
   comm = MPI_COMM_WORLD
   call mpi_init(ierr)
   call mpi_comm_rank(comm, rank, ierr)
 
   ! open the a file for parallel writing
+  file_id = h5pt_set_verbosity_level(5)
   file_id = h5pt_openw_par('test.h5', comm)
 
   ! in the Fortran API, time steps start at 1
@@ -21,6 +24,10 @@ program H5PartTest
 
   ! write an attribute to the file
   status = h5pt_writefileattrib_string(file_id, 'desc', 'This is a test.')
+
+  r8val = 0.5
+  i8val = 1
+  status = h5pt_writefileattrib_r8(file_id, 'double', r8val, i8val)
 
   ! create fake data
   npoints = 99

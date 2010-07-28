@@ -1,3 +1,16 @@
+#### H5PART 1.6.2 ############################################################
+
+Removed H5PartSetViewEmpty
+--------------------------
+
+An empty view can now be selected with:
+H5PartSetNumParticles(file, 0);
+
+Bug Fixes to Attribute Calls in Fortran API
+-------------------------------------------
+
+Fixed a problem where attribute values were reverting to zero.
+
 #### H5PART 1.6.1 ############################################################
 
 Chunking in the H5Part API

@@ -23,7 +23,7 @@ h5pt_writefileattrib_r8 (
 	h5part_int64_t *f,
 	const char *name,
 	const h5part_float64_t *data,
-	const h5part_float64_t *nelem,
+	const h5part_int64_t *nelem,
 	const int l_name
 	) {
 
@@ -39,9 +39,9 @@ h5pt_writefileattrib_r8 (
 }
 
 #if ! defined(F77_NO_UNDERSCORE)
-#define h5pt_writefileattrib_r8 F77NAME ( \
-	h5pt_writefileattrib_r8_, \
-	H5PT_WRITEFILEATTRIB_R8 )
+#define h5pt_readfileattrib_r8 F77NAME ( \
+	h5pt_readfileattrib_r8_, \
+	H5PT_READFILEATTRIB_R8 )
 #endif
 
 h5part_int64_t
@@ -74,7 +74,7 @@ h5pt_writefileattrib_r4 (
 	h5part_int64_t *f,
 	const char *name,
 	const h5part_float32_t *data,
-	const h5part_float32_t *nelem,
+	const h5part_int64_t *nelem,
 	const int l_name
 	) {
 
@@ -90,9 +90,9 @@ h5pt_writefileattrib_r4 (
 }
 
 #if ! defined(F77_NO_UNDERSCORE)
-#define h5pt_writefileattrib_r4 F77NAME ( \
-	h5pt_writefileattrib_r4_, \
-	H5PT_WRITEFILEATTRIB_R4 )
+#define h5pt_readfileattrib_r4 F77NAME ( \
+	h5pt_readfileattrib_r4_, \
+	H5PT_READFILEATTRIB_R4 )
 #endif
 
 h5part_int64_t
@@ -141,9 +141,9 @@ h5pt_writefileattrib_i8 (
 }
 
 #if ! defined(F77_NO_UNDERSCORE)
-#define h5pt_writefileattrib_i8 F77NAME ( \
-	h5pt_writefileattrib_i8_, \
-	H5PT_WRITEFILEATTRIB_I8 )
+#define h5pt_readfileattrib_i8 F77NAME ( \
+	h5pt_readfileattrib_i8_, \
+	H5PT_READFILEATTRIB_I8 )
 #endif
 
 h5part_int64_t
@@ -176,7 +176,7 @@ h5pt_writefileattrib_i4 (
 	h5part_int64_t *f,
 	const char *name,
 	const h5part_int32_t *data,
-	const h5part_int32_t *nelem,
+	const h5part_int64_t *nelem,
 	const int l_name
 	) {
 
@@ -192,9 +192,9 @@ h5pt_writefileattrib_i4 (
 }
 
 #if ! defined(F77_NO_UNDERSCORE)
-#define h5pt_writefileattrib_i4 F77NAME ( \
-	h5pt_writefileattrib_i4_, \
-	H5PT_WRITEFILEATTRIB_I4 )
+#define h5pt_readfileattrib_i4 F77NAME ( \
+	h5pt_readfileattrib_i4_, \
+	H5PT_READFILEATTRIB_I4 )
 #endif
 
 h5part_int64_t
@@ -227,7 +227,7 @@ h5pt_writestepattrib_r8 (
 	h5part_int64_t *f,
 	const char *name,
 	const h5part_float64_t *data,
-	const h5part_float64_t *nelem,
+	const h5part_int64_t *nelem,
 	const int l_name
 	) {
 
@@ -243,9 +243,9 @@ h5pt_writestepattrib_r8 (
 }
 
 #if ! defined(F77_NO_UNDERSCORE)
-#define h5pt_writestepattrib_r8 F77NAME ( \
-	h5pt_writestepattrib_r8_, \
-	H5PT_WRITESTEPATTRIB_R8 )
+#define h5pt_readstepattrib_r8 F77NAME ( \
+	h5pt_readstepattrib_r8_, \
+	H5PT_READSTEPATTRIB_R8 )
 #endif
 
 h5part_int64_t
@@ -278,7 +278,7 @@ h5pt_writestepattrib_r4 (
 	h5part_int64_t *f,
 	const char *name,
 	const h5part_float32_t *data,
-	const h5part_float32_t *nelem,
+	const h5part_int64_t *nelem,
 	const int l_name
 	) {
 
@@ -294,9 +294,9 @@ h5pt_writestepattrib_r4 (
 }
 
 #if ! defined(F77_NO_UNDERSCORE)
-#define h5pt_writestepattrib_r4 F77NAME ( \
-	h5pt_writestepattrib_r4_, \
-	H5PT_WRITESTEPATTRIB_R4 )
+#define h5pt_readstepattrib_r4 F77NAME ( \
+	h5pt_readstepattrib_r4_, \
+	H5PT_READSTEPATTRIB_R4 )
 #endif
 
 h5part_int64_t
@@ -345,9 +345,9 @@ h5pt_writestepattrib_i8 (
 }
 
 #if ! defined(F77_NO_UNDERSCORE)
-#define h5pt_writestepattrib_i8 F77NAME ( \
-	h5pt_writestepattrib_i8_, \
-	H5PT_WRITESTEPATTRIB_I8 )
+#define h5pt_readstepattrib_i8 F77NAME ( \
+	h5pt_readstepattrib_i8_, \
+	H5PT_READSTEPATTRIB_I8 )
 #endif
 
 h5part_int64_t
@@ -380,7 +380,7 @@ h5pt_writestepattrib_i4 (
 	h5part_int64_t *f,
 	const char *name,
 	const h5part_int32_t *data,
-	const h5part_int32_t *nelem,
+	const h5part_int64_t *nelem,
 	const int l_name
 	) {
 
@@ -396,9 +396,9 @@ h5pt_writestepattrib_i4 (
 }
 
 #if ! defined(F77_NO_UNDERSCORE)
-#define h5pt_writestepattrib_i4 F77NAME ( \
-	h5pt_writestepattrib_i4_, \
-	H5PT_WRITESTEPATTRIB_I4 )
+#define h5pt_readstepattrib_i4 F77NAME ( \
+	h5pt_readstepattrib_i4_, \
+	H5PT_READSTEPATTRIB_I4 )
 #endif
 
 h5part_int64_t

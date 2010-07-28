@@ -113,7 +113,7 @@ h5pt_write#LEVELLC#attrib_#TYPE_F90_ABV# (
 	h5part_int64_t *f,
 	const char *name,
 	const h5part_#TYPE_H5P#_t *data,
-	const h5part_#TYPE_H5P#_t *nelem,
+	const h5part_int64_t *nelem,
 	const int l_name
 	) {
 
@@ -143,9 +143,9 @@ END FUNCTION
 
 read_attr_fc = """
 #if ! defined(F77_NO_UNDERSCORE)
-#define h5pt_write#LEVELLC#attrib_#TYPE_F90_ABV# F77NAME ( \\
-	h5pt_write#LEVELLC#attrib_#TYPE_F90_ABV#_, \\
-	H5PT_WRITE#LEVELUC#ATTRIB_#TYPE_F90_ABVC# )
+#define h5pt_read#LEVELLC#attrib_#TYPE_F90_ABV# F77NAME ( \\
+	h5pt_read#LEVELLC#attrib_#TYPE_F90_ABV#_, \\
+	H5PT_READ#LEVELUC#ATTRIB_#TYPE_F90_ABVC# )
 #endif
 
 h5part_int64_t

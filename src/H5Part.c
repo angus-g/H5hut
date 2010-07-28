@@ -199,7 +199,7 @@ _H5Part_open_file (
 		{
 			/* extend the btree size so that metadata pieces are
 		 	* close to the alignment value */
-			if ( align > 0 )
+			if ( align > 16384 )
 			{
 				unsigned int btree_ik = (align - 4096) / 96;
 				unsigned int btree_bytes = 64 + 96*btree_ik;
@@ -1647,9 +1647,9 @@ H5PartWriteStepAttrib (
 	h5part_int64_t herr = _H5Part_write_step_attrib (
 		f,
 		name,
-		(const hid_t)type,
+		(hid_t)type,
 		data,
-		nelem );
+		(hsize_t)nelem );
 	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
@@ -1691,9 +1691,9 @@ H5PartWriteFileAttrib (
 	h5part_int64_t herr = _H5Part_write_file_attrib (
 		f,
 		name,
-		(const hid_t)type,
+		(hid_t)type,
 		data,
-		nelem );
+		(hsize_t)nelem );
 	if ( herr < 0 ) return herr;
 
 	return H5PART_SUCCESS;
@@ -2282,7 +2282,12 @@ _H5Part_get_num_objects_matching_pattern (
 	data.pattern = pattern;
 
 #ifdef H5PART_HAVE_HDF5_18
-	hid_t child_id = H5Gopen( group_id, group_name, H5P_DEFAULT );
+	hid_t child_id = H5Gopen( group_id, group_name
+#ifndef H5_USE_16_API
+		, H5P_DEFAULT
+#endif
+		);
+
 	if ( child_id < 0 ) return child_id;
  	herr = H5Literate( child_id, H5_INDEX_NAME, H5_ITER_INC, 0,
  			_H5Part_iteration_operator2, &data );
@@ -2785,10 +2790,7 @@ _set_view (
 	  end==-1 to mean end of file
 	*/
 	total = (hsize_t) _H5Part_get_num_particles ( f );
-	if ( total < 0 ) {
-		return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( total );
-	}
-	else if ( total == 0 ) {
+	if ( total == 0 ) {
 		/* No datasets have been created yet and no veiws are set.
 		 * We have to leave the view empty because we don't know how
 		 * many particles there should be! */
@@ -2867,10 +2869,7 @@ _set_view_indices (
 	  end==-1 to mean end of file
 	*/
 	total = (hsize_t) _H5Part_get_num_particles ( f );
-	if ( total < 0 ) {
-		return HANDLE_H5PART_GET_NUM_PARTICLES_ERR ( total );
-	}
-	else if ( total == 0 ) {
+	if ( total == 0 ) {
 		/* No datasets have been created yet and no veiws are set.
 		 * We have to leave the view empty because we don't know how
 		 * many particles there should be! */
@@ -3142,7 +3141,7 @@ _read_data (
 	) {
 
 	h5part_int64_t herr;
-	hsize_t ndisk, nread, nmem;
+	hssize_t ndisk, nread, nmem;
 	hid_t dataset_id;
 	hid_t space_id;
 	hid_t memspace_id;
