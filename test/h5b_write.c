@@ -116,14 +116,14 @@ test_write_data32(h5_file_t *file, int step)
 {
 	extern h5_size_t grid[3];
 
-	int i,t;
+	int i,j,k,t;
 	h5_int64_t status, val;
 
 	float *e;
 	float *ex,*ey,*ez;
 	int *id;
 
-	const size_t nelems = NBLOCKX * (NBLOCKY+2) * (NBLOCKZ+4);
+	size_t nelems = NBLOCKX * (NBLOCKY+2) * (NBLOCKZ+4);
 
 	e=(float*)malloc(nelems*sizeof(double));
 	ex=(float*)malloc(nelems*sizeof(double));
@@ -131,17 +131,23 @@ test_write_data32(h5_file_t *file, int step)
 	ez=(float*)malloc(nelems*sizeof(double));
 	id=(int*)malloc(nelems*sizeof(int));
 
+	nelems = NBLOCKX * NBLOCKY * NBLOCKZ;
+
 	TEST("Writing 32-bit data");
 
 	for (t=step; t<step+NTIMESTEPS; t++)
 	{
-		for (i=0; i<nelems; i++)
+		for (k=0; k<NBLOCKZ+4; k++)
+		for (j=0; j<NBLOCKY+2; j++)
+		for (i=0; i<NBLOCKX; i++)
 		{
-			e[i]   = 0.0 + (float)(i+nelems*t);
-			ex[i]  = 0.1 + (float)(i+nelems*t);
-			ey[i]  = 0.2 + (float)(i+nelems*t);
-			ez[i]  = 0.3 + (float)(i+nelems*t);
-			id[i] = i + nelems*t;
+			int idx = i + j*NBLOCKX + k*NBLOCKX*(NBLOCKY+2);
+			int n = i + (j-1)*NBLOCKX + (k-2)*NBLOCKX*NBLOCKY;
+			e[idx]   = 0.0f + (float)(n+nelems*t);
+			ex[idx]  = 0.1f + (float)(n+nelems*t);
+			ey[idx]  = 0.2f + (float)(n+nelems*t);
+			ez[idx]  = 0.3f + (float)(n+nelems*t);
+			id[idx] = n + nelems*t;
 		}
 
 		val = H5HasStep(file, t);

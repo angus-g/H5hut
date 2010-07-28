@@ -8,6 +8,7 @@
 /* global */
 h5_size_t grid[3];
 h5_size_t layout[6];
+h5_size_t fields_dims[3];
 
 /* from write.c */
 void h5b_test_write1(void);

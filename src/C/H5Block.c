@@ -116,12 +116,12 @@ H5Block3dSetView (
 h5_err_t
 H5Block3dGetView (
 	h5_file_t *const f,	/*!< IN: File handle */
-	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
-	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
-	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
-	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
-	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
-	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
+	h5_int64_t *i_start,	/*!< OUT: start index of \c i	*/ 
+	h5_int64_t *i_end,	/*!< OUT: end index of \c i	*/  
+	h5_int64_t *j_start,	/*!< OUT: start index of \c j	*/ 
+	h5_int64_t *j_end,	/*!< OUT: end index of \c j	*/ 
+	h5_int64_t *k_start,	/*!< OUT: start index of \c k	*/ 
+	h5_int64_t *k_end	/*!< OUT: end index of \c k	*/ 
 	) {
 
 	SET_FNAME( f, __func__ );
@@ -139,12 +139,12 @@ H5Block3dGetView (
 h5_err_t
 H5Block3dGetReducedView (
 	h5_file_t *const f,	/*!< IN: File handle */
-	h5_size_t *i_start,	/*!< OUT: start index of \c i */ 
-	h5_size_t *i_end,	/*!< OUT: end index of \c i */  
-	h5_size_t *j_start,	/*!< OUT: start index of \c j */ 
-	h5_size_t *j_end,	/*!< OUT: end index of \c j */ 
-	h5_size_t *k_start,	/*!< OUT: start index of \c j */ 
-	h5_size_t *k_end	/*!< OUT: end index of \c j */ 
+	h5_int64_t *i_start,	/*!< OUT: start index of \c i */ 
+	h5_int64_t *i_end,	/*!< OUT: end index of \c i */  
+	h5_int64_t *j_start,	/*!< OUT: start index of \c j */ 
+	h5_int64_t *j_end,	/*!< OUT: end index of \c j */ 
+	h5_int64_t *k_start,	/*!< OUT: start index of \c j */ 
+	h5_int64_t *k_end	/*!< OUT: end index of \c j */ 
 	) {
 
 	SET_FNAME( f, __func__ );
@@ -184,12 +184,14 @@ h5_err_t
 H5Block3dGetChunk (
 	h5_file_t *const f,		/*!< IN: File handle */
 	const char *field_name, 	/*!< IN: name of dataset */
-	h5_size_t *dims			/*!< OUT: array containing the chunk dimensions */
+	h5_int64_t *i,			/*!< OUT: size of \c i */ 
+	h5_int64_t *j,			/*!< OUT: size of \c j */  
+	h5_int64_t *k			/*!< OUT: size of \c k */ 
 	) {
 
 	SET_FNAME( f, __func__ );
 
-	return h5b_3d_get_chunk(f, field_name, dims);
+	return h5b_3d_get_chunk(f, field_name, i, j, k);
 }
 
 /*!

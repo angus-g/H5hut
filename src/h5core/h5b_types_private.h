@@ -2,12 +2,12 @@
 #define __H5B_TYPES_PRIVATE_H
 
 struct h5b_partition {
-	h5_size_t	i_start;
-	h5_size_t	i_end;
-	h5_size_t	j_start;
-	h5_size_t	j_end;
-	h5_size_t	k_start;
-	h5_size_t	k_end;
+	h5_int64_t	i_start;
+	h5_int64_t	i_end;
+	h5_int64_t	j_start;
+	h5_int64_t	j_end;
+	h5_int64_t	k_start;
+	h5_int64_t	k_end;
 };
 
 struct h5b_fdata {

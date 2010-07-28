@@ -24,7 +24,11 @@ h5_check_filehandle (
 	h5_file_t* const f	/*!< filehandle  to check validity of */
 	) {
 
-	if (f == NULL || f->file < 0 || f->u == NULL || f->b == NULL || f->t == NULL) {
+	if (f == NULL || f->file < 0 || f->u == NULL || f->b == NULL
+#ifndef PARALLEL_IO
+		|| f->t == NULL
+#endif
+		) {
 		return h5_error (
 			f,
 			H5_ERR_BADFD,
@@ -225,7 +229,9 @@ h5priv_open_file (
 
 	TRY( h5upriv_open_file (f) );
 	TRY( h5bpriv_open_file (f) );
+#ifndef PARALLEL_IO
 	TRY( h5tpriv_open_file (f) );
+#endif
 	return H5_SUCCESS;
 }
  
@@ -339,7 +345,9 @@ h5_close_file (
 	TRY( h5priv_close_step (f) );
 	TRY( h5upriv_close_file (f) );
 	TRY( h5bpriv_close_file (f) );
+#ifndef PARALLEL_IO
 	TRY( h5tpriv_close_file (f) );
+#endif
 	TRY( h5priv_close_hdf5_group (f, f->step_gid) );
 	TRY( h5priv_close_hdf5_property (f, f->xfer_prop) );
 	TRY( h5priv_close_hdf5_property (f, f->access_prop) );

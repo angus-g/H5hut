@@ -43,5 +43,5 @@ libH5hutC_a_SOURCES =				\
 	H5Fed_store.c				\
 	H5Fed_tags.c
 
-clean: cleam-am
+clean: clean-am
 

@@ -96,19 +96,11 @@ h5bl_3d_getview (
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
 	h5_set_funcname( filehandle, __func__ );
-        h5_size_t view[6];
 
 	h5_err_t herr = h5b_3d_get_view (
 		filehandle,
-                view+0, view+1, view+2, view+3, view+4, view+5 );
+		i_start, i_end, j_start, j_end, k_start, k_end );
 	if ( herr < 0 ) return herr;
-
-	*i_start = view[0]+1;
-	*i_end   = view[1]+1;
-	*j_start = view[2]+1;
-	*j_end   = view[3]+1;
-	*k_start = view[4]+1;
-	*k_end   = view[5]+1;
 
 	return H5_SUCCESS;
 }
@@ -126,19 +118,11 @@ h5bl_3d_getreducedview (
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
 	h5_set_funcname( filehandle, __func__ );
-        h5_size_t view[6];
 
 	h5_err_t herr = h5b_3d_get_reduced_view (
 		filehandle,
-                view+0, view+1, view+2, view+3, view+4, view+5 );
+		i_start, i_end, j_start, j_end, k_start, k_end );
 	if ( herr < 0 ) return herr;
-
-	*i_start = view[0]+1;
-	*i_end   = view[1]+1;
-	*j_start = view[2]+1;
-	*j_end   = view[3]+1;
-	*k_start = view[4]+1;
-	*k_end   = view[5]+1;
 
 	return H5_SUCCESS;
 }

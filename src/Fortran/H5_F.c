@@ -168,7 +168,7 @@ h5pt_opena_par_align (
        
 	h5_int32_t fbits = H5_O_APPEND | _flagsfor2c ( flags2 );
 
-	h5_file_t* f = H5OpenFile( file_name2, ccomm, fbits, __func__ );
+	h5_file_t* f = h5_open_file( file_name2, ccomm, fbits, __func__ );
 
 	free ( file_name2 );
 	free ( flags2 );

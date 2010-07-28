@@ -56,6 +56,7 @@ test_read_field_attribs(
 static void
 test_read_data64(h5_file_t *file, int step)
 {
+	extern h5_size_t grid[3];
 	extern h5_size_t layout[6];
 
 	int i,t;
@@ -114,9 +115,9 @@ test_read_data64(h5_file_t *file, int step)
 		IVALUE(type[0], type[1], "field type");
 
 		IVALUE(field_rank[0], 3, "field rank");
-		IVALUE(field_dims[0], NBLOCKX, "field dims x");
-		IVALUE(field_dims[1], NBLOCKY, "field dims y");
-		IVALUE(field_dims[2], NBLOCKZ, "field dims z");
+		IVALUE(field_dims[0], grid[0]*NBLOCKX, "field dims x");
+		IVALUE(field_dims[1], grid[1]*NBLOCKY, "field dims y");
+		IVALUE(field_dims[2], grid[2]*NBLOCKZ, "field dims z");
 		if (i==1) {
 			CVALUE(name[0], 'e', "field name");
 			IVALUE(elem_rank[0], 1, "elem rank");
@@ -231,10 +232,10 @@ test_read_data32(h5_file_t *file, int step)
 		int i;
 		for (i=0; i<nelems; i++)
 		{
-			FVALUE(e[i] , 0.0 + (float)(i+nelems*t), " e data");
-			FVALUE(ex[i], 0.1 + (float)(i+nelems*t), " ex data");
-			FVALUE(ey[i], 0.2 + (float)(i+nelems*t), " ey data");
-			FVALUE(ez[i], 0.3 + (float)(i+nelems*t), " ez data");
+			FVALUE(e[i] , 0.0f + (float)(i+nelems*t), " e data");
+			FVALUE(ex[i], 0.1f + (float)(i+nelems*t), " ex data");
+			FVALUE(ey[i], 0.2f + (float)(i+nelems*t), " ey data");
+			FVALUE(ez[i], 0.3f + (float)(i+nelems*t), " ez data");
 			IVALUE(id[i],              (i+nelems*t), " id data");
 		}
 	}

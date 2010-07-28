@@ -523,12 +523,12 @@ h5b_3d_has_view (
 h5_err_t
 h5b_3d_set_view (
 	h5_file_t *const f,		/*!< IN: File handle		*/
-	const h5_size_t i_start,	/*!< IN: start index of \c i	*/ 
-	const h5_size_t i_end,		/*!< IN: end index of \c i	*/  
-	const h5_size_t j_start,	/*!< IN: start index of \c j	*/ 
-	const h5_size_t j_end,		/*!< IN: end index of \c j	*/ 
-	const h5_size_t k_start,	/*!< IN: start index of \c k	*/ 
-	const h5_size_t k_end		/*!< IN: end index of \c k	*/
+	const h5_int64_t i_start,	/*!< IN: start index of \c i	*/ 
+	const h5_int64_t i_end,		/*!< IN: end index of \c i	*/  
+	const h5_int64_t j_start,	/*!< IN: start index of \c j	*/ 
+	const h5_int64_t j_end,		/*!< IN: end index of \c j	*/ 
+	const h5_int64_t k_start,	/*!< IN: start index of \c k	*/ 
+	const h5_int64_t k_end		/*!< IN: end index of \c k	*/
 	) {
 
 	h5b_partition_t *p = f->b->user_layout;
@@ -590,12 +590,12 @@ h5b_3d_set_view (
 h5_err_t
 h5b_3d_get_view (
 	h5_file_t *const f,	/*!< IN: File handle */
-	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
-	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
-	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
-	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
-	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
-	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
+	h5_int64_t *i_start,	/*!< OUT: start index of \c i	*/ 
+	h5_int64_t *i_end,	/*!< OUT: end index of \c i	*/  
+	h5_int64_t *j_start,	/*!< OUT: start index of \c j	*/ 
+	h5_int64_t *j_end,	/*!< OUT: end index of \c j	*/ 
+	h5_int64_t *k_start,	/*!< OUT: start index of \c k	*/ 
+	h5_int64_t *k_end	/*!< OUT: end index of \c k	*/ 
 	) {
 
 	h5b_partition_t *p = f->b->user_layout;
@@ -613,12 +613,12 @@ h5b_3d_get_view (
 h5_err_t
 h5b_3d_get_reduced_view (
 	h5_file_t *const f,	/*!< IN: File handle */
-	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
-	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
-	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
-	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
-	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
-	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
+	h5_int64_t *i_start,	/*!< OUT: start index of \c i	*/ 
+	h5_int64_t *i_end,	/*!< OUT: end index of \c i	*/  
+	h5_int64_t *j_start,	/*!< OUT: start index of \c j	*/ 
+	h5_int64_t *j_end,	/*!< OUT: end index of \c j	*/ 
+	h5_int64_t *k_start,	/*!< OUT: start index of \c k	*/ 
+	h5_int64_t *k_end	/*!< OUT: end index of \c k	*/ 
 	) {
 
 	h5b_partition_t *p = f->b->write_layout;
@@ -636,9 +636,9 @@ h5b_3d_get_reduced_view (
 h5_err_t
 h5b_3d_set_chunk (
 	h5_file_t *const f,		/*!< IN: File handle */
-	const h5_size_t i,		/*!< IN: size of \c i */ 
-	const h5_size_t j,		/*!< IN: size of \c j */  
-	const h5_size_t k		/*!< IN: size of \c k */ 
+	const h5_int64_t i,		/*!< IN: size of \c i */ 
+	const h5_int64_t j,		/*!< IN: size of \c j */  
+	const h5_int64_t k		/*!< IN: size of \c k */ 
 	) {
 
 	if ( i == 0 || j == 0 || k == 0 )
@@ -662,7 +662,9 @@ h5_err_t
 h5b_3d_get_chunk (
 	h5_file_t *const f,		/*!< IN: File handle */
 	const char *field_name, 	/*!< IN: name of dataset */
-	h5_size_t *dims			/*!< OUT: array containing the chunk dimensions */
+	h5_int64_t *i,			/*!< OUT: size of \c i */ 
+	h5_int64_t *j,			/*!< OUT: size of \c j */  
+	h5_int64_t *k			/*!< OUT: size of \c k */ 
 	) {
 
 	CHECK_TIMEGROUP ( f );
@@ -681,15 +683,15 @@ h5b_3d_get_chunk (
 	TRY( h5priv_close_hdf5_property(f, plist_id) );
 	TRY( h5priv_close_hdf5_dataset(f, dataset_id) );
 
-	dims[0] = hdims[2];
-	dims[1] = hdims[1];
-	dims[2] = hdims[0];
+	*i = hdims[2];
+	*j = hdims[1];
+	*k = hdims[0];
 
 	h5_info(f,
 		"Found chunk dimensions (%lld,%lld,%lld)",
-		(long long)dims[0],
-		(long long)dims[1],
-		(long long)dims[2] );
+		(long long)hdims[0],
+		(long long)hdims[1],
+		(long long)hdims[2] );
 
 	return H5_SUCCESS;
 }
@@ -818,20 +820,12 @@ h5b_3d_set_halo (
 
 	h5b_fdata_t *b = f->b;
 
-	b->user_layout->i_start	-= k;
-	b->user_layout->i_end	+= k;
+	b->user_layout->i_start	-= i;
+	b->user_layout->i_end	+= i;
 	b->user_layout->j_start	-= j;
 	b->user_layout->j_end	+= j;
-	b->user_layout->k_start	-= i;
-	b->user_layout->k_end	+= i;
-
-	b->user_layout->i_start = MAX(0, b->user_layout->i_start);
-	b->user_layout->j_start = MAX(0, b->user_layout->j_start);
-	b->user_layout->k_start = MAX(0, b->user_layout->k_start);
-
-	b->user_layout->i_end = MIN(b->i_max, b->user_layout->i_end);
-	b->user_layout->j_end = MIN(b->j_max, b->user_layout->j_end);
-	b->user_layout->k_end = MIN(b->k_max, b->user_layout->k_end);
+	b->user_layout->k_start	-= k;
+	b->user_layout->k_end	+= k;
 
 	return H5_SUCCESS;
 }
