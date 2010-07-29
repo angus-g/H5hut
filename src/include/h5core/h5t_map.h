@@ -9,10 +9,10 @@ h5t_map_global_vertex_index2local (
 
 h5_err_t
 h5t_map_global_vertex_indices2local (
-	h5_file_t *f,
-	const h5_id_t * const global_indices,
+	h5_file_t* f,
+	const h5_id_t* const glb_indices,
 	const h5_id_t size,
-	h5_id_t * const local_indices
+	h5_id_t* const loc_indices
 	);
 
 h5_id_t
@@ -25,6 +25,14 @@ h5_id_t
 h5t_map_global_elem_idx2local (
 	h5_file_t * const f,
 	const h5_id_t global_idx
+	);
+
+h5_id_t
+h5t_map_global_elem_indices2local (
+	h5_file_t * const f,
+	const h5_id_t* glb_indices,
+	const h5_id_t size,
+	h5_id_t* loc_indices
 	);
 
 h5_id_t
