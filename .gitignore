@@ -30,6 +30,7 @@ src/h5core/.deps
 src/h5core/Makefile
 src/h5core/Makefile.in
 src/include/H5hutF.h
+src/lib
 /stamp-h1
 /svn-prop.tmp
 test/.deps
