@@ -75,10 +75,6 @@ struct h5t_retrieve_methods {
 struct h5t_access_methods {
 	h5_generic_elem_t* (*get_loc_elem)(
 		h5_file_t* const, const h5_id_t);
-	h5_id_t (*get_loc_elem_idx)(
-		h5_file_t* const, const h5_id_t);
-	h5_id_t (*set_loc_elem_idx)(
-		h5_file_t* const, const h5_id_t, const h5_id_t);
 	h5_id_t (*get_loc_elem_parent_idx)(
 		h5_file_t* const, const h5_id_t);
 	h5_id_t (*set_loc_elem_parent_idx)(
@@ -117,10 +113,6 @@ struct h5t_access_methods {
 	h5_id_t (*get_glb_elem_child_idx)(
 		h5_file_t* const, const h5_id_t);
 	h5_id_t (*set_glb_elem_child_idx)(
-		h5_file_t* const, const h5_id_t, const h5_id_t);
-	h5_id_t (*get_glb_elem_level_idx)(
-		h5_file_t* const, const h5_id_t);
-	h5_id_t (*set_glb_elem_level_idx)(
 		h5_file_t* const, const h5_id_t, const h5_id_t);
 	h5_id_t* (*get_glb_elem_vertex_indices)(
 		h5_file_t* const, const h5_id_t);
@@ -208,7 +200,7 @@ typedef struct h5t_fdata {
 	h5_vertex_t	*vertices;
 	h5_vertex_data_t *vertices_data;
 	h5_size_t	*num_vertices;
-	h5_idmap_t	map_vertex_g2l;	/* map global id to local id */
+	h5_idmap_t	map_vertex_g2l;	/* map global to local idx */
 	h5_idlist_t	sorted_lvertices;
 	h5_id_t		last_stored_vid;
 	h5_dsinfo_t	dsinfo_vertices;

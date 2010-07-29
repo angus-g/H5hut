@@ -257,7 +257,6 @@ h5t_store_elem (
 
 	/* store elem data (but neighbors) */
 	h5_id_t elem_idx = ++t->last_stored_eid;
-	h5tpriv_set_loc_elem_idx (f, elem_idx, elem_idx);
 	h5tpriv_set_loc_elem_parent_idx (f, elem_idx, parent_idx);
 	h5tpriv_set_loc_elem_child_idx (f, elem_idx, -1);
 	h5tpriv_set_loc_elem_level_idx (f, elem_idx, t->cur_level);

@@ -252,27 +252,27 @@ h5tpriv_sort_local_vertex_indices (
 h5_id_t
 h5t_map_global_vertex_idx2local (
 	h5_file_t* const f,
-	const h5_id_t global_idx
+	const h5_id_t glb_idx
 	) {
-	h5t_fdata_t* t = f->t;
-
-	h5_id_t local_idx = h5priv_search_idmap (&t->map_vertex_g2l, global_idx);
-	if (local_idx < 0) 
-		return h5tpriv_error_global_id_nexist (f, "vertex", global_idx);
-	return local_idx;
+	if (glb_idx < 0) return -1;
+	
+	h5_id_t loc_idx = h5priv_search_idmap (&f->t->map_vertex_g2l, glb_idx);
+	if (loc_idx < 0) 
+		return h5tpriv_error_global_id_nexist (f, "vertex", glb_idx);
+	return loc_idx;
 }
 
 h5_err_t
 h5t_map_global_vertex_indices2local (
 	h5_file_t* const f,
-	const h5_id_t* const global_indices,
+	const h5_id_t* const glb_indices,
 	const h5_id_t size,
-	h5_id_t* const local_indices
+	h5_id_t* const loc_indices
 	) {
-	h5_id_t i;
+	int i;
 	for (i = 0; i < size; i++) {
-		TRY( (local_indices[i] = h5t_map_global_vertex_idx2local (
-				f, global_indices[i])) );
+		TRY( (loc_indices[i] =
+		      h5t_map_global_vertex_idx2local (f, glb_indices[i])) );
 	}
 	return H5_SUCCESS;
 }
@@ -288,13 +288,32 @@ h5t_map_global_vertex_indices2local (
 h5_id_t
 h5t_map_global_elem_idx2local (
 	h5_file_t* const f,
-	const h5_id_t global_idx
+	const h5_id_t glb_idx
 	) {
-	h5t_fdata_t* t = f->t;
-	h5_id_t local_idx = h5priv_search_idmap (&t->map_elem_g2l, global_idx);
-	if (local_idx < 0) 
-		return h5tpriv_error_global_id_nexist (f, "elem", global_idx);
-	return local_idx;
+	if (glb_idx < 0) return -1;
+
+	h5_id_t loc_idx = h5priv_search_idmap (&f->t->map_elem_g2l, glb_idx);
+	if (loc_idx < 0) 
+		return h5tpriv_error_global_id_nexist (f, "elem", glb_idx);
+	return loc_idx;
+}
+
+h5_err_t
+h5t_map_global_elem_indices2local (
+	h5_file_t* const f,
+	const h5_id_t*  glb_indices,
+	const h5_id_t size,
+	h5_id_t* loc_indices
+	) {
+	const h5_id_t*  end = glb_indices+size;
+
+	while (glb_indices < end) {
+		TRY( (*loc_indices =
+		      h5t_map_global_elem_idx2local (f, *glb_indices)) );
+		loc_indices++;
+		glb_indices++;
+	}
+	return H5_SUCCESS;
 }
 
 h5_err_t

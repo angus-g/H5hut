@@ -11,24 +11,6 @@ get_loc_elem (
 }
 
 static h5_id_t
-get_loc_elem_idx (
-	h5_file_t* const f,
-	const h5_id_t elem_idx
-	) {
-	return f->t->loc_elems.tris[elem_idx].idx;
-}
-
-static h5_id_t
-set_loc_elem_idx (
-	h5_file_t* const f,
-	const h5_id_t elem_idx,
-	const h5_id_t idx
-	) {
-	f->t->loc_elems.tris[elem_idx].idx = idx;
-	return idx;
-}
-
-static h5_id_t
 get_loc_elem_parent_idx (
 	h5_file_t* const f,
 	const h5_id_t elem_idx
@@ -202,24 +184,6 @@ set_glb_elem_child_idx (
 	return child_idx;
 }
 
-static h5_id_t
-get_glb_elem_level_idx (
-	h5_file_t* const f,
-	const h5_id_t elem_idx
-	) {
-	return f->t->loc_elems.tris[elem_idx].idx;
-}
-
-static h5_id_t
-set_glb_elem_level_idx (
-	h5_file_t* const f,
-	const h5_id_t elem_idx,
-	const h5_id_t level_idx
-	) {
-	f->t->loc_elems.tris[elem_idx].idx = level_idx;
-	return level_idx;
-}
-
 static h5_id_t*
 get_glb_elem_vertex_indices (
 	h5_file_t* const f,
@@ -278,8 +242,6 @@ set_glb_elem_neighbor_idx (
 
 struct h5t_access_methods h5tpriv_access_trim_methods = {
 	get_loc_elem,
-	get_loc_elem_idx,
-	set_loc_elem_idx,
 	get_loc_elem_parent_idx,
 	set_loc_elem_parent_idx,
 	get_loc_elem_child_idx,
@@ -299,8 +261,6 @@ struct h5t_access_methods h5tpriv_access_trim_methods = {
 	set_glb_elem_parent_idx,
 	get_glb_elem_child_idx,
 	set_glb_elem_child_idx,
-	get_glb_elem_level_idx,
-	set_glb_elem_level_idx,
 	get_glb_elem_vertex_indices,
 	get_glb_elem_vertex_idx,
 	set_glb_elem_vertex_idx,
