@@ -112,7 +112,7 @@ cmp_elems (
 	const h5_id_t elem_idx2
 	) {
 	h5t_fdata_t* t = f->t;
-	int num_vertices = t->ref_elem->num_faces[0];
+	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
 	h5_id_t* indices1 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx1);
 	h5_id_t* indices2 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx2);
 
@@ -136,7 +136,7 @@ cmp_elems1 (
 	h5_id_t elem_idx2
 	) {
 	h5t_fdata_t *t = f->t;
-	int num_vertices = t->ref_elem->num_faces[0];
+	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
 	h5_id_t* indices1 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx1);
 	h5_id_t* indices2 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx2);
 
@@ -184,7 +184,7 @@ qsort_cmp_elems1 (
   binary search. 
 */
 h5_err_t
-h5tpriv_sort_elems (
+h5tpriv_sort_loc_elems (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -281,9 +281,9 @@ h5t_map_global_vertex_indices2local (
   Get local element idx of element given by its global idx.
 
   \param[in]	f		File handle
-  \param[in]	global_idx	Global element id
+  \param[in]	glb_idx		Global element index
 
-  \return	Local element id or error code.
+  \return	Local element index or error code.
 */
 h5_id_t
 h5t_map_global_elem_idx2local (
@@ -316,18 +316,24 @@ h5t_map_global_elem_indices2local (
 	return H5_SUCCESS;
 }
 
+
+/*
+
+ */
 h5_err_t
 h5tpriv_rebuild_global_2_local_map_of_vertices (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
 	if (t->num_levels <= 0) return H5_SUCCESS;
-	h5_id_t local_vid = t->cur_level > 0 ?
-		t->num_vertices[t->cur_level-1] : 0;
-	for (; local_vid < t->num_vertices[t->num_levels-1]; local_vid++) {
-		t->map_vertex_g2l.items[local_vid].global_id =
-			t->vertices[local_vid].global_idx; 
-		t->map_vertex_g2l.items[local_vid].local_id = local_vid;
+
+	h5_loc_idx_t loc_idx = t->cur_level > 0 ? t->num_vertices[t->cur_level-1] : 0;
+	h5_loc_idx_t num_loc_vertices = t->num_vertices[t->num_levels-1];
+	h5_idmap_el_t *item = &t->map_vertex_g2l.items[loc_idx];
+
+	for (; loc_idx < num_loc_vertices; loc_idx++, item++) {
+		item->global_id = t->vertices[loc_idx].idx; 
+		item->local_id = loc_idx;
 		t->map_vertex_g2l.num_items++;
 	}
 	h5priv_sort_idmap (&t->map_vertex_g2l);
@@ -342,13 +348,13 @@ h5tpriv_rebuild_global_2_local_map_of_elems (
 	h5t_fdata_t* t = f->t;
 	if (t->num_levels <= 0) return H5_SUCCESS;
 
-	h5_id_t idx = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
-	h5_id_t num_elems = t->num_elems[t->num_levels-1];
-	h5_idmap_el_t *item = &t->map_elem_g2l.items[idx];
+	h5_id_t loc_idx = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
+	h5_id_t num_loc_elems = t->num_elems[t->num_levels-1];
+	h5_idmap_el_t *item = &t->map_elem_g2l.items[loc_idx];
 
-	for (; idx < num_elems; idx++, item++) {
-		item->global_id = h5tpriv_get_glb_elem_idx (f, idx);
-		item->local_id = idx;
+	for (; loc_idx < num_loc_elems; loc_idx++, item++) {
+		item->global_id = h5tpriv_get_glb_elem_idx (f, loc_idx);
+		item->local_id = loc_idx;
 		t->map_elem_g2l.num_items++;
 	}
 	h5priv_sort_idmap (&t->map_elem_g2l);

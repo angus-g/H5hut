@@ -25,8 +25,8 @@ init_container (
 /*
   Initialize tag container for current mesh and level.
  */
-h5_err_t
-h5tpriv_init_mtagsets (
+static h5_err_t
+init_mtagsets (
 	h5_file_t * const f,
 	size_t ntags
 	) {
@@ -106,8 +106,8 @@ h5tpriv_release_tags (
 
   \return	H5_SUCCESS or error code
 */
-h5_err_t
-h5tpriv_add_mtagset (
+static h5_err_t
+add_mtagset (
 	h5_file_t * const f,
 	char * name,
 	h5_id_t type,
@@ -119,7 +119,7 @@ h5tpriv_add_mtagset (
 	  Initialize data structure for m-tagsets, if not already done.
 	*/
 	if ( t->mtags.names == NULL ) {
-		TRY ( h5tpriv_init_mtagsets ( f, 521 ) );
+		TRY( init_mtagsets (f, 521) );
 	}
 	/*
 	  ToDo: Resize!
@@ -171,7 +171,7 @@ h5t_add_mtagset (
 	char * name,
 	h5_id_t type
 	) {
-	return h5tpriv_add_mtagset ( f, name, type, 0 );
+	return add_mtagset ( f, name, type, 0 );
 }
 
 
@@ -347,8 +347,8 @@ h5t_get_mtagset_info (
 
   \return	H5_SUCCESS or error code
  */
-h5_err_t
-h5tpriv_set_mtag (
+static h5_err_t
+set_mtag (
 	h5_file_t *const f,
 	H5T_Tagset *tagset,
 	const h5_id_t id,
@@ -433,16 +433,17 @@ h5t_set_mtag_by_name (
 	) {
 	H5T_Tagset *tagset;
 	TRY ( h5t_open_mtagset ( f, name, &tagset ) );
-	return h5tpriv_set_mtag ( f, tagset, id, size, val );
+	return set_mtag ( f, tagset, id, size, val );
 }
 
 static h5_err_t
-_get_tag_valp (
-	h5_file_t *const f,
-	const H5T_Tagset *tagset,
+get_tag_valp (
+	h5_file_t* const f,
+	const H5T_Tagset* tagset,
 	const h5_id_t entity_id,
-	h5t_tagval_t **valp
+	h5t_tagval_t** const valp
 	) {
+#pragma unused f
 	h5_id_t el_idx = h5tpriv_get_elem_idx ( entity_id );
 	h5_id_t subentity_id = h5tpriv_get_face_idx ( entity_id );
 	h5_id_t type_id = h5tpriv_get_entity_type ( entity_id );
@@ -458,7 +459,7 @@ _get_tag_valp (
 		return H5_NOK; /* no value set for this subentity */
 	}
 	size_t k = tagselem->idx[i];
-	valp = &tagselem->valp[k];
+	*valp = tagselem->valp[k];
 
 	return H5_SUCCESS;
 }
@@ -479,11 +480,11 @@ h5t_get_tag (
 	h5_file_t *const f,
 	const H5T_Tagset *tagset,
 	const h5_id_t entity_id,
-	size_t *dim,
-	void *vals
+	size_t* const dim,
+	void* const vals
 	) {
 	h5t_tagval_t *tagval;
-	TRY ( _get_tag_valp ( f, tagset, entity_id, &tagval ) );
+	TRY ( get_tag_valp ( f, tagset, entity_id, &tagval ) );
 
 	if ( (*dim > tagval->size) || (vals == NULL) ) {
 		*dim = tagval->size;
@@ -527,8 +528,8 @@ h5t_get_mtag_by_name (
 */
 h5_err_t
 h5t_remove_mtag (
-	h5_file_t *const f,
-	H5T_Tagset *tagset,
+	h5_file_t* const f,
+	H5T_Tagset* tagset,
 	const h5_id_t id
 	) {
 	h5_id_t el_idx = h5tpriv_get_elem_idx ( id );
@@ -586,8 +587,10 @@ h5t_remove_mtag_by_name (
 static hid_t
 open_space_all (
 	h5_file_t * const f,
-	hid_t dataset_id
+	const hid_t dataset_id
 	) {
+#pragma unused f
+#pragma unused dataset_id
 	return H5S_ALL;
 }
 
@@ -860,11 +863,11 @@ read_tagset (
 	  add tagset and set values
 	*/
 	H5T_Tagset* tagset;
-	TRY( h5tpriv_add_mtagset (f, name, type, &tagset) );
+	TRY( add_mtagset (f, name, type, &tagset) );
 	for (ent_idx = 0; ent_idx < num_entities; ent_idx++) {
 		h5t_tag_idx_t *entity = &entities[ent_idx];
 		size_t dim = (entity+1)->idx - entity->idx;
-		TRY( h5tpriv_set_mtag (
+		TRY( set_mtag (
 			     f,
 			     tagset,
 			     entity->eid,
@@ -909,8 +912,8 @@ h5tpriv_read_tag_container (
 
   \return	number of tagsets
  */
-h5_ssize_t
-h5tpriv_get_tagset_names_of_entity (
+static h5_ssize_t
+get_tagset_names_of_entity (
 	h5_file_t * const f,
 	h5t_tagcontainer_t *ctn,
 	h5_id_t entity_id,
@@ -928,7 +931,7 @@ h5tpriv_get_tagset_names_of_entity (
 				  &ctn->sets));
 		H5T_Tagset *tset = (H5T_Tagset*)__retval;
 		h5t_tagval_t *tval;
-		if (_get_tag_valp (f, tset, entity_id, &tval) != H5_SUCCESS) {
+		if (get_tag_valp (f, tset, entity_id, &tval) != H5_SUCCESS) {
 			continue;
 		}
 		if ( (names != NULL) && (_dim <= dim) ) {
@@ -941,11 +944,10 @@ h5tpriv_get_tagset_names_of_entity (
 
 h5_ssize_t
 h5t_get_mtagset_names_of_entity (
-	h5_file_t * const f,
-	h5_id_t entity_id,
+	h5_file_t* const f,
+	const h5_id_t entity_id,
 	char *names[],
-	h5_size_t dim
+	const h5_size_t dim
 	) {
-	return h5tpriv_get_tagset_names_of_entity (
-		     f, &f->t->mtags, entity_id, names, dim);
+	return get_tagset_names_of_entity (f, &f->t->mtags, entity_id, names, dim);
 }

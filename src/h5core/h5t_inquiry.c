@@ -12,23 +12,20 @@
 h5_size_t
 h5t_get_num_meshes (
 	h5_file_t* const f,
-	const enum h5_oid type_id
+	const h5_oid_t type_id
 	) {
-	h5t_fdata_t* t = f->t;
+	hid_t topo_gid;
+	hid_t meshes_gid;
 
-	if (t->num_meshes >= 0) {
-		return t->num_meshes;
-	}
-	if (t->topo_gid < 0) {
-		TRY( h5tpriv_open_topo_group (f) );
-	}
-	TRY( t->num_meshes = h5_get_num_hdf5_groups (f, t->meshes_gid) );
+	TRY( topo_gid = h5priv_open_group (f, f->root_gid, H5T_CONTAINER_GRPNAME) );
+	TRY( meshes_gid = h5priv_open_group (
+		     f, topo_gid, h5tpriv_meshes_grpnames[type_id]) );
 
-	return t->num_meshes;
+	return h5_get_num_hdf5_groups (f, meshes_gid);
 }
 
 /*!
-  Get the number of hierarchical mesh levels.
+  Get the number of hierarchical mesh levels for the current mesh.
 
   \param[in]	f	File handle
 
@@ -78,6 +75,7 @@ h5t_get_num_elems (
 	h5_file_t* const f,
 	const h5_id_t cnode
 	) {
+#pragma unused cnode
 	h5t_fdata_t* t = f->t;
 
 	if (t->cur_mesh < 0) {
@@ -107,6 +105,7 @@ h5t_get_num_vertices (
 	h5_file_t* const f,
 	h5_id_t cnode
 	) {
+#pragma unused cnode
 	h5t_fdata_t* t = f->t;
 
 	if (t->cur_mesh < 0) {

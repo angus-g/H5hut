@@ -25,4 +25,11 @@ h5tpriv_write_mesh (
 extern struct h5t_read_methods h5tpriv_read_trim_methods;
 extern struct h5t_read_methods h5tpriv_read_tetm_methods;
 
+static inline h5_err_t
+h5tpriv_init_loc_elems_struct (
+	h5_file_t* const f
+	) {
+	return (*f->t->methods.read->init_loc_elems_struct) (f);
+}
+
 #endif

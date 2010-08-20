@@ -49,9 +49,11 @@ EXTRA_HEADERS =					\
 	h5t_core_private.h			\
 	h5t_errorhandling_private.h		\
 	h5t_hsearch_private.h			\
+	h5t_inquiry_private.h			\
 	h5t_map_private.h			\
 	h5t_openclose_private.h			\
 	h5t_readwrite_private.h			\
+	h5t_ref_elements_private.h		\
 	h5t_retrieve_private.h			\
 	h5t_store_private.h			\
 	h5t_store_trim_private.h		\
@@ -114,6 +116,11 @@ libH5hut_a_SOURCES =				\
 	h5t_tags.c
 
 libH5hut_a_DEPENDENCIES = $(EXTRA_HEADERS)
+
+all: all-am install-libs-local
+
+install-libs-local:
+	-cp ${lib_LIBRARIES} ../lib
 
 install-exec-local:
 	@$(INSTALL) -d $(DESTDIR)$(includedir)/h5core

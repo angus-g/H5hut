@@ -3,35 +3,6 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
-/*
-  Obsolete function - still in old H5Part code !
-*/
-
-h5_err_t
-h5_write_data (
-	h5_file_t* const f,	/*!< IN: Handle to open file */
-	const char* name,	/*!< IN: Name to associate array with */
-	const void* array,	/*!< IN: Array to commit to disk */
-	const hid_t type_id,	/*!< IN: Type of data */
-	const hid_t group_id,
-	const hid_t memspace_id,
-	const hid_t diskspace_id
-	) {
-	hid_t dset_id;
-
-	h5_info (f, "Writing dataset %s/%s.", h5_get_objname(group_id), name); 
-	TRY( dset_id = h5priv_create_hdf5_dataset (
-		f,
-		group_id,
-		name,
-		type_id,
-		diskspace_id,
-		H5P_DEFAULT) );
-
-	f->empty = 0;
-
-	return H5_SUCCESS;
-}
 
 /*!
   Write data to dataset.

@@ -2,7 +2,7 @@
 #define __H5T_TYPES_PRIVATE_H
 
 typedef struct h5_vertex {
-	h5_id_t		global_idx;
+	h5_id_t		idx;
 	h5_coord3d_t	P;
 } h5_vertex_t;
 
@@ -71,7 +71,6 @@ struct h5t_retrieve_methods {
 	h5_err_t (*init_iterator)(h5_file_t* const, h5t_entity_iterator_t*, const int);
 };
 
-
 struct h5t_access_methods {
 	h5_generic_elem_t* (*get_loc_elem)(
 		h5_file_t* const, const h5_id_t);
@@ -126,7 +125,6 @@ struct h5t_access_methods {
 		h5_file_t* const, const h5_id_t, const h5_id_t);
 	h5_id_t (*set_glb_elem_neighbor_idx)(
 		h5_file_t* const, const h5_id_t, const h5_id_t, const h5_id_t);
-
 };
 
 struct h5t_read_methods {
@@ -136,30 +134,8 @@ struct h5t_read_methods {
 struct h5t_adjacency_methods {
 	h5_err_t (*update_internal_structs)(h5_file_t* const, h5_id_t);
 	h5_err_t (*release_internal_structs)(h5_file_t* const);
-	h5_err_t (*get_edges_upadjacent_to_vertex)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_triangles_upadjacent_to_vertex)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_tets_upadjacent_to_vertex)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_triangles_upadjacent_to_edge)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_tets_upadjacent_to_edge)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_tets_upadjacent_to_triangle)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_vertices_downadjacent_to_edge)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_vertices_downadjacent_to_triangle)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_vertices_downadjacent_to_tet)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_edges_downadjacent_to_triangle)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_edges_downadjacent_to_tet)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
-	h5_err_t (*get_triangles_downadjacent_to_tet)(
-		h5_file_t * const, const h5_id_t, h5_idlist_t**);
+	h5_err_t (*get_adjacencies)(
+		h5_file_t * const, const h5_id_t, const h5_int32_t, h5_idlist_t**);
 };
 
 typedef struct h5t_methods {

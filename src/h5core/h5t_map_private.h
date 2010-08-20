@@ -14,7 +14,7 @@ h5tpriv_sort_vertices (
 	);
 
 h5_err_t
-h5tpriv_sort_elems (
+h5tpriv_sort_loc_elems (
 	h5_file_t * const f
 	);
 

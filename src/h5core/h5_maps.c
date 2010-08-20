@@ -23,6 +23,7 @@ h5priv_free_idlist_items (
 	h5_file_t* const f,
 	h5_idlist_t* list
 	) {
+#pragma unused f
 	if (list->items != NULL) free (list->items);
 	list->items = NULL;
 	list->size = 0;
@@ -106,6 +107,7 @@ h5priv_sort_idlist_by_eid (
 	h5_file_t* const f,
 	h5_idlist_t* list
 	) {
+#pragma unused f
 	qsort (
 		list->items,
 		list->num_items,
@@ -124,6 +126,7 @@ h5priv_find_idlist (
 	h5_idlist_t* list,
 	h5_id_t	item
 	) {
+#pragma unused f
 	register h5_id_t low = 0;
 	register h5_id_t high = list->num_items - 1;
 	while (low <= high) {
@@ -256,8 +259,8 @@ h5priv_search_idmap (
        	return -(low+1);  // not found
 }
 
-int
-_cmp_idmap_items (
+static int
+cmp_idmap_items (
 	const void* _item1,
 	const void* _item2
 	) {
@@ -275,6 +278,6 @@ h5priv_sort_idmap (
 	h5_idmap_t* map
 	) {
 	qsort (	map->items, map->num_items, sizeof (map->items[0]),
-		_cmp_idmap_items);
+		cmp_idmap_items);
 	return H5_SUCCESS;
 }

@@ -12,8 +12,8 @@ init_loc_elems_struct (
 	h5_id_t idx = 0;
 	const h5_id_t num_elems = t->num_elems[t->num_levels-1];
 	h5_id_t level_idx = 0;
-	int num_vertices = t->ref_elem->num_faces[0];
-	int num_edges = t->ref_elem->num_faces[1];
+	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
+	int num_edges = h5tpriv_ref_elem_get_num_edges (t);
 	h5_tet_t* loc_elem = t->loc_elems.tets;
 	h5_tet_t* glb_elem = t->glb_elems.tets;
 

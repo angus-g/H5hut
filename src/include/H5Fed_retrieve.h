@@ -31,13 +31,13 @@ H5FedEndTraverseEntities (
 	h5t_entity_iterator_t* iter
 	);
 h5_err_t
-H5FedGetVertexCoordByIndex (
+H5FedGetVertexCoordsByIndex (
 	h5_file_t* const f,
 	h5_id_t vertex_index,
 	h5_float64_t P[3]
 	);
 h5_err_t
-H5FedGetVertexCoordByID (
+H5FedGetVertexCoordsByID (
 	h5_file_t* const f,
 	h5_id_t vertex_id,
 	h5_float64_t P[3]

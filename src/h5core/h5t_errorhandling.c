@@ -18,7 +18,7 @@ h5tpriv_error_local_elem_nexist (
 	int num_chars_printed = snprintf (s, sizeof(s), "%lld,",
 					  (long long)local_vertex_indices[0]);
 	int i;
-	int num_vertices = t->ref_elem->num_faces[0];
+	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
 	for (i = 1; i < num_vertices; i++) {
 		num_chars_printed += snprintf (
 			s + num_chars_printed, sizeof (s) - num_chars_printed,

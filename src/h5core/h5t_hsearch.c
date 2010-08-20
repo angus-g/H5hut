@@ -244,21 +244,25 @@ h5tpriv_search_td2 (
 			     3*(num_elems-elem_idx),
 			     &a->td_hash));
 	}
-
+	/* search in directory, add if entry doen't already exists */
 	TRY( h5priv_hsearch (
 		     f,
 		     entry,
 		     H5_ENTER,
 		     &__retval,
 		     &a->td_hash) );
-	h5t_td_entry_t *te_entry = (h5t_td_entry_t *)__retval;
+
+	/* search ID in list of IDs for given triangle */
+	h5t_td_entry_t *td_entry = (h5t_td_entry_t *)__retval;
 	TRY( h5priv_search_idlist (
 		     f,
-		     &te_entry->value,
+		     &td_entry->value,
 		     h5tpriv_build_triangle_id (face_idx, elem_idx)) );
-	if (te_entry->value.num_items > 1) {
+	if (td_entry->value.num_items > 1) {
 		TRY( h5priv_free (f, entry) );
 	}
+	*retval = &td_entry->value;
+
 	return H5_SUCCESS;
 }
 

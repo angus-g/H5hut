@@ -39,6 +39,10 @@ typedef __int64			int64_t;
 typedef int64_t			h5_int64_t;
 typedef int32_t			h5_int32_t;
 typedef int64_t			h5_id_t;
+typedef int64_t			h5_glb_idx_t;	// type for a global index
+typedef int64_t			h5_loc_idx_t;	// type for a local index
+typedef int64_t			h5_glb_id_t;	// type for a global ID
+typedef int64_t			h5_loc_id_t;	// type for a local ID
 typedef uint64_t		h5_size_t;	/* size in number of elements */
 typedef int64_t			h5_ssize_t;	/* size in number of elements */
 typedef int64_t			h5_err_t;
@@ -60,12 +64,13 @@ struct h5_file;
 typedef struct h5_file h5_file_t;
 
 typedef h5_err_t (*h5_errorhandler_t)(
-	const struct h5_file * const,
+	const h5_file_t * const,
 	const char*,
 	va_list ap );
 
 #ifndef PARALLEL_IO
 typedef unsigned long		MPI_Comm;
+typedef unsigned long		MPI_Datatype;
 #endif
 
 typedef struct h5_idlist {

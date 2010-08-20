@@ -267,10 +267,9 @@ _select_hyperslab_for_reading (
 }
 
 static h5_err_t
-_read_data (
+read_data (
 	h5_file_t *const f,		/*!< IN: file handle */
-	const char *field_name,		/*!< IN: name of field */
-	const char *data_name,		/*!< IN: name of dataset */
+	const char *dataset_name,	/*!< IN: name of dataset */
 	void *data,			/*!< OUT: ptr to read buffer */
 	const hid_t type      		/*!< IN: data type */
 	) {
@@ -278,7 +277,7 @@ _read_data (
 	hid_t dataset;
 	h5b_fdata_t *b = f->b;
 
-	TRY( dataset = h5priv_open_hdf5_dataset(f, b->field_gid, data_name) );
+	TRY( dataset = h5priv_open_hdf5_dataset(f, b->field_gid, dataset_name) );
 	TRY( _select_hyperslab_for_reading(f, dataset) );
 	TRY( h5priv_read_hdf5_dataset(f,
 		dataset,
@@ -302,7 +301,7 @@ h5b_read_scalar_data (
 	CHECK_TIMEGROUP( f );
 	CHECK_LAYOUT( f );
 	TRY( h5bpriv_open_field_group(f, field_name) );
-	TRY( _read_data(f, field_name, H5_BLOCKNAME_X, data, type) );
+	TRY( read_data(f, H5_BLOCKNAME_X, data, type) );
 	return H5_SUCCESS;
 }
 
@@ -318,9 +317,9 @@ h5b_read_vector3d_data (
 	CHECK_TIMEGROUP( f );
 	CHECK_LAYOUT( f );
 	TRY( h5bpriv_open_field_group(f, field_name) );
-	TRY( _read_data(f, field_name, H5_BLOCKNAME_X, xdata, type) );
-	TRY( _read_data(f, field_name, H5_BLOCKNAME_Y, ydata, type) );
-	TRY( _read_data(f, field_name, H5_BLOCKNAME_Z, zdata, type) );
+	TRY( read_data(f, H5_BLOCKNAME_X, xdata, type) );
+	TRY( read_data(f, H5_BLOCKNAME_Y, ydata, type) );
+	TRY( read_data(f, H5_BLOCKNAME_Z, zdata, type) );
 	return H5_SUCCESS;
 }
 

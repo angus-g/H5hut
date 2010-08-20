@@ -13,7 +13,7 @@ begin_iterate_entities (
 	iter->elem_idx = -1;
 	iter->codim = codim;
 	iter->ref_elem = f->t->ref_elem;
-	switch (iter->ref_elem->dim - codim) {
+	switch (h5tpriv_ref_elem_get_dim (iter) - codim) {
 	case 0: // iterate vertices
 		iter->find = h5tpriv_find_tv2;
 		return h5tpriv_skip_to_next_elem_on_level (f, iter);

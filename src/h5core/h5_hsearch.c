@@ -69,7 +69,7 @@ h5priv_hcreate (
 	) {
 	/* Test for correct arguments.  */
 	if (htab == NULL || htab->table != NULL) {
-		h5_error_internal (f, __FILE__, __func__, __LINE__);
+		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 	/* Change nel to the first prime number not smaller as nel. */
 	nel |= 1;      /* make odd */
@@ -99,7 +99,7 @@ h5priv_hresize (
 	h5_hashtable_t* htab	// hash table to resize
 	) {
 	if (htab == NULL || htab->table == NULL) {
-		h5_error_internal (f, __FILE__, __func__, __LINE__);
+		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 	// create new hash table
 	h5_hashtable_t __htab;
@@ -138,7 +138,7 @@ h5priv_hdestroy (
 	) {
 	/* Test for correct arguments.  */
 	if (htab == NULL) {
-		h5_error_internal (f, __FILE__, __func__, __LINE__);
+		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 
 	/* Free used memory.  */

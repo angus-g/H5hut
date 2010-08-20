@@ -39,6 +39,7 @@ h5priv_free (
 	h5_file_t* const f,
 	void* ptr
 	) {
+#pragma unused f
 	if (ptr) free (ptr);
 	return H5_SUCCESS;
 }
@@ -65,6 +66,7 @@ h5priv_tfind (
 	void* const* rootp,
 	int (*compar) (const void* key1, const void* key2) 
 	) {
+#pragma unused f
 	void* ptr = tfind (key, rootp, compar);
 	if (ptr == NULL) {
 		return (void*)(H5_ERR);

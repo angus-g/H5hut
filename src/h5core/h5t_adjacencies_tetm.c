@@ -19,18 +19,18 @@
 /*
   compute T(V) from current level up to highest levels.
 */
-static h5_err_t
+static inline h5_err_t
 compute_elems_of_vertices (
 	h5_file_t* const f,
-	const h5_id_t from_lvl
+	const h5_id_t level_idx
 	) {
 	h5t_fdata_t* t = f->t;
-	h5_id_t idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
+	h5_id_t idx = (level_idx <= 0) ? 0 : t->num_elems[level_idx-1];
 	h5_tet_t *el = &t->loc_elems.tets[idx];
 	h5_id_t num_elems = t->num_elems[t->num_levels-1];
 	for (;idx < num_elems; idx++, el++) {
 		int face_idx;
-		int num_faces = t->ref_elem->num_faces[0];
+		int num_faces = h5tpriv_ref_elem_get_num_vertices(t);
 		for (face_idx = 0; face_idx < num_faces; face_idx++) {
 			h5_id_t vidx = el->vertex_indices[face_idx];
 			TRY( h5priv_append_to_idlist (
@@ -45,7 +45,7 @@ compute_elems_of_vertices (
 /*
   Compute T(E) from current level up to highest levels.
  */
-static h5_err_t
+static inline h5_err_t
 compute_elems_of_edges (
 	h5_file_t* const f,
 	const h5_id_t from_lvl
@@ -57,7 +57,7 @@ compute_elems_of_edges (
 	TRY( h5tpriv_resize_te_htab (f, 4*(num_elems-elem_idx)) );
 	for (;elem_idx < num_elems; elem_idx++) {
 		int face_idx;
-		int num_faces = t->ref_elem->num_faces[1];
+		int num_faces = h5tpriv_ref_elem_get_num_edges(t);
 		for (face_idx = 0; face_idx < num_faces; face_idx++) {
 			TRY( h5tpriv_search_te2 (
 				     f, face_idx, elem_idx, &retval) );
@@ -66,7 +66,7 @@ compute_elems_of_edges (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
+static inline h5_err_t
 compute_elems_of_triangles (
 	h5_file_t* const f,
 	const h5_id_t from_lvl
@@ -75,10 +75,10 @@ compute_elems_of_triangles (
 	h5_id_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
 	h5_id_t num_elems = t->num_elems[t->num_levels-1];
 	h5_idlist_t *retval = NULL;
-	TRY( h5tpriv_resize_te_htab (f, 4*(num_elems-elem_idx)) );
+	TRY( h5tpriv_resize_td_htab (f, 4*(num_elems-elem_idx)) );
 	for (;elem_idx < num_elems; elem_idx++) {
 		int face_idx;
-		int num_faces = t->ref_elem->num_faces[1];
+		int num_faces = h5tpriv_ref_elem_get_num_edges (t);
 		for (face_idx = 0; face_idx < num_faces; face_idx++) {
 			TRY( h5tpriv_search_td2 (
 				     f, face_idx, elem_idx, &retval) );
@@ -87,7 +87,7 @@ compute_elems_of_triangles (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
+static inline h5_err_t
 compute_children_of_edge (
 	h5_file_t* const f,
 	h5_id_t kid,
@@ -112,7 +112,7 @@ compute_children_of_edge (
 			TRY( h5priv_append_to_idlist (f, children, *edge) );
 		} else {
 			h5_id_t kids[2];
-			TRY( t->methods.store->get_direct_children_of_edge (
+			TRY( h5tpriv_get_direct_children_of_edge (
 				      f,
 				      face_idx,
 				      tet->child_idx,
@@ -127,7 +127,7 @@ compute_children_of_edge (
 /* 
    Compute all sections of an edge.
 */
-static h5_err_t
+static inline h5_err_t
 compute_sections_of_edge (
 	h5_file_t* const f,
 	h5_id_t kid,
@@ -151,7 +151,7 @@ compute_sections_of_edge (
 		if (! h5tpriv_elem_is_on_cur_level (f, tet) == H5_OK) {
 			refined = 1;
 			h5_id_t kids[2];
-			TRY( t->methods.store->get_direct_children_of_edge (
+			TRY( h5tpriv_get_direct_children_of_edge (
 				     f,
 				     face_id,
 				     tet->child_idx,
@@ -197,7 +197,7 @@ compute_sections_of_edge (
   [4,5,7]: 0, 5       [4,6,8]: 2, 4       [5,6,9]: 1, 7       [7,8,9]: 3, 6
 
 */
-static h5_err_t
+static inline h5_err_t
 compute_direct_children_of_triangle (
 	h5_file_t* const f,
 	h5_id_t face_idx,
@@ -210,7 +210,7 @@ compute_direct_children_of_triangle (
 		{{2,0},{2,2},{2,3},{1,7}},
 		{{3,1},{3,2},{3,3},{3,6}}
 	};
-	int num_faces = f->t->ref_elem->num_faces[2];
+	int num_faces = h5tpriv_ref_elem_get_num_triangles (f->t);
 	if ((face_idx < 0) || (face_idx >= num_faces)) {
 		return h5_error_internal (f, __FILE__, __func__, __LINE__); 
 	}
@@ -225,7 +225,7 @@ compute_direct_children_of_triangle (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
+static inline h5_err_t
 compute_children_of_triangle (
 	h5_file_t* const f,
 	h5_id_t did,
@@ -264,7 +264,7 @@ compute_children_of_triangle (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
+static inline h5_err_t
 compute_sections_of_triangle (
 	h5_file_t* const f,
 	h5_id_t did,
@@ -307,8 +307,8 @@ compute_sections_of_triangle (
   map edge ID to unique ID
   if unique ID not in list: add
 */
-static h5_err_t
-_add_edge (
+static inline h5_err_t
+add_edge (
 	h5_file_t* const f,
 	h5_idlist_t* list,
 	h5_id_t face_idx,
@@ -321,8 +321,8 @@ _add_edge (
 }
 
 
-static h5_err_t
-get_edges_upadjacent_to_vertex (
+static inline h5_err_t
+get_edges_uadj_to_vertex (
 	h5_file_t* const f,
 	const h5_id_t vid,
 	h5_idlist_t** list
@@ -343,15 +343,15 @@ get_edges_upadjacent_to_vertex (
 			continue;
 		}
 		int map[4][3] = { {0,2,3}, {0,1,4}, {2,1,5}, {3,4,5} };
-		TRY( _add_edge (f, *list, map[face][0], eid) );
-		TRY( _add_edge (f, *list, map[face][1], eid) );
-		TRY( _add_edge (f, *list, map[face][2], eid) );
+		TRY( add_edge (f, *list, map[face][0], eid) );
+		TRY( add_edge (f, *list, map[face][1], eid) );
+		TRY( add_edge (f, *list, map[face][2], eid) );
 	}
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-_add_triangle (
+static inline h5_err_t
+add_triangle (
 	h5_file_t* const f,
 	h5_idlist_t* list,
 	h5_id_t face,
@@ -364,8 +364,8 @@ _add_triangle (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-get_triangles_upadjacent_to_vertex (
+static inline h5_err_t
+get_triangles_uadj_to_vertex (
 	h5_file_t * const f,
 	const h5_id_t vid,
 	h5_idlist_t **list
@@ -385,15 +385,15 @@ get_triangles_upadjacent_to_vertex (
 			continue;
 		}
 		int map[4][3] = { {1,2,3}, {0,2,3}, {0,1,3}, {0,1,2} };
-		TRY( _add_triangle (f, *list, map[face][0], eid) );
-		TRY( _add_triangle (f, *list, map[face][1], eid) );
-		TRY( _add_triangle (f, *list, map[face][2], eid) );
+		TRY( add_triangle (f, *list, map[face][0], eid) );
+		TRY( add_triangle (f, *list, map[face][1], eid) );
+		TRY( add_triangle (f, *list, map[face][2], eid) );
 	}
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-get_tets_upadjacent_to_vertex (
+static inline h5_err_t
+get_tets_uadj_to_vertex (
 	h5_file_t* const f,
 	const h5_id_t vid,
 	h5_idlist_t** list
@@ -416,8 +416,8 @@ get_tets_upadjacent_to_vertex (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-get_triangles_upadjacent_to_edge (
+static inline h5_err_t
+get_triangles_uadj_to_edge (
 	h5_file_t* const f,
 	const h5_id_t kid,
 	h5_idlist_t** list
@@ -432,16 +432,16 @@ get_triangles_upadjacent_to_edge (
 	for (; edge < end; edge++) {
 		h5_id_t eid = h5tpriv_get_elem_idx (*edge);
 		h5_id_t face_idx = h5tpriv_get_face_idx (*edge);
-		TRY( _add_triangle (f, *list, map[face_idx][0], eid) );
-		TRY( _add_triangle (f, *list, map[face_idx][1], eid) );
+		TRY( add_triangle (f, *list, map[face_idx][0], eid) );
+		TRY( add_triangle (f, *list, map[face_idx][1], eid) );
 	}
 	TRY( h5priv_free_idlist ( f, &children) );
 
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-get_tets_upadjacent_to_edge (
+static inline h5_err_t
+get_tets_uadj_to_edge (
 	h5_file_t* const f,
 	const h5_id_t kid,
 	h5_idlist_t** list
@@ -460,8 +460,8 @@ get_tets_upadjacent_to_edge (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-get_tets_upadjacent_to_triangle (
+static inline h5_err_t
+get_tets_uadj_to_triangle (
 	h5_file_t* const f,
 	const h5_id_t did,
 	h5_idlist_t** list
@@ -480,8 +480,8 @@ get_tets_upadjacent_to_triangle (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-get_vertices_downadjacent_to_edge (
+static inline h5_err_t
+get_vertices_dadj_to_edge (
 	h5_file_t* const f,
 	const h5_id_t kid,
 	h5_idlist_t** list
@@ -505,8 +505,8 @@ get_vertices_downadjacent_to_edge (
 /*
   Compute downward adjacent vertices of all edges of triangle.
  */
-static h5_err_t
-get_vertices_downadjacent_to_triangle (
+static inline h5_err_t
+get_vertices_dadj_to_triangle (
 	h5_file_t* const f,
 	const h5_id_t did,
 	h5_idlist_t** list
@@ -540,8 +540,8 @@ get_vertices_downadjacent_to_triangle (
 /*
   Compute downward adjacent vertices of all edges of tetrahedron.
  */
-static h5_err_t
-get_vertices_downadjacent_to_tet (
+static inline h5_err_t
+get_vertices_dadj_to_tet (
 	h5_file_t* const f,
 	const h5_id_t eid,
 	h5_idlist_t** list
@@ -568,8 +568,8 @@ get_vertices_downadjacent_to_tet (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-get_edges_downadjacent_to_triangle (
+static inline h5_err_t
+get_edges_dadj_to_triangle (
 	h5_file_t* const f,
 	const h5_id_t did,
 	h5_idlist_t** list
@@ -597,8 +597,8 @@ get_edges_downadjacent_to_triangle (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-get_edges_downadjacent_to_tet (
+static inline h5_err_t
+get_edges_dadj_to_tet (
 	h5_file_t* const f,
 	const h5_id_t eid,
 	h5_idlist_t** list
@@ -622,8 +622,8 @@ get_edges_downadjacent_to_tet (
 	return H5_SUCCESS;
 }
 
-static h5_err_t
-get_triangles_downadjacent_to_tet (
+static inline h5_err_t
+get_triangles_dadj_to_tet (
 	h5_file_t* const f,
 	const h5_id_t eid,
 	h5_idlist_t** list
@@ -646,6 +646,117 @@ get_triangles_downadjacent_to_tet (
 	TRY( h5priv_free_idlist (f, &children) );
 	return H5_SUCCESS;
 }
+
+static inline h5_err_t
+dim_error(
+	h5_file_t* const f,
+	const h5_int32_t dim
+	) {
+	return h5_error (
+		f,
+		H5_ERR_INVAL,
+		"Illegal dimension %ld", (long)dim);
+}
+
+static inline h5_err_t
+get_adjacencies_to_vertex (
+	h5_file_t* const f,
+	const h5_id_t entity_id,
+	const h5_int32_t dim,
+	h5_idlist_t** list
+	) {
+	switch (dim) {
+	case 1:
+		return get_edges_uadj_to_vertex(f, entity_id, list);
+	case 2:
+		return get_triangles_uadj_to_vertex(f, entity_id, list);
+	case 3:
+		return get_tets_uadj_to_vertex(f, entity_id, list);
+	default:
+		return dim_error (f, dim);
+	}
+}
+
+static inline h5_err_t
+get_adjacencies_to_edge (
+	h5_file_t* const f,
+	const h5_id_t entity_id,
+	const h5_int32_t dim,
+	h5_idlist_t** list
+	) {
+	switch (dim) {
+	case 0:
+		return get_vertices_dadj_to_edge(f, entity_id, list);
+	case 2:
+		return get_triangles_uadj_to_edge(f, entity_id, list);
+	case 3:
+		return get_tets_uadj_to_edge(f, entity_id, list);
+	default:
+		return dim_error (f, dim);
+	}
+}
+
+static inline h5_err_t
+get_adjacencies_to_triangle (
+	h5_file_t* const f,
+	const h5_id_t entity_id,
+	const h5_int32_t dim,
+	h5_idlist_t** list
+	) {
+	switch (dim) {
+	case 0:
+		return get_vertices_dadj_to_triangle(f, entity_id, list);
+	case 1:
+		return get_edges_dadj_to_triangle(f, entity_id, list);
+	case 3:
+		return get_tets_uadj_to_triangle(f, entity_id, list);
+	default:
+		return dim_error (f, dim);
+	}
+}
+
+static inline h5_err_t
+get_adjacencies_to_tet (
+	h5_file_t* const f,
+	const h5_id_t entity_id,
+	const h5_int32_t dim,
+	h5_idlist_t** list
+	) {
+	switch (dim) {
+	case 0:
+		return get_vertices_dadj_to_tet(f, entity_id, list);
+	case 1:
+		return get_edges_dadj_to_tet(f, entity_id, list);
+	case 2:
+		return get_triangles_dadj_to_tet(f, entity_id, list);
+	default:
+		return dim_error (f, dim);
+	}
+}
+
+static h5_err_t
+get_adjacencies (
+	h5_file_t* const f,
+	const h5_id_t entity_id,
+	const h5_int32_t dim,
+	h5_idlist_t** list
+	) {
+	h5_id_t entity_type = h5tpriv_get_entity_type (entity_id);
+	switch (entity_type) {
+	case H5T_ETYPE_VERTEX:
+		return get_adjacencies_to_vertex (f, entity_id, dim, list);
+	case H5T_ETYPE_EDGE:
+		return get_adjacencies_to_edge (f, entity_id, dim, list);
+	case H5T_ETYPE_TRIANGLE:
+		return get_adjacencies_to_triangle (f, entity_id, dim, list);
+	case H5T_ETYPE_TET:
+		return get_adjacencies_to_tet (f, entity_id, dim, list);
+	default:
+		break;
+	}
+	return h5_error_internal (f, __FILE__, __func__, __LINE__);
+}
+
 
 static h5_err_t
 update_internal_structs (
@@ -671,11 +782,11 @@ update_internal_structs (
 	return H5_SUCCESS;
 }
 
-
 static h5_err_t
 release_internal_structs (
 	h5_file_t * const f
 	) {
+#pragma unused f
 	/* TO BE WRITTEN @@@ */
 	return H5_SUCCESS;
 }
@@ -683,17 +794,6 @@ release_internal_structs (
 struct h5t_adjacency_methods h5tpriv_tetm_adjacency_methods = {
 	update_internal_structs,
 	release_internal_structs,
-	get_edges_upadjacent_to_vertex,
-	get_triangles_upadjacent_to_vertex,
-	get_tets_upadjacent_to_vertex,
-	get_triangles_upadjacent_to_edge,
-	get_tets_upadjacent_to_edge,
-	get_tets_upadjacent_to_triangle,
-	get_vertices_downadjacent_to_edge,
-	get_vertices_downadjacent_to_triangle,
-	get_vertices_downadjacent_to_tet,
-	get_edges_downadjacent_to_triangle,
-	get_edges_downadjacent_to_tet,
-	get_triangles_downadjacent_to_tet
+	get_adjacencies,
 };
 

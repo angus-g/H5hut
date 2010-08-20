@@ -602,6 +602,7 @@ h5priv_get_base_type_name (
 	if (base_type_id == H5_FLOAT64_T)	return "H5_FLOAT64_T";
 	if (base_type_id == H5_STRING_T)	return "H5_STRING_T";
 
+	h5_warn (f, "Unknown base type id %lu", (unsigned long)base_type_id);
 	return "[unknown]";
 }
 
@@ -610,6 +611,7 @@ get_class_type_name (
 	h5_file_t* const f,
 	hid_t base_type_id
 	) {
+#pragma unused f
 	if (base_type_id == H5_COMPOUND_T)	return "H5_COMPOUND_T";
 
 	return "[unknown]";
@@ -1227,7 +1229,7 @@ _iter_op_get_obj_type (
 		herr = H5Lget_val(g_id, name, buf,
 					info->u.val_size, H5P_DEFAULT);
 		if ( herr < 0 )
-			return h5_error(f,
+			return (H5O_type_t)h5_error (f,
 				H5_ERR_HDF5,
 				"Can't get external link for object '%s'!",
 				name);
@@ -1237,7 +1239,7 @@ _iter_op_get_obj_type (
 		herr = H5Lunpack_elink_val(buf, info->u.val_size, 0,
 							&filename, &objname);
 		if ( herr < 0 )
-			return h5_error(f,
+			return (H5O_type_t)h5_error(f,
 				H5_ERR_HDF5,
 				"Can't unpack external link for object '%s'!",
 				name);
@@ -1250,7 +1252,7 @@ _iter_op_get_obj_type (
 
 		hid_t obj_id = H5Oopen(g_id, name, H5P_DEFAULT);
 		if ( obj_id < 0 )
-			return h5_error(f,
+			return (H5O_type_t)h5_error(f,
 				H5_ERR_HDF5,
 				"Can't open external link for object '%s'!",
 				name);
@@ -1261,7 +1263,7 @@ _iter_op_get_obj_type (
 	}
 	
 	if ( herr < 0 )
-		return h5_error(f,
+		return (H5O_type_t)h5_error(f,
 			H5_ERR_HDF5,
 			"Can't query object with name '%s'!", name);
 

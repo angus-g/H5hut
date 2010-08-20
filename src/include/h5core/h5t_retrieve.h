@@ -53,7 +53,7 @@ h5t_get_vertex_coords_by_index (
 	);
 
 h5_err_t
-h5t_get_vertrex_coords_by_id (
+h5t_get_vertex_coords_by_id (
 	h5_file_t* const f,
 	h5_id_t vertex_id,
 	h5_float64_t P[3]

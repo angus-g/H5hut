@@ -6,6 +6,8 @@ open_space_all (
 	h5_file_t* const f,
 	const hid_t dataset_id
 	) {
+#pragma unused f
+#pragma unused dataset_id
 	return H5S_ALL;
 }
 
@@ -25,9 +27,6 @@ write_vertices (
 
 	if (t->num_vertices <= 0) return H5_SUCCESS;  /* ???? */
 
- 	if (t->mesh_gid < 0) {
-		TRY( h5tpriv_open_mesh_group (f) );
-	}
 	t->dsinfo_vertices.dims[0] = t->num_vertices[t->cur_level];
 	TRY( h5priv_write_dataset_by_name (
 		     f,
@@ -54,10 +53,6 @@ write_elems (
 	h5t_fdata_t* t = f->t;
 	
 	if (t->num_elems <= 0) return H5_SUCCESS;
-
-	if (t->mesh_gid < 0) {
-		TRY( h5tpriv_open_mesh_group (f) );
-	}
 
 	TRY( h5priv_write_dataset_by_name (
 		     f,
@@ -129,6 +124,8 @@ open_mem_space_vertices (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
+#pragma unused f
+#pragma unused dataset_id
 	return H5S_ALL;
 }
 
@@ -137,6 +134,8 @@ open_file_space_vertices (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
+#pragma unused f
+#pragma unused dataset_id
 	return H5S_ALL;
 }
 
@@ -147,7 +146,7 @@ read_num_vertices (
 	h5t_fdata_t* t = f->t;
 
  	if (t->mesh_gid < 0) {
-		TRY( h5tpriv_open_mesh_group (f) );
+		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 	ssize_t num_bytes = t->num_levels*sizeof (t->num_vertices[0]);
 	TRY( t->num_vertices = h5priv_alloc (f, t->num_vertices, num_bytes) );
@@ -191,7 +190,7 @@ read_num_elems (
 	h5t_fdata_t* t = f->t;
 
  	if (t->mesh_gid < 0) {
-		TRY( h5tpriv_open_mesh_group (f) );
+		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 	size_t size = t->num_levels * sizeof (t->num_elems[0]);
 	TRY( t->num_elems = h5priv_alloc (f, NULL, size) );
@@ -220,6 +219,8 @@ open_mem_space_elems (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
+#pragma unused f
+#pragma unused dataset_id
 	return H5S_ALL;
 }
 
@@ -228,6 +229,8 @@ open_file_space_elems (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
+#pragma unused f
+#pragma unused dataset_id
 	return H5S_ALL;
 }
 
@@ -239,8 +242,7 @@ read_elems (
 	) {
 	h5t_fdata_t* t = f->t;
 
-	TRY( (*t->methods.store->alloc_elems)(
-		     f, 0, t->num_elems[t->num_levels-1]) );
+	TRY( h5tpriv_alloc_elems(f, 0, t->num_elems[t->num_levels-1]) );
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
@@ -249,9 +251,9 @@ read_elems (
 		     open_file_space_elems,
 		     t->glb_elems.data) );
 
-	TRY( h5tpriv_sort_elems (f) );
+	TRY( h5tpriv_sort_loc_elems (f) );
 	TRY( h5tpriv_rebuild_global_2_local_map_of_elems (f) );
-	TRY( (*f->t->methods.read->init_loc_elems_struct) (f) );
+	TRY( h5tpriv_init_loc_elems_struct (f) );
 
 	return H5_SUCCESS;
 }
@@ -270,15 +272,15 @@ h5tpriv_read_mesh (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
- 	if (f->t->mesh_gid < 0) {
-		TRY( h5tpriv_open_mesh_group (f) );
+ 	if (t->mesh_gid < 0) {
+		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 	TRY( read_num_levels (f) );
 	TRY( read_num_vertices (f) );
 	TRY( read_num_elems (f) );
 	TRY( read_vertices (f) );
 	TRY( read_elems (f) );
-	TRY( (t->methods.adjacency->update_internal_structs)(f, 0) );
+	TRY( h5tpriv_update_adjacency_structs (f, 0) );
 	TRY( read_mtags (f) );
 	t->num_loaded_levels = t->num_levels;
 	return H5_SUCCESS;

@@ -41,9 +41,9 @@ alloc_tets (
 static h5_err_t
 get_direct_children_of_edge (
 	h5_file_t* const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
-	h5_id_t	children[2]
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
+	h5_loc_id_t children[2]
 	) {
 	/*
 	  Please read the note about the offsets in the corresponding file
@@ -56,8 +56,8 @@ get_direct_children_of_edge (
 			   {1,3}, // edge 4
 			   {2,3}  // edge 5
 	};
-	int num_faces = f->t->ref_elem->num_faces[1];
-	if ((face_idx < 0) || ( face_idx >= num_faces)) {
+	h5_loc_idx_t num_faces = h5tpriv_ref_elem_get_num_edges (f->t);
+	if ((face_idx < 0) || (face_idx >= num_faces)) {
 		return h5_error_internal (f, __FILE__, __func__, __LINE__); 
 	}
 	children[0] = h5tpriv_build_edge_id (face_idx, elem_idx+offs[face_idx][0]);
@@ -75,8 +75,8 @@ get_direct_children_of_edge (
 static h5_id_t
 bisect_edge (
 	h5_file_t* const f,
-	const h5_id_t face_idx,
-	const h5_id_t elem_idx
+	const h5_loc_idx_t face_idx,
+	const h5_loc_idx_t elem_idx
 	) {
 	h5t_fdata_t* t = f->t;
 	h5_idlist_t* retval;
@@ -88,17 +88,18 @@ bisect_edge (
 	  check wether one of the found elements has been refined
 	 */
 	size_t i;
-	for ( i = 0; i < retval->num_items; i++ ) {
-		h5_id_t idx = h5tpriv_get_elem_idx ( retval->items[i] );
+	for (i = 0; i < retval->num_items; i++) {
+		h5_id_t idx = h5tpriv_get_elem_idx (retval->items[i]);
 		h5_id_t child_idx = h5tpriv_get_loc_elem_child_idx (f, idx);
-		if ( child_idx >= 0 ) {
+		if (child_idx >= 0) {
 			/*
 			  this element has been refined!
 			  return bisecting point
 			 */
-			h5_id_t	face_id = h5tpriv_get_face_idx (
-				retval->items[i] );
-			h5_id_t kids[2], edge0[2], edge1[2];
+			h5_loc_idx_t face_id = h5tpriv_get_face_idx (
+				retval->items[i]);
+			h5_loc_id_t kids[2];
+			h5_loc_idx_t edge0[2], edge1[2];
 			TRY( get_direct_children_of_edge (
 				     f,
 				     face_id,
@@ -115,17 +116,17 @@ bisect_edge (
 	/*
 	  None of the elements has been refined -> add new vertex.
 	 */
-	h5_id_t indices[2];
+	h5_loc_idx_t indices[2];
 	TRY( h5t_get_vertex_indices_of_edge2 (f, face_idx, elem_idx, indices) );
-	h5_float64_t *P0 = t->vertices[indices[0]].P;
-	h5_float64_t *P1 = t->vertices[indices[1]].P;
+	h5_float64_t* P0 = t->vertices[indices[0]].P;
+	h5_float64_t* P1 = t->vertices[indices[1]].P;
 	h5_float64_t P[3];
 
-	P[0] = ( P0[0] + P1[0] ) / 2.0;
-	P[1] = ( P0[1] + P1[1] ) / 2.0;
-	P[2] = ( P0[2] + P1[2] ) / 2.0;
+	P[0] = (P0[0] + P1[0]) / 2.0;
+	P[1] = (P0[1] + P1[1]) / 2.0;
+	P[2] = (P0[2] + P1[2]) / 2.0;
 
-	return h5t_store_vertex ( f, -1, P );
+	return h5t_store_vertex (f, -1, P);
 }
 
 /*!
@@ -136,11 +137,11 @@ bisect_edge (
 static h5_id_t
 refine_tet (
 	h5_file_t* const f,
-	const h5_id_t elem_idx
+	const h5_loc_idx_t elem_idx
 	) {
 	h5t_fdata_t* t = f->t;
-	h5_id_t vertices[10];
-	h5_id_t elem_idx_of_first_child;
+	h5_loc_idx_t vertices[10];
+	h5_loc_idx_t elem_idx_of_first_child;
 	h5_tet_t* el = &t->loc_elems.tets[elem_idx];
 
 	if ( el->child_idx >= 0 )
@@ -164,7 +165,7 @@ refine_tet (
 	/* 
 	   add new tets
 	*/
-	h5_id_t new_elem[4];
+	h5_loc_idx_t new_elem[4];
 
 	new_elem[0] = vertices[0]; // child 0
 	new_elem[1] = vertices[4];
@@ -214,17 +215,92 @@ refine_tet (
 	new_elem[3] = vertices[9];
 	TRY( h5t_store_elem (f, elem_idx, new_elem) );
 
-	t->glb_elems.tets[elem_idx].child_idx = elem_idx_of_first_child;
+	// t->glb_elems.tets[elem_idx].child_idx = elem_idx_of_first_child;
 	t->loc_elems.tets[elem_idx].child_idx = elem_idx_of_first_child;
 	t->num_elems_on_level[t->cur_level]--;
 
 	return elem_idx_of_first_child;
 }
 
-h5_err_t
-end_store_elems (
-	h5_file_t* f
+static inline h5_loc_idx_t
+compute_neighbor_of_face (
+	h5_file_t* const f,
+	h5_loc_idx_t elem_idx,
+	const h5_loc_idx_t face_idx
 	) {
+
+	h5t_fdata_t * const t = f->t;
+	h5_idlist_t* td;
+	h5_loc_idx_t neighbor_idx = -2;
+
+	do {
+		TRY( h5tpriv_find_td2 (
+			     f,
+			     face_idx,
+			     elem_idx,
+			     &td) );
+		if (td == NULL) {
+			return h5_error_internal (
+				f, __FILE__, __func__, __LINE__);
+		}
+		if (td->num_items == 1) {
+			// neighbor is coarser or face is on the border
+			elem_idx = t->loc_elems.tets[elem_idx].parent_idx;
+			if (elem_idx == -1) {
+				// we are on the level of the macro grid
+				neighbor_idx = -1;
+			}
+		} else if (td->num_items == 2) {
+			// neighbor has same level of coarsness
+			if (h5tpriv_get_elem_idx(td->items[0]) == elem_idx) {
+				neighbor_idx = h5tpriv_get_elem_idx (td->items[1]);
+			} else {
+				neighbor_idx = h5tpriv_get_elem_idx (td->items[0]);
+			}
+			
+		} else {
+			return h5_error_internal (
+				f, __FILE__, __func__, __LINE__);
+		}
+	} while (neighbor_idx < -1);
+	return neighbor_idx;
+}
+
+/*
+  New level has been added, compute neighbores for new elements.
+ */
+static inline h5_err_t
+compute_neighbors_of_new_elems (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t * const t = f->t;
+	if (t->cur_level < 0) {
+		// or should we consider this as an error?
+		return H5_SUCCESS;
+	}
+	h5_loc_idx_t elem_idx = t->cur_level == 0 ? 0 : t->num_elems[t->cur_level-1];
+	const h5_loc_idx_t last_idx = t->num_elems[t->cur_level] - 1;
+	h5_tet_t *el = &t->loc_elems.tets[elem_idx];
+	while (elem_idx <= last_idx) {
+		h5_loc_idx_t face_idx = 0;
+		for (; face_idx < 4; face_idx++) {
+			el->neighbor_indices[face_idx] = 
+				compute_neighbor_of_face (f, elem_idx, face_idx);
+		}
+		elem_idx++;
+		el++;
+	}
+
+	return H5_SUCCESS;
+}
+
+static h5_err_t
+end_store_elems (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t* const t = f->t;
+	TRY( h5tpriv_update_adjacency_structs (f, t->cur_level) );
+	TRY( compute_neighbors_of_new_elems (f) );
 	return H5_SUCCESS;
 }
 

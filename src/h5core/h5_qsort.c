@@ -38,6 +38,8 @@ static char sccsid[] = "@(#)qsort.c	8.1 (Berkeley) 6/4/93";
 
 #include <stdlib.h>
 
+#include "h5_qsort_private.h"
+
 #ifdef I_AM_QSORT_R
 typedef int		 cmp_t(void *, const void *, const void *);
 #else
@@ -53,10 +55,10 @@ static inline void	 swapfunc(char *, char *, int, int);
  */
 #define swapcode(TYPE, parmi, parmj, n) { 		\
 	long i = (n) / sizeof (TYPE); 			\
-	TYPE *pi = (TYPE *) (parmi); 		\
-	TYPE *pj = (TYPE *) (parmj); 		\
+	TYPE *pi = (TYPE *) (parmi);			\
+	TYPE *pj = (TYPE *) (parmj);			\
 	do { 						\
-		TYPE	t = *pi;		\
+		TYPE	t = *pi;			\
 		*pi++ = *pj;				\
 		*pj++ = t;				\
         } while (--i > 0);				\
@@ -66,10 +68,7 @@ static inline void	 swapfunc(char *, char *, int, int);
 	es % sizeof(long) ? 2 : es == sizeof(long)? 0 : 1;
 
 static inline void
-swapfunc(a, b, n, swaptype)
-	char *a, *b;
-	int n, swaptype;
-{
+swapfunc(char* a, char* b, int n, int swaptype) {
 	if(swaptype <= 1)
 		swapcode(long, a, b, n)
 	else

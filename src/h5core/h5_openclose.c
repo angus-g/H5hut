@@ -45,6 +45,7 @@ h5priv_error_handler (
 	hid_t estack_id,
 	void* __f
 	) {
+#pragma unused __f
 	if (h5_get_debuglevel() >= 5) {
 		H5Eprint (estack_id, stderr);
 	}
@@ -57,6 +58,8 @@ h5priv_error_handler (
   \internal
 
   Initialize unstructured data internal data structure.
+
+  TODO: Move to file "h5u_openclose.c"
 
   \return	H5_SUCCESS or error code
 */
@@ -86,6 +89,8 @@ h5upriv_open_file (
 
   Initialize H5Block internal structure.
 
+  TODO: Move to file "h5b_openclose.c"
+
   \return	H5_SUCCESS or error code
 */
 static h5_err_t
@@ -101,10 +106,11 @@ h5bpriv_open_file (
 	b = f->b;
 	memset (b, 0, sizeof (*b));
 
+#if defined(PARALLEL_IO)
 	size_t n = sizeof (struct h5b_partition) / sizeof (h5_int64_t);
 	TRY( h5priv_mpi_type_contiguous(f,
 			n, MPI_LONG_LONG, &b->partition_mpi_t) );
-
+#endif
 	memset (b->user_layout, 0, sizeof(*b->user_layout));
 	memset (b->write_layout, 0, sizeof(*b->write_layout));
 
@@ -130,13 +136,18 @@ h5bpriv_open_file (
   \return NULL on error.
 */
 
-h5_err_t
-h5priv_open_file (
+static h5_err_t
+open_file (
 	h5_file_t* const f,
 	const char* filename,	/*!< The name of the data file to open. */
-	char flags,		/*!< The access mode for the file. */
+	h5_int32_t flags,	/*!< The access mode for the file. */
 	MPI_Comm comm		/*!< MPI communicator */
 	) {
+
+#if !defined(PARALLEL_IO)
+#pragma unused comm
+#endif
+
 	h5_info (f, "Opening file %s.", filename);
 
 	TRY( h5priv_set_hdf5_errorhandler (f, H5E_DEFAULT, h5priv_error_handler, NULL) );
@@ -255,7 +266,7 @@ h5_open_file (
 	}
 	memset (f, 0, sizeof (h5_file_t));
 	f->__funcname = funcname;
-	if (h5priv_open_file (f, filename, flags, comm) < 0) {
+	if (open_file (f, filename, flags, comm) < 0) {
 		if (f != NULL) {
 			/* Oops, cannot open file. We release the memory allocated for
 			   f only, there is most likely more allocated memory we do
@@ -318,7 +329,9 @@ h5bpriv_close_file (
 	TRY( h5priv_close_hdf5_dataspace (f, b->diskshape) );
 	TRY( h5priv_close_hdf5_dataspace (f, b->memshape) );
 	TRY( h5priv_close_hdf5_property (f, b->dcreate_prop) );
+#if defined(PARALLEL_IO)
 	TRY( h5priv_mpi_type_free (f, &b->partition_mpi_t) );
+#endif
 	free (f->b);
 	f->b = NULL;
 
@@ -401,6 +414,10 @@ h5_get_stepname_fmt (
 	int l_name,			/*!< length of buffer name	*/
 	int* width			/*!< OUT: Width of the number	*/
 	) {
+#pragma unused f
+#pragma unused name
+#pragma unused l_name
+#pragma unused width
 	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
 

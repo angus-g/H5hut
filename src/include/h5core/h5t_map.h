@@ -2,7 +2,7 @@
 #define __H5T_MAP_H
 
 h5_id_t
-h5t_map_global_vertex_index2local (
+h5t_map_global_vertex_idx2local (
 	h5_file_t * const f,
 	h5_id_t global_idx
 	);

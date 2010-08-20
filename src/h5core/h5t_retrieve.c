@@ -68,7 +68,7 @@ h5t_begin_iterate_entities (
 	h5t_entity_iterator_t* iter,
 	const int codim
 	) {
-	return (*f->t->methods.retrieve->init_iterator)(f, iter, codim);
+	return h5tpriv_init_iterator (f, iter, codim);
 }
 
 /*!
@@ -81,8 +81,8 @@ iterate_faces (
 	) {
 	h5_idlist_t* entry;
 	h5_size_t i;
-	int dim = iter->ref_elem->dim - iter->codim;
-	int num_faces = iter->ref_elem->num_faces[dim] - 1;
+	int dim = h5tpriv_ref_elem_get_dim (iter) - iter->codim;
+	int num_faces = h5tpriv_ref_elem_get_num_faces (iter, dim) - 1;
 	do {
 		if (iter->face_idx >= num_faces) {
 			if (h5tpriv_skip_to_next_elem_on_level (f, iter) == H5_NOK) {
@@ -143,6 +143,7 @@ h5t_end_iterate_entities (
 	h5_file_t* const f,
 	h5t_entity_iterator_t* iter
 	) {
+#pragma unused f
 	iter->face_idx = -1;
 	iter->elem_idx = -1;
 	iter->codim = -1;

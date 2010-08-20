@@ -157,6 +157,7 @@ h5_abort_errorhandler (
 #else
 	exit (-(int)f->__errno);
 #endif
+	return -(int)f->__errno; // never executed, just to supress a warning
 }
 
 static void
@@ -167,10 +168,11 @@ _vprintf (
 	const char* fmt,
 	va_list ap
 	) {
-	char *fmt2 = (char*)malloc(
-		strlen (prefix) +
-		strlen (fmt) + 
-		strlen (__funcname) + 16);
+	size_t size = strlen (prefix);	// to avoid remark #981 with Intel CC
+	size += strlen (fmt);
+	size += strlen (__funcname) + 16;
+
+	char *fmt2 = (char*)malloc (size);
 	if (fmt2 == NULL) return;
 	sprintf (fmt2, "%s: %s: %s\n", prefix, __funcname, fmt); 
 	vfprintf (f, fmt2, ap);

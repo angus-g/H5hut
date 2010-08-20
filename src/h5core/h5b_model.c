@@ -45,6 +45,7 @@ _normalize_partition (
 	}
 }
 
+#if defined(PARALLEL)
 /* MLH: this could be improved with an MPI_Reduce and MAX operator...
  * but the user_layout array-of-structs would need to be a struct-of-arrays */
 static void
@@ -72,6 +73,7 @@ _get_max_dimensions (
 			  ||   (p->k_end < q->k_start) )
 
 
+
 /*!
   \ingroup h5block_private
 
@@ -81,8 +83,8 @@ _get_max_dimensions (
 
   \return value != \c 0 if yes otherwise \c 0
 */
-static int
-_have_ghostzone (
+static inline int
+have_ghostzone (
 	const h5b_partition_t *const p,	/*!< IN: partition \c p */
 	const h5b_partition_t *const q	/*!< IN: partition \c q */
 	) {
@@ -98,8 +100,8 @@ _have_ghostzone (
 
   \return volume
 */
-static h5_int64_t
-_volume_of_partition (
+static inline h5_int64_t
+volume_of_partition (
 	const h5b_partition_t *const p	/*!< IN: partition */
 	) {
 	return (p->i_end - p->i_start)
@@ -117,8 +119,8 @@ _volume_of_partition (
 
   \return volume
 */
-static h5_int64_t
-_volume_of_ghostzone (
+static inline h5_int64_t
+volume_of_ghostzone (
 	const h5b_partition_t *const p,	/*!< IN: ptr to first partition */
 	const h5b_partition_t *const q	/*!< IN: ptr to second partition */
 	) {
@@ -248,8 +250,8 @@ _dissolve_ghostzone (
 	p_ = *p;
 	q_ = *q;
 	if ( _dissolve_X_ghostzone ( &p_, &q_ ) == 0 ) {
-		vol = _volume_of_partition ( &p_ ) 
-			+ _volume_of_partition ( &q_ );
+		vol = volume_of_partition ( &p_ ) 
+			+ volume_of_partition ( &q_ );
 		if ( vol > max_vol ) {
 			max_vol = vol;
 			p_best = p_;
@@ -260,8 +262,8 @@ _dissolve_ghostzone (
 	p_ = *p;
 	q_ = *q;
 	if ( _dissolve_Y_ghostzone ( &p_, &q_ ) == 0 ) {
-		vol = _volume_of_partition ( &p_ )
-			+ _volume_of_partition ( &q_ );
+		vol = volume_of_partition ( &p_ )
+			+ volume_of_partition ( &q_ );
 		if ( vol > max_vol ) {
 			max_vol = vol;
 			p_best = p_;
@@ -272,8 +274,8 @@ _dissolve_ghostzone (
 	q_ = *q;
 
 	if ( _dissolve_Z_ghostzone ( &p_, &q_ ) == 0 ) {
-		vol = _volume_of_partition ( &p_ )
-			+ _volume_of_partition ( &q_ );
+		vol = volume_of_partition ( &p_ )
+			+ volume_of_partition ( &q_ );
 		if ( vol > max_vol ) {
 			max_vol = vol;
 			p_best = p_;
@@ -313,7 +315,7 @@ _dissolve_ghostzone (
 
   \return H5_SUCCESS or error code.
 */
-static h5_err_t
+static inline h5_err_t
 _dissolve_ghostzones (
 	h5_file_t *const f,
 	const h5b_partition_t *const user_layout,
@@ -346,12 +348,12 @@ _dissolve_ghostzones (
 			proc_q < f->nprocs;
 			proc_q++, q++ ) {
 
-			if ( _have_ghostzone ( p, q ) ) {
+			if ( have_ghostzone ( p, q ) ) {
 				TRY( p_el = (struct list*)h5priv_alloc(f, NULL, sizeof(*p_el)) );
 
 				p_el->p = p;
 				p_el->q = q;
-				p_el->vol = _volume_of_ghostzone ( p, q );
+				p_el->vol = volume_of_ghostzone ( p, q );
 				p_el->prev = p_end;
 				p_el->next = NULL;
 				
@@ -373,8 +375,8 @@ _dissolve_ghostzones (
 		p_el = p_max = p_begin->next;
 
 		while ( p_el ) {
-			if ( _have_ghostzone ( p_el->p, p_el->q ) ) {
-				p_el->vol = _volume_of_ghostzone ( p_el->p, p_el->q );
+			if ( have_ghostzone ( p_el->p, p_el->q ) ) {
+				p_el->vol = volume_of_ghostzone ( p_el->p, p_el->q );
 				if ( p_el->vol > p_max->vol )
 					p_max = p_el;
 				p_el = p_el->next;
@@ -393,6 +395,7 @@ _dissolve_ghostzones (
 
 	return H5_SUCCESS;
 }
+#endif
 
 h5_err_t
 h5bpriv_release_hyperslab (
@@ -523,12 +526,12 @@ h5b_3d_has_view (
 h5_err_t
 h5b_3d_set_view (
 	h5_file_t *const f,		/*!< IN: File handle		*/
-	const h5_int64_t i_start,	/*!< IN: start index of \c i	*/ 
-	const h5_int64_t i_end,		/*!< IN: end index of \c i	*/  
-	const h5_int64_t j_start,	/*!< IN: start index of \c j	*/ 
-	const h5_int64_t j_end,		/*!< IN: end index of \c j	*/ 
-	const h5_int64_t k_start,	/*!< IN: start index of \c k	*/ 
-	const h5_int64_t k_end		/*!< IN: end index of \c k	*/
+	const h5_size_t i_start,	/*!< IN: start index of \c i	*/ 
+	const h5_size_t i_end,		/*!< IN: end index of \c i	*/  
+	const h5_size_t j_start,	/*!< IN: start index of \c j	*/ 
+	const h5_size_t j_end,		/*!< IN: end index of \c j	*/ 
+	const h5_size_t k_start,	/*!< IN: start index of \c k	*/ 
+	const h5_size_t k_end		/*!< IN: end index of \c k	*/
 	) {
 
 	h5b_partition_t *p = f->b->user_layout;
@@ -589,13 +592,13 @@ h5b_3d_set_view (
 
 h5_err_t
 h5b_3d_get_view (
-	h5_file_t *const f,	/*!< IN: File handle */
-	h5_int64_t *i_start,	/*!< OUT: start index of \c i	*/ 
-	h5_int64_t *i_end,	/*!< OUT: end index of \c i	*/  
-	h5_int64_t *j_start,	/*!< OUT: start index of \c j	*/ 
-	h5_int64_t *j_end,	/*!< OUT: end index of \c j	*/ 
-	h5_int64_t *k_start,	/*!< OUT: start index of \c k	*/ 
-	h5_int64_t *k_end	/*!< OUT: end index of \c k	*/ 
+	h5_file_t *const f,		/*!< IN: File handle */
+	h5_size_t *const i_start,	/*!< OUT: start index of \c i	*/ 
+	h5_size_t *const i_end,		/*!< OUT: end index of \c i	*/  
+	h5_size_t *const j_start,	/*!< OUT: start index of \c j	*/ 
+	h5_size_t *const j_end,		/*!< OUT: end index of \c j	*/ 
+	h5_size_t *const k_start,	/*!< OUT: start index of \c k	*/ 
+	h5_size_t *const k_end		/*!< OUT: end index of \c k	*/ 
 	) {
 
 	h5b_partition_t *p = f->b->user_layout;
@@ -612,13 +615,13 @@ h5b_3d_get_view (
 
 h5_err_t
 h5b_3d_get_reduced_view (
-	h5_file_t *const f,	/*!< IN: File handle */
-	h5_int64_t *i_start,	/*!< OUT: start index of \c i	*/ 
-	h5_int64_t *i_end,	/*!< OUT: end index of \c i	*/  
-	h5_int64_t *j_start,	/*!< OUT: start index of \c j	*/ 
-	h5_int64_t *j_end,	/*!< OUT: end index of \c j	*/ 
-	h5_int64_t *k_start,	/*!< OUT: start index of \c k	*/ 
-	h5_int64_t *k_end	/*!< OUT: end index of \c k	*/ 
+	h5_file_t *const f,		/*!< IN: File handle */
+	h5_size_t *const i_start,	/*!< OUT: start index of \c i	*/ 
+	h5_size_t *const i_end,		/*!< OUT: end index of \c i	*/  
+	h5_size_t *const j_start,	/*!< OUT: start index of \c j	*/ 
+	h5_size_t *const j_end,		/*!< OUT: end index of \c j	*/ 
+	h5_size_t *const k_start,	/*!< OUT: start index of \c k	*/ 
+	h5_size_t *const k_end		/*!< OUT: end index of \c k	*/ 
 	) {
 
 	h5b_partition_t *p = f->b->write_layout;
@@ -636,9 +639,9 @@ h5b_3d_get_reduced_view (
 h5_err_t
 h5b_3d_set_chunk (
 	h5_file_t *const f,		/*!< IN: File handle */
-	const h5_int64_t i,		/*!< IN: size of \c i */ 
-	const h5_int64_t j,		/*!< IN: size of \c j */  
-	const h5_int64_t k		/*!< IN: size of \c k */ 
+	const h5_size_t i,		/*!< IN: size of \c i */ 
+	const h5_size_t j,		/*!< IN: size of \c j */  
+	const h5_size_t k		/*!< IN: size of \c k */ 
 	) {
 
 	if ( i == 0 || j == 0 || k == 0 )
@@ -662,9 +665,9 @@ h5_err_t
 h5b_3d_get_chunk (
 	h5_file_t *const f,		/*!< IN: File handle */
 	const char *field_name, 	/*!< IN: name of dataset */
-	h5_int64_t *i,			/*!< OUT: size of \c i */ 
-	h5_int64_t *j,			/*!< OUT: size of \c j */  
-	h5_int64_t *k			/*!< OUT: size of \c k */ 
+	h5_size_t *const i,		/*!< OUT: size of \c i */ 
+	h5_size_t *const j,		/*!< OUT: size of \c j */  
+	h5_size_t *const k		/*!< OUT: size of \c k */ 
 	) {
 
 	CHECK_TIMEGROUP ( f );
@@ -696,6 +699,7 @@ h5b_3d_get_chunk (
 	return H5_SUCCESS;
 }
 
+#if defined(PARALLEL_IO)
 h5_err_t
 h5b_3d_set_grid (
 	h5_file_t *const f,		/*!< IN: File handle */
@@ -778,7 +782,6 @@ h5b_3d_set_dims (
 			(long long)dims[0], (long long)dims[1], (long long)dims[2],
 			(long long)check_dims[0], (long long)check_dims[1], (long long)check_dims[2]);
 	}
-
 	h5_int64_t coords[3];
 	TRY( h5b_3d_get_grid_coords(f,
 		f->myproc, coords+0, coords+1, coords+2) );
@@ -802,6 +805,7 @@ h5b_3d_set_dims (
 
 	return H5_SUCCESS;
 }
+#endif
 
 h5_err_t
 h5b_3d_set_halo (

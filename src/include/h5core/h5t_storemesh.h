@@ -54,13 +54,33 @@ h5t_begin_refine_elems (
 	);
 
 h5_id_t
-h5t_refine_elem (
-	h5_file_t * const f,
-	const h5_id_t local_eid
+h5t_refine_marked_elems (
+	h5_file_t * const f
 	);
 
 h5_err_t
 h5t_end_refine_elems (
 	h5_file_t * const f
+	);
+
+h5_err_t
+h5t_mark_entity (
+	h5_file_t* const f,
+	const h5_id_t entity_id
+	);
+
+h5_err_t
+h5t_pre_refine (
+	h5_file_t* const f
+	);
+
+h5_err_t
+h5t_refine (
+	h5_file_t* const f
+	);
+
+h5_err_t
+h5t_post_refine (
+	h5_file_t* const f
 	);
 #endif

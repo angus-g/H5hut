@@ -71,8 +71,8 @@ create_vertex_type (
 		h5priv_insert_hdf5_type (
 			f,
 			dtypes->h5_vertex_t,
-			"global_idx",
-			HOFFSET (struct h5_vertex, global_idx),
+			"idx",
+			HOFFSET (struct h5_vertex, idx),
 			H5_ID_T) );
 	TRY(
 		h5priv_insert_hdf5_type (
@@ -206,9 +206,9 @@ create_tet_type (
 	TRY(
 		h5priv_insert_hdf5_type (
 			f,
-			dtypes->h5_triangle_t,
+			dtypes->h5_tet_t,
 			"neighbor_indices",
-			HOFFSET(struct h5_triangle, neighbor_indices),
+			HOFFSET (struct h5_tetrahedron, neighbor_indices),
 			dtypes->h5_4id_t) );
 
 	return H5_SUCCESS;
@@ -384,6 +384,7 @@ h5_err_t
 h5tpriv_init_step (
 	h5_file_t* const f
 	) {
+#pragma unused f
 	return H5_SUCCESS;
 }
 
@@ -396,7 +397,7 @@ h5_err_t
 h5tpriv_close_step (
 	h5_file_t* const f
 	) {
-
+#pragma unused f
 	return H5_SUCCESS;
 }
 
@@ -413,7 +414,8 @@ h5tpriv_open_topo_group (
 
 h5_err_t
 h5tpriv_open_meshes_group (
-	h5_file_t* const f
+	h5_file_t* const f,
+	const h5_oid_t type_id
 	) {
 	h5t_fdata_t* t = f->t;
 
@@ -423,24 +425,34 @@ h5tpriv_open_meshes_group (
 	TRY( (t->meshes_gid = h5priv_open_group (
 		      f,
 		      t->topo_gid,
-		      h5tpriv_meshes_grpnames[t->mesh_type])) );
+		      h5tpriv_meshes_grpnames[type_id])) );
+	t->mesh_type = type_id;
 
 	return H5_SUCCESS;
 }
 
+/*
+  Open HDF5 group with specific mesh
+*/
+
 h5_err_t
 h5tpriv_open_mesh_group (
-	h5_file_t* const f
+	h5_file_t* const f,
+	const h5_oid_t type_id,
+	const h5_id_t id
 	) {
 	h5t_fdata_t* t = f->t;
 
 	if (t->meshes_gid < 0) {
-		TRY( h5tpriv_open_meshes_group (f) );
+		TRY( h5tpriv_open_meshes_group (f, type_id) );
 	}
+	snprintf (t->mesh_name, sizeof (t->mesh_name), "%lld", (long long)id);
+
 	TRY( (t->mesh_gid = h5priv_open_group (
 		      f,
 		      t->meshes_gid,
 		      t->mesh_name)) );
+	t->cur_mesh = id;
 	return H5_SUCCESS;
 }
 
@@ -451,14 +463,14 @@ h5_err_t
 h5t_open_mesh (
 	h5_file_t* const f,
 	h5_id_t id,
-	const h5_oid_t type
+	const h5_oid_t type_id
 	) {
 	h5t_fdata_t* t = f->t;
 
 	TRY( h5t_close_mesh (f) );
 
 	if (t->num_meshes < 0) {
-		h5_size_t result = h5t_get_num_meshes (f, type);
+		h5_size_t result = h5t_get_num_meshes (f, type_id);
 		t->num_meshes = (result > 0 ? result : 0);
 	}
 	if ((id < -1) || (id >= t->num_meshes)) {
@@ -467,10 +479,7 @@ h5t_open_mesh (
 	if (id == -1) {  /* append new mesh */
 		id = t->num_meshes;
 	}
-	t->mesh_type = type;
-	snprintf (t->mesh_name, sizeof (t->mesh_name), "%lld", (long long)id);
-
-	switch (type) {
+	switch (type_id) {
 	case H5_OID_TETRAHEDRON:
 		t->dsinfo_elems.type_id = t->dtypes.h5_tet_t;
 		t->methods = tet_funcs;
@@ -485,9 +494,7 @@ h5t_open_mesh (
 		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 
-	TRY( h5tpriv_open_mesh_group (f) );
-
-	t->cur_mesh = id;
+	TRY( h5tpriv_open_mesh_group (f, type_id, id) );
 
 	if (id != t->num_meshes) {	/* open existing */
 		TRY( h5tpriv_read_mesh (f) );
@@ -533,9 +540,7 @@ release_memory (
 	h5_file_t* const f
 	) {
 	TRY( h5tpriv_release_tags (f) );
-	if (f->t->methods.adjacency != NULL) {
-		TRY( (*f->t->methods.adjacency->release_internal_structs) (f) );
-	}
+	TRY( h5tpriv_release_adjacency_structs (f) );
 	TRY( release_elems (f) );
 	TRY( release_vertices (f) );
 
@@ -569,7 +574,7 @@ h5t_set_level (
 	t->cur_level = level_id;
 
 	if (level_id >= t->num_loaded_levels) {
-		TRY( (t->methods.adjacency->update_internal_structs)(f, prev_level+1) );
+		TRY( (h5tpriv_update_adjacency_structs)(f, prev_level+1) );
 	}
 	return H5_SUCCESS;
 }

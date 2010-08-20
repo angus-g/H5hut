@@ -28,20 +28,19 @@ h5u_read_data (
 
 	/* default spaces, if not using a view selection */
 	memspace_id = H5S_ALL;
-	TRY ( space_id = h5priv_get_hdf5_dataset_space(f, dataset_id) );
+	TRY( space_id = h5priv_get_hdf5_dataset_space(f, dataset_id) );
 
 	/* get the number of elements on disk for the datset */
 	TRY ( ndisk = h5priv_get_npoints_of_hdf5_dataspace(f, space_id) );
 
-	if ( u->diskshape != H5S_ALL )
-	{
-		TRY ( nread = h5priv_get_npoints_of_hdf5_dataspace(f, u->diskshape) );
+	if (u->diskshape != H5S_ALL) {
+		TRY( nread = h5priv_get_npoints_of_hdf5_dataspace(f, u->diskshape) );
 
 		/* make sure the disk space selected by the view doesn't
 		 * exceed the size of the dataset */
-		if ( nread <= ndisk ) {
+		if (nread <= ndisk) {
 			/* we no longer need the dataset space... */
-			TRY ( h5priv_close_hdf5_dataspace(f, space_id) );
+			TRY( h5priv_close_hdf5_dataspace(f, space_id) );
 			/* ...because it's safe to use the view selection */
 			space_id = f->u->diskshape;
 		} else {
@@ -55,20 +54,18 @@ h5u_read_data (
 					name2, (long long)ndisk, (long long)nread );
 			nread = ndisk;
 		}
-	}
-	else {
+	} else {
 		/* since the view selection is H5S_ALL, we will
 		 * read all available elements in the dataset space */
 		nread = ndisk;
 	}
 
-	if ( u->memshape != H5S_ALL )
-	{
-		TRY ( nread = h5priv_get_npoints_of_hdf5_dataspace(f, u->memshape) );
+	if (u->memshape != H5S_ALL) {
+		TRY( nmem = h5priv_get_npoints_of_hdf5_dataspace(f, u->memshape) );
 
 		/* make sure the memory space selected by the view has
 		 * enough capacity for the read */
-		if ( nmem >= nread ) {
+		if (nmem >= nread) {
 			memspace_id = f->u->memshape;
 		} else {
 			/* the view selection is too small?

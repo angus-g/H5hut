@@ -115,6 +115,7 @@ h5u_set_num_particles (
 	}
 
 #ifndef PARALLEL_IO
+#pragma unused total
 	count = u->nparticles;
 	TRY( u->shape = h5priv_create_hdf5_dataspace(f, 1, &count, NULL) );
 	u->viewstart = 0;
@@ -436,11 +437,13 @@ h5u_get_dataset_info (
 		     dataset_name, len_dataset_name) );
 
 	if ( nelem ) {
-		TRY( *nelem = h5priv_get_npoints_of_hdf5_dataset_by_name (
+		h5_ssize_t nelem_;
+		TRY( nelem_ = h5priv_get_npoints_of_hdf5_dataset_by_name (
 			f,
 			f->step_gid,
 			dataset_name) );
-		if ( *nelem < 0 ) return *nelem;
+		if ( nelem_ < 0 ) return nelem_;
+		*nelem = nelem_;
 	}
 
 	if ( type ) {
