@@ -55,6 +55,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "H5hut.h"
 #include "h5core/h5_core.h"
 
 /********************** defining the layout **********************************/
@@ -116,12 +117,12 @@ H5Block3dSetView (
 h5_err_t
 H5Block3dGetView (
 	h5_file_t *const f,	/*!< IN: File handle */
-	h5_int64_t *i_start,	/*!< OUT: start index of \c i	*/ 
-	h5_int64_t *i_end,	/*!< OUT: end index of \c i	*/  
-	h5_int64_t *j_start,	/*!< OUT: start index of \c j	*/ 
-	h5_int64_t *j_end,	/*!< OUT: end index of \c j	*/ 
-	h5_int64_t *k_start,	/*!< OUT: start index of \c k	*/ 
-	h5_int64_t *k_end	/*!< OUT: end index of \c k	*/ 
+	h5_size_t *i_start,	/*!< OUT: start index of \c i	*/ 
+	h5_size_t *i_end,	/*!< OUT: end index of \c i	*/  
+	h5_size_t *j_start,	/*!< OUT: start index of \c j	*/ 
+	h5_size_t *j_end,	/*!< OUT: end index of \c j	*/ 
+	h5_size_t *k_start,	/*!< OUT: start index of \c k	*/ 
+	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
 	) {
 
 	SET_FNAME( f, __func__ );
@@ -138,13 +139,13 @@ H5Block3dGetView (
 */
 h5_err_t
 H5Block3dGetReducedView (
-	h5_file_t *const f,	/*!< IN: File handle */
-	h5_int64_t *i_start,	/*!< OUT: start index of \c i */ 
-	h5_int64_t *i_end,	/*!< OUT: end index of \c i */  
-	h5_int64_t *j_start,	/*!< OUT: start index of \c j */ 
-	h5_int64_t *j_end,	/*!< OUT: end index of \c j */ 
-	h5_int64_t *k_start,	/*!< OUT: start index of \c j */ 
-	h5_int64_t *k_end	/*!< OUT: end index of \c j */ 
+	h5_file_t *const f,		/*!< IN: File handle */
+	h5_size_t *const i_start,	/*!< OUT: start index of \c i */ 
+	h5_size_t *const i_end,		/*!< OUT: end index of \c i */  
+	h5_size_t *const j_start,	/*!< OUT: start index of \c j */ 
+	h5_size_t *const j_end,		/*!< OUT: end index of \c j */ 
+	h5_size_t *const k_start,	/*!< OUT: start index of \c j */ 
+	h5_size_t *const k_end		/*!< OUT: end index of \c j */ 
 	) {
 
 	SET_FNAME( f, __func__ );
@@ -163,9 +164,9 @@ H5Block3dGetReducedView (
 h5_err_t
 H5Block3dSetChunk (
 	h5_file_t *const f,		/*!< IN: File handle */
-	const h5_int64_t i,		/*!< IN: size of \c i */ 
-	const h5_int64_t j,		/*!< IN: size of \c j */  
-	const h5_int64_t k		/*!< IN: size of \c k */ 
+	const h5_size_t i,		/*!< IN: size of \c i */ 
+	const h5_size_t j,		/*!< IN: size of \c j */  
+	const h5_size_t k		/*!< IN: size of \c k */ 
 	) {
 
 	SET_FNAME( f, __func__ );
@@ -184,9 +185,9 @@ h5_err_t
 H5Block3dGetChunk (
 	h5_file_t *const f,		/*!< IN: File handle */
 	const char *field_name, 	/*!< IN: name of dataset */
-	h5_int64_t *i,			/*!< OUT: size of \c i */ 
-	h5_int64_t *j,			/*!< OUT: size of \c j */  
-	h5_int64_t *k			/*!< OUT: size of \c k */ 
+	h5_size_t *const i,		/*!< OUT: size of \c i */ 
+	h5_size_t *const j,		/*!< OUT: size of \c j */  
+	h5_size_t *const k		/*!< OUT: size of \c k */ 
 	) {
 
 	SET_FNAME( f, __func__ );
@@ -194,6 +195,7 @@ H5Block3dGetChunk (
 	return h5b_3d_get_chunk(f, field_name, i, j, k);
 }
 
+#ifdef PARALLEL_IO
 /*!
   \ingroup h5block_model
 
@@ -266,6 +268,7 @@ H5Block3dSetDims (
 
 	return h5b_3d_set_dims(f, i, j, k);
 }
+#endif
 
 /*!
   \ingroup h5block_model

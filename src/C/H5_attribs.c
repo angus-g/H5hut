@@ -1,7 +1,7 @@
 #include <string.h>
 
 #include "h5core/h5_core.h"
-#include "H5.h"
+#include "H5hut.h"
 
 
 /*** WRITE ***/
