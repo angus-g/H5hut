@@ -14,16 +14,16 @@ static h5_err_t
 print_adjacencies_of_vertex (
 	h5_file_t* const f,
 	h5_id_t local_id,
-	clock_t* t
+	clock_t* time_used
 	) {
 	h5_idlist_t* uadj_edges;
 	h5_idlist_t* uadj_triangles;
 	h5_idlist_t* uadj_tets;
-	clock_t t1 = clock();
-	H5FedGetEdgesUpAdjacentToVertex (f, local_id, &uadj_edges);
-	H5FedGetTrianglesUpAdjacentToVertex (f, local_id, &uadj_triangles);
-	H5FedGetTetsUpAdjacentToVertex (f, local_id, &uadj_tets);
-	*t = clock() - t1;
+	clock_t time_used_before = clock();
+	H5FedGetAdjacencies (f, local_id, 1, &uadj_edges);
+	H5FedGetAdjacencies (f, local_id, 2, &uadj_triangles);
+	H5FedGetAdjacencies (f, local_id, 3, &uadj_tets);
+	*time_used = clock() - time_used_before;
 	int n = uadj_tets->num_items;
 	if (uadj_triangles->num_items > n) n = uadj_triangles->num_items;
 	if (uadj_edges->num_items > n) n = uadj_edges->num_items;
@@ -76,16 +76,16 @@ static h5_err_t
 print_adjacencies_of_edge (
 	h5_file_t* const f,
 	h5_id_t local_id,
-	clock_t* t
+	clock_t* time_used
 	) {
 	h5_idlist_t* dadj_vertices;
 	h5_idlist_t* uadj_triangles;
 	h5_idlist_t* uadj_tets;
-	clock_t t1 = clock();
-	H5FedGetVerticesDownAdjacentToEdge (f, local_id, &dadj_vertices);
-	H5FedGetTrianglesUpAdjacentToEdge (f, local_id, &uadj_triangles);
-	H5FedGetTetsUpAdjacentToEdge (f, local_id, &uadj_tets);
-	*t = clock() - t1;
+	clock_t time_used_before = clock();
+	H5FedGetAdjacencies (f, local_id, 0, &dadj_vertices);
+	H5FedGetAdjacencies (f, local_id, 2, &uadj_triangles);
+	H5FedGetAdjacencies (f, local_id, 3, &uadj_tets);
+	*time_used = clock() - time_used_before;
 	int n = dadj_vertices->num_items;
 	if (uadj_triangles->num_items > n) n = uadj_triangles->num_items;
 	if (uadj_tets->num_items > n) n = uadj_tets->num_items;
@@ -137,16 +137,16 @@ static h5_err_t
 print_adjacencies_of_triangle (
 	h5_file_t* const f,
 	h5_id_t local_id,
-	clock_t* t
+	clock_t* time_used
 	) {
 	h5_idlist_t* dadj_vertices;
 	h5_idlist_t* dadj_edges;
 	h5_idlist_t* uadj_tets;
-	clock_t t1 = clock();
-	H5FedGetVerticesDownAdjacentToTriangle (f, local_id, &dadj_vertices);
-	H5FedGetEdgesDownAdjacentToTriangle (f, local_id, &dadj_edges);
-	H5FedGetTetsUpAdjacentToTriangle (f, local_id, &uadj_tets);
-	*t = clock() - t1;
+	clock_t time_used_before = clock();
+	H5FedGetAdjacencies (f, local_id, 0, &dadj_vertices);
+	H5FedGetAdjacencies (f, local_id, 1, &dadj_edges);
+	H5FedGetAdjacencies (f, local_id, 3, &uadj_tets);
+	*time_used = clock() - time_used_before;
 	int n = dadj_vertices->num_items;
 	if (dadj_edges->num_items > n) n = dadj_edges->num_items;
 	if (uadj_tets->num_items > n) n = uadj_tets->num_items;
@@ -197,16 +197,16 @@ static h5_err_t
 print_adjacencies_of_tet (
 	h5_file_t* const f,
 	h5_id_t local_id,
-	clock_t* t
+	clock_t* time_used
 	) {
 	h5_idlist_t* dadj_vertices;
 	h5_idlist_t* dadj_edges;
 	h5_idlist_t* dadj_triangles;
-	clock_t t1 = clock();
-	H5FedGetVerticesDownAdjacentToTet (f, local_id, &dadj_vertices);
-	H5FedGetEdgesDownAdjacentToTet (f, local_id, &dadj_edges);
-	H5FedGetTrianglesDownAdjacentToTet (f, local_id, &dadj_triangles);
-	*t = clock() - t1;
+	clock_t time_used_before = clock();
+	H5FedGetAdjacencies (f, local_id, 0, &dadj_vertices);
+	H5FedGetAdjacencies (f, local_id, 1, &dadj_edges);
+	H5FedGetAdjacencies (f, local_id, 2, &dadj_triangles);
+	*time_used = clock() - time_used_before;
 	int n = dadj_vertices->num_items;
 	if (dadj_edges->num_items > n) n = dadj_edges->num_items;
 	if (dadj_triangles->num_items > n) n = dadj_triangles->num_items;
@@ -408,7 +408,7 @@ traverse_mesh (
 	printf ("    Opening mesh with id %lld\n", mesh_id);
 	H5FedOpenMesh (f, mesh_id, mesh_type);
 	h5_size_t num_levels = H5FedGetNumLevels (f);
-	printf ("    Number of levels in mesh: %lld\n", num_levels);
+	printf ("    Number of levels in mesh: %lld\n", (long long)num_levels);
 
 	/* loop over all levels */
 	h5_id_t level_id;
@@ -433,7 +433,7 @@ main (
 	/* open file and get number of meshes */
 	h5_file_t *f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
 	h5_size_t num_meshes = H5FedGetNumMeshes (f, MESH_TYPE);
-	printf ("    Number of meshes: %lld\n", num_meshes);
+	printf ("    Number of meshes: %lld\n", (long long)num_meshes);
 
 	/* loop over all meshes */
 	h5_id_t mesh_id;

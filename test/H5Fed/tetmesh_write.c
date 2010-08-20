@@ -15,7 +15,7 @@ const char* FNAME = "simple_tet.h5";
 
 typedef struct vertex {
 	h5_float64_t P[3];
-} vertex_t; 
+} vertex_t;
 
 typedef struct elem {
 	h5_id_t vids[4];
@@ -44,7 +44,7 @@ main (
 	) {
 	/* abort program on errors in library */
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (2);
+	H5SetVerbosityLevel (5);
 
 	/* open file and add mesh */
 	h5_file_t* const f = H5OpenFile (FNAME, H5_O_WRONLY, 0);

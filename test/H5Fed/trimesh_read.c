@@ -21,7 +21,7 @@ traverse_vertices (
 	h5_size_t num_vertices = 0;
 	while ((local_id = H5FedTraverseEntities ( f, iter )) >= 0) {
 		h5_float64_t P[3];
-		H5FedGetVertexCoordByID (f, local_id, P);
+		H5FedGetVertexCoordsByID (f, local_id, P);
 		char v[256];
 		snprintf (v, sizeof(v), "=%llx=", local_id);
 		printf ("| %-18s | (%f, %f, %f) |\n",
@@ -35,10 +35,10 @@ traverse_vertices (
 	/* report error if we got a different number then expected */
 	if (num_vertices != num_vertices_expect) {
 		fprintf (stderr, "!!! Got %lld vertices, but expected %lld.\n",
-			  num_vertices, num_vertices_expect);
+			 (long long)num_vertices, (long long)num_vertices_expect);
 	}
 
-	printf ("    Number of vertices on level: %lld\n", num_vertices);
+	printf ("    Number of vertices on level: %lld\n", (long long)num_vertices);
 	return H5_SUCCESS;
 }
 
@@ -69,7 +69,7 @@ traverse_edges (
 	/* done */
 	H5FedEndTraverseEntities ( f, iter );
 
-	printf ("    Number of edges: %lld\n", num_edges);
+	printf ("    Number of edges: %lld\n", (long long)num_edges);
 	return H5_SUCCESS;
 }
 
@@ -104,11 +104,11 @@ traverse_elems (
 	/* report error if we got a different number then expected */
 	if (num_elems != num_elems_expect) {
 		fprintf (stderr, "!!! Got %lld elements, but expected %lld.\n",
-			  num_elems, num_elems_expect);
+			 (long long)num_elems, (long long)num_elems_expect);
 		exit(1);
 	}
 
-	printf ("    Number of elements on level: %lld\n", num_elems);
+printf ("    Number of elements on level: %lld\n", (long long)num_elems);
 	return H5_SUCCESS;
 }
 
@@ -135,7 +135,7 @@ traverse_mesh (
 	printf ("    Opening mesh with id %lld\n", mesh_id);
 	H5FedOpenMesh (f, mesh_id, mesh_type);
 	h5_size_t num_levels = H5FedGetNumLevels (f);
-	printf ("    Number of levels in mesh: %lld\n", num_levels);
+	printf ("    Number of levels in mesh: %lld\n", (long long)num_levels);
 
 	/* loop over all levels */
 	h5_id_t level_id;
@@ -160,7 +160,7 @@ main (
 	/* open file and get number of meshes */
 	h5_file_t* f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
 	h5_size_t num_meshes = H5FedGetNumMeshes (f, MESH_TYPE);
-	printf ("    Number of meshes: %lld\n", num_meshes);
+	printf ("    Number of meshes: %lld\n", (long long)num_meshes);
 
 	/* loop over all meshes */
 	h5_id_t mesh_id;

@@ -50,7 +50,7 @@ traverse_vertices (
 
 	if ( real_num != num ) {
 		fprintf ( stderr, "!!! Got %lld vertices, but expected %lld.\n",
-			  real_num, num );
+			  (long long)real_num, (long long)num );
 		exit ( 1 );
 	}
 	return H5_SUCCESS;
@@ -131,7 +131,7 @@ traverse_tets (
 	H5FedEndTraverseEntities (f, iter);
 	if ( real_num != num ) {
 		fprintf ( stderr, "!!! Got %lld tets, but expected %lld.\n",
-			  real_num, num );
+			  (long long)real_num, (long long)num );
 		exit(1);
 	}
 
@@ -156,7 +156,7 @@ traverse_mesh (
 
 	h5_id_t level_id;
 	h5_size_t num_levels = H5FedGetNumLevels ( f );
-	printf ( "    Number of levels in mesh: %lld\n", num_levels );
+	printf ( "    Number of levels in mesh: %lld\n", (long long)num_levels );
 	for ( level_id = 2; level_id < num_levels; level_id++ ) {
 		h5_err_t h5err = H5FedSetLevel ( f, level_id );
 		if ( h5err < 0 ) {
@@ -184,7 +184,7 @@ main (
 
 	h5_file_t *f = H5OpenFile ( "simple_tet.h5", H5_O_RDONLY, 0 );
 	h5_size_t num_meshes = H5FedGetNumMeshes ( f, H5_TETRAHEDRAL_MESH );
-	printf ( "    Number of meshes: %lld\n", num_meshes );
+	printf ( "    Number of meshes: %lld\n", (long long)num_meshes );
 
 	h5_id_t mesh_id;
 	for ( mesh_id = 0; mesh_id < num_meshes; mesh_id++ ) {
