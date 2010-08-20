@@ -77,10 +77,6 @@ SAVE_CC=$CC
 SAVE_CXX=$CXX
 SAVE_MPICC=$MPICC
 SAVE_MPICXX=$MPICXX
-SAVE_CFLAGS=$CFLAGS
-SAVE_INCLUDES=$INCLUDES
-SAVE_LDFLAGS=$LDFLAGS
-SAVE_LIBS=$LIBS
 SAVE_MPIROOT=$MPIROOT
 SAVE_HDF5ROOT=$HDF5ROOT
 
@@ -441,55 +437,31 @@ LIBS="$LIBS -lz -lm"
 
 #if there was an external input for the variable...
 if test -n "$SAVE_CC"; then
-	CC=$SAVE_CC
+	CC="$SAVE_CC"
 fi
 
 if test -n "$SAVE_CXX"; then
-	CXX=$SAVE_CXX
-fi
-
-if test -n "$SAVE_FC"; then
-	FC=$SAVE_FC
+	CXX="$SAVE_CXX"
 fi
 
 if test -n "$SAVE_MPICC"; then
-	MPICC=$SAVE_MPICC
+	MPICC="$SAVE_MPICC"
 fi
 
 if test -n "$SAVE_MPICXX"; then
-	MPICXX=$SAVE_MPICXX
+	MPICXX="$SAVE_MPICXX"
 fi
 
 if test -n "$SAVE_MPIFC"; then
-	MPIFC=$SAVE_MPIFC
-fi
-
-if test -n "$SAVE_CFLAGS"; then
-	CFLAGS=$SAVE_CFLAGS $CFLAGS
-fi
-
-if test -n "$SAVE_FFLAGS"; then
-	FFLAGS=$SAVE_FFLAGS
-fi
-
-if test -n "$SAVE_INCLUDES"; then
-	INCLUDES=$SAVE_INCLUDES
-fi
-
-if test -n "$SAVE_LDFLAGS"; then
-	LDFLAGS=$SAVE_LDFLAGS
-fi
-
-if test -n "$SAVE_LIBS"; then
-	LIBS=$SAVE_LIBS
+	MPIFC="$SAVE_MPIFC"
 fi
 
 if test -n "$SAVE_MPIROOT"; then
-	MPIROOT=$SAVE_MPIROOT
+	MPIROOT="$SAVE_MPIROOT"
 fi
 
 if test -n "$SAVE_HDF5ROOT"; then
-	HDF5ROOT=$SAVE_HDF5ROOT
+	HDF5ROOT="$SAVE_HDF5ROOT"
 fi
 
 ###############################################################################
@@ -532,6 +504,7 @@ AC_CONFIG_FILES([
 	src/h5core/Makefile
         src/Fortran/Makefile
 	test/Makefile
+	test/H5Fed/Makefile
 	tools/Makefile
 	tools/h5hutcc
 ])
