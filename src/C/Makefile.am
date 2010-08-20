@@ -43,5 +43,10 @@ libH5hutC_a_SOURCES =				\
 	H5Fed_store.c				\
 	H5Fed_tags.c
 
+all: all-am install-libs-local
+
+install-libs-local:
+	-cp ${lib_LIBRARIES} ../lib
+
 clean: clean-am
 
