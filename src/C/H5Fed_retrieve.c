@@ -101,7 +101,7 @@ H5FedGetVertexCoordsByIndex (
 }
 
 h5_err_t
-H5FedGetVertexCoordByID (
+H5FedGetVertexCoordsByID (
 	h5_file_t* const f,
 	h5_id_t vertex_id,
 	h5_float64_t P[3]

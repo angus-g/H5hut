@@ -157,7 +157,7 @@ H5FedRefineElement (
 	const h5_id_t local_eid		/*!< local element id		*/
 	) {
 	SET_FNAME (f, __func__);
-	return h5t_refine_elem (f, local_eid);
+	return h5t_mark_entity (f, local_eid);
 }
 
 h5_err_t
