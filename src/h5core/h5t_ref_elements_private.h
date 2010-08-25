@@ -8,4 +8,6 @@
 
 #define h5tpriv_ref_elem_get_dim(this) (this->ref_elem->dim)
 
+#define h5tpriv_get_edge_connected_to_vertex(this,face_idx, i) (this->edges_connected_to_vertex[face_idx][i])
+#define h5tpriv_get_facet_connected_to_vertex(this,face_idx, i) (this->edges_connected_to_vertex[face_idx][i])
 #endif

@@ -315,7 +315,7 @@ h5tpriv_find_tv2 (
 	) {
 
 	h5_id_t idx = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx);
-	*retval = &f->t->vertices_data[idx].tv;
+	*retval = &f->t->adjacencies.tv.v[idx];
 
 	return H5_SUCCESS;
 }

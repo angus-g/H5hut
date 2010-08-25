@@ -93,6 +93,15 @@ assign_glb_elem_data (
 		h5_generic_elem_t *glb_elem = h5tpriv_get_glb_elem (f, loc_idx);
 
 		glb_elem->parent_idx = loc_elem->parent_idx;
+		if (loc_elem->parent_idx >= 0) {
+			h5_generic_elem_t *loc_parent = h5tpriv_get_loc_elem (
+				f, loc_elem->parent_idx);
+			h5_generic_elem_t *glb_parent = h5tpriv_get_glb_elem (
+				f, glb_elem->parent_idx);
+			
+			glb_parent->child_idx = loc_parent->child_idx;
+		}
+
 		glb_elem->child_idx = loc_elem->child_idx;
 
 		h5_id_t* glb_indices = h5tpriv_get_glb_elem_vertex_indices (f, loc_idx);

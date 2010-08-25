@@ -105,7 +105,7 @@ h5tpriv_get_local_vid (
 /*!
   compare two elems given by their local id
 */
-static int
+static inline int
 cmp_elems (
 	h5_file_t* const  f,
 	const h5_id_t elem_idx1,
@@ -129,7 +129,7 @@ cmp_elems (
 	return 0;
 }
 
-static int
+static inline int
 cmp_elems1 (
 	h5_file_t* f,
 	h5_id_t	elem_idx1,

@@ -147,23 +147,23 @@ h5priv_get_hdf5_objname_by_idx (
 	char *name,
 	size_t size
 	) {
-	ssize_t ssize;
+	ssize_t len;
 	if (name == NULL) {
-		ssize = H5Lget_name_by_idx (loc_id, ".",
+		len = H5Lget_name_by_idx (loc_id, ".",
 					    H5_INDEX_NAME, H5_ITER_INC,
 					    idx,
 					    NULL, 0,
 					    H5P_DEFAULT);
-		if (ssize < 0) goto error;
+		if (len < 0) goto error;
 	} else {
-		ssize = H5Lget_name_by_idx (loc_id, ".",
+		len = H5Lget_name_by_idx (loc_id, ".",
 					    H5_INDEX_NAME, H5_ITER_INC,
 					    idx,
 					    name, size,
 					    H5P_DEFAULT);
-		if (ssize < 0) goto error;
+		if (len < 0) goto error;
 	}
-	return size;
+	return len;
 error:
 	return h5_error (
 		f,

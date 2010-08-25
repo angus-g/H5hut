@@ -79,7 +79,7 @@ release_container (
 	if (ctn->num_sets == 0) return H5_SUCCESS;
 	TRY ( h5priv_hwalk ( f, &ctn->sets, release_tagset ) ); 
 	TRY ( h5priv_free ( f, ctn->names ) );
-
+	memset (ctn, 0, sizeof (*ctn));
 	return H5_SUCCESS;
 }
 
@@ -805,7 +805,7 @@ read_tagset (
 	hid_t dset_id;
 	ssize_t ssize;
 	TRY( (ssize = h5priv_get_hdf5_objname_by_idx (f, loc_id, idx, NULL, 0)) );
-	TRY( (name = h5priv_calloc (f, 1, ssize)) );
+	TRY( (name = h5priv_calloc (f, 1, ++ssize)) );
 	TRY( h5priv_get_hdf5_objname_by_idx (f, loc_id, idx, name, ssize) );
 	TRY( group_id = h5priv_open_hdf5_group (f, loc_id, name) );
 

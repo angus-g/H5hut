@@ -6,10 +6,6 @@ typedef struct h5_vertex {
 	h5_coord3d_t	P;
 } h5_vertex_t;
 
-typedef struct h5_vertex_data {
-	h5_idlist_t	tv;
-} h5_vertex_data_t;
-
 typedef struct h5_triangle {
 	h5_id_t		idx;
 	h5_id_t		parent_idx;
@@ -56,6 +52,10 @@ typedef struct h5_dtypes {
 } h5_dtypes_t;
 
 typedef struct h5t_adjacencies {
+	struct {
+		h5_size_t size;
+		h5_idlist_t *v;
+	} tv;
 	h5_hashtable_t te_hash;
 	h5_hashtable_t td_hash;
 } h5t_adjacencies_t;
@@ -174,7 +174,6 @@ typedef struct h5t_fdata {
 
 	/*** vertices ***/
 	h5_vertex_t	*vertices;
-	h5_vertex_data_t *vertices_data;
 	h5_size_t	*num_vertices;
 	h5_idmap_t	map_vertex_g2l;	/* map global to local idx */
 	h5_idlist_t	sorted_lvertices;

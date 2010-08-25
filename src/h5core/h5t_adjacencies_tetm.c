@@ -13,8 +13,48 @@
 
 #include <time.h>
 
+#include <string.h>
+
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
+
+static inline h5_err_t
+alloc_tv (
+	h5_file_t* const f,
+	const h5_loc_idx_t level_idx
+
+	) {
+	h5t_fdata_t* t = f->t;
+	h5_loc_idx_t idx = (level_idx <= 0) ? 0 : t->num_vertices[level_idx-1];
+	h5_loc_idx_t last = t->num_vertices[t->num_levels-1];
+
+	h5t_adjacencies_t* adj = &t->adjacencies;
+	adj->tv.size = last;
+	size_t size = last * sizeof(adj->tv.v[0]);
+	TRY( adj->tv.v = h5priv_alloc (f, adj->tv.v, size) );
+	size = (last-idx) * sizeof(adj->tv.v[0]);
+	memset (&adj->tv.v[idx], 0, size);
+
+	return H5_SUCCESS;
+}
+
+static inline h5_err_t
+release_tv (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t* t = f->t;
+	h5t_adjacencies_t* adj = &t->adjacencies;
+	if (adj->tv.v == NULL) return H5_SUCCESS;
+
+	h5_loc_idx_t idx = 0;
+	h5_loc_idx_t last = t->num_vertices[t->num_levels-1];
+	for (; idx < last; idx++) {
+		TRY( h5priv_free_idlist_items (f, &adj->tv.v[idx]) );
+	}
+	TRY( h5priv_free (f, adj->tv.v) );
+	adj->tv.v = NULL;
+	return H5_SUCCESS;
+}
 
 /*
   compute T(V) from current level up to highest levels.
@@ -22,23 +62,36 @@
 static inline h5_err_t
 compute_elems_of_vertices (
 	h5_file_t* const f,
-	const h5_id_t level_idx
+	const h5_id_t from_lvl
 	) {
+	/* expand structure */
+	TRY( alloc_tv (f, from_lvl) );
+
+	/* loop over all elements in current level */
 	h5t_fdata_t* t = f->t;
-	h5_id_t idx = (level_idx <= 0) ? 0 : t->num_elems[level_idx-1];
+	h5_loc_idx_t idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
+	h5_loc_idx_t last = t->num_elems[t->num_levels-1];
 	h5_tet_t *el = &t->loc_elems.tets[idx];
-	h5_id_t num_elems = t->num_elems[t->num_levels-1];
-	for (;idx < num_elems; idx++, el++) {
+	for (;idx < last; idx++, el++) {
 		int face_idx;
 		int num_faces = h5tpriv_ref_elem_get_num_vertices(t);
 		for (face_idx = 0; face_idx < num_faces; face_idx++) {
 			h5_id_t vidx = el->vertex_indices[face_idx];
 			TRY( h5priv_append_to_idlist (
 				     f,
-				     &t->vertices_data[vidx].tv,
+				     &t->adjacencies.tv.v[vidx],
 				     h5tpriv_build_vertex_id (face_idx, idx)) );
 		}
 	}
+	return H5_SUCCESS;
+}
+
+static inline h5_err_t
+release_te (
+	h5_file_t* const f
+	) {
+#pragma unused f
+	// @@@ TBD @@@
 	return H5_SUCCESS;
 }
 
@@ -63,6 +116,15 @@ compute_elems_of_edges (
 				     f, face_idx, elem_idx, &retval) );
 		}
 	}
+	return H5_SUCCESS;
+}
+
+static inline h5_err_t
+release_td (
+	h5_file_t* const f
+	) {
+#pragma unused f
+	// @@@ TBD @@@
 	return H5_SUCCESS;
 }
 
@@ -311,41 +373,48 @@ static inline h5_err_t
 add_edge (
 	h5_file_t* const f,
 	h5_idlist_t* list,
-	h5_id_t face_idx,
-	h5_id_t eid
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx
 	) {
 	h5_idlist_t* te;
-	TRY( h5tpriv_find_te2 (f, face_idx, eid, &te) );
+	TRY( h5tpriv_find_te2 (f, face_idx, elem_idx, &te) );
 	TRY( h5priv_search_idlist (f, list, te->items[0]) );
 	return H5_SUCCESS;
 }
 
-
+/*
+  Get upward adjacent edges to vertex given by ID.
+ */
 static inline h5_err_t
 get_edges_uadj_to_vertex (
 	h5_file_t* const f,
-	const h5_id_t vid,
+	const h5_loc_id_t id,
 	h5_idlist_t** list
 	) {
 	TRY( h5priv_alloc_idlist (f, list, 8) );
 	
-	h5t_fdata_t* t = f->t;
-	h5_idlist_t* tv = &t->vertices_data[vid].tv;
+	h5t_fdata_t* const t = f->t;
+	h5_loc_idx_t idx;
+	TRY( h5t_get_vertex_index_of_vertex (f, id, &idx) );
+	h5_idlist_t* tv = &t->adjacencies.tv.v[idx];
 	h5_size_t i;
 
-	h5_id_t* vidp = tv->items;
+	h5_id_t* vidp = tv->items;	// ptr to upward adjacent elements
 	for (i = 0; i < tv->num_items; i++, vidp++) {
-		h5_id_t eid = h5tpriv_get_elem_idx (*vidp);
-		h5_id_t face = h5tpriv_get_face_idx (*vidp);
-		h5_generic_elem_t* tet = (h5_generic_elem_t*)&t->loc_elems.tets[eid];
+		h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (*vidp);
+		h5_loc_idx_t face_idx = h5tpriv_get_face_idx (*vidp);
+		h5_generic_elem_t* tet = (h5_generic_elem_t*)&t->loc_elems.tets[elem_idx];
 
 		if (h5tpriv_elem_is_on_cur_level (f, tet) == H5_NOK ) {
 			continue;
 		}
-		int map[4][3] = { {0,2,3}, {0,1,4}, {2,1,5}, {3,4,5} };
-		TRY( add_edge (f, *list, map[face][0], eid) );
-		TRY( add_edge (f, *list, map[face][1], eid) );
-		TRY( add_edge (f, *list, map[face][2], eid) );
+		h5_loc_idx_t edge_idx;
+		edge_idx = h5tpriv_get_edge_connected_to_vertex (t->ref_elem, face_idx, 0);
+		TRY( add_edge (f, *list, edge_idx, elem_idx) );
+		edge_idx = h5tpriv_get_edge_connected_to_vertex (t->ref_elem, face_idx, 1);
+		TRY( add_edge (f, *list, edge_idx, elem_idx) );
+		edge_idx = h5tpriv_get_edge_connected_to_vertex (t->ref_elem, face_idx, 2);
+		TRY( add_edge (f, *list, edge_idx, elem_idx) );
 	}
 	return H5_SUCCESS;
 }
@@ -367,27 +436,38 @@ add_triangle (
 static inline h5_err_t
 get_triangles_uadj_to_vertex (
 	h5_file_t * const f,
-	const h5_id_t vid,
+	const h5_loc_id_t id,
 	h5_idlist_t **list
 	) {
+	/*
+	  Pre-allocate a list with 8 items. Why 8? Why not?
+	  ;-) 
+	  We should change it when we have something better.
+	 */
 	TRY ( h5priv_alloc_idlist ( f, list, 8 ) );
 	
 	h5t_fdata_t* t = f->t;
-	h5_idlist_t* tv = &t->vertices_data[vid].tv;
+	h5_loc_idx_t idx;
+	TRY( h5t_get_vertex_index_of_vertex (f, id, &idx) );
+	h5_idlist_t* tv = &t->adjacencies.tv.v[idx];
+
 	h5_size_t i;
 	h5_id_t* vidp = tv->items;
 	for (i = 0; i < tv->num_items; i++, vidp++) {
-		h5_id_t eid = h5tpriv_get_elem_idx (*vidp);
-		h5_id_t face = h5tpriv_get_face_idx (*vidp);
-		h5_generic_elem_t* tet = (h5_generic_elem_t*)&t->loc_elems.tets[eid];
+		h5_id_t elem_idx = h5tpriv_get_elem_idx (*vidp);
+		h5_id_t face_idx = h5tpriv_get_face_idx (*vidp);
+		h5_generic_elem_t* tet = (h5_generic_elem_t*)&t->loc_elems.tets[elem_idx];
 
 		if (h5tpriv_elem_is_on_cur_level (f, tet) == H5_NOK) {
 			continue;
 		}
-		int map[4][3] = { {1,2,3}, {0,2,3}, {0,1,3}, {0,1,2} };
-		TRY( add_triangle (f, *list, map[face][0], eid) );
-		TRY( add_triangle (f, *list, map[face][1], eid) );
-		TRY( add_triangle (f, *list, map[face][2], eid) );
+		h5_loc_idx_t facet_idx;
+		facet_idx = h5tpriv_get_facet_connected_to_vertex (t->ref_elem, face_idx, 0);
+		TRY( add_triangle (f, *list, facet_idx, elem_idx) );
+		facet_idx = h5tpriv_get_facet_connected_to_vertex (t->ref_elem, face_idx, 1);
+		TRY( add_triangle (f, *list, facet_idx, elem_idx) );
+		facet_idx = h5tpriv_get_facet_connected_to_vertex (t->ref_elem, face_idx, 2);
+		TRY( add_triangle (f, *list, facet_idx, elem_idx) );
 	}
 	return H5_SUCCESS;
 }
@@ -395,23 +475,27 @@ get_triangles_uadj_to_vertex (
 static inline h5_err_t
 get_tets_uadj_to_vertex (
 	h5_file_t* const f,
-	const h5_id_t vid,
+	const h5_loc_id_t id,
 	h5_idlist_t** list
 	) {
 	TRY( h5priv_alloc_idlist (f, list, 8) );
 	
 	h5t_fdata_t* t = f->t;
-	h5_idlist_t* tv = &t->vertices_data[vid].tv;
+	h5_loc_idx_t idx;
+	TRY( h5t_get_vertex_index_of_vertex (f, id, &idx) );
+	h5_idlist_t* tv = &t->adjacencies.tv.v[idx];
 	h5_size_t i;
+
 	h5_id_t* vidp = tv->items;
 	for (i = 0; i < tv->num_items; i++, vidp++) {
-		h5_id_t eid = h5tpriv_get_elem_idx (*vidp);
-		h5_generic_elem_t* tet = (h5_generic_elem_t*)&t->loc_elems.tets[eid];
+		h5_id_t elem_idx = h5tpriv_get_elem_idx (*vidp);
+		h5_generic_elem_t* tet = (h5_generic_elem_t*)&t->loc_elems.tets[elem_idx];
 
 		if (h5tpriv_elem_is_on_cur_level (f, tet) == H5_NOK) {
 			continue;
 		}
-		TRY( h5priv_search_idlist (f, *list, eid) );
+		// add to result
+		TRY( h5priv_search_idlist (f, *list, elem_idx) );
 	}
 	return H5_SUCCESS;
 }
@@ -786,8 +870,10 @@ static h5_err_t
 release_internal_structs (
 	h5_file_t * const f
 	) {
-#pragma unused f
-	/* TO BE WRITTEN @@@ */
+	TRY( release_tv (f) );
+	TRY( release_te (f) );
+	TRY( release_td (f) );
+
 	return H5_SUCCESS;
 }
 

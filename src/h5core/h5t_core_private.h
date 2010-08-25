@@ -10,7 +10,6 @@
 #include "h5t_access_private.h"
 #include "h5t_adjacencies_private.h"
 #include "h5t_consts_private.h"
-#include "h5t_inquiry_private.h"
 #include "h5t_errorhandling_private.h"
 #include "h5t_hsearch_private.h"
 #include "h5t_map_private.h"

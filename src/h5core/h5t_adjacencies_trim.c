@@ -12,9 +12,48 @@
 */
 
 #include <time.h>
+#include <string.h>
 
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
+
+static inline h5_err_t
+alloc_tv (
+	h5_file_t* const f,
+	const h5_loc_idx_t level_idx
+
+	) {
+	h5t_fdata_t* t = f->t;
+	h5_loc_idx_t idx = (level_idx <= 0) ? 0 : t->num_vertices[level_idx-1];
+	h5_loc_idx_t last = t->num_vertices[t->num_levels-1];
+
+	h5t_adjacencies_t* adj = &t->adjacencies;
+	adj->tv.size = last;
+	size_t size = last * sizeof(adj->tv.v[0]);
+	TRY( adj->tv.v = h5priv_alloc (f, adj->tv.v, size) );
+	size = (last-idx) * sizeof(adj->tv.v[0]);
+	memset (&adj->tv.v[idx], 0, size);
+
+	return H5_SUCCESS;
+}
+
+static inline h5_err_t
+release_tv (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t* t = f->t;
+	h5t_adjacencies_t* adj = &t->adjacencies;
+	if (adj->tv.v == NULL) return H5_SUCCESS;
+
+	h5_loc_idx_t idx = 0;
+	h5_loc_idx_t last = t->num_vertices[t->num_levels-1];
+	for (; idx < last; idx++) {
+		TRY( h5priv_free_idlist_items (f, &adj->tv.v[idx]) );
+	}
+	TRY( h5priv_free (f, adj->tv.v) );
+	adj->tv.v = NULL;
+	return H5_SUCCESS;
+}
 
 /*
   compute T(V) from current level up to highest levels.
@@ -24,22 +63,35 @@ compute_elems_of_vertices (
 	h5_file_t* const f,
 	const h5_id_t from_lvl
 	) {
+	/* expand structure */
+	TRY( alloc_tv (f, from_lvl) );
+
+	/* loop over all elements in current level */
 	h5t_fdata_t *t = f->t;
-	h5_id_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
-	h5_triangle_t *el = &t->loc_elems.tris[elem_idx];
-	h5_id_t num_elems = t->num_elems[t->num_levels-1];
-	for (;elem_idx < num_elems; elem_idx++, el++) {
+	h5_loc_idx_t idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
+	h5_loc_idx_t last = t->num_elems[t->num_levels-1];
+	h5_triangle_t *el = &t->loc_elems.tris[idx];
+	for (;idx < last; idx++, el++) {
 		int face_idx;
 		int num_faces = h5tpriv_ref_elem_get_num_vertices (t);
 		for (face_idx = 0; face_idx < num_faces; face_idx++) {
 			h5_id_t vidx = el->vertex_indices[face_idx];
 			TRY( h5priv_append_to_idlist (
 				     f,
-				     &t->vertices_data[vidx].tv,
+				     &t->adjacencies.tv.v[vidx],
 				     h5tpriv_build_vertex_id (
-					     face_idx, elem_idx)) );
+					     face_idx, idx)) );
 		}
 	}
+	return H5_SUCCESS;
+}
+
+static inline h5_err_t
+release_te (
+	h5_file_t* const f
+	) {
+#pragma unused f
+	// @@@ TBD @@@
 	return H5_SUCCESS;
 }
 
@@ -181,9 +233,11 @@ get_edges_uadj_to_vertex (
 	TRY ( h5priv_alloc_idlist ( f, list, 8 ) );
 	
 	h5t_fdata_t* t = f->t;
-	h5_idlist_t* tv = &t->vertices_data[entity_id].tv;
-	h5_size_t i;
+	h5_loc_idx_t idx;
+	TRY( h5t_get_vertex_index_of_vertex (f, entity_id, &idx) );
+	h5_idlist_t* tv = &t->adjacencies.tv.v[idx];
 
+	h5_size_t i;
 	h5_id_t* vertex_idp = tv->items;
 	for ( i = 0; i < tv->num_items; i++, vertex_idp++ ) {
 		h5_id_t elem_idx = h5tpriv_get_elem_idx ( *vertex_idp );
@@ -193,15 +247,11 @@ get_edges_uadj_to_vertex (
 		if ( h5tpriv_elem_is_on_cur_level ( f, el ) == H5_NOK ) {
 			continue;
 		}
-		/*
-		  upward adjacend edges to vertices according reference element
-		 */
-		int map[3][2] = { {0,1}, // edge 0, 1 are adjacent to vertex 0
-				  {0,2}, // edge 0, 2 are adjacent to vertex 1
-				  {1,2}  // edge 1, 2 are adjacent to vertex 2
-		};
-		TRY ( add_edge ( f, *list, map[face_idx][0], elem_idx ) );
-		TRY ( add_edge ( f, *list, map[face_idx][1], elem_idx ) );
+		h5_loc_idx_t edge_idx;
+		edge_idx = h5tpriv_get_edge_connected_to_vertex (t->ref_elem, face_idx, 0);
+		TRY ( add_edge ( f, *list, edge_idx, elem_idx ) );
+		edge_idx = h5tpriv_get_edge_connected_to_vertex (t->ref_elem, face_idx, 1);
+		TRY ( add_edge ( f, *list, edge_idx, elem_idx ) );
 	}
 	return H5_SUCCESS;
 }
@@ -215,17 +265,20 @@ get_triangles_uadj_to_vertex (
 	TRY ( h5priv_alloc_idlist ( f, list, 8 ) );
 	
 	h5t_fdata_t *t = f->t;
-	h5_idlist_t *tv = &t->vertices_data[entity_id].tv;
+	h5_loc_idx_t idx;
+	TRY( h5t_get_vertex_index_of_vertex (f, entity_id, &idx) );
+	h5_idlist_t* tv = &t->adjacencies.tv.v[idx];
+
 	h5_size_t i;
-	h5_id_t *vertex_id = tv->items;
-	for ( i = 0; i < tv->num_items; i++, vertex_id++ ) {
-		h5_id_t elem_id = h5tpriv_get_elem_idx ( *vertex_id );
-		h5_generic_elem_t* el = (h5_generic_elem_t*)&t->loc_elems.tris[elem_id];
+	h5_id_t *vertex_idp = tv->items;
+	for ( i = 0; i < tv->num_items; i++, vertex_idp++ ) {
+		h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx ( *vertex_idp );
+		h5_generic_elem_t* el = (h5_generic_elem_t*)&t->loc_elems.tris[elem_idx];
 
 		if ( h5tpriv_elem_is_on_cur_level ( f, el ) == H5_NOK ) {
 			continue;
 		}
-		TRY ( h5priv_search_idlist ( f, *list, elem_id ) );
+		TRY ( h5priv_search_idlist ( f, *list, elem_idx ) );
 	}
 	return H5_SUCCESS;
 }
@@ -443,8 +496,9 @@ static inline h5_err_t
 release_internal_structs (
 	h5_file_t* const f
 	) {
-#pragma unused f
-	/* TO BE WRITTEN @@@ */
+	TRY( release_tv (f) );
+	TRY( release_te (f) );
+
 	return H5_SUCCESS;
 }
 

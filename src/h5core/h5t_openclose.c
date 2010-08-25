@@ -254,7 +254,6 @@ init_fdata (
 	t->num_elems_on_level =		NULL;
 	t->map_elem_g2l.items =		NULL;
 	t->vertices =			NULL; 
-	t->vertices_data =		NULL;
 	t->num_vertices =		NULL;
 	t->map_vertex_g2l.items =	NULL;
 	t->mtags.names =		NULL;
@@ -527,8 +526,7 @@ release_vertices (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
-	TRY( h5priv_free (f, t->vertices) ); 
-	TRY( h5priv_free (f, t->vertices_data) );
+	TRY( h5priv_free (f, t->vertices) );
 	TRY( h5priv_free (f, t->num_vertices) );
 	TRY( h5priv_free (f, t->map_vertex_g2l.items) );
 
@@ -579,19 +577,20 @@ h5t_set_level (
 	return H5_SUCCESS;
 }
 
+/*
+  Allocate \c num additional vertices. 
+ */
 h5_err_t
 h5tpriv_alloc_num_vertices (
 	h5_file_t* const f,
-	const h5_size_t num_vertices
+	const h5_size_t num
 	) {
 	h5t_fdata_t* t = f->t;
 
-	ssize_t size = num_vertices * sizeof (t->vertices[0]);
+	ssize_t size = num * sizeof (t->vertices[0]);
 	TRY( t->vertices = h5priv_alloc (f, t->vertices, size) );
-	size = num_vertices * sizeof (t->vertices_data[0]);
-	TRY( t->vertices_data = h5priv_alloc (f, t->vertices_data, size) );
-	TRY( h5priv_alloc_idmap (f, &t->map_vertex_g2l, num_vertices) );
-	TRY( h5priv_alloc_idlist_items (f, &t->sorted_lvertices, num_vertices) );
+	TRY( h5priv_alloc_idmap (f, &t->map_vertex_g2l, num) );
+	TRY( h5priv_alloc_idlist_items (f, &t->sorted_lvertices, num) );
 
 	return H5_SUCCESS;
 }
@@ -610,7 +609,6 @@ h5_err_t
 h5tpriv_close_file (
 	h5_file_t* const f		/*!< IN: file handle */
 	) {
-	TRY( release_memory (f) );
 	TRY( h5t_close_mesh (f) );
 
 	return H5_SUCCESS;

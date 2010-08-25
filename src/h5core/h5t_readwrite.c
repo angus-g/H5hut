@@ -263,8 +263,13 @@ read_mtags (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
-	TRY( t->mtags.group_id = h5priv_open_group (f, t->mesh_gid, "Tags") );
-	return h5tpriv_read_tag_container (f, &f->t->mtags);
+	h5_err_t exists;
+	TRY( exists = h5priv_hdf5_link_exists (f, t->mesh_gid, "Tags") );
+	if (exists) {
+		TRY( t->mtags.group_id = h5priv_open_group (f, t->mesh_gid, "Tags") );
+		TRY( h5tpriv_read_tag_container (f, &f->t->mtags) );
+	}
+	return H5_SUCCESS;
 }
 
 h5_err_t
