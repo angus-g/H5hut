@@ -28,6 +28,7 @@ set_vertex_tags (
 		if (memcmp (val, retval, sizeof(val))) {
 			fprintf ( stderr, "Oops!\n");
 		}
+		printf ("Set tag for entity %llx\n", local_id);
 	}
 	return H5FedEndTraverseEntities (f, iter);
 }
@@ -112,7 +113,7 @@ main (
 	H5SetVerbosityLevel (4);
 
 	/* open file and get number of meshes */
-	h5_file_t* f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
+	h5_file_t* f = H5OpenFile (FNAME, H5_O_RDWR, 0);
 	H5FedOpenMesh (f, 0, MESH_TYPE);
 
 	/* open last level */

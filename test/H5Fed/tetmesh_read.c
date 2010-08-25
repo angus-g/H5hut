@@ -74,7 +74,7 @@ traverse_edges (
 	/* done */
 	H5FedEndTraverseEntities ( f, iter );
 
-	printf ("    Number of edges: %lud\n", (unsigned long)num_edges);
+	printf ("    Number of edges: %lu\n", (unsigned long)num_edges);
 	return H5_SUCCESS;
 }
 

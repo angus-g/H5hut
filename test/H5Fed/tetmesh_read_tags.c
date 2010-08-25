@@ -39,8 +39,8 @@ traverse_vertices (
 		H5FedGetMTag ( f, "testtag", local_id, &size, retval );
 		if ( (retval[0] != local_id) ||
 		     (retval[1] != local_id+1) ||
-		     (retval[1] != local_id+1) ) {
-			fprintf ( stderr, "!!! Wrong tag values for vertix %lld\n",
+		     (retval[2] != local_id+2) ) {
+			fprintf ( stderr, "!!! Wrong tag values for vertex %lld\n",
 				  local_id );
 			exit ( 1 );
 		}
