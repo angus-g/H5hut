@@ -649,7 +649,7 @@ write_tagset (
 		size_t num_subentities = 0;
 		h5_id_t start_idx_entities = ent_idx;
 		size_t i;
-		for ( i = 0; i < tags_of_elem->size; i++ ) {
+		for ( i = 0; i < 15; i++ ) {
 			int k = tags_of_elem->idx[i];
 			if ( k == -1 ) continue;
 			h5t_tagval_t *valp = tags_of_elem->valp[k];
