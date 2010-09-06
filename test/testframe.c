@@ -530,7 +530,7 @@ TestPrintf(const char *format, ...)
     va_list arglist;
     int ret_value;
 
-#if PARALLEL_IO
+#if defined(PARALLEL_IO)
     int nproc;
     MPI_Comm_rank(MPI_COMM_WORLD, &nproc);
     if ( nproc == 0 || VERBOSE_HI ) {

@@ -66,7 +66,7 @@ test_write_data64(h5_file_t *file, int step)
 	ez=(double*)malloc(nelems*sizeof(double));
 	id=(h5_int64_t*)malloc(nelems*sizeof(h5_int64_t));
 
-#if PARALLEL_IO
+#if defined(PARALLEL_IO)
 	TEST("Setting throttle");
 	status = H5SetThrottle(file, 2);
 	RETURN(status, H5_SUCCESS, "H5SetThrottle");
@@ -157,12 +157,13 @@ test_write_data32(h5_file_t *file, int step)
 
 		if (val == 0) test_write_field_attribs(file, "e", t);
 
+#if defined(PARALLEL_IO)
 		status = H5Block3dSetGrid(file, grid[0], grid[1], grid[2]);
 		RETURN(status, H5_SUCCESS, "H5Block3dSetGrid");
 
 		status = H5Block3dSetDims(file, NBLOCKX, NBLOCKY, NBLOCKZ);
 		RETURN(status, H5_SUCCESS, "H5Block3dSetDims");
-
+#endif
 		status = H5Block3dSetHalo(file, 0, 1, 2);
 		RETURN(status, H5_SUCCESS, "H5Block3dSetHalo");
 

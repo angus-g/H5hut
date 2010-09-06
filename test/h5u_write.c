@@ -218,7 +218,7 @@ test_write_data32(h5_file_t *file, int nparticles, int step)
 	status = H5PartSetNumParticles(file, nparticles);
 	RETURN(status, H5_SUCCESS, "H5PartSetNumParticles");
 
-#if PARALLEL_IO
+#if defined(PARALLEL_IO)
 	/* will generate a warning since we are in MPI-IO Collective mode */
 	TEST("Setting throttle");
 	status = H5SetThrottle(file, 2);

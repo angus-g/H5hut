@@ -113,7 +113,7 @@ test_read_data64(h5_file_t *file, int nparticles, int step)
 
 	TEST("Verifying dataset info");
 
-#if PARALLEL_IO
+#if defined(PARALLEL_IO)
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 #else
@@ -145,7 +145,7 @@ test_read_data64(h5_file_t *file, int nparticles, int step)
 		else IVALUE(type, H5_FLOAT64_T, "dataset type");
 	}
 
-#if PARALLEL_IO
+#if defined(PARALLEL_IO)
 	TEST("Setting throttle");
 	status = H5SetThrottle(file, 3);
 	RETURN(status, H5_SUCCESS, "H5SetThrottle");
