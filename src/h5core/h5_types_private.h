@@ -44,15 +44,15 @@ struct h5_file {
 	struct h5t_fdata *t;
 };
 
-struct h5_idmap_el {
-	h5_id_t	global_id;
-	h5_id_t	local_id;
+struct h5_idxmap_el {
+	h5_glb_idx_t	glb_idx;
+	h5_loc_idx_t	loc_idx;
 };
-typedef struct h5_idmap_el h5_idmap_el_t;
+typedef struct h5_idxmap_el h5_idxmap_el_t;
 
-struct h5_idmap {
+struct h5_idxmap {
 	h5_size_t	size;		/* allocated space in number of items */
 	h5_size_t	num_items;	/* stored items	*/
-	h5_idmap_el_t*  items;
+	h5_idxmap_el_t*  items;
 };
 #endif

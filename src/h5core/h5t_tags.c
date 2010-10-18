@@ -351,14 +351,14 @@ static h5_err_t
 set_mtag (
 	h5_file_t *const f,
 	H5T_Tagset *tagset,
-	const h5_id_t id,
+	const h5_loc_id_t id,
 	const size_t size,
 	void *val 
 	) {
 	size_t offs[5] = { 14, 0, 4, 10, 14 };
-	h5_id_t el_idx = h5tpriv_get_elem_idx ( id );
-	h5_id_t eoe_id = h5tpriv_get_face_idx ( id );
-	h5_id_t type_id = h5tpriv_get_entity_type ( id );
+	h5_loc_idx_t el_idx = h5tpriv_get_elem_idx ( id );
+	h5_loc_idx_t eoe_id = h5tpriv_get_face_idx ( id );
+	h5_loc_idx_t type_id = h5tpriv_get_entity_type ( id );
 	if ( tagset->elems[el_idx] == NULL ) {
 		/*
 		  alloc new structure to store all tags for this element
@@ -427,7 +427,7 @@ h5_err_t
 h5t_set_mtag_by_name (
 	h5_file_t *const f,
 	char name[],
-	const h5_id_t id,
+	const h5_loc_id_t id,
 	const size_t size,
 	void *val
 	) {
@@ -440,20 +440,20 @@ static h5_err_t
 get_tag_valp (
 	h5_file_t* const f,
 	const H5T_Tagset* tagset,
-	const h5_id_t entity_id,
+	const h5_loc_id_t entity_id,
 	h5t_tagval_t** const valp
 	) {
 #pragma unused f
-	h5_id_t el_idx = h5tpriv_get_elem_idx ( entity_id );
-	h5_id_t subentity_id = h5tpriv_get_face_idx ( entity_id );
-	h5_id_t type_id = h5tpriv_get_entity_type ( entity_id );
+	h5_loc_idx_t el_idx = h5tpriv_get_elem_idx ( entity_id );
+	h5_loc_idx_t face_idx = h5tpriv_get_face_idx ( entity_id );
+	h5_loc_idx_t type_id = h5tpriv_get_entity_type ( entity_id );
 
 	if ( tagset->elems[el_idx] == NULL ) {
 		return H5_NOK; /* no tags for this element */
 	}
 	h5t_tagsel_t *tagselem = tagset->elems[el_idx];
 	size_t offs[5] = { 14, 0, 4, 10, 14 };
-	size_t i = offs[type_id]+subentity_id;
+	size_t i = offs[type_id]+face_idx;
 
 	if ( tagselem->idx[i] < 0 ) {
 		return H5_NOK; /* no value set for this subentity */
@@ -479,7 +479,7 @@ h5_ssize_t
 h5t_get_tag (
 	h5_file_t *const f,
 	const H5T_Tagset *tagset,
-	const h5_id_t entity_id,
+	const h5_loc_id_t entity_id,
 	size_t* const dim,
 	void* const vals
 	) {
@@ -510,13 +510,13 @@ h5_ssize_t
 h5t_get_mtag_by_name (
 	h5_file_t* const f,
 	const char name[],
-	const h5_id_t id,
+	const h5_loc_id_t entity_id,
 	size_t* dim,
 	void* vals
 	) {
 	H5T_Tagset* tagset;
 	TRY ( h5t_open_mtagset ( f, name, &tagset ) );
-	return h5t_get_tag ( f, tagset, id, dim, vals );
+	return h5t_get_tag ( f, tagset, entity_id, dim, vals );
 }
 
 /*!
@@ -530,18 +530,18 @@ h5_err_t
 h5t_remove_mtag (
 	h5_file_t* const f,
 	H5T_Tagset* tagset,
-	const h5_id_t id
+	const h5_loc_id_t entity_id
 	) {
-	h5_id_t el_idx = h5tpriv_get_elem_idx ( id );
-	h5_id_t subentity_id = h5tpriv_get_face_idx ( id );
-	h5_id_t type_id = h5tpriv_get_entity_type ( id );
+	h5_loc_idx_t el_idx = h5tpriv_get_elem_idx ( entity_id );
+	h5_loc_idx_t face_idx = h5tpriv_get_face_idx ( entity_id );
+	h5_loc_idx_t type_id = h5tpriv_get_entity_type ( entity_id );
 
 	if ( tagset->elems[el_idx] == NULL ) {
 		return H5_SUCCESS; /* no tags for this element */
 	}
 	h5t_tagsel_t *tagselem = tagset->elems[el_idx];
 	size_t offs[5] = { 14, 0, 4, 10, 14 };
-	size_t i = offs[type_id]+subentity_id;
+	size_t i = offs[type_id]+face_idx;
 
 	if ( tagselem->idx[i] < 0 ) {
 		return H5_SUCCESS; /* no value set for this subentity */
@@ -577,11 +577,11 @@ h5_err_t
 h5t_remove_mtag_by_name (
 	h5_file_t *const f,
 	const char name[],
-	const h5_id_t id
+	const h5_loc_id_t entity_id
 	) {
 	H5T_Tagset *tagset;
 	TRY ( h5t_open_mtagset ( f, name, &tagset ) );
-	return h5t_remove_mtag ( f, tagset, id );
+	return h5t_remove_mtag ( f, tagset, entity_id );
 }
 
 static hid_t
@@ -609,8 +609,8 @@ write_tagset (
 	  alloc memory
 	 */
 	h5t_tag_idx_t *elems;
-	size_t el_idx;
-	size_t num_elems = t->num_elems[t->num_levels-1];
+	h5_loc_idx_t el_idx;
+	h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
 	TRY ( ( elems = h5priv_calloc (
 			f, num_elems+1, sizeof(*elems) ) ) );
 
@@ -628,26 +628,26 @@ write_tagset (
 	TRY ( ( vals = h5priv_calloc (
 			f, max_vals, sizeof(*vals) ) ) );
 
-	h5_id_t tmap[15] = { H5T_ETYPE_VERTEX, H5T_ETYPE_VERTEX,
-			     H5T_ETYPE_VERTEX, H5T_ETYPE_VERTEX,
-			     H5T_ETYPE_EDGE, H5T_ETYPE_EDGE,
-			     H5T_ETYPE_EDGE, H5T_ETYPE_EDGE,
-			     H5T_ETYPE_EDGE, H5T_ETYPE_EDGE,
-			     H5T_ETYPE_TRIANGLE, H5T_ETYPE_TRIANGLE,
-			     H5T_ETYPE_TRIANGLE, H5T_ETYPE_TRIANGLE,
-			     H5T_ETYPE_TET };
+	h5_loc_id_t tmap[15] = { H5T_ETYPE_VERTEX, H5T_ETYPE_VERTEX,
+				 H5T_ETYPE_VERTEX, H5T_ETYPE_VERTEX,
+				 H5T_ETYPE_EDGE, H5T_ETYPE_EDGE,
+				 H5T_ETYPE_EDGE, H5T_ETYPE_EDGE,
+				 H5T_ETYPE_EDGE, H5T_ETYPE_EDGE,
+				 H5T_ETYPE_TRIANGLE, H5T_ETYPE_TRIANGLE,
+				 H5T_ETYPE_TRIANGLE, H5T_ETYPE_TRIANGLE,
+				 H5T_ETYPE_TET };
 	/* sub-entity indices */
-	h5_id_t smap[15] = { 0, 1, 2, 3,	/* vertices */
-			     0, 1, 2, 3, 4, 5,	/* edges */
-			     0, 1, 2, 3,	/* triangles */
-			     0 };		/* tetrahedron */
+	int smap[15] = { 0, 1, 2, 3,	/* vertices */
+			 0, 1, 2, 3, 4, 5,	/* edges */
+			 0, 1, 2, 3,	/* triangles */
+			 0 };		/* tetrahedron */
 	/*
 	  build data structures in memory
 	 */
 	for ( el_idx = 0; el_idx < num_elems; el_idx++ ) {
 		h5t_tagsel_t *tags_of_elem = tagset->elems[el_idx];
 		size_t num_subentities = 0;
-		h5_id_t start_idx_entities = ent_idx;
+		size_t start_idx_entities = ent_idx;
 		size_t i;
 		for ( i = 0; i < 15; i++ ) {
 			int k = tags_of_elem->idx[i];
@@ -678,10 +678,11 @@ write_tagset (
 						max_entities*sizeof(*entities) )
 					      ) );
 			}
-			h5_id_t type_id = tmap[i];
-			h5_id_t sentity_id = smap[i];
+			h5_glb_id_t type_id = tmap[i];
+			h5_glb_id_t face_idx = smap[i];
+			// TODO: map local elem idx to global index
 			entities[ent_idx].eid = h5tpriv_build_id (
-				type_id, sentity_id, el_idx );
+				type_id, face_idx, el_idx );
 			entities[ent_idx].idx = val_idx;
 			val_idx += valp->size;
 			ent_idx++;
@@ -916,7 +917,7 @@ static h5_ssize_t
 get_tagset_names_of_entity (
 	h5_file_t * const f,
 	h5t_tagcontainer_t *ctn,
-	h5_id_t entity_id,
+	h5_loc_id_t entity_id,
 	char *names[],
 	h5_size_t dim
 	) {
@@ -945,7 +946,7 @@ get_tagset_names_of_entity (
 h5_ssize_t
 h5t_get_mtagset_names_of_entity (
 	h5_file_t* const f,
-	const h5_id_t entity_id,
+	const h5_loc_id_t entity_id,
 	char *names[],
 	const h5_size_t dim
 	) {

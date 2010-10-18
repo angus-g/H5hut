@@ -49,14 +49,13 @@
 #define H5T_ETYPE_TRIANGLE	((h5_id_t)3)
 #define H5T_ETYPE_TET		((h5_id_t)4)
 
-#define h5tpriv_set_entity_type( type, elem_idx )			\
+#define h5tpriv_set_entity_type( type, elem_idx )		\
 	(							\
 		((h5_id_t)(type) << (sizeof(h5_id_t)*8-4)) |	\
 		((h5_id_t)(elem_idx))				\
 		)
 #define h5tpriv_get_entity_type( entity_id )			\
 	((entity_id & H5T_ETYPE_MASK) >> (sizeof(h5_id_t)*8-4))
-
 
 
 #define h5tpriv_build_id( type, comp_idx, elem_idx )		\

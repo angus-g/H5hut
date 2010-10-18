@@ -38,7 +38,8 @@ assign_global_vertex_indices (
 	/*
 	  simple in serial runs: global_id = local_id
 	*/
-	h5_id_t local_idx = (t->cur_level == 0) ? 0 : t->num_vertices[t->cur_level-1];
+	h5_loc_idx_t local_idx = (t->cur_level == 0) ?
+		0 : t->num_vertices[t->cur_level-1];
 	for (local_idx = 0;
 	     local_idx < t->num_vertices[t->num_levels-1];
 	     local_idx++) {
@@ -65,7 +66,7 @@ assign_glb_elem_indices (
 	h5_loc_idx_t loc_idx = (t->cur_level == 0) ? 0 : t->num_elems[t->cur_level-1];
 	
 	for (; loc_idx < t->num_elems[t->cur_level]; loc_idx++) {
-		h5_generic_elem_t *glb_elem = h5tpriv_get_glb_elem (f, loc_idx);
+		h5_generic_glb_elem_t *glb_elem = h5tpriv_get_glb_elem (f, loc_idx);
 
 		glb_elem->idx = loc_idx;
 	}
@@ -89,14 +90,14 @@ assign_glb_elem_data (
 	int dim = h5tpriv_ref_elem_get_dim (t) - 1;
 	int num_faces = h5tpriv_ref_elem_get_num_faces(t, dim);
 	for (; loc_idx < t->num_elems[t->cur_level]; loc_idx++) {
-		h5_generic_elem_t *loc_elem = h5tpriv_get_loc_elem (f, loc_idx);
-		h5_generic_elem_t *glb_elem = h5tpriv_get_glb_elem (f, loc_idx);
+		h5_generic_loc_elem_t *loc_elem = h5tpriv_get_loc_elem (f, loc_idx);
+		h5_generic_glb_elem_t *glb_elem = h5tpriv_get_glb_elem (f, loc_idx);
 
 		glb_elem->parent_idx = loc_elem->parent_idx;
 		if (loc_elem->parent_idx >= 0) {
-			h5_generic_elem_t *loc_parent = h5tpriv_get_loc_elem (
+			h5_generic_loc_elem_t *loc_parent = h5tpriv_get_loc_elem (
 				f, loc_elem->parent_idx);
-			h5_generic_elem_t *glb_parent = h5tpriv_get_glb_elem (
+			h5_generic_glb_elem_t *glb_parent = h5tpriv_get_glb_elem (
 				f, glb_elem->parent_idx);
 			
 			glb_parent->child_idx = loc_parent->child_idx;
@@ -104,8 +105,8 @@ assign_glb_elem_data (
 
 		glb_elem->child_idx = loc_elem->child_idx;
 
-		h5_id_t* glb_indices = h5tpriv_get_glb_elem_vertex_indices (f, loc_idx);
-		h5_id_t* loc_indices = h5tpriv_get_loc_elem_vertex_indices (f, loc_idx);
+		h5_glb_idx_t* glb_indices = h5tpriv_get_glb_elem_vertex_indices (f, loc_idx);
+		h5_loc_idx_t* loc_indices = h5tpriv_get_loc_elem_vertex_indices (f, loc_idx);
 
 		memcpy (glb_indices, loc_indices, num_vertices*sizeof(*glb_indices));
 
@@ -179,10 +180,10 @@ h5t_begin_store_vertices (
 	return h5tpriv_alloc_num_vertices (f, cur_num_vertices+num);
 }
 
-h5_id_t
+h5_loc_idx_t
 h5t_store_vertex (
 	h5_file_t* const f,		/*!< file handle		*/
-	const h5_id_t glb_idx,     	/*!< global vertex id or -1	*/
+	const h5_glb_idx_t glb_id,	/*!< global vertex id from mesher or -1	*/
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
 	h5t_fdata_t* const t = f->t;
@@ -200,9 +201,9 @@ h5t_store_vertex (
 	if (t->cur_level < 0)
 		return h5tpriv_error_undef_level(f);
 
-	h5_id_t local_idx = ++t->last_stored_vid;
-	h5_vertex_t *vertex = &t->vertices[local_idx];
-	vertex->idx = glb_idx;     /* ID from mesher, replaced later!*/
+	h5_loc_idx_t local_idx = ++t->last_stored_vid;
+	h5_loc_vertex_t *vertex = &t->vertices[local_idx];
+	vertex->idx = glb_id;     /* ID from mesher, replaced later!*/
 	memcpy (&vertex->P, P, sizeof (vertex->P));
 	return local_idx;
 }
@@ -216,7 +217,7 @@ h5t_end_store_vertices (
 	t->num_vertices[t->cur_level] = t->last_stored_vid+1;
 	TRY( assign_global_vertex_indices (f) );
 	TRY( h5tpriv_sort_vertices (f) );
-	TRY( h5tpriv_rebuild_global_2_local_map_of_vertices (f) );
+	TRY( h5tpriv_rebuild_vertex_indices_mapping (f) );
 	return H5_SUCCESS;
 }
 
@@ -259,11 +260,11 @@ h5t_begin_store_elems (
   \param[in]	vertices		Local vertex indices defining the
 					tetrahedron.
  */
-h5_id_t
+h5_loc_idx_t
 h5t_store_elem (
 	h5_file_t* const f,
-	const h5_id_t parent_idx,
-	const h5_id_t* vertex_indices
+	const h5_loc_idx_t parent_idx,
+	const h5_loc_idx_t* vertex_indices
 	) {
 	h5t_fdata_t* t = f->t;
 
@@ -288,18 +289,21 @@ h5t_store_elem (
 	}
 
 	/* store elem data (but neighbors) */
-	h5_id_t elem_idx = ++t->last_stored_eid;
+	h5_loc_idx_t elem_idx = ++t->last_stored_eid;
 	h5tpriv_set_loc_elem_parent_idx (f, elem_idx, parent_idx);
 	h5tpriv_set_loc_elem_child_idx (f, elem_idx, -1);
 	h5tpriv_set_loc_elem_level_idx (f, elem_idx, t->cur_level);
 
-	h5_id_t* loc_vertex_indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
+	// get ptr to local vertices store
+	h5_loc_idx_t* loc_vertex_indices = h5tpriv_get_loc_elem_vertex_indices (
+		f, elem_idx);
 	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
-	memcpy (loc_vertex_indices, vertex_indices, sizeof (*vertex_indices)*num_vertices);
+	memcpy (loc_vertex_indices, vertex_indices,
+		sizeof (*vertex_indices)*num_vertices);
 	h5tpriv_sort_local_vertex_indices (f, loc_vertex_indices, num_vertices);
 
 	/* add edges to map  edges -> elements */
-	h5_id_t face_idx;
+	h5_loc_idx_t face_idx;
 	int num_faces = h5tpriv_ref_elem_get_num_edges (t);
 	h5_idlist_t* retval;
 	for (face_idx = 0; face_idx < num_faces; face_idx++) {
@@ -317,6 +321,7 @@ h5_err_t
 h5t_end_store_elems (
 	h5_file_t* const f
 	) {
+	h5_debug (f, "%s ()", __func__);
 	h5t_fdata_t* const t = f->t;
 
 	t->num_elems[t->cur_level] = t->last_stored_eid+1;
@@ -327,7 +332,7 @@ h5t_end_store_elems (
 	TRY( assign_glb_elem_indices (f) );
 
 	/* rebuild map: global index -> local_index */
-	TRY( h5tpriv_rebuild_global_2_local_map_of_elems (f) );
+	TRY( h5tpriv_rebuild_elem_indices_mapping (f) );
 
 	/* mesh specific finalize */
 	TRY( (t->methods.store->end_store_elems)(f) );
@@ -335,6 +340,7 @@ h5t_end_store_elems (
 	/* setup global element data */
 	TRY( assign_glb_elem_data (f) );
 
+	h5_debug (f, "%s (): done", __func__);
 	return H5_SUCCESS;
 }
 
@@ -344,7 +350,7 @@ h5t_end_store_elems (
 h5_err_t
 h5t_mark_entity (
 	h5_file_t* const f,
-	const h5_id_t entity_id
+	const h5_loc_id_t entity_id
 	) {
 	h5t_fdata_t* const t = f->t;
 	return h5priv_append_to_idlist (f, &t->marked_entities, entity_id);

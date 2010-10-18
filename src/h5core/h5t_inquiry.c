@@ -14,14 +14,24 @@ h5t_get_num_meshes (
 	h5_file_t* const f,
 	const h5_oid_t type_id
 	) {
-	hid_t topo_gid;
-	hid_t meshes_gid;
+	hid_t topo_gid = -1;
+	hid_t meshes_gid = -1;
 
-	TRY( topo_gid = h5priv_open_group (f, f->root_gid, H5T_CONTAINER_GRPNAME) );
-	TRY( meshes_gid = h5priv_open_group (
-		     f, topo_gid, h5tpriv_meshes_grpnames[type_id]) );
+	h5_err_t exists;
+	TRY( exists = h5priv_hdf5_link_exists (f, f->root_gid, H5T_CONTAINER_GRPNAME) );
+	if (!exists) return 0;
 
-	return h5_get_num_hdf5_groups (f, meshes_gid);
+	TRY( topo_gid = h5priv_open_hdf5_group (f, f->root_gid, H5T_CONTAINER_GRPNAME) );
+
+	TRY( exists = h5priv_hdf5_link_exists (f, topo_gid, h5tpriv_meshes_grpnames[type_id]) );
+	if (!exists) return 0;
+
+	TRY( meshes_gid = h5priv_open_hdf5_group (f, topo_gid, h5tpriv_meshes_grpnames[type_id]) );
+
+	h5_size_t num_meshes = h5_get_num_hdf5_groups (f, meshes_gid);
+	TRY( h5priv_close_hdf5_group (f, meshes_gid) );
+	TRY( h5priv_close_hdf5_group (f, topo_gid) );
+	return num_meshes;
 }
 
 /*!

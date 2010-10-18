@@ -32,7 +32,7 @@ alloc_triangles (
 		(new-cur) * sizeof (t->loc_elems.tris[0]) );
 
 	/* alloc mem for global to local ID mapping */
-	TRY ( h5priv_alloc_idmap ( f, &t->map_elem_g2l, new ) );
+	TRY ( h5priv_alloc_idxmap ( f, &t->map_elem_g2l, new ) );
 
 	return  H5_SUCCESS;
 }
@@ -140,7 +140,7 @@ refine_triangle (
 	h5t_fdata_t* const t = f->t;
 	h5_loc_idx_t vertices[6];	// local vertex indices
 	h5_loc_idx_t elem_idx_of_first_child;
-	h5_triangle_t* el = &t->loc_elems.tris[elem_idx];
+	h5_loc_triangle_t* el = &t->loc_elems.tris[elem_idx];
 
 	if (el->child_idx >= 0)
 		return h5_error (
@@ -237,6 +237,7 @@ static inline h5_err_t
 compute_neighbors_of_new_elems (
 	h5_file_t* const f
 	) {
+	h5_debug (f, "%s()", __func__);
 	h5t_fdata_t * const t = f->t;
 	if (t->cur_level < 0) {
 		// or should we consider this as an error?
@@ -244,7 +245,7 @@ compute_neighbors_of_new_elems (
 	}
 	h5_loc_idx_t elem_idx = t->cur_level == 0 ? 0 : t->num_elems[t->cur_level-1];
 	const h5_loc_idx_t last_idx = t->num_elems[t->cur_level] - 1;
-	h5_triangle_t *el = &t->loc_elems.tris[elem_idx];
+	h5_loc_triangle_t *el = &t->loc_elems.tris[elem_idx];
 	while (elem_idx <= last_idx) {
 		h5_loc_idx_t face_idx = 0;
 		for (; face_idx < 3; face_idx++) {
@@ -262,6 +263,7 @@ static h5_err_t
 end_store_elems (
 	h5_file_t* const f
 	) {
+	h5_debug (f, "%s()", __func__);
 	h5t_fdata_t* t = f->t;
 
 	TRY( h5tpriv_update_adjacency_structs (f, t->cur_level) );

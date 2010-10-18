@@ -85,6 +85,7 @@ h5_err_t
 h5tpriv_write_mesh (
 	h5_file_t* const f
 	) {
+	h5_debug (f, "%s ()", __func__);
 	h5t_fdata_t* t = f->t;
 	if (t->mesh_changed) {
 		TRY( write_vertices (f) );
@@ -176,7 +177,7 @@ read_vertices (
 		     open_file_space_vertices,
 		     t->vertices) );
 	TRY( h5tpriv_sort_vertices (f) );
-	TRY( h5tpriv_rebuild_global_2_local_map_of_vertices (f) );
+	TRY( h5tpriv_rebuild_vertex_indices_mapping (f) );
 
 	return H5_SUCCESS;
 }
@@ -252,7 +253,7 @@ read_elems (
 		     t->glb_elems.data) );
 
 	TRY( h5tpriv_sort_loc_elems (f) );
-	TRY( h5tpriv_rebuild_global_2_local_map_of_elems (f) );
+	TRY( h5tpriv_rebuild_elem_indices_mapping (f) );
 	TRY( h5tpriv_init_loc_elems_struct (f) );
 
 	return H5_SUCCESS;

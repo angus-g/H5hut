@@ -406,6 +406,7 @@ src/h5core/h5_hsearch_private.h -text
 src/h5core/h5_lustre.c -text
 src/h5core/h5_lustre_private.h -text
 src/h5core/h5_maps.c -text
+src/h5core/h5_maps_private.h -text
 src/h5core/h5_model.c -text
 src/h5core/h5_mpi.c -text
 src/h5core/h5_mpi_private.h -text

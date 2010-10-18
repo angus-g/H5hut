@@ -13,7 +13,7 @@ h5tpriv_skip_to_next_elem_on_level (
 	h5_file_t* f,
 	h5t_entity_iterator_t* iter
 	) {
-	h5_generic_elem_t* el;
+	h5_generic_loc_elem_t* el;
 	do {
 		iter->elem_idx++;
 		if (iter->elem_idx >= num_elems_on_cur_level) {
@@ -33,7 +33,7 @@ h5tpriv_skip_to_next_elem_on_level (
 h5_err_t
 h5tpriv_elem_is_on_cur_level (
 	h5_file_t* const f,
-	h5_generic_elem_t *el // ptr to local element
+	h5_generic_loc_elem_t *el // ptr to local element
 	) {
 	h5t_fdata_t* t = f->t;
 	if ( (el->idx > t->cur_level) ||
@@ -74,7 +74,7 @@ h5t_begin_iterate_entities (
 /*!
   Travere entities with co-dim > 0
 */
-static h5_id_t
+static h5_loc_id_t
 iterate_faces (
 	h5_file_t* const f,
 	h5t_entity_iterator_t* iter
@@ -101,10 +101,10 @@ iterate_faces (
 		TRY( (iter->find)(f, iter->face_idx,
 				  iter->elem_idx, &entry) );
 		i = -1;
-		h5_generic_elem_t *el;
+		h5_generic_loc_elem_t *el;
 		do {
 			i++;
-			h5_id_t idx = h5tpriv_get_elem_idx (entry->items[i]);
+			h5_loc_idx_t idx = h5tpriv_get_elem_idx (entry->items[i]);
 			el = h5tpriv_get_loc_elem (f, idx);
 		} while (h5tpriv_elem_is_on_cur_level (f, el) == H5_NOK);
 	} while (iter->elem_idx != h5tpriv_get_elem_idx(entry->items[i]));
@@ -112,7 +112,7 @@ iterate_faces (
 	return entry->items[0];
 }
 
-static h5_id_t
+static h5_loc_id_t
 iterate_elems (
 	h5_file_t* const f,
 	h5t_entity_iterator_t*iter
@@ -124,7 +124,7 @@ iterate_elems (
 	return h5tpriv_build_elem_id ( iter->elem_idx );
 }
 
-h5_id_t
+h5_loc_id_t
 h5t_iterate_entities (
 	h5_file_t* const f,
 	h5t_entity_iterator_t* iter
@@ -155,10 +155,10 @@ h5t_end_iterate_entities (
 h5_err_t
 h5t_get_vertex_coords_by_index (
 	h5_file_t* const f,
-	h5_id_t vertex_index,
+	h5_loc_idx_t vertex_index,
 	h5_float64_t P[3]
 	) {
-	h5_vertex_t *vertex = &f->t->vertices[vertex_index];
+	h5_loc_vertex_t *vertex = &f->t->vertices[vertex_index];
 	memcpy ( P, &vertex->P, sizeof ( vertex->P ) );
 	return H5_SUCCESS;
 }
@@ -166,10 +166,10 @@ h5t_get_vertex_coords_by_index (
 h5_err_t
 h5t_get_vertex_coords_by_id (
 	h5_file_t* const f,
-	h5_id_t vertex_id,
+	h5_loc_id_t vertex_id,
 	h5_float64_t P[3]
 	) {
-	h5_id_t vertex_index;
+	h5_loc_idx_t vertex_index;
 	h5t_get_vertex_index_of_vertex (f, vertex_id, &vertex_index );
 	h5t_get_vertex_coords_by_index (f, vertex_index, P);
 	return H5_SUCCESS;

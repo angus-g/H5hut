@@ -4,7 +4,7 @@
 h5_err_t
 h5tpriv_sort_local_vertex_indices (
 	h5_file_t * const f,
-	h5_id_t * const indices,
+	h5_loc_idx_t * const indices,
 	const h5_size_t size
 	);
 
@@ -13,18 +13,24 @@ h5tpriv_sort_vertices (
 	h5_file_t * const f
 	);
 
+h5_loc_idx_t
+h5tpriv_get_local_vid (
+	h5_file_t * const f,
+	h5_float64_t P[3]
+	);
+
 h5_err_t
 h5tpriv_sort_loc_elems (
 	h5_file_t * const f
 	);
 
 h5_err_t
-h5tpriv_rebuild_global_2_local_map_of_vertices (
+h5tpriv_rebuild_vertex_indices_mapping (
 	h5_file_t * const f
 	);
 
 h5_err_t
-h5tpriv_rebuild_global_2_local_map_of_elems (
+h5tpriv_rebuild_elem_indices_mapping (
 	h5_file_t * const f
 	);
 

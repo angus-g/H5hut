@@ -299,19 +299,19 @@ h5priv_hcreate_string_keyed (
 }
 
 static int
-_hcmp_id_keyed (
+hcmp_loc_id_keyed (
 	const void* __a,
 	const void* __b
 	) {
-	return memcmp (__a, __b, sizeof(h5_id_t));
+	return memcmp (__a, __b, sizeof(h5_loc_id_t));
 }
 
 static unsigned int
-_hcompute_id_keyed (
+hcompute_loc_id_keyed (
 	const void*__item
 	) {
 	char* key = (char*)__item;
-	unsigned int count = sizeof (h5_id_t);
+	unsigned int count = sizeof (h5_loc_id_t);
 	unsigned int hval = count;
 	while (count-- > 0) {
 		if (key[count]) {
@@ -323,11 +323,11 @@ _hcompute_id_keyed (
 }
 
 h5_err_t
-h5priv_hcreate_id_keyed (
+h5priv_hcreate_loc_id_keyed (
 	h5_file_t* const f,
 	size_t nel,
 	h5_hashtable_t* htab 
 	) {
 	return h5priv_hcreate (f, nel, htab,
-			       _hcmp_id_keyed, _hcompute_id_keyed);
+			       hcmp_loc_id_keyed, hcompute_loc_id_keyed);
 }

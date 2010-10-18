@@ -61,8 +61,8 @@ h5tpriv_resize_te_htab (
 h5_err_t
 h5tpriv_search_te2 (
 	h5_file_t* const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
 	h5_idlist_t** retval
 	) {
 	h5t_fdata_t* t = f->t;
@@ -90,7 +90,7 @@ h5tpriv_search_te2 (
 		  Thus for a tetrahedal mesh we 3 time the remaining elements!
 		  @@@
 		 */
-		h5_id_t num_elems = t->num_elems[t->num_levels-1];
+		h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
 		TRY( h5priv_hresize (
 			     f,
 			     3*(num_elems - elem_idx),
@@ -150,8 +150,8 @@ h5tpriv_find_te (
 h5_err_t
 h5tpriv_find_te2 (
 	h5_file_t* const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
 	h5_idlist_t** retval
 	) {
 	h5t_te_entry_t item;
@@ -221,8 +221,8 @@ h5tpriv_resize_td_htab (
 h5_err_t
 h5tpriv_search_td2 (
 	h5_file_t* const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
 	h5_idlist_t** retval
 	) {
 	h5t_fdata_t* t = f->t;
@@ -238,7 +238,7 @@ h5tpriv_search_td2 (
 	  resize hash table if more than 3/4 filled
 	*/
 	if ((a->td_hash.size*6) <= (a->td_hash.filled<<3)) {
-		h5_id_t num_elems = t->num_elems[t->num_levels-1];
+		h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
 		TRY( h5priv_hresize (
 			     f,
 			     3*(num_elems-elem_idx),
@@ -290,8 +290,8 @@ h5tpriv_find_td (
 h5_err_t
 h5tpriv_find_td2 (
 	h5_file_t* const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
 	h5_idlist_t** retval
 	) {
 	h5t_td_entry_t item;
@@ -309,12 +309,13 @@ h5tpriv_find_td2 (
 h5_err_t
 h5tpriv_find_tv2 (
 	h5_file_t* const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
 	h5_idlist_t** retval
 	) {
 
-	h5_id_t idx = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx);
+	h5_loc_idx_t idx = h5tpriv_get_loc_elem_vertex_idx (
+		f, elem_idx, face_idx);
 	*retval = &f->t->adjacencies.tv.v[idx];
 
 	return H5_SUCCESS;

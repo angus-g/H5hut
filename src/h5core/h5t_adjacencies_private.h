@@ -7,7 +7,7 @@ extern struct h5t_adjacency_methods h5tpriv_tetm_adjacency_methods;
 static inline h5_err_t
 h5tpriv_get_adjacencies (
 	h5_file_t* const f,
-	const h5_id_t entity_id,
+	const h5_loc_id_t entity_id,
 	const h5_int32_t dim,
 	h5_idlist_t** list
 	) {
@@ -21,6 +21,7 @@ static inline h5_err_t
 h5tpriv_release_adjacency_structs (
 	h5_file_t* const f
 	) {
+	h5_debug (f, "%s ()", __func__);
 	if (f->t->methods.adjacency == NULL) {
 		return 0;
 	}
@@ -32,6 +33,7 @@ h5tpriv_update_adjacency_structs (
 	h5_file_t* const f,
 	const h5_id_t level_id
 	) {
+	h5_debug (f, "%s (%lld)", __func__, level_id);
 	return (*f->t->methods.adjacency->update_internal_structs)(f, level_id);
 }
 

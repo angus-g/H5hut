@@ -30,16 +30,16 @@ cmp_vertices (
 static int
 qsort_cmp_vertices (
 	void* _f,
-	const void* _local_vid1,
-	const void* _local_vid2
+	const void* _vertex_idx1,
+	const void* _vertex_idx2
 	) {
 	h5_file_t* f = (h5_file_t*)_f;
-	h5_id_t local_vid1 = *(h5_id_t*)_local_vid1;
-	h5_id_t local_vid2 = *(h5_id_t*)_local_vid2;
+	h5_loc_idx_t vertex_idx1 = *(h5_loc_idx_t*)_vertex_idx1;
+	h5_loc_idx_t vertex_idx2 = *(h5_loc_idx_t*)_vertex_idx2;
 
 	return cmp_vertices (
-		f->t->vertices[local_vid1].P,
-		f->t->vertices[local_vid2].P );
+		f->t->vertices[vertex_idx1].P,
+		f->t->vertices[vertex_idx2].P );
 }
 
 /*!
@@ -52,12 +52,12 @@ h5tpriv_sort_vertices (
 	h5t_fdata_t* t = f->t;
 	if (t->num_levels <= 0) return H5_SUCCESS;
 
-	h5_id_t local_vid = t->cur_level > 0 ?
+	h5_loc_idx_t vertex_idx = t->cur_level > 0 ?
 		t->num_vertices[t->cur_level-1] : 0;
 
-	h5_id_t num_vertices = t->num_vertices[t->num_levels-1];
-	for (; local_vid < num_vertices; local_vid++) {
-		t->sorted_lvertices.items[local_vid] = local_vid;
+	h5_loc_idx_t num_vertices = t->num_vertices[t->num_levels-1];
+	for (; vertex_idx < num_vertices; vertex_idx++) {
+		t->sorted_lvertices.items[vertex_idx] = vertex_idx;
 	}
 	t->sorted_lvertices.num_items = num_vertices;
 
@@ -73,24 +73,24 @@ h5tpriv_sort_vertices (
 
 
 /*!
-  Return local vertex id of a vertex given by its coordinates.
+  Return local vertex index of a vertex given by its coordinates.
 
-  \return	local vertex id if found
+  \return	local vertex idx if found
   \return	else negativ value
  */
-h5_id_t
+h5_loc_idx_t
 h5tpriv_get_local_vid (
 	h5_file_t* const f,
 	h5_float64_t P[3]
 	) {
 	h5t_fdata_t*t = f->t;
-	register h5_id_t low = 0;
-	register h5_id_t high = t->sorted_lvertices.num_items - 1;
+	register h5_loc_idx_t low = 0;
+	register h5_loc_idx_t high = t->sorted_lvertices.num_items - 1;
 	while (low <= high) {
-		register int mid = (low + high) / 2;
+		register h5_loc_idx_t mid = (low + high) / 2;
 
-		h5_id_t local_vid = t->sorted_lvertices.items[mid];
-		h5_float64_t *P1 = t->vertices[local_vid].P;
+		h5_loc_idx_t vertex_idx = t->sorted_lvertices.items[mid];
+		h5_float64_t *P1 = t->vertices[vertex_idx].P;
 	        int diff = cmp_vertices ( P, P1 );
            	if ( diff < 0 )
                		high = mid - 1;
@@ -108,13 +108,13 @@ h5tpriv_get_local_vid (
 static inline int
 cmp_elems (
 	h5_file_t* const  f,
-	const h5_id_t elem_idx1,
-	const h5_id_t elem_idx2
+	const h5_loc_idx_t elem_idx1,
+	const h5_loc_idx_t elem_idx2
 	) {
 	h5t_fdata_t* t = f->t;
 	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
-	h5_id_t* indices1 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx1);
-	h5_id_t* indices2 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx2);
+	h5_loc_idx_t* indices1 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx1);
+	h5_loc_idx_t* indices2 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx2);
 
 	int i;
 	for (i = 0; i < num_vertices; i++) {
@@ -132,13 +132,13 @@ cmp_elems (
 static inline int
 cmp_elems1 (
 	h5_file_t* f,
-	h5_id_t	elem_idx1,
-	h5_id_t elem_idx2
+	h5_loc_idx_t elem_idx1,
+	h5_loc_idx_t elem_idx2
 	) {
 	h5t_fdata_t *t = f->t;
 	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
-	h5_id_t* indices1 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx1);
-	h5_id_t* indices2 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx2);
+	h5_loc_idx_t* indices1 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx1);
+	h5_loc_idx_t* indices2 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx2);
 
 	int imap[] = { 1, 0, 2, 3 };
 	int i;
@@ -158,25 +158,25 @@ cmp_elems1 (
 static int
 qsort_cmp_elems0 (
 	void* _f,
-	const void* _local_eid1,
-	const void* _local_eid2
+	const void* _elem_idx1,
+	const void* _elem_idx2
 	) {
 	h5_file_t* f = (h5_file_t*)_f;
-	h5_id_t local_eid1 = *(h5_id_t*)_local_eid1;
-	h5_id_t local_eid2 = *(h5_id_t*)_local_eid2;
-	return cmp_elems (f, local_eid1, local_eid2);
+	h5_loc_idx_t elem_idx1 = *(h5_loc_idx_t*)_elem_idx1;
+	h5_loc_idx_t elem_idx2 = *(h5_loc_idx_t*)_elem_idx2;
+	return cmp_elems (f, elem_idx1, elem_idx2);
 }
 
 static int
 qsort_cmp_elems1 (
 	void* _f,
-	const void* _local_eid1,
-	const void* _local_eid2
+	const void* _elem_idx1,
+	const void* _elem_idx2
 	) {
 	h5_file_t* f = (h5_file_t*)_f;
-	h5_id_t local_eid1 = *(h5_id_t*)_local_eid1;
-	h5_id_t local_eid2 = *(h5_id_t*)_local_eid2;
-	return cmp_elems1 (f, local_eid1, local_eid2);
+	h5_loc_idx_t elem_idx1 = *(h5_loc_idx_t*)_elem_idx1;
+	h5_loc_idx_t elem_idx2 = *(h5_loc_idx_t*)_elem_idx2;
+	return cmp_elems1 (f, elem_idx1, elem_idx2);
 }
 
 /*!
@@ -189,14 +189,14 @@ h5tpriv_sort_loc_elems (
 	) {
 	h5t_fdata_t* t = f->t;
 	if (t->num_levels <= 0) return H5_SUCCESS;
-	h5_id_t local_eid = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
-	h5_size_t num_elems = t->num_elems[t->num_levels-1];
+	h5_loc_idx_t elem_idx = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
+	h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
 
 	int k;
-	h5_id_t i;
+	h5_loc_idx_t i;
 	for (k = 0; k < 2; k++) {
 		TRY( h5priv_alloc_idlist_items (f, &t->sorted_elems[k], num_elems) );
-		for (i = local_eid; i < num_elems; i++) {
+		for (i = elem_idx; i < num_elems; i++) {
 			t->sorted_elems[k].items[i] = i;
 		}
 		t->sorted_elems[k].num_items = num_elems;
@@ -224,16 +224,16 @@ h5tpriv_sort_loc_elems (
 h5_err_t
 h5tpriv_sort_local_vertex_indices (
 	h5_file_t* const f,
-	h5_id_t* const indices,		/* IN/OUT: local vertex indices */	
+	h5_loc_idx_t* const indices,		/* IN/OUT: local vertex indices */	
 	const h5_size_t size		/* size of array */
 	) {
 	h5t_fdata_t* t = f->t;
 
 	h5_size_t i;
 	for (i = 1; i < size; ++i) {
-		h5_id_t idx = indices[i];
+		h5_loc_idx_t idx = indices[i];
 
-		h5_id_t j = i;
+		h5_size_t j = i;
 		while ((j >= 1 ) && cmp_vertices (
 			       t->vertices[idx].P,
 			       t->vertices[indices[j-1]].P 
@@ -249,14 +249,14 @@ h5tpriv_sort_local_vertex_indices (
 /*!
   Map a global vertex index to corresponding local index.
 */
-h5_id_t
+h5_loc_idx_t
 h5t_map_global_vertex_idx2local (
 	h5_file_t* const f,
-	const h5_id_t glb_idx
+	const h5_glb_idx_t glb_idx
 	) {
 	if (glb_idx < 0) return -1;
 	
-	h5_id_t loc_idx = h5priv_search_idmap (&f->t->map_vertex_g2l, glb_idx);
+	h5_loc_idx_t loc_idx = h5priv_search_idxmap (&f->t->map_vertex_g2l, glb_idx);
 	if (loc_idx < 0) 
 		return h5tpriv_error_global_id_nexist (f, "vertex", glb_idx);
 	return loc_idx;
@@ -265,11 +265,11 @@ h5t_map_global_vertex_idx2local (
 h5_err_t
 h5t_map_global_vertex_indices2local (
 	h5_file_t* const f,
-	const h5_id_t* const glb_indices,
-	const h5_id_t size,
-	h5_id_t* const loc_indices
+	const h5_glb_idx_t* const glb_indices,
+	const h5_size_t size,
+	h5_loc_idx_t* const loc_indices
 	) {
-	int i;
+	h5_size_t i;
 	for (i = 0; i < size; i++) {
 		TRY( (loc_indices[i] =
 		      h5t_map_global_vertex_idx2local (f, glb_indices[i])) );
@@ -285,31 +285,31 @@ h5t_map_global_vertex_indices2local (
 
   \return	Local element index or error code.
 */
-h5_id_t
-h5t_map_global_elem_idx2local (
+h5_loc_idx_t
+h5t_map_glb_elem_idx2loc (
 	h5_file_t* const f,
-	const h5_id_t glb_idx
+	const h5_glb_idx_t glb_idx
 	) {
 	if (glb_idx < 0) return -1;
 
-	h5_id_t loc_idx = h5priv_search_idmap (&f->t->map_elem_g2l, glb_idx);
+	h5_loc_idx_t loc_idx = h5priv_search_idxmap (&f->t->map_elem_g2l, glb_idx);
 	if (loc_idx < 0) 
 		return h5tpriv_error_global_id_nexist (f, "elem", glb_idx);
 	return loc_idx;
 }
 
 h5_err_t
-h5t_map_global_elem_indices2local (
+h5t_map_glb_elem_indices2loc (
 	h5_file_t* const f,
-	const h5_id_t*  glb_indices,
-	const h5_id_t size,
-	h5_id_t* loc_indices
+	const h5_glb_idx_t*  glb_indices,
+	const h5_size_t size,
+	h5_loc_idx_t* loc_indices
 	) {
-	const h5_id_t*  end = glb_indices+size;
+	const h5_glb_idx_t*  end = glb_indices+size;
 
 	while (glb_indices < end) {
 		TRY( (*loc_indices =
-		      h5t_map_global_elem_idx2local (f, *glb_indices)) );
+		      h5t_map_glb_elem_idx2loc (f, *glb_indices)) );
 		loc_indices++;
 		glb_indices++;
 	}
@@ -318,46 +318,51 @@ h5t_map_global_elem_indices2local (
 
 
 /*
-
+  rebuild mapping of global vertex indices to their local indices
  */
 h5_err_t
-h5tpriv_rebuild_global_2_local_map_of_vertices (
+h5tpriv_rebuild_vertex_indices_mapping (
 	h5_file_t* const f
 	) {
+	h5_debug (f, "%s()", __func__);
 	h5t_fdata_t* t = f->t;
 	if (t->num_levels <= 0) return H5_SUCCESS;
 
 	h5_loc_idx_t loc_idx = t->cur_level > 0 ? t->num_vertices[t->cur_level-1] : 0;
 	h5_loc_idx_t num_loc_vertices = t->num_vertices[t->num_levels-1];
-	h5_idmap_el_t *item = &t->map_vertex_g2l.items[loc_idx];
+	h5_idxmap_el_t *item = &t->map_vertex_g2l.items[loc_idx];
 
 	for (; loc_idx < num_loc_vertices; loc_idx++, item++) {
-		item->global_id = t->vertices[loc_idx].idx; 
-		item->local_id = loc_idx;
+		item->glb_idx = t->vertices[loc_idx].idx; 
+		item->loc_idx = loc_idx;
 		t->map_vertex_g2l.num_items++;
 	}
-	h5priv_sort_idmap (&t->map_vertex_g2l);
+	h5priv_sort_idxmap (&t->map_vertex_g2l);
 
 	return H5_SUCCESS;
 }
 
+/*
+  Rebuild mapping of global element indices to their local indices.
+*/
 h5_err_t
-h5tpriv_rebuild_global_2_local_map_of_elems (
+h5tpriv_rebuild_elem_indices_mapping (
 	h5_file_t* const f
 	) {
+	h5_debug (f, "%s()", __func__);
 	h5t_fdata_t* t = f->t;
 	if (t->num_levels <= 0) return H5_SUCCESS;
 
-	h5_id_t loc_idx = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
-	h5_id_t num_loc_elems = t->num_elems[t->num_levels-1];
-	h5_idmap_el_t *item = &t->map_elem_g2l.items[loc_idx];
+	h5_loc_idx_t loc_idx = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
+	h5_loc_idx_t num_loc_elems = t->num_elems[t->num_levels-1];
+	h5_idxmap_el_t *item = &t->map_elem_g2l.items[loc_idx];
 
 	for (; loc_idx < num_loc_elems; loc_idx++, item++) {
-		item->global_id = h5tpriv_get_glb_elem_idx (f, loc_idx);
-		item->local_id = loc_idx;
+		item->glb_idx = h5tpriv_get_glb_elem_idx (f, loc_idx);
+		item->loc_idx = loc_idx;
 		t->map_elem_g2l.num_items++;
 	}
-	h5priv_sort_idmap (&t->map_elem_g2l);
+	h5priv_sort_idxmap (&t->map_elem_g2l);
 
 	return H5_SUCCESS;
 }
@@ -366,8 +371,8 @@ h5tpriv_rebuild_global_2_local_map_of_elems (
 h5_err_t
 h5t_get_vertex_indices_of_entity (
 	h5_file_t* const f,		// in
-	const h5_id_t entity_id,	// in
-	h5_id_t* vertex_indices		// out
+	const h5_loc_id_t entity_id,	// in
+	h5_loc_idx_t* vertex_indices   	// out
 	) {
 	static int map_entity_type_to_dimension[] = {
 		-1,
@@ -377,11 +382,11 @@ h5t_get_vertex_indices_of_entity (
 		[H5_OID_TETRAHEDRON] = 3
 	};
 
-	h5_id_t entity_type = h5tpriv_get_entity_type (entity_id);
-	h5_id_t face_idx = h5tpriv_get_face_idx (entity_id);
-	h5_id_t elem_idx = h5tpriv_get_elem_idx (entity_id);
+	h5_loc_id_t entity_type = h5tpriv_get_entity_type (entity_id);
+	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
+	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	int dim =  map_entity_type_to_dimension[entity_type];
-	h5_id_t* indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
+	h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
 	const h5t_ref_elem_t* ref_elem = f->t->ref_elem;
 	int num_vertices = ref_elem->num_vertices_of_face[dim][face_idx];
 	int i;
@@ -395,11 +400,11 @@ h5t_get_vertex_indices_of_entity (
 h5_err_t
 h5t_get_vertex_index_of_vertex (
 	h5_file_t* const f,
-	const h5_id_t entity_id,
-	h5_id_t* vertex_index
+	const h5_loc_id_t entity_id,
+	h5_loc_idx_t* vertex_index
 	) {
-	h5_id_t face_idx = h5tpriv_get_face_idx (entity_id);
-	h5_id_t elem_idx = h5tpriv_get_elem_idx (entity_id);
+	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
+	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	return h5t_get_vertex_index_of_vertex2 (
 		f, face_idx, elem_idx, vertex_index);
 }
@@ -407,9 +412,9 @@ h5t_get_vertex_index_of_vertex (
 h5_err_t
 h5t_get_vertex_index_of_vertex2 (
 	h5_file_t* const f,
-	const h5_id_t face_idx,		// vertex index according ref. element
-	const h5_id_t elem_idx,		// local element index
-	h5_id_t* vertex_indices		// OUT: vertex ID's
+	const h5_loc_idx_t face_idx,	// vertex index according ref. element
+	const h5_loc_idx_t elem_idx,	// local element index
+	h5_loc_idx_t* vertex_indices	// OUT: vertex ID's
 	) {
 	vertex_indices[0] = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx); 
 	return H5_SUCCESS;
@@ -421,11 +426,11 @@ h5t_get_vertex_index_of_vertex2 (
 h5_err_t
 h5t_get_vertex_indices_of_edge (
 	h5_file_t* const f,
-	const h5_id_t entity_id,
-	h5_id_t* vertex_indices
+	const h5_loc_id_t entity_id,
+	h5_loc_idx_t* vertex_indices
 	) {
-	h5_id_t face_idx = h5tpriv_get_face_idx (entity_id);
-	h5_id_t elem_idx = h5tpriv_get_elem_idx (entity_id);
+	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
+	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	return h5t_get_vertex_indices_of_edge2 (
 		f, face_idx, elem_idx, vertex_indices);
 }
@@ -440,11 +445,11 @@ h5t_get_vertex_indices_of_edge (
 h5_err_t
 h5t_get_vertex_indices_of_edge2 (
 	h5_file_t* const f,
-	const h5_id_t face_idx,		// edge index according ref. element
-	const h5_id_t elem_idx,		// local element index
-	h5_id_t* vertex_indices		// OUT: vertex ID's
+	const h5_loc_idx_t face_idx,	// edge index according ref. element
+	const h5_loc_idx_t elem_idx,	// local element index
+	h5_loc_idx_t* vertex_indices	// OUT: vertex indices
 	) {
-	const h5_id_t* indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
+	const h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
 	const h5t_ref_elem_t* ref_elem = f->t->ref_elem;
 
  	vertex_indices[0] = indices[ ref_elem->map[1][face_idx][0] ];
@@ -455,11 +460,11 @@ h5t_get_vertex_indices_of_edge2 (
 h5_err_t
 h5t_get_vertex_indices_of_triangle (
 	h5_file_t* const f,
-	const h5_id_t entity_id,
-	h5_id_t* vertex_indices
+	const h5_loc_id_t entity_id,
+	h5_loc_idx_t* vertex_indices
 	) {
-	h5_id_t face_idx = h5tpriv_get_face_idx (entity_id);
-	h5_id_t elem_idx = h5tpriv_get_elem_idx (entity_id);
+	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
+	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	return h5t_get_vertex_indices_of_triangle2 (
 		f, face_idx, elem_idx, vertex_indices);
 }
@@ -467,11 +472,12 @@ h5t_get_vertex_indices_of_triangle (
 h5_err_t
 h5t_get_vertex_indices_of_triangle2 (
 	h5_file_t* const f,
-	const h5_id_t face_idx,
-	const h5_id_t elem_idx,
-	h5_id_t* vertex_indices
+	const h5_loc_idx_t face_idx,
+	const h5_loc_idx_t elem_idx,
+	h5_loc_idx_t* vertex_indices
 	) {
-	const h5_id_t* indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
+	const h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (
+		f, elem_idx);
 	const h5t_ref_elem_t* ref_elem = f->t->ref_elem;
 
  	vertex_indices[0] = indices[ ref_elem->map[2][face_idx][0] ];
@@ -484,11 +490,12 @@ h5t_get_vertex_indices_of_triangle2 (
 h5_err_t
 h5t_get_vertex_indices_of_tet (
 	h5_file_t* const f,
-	const h5_id_t entity_id,
-	h5_id_t* vertex_indices
+	const h5_loc_id_t entity_id,
+	h5_loc_idx_t* vertex_indices
 	) {
-	const h5_id_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	const h5_id_t* indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
+	const h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
+	const h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (
+		f, elem_idx);
 	const h5t_ref_elem_t* ref_elem = f->t->ref_elem;
 
  	vertex_indices[0] = indices[ ref_elem->map[3][0][0] ];

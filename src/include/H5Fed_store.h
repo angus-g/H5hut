@@ -36,10 +36,10 @@ H5FedBeginStoreVertices (
 	const h5_size_t num
 	);
 
-h5_id_t
+h5_loc_idx_t
 H5FedStoreVertex (
 	h5_file_t * const f,
-	const h5_id_t id,
+	const h5_glb_idx_t id,
 	const h5_float64_t P[3]
 	);
 
@@ -55,10 +55,10 @@ H5FedBeginStoreElements (
 	);
 
 
-h5_id_t
+h5_err_t
 H5FedStoreElement (
 	h5_file_t * const f,
-	const h5_id_t local_vids[]
+	const h5_loc_idx_t vertex_indices[]
 	);
 
 h5_err_t
@@ -71,22 +71,15 @@ H5FedBeginRefineElements (
 	h5_file_t * const f
 	);
 
-h5_id_t
+h5_loc_idx_t
 H5FedRefineElement (
 	h5_file_t * const f,
-	const h5_id_t eid
+	const h5_loc_idx_t elem_idx
 	);
 
 h5_err_t
 H5FedEndRefineElements (
 	h5_file_t * const f
 	);
-
-h5_err_t
-H5FedMarkRefineElement (
-	h5_file_t * const f,
-	const h5_id_t eid
-	);
-
 
 #endif

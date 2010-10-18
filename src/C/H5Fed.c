@@ -29,6 +29,7 @@ h5_err_t
 H5FedCloseMesh (
 	h5_file_t* const f
 	) {
+	SET_FNAME (f, __func__);
 	return h5t_close_mesh (f);
 }
 

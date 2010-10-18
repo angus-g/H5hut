@@ -6,7 +6,7 @@
 #include "h5_core_private.h"
 
 static h5_errorhandler_t	h5priv_errhandler	= h5_report_errorhandler;
-static h5_int32_t		h5priv_debug_level	= 1;
+h5_int32_t			h5priv_debug_level	= 1;
 
 /*!
   \ingroup h5_core
@@ -160,8 +160,8 @@ h5_abort_errorhandler (
 	return -(int)f->__errno; // never executed, just to supress a warning
 }
 
-static void
-_vprintf (
+void
+h5priv_vprintf (
 	FILE* f,
 	const char* prefix,
 	const char* __funcname,
@@ -216,7 +216,7 @@ h5_verror (
 	) {
 
 	if (h5priv_debug_level < 1) return;
-	_vprintf (stderr, "E", f->__funcname, fmt, ap);
+	h5priv_vprintf (stderr, "E", f->__funcname, fmt, ap);
 }
 
 
@@ -232,7 +232,7 @@ h5_vwarn (
 	va_list ap
 	) {
 	if (h5priv_debug_level < 2) return;
-	_vprintf (stderr, "W", f->__funcname, fmt, ap);
+	h5priv_vprintf (stderr, "W", f->__funcname, fmt, ap);
 }
 
 /*!
@@ -252,69 +252,6 @@ h5_warn (
 	va_end (ap);
 }
 
-/*!
-  \ingroup h5_core_errorhandling
-
-  Print an informational message to \c stdout.
-*/
-void
-h5_vinfo (
-	const h5_file_t* const f,
-	const char* fmt,
-	va_list ap
-	) {
-	if (h5priv_debug_level < 3) return;
-	_vprintf (stdout, "I", f->__funcname, fmt, ap);
-}
-
-/*!
-  \ingroup h5_core_errorhandling
-
-  Print an informational message to \c stdout.
-*/
-void
-h5_info (
-	const h5_file_t* const f,
-	const char* fmt,
-	...
-	) {
-	va_list ap;
-	va_start (ap, fmt);
-	h5_vinfo (f, fmt, ap);
-	va_end (ap);
-}
-
-/*!
-  \ingroup h5_core_errorhandling
-
-  Print a debug message to \c stdout.
-*/
-void
-h5_vdebug (
-	const h5_file_t* const f,
-	const char* fmt,
-	va_list ap
-	) {
-	if (h5priv_debug_level < 4) return;
-	_vprintf (stdout, "D", f->__funcname, fmt, ap);
-}
-
-/*!
-  \ingroup h5_core_errorhandling
-
-  Print a debug message to \c stdout.
-*/
-void
-h5_debug (
-	const h5_file_t* const f,
-	const char* fmt,
-	...
-	) {
-	va_list ap;
-	va_start (ap, fmt);
-	h5_vdebug (f, fmt, ap);
-	va_end (ap);
-}
 
 /*!
   \ingroup h5_core_errorhandling

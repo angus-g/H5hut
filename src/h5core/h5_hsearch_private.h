@@ -68,7 +68,7 @@ h5priv_hcreate_string_keyed (
 	);
 
 h5_err_t
-h5priv_hcreate_id_keyed (
+h5priv_hcreate_loc_id_keyed (
 	h5_file_t* const f,
 	size_t nel,
 	h5_hashtable_t* htab 

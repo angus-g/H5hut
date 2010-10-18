@@ -79,8 +79,8 @@ typedef struct h5_idlist {
 	h5_id_t		*items;
 } h5_idlist_t;
 
-struct h5_idmap;
-typedef struct h5_idmap h5_idmap_t;
+struct h5_idxmap;
+typedef struct h5_idxmap h5_idxmap_t;
 
 
 enum h5_oid {

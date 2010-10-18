@@ -1,7 +1,8 @@
 #ifndef __H5_ERRORHANDLING_H
 #define __H5_ERRORHANDLING_H
 
-#define SET_FNAME( f, fname )	h5_set_funcname( f, fname );
+extern h5_int32_t h5priv_debug_level;
+
 #define CHECK_FILEHANDLE( f )					\
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )		\
 		return h5_get_errno( f );
@@ -88,6 +89,21 @@ h5_abort_errorhandler (
 	va_list ap
 	);
 
+void
+h5priv_vprintf (
+	FILE* f,
+	const char* prefix,
+	const char* __funcname,
+	const char* fmt,
+	va_list ap
+	);
+
+const char *
+h5_get_funcname (
+	const h5_file_t * const f
+	);
+
+
 h5_err_t
 h5_error (
 	h5_file_t * const f,
@@ -125,14 +141,12 @@ __attribute__ ((format (printf, 2, 3)))
 #endif
 ;
 
-void
-h5_vinfo (
-	const h5_file_t * const f,
-	const char *fmt,
-	va_list ap
-	);
+/*!
+  \ingroup h5_core_errorhandling
 
-void
+  Print an informational message to \c stdout.
+*/
+static inline void
 h5_info (
 	const h5_file_t * const f,
 	const char *fmt,
@@ -142,15 +156,32 @@ h5_info (
 __attribute__ ((format (printf, 2, 3)))
 #endif
 ;
+static inline void
+h5_info (
+	const h5_file_t* const f,
+	const char* fmt,
+	...
+	) {
+	if (h5priv_debug_level >= 3) {
+		va_list ap;
+		va_start (ap, fmt);
+		h5priv_vprintf (stdout, "I", h5_get_funcname(f), fmt, ap);
+		va_end (ap);
+	}
+}
 
-void
-h5_vdebug (
-	const h5_file_t * const f,
-	const char *fmt,
-	va_list ap
-	);
+/*!
+  \ingroup h5_core_errorhandling
 
-void
+  Print a debug message to \c stdout.
+*/
+#if defined(HAVE__VA_ARGS__)
+#define h5_debug(f, ...)						\
+	if (h5priv_debug_level >= 4) {					\
+		h5priv_vprintf (stdout, "D", h5_get_funcname(f), __VA_ARGS__); \
+	}
+#else
+static inline void
 h5_debug (
 	const h5_file_t * const f,
 	const char *fmt,
@@ -159,7 +190,22 @@ h5_debug (
 #ifdef __GNUC__
 __attribute__ ((format (printf, 2, 3)))
 #endif
-;
+	;
+
+static inline void
+h5_debug (
+	const h5_file_t * const f,
+	const char *fmt,
+	...
+	) {
+	if (h5priv_debug_level >= 4) {
+		va_list ap;
+		va_start (ap, fmt);
+		h5priv_vprintf (stdout, "D", h5_get_funcname(f), fmt, ap);
+		va_end (ap);
+	}
+}
+#endif
 
 void
 h5_set_funcname (
@@ -167,9 +213,13 @@ h5_set_funcname (
 	const char  * const fname
 	);
 
-const char *
-h5_get_funcname (
-	const h5_file_t * const f
-	);
+static inline void
+SET_FNAME (
+	h5_file_t* const f,
+	const char* const fname
+	) {
+	h5_set_funcname( f, fname );
+	h5_debug (f, "%s", " "); // just print the function name
+}
 
 #endif

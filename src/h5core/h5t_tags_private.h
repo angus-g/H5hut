@@ -79,8 +79,8 @@ typedef struct {
 
 
 typedef struct {
-	h5_id_t eid ;
-	h5_id_t idx;
+	h5_glb_id_t eid ;	// global entity id
+	h5_glb_idx_t idx;	// global index
 } h5t_tag_idx_t;
 
 h5_err_t h5tpriv_write_mtags ( h5_file_t *const f );

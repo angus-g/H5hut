@@ -5,7 +5,6 @@
 #include "h5_errno.h"
 
 #include "h5_attribs.h"
-#include "h5_errorhandling.h"
 #include "h5_hdf5.h"
 #include "h5_maps.h"
 #include "h5_openclose.h"
@@ -19,5 +18,7 @@
 #include "h5b_attribs.h"
 
 #include "h5t_core.h"
+
+#include "h5_errorhandling.h"
 
 #endif

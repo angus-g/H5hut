@@ -32,7 +32,7 @@ alloc_tets (
 		(new-cur) * sizeof (t->loc_elems.tets[0]) );
 
 	/* alloc mem for global to local ID mapping */
-	TRY ( h5priv_alloc_idmap ( f, &t->map_elem_g2l, new ) );
+	TRY ( h5priv_alloc_idxmap ( f, &t->map_elem_g2l, new ) );
 
 	return  H5_SUCCESS;
 }
@@ -72,7 +72,7 @@ get_direct_children_of_edge (
 
   \return local index of vertex
 */
-static h5_id_t
+static h5_loc_idx_t
 bisect_edge (
 	h5_file_t* const f,
 	const h5_loc_idx_t face_idx,
@@ -89,8 +89,8 @@ bisect_edge (
 	 */
 	size_t i;
 	for (i = 0; i < retval->num_items; i++) {
-		h5_id_t idx = h5tpriv_get_elem_idx (retval->items[i]);
-		h5_id_t child_idx = h5tpriv_get_loc_elem_child_idx (f, idx);
+		h5_loc_idx_t idx = h5tpriv_get_elem_idx (retval->items[i]);
+		h5_loc_idx_t child_idx = h5tpriv_get_loc_elem_child_idx (f, idx);
 		if (child_idx >= 0) {
 			/*
 			  this element has been refined!
@@ -134,7 +134,7 @@ bisect_edge (
 
   \return Local id of first new tetrahedron or \c -1
 */
-static h5_id_t
+static h5_loc_idx_t
 refine_tet (
 	h5_file_t* const f,
 	const h5_loc_idx_t elem_idx
@@ -142,7 +142,7 @@ refine_tet (
 	h5t_fdata_t* t = f->t;
 	h5_loc_idx_t vertices[10];
 	h5_loc_idx_t elem_idx_of_first_child;
-	h5_tet_t* el = &t->loc_elems.tets[elem_idx];
+	h5_loc_tet_t* el = &t->loc_elems.tets[elem_idx];
 
 	if ( el->child_idx >= 0 )
 		return h5_error (
@@ -280,7 +280,7 @@ compute_neighbors_of_new_elems (
 	}
 	h5_loc_idx_t elem_idx = t->cur_level == 0 ? 0 : t->num_elems[t->cur_level-1];
 	const h5_loc_idx_t last_idx = t->num_elems[t->cur_level] - 1;
-	h5_tet_t *el = &t->loc_elems.tets[elem_idx];
+	h5_loc_tet_t *el = &t->loc_elems.tets[elem_idx];
 	while (elem_idx <= last_idx) {
 		h5_loc_idx_t face_idx = 0;
 		for (; face_idx < 4; face_idx++) {

@@ -18,6 +18,7 @@
 #include "h5_fcmp_private.h"
 #include "h5_hdf5_private.h"
 #include "h5_hsearch_private.h"
+#include "h5_maps_private.h"
 #include "h5_mpi_private.h"
 #include "h5_qsort_private.h"
 #include "h5_readwrite_private.h"

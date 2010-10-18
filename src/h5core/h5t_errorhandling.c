@@ -6,11 +6,12 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
+#if 0
 const char* ERR_ELEM_NEXIST = "Element with local vertex IDs (%s) doesn't exist!";
 h5_err_t
 h5tpriv_error_local_elem_nexist (
 	h5_file_t* const f,
-	h5_id_t local_vertex_indices[]
+	h5_loc_idx_t local_vertex_indices[]
 	) {
 	h5t_fdata_t* t = f->t;
 	char s[1024];
@@ -30,5 +31,5 @@ h5tpriv_error_local_elem_nexist (
 	}
 
 	return h5_error (f, H5_ERR_NOENTRY, ERR_ELEM_NEXIST, s);
-}
-	
+}	
+#endif

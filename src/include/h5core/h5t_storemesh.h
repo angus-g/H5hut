@@ -21,7 +21,7 @@ h5t_begin_store_vertices (
 h5_id_t
 h5t_store_vertex (
 	h5_file_t * const f,
-	const h5_id_t mesher_vid,
+	const h5_glb_id_t glb_id,
 	const h5_float64_t P[3]
 	);
 
@@ -36,11 +36,11 @@ h5t_begin_store_elems (
 	const h5_size_t num
 	);
 
-h5_id_t
+h5_loc_idx_t
 h5t_store_elem    (
 	h5_file_t * const f,
-	const h5_id_t local_parent_eid,
-	const h5_id_t local_vids[]
+	const h5_loc_idx_t parent_idx,
+	const h5_loc_idx_t* vertex_indices
 	);
 
 h5_err_t
@@ -66,7 +66,7 @@ h5t_end_refine_elems (
 h5_err_t
 h5t_mark_entity (
 	h5_file_t* const f,
-	const h5_id_t entity_id
+	const h5_loc_id_t entity_id
 	);
 
 h5_err_t

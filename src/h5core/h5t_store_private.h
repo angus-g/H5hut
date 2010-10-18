@@ -24,12 +24,12 @@ h5tpriv_alloc_elems (
 	return (*f->t->methods.store->alloc_elems) (f, cur, new);
 }
 
-static inline h5_id_t
+static inline h5_loc_idx_t
 h5tpriv_refine_elem (
 	h5_file_t * const f,
-	const h5_id_t local_eid
+	const h5_loc_idx_t elem_idx
 	) {
-	return (*f->t->methods.store->refine_elem)(f, local_eid);
+	return (*f->t->methods.store->refine_elem)(f, elem_idx);
 }
 
 #endif

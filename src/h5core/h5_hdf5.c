@@ -13,6 +13,9 @@ h5priv_open_hdf5_group (
 	const hid_t loc_id,
 	const char* const group_name
 	) {
+	h5_debug (f, "%s (loc_id=%lld, group_name=\"%s/%s\")", 
+		  __func__, (long long)loc_id,
+		  h5_get_objname (loc_id), group_name);
 	hid_t group_id = H5Gopen (loc_id, group_name, H5P_DEFAULT);
 	if (group_id < 0)
 		return h5_error (
@@ -21,6 +24,7 @@ h5priv_open_hdf5_group (
 			"Cannot open group \"%s/%s\".",
 			h5_get_objname (loc_id),
 			group_name);
+	h5_debug (f, "%s (): return group id: %lld", __func__, (long long)group_id);
 	return group_id;
 }
 
@@ -30,6 +34,9 @@ h5priv_create_hdf5_group (
 	const hid_t loc_id,
 	const char* const group_name
 	) {
+	h5_debug (f, "%s (loc_id=%lld, group_name=\"%s/%s\")", 
+		  __func__, (long long)loc_id,
+		  h5_get_objname (loc_id), group_name);
 	hid_t group_id = H5Gcreate (
 		loc_id, group_name, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 	if (group_id < 0)
@@ -39,6 +46,7 @@ h5priv_create_hdf5_group (
 			"Cannot create group \"%s/%s\".",
 			h5_get_objname (loc_id),
 			group_name);
+	h5_debug (f, "%s (): return group id: %lld", __func__, (long long)group_id);
 	return group_id;
 }
 
@@ -69,29 +77,11 @@ h5priv_open_group (
         h5_err_t exists;
         TRY( exists = h5priv_hdf5_link_exists(f, loc_id, group_name) );
 	if (exists > 0) {
-		h5_info (
-			f,
-			"Opening group %s/%s.",
-			h5_get_objname (loc_id),
-			group_name);
-		group_id = H5Gopen (loc_id, group_name, H5P_DEFAULT);
+		TRY( group_id = h5priv_open_hdf5_group (f, loc_id, group_name) );
 	} else {
 		CHECK_WRITABLE_MODE (f);
-		h5_info (
-			f,
-			"Creating group %s/%s.",
-			h5_get_objname (loc_id),
-			group_name);
-		group_id = H5Gcreate (loc_id, group_name, 0,
-				  H5P_DEFAULT, H5P_DEFAULT);
+		TRY( group_id = h5priv_create_hdf5_group (f, loc_id, group_name) );
 	}
-	if (group_id < 0)
-		return h5_error (
-			f,
-			H5_ERR_HDF5,
-			"Cannot open or create group %s/%s.",
-			h5_get_objname (loc_id),
-			group_name);
 
 	return group_id;
 }
@@ -107,6 +97,12 @@ h5priv_close_hdf5_group (
 	h5_file_t* const f,
 	const hid_t group_id
 	) {
+	h5_debug (f, "%s (group_id=%lld, group_name=\"%s\")", 
+		  __func__,
+		  (long long)group_id,
+		  h5_get_objname (group_id));
+
+	h5_debug (f, "%s (group_id=%lld)", __func__, (long long)group_id);
 	if (group_id <= 0) return H5_SUCCESS; 
 	if (H5Gclose (group_id) < 0 ) {
 		return h5_error (
@@ -187,6 +183,10 @@ h5priv_open_hdf5_dataset (
 	const hid_t loc_id,
 	const char* const dataset_name
 	) {
+	h5_debug (f, "%s (loc_id=%lld, dataset_name=\"%s/%s\")", 
+		  __func__, (long long)loc_id,
+		  h5_get_objname (loc_id), dataset_name);
+
 	hid_t dataset_id;
 
 	dataset_id = H5Dopen ( 
@@ -198,7 +198,7 @@ h5priv_open_hdf5_dataset (
 			f,
 			H5_ERR_HDF5,
 			"Cannot open dataset \"%s\".", dataset_name);
-
+	h5_debug (f, "%s (): return dataset id: %lld", __func__, (long long)dataset_id);
 	return dataset_id;
 }
 
@@ -222,6 +222,10 @@ h5priv_create_hdf5_dataset (
 	const hid_t dataspace_id,
 	const hid_t create_proplist
 	) {
+	h5_debug (f, "%s (loc_id=%lld, dataset_name=\"%s/%s\")", 
+		  __func__, (long long)loc_id,
+		  h5_get_objname (loc_id), dataset_name);
+	
 	hid_t dataset_id = H5Dcreate ( 
 		loc_id,
 		dataset_name,
@@ -237,6 +241,7 @@ h5priv_create_hdf5_dataset (
 			"Cannot create dataset %s/%s",
 			h5_get_objname (loc_id),
 			dataset_name);
+	h5_debug (f, "%s (): return dataset id: %lld", __func__, (long long)dataset_id);
 	return dataset_id;
 }
 
@@ -252,6 +257,10 @@ h5priv_close_hdf5_dataset (
 	const hid_t dset_id
 	) {
 	if (dset_id == 0 || dset_id == -1) return H5_SUCCESS; 
+	h5_debug (f, "%s (dataset_id=%lld, dataset_name=\"%s\")", 
+		  __func__,
+		  (long long)dset_id,
+		  h5_get_objname (dset_id));
 
 	if (H5Dclose (dset_id) < 0) {
 		return 	h5_error(

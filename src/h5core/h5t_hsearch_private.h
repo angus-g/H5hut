@@ -2,15 +2,15 @@
 #define __H5T_HSEARCH_PRIVATE_H
 
 typedef struct h5t_te_entry_key {
-	h5_id_t vids[2];
+	h5_loc_idx_t vids[2];
 } h5t_te_entry_key_t;
 
 typedef struct h5t_td_entry_key {
-	h5_id_t vids[3];
+	h5_loc_idx_t vids[3];
 } h5t_td_entry_key_t;
 
 typedef struct h5t_idlisthash_key {
-	h5_id_t ids[1];
+	h5_loc_id_t ids[1];
 } h5t_idlisthash_key_t;
 
 /*
@@ -47,8 +47,8 @@ h5tpriv_resize_te_htab (
 h5_err_t
 h5tpriv_search_te2 (
 	h5_file_t * const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
 	h5_idlist_t **entry
 	);
 
@@ -62,8 +62,8 @@ h5tpriv_find_te (
 h5_err_t
 h5tpriv_find_te2 (
 	h5_file_t * const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
 	h5_idlist_t **retval
 	);
 
@@ -83,8 +83,8 @@ h5tpriv_resize_td_htab (
 h5_err_t
 h5tpriv_search_td2 (
 	h5_file_t * const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
 	h5_idlist_t **entry
 	);
 
@@ -98,16 +98,16 @@ h5tpriv_find_td (
 h5_err_t
 h5tpriv_find_td2 (
 	h5_file_t * const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
 	h5_idlist_t **rentry
 	);
 
 h5_err_t
 h5tpriv_find_tv2 (
 	h5_file_t * const f,
-	h5_id_t face_idx,
-	h5_id_t elem_idx,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
 	h5_idlist_t **retval
 	);
 #endif

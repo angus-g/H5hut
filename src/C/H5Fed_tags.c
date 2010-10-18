@@ -107,58 +107,6 @@ H5FedSetMTag (
 	return h5t_set_mtag_by_name (f, name, id, dims, val);
 }
 
-h5_err_t
-H5FedSetMTagToVertex (
-	h5_file_t* const f,
-	char name[],
-	h5_id_t id,
-	const size_t dims,
-	void* val 
-	) {
-	SET_FNAME (f, __func__);
-	id = h5tpriv_set_entity_type (H5T_ETYPE_VERTEX, id);
-	return h5t_set_mtag_by_name (f, name, id, dims, val);
-}
-
-h5_err_t
-H5FedSetMTagToEdge (
-	h5_file_t* const f,
-	char name[],
-	h5_id_t id,
-	const size_t dims,
-	void* val 
-	) {
-	SET_FNAME (f, __func__);
-	id = h5tpriv_set_entity_type (H5T_ETYPE_EDGE, id);
-	return h5t_set_mtag_by_name (f, name, id, dims, val);
-}
-
-h5_err_t
-H5FedSetMTagToTriangle (
-	h5_file_t* const f,
-	char name[],
-	h5_id_t id,
-	const size_t dims,
-	void* val 
-	) {
-	SET_FNAME (f, __func__);
-	id = h5tpriv_set_entity_type (H5T_ETYPE_TRIANGLE, id);
-	return h5t_set_mtag_by_name (f, name, id, dims, val);
-}
-
-h5_err_t
-H5FedSetMTagToTet (
-	h5_file_t* const f,
-	char name[],
-	h5_id_t id,
-	const size_t dims,
-	void* val 
-	) {
-	SET_FNAME (f, __func__);
-	id = h5tpriv_set_entity_type (H5T_ETYPE_TET, id);
-	return h5t_set_mtag_by_name (f, name, id, dims, val);
-}
-
 /*!
   Set tag for entity in current mesh.
 

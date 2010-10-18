@@ -351,6 +351,7 @@ h5_err_t
 h5_close_file (
 	h5_file_t* const f	/*!< file handle */
 	) {
+	h5_debug (f, "%s ()", __func__);
 	f->__errno = H5_SUCCESS;
 
 	CHECK_FILEHANDLE (f);
@@ -369,7 +370,7 @@ h5_close_file (
 	TRY( h5priv_close_hdf5_file (f, f->file) );
 
 	free (f);
-
+	h5_debug (f, "%s (): done", __func__);
 	return H5_SUCCESS;
 }
 

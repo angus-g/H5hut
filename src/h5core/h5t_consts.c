@@ -19,15 +19,6 @@ h5tpriv_meshes_grpnames[] = {
 	"TetMeshes"
 };
 
-const size_t
-h5tpriv_sizeof_elem[] = {
-	0,
-	0,
-	0,
-	sizeof (h5_triangle_t),
-	sizeof (h5_tetrahedron_t)
-};
-
 const char*
 h5tpriv_map_oid2str (
 	h5_oid_t oid
