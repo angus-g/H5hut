@@ -69,9 +69,9 @@ h5_err_t
 H5Block3dGetGridCoords (
 	h5_file_t *const f,		/*!< IN: File handle */
 	const int proc,			/*!< IN: MPI processor */
-	h5_size_t *const i,		/*!< OUT: index in \c i */ 
-	h5_size_t *const j,		/*!< OUT: index in \c j */  
-	h5_size_t *const k		/*!< OUT: index in \c k */ 
+	h5_int64_t *const i,		/*!< OUT: index in \c i */ 
+	h5_int64_t *const j,		/*!< OUT: index in \c j */  
+	h5_int64_t *const k		/*!< OUT: index in \c k */ 
 	);
 
 h5_err_t

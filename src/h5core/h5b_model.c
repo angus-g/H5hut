@@ -45,7 +45,7 @@ _normalize_partition (
 	}
 }
 
-#if defined(PARALLEL)
+#ifdef PARALLEL_IO
 /* MLH: this could be improved with an MPI_Reduce and MAX operator...
  * but the user_layout array-of-structs would need to be a struct-of-arrays */
 static void
@@ -699,7 +699,7 @@ h5b_3d_get_chunk (
 	return H5_SUCCESS;
 }
 
-#if defined(PARALLEL_IO)
+#ifdef PARALLEL_IO
 h5_err_t
 h5b_3d_set_grid (
 	h5_file_t *const f,		/*!< IN: File handle */
