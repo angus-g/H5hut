@@ -88,4 +88,13 @@ h5t_get_vertex_indices_of_entity (
 	h5_loc_idx_t *vertex_indices
 	);
 
+h5_err_t
+h5t_get_vertex_indices_of_entity2 (
+	h5_file_t* const f,
+	const int dim,
+	const h5_loc_idx_t face_idx,
+	const h5_loc_idx_t elem_idx,
+	h5_loc_idx_t* vertex_indices
+	);
+
 #endif

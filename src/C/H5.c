@@ -38,7 +38,7 @@
 /*!
   \ingroup h5hut_file
   
-  Open file with name \c filename. This function is available in the parallel
+  Open file with name \c filbename. This function is available in the parallel
   and serial version. In the serial case \c comm may have any value.
 
   \return File handle.
@@ -64,7 +64,7 @@ h5_err_t
 H5CloseFile (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5_close_file (f);
 }
 
@@ -79,7 +79,7 @@ h5_err_t
 H5CheckFile (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5_check_filehandle (f);
 }
 
@@ -99,7 +99,7 @@ H5SetStepNameFormat (
 	const char* name,		/*!< Prefix			*/
 	const h5_int64_t width		/*!< Width of the number	*/
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 
 	return h5_set_stepname_fmt (f, name, width);
 }
@@ -119,7 +119,7 @@ H5GetStepNameFormat (
 	const h5_size_t l_name,		/*!< length of buffer name	*/
 	int* width			/*!< OUT: Width of the number	*/
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 
 	return h5_get_stepname_fmt (f, name, l_name, width);
 }
@@ -137,7 +137,7 @@ H5SetStep (
 	const h5_id_t step		/*!< [in]  Step to set. */
 	) {
 
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5_set_step (f, step);
 }
 
@@ -153,7 +153,7 @@ H5GetStep (
 	h5_file_t* const f		/*!< Handle to open file */
 	) {
 
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5_get_step (f);
 }
 
@@ -171,7 +171,7 @@ int
 H5GetNumProcs (
 	h5_file_t* const f
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5_get_num_procs(f);
 }
 
@@ -193,7 +193,7 @@ H5GetNumSteps (
 	h5_file_t* const f
 	) {
 
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 
 	return h5_get_num_steps(f);
 }
@@ -214,7 +214,7 @@ H5HasStep (
 	h5_id_t stepno
 	) {
   
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 
 	return h5_has_step (f, stepno);
 }
@@ -231,7 +231,7 @@ H5StartTraverseSteps (
 	h5_file_t* const f		/*!< Handle to open file */
 	) {
 
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 
 	return h5_start_traverse_steps (f);
 }
@@ -248,7 +248,7 @@ H5TraverseSteps (
 	h5_file_t* const f		/*!< Handle to open file */
 	) {
 
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 
 	return h5_traverse_steps (f);
 }
@@ -276,7 +276,7 @@ H5SetThrottle (
 	int factor
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_set_throttle( f, factor );
 }

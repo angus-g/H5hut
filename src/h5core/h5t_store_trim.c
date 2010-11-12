@@ -27,7 +27,7 @@ alloc_triangles (
 		      t->loc_elems.tris,
 		      new * sizeof (t->loc_elems.tris[0]) ) );
 	memset (
-		t->glb_elems.tris + cur,
+		t->loc_elems.tris + cur,
 		-1,
 		(new-cur) * sizeof (t->loc_elems.tris[0]) );
 
@@ -208,7 +208,7 @@ compute_neighbor_of_face (
 				f, __FILE__, __func__, __LINE__);
 		}
 		if (te->num_items == 1) {
-			// neighbor is coarser or face is on the border
+			// neighbor is coarser or face is on the boundary
 			elem_idx = t->loc_elems.tris[elem_idx].parent_idx;
 			if (elem_idx == -1) {
 				// we are on the level of the macro grid
@@ -231,20 +231,22 @@ compute_neighbor_of_face (
 }
 
 /*
-  New level has been added, compute neighbores for new elements.
+  Compute neighbors for elements on given level.
  */
 static inline h5_err_t
-compute_neighbors_of_new_elems (
-	h5_file_t* const f
+compute_neighbors_of_elems (
+	h5_file_t* const f,
+	h5t_lvl_idx_t level
 	) {
 	h5_debug (f, "%s()", __func__);
 	h5t_fdata_t * const t = f->t;
-	if (t->cur_level < 0) {
-		// or should we consider this as an error?
-		return H5_SUCCESS;
+	if (level < 0 || level >= t->num_levels) {
+		return h5_error (f, H5_ERR_INVAL,
+				 "level idx %lld out of bound, must be in [%lld,%lld]",
+				 (long long)level, (long long)0, (long long)t->num_levels);
 	}
-	h5_loc_idx_t elem_idx = t->cur_level == 0 ? 0 : t->num_elems[t->cur_level-1];
-	const h5_loc_idx_t last_idx = t->num_elems[t->cur_level] - 1;
+	h5_loc_idx_t elem_idx = level == 0 ? 0 : t->num_elems[level-1];
+	const h5_loc_idx_t last_idx = t->num_elems[level] - 1;
 	h5_loc_triangle_t *el = &t->loc_elems.tris[elem_idx];
 	while (elem_idx <= last_idx) {
 		h5_loc_idx_t face_idx = 0;
@@ -267,7 +269,8 @@ end_store_elems (
 	h5t_fdata_t* t = f->t;
 
 	TRY( h5tpriv_update_adjacency_structs (f, t->cur_level) );
-	TRY( compute_neighbors_of_new_elems (f) );
+	TRY( compute_neighbors_of_elems (f, t->cur_level) );
+	TRY( h5tpriv_init_geom_boundary_info (f, t->cur_level) );
 	return H5_SUCCESS;
 }
 

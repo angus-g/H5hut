@@ -27,197 +27,6 @@ cmp_vertices (
 	return 0;
 }
 
-static int
-qsort_cmp_vertices (
-	void* _f,
-	const void* _vertex_idx1,
-	const void* _vertex_idx2
-	) {
-	h5_file_t* f = (h5_file_t*)_f;
-	h5_loc_idx_t vertex_idx1 = *(h5_loc_idx_t*)_vertex_idx1;
-	h5_loc_idx_t vertex_idx2 = *(h5_loc_idx_t*)_vertex_idx2;
-
-	return cmp_vertices (
-		f->t->vertices[vertex_idx1].P,
-		f->t->vertices[vertex_idx2].P );
-}
-
-/*!
-  Sort vertices. Store local id's in a sorted array for binary search. 
-*/
-h5_err_t
-h5tpriv_sort_vertices (
-	h5_file_t* const f
-	) {
-	h5t_fdata_t* t = f->t;
-	if (t->num_levels <= 0) return H5_SUCCESS;
-
-	h5_loc_idx_t vertex_idx = t->cur_level > 0 ?
-		t->num_vertices[t->cur_level-1] : 0;
-
-	h5_loc_idx_t num_vertices = t->num_vertices[t->num_levels-1];
-	for (; vertex_idx < num_vertices; vertex_idx++) {
-		t->sorted_lvertices.items[vertex_idx] = vertex_idx;
-	}
-	t->sorted_lvertices.num_items = num_vertices;
-
-	h5priv_qsort_r (
-		t->sorted_lvertices.items,
-		num_vertices,
-		sizeof (t->sorted_lvertices.items[0]),
-		f,
-		qsort_cmp_vertices);
-
-	return H5_SUCCESS;
-}
-
-
-/*!
-  Return local vertex index of a vertex given by its coordinates.
-
-  \return	local vertex idx if found
-  \return	else negativ value
- */
-h5_loc_idx_t
-h5tpriv_get_local_vid (
-	h5_file_t* const f,
-	h5_float64_t P[3]
-	) {
-	h5t_fdata_t*t = f->t;
-	register h5_loc_idx_t low = 0;
-	register h5_loc_idx_t high = t->sorted_lvertices.num_items - 1;
-	while (low <= high) {
-		register h5_loc_idx_t mid = (low + high) / 2;
-
-		h5_loc_idx_t vertex_idx = t->sorted_lvertices.items[mid];
-		h5_float64_t *P1 = t->vertices[vertex_idx].P;
-	        int diff = cmp_vertices ( P, P1 );
-           	if ( diff < 0 )
-               		high = mid - 1;
-           	else if ( diff > 0 )
-               		low = mid + 1;
-           	else
-               		return t->sorted_lvertices.items[mid]; // found
-       	}
-       	return -(low+1);  // not found
-}
-
-/*!
-  compare two elems given by their local id
-*/
-static inline int
-cmp_elems (
-	h5_file_t* const  f,
-	const h5_loc_idx_t elem_idx1,
-	const h5_loc_idx_t elem_idx2
-	) {
-	h5t_fdata_t* t = f->t;
-	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
-	h5_loc_idx_t* indices1 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx1);
-	h5_loc_idx_t* indices2 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx2);
-
-	int i;
-	for (i = 0; i < num_vertices; i++) {
-		h5_float64_t* v1 = t->vertices[indices1[i]].P;
-		h5_float64_t* v2 = t->vertices[indices2[i]].P;
-		int r = cmp_vertices (v1, v2);
-		if (r < 0)
-			return -1;
-		else if (r > 0)
-			return 1;
-	}
-	return 0;
-}
-
-static inline int
-cmp_elems1 (
-	h5_file_t* f,
-	h5_loc_idx_t elem_idx1,
-	h5_loc_idx_t elem_idx2
-	) {
-	h5t_fdata_t *t = f->t;
-	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
-	h5_loc_idx_t* indices1 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx1);
-	h5_loc_idx_t* indices2 = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx2);
-
-	int imap[] = { 1, 0, 2, 3 };
-	int i;
-	for ( i = 0; i < num_vertices; i++ ) {
-		h5_float64_t* v1 = t->vertices[ indices1[imap[i]] ].P;
-		h5_float64_t* v2 = t->vertices[ indices2[imap[i]] ].P;
-		int r = cmp_vertices (v1, v2);
-		if (r < 0)
-			return -1;
-		else if (r > 0)
-			return 1;
-	}
-	return 0;
-}
-
-
-static int
-qsort_cmp_elems0 (
-	void* _f,
-	const void* _elem_idx1,
-	const void* _elem_idx2
-	) {
-	h5_file_t* f = (h5_file_t*)_f;
-	h5_loc_idx_t elem_idx1 = *(h5_loc_idx_t*)_elem_idx1;
-	h5_loc_idx_t elem_idx2 = *(h5_loc_idx_t*)_elem_idx2;
-	return cmp_elems (f, elem_idx1, elem_idx2);
-}
-
-static int
-qsort_cmp_elems1 (
-	void* _f,
-	const void* _elem_idx1,
-	const void* _elem_idx2
-	) {
-	h5_file_t* f = (h5_file_t*)_f;
-	h5_loc_idx_t elem_idx1 = *(h5_loc_idx_t*)_elem_idx1;
-	h5_loc_idx_t elem_idx2 = *(h5_loc_idx_t*)_elem_idx2;
-	return cmp_elems1 (f, elem_idx1, elem_idx2);
-}
-
-/*!
-  Sort elements. Store local id's in a sorted array so we can run a
-  binary search. 
-*/
-h5_err_t
-h5tpriv_sort_loc_elems (
-	h5_file_t* const f
-	) {
-	h5t_fdata_t* t = f->t;
-	if (t->num_levels <= 0) return H5_SUCCESS;
-	h5_loc_idx_t elem_idx = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
-	h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
-
-	int k;
-	h5_loc_idx_t i;
-	for (k = 0; k < 2; k++) {
-		TRY( h5priv_alloc_idlist_items (f, &t->sorted_elems[k], num_elems) );
-		for (i = elem_idx; i < num_elems; i++) {
-			t->sorted_elems[k].items[i] = i;
-		}
-		t->sorted_elems[k].num_items = num_elems;
-	}
-
-	h5priv_qsort_r (
-		t->sorted_elems[0].items,
-		num_elems,
-		sizeof (t->sorted_elems[0].items[0]),
-		f,    
-		qsort_cmp_elems0);
-	h5priv_qsort_r (
-		t->sorted_elems[1].items,
-		num_elems,
-		sizeof (t->sorted_elems[1].items[0]),
-		f,
-		qsort_cmp_elems1);
-
-	return H5_SUCCESS;
-}
-
 /*!
   Sort (small) array of local vertex indices geometrically. 
  */
@@ -385,7 +194,19 @@ h5t_get_vertex_indices_of_entity (
 	h5_loc_id_t entity_type = h5tpriv_get_entity_type (entity_id);
 	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	int dim =  map_entity_type_to_dimension[entity_type];
+	int dim = map_entity_type_to_dimension[entity_type];
+
+	return h5t_get_vertex_indices_of_entity2 (f, dim, face_idx, elem_idx, vertex_indices);
+}
+
+h5_err_t
+h5t_get_vertex_indices_of_entity2 (
+	h5_file_t* const f,		// [in]
+	const int dim,			// [in] dimension
+	const h5_loc_idx_t face_idx,	// [in] vertex index according ref. element
+	const h5_loc_idx_t elem_idx,	// [in] local element index
+	h5_loc_idx_t* vertex_indices   	// [out]
+	) {
 	h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
 	const h5t_ref_elem_t* ref_elem = f->t->ref_elem;
 	int num_vertices = ref_elem->num_vertices_of_face[dim][face_idx];
@@ -436,8 +257,8 @@ h5t_get_vertex_indices_of_edge (
 }
 
 /*!
-  Get local vertex ID's of an edge. The edge is specified by the local 
-  element index and the sub-entity ID of the edge according the reference
+  Get local vertex indices of an edge. The edge is specified by the local 
+  element index and the face number of the edge according the reference
   element.
 
   This function can be used with tetrahedral and triangle meshes.

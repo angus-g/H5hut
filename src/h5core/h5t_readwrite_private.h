@@ -32,4 +32,12 @@ h5tpriv_init_loc_elems_struct (
 	return (*f->t->methods.read->init_loc_elems_struct) (f);
 }
 
+static inline h5_err_t
+h5tpriv_init_geom_boundary_info (
+	h5_file_t* const f,
+	const h5t_lvl_idx_t from_lvl
+	) {
+	return (*f->t->methods.read->init_geom_boundary_info) (f, from_lvl);
+}
+
 #endif

@@ -37,8 +37,10 @@ h5_err_t
 h5_set_debuglevel (
 	const h5_id_t level	/*!< debug level */
 	) {
-	if (level < 0 || level > 5) return H5_ERR_INVAL;
-	h5priv_debug_level = level;
+	if (level < 0) 
+		h5priv_debug_level = 0;
+	else
+		h5priv_debug_level = level;
 	return H5_SUCCESS;
 }
 
@@ -168,15 +170,9 @@ h5priv_vprintf (
 	const char* fmt,
 	va_list ap
 	) {
-	size_t size = strlen (prefix);	// to avoid remark #981 with Intel CC
-	size += strlen (fmt);
-	size += strlen (__funcname) + 16;
-
-	char *fmt2 = (char*)malloc (size);
-	if (fmt2 == NULL) return;
-	sprintf (fmt2, "%s: %s: %s\n", prefix, __funcname, fmt); 
+	char fmt2[2048];
+	snprintf (fmt2, sizeof(fmt2), "%s: %s: %s\n", prefix, __funcname, fmt); 
 	vfprintf (f, fmt2, ap);
-	free (fmt2);
 }
 
 /*!
@@ -218,40 +214,6 @@ h5_verror (
 	if (h5priv_debug_level < 1) return;
 	h5priv_vprintf (stderr, "E", f->__funcname, fmt, ap);
 }
-
-
-/*!
-  \ingroup h5_core_errorhandling
-
-  Print a warning message to \c stderr.
-*/
-void
-h5_vwarn (
-	const h5_file_t* const f,
-	const char* fmt,
-	va_list ap
-	) {
-	if (h5priv_debug_level < 2) return;
-	h5priv_vprintf (stderr, "W", f->__funcname, fmt, ap);
-}
-
-/*!
-  \ingroup h5_core_errorhandling
-
-  Print a warning message to \c stderr.
-*/
-void
-h5_warn (
-	const h5_file_t* const f,
-	const char* fmt,
-	...
-	) {
-	va_list ap;
-	va_start (ap, fmt);
-	h5_vwarn (f, fmt, ap);
-	va_end (ap);
-}
-
 
 /*!
   \ingroup h5_core_errorhandling

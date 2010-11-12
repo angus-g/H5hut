@@ -1,4 +1,5 @@
 #include "h5core/h5_core.h"
+#include "h5_core_private.h"
 
 /*
   
@@ -30,6 +31,11 @@
 
 const h5t_ref_elem_t h5t_tri_ref_elem = {
 	2,					// dimension
+	{
+		H5T_ETYPE_VERTEX,
+		H5T_ETYPE_EDGE,
+		H5T_ETYPE_TRIANGLE,
+	},
 	{
 		3,				// #vertices
 		3,				// #edges
@@ -88,6 +94,12 @@ const h5t_ref_elem_t h5t_tri_ref_elem = {
 const h5t_ref_elem_t h5t_tet_ref_elem = {
 	3,					// dimension
 	{
+		H5T_ETYPE_VERTEX,
+		H5T_ETYPE_EDGE,
+		H5T_ETYPE_TRIANGLE,
+		H5T_ETYPE_TET,
+	},
+	{
 		4,				// #vertices
 		6,				// #edges
 		4,				// #triangles
@@ -99,7 +111,7 @@ const h5t_ref_elem_t h5t_tet_ref_elem = {
 		[2] = {3,3,3,3},	       	// #vertices of trinagles
 		[3] = {4}			// #vertices of tets
 	},
-	{	// map sub-elements to vertices
+	{	// map faces to vertices
 		[0] = {{0}, {1}, {2}, {3}},		 	  // 4 vertices
 		[1] = {{0,1}, {0,2}, {1,2}, {0,3}, {1,3}, {2,3}}, // 6 edges
 		[2] = {{0,1,2}, {0,1,3}, {0,2,3}, {1,2,3}},	  // 4 triangles

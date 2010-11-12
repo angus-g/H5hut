@@ -97,13 +97,13 @@ h5priv_close_hdf5_group (
 	h5_file_t* const f,
 	const hid_t group_id
 	) {
+	if (group_id == 0 || group_id == -1) return H5_SUCCESS;
+
 	h5_debug (f, "%s (group_id=%lld, group_name=\"%s\")", 
 		  __func__,
 		  (long long)group_id,
 		  h5_get_objname (group_id));
 
-	h5_debug (f, "%s (group_id=%lld)", __func__, (long long)group_id);
-	if (group_id <= 0) return H5_SUCCESS; 
 	if (H5Gclose (group_id) < 0 ) {
 		return h5_error (
 			f,
@@ -1184,7 +1184,21 @@ h5priv_hdf5_link_exists (
 	const hid_t loc_id,
 	const char* name
 	) {
+	/* Save old error handler */
+	H5E_auto2_t old_func;
+	void *old_client_data;
+
+	H5Eget_auto2(H5E_DEFAULT, &old_func, &old_client_data);
+
+	/* Turn off error handling */
+	H5Eset_auto(H5E_DEFAULT, NULL, NULL);
+
+	/* Probe. Likely to fail, but that’s okay */
 	htri_t exists = H5Lexists ( loc_id, name, H5P_DEFAULT );
+
+	/* Restore previous error handler */
+	H5Eset_auto(H5E_DEFAULT, old_func, old_client_data);
+
 	if (exists < 0 )
 		return h5_error (f,
 			H5_ERR_HDF5,
@@ -1484,3 +1498,15 @@ h5_get_objname (
 
 	return objname;
 }
+
+#if 0
+herr_t
+h5priv_get_objinfo_by_name (
+	hid_t loc_id,
+	const char *object_name,
+	H5O_info_t *object_info
+	) {
+	herr_t herr = H5Oget_info_by_name (
+		loc_id, object_name, object_info, H5P_DEFAULT); 
+}
+#endif

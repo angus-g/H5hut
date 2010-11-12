@@ -1,22 +1,33 @@
 #ifndef __H5T_RETRIEVE_H
 #define __H5T_RETRIEVE_H
 
-typedef struct {
+typedef struct h5t_entity_iterator {
 	h5_id_t elem_idx;	// local element id
 	h5_id_t	face_idx;	// face id according reference element
 	int codim;		// dimension of entities to traverse
 	const h5t_ref_elem_t* ref_elem; // pointer to reference element
-	h5_err_t (*find)(h5_file_t *const f,
-			 h5_id_t face_idx,
-			 h5_id_t elem_idx,
-			 h5_idlist_t **retval);
+	h5_err_t (*find)(
+		h5_file_t *const f,
+		h5_id_t face_idx,
+		h5_id_t elem_idx,
+		h5_idlist_t **retval);
+	h5_loc_id_t (*iter)(
+		h5_file_t *const f,
+		struct h5t_entity_iterator* iter);		 
 } h5t_entity_iterator_t;
 
 h5_err_t
 h5t_alloc_entity_iterator (
 	h5_file_t* f,
 	h5t_entity_iterator_t** iter,
-	int codim
+	const int codim
+	);
+
+h5_err_t
+h5t_alloc_boundary_face_iterator (
+	h5_file_t* f,
+	h5t_entity_iterator_t** iter,
+	const int codim
 	);
 
 h5_err_t
@@ -29,7 +40,14 @@ h5_err_t
 h5t_begin_iterate_entities (
 	h5_file_t* f,
 	h5t_entity_iterator_t* iter,
-	int codim
+	const int codim
+	);
+
+h5_err_t
+h5t_begin_iterate_boundary_faces (
+	h5_file_t* f,
+	h5t_entity_iterator_t* iter,
+	const int codim
 	);
 
 h5_id_t

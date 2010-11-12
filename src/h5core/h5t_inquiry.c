@@ -60,7 +60,7 @@ h5t_get_num_levels (
 
   \return	Current level ID.
 */
-h5_id_t
+h5t_lvl_idx_t
 h5t_get_level (
 	h5_file_t* const f
 	) {

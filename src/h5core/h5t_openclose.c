@@ -265,7 +265,7 @@ init_fdata (
 	t->dsinfo_num_vertices.dims[0] = 0;
 	t->dsinfo_num_vertices.max_dims[0] = H5S_UNLIMITED;
 	t->dsinfo_num_vertices.chunk_dims[0] = 4096;
-	t->dsinfo_num_vertices.type_id = t->dtypes.h5_id_t;
+	t->dsinfo_num_vertices.type_id = t->dtypes.h5_glb_idx_t;
 	TRY( t->dsinfo_num_vertices.create_prop = h5priv_create_hdf5_property (
 		     f,
 		     H5P_DATASET_CREATE) );
@@ -298,7 +298,7 @@ init_fdata (
 	t->dsinfo_num_elems.dims[0] = 0;
 	t->dsinfo_num_elems.max_dims[0] = H5S_UNLIMITED;
 	t->dsinfo_num_elems.chunk_dims[0] = 4096;
-	t->dsinfo_num_elems.type_id = t->dtypes.h5_id_t;
+	t->dsinfo_num_elems.type_id = t->dtypes.h5_glb_idx_t;
 	TRY( t->dsinfo_num_elems.create_prop = h5priv_create_hdf5_property (
 		     f,
 		     H5P_DATASET_CREATE) );
@@ -315,7 +315,7 @@ init_fdata (
 	t->dsinfo_num_elems_on_level.dims[0] = 0;
 	t->dsinfo_num_elems_on_level.max_dims[0] = H5S_UNLIMITED;
 	t->dsinfo_num_elems_on_level.chunk_dims[0] = 4096;
-	t->dsinfo_num_elems_on_level.type_id = t->dtypes.h5_id_t;
+	t->dsinfo_num_elems_on_level.type_id = t->dtypes.h5_glb_idx_t;
 	TRY( t->dsinfo_num_elems_on_level.create_prop = h5priv_create_hdf5_property (
 		     f,
 		     H5P_DATASET_CREATE) );
@@ -347,7 +347,7 @@ h5tpriv_open_file (
 	TRY( (f->t = h5priv_calloc (f, 1, sizeof (*f->t))) );
 	h5t_fdata_t* t = f->t;
 
-	t->dtypes.h5_id_t = H5_INT64_T;
+	t->dtypes.h5_glb_idx_t = H5_INT64_T;
 	t->dtypes.h5_int64_t = H5_INT64_T;
 	t->dtypes.h5_float64_t = H5_FLOAT64_T;
 
@@ -549,14 +549,14 @@ h5t_close_mesh (
 h5_err_t
 h5t_set_level (
 	h5_file_t* const f,
-	const h5_id_t level_id
+	const h5t_lvl_idx_t level_id
 	) {
 	h5t_fdata_t* t = f->t;
 
 	if ((level_id < 0) || (level_id >= t->num_levels))
 		return HANDLE_H5_OUT_OF_RANGE_ERR (f, "Level", level_id);
 
-	h5_id_t prev_level = t->cur_level;
+	h5t_lvl_idx_t prev_level = t->cur_level;
 	t->cur_level = level_id;
 
 	if (level_id >= t->num_loaded_levels) {
@@ -578,7 +578,6 @@ h5tpriv_alloc_num_vertices (
 	ssize_t size = num * sizeof (t->vertices[0]);
 	TRY( t->vertices = h5priv_alloc (f, t->vertices, size) );
 	TRY( h5priv_alloc_idxmap (f, &t->map_vertex_g2l, num) );
-	TRY( h5priv_alloc_idlist_items (f, &t->sorted_lvertices, num) );
 
 	return H5_SUCCESS;
 }

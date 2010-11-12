@@ -121,7 +121,7 @@ assign_glb_elem_data (
 }
 
 
-h5_id_t
+h5t_lvl_idx_t
 h5t_add_level (
 	h5_file_t* const f
 	) {
@@ -216,7 +216,6 @@ h5t_end_store_vertices (
 
 	t->num_vertices[t->cur_level] = t->last_stored_vid+1;
 	TRY( assign_global_vertex_indices (f) );
-	TRY( h5tpriv_sort_vertices (f) );
 	TRY( h5tpriv_rebuild_vertex_indices_mapping (f) );
 	return H5_SUCCESS;
 }
@@ -325,8 +324,6 @@ h5t_end_store_elems (
 	h5t_fdata_t* const t = f->t;
 
 	t->num_elems[t->cur_level] = t->last_stored_eid+1;
-
-	TRY( h5tpriv_sort_loc_elems (f) );
 
 	/* assign global indices to new indices */
 	TRY( assign_glb_elem_indices (f) );

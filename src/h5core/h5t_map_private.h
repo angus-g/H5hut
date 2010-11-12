@@ -8,20 +8,10 @@ h5tpriv_sort_local_vertex_indices (
 	const h5_size_t size
 	);
 
-h5_err_t
-h5tpriv_sort_vertices (
-	h5_file_t * const f
-	);
-
 h5_loc_idx_t
 h5tpriv_get_local_vid (
 	h5_file_t * const f,
 	h5_float64_t P[3]
-	);
-
-h5_err_t
-h5tpriv_sort_loc_elems (
-	h5_file_t * const f
 	);
 
 h5_err_t

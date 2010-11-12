@@ -21,7 +21,7 @@ H5WriteFileAttribString (
 	const char *value	/*!< [in] Value of attribute */ 
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_write_attrib (
 		f,
@@ -47,7 +47,7 @@ H5WriteStepAttribString (
 	const char *value	/*!< [in] Value of attribute */ 
 	) {
 
-	SET_FNAME ( f, __func__ );
+	H5_ENTER_API ( f, __func__ );
 
 	return h5_write_attrib (
 		f, 
@@ -74,7 +74,7 @@ H5WriteFileAttribFloat32 (
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_write_attrib (
 		f,
@@ -101,7 +101,7 @@ H5WriteStepAttribFloat32 (
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_write_attrib (
 		f,
@@ -128,7 +128,7 @@ H5WriteFileAttribFloat64 (
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_write_attrib (
 		f,
@@ -155,7 +155,7 @@ H5WriteStepAttribFloat64 (
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_write_attrib (
 		f,
@@ -182,7 +182,7 @@ H5WriteFileAttribInt32 (
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_write_attrib (
 		f,
@@ -209,7 +209,7 @@ H5WriteStepAttribInt32 (
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_write_attrib (
 		f,
@@ -236,7 +236,7 @@ H5WriteFileAttribInt64 (
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_write_attrib (
 		f,
@@ -263,7 +263,7 @@ H5WriteStepAttribInt64 (
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_write_attrib (
 		f,
@@ -291,7 +291,7 @@ H5ReadFileAttribString (
 	char *buffer		/*!< [out] Value of attribute */ 
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_read_attrib (
 		f,
@@ -316,7 +316,7 @@ H5ReadStepAttribString (
 	char *buffer		/*!< [out] Value of attribute */ 
 	) {
 
-	SET_FNAME ( f, __func__ );
+	H5_ENTER_API ( f, __func__ );
 
 	return h5_read_attrib (
 		f, 
@@ -341,7 +341,7 @@ H5ReadFileAttribInt32 (
 	h5_int32_t *buffer		/*!< [out] Values of attribute */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_read_attrib (
 		f,
@@ -366,7 +366,7 @@ H5ReadStepAttribInt32 (
 	h5_int32_t *buffer		/*!< [out] Values of attribute */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_read_attrib (
 		f,
@@ -391,7 +391,7 @@ H5ReadFileAttribInt64 (
 	h5_int64_t *buffer		/*!< [out] Values of attribute */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_read_attrib (
 		f,
@@ -416,7 +416,7 @@ H5ReadStepAttribInt64 (
 	h5_int64_t *buffer		/*!< [out] Values of attribute */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_read_attrib (
 		f,
@@ -441,7 +441,7 @@ H5ReadFileAttribFloat32 (
 	h5_float32_t *buffer		/*!< [out] Values of attribute */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_read_attrib (
 		f,
@@ -466,7 +466,7 @@ H5ReadStepAttribFloat32 (
 	h5_float32_t *buffer		/*!< [out] Values of attribute */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_read_attrib (
 		f,
@@ -491,7 +491,7 @@ H5ReadFileAttribFloat64 (
 	h5_float64_t *buffer		/*!< [out] Values of attribute */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_read_attrib (
 		f,
@@ -516,7 +516,7 @@ H5ReadStepAttribFloat64 (
 	h5_float64_t *buffer		/*!< [out] Values of attribute */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_read_attrib (
 		f,
@@ -539,7 +539,7 @@ h5_int64_t
 H5GetNumFileAttribs (
 	h5_file_t *const f	/*!< [in] Handle to open file */
 	) {
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_get_num_attribs ( f, H5_ATTRIB_FILE );
 }
@@ -555,7 +555,7 @@ h5_int64_t
 H5GetNumStepAttribs (
 	h5_file_t *const f 	/*!< [in] Handle to open file */
 	) {
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_get_num_attribs ( f, H5_ATTRIB_STEP );
 }
@@ -587,7 +587,7 @@ H5GetFileAttribInfo (
 	h5_size_t *attrib_nelem         /*!< [out] Number of elements */
 	) {
 
-	SET_FNAME ( f, __func__ );
+	H5_ENTER_API ( f, __func__ );
 
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return h5_get_errno ( f );
@@ -627,7 +627,7 @@ H5GetStepAttribInfo (
 	h5_size_t *attrib_nelem         /*!< [out] Number of elements */
 	) {
 	
-	SET_FNAME ( f, __func__ );
+	H5_ENTER_API ( f, __func__ );
 
    	if ( h5_check_filehandle ( f ) != H5_SUCCESS )
 		return h5_get_errno( f );

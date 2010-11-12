@@ -31,9 +31,9 @@ h5tpriv_release_adjacency_structs (
 static inline h5_err_t
 h5tpriv_update_adjacency_structs (
 	h5_file_t* const f,
-	const h5_id_t level_id
+	const h5t_lvl_idx_t level_id
 	) {
-	h5_debug (f, "%s (%lld)", __func__, level_id);
+	h5_debug (f, "%s (%lld)", __func__, (long long)level_id);
 	return (*f->t->methods.adjacency->update_internal_structs)(f, level_id);
 }
 

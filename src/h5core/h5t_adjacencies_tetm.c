@@ -56,7 +56,7 @@ release_tv (
 static inline h5_err_t
 compute_elems_of_vertices (
 	h5_file_t* const f,
-	const h5_id_t from_lvl
+	const h5t_lvl_idx_t from_lvl
 	) {
 	/* expand structure */
 	TRY( alloc_tv (f) );
@@ -95,7 +95,7 @@ release_te (
 static inline h5_err_t
 compute_elems_of_edges (
 	h5_file_t* const f,
-	const h5_id_t from_lvl
+	const h5t_lvl_idx_t from_lvl
 	) {
 	h5t_fdata_t *t = f->t;
 	h5_loc_idx_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
@@ -125,7 +125,7 @@ release_td (
 static inline h5_err_t
 compute_elems_of_triangles (
 	h5_file_t* const f,
-	const h5_id_t from_lvl
+	const h5t_lvl_idx_t from_lvl
 	) {
 	h5t_fdata_t* t = f->t;
 	h5_loc_idx_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
@@ -266,7 +266,7 @@ compute_direct_children_of_triangle (
 		{{2,0},{2,2},{2,3},{1,7}},
 		{{3,1},{3,2},{3,3},{3,6}}
 	};
-	int num_faces = h5tpriv_ref_elem_get_num_triangles (f->t);
+	int num_faces = h5tpriv_ref_elem_get_num_facets (f->t);
 	if ((face_idx < 0) || (face_idx >= num_faces)) {
 		return h5_error_internal (f, __FILE__, __func__, __LINE__); 
 	}
@@ -456,11 +456,11 @@ get_triangles_uadj_to_vertex (
 			continue;
 		}
 		h5_loc_idx_t facet_idx;
-		facet_idx = h5tpriv_get_facet_connected_to_vertex (t->ref_elem, face_idx, 0);
+		facet_idx = h5tpriv_get_triangles_connected_to_vertex (t->ref_elem, face_idx, 0);
 		TRY( add_triangle (f, *list, facet_idx, elem_idx) );
-		facet_idx = h5tpriv_get_facet_connected_to_vertex (t->ref_elem, face_idx, 1);
+		facet_idx = h5tpriv_get_triangles_connected_to_vertex (t->ref_elem, face_idx, 1);
 		TRY( add_triangle (f, *list, facet_idx, elem_idx) );
-		facet_idx = h5tpriv_get_facet_connected_to_vertex (t->ref_elem, face_idx, 2);
+		facet_idx = h5tpriv_get_triangles_connected_to_vertex (t->ref_elem, face_idx, 2);
 		TRY( add_triangle (f, *list, facet_idx, elem_idx) );
 	}
 	return H5_SUCCESS;
@@ -842,7 +842,7 @@ get_adjacencies (
 static h5_err_t
 update_internal_structs (
 	h5_file_t* const f,
-	const h5_id_t from_lvl
+	const h5t_lvl_idx_t from_lvl
 	) {
 	clock_t t1 = clock();
 	TRY( compute_elems_of_vertices (f, from_lvl) );

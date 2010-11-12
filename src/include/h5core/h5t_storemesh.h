@@ -7,7 +7,7 @@ h5t_add_mesh (
 	const h5_oid_t mesh_type
 	);
 
-h5_id_t
+h5t_lvl_idx_t
 h5t_add_level (
 	h5_file_t * const f
 	);

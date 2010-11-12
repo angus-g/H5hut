@@ -48,7 +48,7 @@ h5tpriv_set_loc_elem_child_idx (
 		f, elem_idx, child_idx);
 }
 
-static inline h5_id_t
+static inline h5t_lvl_idx_t
 h5tpriv_get_loc_elem_level_idx (
 	h5_file_t* const f,
 	h5_loc_idx_t elem_idx
@@ -57,11 +57,11 @@ h5tpriv_get_loc_elem_level_idx (
 		f, elem_idx);
 }
 
-static inline h5_id_t
+static inline h5t_lvl_idx_t
 h5tpriv_set_loc_elem_level_idx (
 	h5_file_t* const f,
 	h5_loc_idx_t elem_idx,
-	h5_id_t lvl_idx
+	h5t_lvl_idx_t lvl_idx
 	) {
 	return (*f->t->methods.access->set_loc_elem_level_idx)(
 		f, elem_idx, lvl_idx);
@@ -251,6 +251,49 @@ h5tpriv_set_glb_elem_neighbor_idx (
 	) {
 	return (*f->t->methods.access->set_glb_elem_neighbor_idx)(
 		f, elem_idx, face_idx, idx);
+}
+
+static inline h5_err_t
+h5tpriv_set_boundary_elem_flag (
+	h5_file_t* const f,
+	h5_loc_idx_t elem_idx
+	) {
+	return (*f->t->methods.access->set_boundary_elem_flag)(f, elem_idx);
+}
+
+static inline h5_err_t
+h5tpriv_clear_boundary_elem_flag (
+	h5_file_t* const f,
+	h5_loc_idx_t elem_idx
+	) {
+	return (*f->t->methods.access->clear_boundary_elem_flag)(f, elem_idx);
+}
+
+static inline int
+h5tpriv_is_boundary_elem (
+	h5_file_t* const f,
+	h5_loc_idx_t elem_idx
+	) {
+	return (*f->t->methods.access->is_boundary_elem)(f, elem_idx);
+}
+
+static inline int
+h5tpriv_is_boundary_facet (
+	h5_file_t* const f,
+	h5_loc_idx_t elem_idx,
+	h5_loc_idx_t facet_idx
+	) {
+	return (*f->t->methods.access->is_boundary_facet)(f, elem_idx, facet_idx);
+}
+
+static inline int
+h5tpriv_is_boundary_face (
+	h5_file_t* const f,
+	const int dim,
+	const h5_loc_idx_t elem_idx,
+	const h5_loc_idx_t facet_idx
+	) {
+	return (*f->t->methods.access->is_boundary_face)(f, dim, elem_idx, facet_idx);
 }
 
 #endif

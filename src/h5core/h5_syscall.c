@@ -10,12 +10,13 @@ h5priv_alloc (
 	void* ptr,
 	const size_t size
 	) {
-	h5_debug (f, "Allocating %lu bytes.", size); 
+	h5_debug (f, "%s (ptr=%p, size=%lu)", __func__, ptr, size); 
 	ptr = realloc (ptr, size);
 	if (ptr == NULL) {
 		h5_error (f, H5_ERR_NOMEM, "Out of memory.");
 		return (void*)(H5_ERR);
 	}
+	h5_debug (f, "%s (): return address: 0x%p", __func__, ptr);
 	return ptr;
 }
 
@@ -25,12 +26,13 @@ h5priv_calloc (
 	const size_t count,
 	const size_t size
 	) {
-	h5_debug (f, "Allocating %lu * %lu bytes.", count, size); 
+	h5_debug (f, "%s (count=%lu , size=%lu)", __func__, count, size);
 	void* ptr = calloc (count, size);
 	if (ptr == NULL) {
 		h5_error (f, H5_ERR_NOMEM, "Out of memory.");
 		return (void*)(H5_ERR);
 	}
+	h5_debug (f, "%s (): return address: 0x%p", __func__, ptr);
 	return ptr;
 }
 
@@ -39,8 +41,10 @@ h5priv_free (
 	h5_file_t* const f,
 	void* ptr
 	) {
-#pragma unused f
-	if (ptr) free (ptr);
+	if (ptr) {
+		h5_debug (f, "%s (%p)", __func__,  ptr); 
+		free (ptr);
+	}
 	return H5_SUCCESS;
 }
 

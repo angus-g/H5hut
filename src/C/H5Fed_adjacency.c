@@ -28,7 +28,7 @@ H5FedGetAdjacencies (
 	const h5_int32_t dim,
 	h5_idlist_t** list
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_get_adjacencies (f, entity_id, dim, list);
 }
 
@@ -37,6 +37,6 @@ H5FedReleaseListOfAdjacencies (
 	h5_file_t* const f,
 	h5_idlist_t** list
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_release_list_of_adjacencies (f, list);
 }

@@ -29,7 +29,7 @@ H5FedAddMTagset (
 	char* name,
 	h5_id_t type
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_add_mtagset (f, name, type);
 }
 
@@ -46,7 +46,7 @@ H5FedRemoveMTagset (
 	h5_file_t* const f,
 	char name[]
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_remove_mtagset (f, name );
 }
 
@@ -63,7 +63,7 @@ H5FedGetMTagsets (
 	h5_file_t* const f,
 	char** names[]
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_get_mtagsets (f, names);
 }
 
@@ -80,7 +80,7 @@ H5FedGetTypeOfMTagset (
 	h5_file_t* const f,
 	char name[]
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_get_mtagset_type_by_name (f, name);
 }
 
@@ -103,7 +103,7 @@ H5FedSetMTag (
 	const size_t dims,
 	void* val 
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_set_mtag_by_name (f, name, id, dims, val);
 }
 
@@ -126,7 +126,7 @@ H5FedGetMTag (
 	size_t* dim,
 	void* vals
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_get_mtag_by_name (f, name, id, dim, vals);
 }
 
@@ -143,6 +143,6 @@ H5FedRemoveMTag (
 	const char name[],
 	const h5_id_t id
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_remove_mtag_by_name (f, name, id);
 }

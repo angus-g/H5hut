@@ -118,19 +118,18 @@ h5_error (
 
 void
 h5_verror (
-	const h5_file_t * const f,
-	const char *fmt,
+	const h5_file_t* const f,
+	const char* fmt,
 	va_list ap
 	);
 
-void
-h5_vwarn (
-	const h5_file_t * const f,
-	const char *fmt,
-	va_list ap
-	);
+/*!
+  \ingroup h5_core_errorhandling
 
-void
+  Print a warning message to \c stderr.
+*/
+
+static inline void
 h5_warn (
 	const h5_file_t * const f,
 	const char *fmt,
@@ -140,6 +139,19 @@ h5_warn (
 __attribute__ ((format (printf, 2, 3)))
 #endif
 ;
+static inline void
+h5_warn (
+	const h5_file_t* const f,
+	const char* fmt,
+	...
+	) {
+	if (h5priv_debug_level >= 2) {
+		va_list ap;
+		va_start (ap, fmt);
+		h5priv_vprintf (stderr, "W", h5_get_funcname(f), fmt, ap);
+		va_end (ap);
+	}
+}
 
 /*!
   \ingroup h5_core_errorhandling
@@ -214,7 +226,7 @@ h5_set_funcname (
 	);
 
 static inline void
-SET_FNAME (
+H5_ENTER_API (
 	h5_file_t* const f,
 	const char* const fname
 	) {

@@ -20,6 +20,11 @@ H5FedBeginTraverseEntities (
 	h5_file_t* const f,
 	int codim
 	);
+h5t_entity_iterator_t*
+H5FedBeginTraverseBoundaryFaces (
+	h5_file_t* const f,
+	int codim
+	);
 h5_loc_id_t
 H5FedTraverseEntities (
 	h5_file_t* const f,

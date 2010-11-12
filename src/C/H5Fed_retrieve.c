@@ -34,11 +34,24 @@
 h5t_entity_iterator_t*
 H5FedBeginTraverseEntities (
 	h5_file_t* const f,
-	int codim
+	const int codim
 	) {
 	h5t_entity_iterator_t* iter;
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	if (h5t_alloc_entity_iterator (f, &iter, codim) < 0) {
+		return (void*)H5_ERR;
+	}
+	return iter;
+}
+
+h5t_entity_iterator_t*
+H5FedBeginTraverseBoundaryFaces (
+	h5_file_t* const f,
+	const int codim
+	) {
+	h5t_entity_iterator_t* iter;
+	H5_ENTER_API (f, __func__);
+	if (h5t_alloc_boundary_face_iterator (f, &iter, codim) < 0) {
 		return (void*)H5_ERR;
 	}
 	return iter;
@@ -59,7 +72,7 @@ H5FedTraverseEntities (
 	h5_file_t* const f,
 	h5t_entity_iterator_t* iter
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_iterate_entities (f, iter);
 }
 
@@ -76,7 +89,7 @@ H5FedEndTraverseEntities (
 	h5_file_t* const f,
 	h5t_entity_iterator_t* iter
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_release_entity_iterator (f, iter);
 }
 
@@ -96,7 +109,7 @@ H5FedGetVertexCoordsByIndex (
 	h5_id_t vertex_index,
 	h5_float64_t P[3]
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_get_vertex_coords_by_index (f, vertex_index, P);
 }
 
@@ -106,7 +119,7 @@ H5FedGetVertexCoordsByID (
 	h5_id_t vertex_id,
 	h5_float64_t P[3]
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_get_vertex_coords_by_id (f, vertex_id, P);
 }
 
@@ -116,7 +129,7 @@ H5FedGetVertexIndicesOfEdge (
 	h5_id_t entity_id,
 	h5_id_t* vertex_indices
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_get_vertex_indices_of_edge (f, entity_id, vertex_indices);
 }
 
@@ -126,7 +139,7 @@ H5FedGetVertexIndicesOfTriangle (
 	h5_id_t entity_id,
 	h5_id_t* vertex_indices
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_get_vertex_indices_of_triangle (f, entity_id, vertex_indices);
 }
 
@@ -136,7 +149,7 @@ H5FedGetVertexIndicesOfTet (
 	h5_id_t entity_id,
 	h5_id_t* vertex_indices
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_get_vertex_indices_of_tet (f, entity_id, vertex_indices);
 }
 
@@ -146,7 +159,7 @@ H5FedGetVertexIndicesOfEntity (
 	h5_id_t entity_id,
 	h5_id_t* vertex_indices
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_get_vertex_indices_of_entity (f, entity_id, vertex_indices);
 }
 

@@ -9,10 +9,6 @@ begin_iterate_entities (
 	h5t_entity_iterator_t* const iter,
 	const int codim
 	) {
-	iter->face_idx = -1;
-	iter->elem_idx = -1;
-	iter->codim = codim;
-	iter->ref_elem = f->t->ref_elem;
 	switch (iter->ref_elem->dim - codim) {
 	case 0: // iterate vertices
 		iter->find = h5tpriv_find_tv2;

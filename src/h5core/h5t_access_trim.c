@@ -46,21 +46,21 @@ set_loc_elem_child_idx (
 	return child_idx;
 }
 
-static h5_id_t
+static h5t_lvl_idx_t
 get_loc_elem_level_idx (
 	h5_file_t* const f,
 	const h5_loc_idx_t elem_idx
 	) {
-	return f->t->loc_elems.tris[elem_idx].idx;
+	return f->t->loc_elems.tris[elem_idx].level_idx;
 }
 
-static h5_id_t
+static h5t_lvl_idx_t
 set_loc_elem_level_idx (
 	h5_file_t* const f,
 	const h5_loc_idx_t elem_idx,
-	const h5_loc_idx_t level_idx
+	const h5t_lvl_idx_t level_idx
 	) {
-	f->t->loc_elems.tris[elem_idx].idx = level_idx;
+	f->t->loc_elems.tris[elem_idx].level_idx = level_idx;
 	return level_idx;
 }
 
@@ -240,6 +240,57 @@ set_glb_elem_neighbor_idx (
 	return neighbor_idx;
 }
 
+
+static h5_err_t
+set_boundary_elem_flag (
+	h5_file_t* const f,
+	h5_loc_idx_t elem_idx
+	) {
+	f->t->loc_elems.tris[elem_idx].flags |= H5T_BOUNDARY_ELEM_FLAG;
+	return H5_SUCCESS;
+}
+
+static h5_err_t
+clear_boundary_elem_flag (
+	h5_file_t* const f,
+	h5_loc_idx_t elem_idx
+	) {
+	f->t->loc_elems.tris[elem_idx].flags &= ~H5T_BOUNDARY_ELEM_FLAG;
+	return H5_SUCCESS;
+}
+
+
+static int
+is_boundary_elem  (
+	h5_file_t* const f,
+	const h5_loc_idx_t elem_idx
+	) {
+	return (f->t->loc_elems.tris[elem_idx].flags & H5T_BOUNDARY_ELEM_FLAG) ? 1 : 0;
+}
+
+static int
+is_boundary_facet (
+	h5_file_t* const f,
+	const h5_loc_idx_t elem_idx,
+	const h5_loc_idx_t facet_idx
+	) {
+	return (f->t->loc_elems.tris[elem_idx].neighbor_indices[facet_idx] == -1);
+}
+
+static int
+is_boundary_face (
+	h5_file_t* const f,
+	const int dim,
+	const h5_loc_idx_t elem_idx,
+	const h5_loc_idx_t facet_idx
+	) {
+#pragma unused f
+#pragma unused dim
+#pragma unused elem_idx
+#pragma unused facet_idx
+	return h5_error_internal (f, __FILE__, __func__, __LINE__);
+}
+
 struct h5t_access_methods h5tpriv_access_trim_methods = {
 	get_loc_elem,
 	get_loc_elem_parent_idx,
@@ -267,5 +318,10 @@ struct h5t_access_methods h5tpriv_access_trim_methods = {
 	get_glb_elem_neighbor_indices,
 	get_glb_elem_neighbor_idx,
 	set_glb_elem_neighbor_idx,
+	set_boundary_elem_flag,
+	clear_boundary_elem_flag,
+	is_boundary_elem,
+	is_boundary_facet,
+	is_boundary_face,
 };
 	

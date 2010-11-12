@@ -50,7 +50,7 @@ H5PartSetNumParticles (
 	h5_size_t nparticles	/*!< [in] Number of particles */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	h5_size_t stride = 1;
 	return h5u_set_num_particles( f, nparticles, stride );
@@ -90,7 +90,7 @@ H5PartSetNumParticlesStrided (
 	h5_size_t stride	/*!< [in] Stride value (e.g. number of fields in the particle array) */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_set_num_particles( f, nparticles, stride );
 }
@@ -114,7 +114,7 @@ H5PartSetChunk (
 	h5_size_t size
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
         return h5u_set_chunk( f, size );
 }
@@ -152,7 +152,7 @@ H5PartWriteDataFloat64 (
 	const h5_float64_t *data	/*!< [in] Array to commit to disk */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_write_data( f, name, (void*)data, H5T_NATIVE_DOUBLE );
 }
@@ -190,7 +190,7 @@ H5PartWriteDataFloat32 (
 	const h5_float32_t *data	/*!< [in] Array to commit to disk */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_write_data( f, name, (void*)data, H5T_NATIVE_FLOAT );
 }
@@ -228,7 +228,7 @@ H5PartWriteDataInt64 (
 	const h5_int64_t *data	/*!< [in] Array to commit to disk */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_write_data ( f, name, (void*)data, H5T_NATIVE_INT64 );
 }
@@ -266,7 +266,7 @@ H5PartWriteDataInt32 (
 	const h5_int32_t *data	/*!< [in] Array to commit to disk */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_write_data ( f, name, (void*)data, H5T_NATIVE_INT32 );
 }
@@ -290,7 +290,7 @@ H5PartReadDataFloat64 (
 	h5_float64_t *data	/*!< [out] Array of data */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_read_data ( f, name, data, H5T_NATIVE_DOUBLE );
 }
@@ -314,7 +314,7 @@ H5PartReadDataFloat32 (
 	h5_float32_t *data	/*!< [out] Array of data */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_read_data ( f, name, data, H5T_NATIVE_FLOAT );
 }
@@ -338,7 +338,7 @@ H5PartReadDataInt64 (
 	h5_int64_t *data	/*!< [out] Array of data */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_read_data ( f, name, data, H5T_NATIVE_INT64 );
 }
@@ -362,7 +362,7 @@ H5PartReadDataInt32 (
 	h5_int32_t *data	/*!< [out] Array of data */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_read_data ( f, name, data, H5T_NATIVE_INT32 );
 }
@@ -380,7 +380,7 @@ H5PartGetNumDatasets (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_get_num_datasets(f);
 }
@@ -403,7 +403,7 @@ H5PartGetDatasetName (
 	const h5_size_t len	/*!< [in]  Size of buffer \c name */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_get_dataset_info(f, idx, name, len, NULL, NULL);
 }
@@ -434,7 +434,7 @@ H5PartGetDatasetInfo (
 	h5_size_t *nelem	/*!< [out] Number of elements. */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_get_dataset_info(f, idx, dataset_name, len_dataset_name, type, nelem);
 }
@@ -465,7 +465,7 @@ H5PartGetNumParticles (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	CHECK_FILEHANDLE( f );
 
@@ -484,7 +484,7 @@ H5PartResetView (
  	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_reset_view ( f );
 }
@@ -503,7 +503,7 @@ H5PartHasView (
  	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_has_view ( f );
 }
@@ -536,7 +536,7 @@ H5PartSetView (
 	h5_int64_t end	/*!< [in]  End particle */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
  
 	return h5u_set_view ( f, start, end );
 }
@@ -566,7 +566,7 @@ H5PartSetViewIndices (
 	h5_size_t nelems		/*!< [in]  Size of list */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_set_view_indices ( f, indices, nelems );
 }
@@ -588,7 +588,7 @@ H5PartGetView (
 	h5_int64_t *end			/*!< [out]  End particle */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_get_view( f, start, end );
 }
@@ -608,7 +608,7 @@ H5PartSetCanonicalView (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5u_set_canonical_view( f );
 }

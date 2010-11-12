@@ -24,7 +24,7 @@ h5t_get_num_vertices (
 	const h5_id_t cnode
 	);
 
-h5_id_t
+h5t_lvl_idx_t
 h5t_get_level (
 	h5_file_t * const f
 	);

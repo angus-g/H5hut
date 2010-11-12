@@ -22,7 +22,7 @@ H5FedAddMesh (
 	h5_file_t* const f,
 	const h5_oid_t mesh_type_id
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_add_mesh (f, mesh_type_id);
 }
 
@@ -50,7 +50,7 @@ h5_id_t
 H5FedAddLevel (
 	h5_file_t* const f
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_add_level (f);
 }
 
@@ -59,7 +59,7 @@ H5FedBeginStoreVertices (
 	h5_file_t* const f,
 	const h5_size_t num
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_begin_store_vertices (f, num);
 }
 
@@ -79,7 +79,7 @@ H5FedStoreVertex (
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
 
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	if (h5t_get_level (f) != 0) {
 		return h5_error (
 			f,
@@ -93,7 +93,7 @@ h5_err_t
 H5FedEndStoreVertices (
 	h5_file_t* const f
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_end_store_vertices (f);
 }
 
@@ -102,7 +102,7 @@ H5FedBeginStoreElements (
 	h5_file_t* const f,
 	const h5_size_t num
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_begin_store_elems (f, num);
 }
 
@@ -125,7 +125,7 @@ H5FedStoreElement (
 	h5_file_t* const f,		/*!< file handle		*/
 	const h5_id_t local_vids[]	/*!< tuple with vertex id's	*/
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	if (h5t_get_level (f) != 0) {
 		return h5_error (
 			f,
@@ -139,7 +139,7 @@ h5_err_t
 H5FedEndStoreElements (
 	h5_file_t* const f
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_end_store_elems (f);
 }
 
@@ -147,7 +147,7 @@ h5_err_t
 H5FedBeginRefineElements (
 	h5_file_t* const f
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_begin_refine_elems (f);
 }
 
@@ -156,7 +156,7 @@ H5FedRefineElement (
 	h5_file_t* const f,		/*!< file handle		*/
 	const h5_id_t local_eid		/*!< local element id		*/
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_mark_entity (f, local_eid);
 }
 
@@ -164,6 +164,6 @@ h5_err_t
 H5FedEndRefineElements (
 	h5_file_t* const f
 	) {
-	SET_FNAME (f, __func__);
+	H5_ENTER_API (f, __func__);
 	return h5t_end_refine_elems (f);
 }

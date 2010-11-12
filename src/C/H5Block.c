@@ -73,7 +73,7 @@ H5Block3dHasView (
 	h5_file_t *const f	/*!< IN: File handle */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_3d_has_view(f);
 }
@@ -102,7 +102,7 @@ H5Block3dSetView (
 	const h5_int64_t k_end	        /*!< IN: end index of \c k	*/
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_3d_set_view(f, i_start, i_end, j_start, j_end, k_start, k_end);
 }
@@ -125,7 +125,7 @@ H5Block3dGetView (
 	h5_size_t *k_end	/*!< OUT: end index of \c k	*/ 
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_3d_get_view(f, i_start, i_end, j_start, j_end, k_start, k_end);
 }
@@ -148,7 +148,7 @@ H5Block3dGetReducedView (
 	h5_size_t *const k_end		/*!< OUT: end index of \c j */ 
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_3d_get_reduced_view(f, i_start, i_end, j_start, j_end, k_start, k_end);
 }
@@ -169,7 +169,7 @@ H5Block3dSetChunk (
 	const h5_size_t k		/*!< IN: size of \c k */ 
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_3d_set_chunk(f, i, j, k);
 }
@@ -190,7 +190,7 @@ H5Block3dGetChunk (
 	h5_size_t *const k		/*!< OUT: size of \c k */ 
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_3d_get_chunk(f, field_name, i, j, k);
 }
@@ -218,7 +218,7 @@ H5Block3dSetGrid (
 	const h5_size_t k		/*!< IN: dimension in \c k */ 
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_3d_set_grid(f, i, j, k);
 }
@@ -240,7 +240,7 @@ H5Block3dGetGridCoords (
 	h5_int64_t *k			/*!< OUT: index in \c k */ 
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_3d_get_grid_coords(f, proc, i, j, k);
 }
@@ -264,7 +264,7 @@ H5Block3dSetDims (
 	const h5_size_t k		/*!< IN: dimension in \c k */ 
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_3d_set_dims(f, i, j, k);
 }
@@ -290,7 +290,7 @@ H5Block3dSetHalo (
 	const h5_size_t k		/*!< IN: radius in \c k */ 
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_3d_set_halo(f, i, j, k);
 }
@@ -307,7 +307,7 @@ H5BlockGetNumFields (
 	h5_file_t *const f			/*!< IN: file handle */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_get_num_fields(f);
 }
@@ -341,7 +341,7 @@ H5BlockGetFieldInfo (
 	h5_int64_t *type			/*!< OUT: datatype */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_get_field_info (f,
 		idx, name, len_name, field_rank, field_dims, elem_rank, type);
@@ -365,7 +365,7 @@ H5BlockGetFieldInfoByName (
 	h5_int64_t *type		/*!< OUT: datatype */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_get_field_info_by_name (f,
 		name, field_rank, field_dims, elem_rank, type );
@@ -389,7 +389,7 @@ H5BlockWriteFieldAttribString (
 	const char *value			/*!< IN: attribute value */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_write_field_attrib (
 		f,
@@ -416,7 +416,7 @@ H5BlockReadFieldAttribString (
 	char *buffer			        /*!< OUT: attribute value */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5_read_field_attrib (
 		f,
@@ -439,7 +439,7 @@ H5BlockGetNumFieldAttribs (
 	const char *field_name			/*<! IN: field name */
 	) {
 
-	SET_FNAME( f, __func__ );
+	H5_ENTER_API( f, __func__ );
 
 	return h5b_get_num_field_attribs(f, field_name);
 }
@@ -470,7 +470,7 @@ H5BlockGetFieldAttribInfo (
 	h5_size_t *attrib_nelem         /*<! OUT: Number of elements */
 	) {
 	
-	SET_FNAME ( f, __func__ );
+	H5_ENTER_API ( f, __func__ );
 
 	return h5b_get_field_attrib_info (
 		f,

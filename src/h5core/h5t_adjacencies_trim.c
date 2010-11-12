@@ -55,9 +55,9 @@ release_tv (
 static inline h5_err_t
 compute_elems_of_vertices (
 	h5_file_t* const f,
-	const h5_id_t from_lvl
+	const h5t_lvl_idx_t from_lvl
 	) {
-	h5_debug (f, "%s (%lld)", __func__, from_lvl);
+	h5_debug (f, "%s (%lld)", __func__, (long long)from_lvl);
 	/* expand structure */
 	TRY( alloc_tv (f) );
 
@@ -78,7 +78,7 @@ compute_elems_of_vertices (
 					     face_idx, idx)) );
 		}
 	}
-	h5_debug (f, "%s (%lld): done", __func__, from_lvl);
+	h5_debug (f, "%s (%lld): done", __func__, (long long)from_lvl);
 	return H5_SUCCESS;
 }
 
@@ -97,9 +97,9 @@ release_te (
 static inline h5_err_t
 compute_elems_of_edges (
 	h5_file_t* const f,
-	const h5_id_t from_lvl
+	const h5t_lvl_idx_t from_lvl
 	) {
-	h5_debug (f, "%s (%lld)", __func__, from_lvl);
+	h5_debug (f, "%s (%lld)", __func__, (long long)from_lvl);
 	h5t_fdata_t *t = f->t;
 	h5_loc_idx_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
 	h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
@@ -113,7 +113,7 @@ compute_elems_of_edges (
 				      f, face_idx, elem_idx, &retval ) );
 		}
 	}
-	h5_debug (f, "%s (%lld): done", __func__, from_lvl);
+	h5_debug (f, "%s (): done", __func__);
 	return H5_SUCCESS;
 }
 
@@ -474,7 +474,7 @@ get_adjacencies (
 static inline h5_err_t
 update_internal_structs (
 	h5_file_t* const f,
-	const h5_id_t from_lvl
+	const h5t_lvl_idx_t from_lvl
 	) {
 	h5_debug (f, "%s (%lld)", __func__, (long long)from_lvl);
 	clock_t t1 = clock();

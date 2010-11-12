@@ -24,14 +24,18 @@ h5priv_write_dataset_by_name (
 	h5_info (f, "Writing dataset %s/%s.",
 		 h5_get_objname (loc_id), dsinfo->name);
 
+#if 0
 	H5O_info_t obj_info;
 	herr_t herr = H5Oget_info_by_name(
 		loc_id,
 		dsinfo->name,
 		&obj_info,
 		H5P_DEFAULT);
-
-	if ((herr >= 0) && ((f->mode==H5_O_WRONLY) || (f->mode==H5_O_APPEND))) {
+#else
+	h5_err_t exists;
+	TRY( exists = h5priv_hdf5_link_exists (f, loc_id, dsinfo->name) );
+#endif
+	if ((exists > 0) && ((f->mode==H5_O_WRONLY) || (f->mode==H5_O_APPEND))) {
 		h5_warn (f,
 			 "Dataset %s/%s already exist.",
 			 h5_get_objname (loc_id), dsinfo->name);
@@ -46,7 +50,7 @@ h5priv_write_dataset_by_name (
 	hid_t diskspace_id;
 	hid_t memspace_id;
 
-	if (herr >= 0) {
+	if (exists) {
 		/* overwrite dataset */
 		TRY( dset_id = h5priv_open_hdf5_dataset (
 			     f, 
@@ -158,8 +162,8 @@ h5_err_t
 h5priv_close_step (
 	h5_file_t* const f
 	) {
-
-	if (f->step_gid < 0) return H5_SUCCESS;
+	h5_debug (f, "%s ()", __func__);
+	if (f->step_gid <= 0) return H5_SUCCESS;
 	TRY( h5tpriv_close_step (f) );
 	TRY( h5priv_close_hdf5_group (f, f->step_gid) );
 

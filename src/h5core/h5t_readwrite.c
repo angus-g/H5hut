@@ -176,8 +176,6 @@ read_vertices (
 		     open_mem_space_vertices,
 		     open_file_space_vertices,
 		     t->vertices) );
-	TRY( h5tpriv_sort_vertices (f) );
-	TRY( h5tpriv_rebuild_vertex_indices_mapping (f) );
 
 	return H5_SUCCESS;
 }
@@ -235,8 +233,6 @@ open_file_space_elems (
 	return H5S_ALL;
 }
 
-
-
 static h5_err_t
 read_elems (
 	h5_file_t* const f
@@ -251,11 +247,6 @@ read_elems (
 		     open_mem_space_elems,
 		     open_file_space_elems,
 		     t->glb_elems.data) );
-
-	TRY( h5tpriv_sort_loc_elems (f) );
-	TRY( h5tpriv_rebuild_elem_indices_mapping (f) );
-	TRY( h5tpriv_init_loc_elems_struct (f) );
-
 	return H5_SUCCESS;
 }
 
@@ -284,9 +275,16 @@ h5tpriv_read_mesh (
 	TRY( read_num_levels (f) );
 	TRY( read_num_vertices (f) );
 	TRY( read_num_elems (f) );
+
 	TRY( read_vertices (f) );
+	TRY( h5tpriv_rebuild_vertex_indices_mapping (f) );
+
 	TRY( read_elems (f) );
+	TRY( h5tpriv_rebuild_elem_indices_mapping (f) );
+	TRY( h5tpriv_init_loc_elems_struct (f) );
 	TRY( h5tpriv_update_adjacency_structs (f, 0) );
+	TRY( h5tpriv_init_geom_boundary_info (f, 0) );
+
 	TRY( read_mtags (f) );
 	t->num_loaded_levels = t->num_levels;
 	return H5_SUCCESS;

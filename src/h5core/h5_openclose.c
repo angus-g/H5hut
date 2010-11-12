@@ -295,6 +295,7 @@ h5upriv_close_file (
 	h5_file_t* const f	/*!< file handle */
 	) {
 	struct h5u_fdata* u = f->u;
+	h5_debug (f, "%s ()", __func__);
 
 	f->__errno = H5_SUCCESS;
 	TRY( h5priv_close_hdf5_dataspace (f, u->shape) );
@@ -322,7 +323,7 @@ h5bpriv_close_file (
 	h5_file_t* const f	/*!< IN: file handle */
 	) {
 	struct h5b_fdata* b = f->b;
-
+	h5_debug (f, "%s ()", __func__);
 	TRY( h5priv_close_hdf5_group (f, b->block_gid) );
 	TRY( h5priv_close_hdf5_group (f, b->field_gid) );
 	TRY( h5priv_close_hdf5_dataspace (f, b->shape) );
@@ -362,7 +363,6 @@ h5_close_file (
 #ifndef PARALLEL_IO
 	TRY( h5tpriv_close_file (f) );
 #endif
-	TRY( h5priv_close_hdf5_group (f, f->step_gid) );
 	TRY( h5priv_close_hdf5_property (f, f->xfer_prop) );
 	TRY( h5priv_close_hdf5_property (f, f->access_prop) );
 	TRY( h5priv_close_hdf5_property (f, f->create_prop) );
