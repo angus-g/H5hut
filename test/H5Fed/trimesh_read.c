@@ -74,6 +74,37 @@ traverse_edges (
 }
 
 static h5_err_t
+traverse_boundary_edges (
+	h5_file_t* const f
+	) {
+	printf ( "Travering boundary edges on level %lld:\n", H5FedGetLevel(f) );
+
+	/* get iterator for co-dim 1 entities, i.e. edges */
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseBoundaryFaces (f, 1);
+
+	/* iterate */
+	h5_id_t local_id;
+	h5_size_t num_edges = 0;
+	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
+		char v[256];
+		char k[256];
+		h5_id_t local_vids[4];
+		snprintf ( k, sizeof(k), "=%llx=", local_id );
+		H5FedGetVertexIndicesOfEntity ( f, local_id, local_vids );
+		snprintf ( v, sizeof(v), "=[%lld,%lld]=",
+				   local_vids[0], local_vids[1] );
+		printf ( "| %-18s | %-18s |\n", k, v );
+		num_edges++;
+	}
+
+	/* done */
+	H5FedEndTraverseEntities ( f, iter );
+
+	printf ("    Number of edges: %lld\n", (long long)num_edges);
+	return H5_SUCCESS;
+}
+
+static h5_err_t
 traverse_elems (
 	h5_file_t* const f
 	) {
@@ -106,9 +137,11 @@ traverse_elems (
 		fprintf (stderr, "!!! Got %lld elements, but expected %lld.\n",
 			 (long long)num_elems, (long long)num_elems_expect);
 		exit(1);
+
+
 	}
 
-printf ("    Number of elements on level: %lld\n", (long long)num_elems);
+	printf ("    Number of elements on level: %lld\n", (long long)num_elems);
 	return H5_SUCCESS;
 }
 
@@ -121,6 +154,7 @@ traverse_level (
 	H5FedSetLevel (f, level_id);
 	traverse_vertices (f);
 	traverse_edges (f);
+	traverse_boundary_edges (f);
 	traverse_elems (f);
 	return H5_SUCCESS;
 }
@@ -155,7 +189,7 @@ main (
 
 	/* abort program on error, so we don't have to handle them */
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (4);
+	H5SetVerbosityLevel (5);
 
 	/* open file and get number of meshes */
 	h5_file_t* f = H5OpenFile (FNAME, H5_O_RDONLY, 0);

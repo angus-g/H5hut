@@ -105,7 +105,39 @@ traverse_triangles (
 	/* done */
 	H5FedEndTraverseEntities ( f, iter );
 
-	printf ("    Number of triangles: %lud\n",
+	printf ("    Number of triangles: %lu\n",
+		(unsigned long)num_triangles);
+	return H5_SUCCESS;
+}
+
+static h5_err_t
+traverse_boundary_triangles (
+	h5_file_t* const f
+	) {
+	printf ( "Travering boundary triangles on level %lld:\n", H5FedGetLevel(f) );
+
+	/* get iterator for co-dim 1 entities, i.e. triangles */
+	h5t_entity_iterator_t* iter = H5FedBeginTraverseBoundaryFaces (f, 1);
+
+	/* iterate */
+	h5_id_t local_id;
+	h5_size_t num_triangles = 0;
+	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
+		char v[256];
+		char d[256];
+		h5_id_t local_vids[4];
+		snprintf ( d, sizeof(d), "=%llx=", local_id );
+		H5FedGetVertexIndicesOfEntity ( f, local_id, local_vids );
+		snprintf ( v, sizeof(v), "=[%lld,%lld,%lld]=",
+			   local_vids[0], local_vids[1], local_vids[2] );
+		printf ( "| %-18s | %-18s |\n", d, v );
+		num_triangles++;
+	}
+
+	/* done */
+	H5FedEndTraverseEntities ( f, iter );
+
+	printf ("    Number of boundary triangles: %lu\n",
 		(unsigned long)num_triangles);
 	return H5_SUCCESS;
 }
@@ -161,6 +193,7 @@ traverse_level (
 	traverse_vertices (f);
 	traverse_edges (f);
 	traverse_triangles (f);
+	traverse_boundary_triangles (f);
 	traverse_elems (f);
 	return H5_SUCCESS;
 }
