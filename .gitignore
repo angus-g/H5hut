@@ -59,6 +59,7 @@ test/H5Part/Makefile
 test/H5Part/Makefile.in
 test/Makefile
 test/Makefile.in
+test/h5b_test
 test/h5u_test
 tools/.deps
 tools/Makefile
