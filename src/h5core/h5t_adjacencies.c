@@ -35,4 +35,12 @@ h5t_release_list_of_adjacencies (
 	return H5_SUCCESS;
 }
 
-
+h5_err_t
+h5t_find_te2 (
+	h5_file_t* const f,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
+	h5_idlist_t** retval
+	) {
+    return h5tpriv_find_te2 (f,face_idx,elem_idx,retval);
+}
