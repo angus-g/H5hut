@@ -16,15 +16,15 @@ set_vertex_tags (
 	h5_int64_t val[3];
 
 	printf ("\nSet tags to vertices\n");
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 3);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 3);
 	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
 		val[0] = local_id;
 		val[1] = local_id+1;
 		val[2] = local_id+2;
 		H5FedSetMTag (f, "testtag", local_id, 3, val);
 		h5_int64_t retval[3];
-		size_t dims;
-		H5FedGetMTag (f, "testtag", local_id, &dims, retval);
+		size_t dim = 3;
+		H5FedGetMTag (f, "testtag", local_id, &dim, retval);
 		if (memcmp (val, retval, sizeof(val))) {
 			fprintf ( stderr, "Oops!\n");
 		}
@@ -40,7 +40,7 @@ set_edge_tags (
 	h5_id_t local_id;
 	h5_int64_t val[3];
 	printf ("\nSet tags to edges\n");
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
 	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
 		val[0] = local_id;
 		val[1] = local_id+1;
@@ -63,7 +63,7 @@ set_tri_tags (
 	h5_id_t local_id;
 	h5_int64_t val[3];
 	printf ("\nSet tags to triangle\n");
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
 	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
 		val[0] = local_id;
 		val[1] = local_id+1;
@@ -86,7 +86,7 @@ set_tet_tags (
 	h5_id_t local_id;
 	h5_int64_t val[3];
 	printf ("\nSet tags to tetrahedra\n");
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
 	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
 		val[0] = local_id;
 		val[1] = local_id+1;

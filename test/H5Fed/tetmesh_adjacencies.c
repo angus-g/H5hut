@@ -263,7 +263,7 @@ traverse_vertices (
 	clock_t t_max = 0;
 	clock_t t = 0;
 	printf ("\nAdjacencies to vertices\n");
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 3);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 3);
 	fprintf (
 		stderr,
 		"Computing all adjacencies of all vertices ... ");
@@ -296,7 +296,7 @@ traverse_edges (
 	clock_t t_max = 0;
 	clock_t t = 0;
 	printf ("\nAdjacencies to edges\n");
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
 	fprintf (
 		stderr,
 		"Computing all adjacencies of all edges ... ");
@@ -329,7 +329,7 @@ traverse_triangles (
 	clock_t t_total = 0;
 	clock_t t = 0;
 	printf ("\nAdjacencies to triangle\n");
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
 	fprintf (
 		stderr,
 		"Computing all adjacencies of all triangles ... ");
@@ -362,7 +362,7 @@ traverse_elems (
 	clock_t t_max = 0;
 	clock_t t = 0;
 	printf ("\nAdjacencies to tetrahedra\n");
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
 	fprintf (
 		stderr,
 		"Computing all adjacencies of all tetrahedra ... ");

@@ -14,7 +14,7 @@ traverse_vertices (
 	h5_size_t num_vertices_expect = H5FedGetNumVerticesTotal (f);
 
 	/* get iterator for co-dim 2 entities, i.e. vertices */
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
 
 	/* iterate */
 	h5_id_t local_id;
@@ -49,7 +49,7 @@ traverse_edges (
 	printf ( "Travering edges on level %lld:\n", H5FedGetLevel(f) );
 
 	/* get iterator for co-dim 1 entities, i.e. edges */
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
 
 	/* iterate */
 	h5_id_t local_id;
@@ -80,7 +80,7 @@ traverse_boundary_edges (
 	printf ( "Travering boundary edges on level %lld:\n", H5FedGetLevel(f) );
 
 	/* get iterator for co-dim 1 entities, i.e. edges */
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseBoundaryFaces (f, 1);
+	h5t_iterator_t* iter = H5FedBeginTraverseBoundaryFaces (f, 1);
 
 	/* iterate */
 	h5_id_t local_id;
@@ -112,7 +112,7 @@ traverse_elems (
 	h5_size_t num_elems_expect = H5FedGetNumElementsTotal (f);
 
 	/* get iterator for co-dim 0 */
-	h5t_entity_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
 
 	/* iterate over all co-dim 0 entities, i.e. elements */
 	h5_id_t local_id;
