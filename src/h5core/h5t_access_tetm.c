@@ -250,6 +250,15 @@ set_boundary_elem_flag (
 }
 
 static h5_err_t
+set_boundary_facet_flag (
+	h5_file_t* const f,
+	h5_loc_idx_t elem_idx
+	) {
+	f->t->loc_elems.tets[elem_idx].flags |= H5T_BOUNDARY_FACET_FLAG;
+	return H5_SUCCESS;
+}
+
+static h5_err_t
 clear_boundary_elem_flag (
 	h5_file_t* const f,
 	h5_loc_idx_t elem_idx
@@ -258,6 +267,14 @@ clear_boundary_elem_flag (
 	return H5_SUCCESS;
 }
 
+static h5_err_t
+clear_boundary_facet_flag (
+	h5_file_t* const f,
+	h5_loc_idx_t elem_idx
+	) {
+	f->t->loc_elems.tets[elem_idx].flags &= ~H5T_BOUNDARY_FACET_FLAG;
+	return H5_SUCCESS;
+}
 
 static int
 is_boundary_elem  (
@@ -283,10 +300,11 @@ is_boundary_face (
 	const h5_loc_idx_t elem_idx,
 	const h5_loc_idx_t facet_idx
 	) {
-#pragma unused f
-#pragma unused dim
-#pragma unused elem_idx
-#pragma unused facet_idx
+	UNUSED_ARGUMENT (f);
+	UNUSED_ARGUMENT (dim);
+	UNUSED_ARGUMENT (elem_idx);
+	UNUSED_ARGUMENT (facet_idx);
+
 	return h5_error_internal (f, __FILE__, __func__, __LINE__);
 }
 
@@ -319,6 +337,8 @@ struct h5t_access_methods h5tpriv_access_tetm_methods = {
 	set_glb_elem_neighbor_idx,
 	set_boundary_elem_flag,
 	clear_boundary_elem_flag,
+	set_boundary_facet_flag,
+	clear_boundary_facet_flag,
 	is_boundary_elem,
 	is_boundary_facet,
 	is_boundary_face,

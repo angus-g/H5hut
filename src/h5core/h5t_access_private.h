@@ -1,6 +1,73 @@
 #ifndef __H5T_ACCESS_PRIVATE_H
 #define __H5T_ACCESS_PRIVATE_H
 
+struct h5t_access_methods {
+	h5_generic_loc_elem_t* (*get_loc_elem)(
+		h5_file_t* const, const h5_loc_idx_t);
+	h5_loc_idx_t (*get_loc_elem_parent_idx)(
+		h5_file_t* const, const h5_loc_idx_t);
+	h5_loc_idx_t (*set_loc_elem_parent_idx)(
+		h5_file_t* const, const h5_loc_idx_t, const h5_loc_idx_t);
+	h5_loc_id_t (*get_loc_elem_child_idx)(
+		h5_file_t* const, const h5_loc_idx_t);
+	h5_loc_id_t (*set_loc_elem_child_idx)(
+		h5_file_t* const, const h5_loc_idx_t, const h5_loc_idx_t);
+	h5t_lvl_idx_t (*get_loc_elem_level_idx)(
+		h5_file_t* const, const h5_loc_idx_t);
+	h5t_lvl_idx_t (*set_loc_elem_level_idx)(
+		h5_file_t* const, const h5_loc_idx_t, const h5t_lvl_idx_t);
+	h5_loc_idx_t* (*get_loc_elem_vertex_indices)(
+		h5_file_t* const, const h5_loc_idx_t);
+	h5_loc_idx_t (*get_loc_elem_vertex_idx)(
+		h5_file_t* const, const h5_loc_idx_t, const h5_loc_idx_t);
+	h5_loc_idx_t (*set_loc_elem_vertex_idx)(
+		h5_file_t* const,
+		const h5_loc_idx_t, const h5_loc_idx_t, const h5_loc_idx_t);
+	h5_loc_idx_t* (*get_loc_elem_neighbor_indices)(
+		h5_file_t* const, const h5_loc_idx_t);
+	h5_loc_idx_t (*get_loc_elem_neighbor_idx)(
+		h5_file_t* const, const h5_loc_idx_t, const h5_loc_idx_t);
+	h5_loc_idx_t (*set_loc_elem_neighbor_idx)(
+		h5_file_t* const,
+		const h5_loc_idx_t, const h5_loc_idx_t, const h5_loc_idx_t);
+
+	h5_generic_glb_elem_t* (*get_glb_elem)(
+		h5_file_t* const, const h5_loc_idx_t);
+	h5_glb_id_t (*get_glb_elem_idx)(
+		h5_file_t* const, const h5_loc_id_t);
+	h5_glb_id_t (*set_glb_elem_idx)(
+		h5_file_t* const, const h5_loc_idx_t, const h5_glb_idx_t);
+	h5_glb_idx_t (*get_glb_elem_parent_idx)(
+		h5_file_t* const, const h5_loc_id_t);
+	h5_glb_idx_t (*set_glb_elem_parent_idx)(
+		h5_file_t* const, const h5_loc_idx_t, const h5_glb_idx_t);
+	h5_glb_idx_t (*get_glb_elem_child_idx)(
+		h5_file_t* const, const h5_loc_idx_t);
+	h5_glb_idx_t (*set_glb_elem_child_idx)(
+		h5_file_t* const, const h5_loc_idx_t, const h5_glb_idx_t);
+	h5_glb_idx_t* (*get_glb_elem_vertex_indices)(
+		h5_file_t* const, const h5_loc_idx_t);
+	h5_glb_idx_t (*get_glb_elem_vertex_idx)(
+		h5_file_t* const, const h5_loc_idx_t, const h5_loc_idx_t);
+	h5_glb_id_t (*set_glb_elem_vertex_idx)(
+		h5_file_t* const,
+		const h5_loc_idx_t, const h5_loc_idx_t, const h5_glb_idx_t);
+	h5_glb_idx_t* (*get_glb_elem_neighbor_indices)(
+		h5_file_t* const, const h5_loc_idx_t);
+	h5_glb_idx_t (*get_glb_elem_neighbor_idx)(
+		h5_file_t* const, const h5_loc_idx_t, const h5_loc_idx_t);
+	h5_glb_idx_t (*set_glb_elem_neighbor_idx)(
+		h5_file_t* const,
+		const h5_loc_idx_t, const h5_loc_idx_t, const h5_glb_idx_t);
+	h5_err_t (*set_boundary_elem_flag)(h5_file_t* const, const h5_loc_idx_t);
+	h5_err_t (*clear_boundary_elem_flag)(h5_file_t* const, const h5_loc_idx_t);
+	h5_err_t (*set_boundary_facet_flag)(h5_file_t* const, const h5_loc_idx_t);
+	h5_err_t (*clear_boundary_facet_flag)(h5_file_t* const, const h5_loc_idx_t);
+	int (*is_boundary_elem)(h5_file_t* const, const h5_loc_idx_t);
+	int (*is_boundary_facet)(h5_file_t* const, const h5_loc_idx_t, const h5_loc_idx_t);
+	int (*is_boundary_face)(h5_file_t* const, const int, const h5_loc_idx_t, const h5_loc_idx_t);
+};
+
 extern struct h5t_access_methods h5tpriv_access_trim_methods;
 extern struct h5t_access_methods h5tpriv_access_tetm_methods;
 

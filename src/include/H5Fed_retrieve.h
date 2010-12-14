@@ -15,12 +15,12 @@
 #ifndef __H5FED_RETRIEVE_H
 #define __H5FED_RETRIEVE_H
 
-h5t_entity_iterator_t*
+h5t_iterator_t*
 H5FedBeginTraverseEntities (
 	h5_file_t* const f,
 	int codim
 	);
-h5t_entity_iterator_t*
+h5t_iterator_t*
 H5FedBeginTraverseBoundaryFaces (
 	h5_file_t* const f,
 	int codim
@@ -28,12 +28,12 @@ H5FedBeginTraverseBoundaryFaces (
 h5_loc_id_t
 H5FedTraverseEntities (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_iterator_t* iter
 	);
 h5_err_t
 H5FedEndTraverseEntities (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_iterator_t* iter
 	);
 h5_err_t
 H5FedGetVertexCoordsByIndex (
@@ -57,6 +57,13 @@ H5FedGetVertexIndicesOfEdge (
 
 h5_err_t
 H5FedGetVertexIndicesOfTriangle (
+	h5_file_t* const f,
+	h5_loc_id_t entity_id,
+	h5_loc_idx_t* const vertex_indices
+	);
+
+h5_err_t
+H5FedGetVertexIndicesOfTriangleCClockwise (
 	h5_file_t* const f,
 	h5_loc_id_t entity_id,
 	h5_loc_idx_t* const vertex_indices

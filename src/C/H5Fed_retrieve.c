@@ -31,27 +31,27 @@
   \return	H5_SUCCESS or error code
 */
 
-h5t_entity_iterator_t*
+h5t_iterator_t*
 H5FedBeginTraverseEntities (
 	h5_file_t* const f,
 	const int codim
 	) {
-	h5t_entity_iterator_t* iter;
+	h5t_iterator_t* iter;
 	H5_ENTER_API (f, __func__);
-	if (h5t_alloc_entity_iterator (f, &iter, codim) < 0) {
+	if (h5t_create_mesh_iterator (f, &iter, codim) < 0) {
 		return (void*)H5_ERR;
 	}
 	return iter;
 }
 
-h5t_entity_iterator_t*
+h5t_iterator_t*
 H5FedBeginTraverseBoundaryFaces (
 	h5_file_t* const f,
 	const int codim
 	) {
-	h5t_entity_iterator_t* iter;
+	h5t_iterator_t* iter;
 	H5_ENTER_API (f, __func__);
-	if (h5t_alloc_boundary_face_iterator (f, &iter, codim) < 0) {
+	if (h5t_create_boundary_face_iterator (f, &iter, codim) < 0) {
 		return (void*)H5_ERR;
 	}
 	return iter;
@@ -70,7 +70,7 @@ H5FedBeginTraverseBoundaryFaces (
 h5_id_t
 H5FedTraverseEntities (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_iterator_t* iter
 	) {
 	H5_ENTER_API (f, __func__);
 	return h5t_iterate_entities (f, iter);
@@ -87,7 +87,7 @@ H5FedTraverseEntities (
 h5_err_t
 H5FedEndTraverseEntities (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_iterator_t* iter
 	) {
 	H5_ENTER_API (f, __func__);
 	return h5t_release_entity_iterator (f, iter);
@@ -141,6 +141,16 @@ H5FedGetVertexIndicesOfTriangle (
 	) {
 	H5_ENTER_API (f, __func__);
 	return h5t_get_vertex_indices_of_triangle (f, entity_id, vertex_indices);
+}
+
+h5_err_t
+H5FedGetVertexIndicesOfTriangleCClockwise (
+	h5_file_t* const f,
+	h5_id_t entity_id,
+	h5_id_t* vertex_indices
+	) {
+	H5_ENTER_API (f, __func__);
+	return h5t_get_vertex_indices_of_triangle_cclockwise (f, entity_id, vertex_indices);
 }
 
 h5_err_t

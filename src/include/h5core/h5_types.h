@@ -39,7 +39,7 @@ typedef __int64			int64_t;
 typedef int64_t			h5_int64_t;
 typedef int32_t			h5_int32_t;
 typedef int64_t			h5_id_t;
-typedef h5_int32_t		h5t_lvl_idx_t;
+typedef int16_t			h5t_lvl_idx_t;
 typedef h5_int32_t		h5t_elem_flags_t;
 typedef int64_t			h5_glb_idx_t;	// type for a global index
 typedef int64_t			h5_loc_idx_t;	// type for a local index

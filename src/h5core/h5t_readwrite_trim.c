@@ -6,10 +6,11 @@
 */
 static h5_err_t
 init_loc_elems_struct (
-	h5_file_t* const f
+	h5_file_t* const f,
+	const h5t_lvl_idx_t from_lvl
 	) {
 	h5t_fdata_t* const t = f->t;
-	h5_loc_idx_t idx = 0;
+	h5_loc_idx_t elem_idx = 0;
 	const h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
 	h5t_lvl_idx_t level_idx = 0;
 	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
@@ -17,7 +18,8 @@ init_loc_elems_struct (
 	h5_loc_triangle_t* loc_elem = t->loc_elems.tris;
 	h5_glb_triangle_t* glb_elem = t->glb_elems.tris;
 
-	for (idx = 0; idx < num_elems; idx++, loc_elem++, glb_elem++) {
+	for (elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
+	     elem_idx < num_elems; elem_idx++, loc_elem++, glb_elem++) {
 		// global element index
 		loc_elem->glb_idx = glb_elem->idx;
 		// local parent index
@@ -29,7 +31,7 @@ init_loc_elems_struct (
 		     h5t_map_glb_elem_idx2loc (f, glb_elem->child_idx) );
 
 		// level idx
-		if (idx >= t->num_elems[level_idx]) {
+		if (elem_idx >= t->num_elems[level_idx]) {
 			level_idx++;
 		}
 		loc_elem->level_idx = level_idx;
@@ -47,6 +49,7 @@ init_loc_elems_struct (
 			     glb_elem->neighbor_indices,
 			     num_facets,
 			     loc_elem->neighbor_indices) );
+#if 0
 		// on boundary?
 		int i;
 		for (i=0; i < num_facets; i++) {
@@ -55,6 +58,7 @@ init_loc_elems_struct (
 				break;
 			}
 		}
+#endif
 	}
 	return H5_SUCCESS;
 }

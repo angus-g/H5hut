@@ -84,7 +84,7 @@ static inline h5_err_t
 release_te (
 	h5_file_t* const f
 	) {
-#pragma unused f
+	UNUSED_ARGUMENT (f);
 	// @@@ TBD @@@
 	return H5_SUCCESS;
 }
@@ -117,7 +117,7 @@ static inline h5_err_t
 release_td (
 	h5_file_t* const f
 	) {
-#pragma unused f
+	UNUSED_ARGUMENT (f);
 	// @@@ TBD @@@
 	return H5_SUCCESS;
 }
@@ -824,13 +824,13 @@ get_adjacencies (
 	) {
 	h5_loc_id_t entity_type = h5tpriv_get_entity_type (entity_id);
 	switch (entity_type) {
-	case H5T_ETYPE_VERTEX:
+	case H5T_TYPE_VERTEX:
 		return get_adjacencies_to_vertex (f, entity_id, dim, list);
-	case H5T_ETYPE_EDGE:
+	case H5T_TYPE_EDGE:
 		return get_adjacencies_to_edge (f, entity_id, dim, list);
-	case H5T_ETYPE_TRIANGLE:
+	case H5T_TYPE_TRIANGLE:
 		return get_adjacencies_to_triangle (f, entity_id, dim, list);
-	case H5T_ETYPE_TET:
+	case H5T_TYPE_TET:
 		return get_adjacencies_to_tet (f, entity_id, dim, list);
 	default:
 		break;

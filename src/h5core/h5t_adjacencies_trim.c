@@ -86,7 +86,7 @@ static inline h5_err_t
 release_te (
 	h5_file_t* const f
 	) {
-#pragma unused f
+	UNUSED_ARGUMENT (f);
 	// @@@ TBD @@@
 	return H5_SUCCESS;
 }
@@ -276,7 +276,9 @@ get_triangles_uadj_to_vertex (
 		if ( h5tpriv_elem_is_on_cur_level ( f, el ) == H5_NOK ) {
 			continue;
 		}
-		TRY ( h5priv_search_idlist ( f, *list, elem_idx ) );
+		TRY( h5priv_search_idlist (f, *list,
+					   h5tpriv_build_entity_id (
+						   H5T_TYPE_TRIANGLE, 0, elem_idx)) );
 	}
 	return H5_SUCCESS;
 }
@@ -295,10 +297,37 @@ get_triangles_uadj_to_edge (
 	h5_loc_id_t *end = children->items+children->num_items;
 	for ( ; edge_id < end; edge_id++ ) {
 		h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx ( *edge_id );
-		TRY ( h5priv_search_idlist ( f, *list, elem_idx ) );
+		TRY( h5priv_search_idlist (f, *list,
+					   h5tpriv_build_entity_id(
+						   H5T_TYPE_TRIANGLE, 0, elem_idx)) );
 	}
 	TRY ( h5priv_free_idlist( f, &children ) );
 
+	return H5_SUCCESS;
+}
+
+static inline h5_err_t
+get_edges_adj_to_edge (
+	h5_file_t * const f,
+	const h5_loc_id_t entity_id,
+	h5_idlist_t **list
+	) {
+	TRY( h5priv_alloc_idlist (f, list, 8) );
+	h5_idlist_t *children;
+	TRY( h5priv_alloc_idlist (f, &children, 8) );
+	TRY( compute_sections_of_edge ( f, entity_id, children ) );
+	TRY( h5priv_alloc_idlist (f, list, 8) );
+	h5_loc_id_t* edge_id = children->items;
+	h5_loc_id_t* end = children->items+children->num_items;
+	h5_idlist_t* te;
+	for (; edge_id < end; edge_id++) {
+		h5_loc_idx_t face_idx = h5tpriv_get_face_idx(*edge_id);
+		h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx(*edge_id);
+		TRY( h5tpriv_find_te2 (f, face_idx, elem_idx, &te) );
+		TRY( h5priv_search_idlist (f, *list, te->items[0]) );
+	}
+	
+	TRY( h5priv_free_idlist(f, &children) );
 	return H5_SUCCESS;
 }
 
@@ -426,6 +455,8 @@ get_adjacencies_to_edge (
 	switch (dim) {
 	case 0:
 		return get_vertices_dadj_to_edge(f, entity_id, list);
+	case 1:
+		return get_edges_adj_to_edge(f, entity_id, list);
 	case 2:
 		return get_triangles_uadj_to_edge(f, entity_id, list);
 	default:
@@ -459,11 +490,11 @@ get_adjacencies (
 	) {
 	h5_loc_id_t entity_type = h5tpriv_get_entity_type (entity_id);
 	switch (entity_type) {
-	case H5T_ETYPE_VERTEX:
+	case H5T_TYPE_VERTEX:
 		return get_adjacencies_to_vertex (f, entity_id, dim, list);
-	case H5T_ETYPE_EDGE:
+	case H5T_TYPE_EDGE:
 		return get_adjacencies_to_edge (f, entity_id, dim, list);
-	case H5T_ETYPE_TRIANGLE:
+	case H5T_TYPE_TRIANGLE:
 		return get_adjacencies_to_triangle (f, entity_id, dim, list);
 	default:
 		break;

@@ -29,53 +29,56 @@ ToDo
 
 
 /*
-  Structure to store a tag value
+  All tags of an element are stored in an array of the below defined
+  structure
 */
 typedef struct {
-	int32_t subent_id;	/* sub-entitiy id */
-	int32_t size;
 	union {
 		h5_float64_t	f;
 		h5_int64_t	i;
-	} vals[1];
+	} item;
 } h5t_tagval_t;
 
 
 /*
-  Structure with pointers to the tag values of a given tagset of an element.
-  We use idx as an index into valp: 
-  valp[idx[0]] ... valp[idx[3]] are pointing to the tag values of vertex 0 ... 3
-  valp[idx[4]] ... valp[idx[9]] are pointing to the tag values of edge 0 ... 5
-  valp[idx[10]] ... valp[idx[13]] are pointing to the tag values of triangle 0 ... 3
-  valp[idx[14]] points to the tag value of the elements itself.
 
-  If idx[k] is equal -1, no tag has been assigned to the appropriate entity.
 */
 typedef struct {
-	signed char idx[15];
-	signed char size;	/* size of valp */
-	h5t_tagval_t *valp[1];
-} h5t_tagsel_t;
+	int16_t face_id;	// face id: type and face index
+	uint16_t val_dim;	// dim of value for this entity
+	uint32_t val_idx;	// index of first value
+} h5t_taginfo_t; 
 
+typedef struct {
+	int32_t num_tags;
+	h5t_taginfo_t ti[1];
+} h5t_tageleminfo_t;
 
 struct h5t_tagset {
-	char * name;
-	unsigned int changed;	/* flag tagset changed, ... */
-	unsigned int num_elems;
-	h5_id_t type;		/* int64 or float64 */
-	h5t_tagsel_t *elems[1];
+	char* name;		// name of tagset
+	unsigned int changed;	// flag tagset changed, ...
+	struct {
+		h5t_lvl_idx_t min_level;
+		h5t_lvl_idx_t max_level;
+	} scope;
+	h5_id_t type;		// int64 or float64
+	h5_loc_idx_t num_entities;// number of tagged entities
+	h5_loc_idx_t num_values;// number of values
+	h5_loc_idx_t num_elems; // number of elements in tagset
+	h5t_tagval_t* values;	// ptr to array of tag values
+	h5t_tageleminfo_t* elems[1]; // per element structure
 };
 
 /*
   Structure for hash table of tagsets
  */
-typedef struct {
-	unsigned int changed;		/* flag container changed */
+struct h5t_tagcontainer {
+	unsigned int changed;	// flag container changed
 	hid_t group_id;
-	hsize_t num_sets;		/* number of tagsets */
-	char **names;			/* fast access via index */
-	h5_hashtable_t	sets;
-} h5t_tagcontainer_t;
+	hsize_t num_sets;	// number of tagsets
+	char** names;		// fast access via index
+	h5_hashtable_t	sets;	// hash table
+};
 
 
 typedef struct {

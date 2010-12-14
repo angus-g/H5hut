@@ -21,6 +21,11 @@ h5priv_free (
 	void* ptr
 	);
 
+char*
+h5priv_strdup (
+	h5_file_t* const f,
+	const char* s1
+	);
 void*
 h5priv_tsearch (
 	h5_file_t* const f,

@@ -3,53 +3,31 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
-#define num_elems_on_cur_level	f->t->num_elems[f->t->cur_level]
-
 /*
   Skip elements which have been refined on a level <= the current one.
 */
-h5_err_t
-h5tpriv_skip_to_next_elem_on_level (
+static h5_err_t
+skip_to_next_elem_on_level (
 	h5_file_t* f,
-	h5t_entity_iterator_t* iter
+	h5t_mesh_iterator_t* iter
 	) {
 	h5_generic_loc_elem_t* el;
 	do {
 		iter->elem_idx++;
-		if (iter->elem_idx >= num_elems_on_cur_level) {
+		if (iter->elem_idx >= f->t->num_elems[iter->level_idx]) {
 			return H5_NOK;
 		}
 		el = h5tpriv_get_loc_elem (f, iter->elem_idx);
-	} while (h5tpriv_elem_is_on_cur_level (f, el) == H5_NOK);
+	} while (h5tpriv_elem_is_on_level (f, el, iter->level_idx) == H5_NOK);
 	return H5_SUCCESS;
 }
-
-
-/*
-  Test whether given element is on current level. This is the case, if
-  - the level_id of the element is <= the current level
-  - and, if any, the direct children is on a level > the current level
-*/
-h5_err_t
-h5tpriv_elem_is_on_cur_level (
-	h5_file_t* const f,
-	h5_generic_loc_elem_t *el // ptr to local element
-	) {
-	h5t_fdata_t* t = f->t;
-	if ( (el->level_idx > t->cur_level) ||
-	     (el->child_idx >= 0 && el->child_idx < num_elems_on_cur_level) ) {
-		return H5_NOK;
-	}
-	return H5_SUCCESS;
-}
-
 
 static h5_loc_id_t
 iterate_elems (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_mesh_iterator_t* iter
 	) {
-	if ( h5tpriv_skip_to_next_elem_on_level (f, iter) == H5_NOK) {
+	if ( skip_to_next_elem_on_level (f, iter) == H5_NOK) {
 		h5_debug ( f, "Traversing done!" );
 		return H5_NOK;
 	}
@@ -59,10 +37,10 @@ iterate_elems (
 static h5_loc_id_t
 iterate_boundary_elems (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_mesh_iterator_t* iter
 	) {
 	do {
-		if ( h5tpriv_skip_to_next_elem_on_level (f, iter) == H5_NOK) {
+		if ( skip_to_next_elem_on_level (f, iter) == H5_NOK) {
 			h5_debug ( f, "Traversing done!" );
 			return H5_NOK;
 		}
@@ -78,7 +56,7 @@ iterate_boundary_elems (
 static h5_loc_id_t
 iterate_boundary_facets (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_mesh_iterator_t* iter
 	) {
 	int num_facets = h5tpriv_ref_elem_get_num_facets (iter) - 1;
 	int dim = h5tpriv_ref_elem_get_dim (iter) - iter->codim;
@@ -96,7 +74,7 @@ iterate_boundary_facets (
 		}
 	} while (! h5tpriv_is_boundary_facet (f, iter->elem_idx, iter->face_idx));
 	int type = h5tpriv_ref_elem_get_entity_type (iter->ref_elem, dim);
-	return h5tpriv_build_id (type, iter->face_idx, iter->elem_idx );
+	return h5tpriv_build_entity_id (type, iter->face_idx, iter->elem_idx );
 }
 
 /*!
@@ -105,7 +83,7 @@ iterate_boundary_facets (
 static h5_loc_id_t
 iterate_faces (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_mesh_iterator_t* iter
 	) {
 	h5_idlist_t* entry;
 	int dim = h5tpriv_ref_elem_get_dim (iter) - iter->codim;
@@ -113,7 +91,7 @@ iterate_faces (
 	int i = -1;
 	do {
 		if (iter->face_idx >= num_faces) {
-			if (h5tpriv_skip_to_next_elem_on_level (f, iter) == H5_NOK) {
+			if (skip_to_next_elem_on_level (f, iter) == H5_NOK) {
 				h5_debug (f, "Traversing done!");
 				return H5_NOK;
 			}
@@ -134,7 +112,7 @@ iterate_faces (
 			i++;
 			h5_loc_idx_t idx = h5tpriv_get_elem_idx (entry->items[i]);
 			el = h5tpriv_get_loc_elem (f, idx);
-		} while (h5tpriv_elem_is_on_cur_level (f, el) == H5_NOK);
+		} while (h5tpriv_elem_is_on_level (f, el, iter->level_idx) == H5_NOK);
 
 		// 3. Face already visited if 
 	} while (iter->elem_idx > h5tpriv_get_elem_idx(entry->items[i]));
@@ -153,7 +131,7 @@ iterate_faces (
 static h5_loc_id_t
 iterate_boundary_faces (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_mesh_iterator_t* iter
 	) {
 	// TODO!!!
 	int dim = h5tpriv_ref_elem_get_dim (iter) - iter->codim;
@@ -173,87 +151,123 @@ iterate_boundary_faces (
 			} else {
 				iter->face_idx++;
 			}
-		} while (! h5tpriv_is_boundary_face (f, dim, iter->elem_idx, iter->face_idx));
+		} while (! h5tpriv_is_boundary_face (
+				 f, dim, iter->elem_idx, iter->face_idx));
 		// Skip already visited faces
 	} while (0);
 	return h5_error_internal (f, __FILE__, __func__, __LINE__);
 }
 
-h5_err_t
-h5t_alloc_entity_iterator (
-	h5_file_t* f,
-	h5t_entity_iterator_t** iter,
-	int codim
+static h5_loc_id_t
+iterate_tags (
+	h5_file_t* const f,
+	h5t_tag_iterator_t* iter
 	) {
-	TRY( *iter = h5priv_alloc (f, NULL, sizeof (h5t_entity_iterator_t)) );
-	return h5t_begin_iterate_entities (f, *iter, codim);
+	UNUSED_ARGUMENT (f);
+#if 0
+	h5t_tagsel_t* tags;
+	do {
+		if (iter->subentity_idx >= 14) {
+			iter->elem_idx++;
+			iter->subentity_idx = 0;
+		} else {
+			iter->subentity_idx++;
+		}
+		tags = iter->tagset->elems[iter->elem_idx];
+	} while ((tags == NULL) || (tags->idx[iter->subentity_idx]));
+#endif	
+	return 0;
 }
 
 h5_err_t
-h5t_alloc_boundary_face_iterator (
+h5t_init_mesh_iterator (
 	h5_file_t* f,
-	h5t_entity_iterator_t** iter,
+	h5t_iterator_t* iter,
 	int codim
 	) {
-	TRY( *iter = h5priv_alloc (f, NULL, sizeof (h5t_entity_iterator_t)) );
-	return h5t_begin_iterate_boundary_faces (f, *iter, codim);
+	h5t_mesh_iterator_t* it = (h5t_mesh_iterator_t*)iter;
+	it->face_idx = 999;
+	it->elem_idx = -1;
+	it->codim = codim;
+	it->level_idx = f->t->cur_level;
+	it->ref_elem = f->t->ref_elem;
+
+	if (it->codim > 0) {
+		it->iter = iterate_faces;
+	} else if (it->codim == 0) {
+		it->iter = iterate_elems;
+	}
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5t_create_mesh_iterator (
+	h5_file_t* f,
+	h5t_iterator_t** iter,
+	int codim
+	) {
+	h5t_mesh_iterator_t* it;
+	TRY( it = h5priv_calloc (f, 1, sizeof (h5t_mesh_iterator_t)) );
+	TRY( h5t_init_mesh_iterator (f, (h5t_iterator_t*)it, codim) );
+	*iter =  (h5t_iterator_t*)it;
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5t_create_boundary_face_iterator (
+	h5_file_t* f,
+	h5t_iterator_t** iter,
+	int codim
+	) {
+	h5t_mesh_iterator_t* it;
+	TRY( it = h5priv_calloc (f, 1, sizeof (h5t_mesh_iterator_t)) );
+	it->face_idx = 999; // just a high enough number
+	it->elem_idx = -1;
+	it->codim = codim;
+	it->level_idx = f->t->cur_level;
+	it->ref_elem = f->t->ref_elem;
+
+	if (it->codim <= 0 || it->codim > it->ref_elem->dim) {
+		return h5tpriv_inval_codim (f, codim, 1, it->ref_elem->dim);
+	} else if (it->codim == 1) {
+		it->iter = iterate_boundary_facets;
+	}
+	else if (it->codim > 1) {
+		it->iter = iterate_boundary_faces;
+	}
+	*iter =  (h5t_iterator_t*)it;
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5t_create_mtag_iterator (
+	h5_file_t* f,
+	h5t_iterator_t** iter,
+	const char* name
+	) {
+	h5t_tag_iterator_t* it;
+	TRY( it = h5priv_calloc (f, 1, sizeof (h5t_tag_iterator_t)) );
+	h5t_open_mtagset (f, name, &it->tagset);
+	it->elem_idx = -1;
+	it->subentity_idx = 999;
+	it->level_idx = f->t->cur_level;
+	it->iter = iterate_tags;
+	*iter =  (h5t_iterator_t*)it;
+	return H5_SUCCESS;
 }
 
 h5_err_t
 h5t_release_entity_iterator (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_iterator_t* iter
 	) {
 	return h5priv_free (f, iter);
-}
-
-h5_err_t
-h5t_begin_iterate_entities (
-	h5_file_t* f,
-	h5t_entity_iterator_t* iter,
-	const int codim
-	) {
-	iter->face_idx = -1;
-	iter->elem_idx = -1;
-	iter->codim = codim;
-	iter->ref_elem = f->t->ref_elem;
-
-	if (iter->codim > 0) {
-		iter->iter = iterate_faces;
-	} else if (iter->codim == 0) {
-		iter->iter = iterate_elems;
-	}
-	return h5tpriv_init_iterator (f, iter, codim);
-}
-
-h5_err_t
-h5t_begin_iterate_boundary_faces (
-	h5_file_t* f,
-	h5t_entity_iterator_t* iter,
-	const int codim
-	) {
-	iter->face_idx = 999; // just a high enough number
-	iter->elem_idx = -1;
-	iter->codim = codim;
-	iter->ref_elem = f->t->ref_elem;
-
-	if (iter->codim <= 0 || iter->codim > iter->ref_elem->dim) {
-		return h5_error (f, H5_ERR_INVAL,
-				 "Co-dimension requested %d, but must be between %d and %d",
-				 codim, 1, iter->ref_elem->dim);
-	} else if (iter->codim == 1) {
-		iter->iter = iterate_boundary_facets;
-	}
-	else if (iter->codim > 1) {
-		iter->iter = iterate_boundary_faces;
-	}
-	return H5_SUCCESS;
 }
 
 h5_loc_id_t
 h5t_iterate_entities (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_iterator_t* iter
 	) {
 	return (iter->iter (f, iter));
 }
@@ -261,15 +275,16 @@ h5t_iterate_entities (
 h5_err_t
 h5t_end_iterate_entities (
 	h5_file_t* const f,
-	h5t_entity_iterator_t* iter
+	h5t_iterator_t* iter
 	) {
-#pragma unused f
-	iter->face_idx = -1;
-	iter->elem_idx = -1;
-	iter->codim = -1;
-	iter->ref_elem = NULL;
-	iter->find = NULL;
-	iter->iter = NULL;
+	UNUSED_ARGUMENT (f);
+	h5t_mesh_iterator_t* it = (h5t_mesh_iterator_t*)iter;
+	it->face_idx = -1;
+	it->elem_idx = -1;
+	it->codim = -1;
+	it->ref_elem = NULL;
+	it->find = NULL;
+	it->iter = NULL;
 	return H5_SUCCESS;
 }
 

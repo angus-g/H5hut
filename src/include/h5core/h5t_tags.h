@@ -1,23 +1,31 @@
 #ifndef __H5T_TAGS_H 
 #define __H5T_TAGS_H
 
-typedef struct h5t_tagset H5T_Tagset;
+typedef struct h5t_tagset h5t_tagset_t;
+typedef struct h5t_tagcontainer h5t_tagcontainer_t;
 
+h5_err_t
+h5t_mtagset_exists (
+	h5_file_t* const f,
+	h5t_tagcontainer_t* ctn,
+	char* name
+	);
 h5_err_t
 h5t_add_mtagset (
 	h5_file_t* const f,
 	char name[],
-	h5_id_t id
+	h5_id_t type
 	);
 h5_err_t
 h5t_remove_mtagset (
 	h5_file_t* const f,
 	const char name[]
 	);
-h5_err_t h5t_open_mtagset (
+h5_err_t
+h5t_open_mtagset (
 	h5_file_t* const f,
 	const char *name,
-	H5T_Tagset** retval
+	h5t_tagset_t** retval
 	);
 h5_ssize_t
 h5t_get_num_mtagsets (
@@ -68,7 +76,7 @@ h5t_remove_mtag_by_name (
 h5_ssize_t
 h5t_get_tag (
 	h5_file_t *const f,
-	const H5T_Tagset *tagset,
+	const h5t_tagset_t *tagset,
 	const h5_loc_id_t entity_id,
 	size_t* const dim,
 	void* const vals
@@ -77,7 +85,7 @@ h5t_get_tag (
 h5_err_t
 h5t_remove_mtag (
 	h5_file_t* const f,
-	H5T_Tagset* tagset,
+	h5t_tagset_t* tagset,
 	const h5_loc_id_t entity_id
 	);
 

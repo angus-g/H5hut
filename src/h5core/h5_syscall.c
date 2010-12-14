@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <search.h>
+#include <strings.h>
 
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
@@ -36,6 +37,19 @@ h5priv_calloc (
 	return ptr;
 }
 
+char*
+h5priv_strdup (
+	h5_file_t* const f,
+	const char* s1
+	) {
+	char* s2 = strdup (s1);
+	if (s2 == NULL) {
+		h5_error (f, H5_ERR_NOMEM, "Out of memory.");
+		return (void*)(H5_ERR);
+	}
+	return s2;
+}
+
 h5_err_t
 h5priv_free (
 	h5_file_t* const f,
@@ -70,7 +84,7 @@ h5priv_tfind (
 	void* const* rootp,
 	int (*compar) (const void* key1, const void* key2) 
 	) {
-#pragma unused f
+	UNUSED_ARGUMENT (f);
 	void* ptr = tfind (key, rootp, compar);
 	if (ptr == NULL) {
 		return (void*)(H5_ERR);

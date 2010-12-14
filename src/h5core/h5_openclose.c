@@ -45,7 +45,7 @@ h5priv_error_handler (
 	hid_t estack_id,
 	void* __f
 	) {
-#pragma unused __f
+	UNUSED_ARGUMENT (__f);
 	if (h5_get_debuglevel() >= 5) {
 		H5Eprint (estack_id, stderr);
 	}
@@ -145,7 +145,7 @@ open_file (
 	) {
 
 #if !defined(PARALLEL_IO)
-#pragma unused comm
+	UNUSED_ARGUMENT (f);
 #endif
 
 	h5_info (f, "Opening file %s.", filename);
@@ -415,10 +415,10 @@ h5_get_stepname_fmt (
 	int l_name,			/*!< length of buffer name	*/
 	int* width			/*!< OUT: Width of the number	*/
 	) {
-#pragma unused f
-#pragma unused name
-#pragma unused l_name
-#pragma unused width
+	UNUSED_ARGUMENT (f);
+	UNUSED_ARGUMENT (name);
+	UNUSED_ARGUMENT (l_name);
+	UNUSED_ARGUMENT (width);
 	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }
 

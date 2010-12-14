@@ -46,14 +46,13 @@
 
 */
 #define H5T_ELEM_MASK		( (h5_id_t) (ULLONG_MAX >> 8) )
-#define H5T_ETYPE_MASK		( 7ull << (sizeof(h5_id_t)*8-4) )
-#define H5T_COMPONENT_MASK	(~H5T_ELEM_MASK)
-#define H5T_COMPONENT_ID_MASK	(15ull << (sizeof(h5_id_t)*7) )
+#define H5T_TYPE_MASK		( 7ull << (sizeof(h5_id_t)*7+4) )
+#define H5T_FACE_MASK		(15ull << (sizeof(h5_id_t)*7) )
 
-#define H5T_ETYPE_VERTEX	(1)
-#define H5T_ETYPE_EDGE		(2)
-#define H5T_ETYPE_TRIANGLE	(3)
-#define H5T_ETYPE_TET		(4)
+#define H5T_TYPE_VERTEX		(1)
+#define H5T_TYPE_EDGE		(2)
+#define H5T_TYPE_TRIANGLE	(3)
+#define H5T_TYPE_TET		(4)
 
 #define h5tpriv_set_entity_type( type, elem_idx )		\
 	(							\
@@ -61,35 +60,48 @@
 		((h5_id_t)(elem_idx))				\
 		)
 #define h5tpriv_get_entity_type( entity_id )			\
-	((entity_id & H5T_ETYPE_MASK) >> (sizeof(h5_id_t)*8-4))
+	((entity_id & H5T_TYPE_MASK) >> (sizeof(h5_id_t)*8-4))
 
 
-#define h5tpriv_build_id( type, face_idx, elem_idx )		\
+#define h5tpriv_build_entity_id( type, face_idx, elem_idx )		\
 	(							\
 		((h5_id_t)(type) << (sizeof(h5_id_t)*8-4)) |	\
 		((h5_id_t)(face_idx) << (sizeof(h5_id_t)*7)) |	\
 		((h5_id_t)(elem_idx) & H5T_ELEM_MASK)		\
 		)
 
+#define h5tpriv_build_entity_id2( face_id, elem_idx )			\
+	(							\
+		((h5_id_t)(face_id) << (sizeof(h5_id_t)*7)) |	\
+		((h5_id_t)(elem_idx) & H5T_ELEM_MASK)		\
+		)
+
+#define h5tpriv_build_face_id( type_id, face_idx )	\
+	(type_id << 4 | face_idx)
+
 #define h5tpriv_build_vertex_id( face_idx, elem_idx )			\
-	( h5tpriv_build_id ( H5T_ETYPE_VERTEX, face_idx, elem_idx ) )
+	( h5tpriv_build_entity_id ( H5T_TYPE_VERTEX, face_idx, elem_idx ) )
 
 #define h5tpriv_build_edge_id( face_idx, elem_idx )			\
-	( h5tpriv_build_id ( H5T_ETYPE_EDGE, face_idx, elem_idx ) )
+	( h5tpriv_build_entity_id ( H5T_TYPE_EDGE, face_idx, elem_idx ) )
 
 #define h5tpriv_build_triangle_id( face_idx, elem_idx )	 \
-	( h5tpriv_build_id ( H5T_ETYPE_TRIANGLE, face_idx, elem_idx ) )
+	( h5tpriv_build_entity_id ( H5T_TYPE_TRIANGLE, face_idx, elem_idx ) )
 
 #define h5tpriv_build_elem_id( elem_idx )				\
-	( h5tpriv_build_id ( f->t->mesh_type, 0, elem_idx ) )
+	( h5tpriv_build_entity_id ( f->t->mesh_type, 0, elem_idx ) )
 
 #define h5tpriv_get_face_idx( entity_id )				\
-	( (entity_id & H5T_COMPONENT_ID_MASK) >> (sizeof(h5_id_t)*7) )
+	( (entity_id & H5T_FACE_MASK) >> (sizeof(h5_id_t)*7) )
 
-#define h5tpriv_get_elem_idx( entity_id )		\
+#define h5tpriv_get_face_id( entity_id )				\
+	( (entity_id & (H5T_TYPE_MASK|H5T_FACE_MASK)) >> (sizeof(h5_id_t)*7) )
+
+#define h5tpriv_get_elem_idx( entity_id )	\
 	( entity_id & H5T_ELEM_MASK )
 
-
 #define H5T_BOUNDARY_ELEM_FLAG 1
+#define H5T_BOUNDARY_FACET_FLAG 2
+
 
 #endif

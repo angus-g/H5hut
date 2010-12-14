@@ -365,7 +365,7 @@ h5_err_t
 h5tpriv_init_step (
 	h5_file_t* const f
 	) {
-#pragma unused f
+	UNUSED_ARGUMENT (f);
 	return H5_SUCCESS;
 }
 
@@ -378,7 +378,7 @@ h5_err_t
 h5tpriv_close_step (
 	h5_file_t* const f
 	) {
-#pragma unused f
+	UNUSED_ARGUMENT (f);
 	return H5_SUCCESS;
 }
 

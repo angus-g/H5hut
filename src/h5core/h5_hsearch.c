@@ -175,7 +175,7 @@ h5priv_hsearch (
 	unsigned int hval;
 	unsigned int idx;
 
-	/* Compute an value for the given string. Perhaps use a better method. */
+	/* Compute an value for the given key. Perhaps use a better method. */
 	hval = (*htab->compute_hash)(item);
 
 	/* First hash function: simply take the modul but prevent zero. */
@@ -186,8 +186,10 @@ h5priv_hsearch (
 		   value. */
 		if (htab->table[idx].used == hval
 		    && ((*htab->compare) (item, htab->table[idx].entry) == 0) ) {
-			    *retval = htab->table[idx].entry;
-			    return H5_SUCCESS;
+			if (retval && *retval) {
+				*retval = htab->table[idx].entry;
+			}
+			return H5_SUCCESS;
 		}
 
 		/* Second hash function, as suggested in [Knuth] */
@@ -211,7 +213,9 @@ h5priv_hsearch (
 			if (htab->table[idx].used == hval
 			    && ((*htab->compare) (
 					item, htab->table[idx].entry) == 0) ) {
-				*retval = htab->table[idx].entry;
+				if (retval && *retval) {
+					*retval = htab->table[idx].entry;
+				}
 				return H5_SUCCESS;
 			}
 		} while (htab->table[idx].used);
@@ -223,7 +227,9 @@ h5priv_hsearch (
 		   with error.  */
 		if (htab->filled == htab->size)	{
 			h5_error_internal (f, __FILE__, __func__, __LINE__);
-			*retval = NULL;
+			if (retval) {
+				*retval = NULL;
+			}
 			return H5_ERR;
 		}
 
@@ -232,7 +238,9 @@ h5priv_hsearch (
 		
 		++htab->filled;
 
-		*retval = htab->table[idx].entry;
+		if (retval && *retval) {
+			*retval = htab->table[idx].entry;
+		}
 		return H5_SUCCESS;
 	} else if (action == H5_REMOVE) {
 		htab->table[idx].used = 0;		/* mark as unused, but */
@@ -240,8 +248,8 @@ h5priv_hsearch (
 		return H5_SUCCESS;
 	}
 	*retval = NULL;
-	h5_error (f, H5_ERR_INVAL, "Key not found in hash table.");
-	return H5_ERR;
+	h5_debug (f, "Key not found in hash table.");
+	return H5_NOK;
 }
 
 h5_err_t

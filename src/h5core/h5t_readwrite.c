@@ -6,8 +6,8 @@ open_space_all (
 	h5_file_t* const f,
 	const hid_t dataset_id
 	) {
-#pragma unused f
-#pragma unused dataset_id
+	UNUSED_ARGUMENT (f);
+	UNUSED_ARGUMENT (dataset_id);
 	return H5S_ALL;
 }
 
@@ -125,8 +125,8 @@ open_mem_space_vertices (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
-#pragma unused f
-#pragma unused dataset_id
+	UNUSED_ARGUMENT (f);
+	UNUSED_ARGUMENT (dataset_id);
 	return H5S_ALL;
 }
 
@@ -135,8 +135,8 @@ open_file_space_vertices (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
-#pragma unused f
-#pragma unused dataset_id
+	UNUSED_ARGUMENT (f);
+	UNUSED_ARGUMENT (dataset_id);
 	return H5S_ALL;
 }
 
@@ -218,8 +218,8 @@ open_mem_space_elems (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
-#pragma unused f
-#pragma unused dataset_id
+	UNUSED_ARGUMENT (f);
+	UNUSED_ARGUMENT (dataset_id);
 	return H5S_ALL;
 }
 
@@ -228,8 +228,8 @@ open_file_space_elems (
 	h5_file_t* const f,
 	hid_t dataset_id
 	) {
-#pragma unused f
-#pragma unused dataset_id
+	UNUSED_ARGUMENT (f);
+	UNUSED_ARGUMENT (dataset_id);
 	return H5S_ALL;
 }
 
@@ -281,7 +281,7 @@ h5tpriv_read_mesh (
 
 	TRY( read_elems (f) );
 	TRY( h5tpriv_rebuild_elem_indices_mapping (f) );
-	TRY( h5tpriv_init_loc_elems_struct (f) );
+	TRY( h5tpriv_init_loc_elems_struct (f, 0) );
 	TRY( h5tpriv_update_adjacency_structs (f, 0) );
 	TRY( h5tpriv_init_geom_boundary_info (f, 0) );
 

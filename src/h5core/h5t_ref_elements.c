@@ -32,9 +32,9 @@
 const h5t_ref_elem_t h5t_tri_ref_elem = {
 	2,					// dimension
 	{
-		H5T_ETYPE_VERTEX,
-		H5T_ETYPE_EDGE,
-		H5T_ETYPE_TRIANGLE,
+		H5T_TYPE_VERTEX,
+		H5T_TYPE_EDGE,
+		H5T_TYPE_TRIANGLE,
 	},
 	{
 		3,				// #vertices
@@ -94,10 +94,10 @@ const h5t_ref_elem_t h5t_tri_ref_elem = {
 const h5t_ref_elem_t h5t_tet_ref_elem = {
 	3,					// dimension
 	{
-		H5T_ETYPE_VERTEX,
-		H5T_ETYPE_EDGE,
-		H5T_ETYPE_TRIANGLE,
-		H5T_ETYPE_TET,
+		H5T_TYPE_VERTEX,
+		H5T_TYPE_EDGE,
+		H5T_TYPE_TRIANGLE,
+		H5T_TYPE_TET,
 	},
 	{
 		4,				// #vertices

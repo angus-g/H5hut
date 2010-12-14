@@ -1,6 +1,14 @@
 #ifndef __H5T_ADJACENCIES_PRIVATE_H
 #define __H5T_ADJACENCIES_PRIVATE_H
 
+struct h5t_adjacency_methods {
+	h5_err_t (*update_internal_structs)(h5_file_t* const, h5t_lvl_idx_t);
+	h5_err_t (*release_internal_structs)(h5_file_t* const);
+	h5_err_t (*get_adjacencies)(
+		h5_file_t * const,
+		const h5_loc_id_t, const h5_int32_t, h5_idlist_t**);
+};
+
 extern struct h5t_adjacency_methods h5tpriv_trim_adjacency_methods;
 extern struct h5t_adjacency_methods h5tpriv_tetm_adjacency_methods;
 

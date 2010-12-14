@@ -6,7 +6,8 @@
 */
 static h5_err_t
 init_loc_elems_struct (
-	h5_file_t* const f
+	h5_file_t* const f,
+	const h5t_lvl_idx_t from_lvl
 	) {
 	h5t_fdata_t* const t = f->t;
 	h5_loc_idx_t elem_idx = 0;
@@ -17,7 +18,7 @@ init_loc_elems_struct (
 	h5_loc_tet_t* loc_elem = t->loc_elems.tets;
 	h5_glb_tet_t* glb_elem = t->glb_elems.tets;
 
-	for (elem_idx = 0;
+	for (elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
 	     elem_idx < num_elems; elem_idx++, loc_elem++, glb_elem++) {
 		// global element index
 		loc_elem->glb_idx = glb_elem->idx;
@@ -48,7 +49,9 @@ init_loc_elems_struct (
 			     glb_elem->neighbor_indices,
 			     num_facets,
 			     loc_elem->neighbor_indices) );
-		// on boundary?
+#if 0
+		// done in function below
+                // on boundary?
 		int i;
 		for (i=0; i < num_facets; i++) {
 			if (loc_elem->neighbor_indices[i] == -1) {
@@ -56,6 +59,7 @@ init_loc_elems_struct (
 				break;
 			}
 		}
+#endif
 	}
 	return H5_SUCCESS;
 }
@@ -109,11 +113,14 @@ init_geom_boundary_info (
 			// get vertices of edge i
 			h5_loc_idx_t face_idx;
 			face_idx = t->ref_elem->map[2][i][0];
-			vertex_indices[0] = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx);
+			vertex_indices[0] = h5tpriv_get_loc_elem_vertex_idx (
+				f, elem_idx, face_idx);
 			face_idx = t->ref_elem->map[2][i][1];
-			vertex_indices[1] = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx);
+			vertex_indices[1] = h5tpriv_get_loc_elem_vertex_idx (
+				f, elem_idx, face_idx);
 			face_idx = t->ref_elem->map[2][i][2];
-			vertex_indices[2] = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx);
+			vertex_indices[2] = h5tpriv_get_loc_elem_vertex_idx (
+				f, elem_idx, face_idx);
 			num_vertices = 3;
 		}
 		// mark elements

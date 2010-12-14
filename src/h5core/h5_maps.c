@@ -23,7 +23,7 @@ h5priv_free_idlist_items (
 	h5_file_t* const f,
 	h5_idlist_t* list
 	) {
-#pragma unused f
+	UNUSED_ARGUMENT (f);
 	if (list->items != NULL) free (list->items);
 	list->items = NULL;
 	list->size = 0;
@@ -107,7 +107,7 @@ h5priv_sort_idlist_by_eid (
 	h5_file_t* const f,
 	h5_idlist_t* list
 	) {
-#pragma unused f
+	UNUSED_ARGUMENT (f);
 	qsort (
 		list->items,
 		list->num_items,
@@ -126,7 +126,7 @@ h5priv_find_idlist (
 	h5_idlist_t* list,
 	h5_loc_id_t item
 	) {
-#pragma unused f
+	UNUSED_ARGUMENT (f);
 	register h5_loc_idx_t low = 0;
 	register h5_loc_idx_t high = list->num_items - 1;
 	while (low <= high) {

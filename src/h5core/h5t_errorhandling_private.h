@@ -28,6 +28,19 @@ h5tpriv_error_local_elem_nexist (
 	return h5_error (f, H5_ERR_NOENTRY, ERR_ELEM_NEXIST, s);
 }
 
+static inline h5_err_t
+h5tpriv_inval_codim (
+	h5_file_t * const f,
+	int codim,
+	int min_codim,
+	int max_codim
+	) {
+	return h5_error (f, H5_ERR_INVAL,
+			 "Co-dimension %d requested, "
+			 "but must be between %d and %d",
+			 codim, min_codim, max_codim);
+}
+
 #define h5tpriv_error_undef_mesh( f )		\
 	h5_error(				\
 		f,				\

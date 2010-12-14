@@ -115,7 +115,7 @@ h5u_set_num_particles (
 	}
 
 #ifndef PARALLEL_IO
-#pragma unused total
+        UNUSED_ARGUMENT (total);
 	count = u->nparticles;
 	TRY( u->shape = h5priv_create_hdf5_dataspace(f, 1, &count, NULL) );
 	u->viewstart = 0;

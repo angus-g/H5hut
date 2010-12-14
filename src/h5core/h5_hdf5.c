@@ -620,7 +620,7 @@ get_class_type_name (
 	h5_file_t* const f,
 	hid_t base_type_id
 	) {
-#pragma unused f
+	UNUSED_ARGUMENT(f);
 	if (base_type_id == H5_COMPOUND_T)	return "H5_COMPOUND_T";
 
 	return "[unknown]";

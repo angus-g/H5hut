@@ -47,6 +47,6 @@ H5FedLinkMeshToStep (
 	h5_file_t* const f,
 	const h5_id_t mesh_id
 	) {
-#pragma unused mesh_id
+	UNUSED_ARGUMENT (mesh_id);
 	return h5_error_not_implemented (f, __FILE__, __func__, __LINE__);
 }

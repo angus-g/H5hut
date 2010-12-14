@@ -85,7 +85,7 @@ h5t_get_num_elems (
 	h5_file_t* const f,
 	const h5_id_t cnode
 	) {
-#pragma unused cnode
+	UNUSED_ARGUMENT (cnode);
 	h5t_fdata_t* t = f->t;
 
 	if (t->cur_mesh < 0) {
@@ -115,7 +115,7 @@ h5t_get_num_vertices (
 	h5_file_t* const f,
 	h5_id_t cnode
 	) {
-#pragma unused cnode
+	UNUSED_ARGUMENT (cnode);
 	h5t_fdata_t* t = f->t;
 
 	if (t->cur_mesh < 0) {
