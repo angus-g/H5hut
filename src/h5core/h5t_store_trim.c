@@ -12,7 +12,7 @@ alloc_triangles (
 	h5t_fdata_t *t = f->t;
 
 	/* alloc mem for elements */
-	TRY ( t->glb_elems.tris = h5priv_alloc (
+	TRY ( t->glb_elems.tris = h5_alloc (
 		      f,
 		      t->glb_elems.tris,
 		      new * sizeof(t->glb_elems.tris[0]) ) );
@@ -22,7 +22,7 @@ alloc_triangles (
 		(new-cur) * sizeof(t->glb_elems.tris[0]) );
 
 	/* alloc mem for local data of elements */
-	TRY ( t->loc_elems.tris = h5priv_alloc (
+	TRY ( t->loc_elems.tris = h5_alloc (
 		      f,
 		      t->loc_elems.tris,
 		      new * sizeof (t->loc_elems.tris[0]) ) );

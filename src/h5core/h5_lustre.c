@@ -33,7 +33,7 @@ _get_lustre_stripe_size(h5_file_t *const f,  const char *path )
 	size_t nbytes = sizeof(struct lov_user_md) +
 				INIT_ALLOC_NUM_OSTS * sizeof(struct lov_user_ost_data);
 	struct lov_user_md *lum;
-	TRY( lum = h5priv_alloc(f, NULL, nbytes) );
+	TRY( lum = h5_alloc(f, NULL, nbytes) );
 	lum->lmm_magic = LOV_USER_MAGIC;
 
 	int fd = open64(path, O_RDONLY);

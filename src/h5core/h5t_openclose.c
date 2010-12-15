@@ -344,7 +344,7 @@ h5tpriv_open_file (
 	h5_file_t* const f			/*!< IN: file handle */
 	) {
 
-	TRY( (f->t = h5priv_calloc (f, 1, sizeof (*f->t))) );
+	TRY( (f->t = h5_calloc (f, 1, sizeof (*f->t))) );
 	h5t_fdata_t* t = f->t;
 
 	t->dtypes.h5_glb_idx_t = H5_INT64_T;
@@ -496,11 +496,11 @@ release_elems (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
-	TRY( h5priv_free (f, t->glb_elems.data) );
-	TRY( h5priv_free (f, t->loc_elems.data) );
-	TRY( h5priv_free (f, t->num_elems) );
-	TRY( h5priv_free (f, t->num_elems_on_level) );
-	TRY( h5priv_free (f, t->map_elem_g2l.items) );
+	TRY( h5_free (f, t->glb_elems.data) );
+	TRY( h5_free (f, t->loc_elems.data) );
+	TRY( h5_free (f, t->num_elems) );
+	TRY( h5_free (f, t->num_elems_on_level) );
+	TRY( h5_free (f, t->map_elem_g2l.items) );
 
 	return H5_SUCCESS;
 }
@@ -510,9 +510,9 @@ release_vertices (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
-	TRY( h5priv_free (f, t->vertices) );
-	TRY( h5priv_free (f, t->num_vertices) );
-	TRY( h5priv_free (f, t->map_vertex_g2l.items) );
+	TRY( h5_free (f, t->vertices) );
+	TRY( h5_free (f, t->num_vertices) );
+	TRY( h5_free (f, t->map_vertex_g2l.items) );
 
 	return H5_SUCCESS;
 }
@@ -576,7 +576,7 @@ h5tpriv_alloc_num_vertices (
 	h5t_fdata_t* t = f->t;
 
 	ssize_t size = num * sizeof (t->vertices[0]);
-	TRY( t->vertices = h5priv_alloc (f, t->vertices, size) );
+	TRY( t->vertices = h5_alloc (f, t->vertices, size) );
 	TRY( h5priv_alloc_idxmap (f, &t->map_vertex_g2l, num) );
 
 	return H5_SUCCESS;

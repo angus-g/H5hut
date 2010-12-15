@@ -27,7 +27,7 @@ alloc_tv (
 
 	h5t_adjacencies_t* adj = &t->adjacencies;
 	// allocate one ID list per vertex
-	TRY( adj->tv.v = h5priv_calloc (f, num_vertices, sizeof(*adj->tv.v)) );
+	TRY( adj->tv.v = h5_calloc (f, num_vertices, sizeof(*adj->tv.v)) );
 
 	return H5_SUCCESS;
 }
@@ -45,7 +45,7 @@ release_tv (
 	for (; idx < last; idx++) {
 		TRY( h5priv_free_idlist_items (f, &adj->tv.v[idx]) );
 	}
-	TRY( h5priv_free (f, adj->tv.v) );
+	TRY( h5_free (f, adj->tv.v) );
 	adj->tv.v = NULL;
 	return H5_SUCCESS;
 }

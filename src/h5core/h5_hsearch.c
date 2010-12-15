@@ -82,7 +82,7 @@ h5priv_hcreate (
 	htab->compute_hash = compute_hash;
 
 	/* allocate memory and zero out */
-	TRY( (htab->table = (_ENTRY *) h5priv_calloc (
+	TRY( (htab->table = (_ENTRY *) h5_calloc (
 		       f, htab->size + 1, sizeof (_ENTRY))) );
 
 	/* everything went alright */
@@ -142,7 +142,7 @@ h5priv_hdestroy (
 	}
 
 	/* Free used memory.  */
-	TRY( h5priv_free (f, htab->table) );
+	TRY( h5_free (f, htab->table) );
 
 	/* the sign for an existing table is an value != NULL in htable */
 	htab->table = NULL;

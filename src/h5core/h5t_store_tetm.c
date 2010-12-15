@@ -12,7 +12,7 @@ alloc_tets (
 	h5t_fdata_t *t = f->t;
 
 	/* alloc mem for elements */
-	TRY ( t->glb_elems.tets = h5priv_alloc (
+	TRY ( t->glb_elems.tets = h5_alloc (
 		      f,
 		      t->glb_elems.tets,
 		      new * sizeof(t->glb_elems.tets[0]) ) );
@@ -22,7 +22,7 @@ alloc_tets (
 		(new-cur) * sizeof(t->glb_elems.tets[0]) );
 
 	/* alloc mem for local data of elements */
-	TRY ( t->loc_elems.tets = h5priv_alloc (
+	TRY ( t->loc_elems.tets = h5_alloc (
 		      f,
 		      t->loc_elems.tets,
 		      new * sizeof (t->loc_elems.tets[0]) ) );

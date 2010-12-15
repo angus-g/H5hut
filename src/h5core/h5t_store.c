@@ -142,12 +142,12 @@ h5t_add_level (
 	t->dsinfo_num_elems_on_level.dims[0] = t->num_levels;
 
 	ssize_t num_bytes = t->num_levels*sizeof (h5_size_t);
-	TRY( t->num_vertices = h5priv_alloc (f, t->num_vertices, num_bytes) );
+	TRY( t->num_vertices = h5_alloc (f, t->num_vertices, num_bytes) );
 	t->num_vertices[t->cur_level] = -1;
 
-	TRY( t->num_elems = h5priv_alloc (f, t->num_elems, num_bytes) );
+	TRY( t->num_elems = h5_alloc (f, t->num_elems, num_bytes) );
 	t->num_elems[t->cur_level] = -1;
-	TRY( t->num_elems_on_level = h5priv_alloc (
+	TRY( t->num_elems_on_level = h5_alloc (
 		     f, t->num_elems_on_level, num_bytes) );
 	t->num_elems_on_level[t->cur_level] = -1;
 

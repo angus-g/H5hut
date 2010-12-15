@@ -1247,7 +1247,7 @@ _iter_op_get_obj_type (
 
 	if ( info->type == H5L_TYPE_EXTERNAL ) {
 		char *buf;
-		TRY( buf = h5priv_alloc(f, NULL, info->u.val_size) );
+		TRY( buf = h5_alloc(f, NULL, info->u.val_size) );
 
 		herr = H5Lget_val(g_id, name, buf,
 					info->u.val_size, H5P_DEFAULT);

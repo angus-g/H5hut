@@ -6,7 +6,7 @@
 #include "h5_core_private.h"
 
 void*
-h5priv_alloc (
+h5_alloc (
 	h5_file_t* const f,
 	void* ptr,
 	const size_t size
@@ -22,7 +22,7 @@ h5priv_alloc (
 }
 
 void*
-h5priv_calloc (
+h5_calloc (
 	h5_file_t* const f,
 	const size_t count,
 	const size_t size
@@ -51,7 +51,7 @@ h5priv_strdup (
 }
 
 h5_err_t
-h5priv_free (
+h5_free (
 	h5_file_t* const f,
 	void* ptr
 	) {

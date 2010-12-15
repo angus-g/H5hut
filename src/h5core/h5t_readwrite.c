@@ -150,7 +150,7 @@ read_num_vertices (
 		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 	ssize_t num_bytes = t->num_levels*sizeof (t->num_vertices[0]);
-	TRY( t->num_vertices = h5priv_alloc (f, t->num_vertices, num_bytes) );
+	TRY( t->num_vertices = h5_alloc (f, t->num_vertices, num_bytes) );
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
@@ -192,8 +192,8 @@ read_num_elems (
 		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 	size_t size = t->num_levels * sizeof (t->num_elems[0]);
-	TRY( t->num_elems = h5priv_alloc (f, NULL, size) );
-	TRY( t->num_elems_on_level = h5priv_alloc (f, NULL, size) );
+	TRY( t->num_elems = h5_alloc (f, NULL, size) );
+	TRY( t->num_elems_on_level = h5_alloc (f, NULL, size) );
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,

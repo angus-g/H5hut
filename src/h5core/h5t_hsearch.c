@@ -70,7 +70,7 @@ h5tpriv_search_te2 (
 	void* __retval;
 	h5t_te_entry_t* entry;
 
-	TRY( entry = h5priv_calloc (f, 1, sizeof (*entry)) );
+	TRY( entry = h5_calloc (f, 1, sizeof (*entry)) );
 
 	TRY( h5t_get_vertex_indices_of_edge2 (
 		f, face_idx, elem_idx, entry->key.vids) );
@@ -109,7 +109,7 @@ h5tpriv_search_te2 (
 		     h5tpriv_build_edge_id (face_idx, elem_idx)) );
 	if (entry->value.num_items > 1) {
 		/* search returned an existing entry */
-		TRY( h5priv_free (f, entry) );
+		TRY( h5_free (f, entry) );
 	}
 	*retval = &te_entry->value;
 	return H5_SUCCESS;
@@ -230,7 +230,7 @@ h5tpriv_search_td2 (
 	void* __retval;
 	h5t_td_entry_t* entry;
 
-	TRY( entry = h5priv_calloc (f, 1, sizeof(*entry)) );
+	TRY( entry = h5_calloc (f, 1, sizeof(*entry)) );
 
 	TRY( h5t_get_vertex_indices_of_triangle2 (
 		     f, face_idx, elem_idx, entry->key.vids) );
@@ -259,7 +259,7 @@ h5tpriv_search_td2 (
 		     &td_entry->value,
 		     h5tpriv_build_triangle_id (face_idx, elem_idx)) );
 	if (td_entry->value.num_items > 1) {
-		TRY( h5priv_free (f, entry) );
+		TRY( h5_free (f, entry) );
 	}
 	*retval = &td_entry->value;
 

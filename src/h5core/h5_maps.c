@@ -12,7 +12,7 @@ h5priv_alloc_idlist_items (
 	) {
 	int new = (list->items == NULL);
 	size_t size_in_bytes = size * sizeof (list->items[0]);
-	TRY( list->items = h5priv_alloc (f, list->items, size_in_bytes) );
+	TRY( list->items = h5_alloc (f, list->items, size_in_bytes) );
 	list->size = size;
 	if (new) list->num_items = 0;
 	return H5_SUCCESS;
@@ -37,10 +37,10 @@ h5priv_alloc_idlist (
 	h5_idlist_t** list,
 	const h5_size_t	size
 	) {
-	TRY( (*list = h5priv_alloc (f, NULL, sizeof (**list))) );
+	TRY( (*list = h5_alloc (f, NULL, sizeof (**list))) );
 	memset (*list, 0, sizeof (**list));
 	size_t size_in_bytes = size * sizeof ((*list)->items[0]);
-	TRY( (*list)->items = h5priv_alloc (f, (*list)->items, size_in_bytes) );
+	TRY( (*list)->items = h5_alloc (f, (*list)->items, size_in_bytes) );
 	(*list)->size = size;
 	return H5_SUCCESS;
 }
@@ -52,7 +52,7 @@ h5priv_free_idlist (
 	) {
 	if (*list == NULL) return H5_SUCCESS;
 	TRY( h5priv_free_idlist_items (f, *list) );
-	TRY( h5priv_free( f, *list) );
+	TRY( h5_free( f, *list) );
 	*list = NULL;
 	return H5_SUCCESS;
 }
@@ -196,7 +196,7 @@ h5priv_alloc_idxmap (
 	) {
 	int new = (map->items == NULL);
 	size_t size_in_bytes = size * sizeof (map->items[0]);
-	TRY( map->items = h5priv_alloc (f, map->items, size_in_bytes) );
+	TRY( map->items = h5_alloc (f, map->items, size_in_bytes) );
 	map->size = size;
 	if (new) map->num_items = 0;
 	return H5_SUCCESS;

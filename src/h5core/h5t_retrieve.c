@@ -216,7 +216,7 @@ h5t_create_leaf_iterator (
 	int codim
 	) {
 	h5t_leaf_iterator_t* it;
-	TRY( it = h5priv_calloc (f, 1, sizeof (h5t_leaf_iterator_t)) );
+	TRY( it = h5_calloc (f, 1, sizeof (h5t_leaf_iterator_t)) );
 	TRY( h5t_init_leaf_iterator (f, (h5t_iterator_t*)it, codim) );
 	*iter =  (h5t_iterator_t*)it;
 	return H5_SUCCESS;
@@ -229,7 +229,7 @@ h5t_create_boundary_face_iterator (
 	int codim
 	) {
 	h5t_leaf_iterator_t* it;
-	TRY( it = h5priv_calloc (f, 1, sizeof (h5t_leaf_iterator_t)) );
+	TRY( it = h5_calloc (f, 1, sizeof (h5t_leaf_iterator_t)) );
 	it->face_idx = 999; // just a high enough number
 	it->elem_idx = -1;
 	it->codim = codim;
@@ -255,7 +255,7 @@ h5t_create_mtag_iterator (
 	const char* name
 	) {
 	h5t_tag_iterator_t* it;
-	TRY( it = h5priv_calloc (f, 1, sizeof (*it)) );
+	TRY( it = h5_calloc (f, 1, sizeof (*it)) );
 	h5t_open_mtagset (f, name, &it->tagset);
 	it->elem_idx = -1;
 	it->subentity_idx = 999;
@@ -270,7 +270,7 @@ h5t_release_entity_iterator (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
-	return h5priv_free (f, iter);
+	return h5_free (f, iter);
 }
 
 h5_loc_id_t
