@@ -67,13 +67,6 @@ h5t_get_vertex_indices_of_triangle (
 	);
 
 h5_err_t
-h5t_get_vertex_indices_of_triangle_cclockwise (
-	h5_file_t* const f,
-	const h5_loc_id_t entity_id,
-	h5_loc_idx_t* vertex_indices
-	);
-
-h5_err_t
 h5t_get_vertex_indices_of_triangle2 (
 	h5_file_t* const f,
 	const h5_loc_idx_t face_idx,

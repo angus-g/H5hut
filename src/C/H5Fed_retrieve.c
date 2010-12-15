@@ -38,7 +38,7 @@ H5FedBeginTraverseEntities (
 	) {
 	h5t_iterator_t* iter;
 	H5_ENTER_API (f, __func__);
-	if (h5t_create_mesh_iterator (f, &iter, codim) < 0) {
+	if (h5t_create_leaf_iterator (f, &iter, codim) < 0) {
 		return (void*)H5_ERR;
 	}
 	return iter;
@@ -141,16 +141,6 @@ H5FedGetVertexIndicesOfTriangle (
 	) {
 	H5_ENTER_API (f, __func__);
 	return h5t_get_vertex_indices_of_triangle (f, entity_id, vertex_indices);
-}
-
-h5_err_t
-H5FedGetVertexIndicesOfTriangleCClockwise (
-	h5_file_t* const f,
-	h5_id_t entity_id,
-	h5_id_t* vertex_indices
-	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_vertex_indices_of_triangle_cclockwise (f, entity_id, vertex_indices);
 }
 
 h5_err_t

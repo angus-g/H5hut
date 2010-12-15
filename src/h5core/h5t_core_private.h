@@ -88,8 +88,7 @@
 #define h5tpriv_build_triangle_id( face_idx, elem_idx )	 \
 	( h5tpriv_build_entity_id ( H5T_TYPE_TRIANGLE, face_idx, elem_idx ) )
 
-#define h5tpriv_build_elem_id( elem_idx )				\
-	( h5tpriv_build_entity_id ( f->t->mesh_type, 0, elem_idx ) )
+
 
 #define h5tpriv_get_face_idx( entity_id )				\
 	( (entity_id & H5T_FACE_MASK) >> (sizeof(h5_id_t)*7) )

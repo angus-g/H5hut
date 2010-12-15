@@ -4,53 +4,6 @@
 #include <assert.h>
 
 /*
-  TODO: define as union of iterator types
- */
-struct h5t_iterator {
-	h5_loc_id_t (*iter)(
-		h5_file_t *const f,
-		struct h5t_iterator* iter);
-/*		 
-	const h5t_ref_elem_t* ref_elem; // pointer to reference element
-
- 	h5_id_t elem_idx;	// local element id
-	h5_id_t	face_idx;	// face id according reference element
-	int codim;		// dimension of entities to traverse
-	h5_err_t (*find)(
-		h5_file_t *const f,
-		h5_id_t face_idx,
-		h5_id_t elem_idx,
-		h5_idlist_t **retval);
-
-*/};
-
-typedef struct h5t_mesh_iterator {
-	h5_loc_id_t (*iter)(
-		h5_file_t *const f,
-		struct h5t_mesh_iterator* iter);
-	h5t_lvl_idx_t level_idx;
-	const h5t_ref_elem_t* ref_elem;
-	h5_loc_idx_t elem_idx;
-	h5_loc_idx_t face_idx;	// face id according reference element
-	int codim;		// dimension of entities to traverse
-	h5_err_t (*find)(
-		h5_file_t *const f,
-		h5_id_t face_idx,
-		h5_id_t elem_idx,
-		h5_idlist_t **retval);
-} h5t_mesh_iterator_t;
-
-typedef struct h5t_tag_iterator {
-	h5_loc_id_t (*iter)(
-		h5_file_t *const f,
-		struct h5t_tag_iterator* iter);
-	h5t_lvl_idx_t level_idx;
-	h5t_tagset_t* tagset;
-	h5_loc_idx_t elem_idx;
-	int subentity_idx;
-} h5t_tag_iterator_t;
-
-/*
 h5_err_t
 h5tpriv_elem_is_on_cur_level (
 	h5_file_t* const f,
@@ -59,7 +12,7 @@ h5tpriv_elem_is_on_cur_level (
 */
 struct h5t_retrieve_methods {
 	h5_err_t (*init_entity_iterator)(
-		h5_file_t* const, h5t_mesh_iterator_t*, const int);
+		h5_file_t* const, h5t_iterator_t*, const int);
 };
 
 extern struct h5t_retrieve_methods h5tpriv_trim_retrieve_methods;
@@ -100,7 +53,7 @@ h5tpriv_elem_is_on_level (
 static inline h5_err_t
 h5tpriv_init_entity_iterator (
 	h5_file_t* f,
-	h5t_mesh_iterator_t* const iter,
+	h5t_iterator_t* const iter,
 	const int codim
 	) {
 	return (*f->t->methods.retrieve->init_entity_iterator) (f, iter, codim);

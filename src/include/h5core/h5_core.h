@@ -1,6 +1,8 @@
 #ifndef __H5_CORE_H
 #define __H5_CORE_H
 
+#define UNUSED_ARGUMENT(x) (void)x
+
 #include "h5_types.h"
 #include "h5_errno.h"
 

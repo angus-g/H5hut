@@ -42,8 +42,6 @@
 	if ((int64_t)(ptrdiff_t)(func) <= (int64_t)H5_ERR)	\
 		return H5_ERR;
 
-#define UNUSED_ARGUMENT(x) (void)x
-
 #ifdef IPL_XT3
 # define SEEK_END 2 
 #endif

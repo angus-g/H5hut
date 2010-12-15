@@ -464,10 +464,10 @@ h5t_create_index_set (
 
 	for (codim = 0; codim <= dim; codim++) {
 		h5_glb_idx_t idx = 0;
-		h5t_mesh_iterator_t it;
+		h5t_leaf_iterator_t it;
 		h5_glb_id_t entity_id;
-		TRY( h5t_init_mesh_iterator (f, (h5t_iterator_t*)&it, codim) );
-		while ((entity_id = it.iter(f,&it)) >= 0) {
+		TRY( h5t_init_leaf_iterator (f, (h5t_iterator_t*)&it, codim) );
+		while ((entity_id = it.iter(f, (h5t_iterator_t*)&it)) >= 0) {
 			TRY( h5t_set_mtag_by_name (f, "__IndexSet__", entity_id, 1, &idx) );
 		}
 	}
