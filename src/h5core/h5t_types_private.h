@@ -166,7 +166,7 @@ typedef struct h5t_fdata {
 	h5_dsinfo_t	dsinfo_num_elems;
 	h5_dsinfo_t	dsinfo_num_elems_on_leaf_level;
 
-	h5_idlist_t	marked_entities;
+	h5_idlist_t*	marked_entities;
 
 	/*** Adjacencies ***/
 	h5t_adjacencies_t adjacencies;

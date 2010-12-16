@@ -350,7 +350,7 @@ h5t_mark_entity (
 	const h5_loc_id_t entity_id
 	) {
 	h5t_fdata_t* const t = f->t;
-	return h5priv_append_to_idlist (f, &t->marked_entities, entity_id);
+	return h5priv_append_to_idlist (f, t->marked_entities, entity_id);
 }
 
 /*
@@ -379,7 +379,7 @@ h5t_pre_refine (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* const t = f->t;
-	unsigned int num_elems_to_refine = t->marked_entities.num_items;
+	unsigned int num_elems_to_refine = t->marked_entities->num_items;
 	unsigned int num_elems_to_add = 0;
 	unsigned int num_vertices_to_add = 0;
 
@@ -410,8 +410,8 @@ h5t_refine_marked_elems (
 	) {
 	h5t_fdata_t* const t = f->t;
 	int i;
-	for (i = 0; i < t->marked_entities.num_items; i++) {
-		TRY( h5tpriv_refine_elem (f, t->marked_entities.items[i]) );
+	for (i = 0; i < t->marked_entities->num_items; i++) {
+		TRY( h5tpriv_refine_elem (f, t->marked_entities->items[i]) );
 	}
 	return H5_SUCCESS;
 }
@@ -423,7 +423,7 @@ h5t_post_refine (
 	h5t_fdata_t* const t = f->t;
 	TRY( h5t_end_store_vertices (f) );
 	TRY( h5t_end_store_elems (f) );
-	return h5priv_free_idlist_items (f, &t->marked_entities);
+	return h5priv_free_idlist (f, &t->marked_entities);
 }
 
 
@@ -437,7 +437,7 @@ h5t_begin_refine_elems (
 	  Pre-allocate space for items to avoid allocating small pieces of
 	  memory.
 	*/
-	TRY( h5priv_alloc_idlist_items (f, &t->marked_entities, 2048) );
+	TRY( h5priv_alloc_idlist (f, &t->marked_entities, 2048) );
 	return H5_SUCCESS;
 }
 
