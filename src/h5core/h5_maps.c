@@ -4,8 +4,8 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
-h5_err_t
-h5priv_alloc_idlist_items (
+static inline h5_err_t
+alloc_idlist_items (
 	h5_file_t* const f,
 	h5_idlist_t* list,
 	const h5_size_t	size	// new size of list
@@ -72,7 +72,7 @@ h5priv_append_to_idlist (
 		} else {
 			size *= 2;
 		}
-		TRY( h5priv_alloc_idlist_items (f, list, size) );
+		TRY( alloc_idlist_items (f, list, size) );
 	}
 	list->items[list->num_items++] = id;
 	return H5_SUCCESS;
@@ -161,7 +161,7 @@ h5priv_insert_idlist (
 		} else {
 			size *= 2;
 		}
-		TRY( h5priv_alloc_idlist_items (f, list, size) );
+		TRY( alloc_idlist_items (f, list, size) );
 	}
 	memmove ( 
 		&list->items[idx+1],
