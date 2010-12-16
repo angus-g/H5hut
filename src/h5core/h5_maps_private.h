@@ -15,13 +15,6 @@ h5priv_free_idlist (
 	);
 
 h5_err_t
-h5priv_alloc_idlist_items (
-	h5_file_t * const f,
-	h5_idlist_t *list,
-	const h5_size_t	size
-	);
-
-h5_err_t
 h5priv_free_idlist_items (
 	h5_file_t * const f,
 	h5_idlist_t *list
