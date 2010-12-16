@@ -31,14 +31,16 @@ h5priv_free_idlist_items (
 	return H5_SUCCESS;
 }
 
+/*
+  Allocate new/empty id-list
+ */
 h5_err_t
 h5priv_alloc_idlist (
 	h5_file_t* const f,
 	h5_idlist_t** list,
 	const h5_size_t	size
 	) {
-	TRY( (*list = h5_alloc (f, NULL, sizeof (**list))) );
-	memset (*list, 0, sizeof (**list));
+	TRY( (*list = h5_calloc (f, 1, sizeof (**list))) );
 	size_t size_in_bytes = size * sizeof ((*list)->items[0]);
 	TRY( (*list)->items = h5_alloc (f, (*list)->items, size_in_bytes) );
 	(*list)->size = size;

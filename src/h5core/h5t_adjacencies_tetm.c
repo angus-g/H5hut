@@ -80,12 +80,22 @@ compute_elems_of_vertices (
 	return H5_SUCCESS;
 }
 
+static h5_err_t
+free_idlist (
+	h5_file_t * const f,
+	const void* __list
+	) {
+	h5_idlist_t* list = *(h5_idlist_t**)__list;
+	TRY( h5priv_free_idlist (f, &list) );
+	return H5_SUCCESS;
+}
+
 static inline h5_err_t
 release_te (
 	h5_file_t* const f
 	) {
 	UNUSED_ARGUMENT (f);
-	// TODO
+	TRY( h5priv_hwalk (f, &f->t->adjacencies.te_hash, free_idlist) ); 
 	return H5_SUCCESS;
 }
 
@@ -118,7 +128,7 @@ release_td (
 	h5_file_t* const f
 	) {
 	UNUSED_ARGUMENT (f);
-	// TODO
+	TRY( h5priv_hwalk (f, &f->t->adjacencies.td_hash, free_idlist) ); 
 	return H5_SUCCESS;
 }
 
