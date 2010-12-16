@@ -223,8 +223,8 @@ init_fdata (
 	memset (t->mesh_name, 0, sizeof (t->mesh_name));
 	t->num_meshes = -1;
 	t->cur_mesh = -1;
-	t->num_levels = -1;
-	t->cur_level = -1;
+	t->num_leaf_levels = -1;
+	t->leaf_level = -1;
 	t->last_stored_vid = -1;
 	t->last_stored_eid = -1;
 	t->topo_gid = -1;
@@ -485,7 +485,7 @@ h5t_open_mesh (
 	} else {			/* append new */
 		t->num_meshes++;
 		t->mesh_changed = id;
-		t->num_levels = 0;
+		t->num_leaf_levels = 0;
 	} 
 
 	return H5_SUCCESS;
@@ -553,11 +553,11 @@ h5t_set_level (
 	) {
 	h5t_fdata_t* t = f->t;
 
-	if ((level_id < 0) || (level_id >= t->num_levels))
+	if ((level_id < 0) || (level_id >= t->num_leaf_levels))
 		return HANDLE_H5_OUT_OF_RANGE_ERR (f, "Level", level_id);
 
-	h5t_lvl_idx_t prev_level = t->cur_level;
-	t->cur_level = level_id;
+	h5t_lvl_idx_t prev_level = t->leaf_level;
+	t->leaf_level = level_id;
 
 	if (level_id >= t->num_loaded_levels) {
 		TRY( (h5tpriv_update_adjacency_structs)(f, prev_level+1) );

@@ -135,10 +135,10 @@ h5tpriv_rebuild_vertex_indices_mapping (
 	) {
 	h5_debug (f, "%s()", __func__);
 	h5t_fdata_t* t = f->t;
-	if (t->num_levels <= 0) return H5_SUCCESS;
+	if (t->num_leaf_levels <= 0) return H5_SUCCESS;
 
-	h5_loc_idx_t loc_idx = t->cur_level > 0 ? t->num_vertices[t->cur_level-1] : 0;
-	h5_loc_idx_t num_loc_vertices = t->num_vertices[t->num_levels-1];
+	h5_loc_idx_t loc_idx = t->leaf_level > 0 ? t->num_vertices[t->leaf_level-1] : 0;
+	h5_loc_idx_t num_loc_vertices = t->num_vertices[t->num_leaf_levels-1];
 	h5_idxmap_el_t *item = &t->map_vertex_g2l.items[loc_idx];
 
 	for (; loc_idx < num_loc_vertices; loc_idx++, item++) {
@@ -160,10 +160,10 @@ h5tpriv_rebuild_elem_indices_mapping (
 	) {
 	h5_debug (f, "%s()", __func__);
 	h5t_fdata_t* t = f->t;
-	if (t->num_levels <= 0) return H5_SUCCESS;
+	if (t->num_leaf_levels <= 0) return H5_SUCCESS;
 
-	h5_loc_idx_t loc_idx = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
-	h5_loc_idx_t num_loc_elems = t->num_elems[t->num_levels-1];
+	h5_loc_idx_t loc_idx = t->leaf_level > 0 ? t->num_elems[t->leaf_level-1] : 0;
+	h5_loc_idx_t num_loc_elems = t->num_elems[t->num_leaf_levels-1];
 	h5_idxmap_el_t *item = &t->map_elem_g2l.items[loc_idx];
 
 	for (; loc_idx < num_loc_elems; loc_idx++, item++) {

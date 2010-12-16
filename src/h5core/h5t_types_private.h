@@ -128,8 +128,8 @@ typedef struct h5t_fdata {
 	h5_id_t		cur_mesh;	/* id of current mesh */
 	h5_id_t		mesh_changed;	/* true if new or has been changed */
 	h5_id_t		num_meshes;	/* number of meshes */
-	h5t_lvl_idx_t	cur_level;	/* idx of current level */
-	h5t_lvl_idx_t	num_levels;	/* number of levels */
+	h5t_lvl_idx_t	leaf_level;	/* idx of current level */
+	h5t_lvl_idx_t	num_leaf_levels;/* number of levels */
 	h5t_lvl_idx_t	num_loaded_levels;
 
 	/*** HDF5 IDs ***/

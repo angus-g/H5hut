@@ -152,13 +152,13 @@ add_tagset (
 
 	// create new tagset
 	h5t_tagset_t* tagset = NULL;
-	size_t size = (t->num_elems[t->num_levels-1] - 1) * sizeof(*tagset->elems)
+	size_t size = (t->num_elems[t->num_leaf_levels-1] - 1) * sizeof(*tagset->elems)
 		+ sizeof(*tagset);
 	TRY( tagset = h5_calloc (f, 1, size) );
 
 	TRY( tagset->name = h5priv_strdup (f, name) );
 	tagset->type = type;
-	tagset->num_elems = t->num_elems[t->num_levels-1];
+	tagset->num_elems = t->num_elems[t->num_leaf_levels-1];
 
 	// add tagset to hash of tagsets
 	TRY( h5priv_hsearch (f, tagset, H5_ENTER, NULL, &ctn->sets) );
@@ -475,11 +475,11 @@ set_tag (
 		TRY( add_tag (f, tagset, -i-1, face_id, elem_idx, dim, val) );
 		tagset->num_entities++;
 	}
-	if (f->t->cur_level < tagset->scope.min_level) {
-		tagset->scope.min_level = f->t->cur_level;
+	if (f->t->leaf_level < tagset->scope.min_level) {
+		tagset->scope.min_level = f->t->leaf_level;
 	}
-	if (f->t->cur_level > tagset->scope.max_level) {
-		tagset->scope.max_level = f->t->cur_level;
+	if (f->t->leaf_level > tagset->scope.max_level) {
+		tagset->scope.max_level = f->t->leaf_level;
 	}
 	tagset->changed = 1;
 	return H5_SUCCESS;
@@ -511,8 +511,8 @@ get_tag (
 	size_t* const dim,
 	void* const values
 	) {
-	if (f->t->cur_level < tagset->scope.min_level ||
-	    f->t->cur_level > tagset->scope.max_level) {
+	if (f->t->leaf_level < tagset->scope.min_level ||
+	    f->t->leaf_level > tagset->scope.max_level) {
 		return H5_NOK;
 	}
 	if (tagset->elems[elem_idx] == NULL) {
@@ -689,10 +689,10 @@ write_tagset (
 
 	h5_err_t h5err = H5_SUCCESS;
 
-	if (t->num_levels <= 0) {
+	if (t->num_leaf_levels <= 0) {
 		goto cleanup; // nothing to do
 	}
-	num_elems = t->num_elems[t->num_levels-1];
+	num_elems = t->num_elems[t->num_leaf_levels-1];
 	if (num_elems == 0 || tagset->num_entities == 0) {
 		goto cleanup; // nothing to do
 	}

@@ -181,7 +181,7 @@ refine_triangle (
 
 	t->glb_elems.tris[elem_idx].child_idx = elem_idx_of_first_child;
 	t->loc_elems.tris[elem_idx].child_idx = elem_idx_of_first_child;
-	t->num_elems_on_leaf_level[t->cur_level]--;
+	t->num_elems_on_leaf_level[t->leaf_level]--;
 
 	return elem_idx_of_first_child;
 }
@@ -240,10 +240,10 @@ compute_neighbors_of_elems (
 	) {
 	h5_debug (f, "%s()", __func__);
 	h5t_fdata_t * const t = f->t;
-	if (level < 0 || level >= t->num_levels) {
+	if (level < 0 || level >= t->num_leaf_levels) {
 		return h5_error (f, H5_ERR_INVAL,
 				 "level idx %lld out of bound, must be in [%lld,%lld]",
-				 (long long)level, (long long)0, (long long)t->num_levels);
+				 (long long)level, (long long)0, (long long)t->num_leaf_levels);
 	}
 	h5_loc_idx_t elem_idx = level == 0 ? 0 : t->num_elems[level-1];
 	const h5_loc_idx_t last_idx = t->num_elems[level] - 1;
@@ -268,9 +268,9 @@ end_store_elems (
 	h5_debug (f, "%s()", __func__);
 	h5t_fdata_t* t = f->t;
 
-	TRY( h5tpriv_update_adjacency_structs (f, t->cur_level) );
-	TRY( compute_neighbors_of_elems (f, t->cur_level) );
-	TRY( h5tpriv_init_geom_boundary_info (f, t->cur_level) );
+	TRY( h5tpriv_update_adjacency_structs (f, t->leaf_level) );
+	TRY( compute_neighbors_of_elems (f, t->leaf_level) );
+	TRY( h5tpriv_init_geom_boundary_info (f, t->leaf_level) );
 	return H5_SUCCESS;
 }
 

@@ -25,9 +25,9 @@ write_vertices (
 	) {
 	h5t_fdata_t *t = f->t;
 
-	if (t->num_vertices <= 0) return H5_SUCCESS;  /* ???? */
+	assert (t->num_leaf_levels > 0);
 
-	t->dsinfo_vertices.dims[0] = t->num_vertices[t->cur_level];
+	t->dsinfo_vertices.dims[0] = t->num_vertices[t->num_leaf_levels-1];
 	TRY( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
@@ -51,9 +51,9 @@ write_elems (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
-	
-	if (t->num_elems <= 0) return H5_SUCCESS;
+	assert (t->num_leaf_levels > 0);
 
+	t->dsinfo_elems.dims[0] = t->num_elems[t->num_leaf_levels-1];
 	TRY( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
@@ -99,7 +99,7 @@ h5tpriv_write_mesh (
 }
 
 static h5_size_t
-read_num_levels (
+read_num_leaf_levels (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -115,7 +115,7 @@ read_num_levels (
 	TRY( size = h5priv_get_npoints_of_hdf5_dataspace (f, diskspace_id) );
 	TRY( h5priv_close_hdf5_dataspace (f, diskspace_id) );
 
-	t->num_levels = size;
+	t->num_leaf_levels = size;
 	return size;
 }
 
@@ -149,7 +149,7 @@ read_num_vertices (
  	if (t->mesh_gid < 0) {
 		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
-	ssize_t num_bytes = t->num_levels*sizeof (t->num_vertices[0]);
+	ssize_t num_bytes = t->num_leaf_levels*sizeof (t->num_vertices[0]);
 	TRY( t->num_vertices = h5_alloc (f, t->num_vertices, num_bytes) );
 	TRY( h5priv_read_dataset_by_name (
 		     f,
@@ -168,7 +168,7 @@ read_vertices (
 	) {
 	h5t_fdata_t* t = f->t;
 
-	TRY( h5tpriv_alloc_num_vertices (f, t->num_vertices[t->num_levels-1]) );
+	TRY( h5tpriv_alloc_num_vertices (f, t->num_vertices[t->num_leaf_levels-1]) );
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
@@ -191,7 +191,7 @@ read_num_elems (
  	if (t->mesh_gid < 0) {
 		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
-	size_t size = t->num_levels * sizeof (t->num_elems[0]);
+	size_t size = t->num_leaf_levels * sizeof (t->num_elems[0]);
 	TRY( t->num_elems = h5_calloc (f, 1, size) );
 	TRY( t->num_elems_on_leaf_level = h5_calloc (f, 1, size) );
 	TRY( h5priv_read_dataset_by_name (
@@ -239,7 +239,7 @@ read_elems (
 	) {
 	h5t_fdata_t* t = f->t;
 
-	TRY( h5tpriv_alloc_elems(f, 0, t->num_elems[t->num_levels-1]) );
+	TRY( h5tpriv_alloc_elems(f, 0, t->num_elems[t->num_leaf_levels-1]) );
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
@@ -272,7 +272,7 @@ h5tpriv_read_mesh (
  	if (t->mesh_gid < 0) {
 		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
-	TRY( read_num_levels (f) );
+	TRY( read_num_leaf_levels (f) );
 	TRY( read_num_vertices (f) );
 	TRY( read_num_elems (f) );
 
@@ -286,6 +286,6 @@ h5tpriv_read_mesh (
 	TRY( h5tpriv_init_geom_boundary_info (f, 0) );
 
 	TRY( read_mtags (f) );
-	t->num_loaded_levels = t->num_levels;
+	t->num_loaded_levels = t->num_leaf_levels;
 	return H5_SUCCESS;
 }

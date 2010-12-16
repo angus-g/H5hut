@@ -22,7 +22,7 @@ alloc_tv (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
-	h5_loc_idx_t num_vertices = t->num_vertices[t->num_levels-1];
+	h5_loc_idx_t num_vertices = t->num_vertices[t->num_leaf_levels-1];
 
 	h5t_adjacencies_t* adj = &t->adjacencies;
 	// allocate one ID list per vertex
@@ -40,7 +40,7 @@ release_tv (
 	if (adj->tv.v == NULL) return H5_SUCCESS;
 
 	h5_loc_idx_t idx = 0;
-	h5_loc_idx_t last = t->num_vertices[t->num_levels-1];
+	h5_loc_idx_t last = t->num_vertices[t->num_leaf_levels-1];
 	for (; idx < last; idx++) {
 		TRY( h5priv_free_idlist_items (f, &adj->tv.v[idx]) );
 	}
@@ -64,7 +64,7 @@ compute_elems_of_vertices (
 	/* loop over all elements in current level */
 	h5t_fdata_t *t = f->t;
 	h5_loc_idx_t idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
-	h5_loc_idx_t last = t->num_elems[t->num_levels-1];
+	h5_loc_idx_t last = t->num_elems[t->num_leaf_levels-1];
 	h5_loc_triangle_t *el = &t->loc_elems.tris[idx];
 	for (;idx < last; idx++, el++) {
 		int face_idx;
@@ -87,7 +87,7 @@ release_te (
 	h5_file_t* const f
 	) {
 	UNUSED_ARGUMENT (f);
-	// @@@ TBD @@@
+	// TODO
 	return H5_SUCCESS;
 }
 
@@ -102,7 +102,7 @@ compute_elems_of_edges (
 	h5_debug (f, "%s (%lld)", __func__, (long long)from_lvl);
 	h5t_fdata_t *t = f->t;
 	h5_loc_idx_t elem_idx = (from_lvl <= 0) ? 0 : t->num_elems[from_lvl-1];
-	h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
+	h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
 	h5_idlist_t *retval = NULL;
 	TRY( h5tpriv_resize_te_htab (f, 4*(num_elems-elem_idx)) );
 	for (;elem_idx < num_elems; elem_idx++) {
@@ -138,7 +138,7 @@ compute_children_of_edge (
 		h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx ( *edge );
 		h5_loc_idx_t face_idx =  h5tpriv_get_face_idx ( *edge );
 		h5_generic_loc_elem_t *el = (h5_generic_loc_elem_t*)&t->loc_elems.tris[elem_idx];
-		if ( h5tpriv_elem_is_on_cur_level ( f, el ) == H5_OK ) {
+		if ( h5tpriv_is_leaf_elem ( f, el ) == H5_OK ) {
 			TRY ( h5priv_append_to_idlist (
 				      f, children, *edge )
 				);
@@ -183,7 +183,7 @@ compute_sections_of_edge (
 		h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx ( *edge );
 		h5_loc_idx_t face_idx = h5tpriv_get_face_idx ( *edge );
 		h5_generic_loc_elem_t *el = (h5_generic_loc_elem_t*)&t->loc_elems.tris[elem_idx];
-		if ( ! h5tpriv_elem_is_on_cur_level ( f, el ) == H5_OK ) {
+		if ( ! h5tpriv_is_leaf_elem ( f, el ) == H5_OK ) {
 			refined = 1;
 			h5_loc_id_t kids[2];
 			TRY ( h5tpriv_get_direct_children_of_edge (
@@ -242,7 +242,7 @@ get_edges_uadj_to_vertex (
 		h5_loc_idx_t face_idx = h5tpriv_get_face_idx ( *vertex_idp );
 		h5_generic_loc_elem_t* el = (h5_generic_loc_elem_t*)&t->loc_elems.tris[elem_idx];
 
-		if ( h5tpriv_elem_is_on_cur_level ( f, el ) == H5_NOK ) {
+		if ( h5tpriv_is_leaf_elem ( f, el ) == H5_NOK ) {
 			continue;
 		}
 		h5_loc_idx_t edge_idx;
@@ -273,7 +273,7 @@ get_triangles_uadj_to_vertex (
 		h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx ( *vertex_idp );
 		h5_generic_loc_elem_t* el = (h5_generic_loc_elem_t*)&t->loc_elems.tris[elem_idx];
 
-		if ( h5tpriv_elem_is_on_cur_level ( f, el ) == H5_NOK ) {
+		if ( h5tpriv_is_leaf_elem ( f, el ) == H5_NOK ) {
 			continue;
 		}
 		TRY( h5priv_search_idlist (f, *list,

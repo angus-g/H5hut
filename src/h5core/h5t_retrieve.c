@@ -200,7 +200,7 @@ h5t_init_leaf_iterator (
 	it->face_idx = 999;
 	it->elem_idx = -1;
 	it->codim = codim;
-	it->leaf_level = f->t->cur_level;
+	it->leaf_level = f->t->leaf_level;
 	it->ref_elem = f->t->ref_elem;
 
 	if (it->codim > 0) {
@@ -223,7 +223,7 @@ h5t_init_boundary_face_iterator (
 	it->face_idx = 999; // something > max number of faces
 	it->elem_idx = -1;
 	it->codim = codim;
-	it->leaf_level = f->t->cur_level;
+	it->leaf_level = f->t->leaf_level;
 	it->ref_elem = f->t->ref_elem;
 
 	if (it->codim <= 0 || it->codim > it->ref_elem->dim) {
@@ -249,7 +249,7 @@ h5t_init_mtag_iterator (
 	TRY2( h5err = h5t_open_mtagset (f, name, &it->tagset) );
 	it->elem_idx = -1;
 	it->subentity_idx = 999;
-	it->level_idx = f->t->cur_level;
+	it->level_idx = f->t->leaf_level;
 	it->iter = iterate_tags;
 	h5err = H5_SUCCESS;
 	H5_CORE_API_RETURN (h5err);

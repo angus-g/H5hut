@@ -81,16 +81,13 @@ h5tpriv_search_te2 (
 		/*
 		  Grow the hash table by 3*(num_elems - elem_idx) entries.
 		  Why this number? We fill the hash table by looping over
-		  all elements starting with 0. So if we have to grow, we
+		  all elements starting with 0. If we have to grow, we
 		  still have num_elems-elem_idx elements to handle. Half the 
 		  number of edges of the reference element times the number
 		  of remaining elements is a good enough guess for the number
 		  of edges we still have to add to the hash table.
-
-		  Thus for a tetrahedal mesh we 3 time the remaining elements!
-		  @@@
 		 */
-		h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
+		h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
 		TRY( h5priv_hresize (
 			     f,
 			     3*(num_elems - elem_idx),
@@ -238,7 +235,7 @@ h5tpriv_search_td2 (
 	  resize hash table if more than 3/4 filled
 	*/
 	if ((a->td_hash.size*6) <= (a->td_hash.filled<<3)) {
-		h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
+		h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
 		TRY( h5priv_hresize (
 			     f,
 			     3*(num_elems-elem_idx),

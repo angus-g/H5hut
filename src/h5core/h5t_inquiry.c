@@ -42,7 +42,7 @@ h5t_get_num_meshes (
   \return	Number of hierarchical mesh levels or error code.
  */
 h5_size_t
-h5t_get_num_levels (
+h5t_get_num_leaf_levels (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -50,7 +50,7 @@ h5t_get_num_levels (
 	if (t->cur_mesh < 0) {
 		return h5tpriv_error_undef_mesh (f);
 	}
-	return t->num_levels;
+	return t->num_leaf_levels;
 }
 
 /*!
@@ -64,7 +64,7 @@ h5t_lvl_idx_t
 h5t_get_level (
 	h5_file_t* const f
 	) {
-	return f->t->cur_level;
+	return f->t->leaf_level;
 }
 
 /*!
@@ -91,10 +91,10 @@ h5t_get_num_elems (
 	if (t->cur_mesh < 0) {
 		return h5tpriv_error_undef_mesh (f);
 	}
-	if (t->cur_level < 0) {
+	if (t->leaf_level < 0) {
 		return h5tpriv_error_undef_level (f);
 	}
-	return t->num_elems_on_leaf_level[t->cur_level];
+	return t->num_elems_on_leaf_level[t->leaf_level];
 }
 
 /*!
@@ -121,9 +121,9 @@ h5t_get_num_vertices (
 	if (t->cur_mesh < 0) {
 		return h5tpriv_error_undef_mesh (f);
 	}
-	if (t->cur_level < 0) {
+	if (t->leaf_level < 0) {
 		return h5tpriv_error_undef_level (f);
 	}
-	return t->num_vertices[t->cur_level];
+	return t->num_vertices[t->leaf_level];
 }
 

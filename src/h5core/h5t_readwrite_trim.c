@@ -11,7 +11,7 @@ init_loc_elems_struct (
 	) {
 	h5t_fdata_t* const t = f->t;
 	h5_loc_idx_t elem_idx = 0;
-	const h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
+	const h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
 	h5t_lvl_idx_t level_idx = 0;
 	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
 	int num_facets = h5tpriv_ref_elem_get_num_faces (t,1);
@@ -69,7 +69,7 @@ init_geom_boundary_info (
 	) {
 	h5t_fdata_t* const t = f->t;
 	h5_loc_idx_t elem_idx = 0;
-	const h5_loc_idx_t num_elems = t->num_elems[t->num_levels-1];
+	const h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
 	int num_facets = h5tpriv_ref_elem_get_num_faces (t, 1);
 	h5_loc_triangle_t* loc_elem = t->loc_elems.tris;
 	h5_glb_triangle_t* glb_elem = t->glb_elems.tris;

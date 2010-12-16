@@ -33,15 +33,15 @@ assign_global_vertex_indices (
 	) {
 	h5t_fdata_t* const t = f->t;
 
-	if (t->cur_level < 0) return H5_SUCCESS; /* no level defined */
+	if (t->leaf_level < 0) return H5_SUCCESS; /* no level defined */
 
 	/*
 	  simple in serial runs: global_id = local_id
 	*/
-	h5_loc_idx_t local_idx = (t->cur_level == 0) ?
-		0 : t->num_vertices[t->cur_level-1];
+	h5_loc_idx_t local_idx = (t->leaf_level == 0) ?
+		0 : t->num_vertices[t->leaf_level-1];
 	for (local_idx = 0;
-	     local_idx < t->num_vertices[t->num_levels-1];
+	     local_idx < t->num_vertices[t->num_leaf_levels-1];
 	     local_idx++) {
 		t->vertices[local_idx].idx = local_idx;
 	}
@@ -58,14 +58,14 @@ assign_glb_elem_indices (
 	) {
 	h5t_fdata_t* const t = f->t;
 
-	if (t->cur_level < 0) return H5_SUCCESS; /* no level defined */
+	if (t->leaf_level < 0) return H5_SUCCESS; /* no level defined */
 
 	/*
 	  simple in serial runs: global index = local index
 	*/
-	h5_loc_idx_t loc_idx = (t->cur_level == 0) ? 0 : t->num_elems[t->cur_level-1];
+	h5_loc_idx_t loc_idx = (t->leaf_level == 0) ? 0 : t->num_elems[t->leaf_level-1];
 	
-	for (; loc_idx < t->num_elems[t->cur_level]; loc_idx++) {
+	for (; loc_idx < t->num_elems[t->leaf_level]; loc_idx++) {
 		h5_generic_glb_elem_t *glb_elem = h5tpriv_get_glb_elem (f, loc_idx);
 
 		glb_elem->idx = loc_idx;
@@ -80,16 +80,16 @@ assign_glb_elem_data (
 	) {
 	h5t_fdata_t* const t = f->t;
 
-	if (t->cur_level < 0) return H5_SUCCESS; /* no level defined */
+	if (t->leaf_level < 0) return H5_SUCCESS; /* no level defined */
 
 	/*
 	  simple in serial runs: global index = local index
 	*/
-	h5_loc_idx_t loc_idx = (t->cur_level == 0) ? 0 : t->num_elems[t->cur_level-1];
+	h5_loc_idx_t loc_idx = (t->leaf_level == 0) ? 0 : t->num_elems[t->leaf_level-1];
 	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
 	int dim = h5tpriv_ref_elem_get_dim (t) - 1;
 	int num_faces = h5tpriv_ref_elem_get_num_faces(t, dim);
-	for (; loc_idx < t->num_elems[t->cur_level]; loc_idx++) {
+	for (; loc_idx < t->num_elems[t->leaf_level]; loc_idx++) {
 		h5_generic_loc_elem_t *loc_elem = h5tpriv_get_loc_elem (f, loc_idx);
 		h5_generic_glb_elem_t *glb_elem = h5tpriv_get_glb_elem (f, loc_idx);
 
@@ -131,33 +131,33 @@ h5t_add_level (
 		return H5_ERR_INVAL;
 	}
 
-	/* t->num_levels will be set to zero on file creation(!) */
-	if ((t->cur_mesh < 0) || (t->num_levels == -1)) {
+	/* t->num_leaf_levels will be set to zero on file creation(!) */
+	if ((t->cur_mesh < 0) || (t->num_leaf_levels == -1)) {
 		return h5tpriv_error_undef_mesh (f);
 	}
-	t->cur_level = t->num_levels++;
-	t->num_loaded_levels = t->num_levels;
-	t->dsinfo_num_vertices.dims[0] = t->num_levels;
-	t->dsinfo_num_elems.dims[0] = t->num_levels;
-	t->dsinfo_num_elems_on_leaf_level.dims[0] = t->num_levels;
+	t->leaf_level = t->num_leaf_levels++;
+	t->num_loaded_levels = t->num_leaf_levels;
+	t->dsinfo_num_vertices.dims[0] = t->num_leaf_levels;
+	t->dsinfo_num_elems.dims[0] = t->num_leaf_levels;
+	t->dsinfo_num_elems_on_leaf_level.dims[0] = t->num_leaf_levels;
 
-	ssize_t num_bytes = t->num_levels*sizeof (h5_size_t);
+	ssize_t num_bytes = t->num_leaf_levels*sizeof (h5_size_t);
 	TRY( t->num_vertices = h5_alloc (f, t->num_vertices, num_bytes) );
-	t->num_vertices[t->cur_level] = -1;
+	t->num_vertices[t->leaf_level] = -1;
 
 	TRY( t->num_elems = h5_alloc (f, t->num_elems, num_bytes) );
-	t->num_elems[t->cur_level] = -1;
+	t->num_elems[t->leaf_level] = -1;
 	TRY( t->num_elems_on_leaf_level = h5_alloc (
 		     f, t->num_elems_on_leaf_level, num_bytes) );
-	t->num_elems_on_leaf_level[t->cur_level] = -1;
+	t->num_elems_on_leaf_level[t->leaf_level] = -1;
 
-	if (t->cur_level == 0) {
+	if (t->leaf_level == 0) {
 		/* nothing stored yet */
 		t->last_stored_vid = -1;
 		t->last_stored_eid = -1;
 	}
 
-	return t->cur_level;
+	return t->leaf_level;
 }
 
 /*!
@@ -170,12 +170,12 @@ h5t_begin_store_vertices (
 	) {
 	h5t_fdata_t* const t = f->t;
 
-	if (t->cur_level < 0) {
+	if (t->leaf_level < 0) {
 		return h5tpriv_error_undef_level(f);
 	}
-	h5_size_t cur_num_vertices = (t->cur_level > 0 ?
-				      t->num_vertices[t->cur_level-1] : 0);
-	t->num_vertices[t->cur_level] = cur_num_vertices+num;
+	h5_size_t cur_num_vertices = (t->leaf_level > 0 ?
+				      t->num_vertices[t->leaf_level-1] : 0);
+	t->num_vertices[t->leaf_level] = cur_num_vertices+num;
 	t->dsinfo_vertices.dims[0] = cur_num_vertices+num;
 	return h5tpriv_alloc_num_vertices (f, cur_num_vertices+num);
 }
@@ -191,14 +191,14 @@ h5t_store_vertex (
 	/*
 	  more than allocated
 	*/
-	if (t->last_stored_vid+1 >= t->num_vertices[t->cur_level]) 
+	if (t->last_stored_vid+1 >= t->num_vertices[t->leaf_level]) 
 		return HANDLE_H5_OVERFLOW_ERR(
-			f, "vertex", t->num_vertices[t->cur_level]);
+			f, "vertex", t->num_vertices[t->leaf_level]);
 	
 	/*
 	  missing call to add the first level
 	 */
-	if (t->cur_level < 0)
+	if (t->leaf_level < 0)
 		return h5tpriv_error_undef_level(f);
 
 	h5_loc_idx_t local_idx = ++t->last_stored_vid;
@@ -214,7 +214,7 @@ h5t_end_store_vertices (
 	) {
 	h5t_fdata_t* const t = f->t;
 
-	t->num_vertices[t->cur_level] = t->last_stored_vid+1;
+	t->num_vertices[t->leaf_level] = t->last_stored_vid+1;
 	TRY( assign_global_vertex_indices (f) );
 	TRY( h5tpriv_rebuild_vertex_indices_mapping (f) );
 	return H5_SUCCESS;
@@ -233,13 +233,13 @@ h5t_begin_store_elems (
 	) {
 	h5t_fdata_t* const t = f->t;
 
-	size_t cur = t->cur_level > 0 ? t->num_elems[t->cur_level-1] : 0;
+	size_t cur = t->leaf_level > 0 ? t->num_elems[t->leaf_level-1] : 0;
 	size_t new = num + cur;
-	t->num_elems[t->cur_level] = new;
+	t->num_elems[t->leaf_level] = new;
 	t->dsinfo_elems.dims[0] = new;
 
-	t->num_elems_on_leaf_level[t->cur_level] = t->cur_level > 0 ?
-		num + t->num_elems_on_leaf_level[t->cur_level-1] : num;
+	t->num_elems_on_leaf_level[t->leaf_level] = t->leaf_level > 0 ?
+		num + t->num_elems_on_leaf_level[t->leaf_level-1] : num;
 	/*
 	  We allocate a hash table for a minimum of 2^21 edges to
 	  avoid resizing.
@@ -268,20 +268,20 @@ h5t_store_elem (
 	h5t_fdata_t* t = f->t;
 
 	/* level set? */
-	if (t->cur_level < 0)
+	if (t->leaf_level < 0)
 		return h5tpriv_error_undef_level(f);
 
 	/*  more than allocated? */
-	if ( t->last_stored_eid+1 >= t->num_elems[t->cur_level] ) 
+	if ( t->last_stored_eid+1 >= t->num_elems[t->leaf_level] ) 
 		return HANDLE_H5_OVERFLOW_ERR(
 			f, h5tpriv_map_oid2str(t->mesh_type),
-			t->num_elems[t->cur_level] );
+			t->num_elems[t->leaf_level] );
 
 	/* check parent id */
-	if ((t->cur_level == 0 && parent_idx != -1) ||
-	    (t->cur_level >  0 && parent_idx < 0) ||
-	    (t->cur_level >  0
-	     && parent_idx >= t->num_elems[t->cur_level-1])
+	if ((t->leaf_level == 0 && parent_idx != -1) ||
+	    (t->leaf_level >  0 && parent_idx < 0) ||
+	    (t->leaf_level >  0
+	     && parent_idx >= t->num_elems[t->leaf_level-1])
 		) {
 		return HANDLE_H5_PARENT_ID_ERR (
 			f, h5tpriv_map_oid2str (t->mesh_type), parent_idx);
@@ -291,7 +291,7 @@ h5t_store_elem (
 	h5_loc_idx_t elem_idx = ++t->last_stored_eid;
 	h5tpriv_set_loc_elem_parent_idx (f, elem_idx, parent_idx);
 	h5tpriv_set_loc_elem_child_idx (f, elem_idx, -1);
-	h5tpriv_set_loc_elem_level_idx (f, elem_idx, t->cur_level);
+	h5tpriv_set_loc_elem_level_idx (f, elem_idx, t->leaf_level);
 
 	// get ptr to local vertices store
 	h5_loc_idx_t* loc_vertex_indices = h5tpriv_get_loc_elem_vertex_indices (
@@ -323,7 +323,7 @@ h5t_end_store_elems (
 	h5_debug (f, "%s ()", __func__);
 	h5t_fdata_t* const t = f->t;
 
-	t->num_elems[t->cur_level] = t->last_stored_eid+1;
+	t->num_elems[t->leaf_level] = t->last_stored_eid+1;
 
 	/* assign global indices to new indices */
 	TRY( assign_glb_elem_indices (f) );
