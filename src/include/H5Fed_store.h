@@ -25,7 +25,7 @@ H5FedAddMesh (
 	const h5_oid_t mesh_type_id
 	);
 
-h5_id_t
+h5t_lvl_idx_t
 H5FedAddLevel (
 	h5_file_t * const f
 	);

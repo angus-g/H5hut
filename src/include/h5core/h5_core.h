@@ -3,6 +3,15 @@
 
 #define UNUSED_ARGUMENT(x) (void)x
 
+#define TRY( func )						\
+	if ((int64_t)(ptrdiff_t)(func) <= (int64_t)H5_ERR)	\
+		return H5_ERR;					\
+
+#define TRY2( func )						\
+	if ((int64_t)(ptrdiff_t)(func) <= (int64_t)H5_ERR)	\
+		goto exit;					\
+
+
 #include "h5_types.h"
 #include "h5_errno.h"
 
@@ -11,6 +20,7 @@
 #include "h5_maps.h"
 #include "h5_openclose.h"
 #include "h5_readwrite.h"
+#include "h5_syscall.h"
 
 #include "h5u_readwrite.h"
 #include "h5u_model.h"

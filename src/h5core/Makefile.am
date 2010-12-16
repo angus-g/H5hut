@@ -14,6 +14,7 @@ EXTRA_HEADERS =					\
 	../include/h5core/h5_maps.h		\
 	../include/h5core/h5_openclose.h	\
 	../include/h5core/h5_readwrite.h	\
+	../include/h5core/h5_syscall.h		\
 	../include/h5core/h5_types.h		\
 	../include/h5core/h5u_readwrite.h	\
 	../include/h5core/h5b_readwrite.h	\

@@ -1,6 +1,16 @@
 #ifndef __H5_CORE_PRIVATE_H
 #define __H5_CORE_PRIVATE_H
 
+#define H5_CORE_API_ENTER {			\
+		h5_debug (f, "%s", " ");	\
+	}					\
+
+#define H5_CORE_API_RETURN(retval)		\
+						\
+	goto exit;				\
+	exit:					\
+	return (retval);	       		\
+
 /* WARNING! Changing these values will alter the data model and introduce
  * file incompatibilities with previous versions. */
 #define H5_DATANAME_LEN		64
@@ -38,9 +48,6 @@
 #include "h5u_errorhandling_private.h"
 #include "h5u_types_private.h"
 
-#define TRY( func )						\
-	if ((int64_t)(ptrdiff_t)(func) <= (int64_t)H5_ERR)	\
-		return H5_ERR;
 
 #ifdef IPL_XT3
 # define SEEK_END 2 

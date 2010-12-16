@@ -225,13 +225,15 @@ h5_set_funcname (
 	const char  * const fname
 	);
 
-static inline void
-H5_ENTER_API (
-	h5_file_t* const f,
-	const char* const fname
-	) {
-	h5_set_funcname( f, fname );
-	h5_debug (f, "%s", " "); // just print the function name
-}
+#define H5_API_ENTER {						\
+		h5_set_funcname( f, __func__ );			\
+		h5_debug (f, "%s", " ");			\
+	}							\
+
+#define H5_API_RETURN(retval)			\
+			     			\
+	goto exit;				\
+	exit:					\
+	return retval;				\
 
 #endif

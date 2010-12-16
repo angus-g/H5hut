@@ -1,5 +1,5 @@
 /*
-  Copyright 2007-2009
+  Copyright 2007-2011
  	Paul Scherrer Institut, Villigen, Switzerland;
  	Achim Gsell
  	All rights reserved.
@@ -29,8 +29,9 @@ H5FedAddMTagset (
 	char* name,
 	h5_id_t type
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_add_mtagset (f, name, type);
+	H5_API_ENTER;
+	h5_err_t h5err = h5t_add_mtagset (f, name, type);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -46,8 +47,9 @@ H5FedRemoveMTagset (
 	h5_file_t* const f,
 	char name[]
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_remove_mtagset (f, name );
+	H5_API_ENTER;
+	h5_err_t h5err = h5t_remove_mtagset (f, name );
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -58,13 +60,14 @@ H5FedRemoveMTagset (
 
   \return	Number of tagsets or error code
  */
-h5_size_t
+h5_ssize_t
 H5FedGetMTagsets (
 	h5_file_t* const f,
 	char** names[]
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_mtagsets (f, names);
+	H5_API_ENTER;
+	h5_ssize_t num = h5t_get_mtagsets (f, names);
+	H5_API_RETURN (num);
 }
 
 /*!
@@ -80,8 +83,9 @@ H5FedGetTypeOfMTagset (
 	h5_file_t* const f,
 	char name[]
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_mtagset_type_by_name (f, name);
+	H5_API_ENTER;
+	h5_id_t id = h5t_get_mtagset_type_by_name (f, name);
+	H5_API_RETURN (id);
 }
 
 /*!
@@ -103,8 +107,9 @@ H5FedSetMTag (
 	const size_t dims,
 	void* val 
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_set_mtag_by_name (f, name, id, dims, val);
+	H5_API_ENTER;
+	h5_err_t h5err = h5t_set_mtag_by_name (f, name, id, dims, val);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -126,8 +131,9 @@ H5FedGetMTag (
 	size_t* dim,
 	void* vals
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_mtag_by_name (f, name, id, dim, vals);
+	H5_API_ENTER;
+	h5_err_t h5err = h5t_get_mtag_by_name (f, name, id, dim, vals);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -143,6 +149,7 @@ H5FedRemoveMTag (
 	const char name[],
 	const h5_id_t id
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_remove_mtag_by_name (f, name, id);
+	H5_API_ENTER;
+	h5_err_t h5err = h5t_remove_mtag_by_name (f, name, id);
+	H5_API_RETURN (h5err);
 }

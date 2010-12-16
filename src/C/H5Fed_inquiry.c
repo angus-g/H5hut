@@ -28,13 +28,14 @@
 
   \return	Number of meshes of type \c type_id or error code.
  */
-h5_size_t
+h5_ssize_t
 H5FedGetNumMeshes ( 
 	h5_file_t* const f,
 	const h5_oid_t type_id
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_num_meshes (f, type_id);
+	H5_API_ENTER;
+	h5_ssize_t num = h5t_get_num_meshes (f, type_id);
+	H5_API_RETURN (num);
 }
 
 /*!
@@ -44,12 +45,13 @@ H5FedGetNumMeshes (
 
   \return	Number of hierarchical mesh levels or error code.
  */
-h5_size_t
+h5_ssize_t
 H5FedGetNumLevels (
 	h5_file_t* const f
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_num_levels (f);
+	H5_API_ENTER;
+	h5_ssize_t num = h5t_get_num_levels (f);
+	H5_API_RETURN (num);
 }
 
 /*!
@@ -59,12 +61,13 @@ H5FedGetNumLevels (
 
   \return	ID of current mesh levels or error code.
  */
-h5_id_t
+h5t_lvl_idx_t
 H5FedGetLevel (
 	h5_file_t* const f
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_level (f);
+	H5_API_ENTER;
+	h5_ssize_t num = h5t_get_level (f);
+	H5_API_RETURN (num);
 }
 
 /*!
@@ -75,14 +78,15 @@ H5FedGetLevel (
 
   \return	Number of vertices or error code.
 */
-h5_size_t
+h5_ssize_t
 H5FedGetNumVertices (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	H5_ENTER_API (f, __func__);
+	H5_API_ENTER;
 	// MLH: can't use field from opaque h5_file_t!
 	//return h5t_get_num_vertices (f, f->myproc);
-	return h5t_get_num_vertices (f, -1);
+	h5_ssize_t num = h5t_get_num_vertices (f, -1);
+	H5_API_RETURN (num);
 }
 
 /*!
@@ -94,13 +98,14 @@ H5FedGetNumVertices (
 
   \return	Number of vertices or error code.
 */
-h5_size_t
+h5_ssize_t
 H5FedGetNumVerticesCnode (
 	h5_file_t* const f,
 	const h5_id_t cnode
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_num_vertices (f, cnode);
+	H5_API_ENTER;
+	h5_ssize_t num = h5t_get_num_vertices (f, cnode);
+	H5_API_RETURN (num);
 }
 
 /*!
@@ -111,12 +116,13 @@ H5FedGetNumVerticesCnode (
 
   \return	Total number of vertices or error code.
 */
-h5_size_t
+h5_ssize_t
 H5FedGetNumVerticesTotal (
 	h5_file_t* const f
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_num_vertices (f, -1);
+	H5_API_ENTER;
+	h5_ssize_t num = h5t_get_num_vertices (f, -1);
+	H5_API_RETURN (num);
 }
 
 /*!
@@ -127,14 +133,15 @@ H5FedGetNumVerticesTotal (
 
   \return	Number of elements or error code.
 */
-h5_size_t
+h5_ssize_t
 H5FedGetNumElements (
 	h5_file_t* const f
 	) {
-	H5_ENTER_API (f, __func__);
+	H5_API_ENTER;
 	// MLH: can't use field from opaque h5_file_t!
-	//return h5t_get_num_elems (f, f->myproc);
-	return h5t_get_num_elems (f, -1);
+	//h5_ssize_t num = h5t_get_num_elems (f, f->myproc);
+	h5_ssize_t num = h5t_get_num_elems (f, -1);
+	H5_API_RETURN (num);
 }
 
 /*!
@@ -146,13 +153,14 @@ H5FedGetNumElements (
 
   \return	Number of elements or error code.
 */
-h5_size_t
+h5_ssize_t
 H5FedGetNumElementsCnode (
 	h5_file_t* const f,
 	const h5_id_t cnode
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_num_elems (f, cnode);
+	H5_API_ENTER;
+	h5_ssize_t num = h5t_get_num_elems (f, cnode);
+	H5_API_RETURN (num);
 }
 /*!
   Returns the number of elements present in the mesh
@@ -162,10 +170,11 @@ H5FedGetNumElementsCnode (
 
   \return	Number of elements or error code.
 */
-h5_size_t
+h5_ssize_t
 H5FedGetNumElementsTotal (
 	h5_file_t* const f
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5t_get_num_elems (f, -1);
+	H5_API_ENTER;
+	h5_ssize_t num = h5t_get_num_elems (f, -1);
+	H5_API_RETURN (num);
 }

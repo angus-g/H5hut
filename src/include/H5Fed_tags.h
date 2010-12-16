@@ -11,7 +11,7 @@ H5FedRemoveMTagset (
 	h5_file_t* const f,
 	char name[]
 	);
-h5_size_t
+h5_ssize_t
 H5FedGetMTagsets (
 	h5_file_t* const f,
 	char** names[]

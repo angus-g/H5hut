@@ -64,8 +64,9 @@ h5_err_t
 H5CloseFile (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5_close_file (f);
+	H5_API_ENTER;
+	h5_err_t h5err = h5_close_file (f);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -79,8 +80,9 @@ h5_err_t
 H5CheckFile (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5_check_filehandle (f);
+	H5_API_ENTER;
+	h5_err_t h5err = h5_check_filehandle (f);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -99,9 +101,9 @@ H5SetStepNameFormat (
 	const char* name,		/*!< Prefix			*/
 	const h5_int64_t width		/*!< Width of the number	*/
 	) {
-	H5_ENTER_API (f, __func__);
-
-	return h5_set_stepname_fmt (f, name, width);
+	H5_API_ENTER;
+	h5_err_t h5err = h5_set_stepname_fmt (f, name, width);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -119,9 +121,9 @@ H5GetStepNameFormat (
 	const h5_size_t l_name,		/*!< length of buffer name	*/
 	int* width			/*!< OUT: Width of the number	*/
 	) {
-	H5_ENTER_API (f, __func__);
-
-	return h5_get_stepname_fmt (f, name, l_name, width);
+	H5_API_ENTER;
+	h5_err_t h5err = h5_get_stepname_fmt (f, name, l_name, width);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -137,8 +139,9 @@ H5SetStep (
 	const h5_id_t step		/*!< [in]  Step to set. */
 	) {
 
-	H5_ENTER_API (f, __func__);
-	return h5_set_step (f, step);
+	H5_API_ENTER;
+	h5_err_t h5err = h5_set_step (f, step);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -153,8 +156,9 @@ H5GetStep (
 	h5_file_t* const f		/*!< Handle to open file */
 	) {
 
-	H5_ENTER_API (f, __func__);
-	return h5_get_step (f);
+	H5_API_ENTER;
+	h5_id_t id = h5_get_step (f);
+	H5_API_RETURN (id);
 }
 
 /*!
@@ -171,8 +175,9 @@ int
 H5GetNumProcs (
 	h5_file_t* const f
 	) {
-	H5_ENTER_API (f, __func__);
-	return h5_get_num_procs(f);
+	H5_API_ENTER;
+	int nprocs = h5_get_num_procs(f);
+	H5_API_RETURN (nprocs);
 }
 
 /*!
@@ -192,10 +197,9 @@ h5_ssize_t
 H5GetNumSteps (
 	h5_file_t* const f
 	) {
-
-	H5_ENTER_API (f, __func__);
-
-	return h5_get_num_steps(f);
+	H5_API_ENTER;
+	h5_ssize_t nsteps = h5_get_num_steps(f);
+	H5_API_RETURN (nsteps);
 }
 
 /*!
@@ -213,10 +217,9 @@ H5HasStep (
 	h5_file_t* const f,
 	h5_id_t stepno
 	) {
-  
-	H5_ENTER_API (f, __func__);
-
-	return h5_has_step (f, stepno);
+  	H5_API_ENTER;
+	h5_err_t h5err = h5_has_step (f, stepno);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -230,10 +233,9 @@ h5_err_t
 H5StartTraverseSteps (
 	h5_file_t* const f		/*!< Handle to open file */
 	) {
-
-	H5_ENTER_API (f, __func__);
-
-	return h5_start_traverse_steps (f);
+	H5_API_ENTER;
+	h5_err_t h5err = h5_start_traverse_steps (f);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -247,10 +249,9 @@ h5_err_t
 H5TraverseSteps (
 	h5_file_t* const f		/*!< Handle to open file */
 	) {
-
-	H5_ENTER_API (f, __func__);
-
-	return h5_traverse_steps (f);
+	H5_API_ENTER;
+	h5_err_t h5err = h5_traverse_steps (f);
+	H5_API_RETURN (h5err);
 }
 
 /*!
@@ -275,10 +276,9 @@ H5SetThrottle (
 	h5_file_t* f,
 	int factor
 	) {
-
-	H5_ENTER_API( f, __func__ );
-
-	return h5_set_throttle( f, factor );
+	H5_API_ENTER( f, __func__ );
+	h5_err_t h5err = h5_set_throttle( f, factor );
+	H5_API_RETURN (h5err);
 }
 #endif // PARALLEL_IO
 
