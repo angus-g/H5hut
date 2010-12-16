@@ -220,7 +220,7 @@ h5t_init_boundary_face_iterator (
 	H5_CORE_API_ENTER;
 	h5_err_t h5err = H5_SUCCESS;
 	h5t_leaf_iterator_t* it;
-	it->face_idx = 999; // just a high enough number
+	it->face_idx = 999; // something > max number of faces
 	it->elem_idx = -1;
 	it->codim = codim;
 	it->leaf_level = f->t->cur_level;

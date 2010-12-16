@@ -217,7 +217,7 @@ refine_tet (
 
 	// t->glb_elems.tets[elem_idx].child_idx = elem_idx_of_first_child;
 	t->loc_elems.tets[elem_idx].child_idx = elem_idx_of_first_child;
-	t->num_elems_on_level[t->cur_level]--;
+	t->num_elems_on_leaf_level[t->cur_level]--;
 
 	return elem_idx_of_first_child;
 }

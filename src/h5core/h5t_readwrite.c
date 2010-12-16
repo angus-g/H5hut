@@ -73,10 +73,10 @@ write_elems (
 	TRY( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
-		     &t->dsinfo_num_elems_on_level,
+		     &t->dsinfo_num_elems_on_leaf_level,
 		     open_space_all,
 		     open_space_all,
-		     t->num_elems_on_level) );
+		     t->num_elems_on_leaf_level) );
 
 	return H5_SUCCESS;
 }
@@ -192,8 +192,8 @@ read_num_elems (
 		return h5_error_internal (f, __FILE__, __func__, __LINE__);
 	}
 	size_t size = t->num_levels * sizeof (t->num_elems[0]);
-	TRY( t->num_elems = h5_alloc (f, NULL, size) );
-	TRY( t->num_elems_on_level = h5_alloc (f, NULL, size) );
+	TRY( t->num_elems = h5_calloc (f, 1, size) );
+	TRY( t->num_elems_on_leaf_level = h5_calloc (f, 1, size) );
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
@@ -205,10 +205,10 @@ read_num_elems (
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
-		     &t->dsinfo_num_elems_on_level,
+		     &t->dsinfo_num_elems_on_leaf_level,
 		     open_space_all,
 		     open_space_all,
-		     t->num_elems_on_level) );
+		     t->num_elems_on_leaf_level) );
 	
 	return H5_SUCCESS;
 }

@@ -20,11 +20,11 @@ typedef struct h5_glb_triangle {
 } h5_glb_triangle_t;
 
 typedef struct h5_loc_triangle {
-	h5_glb_idx_t	glb_idx;
-	h5_loc_idx_t	parent_idx;
-	h5_loc_idx_t	child_idx;
-	h5t_lvl_idx_t	level_idx;
-	h5t_lvl_idx_t	refinement_level;
+	h5_glb_idx_t	glb_idx;	// global index of element
+	h5_loc_idx_t	parent_idx;	// index of parent element
+	h5_loc_idx_t	child_idx;	// index of (first) children
+	h5t_lvl_idx_t	level_idx;	// leaf level on which this element has been created
+	h5t_lvl_idx_t	refinement_level; // refinements of father in macro-grid
 	h5t_elem_flags_t flags;
 	h5_loc_idx_t	vertex_indices[3];
 	h5_loc_idx_t	neighbor_indices[3];
@@ -158,13 +158,13 @@ typedef struct h5t_fdata {
 	h5_loc_elems_t	loc_elems;
 
 	h5_size_t	*num_elems;
-	h5_size_t	*num_elems_on_level;
+	h5_size_t	*num_elems_on_leaf_level;
 	h5_idxmap_t	map_elem_g2l;	/* map global id to local id */
 
 	h5_loc_idx_t	last_stored_eid;
 	h5_dsinfo_t	dsinfo_elems;
 	h5_dsinfo_t	dsinfo_num_elems;
-	h5_dsinfo_t	dsinfo_num_elems_on_level;
+	h5_dsinfo_t	dsinfo_num_elems_on_leaf_level;
 
 	h5_idlist_t	marked_entities;
 

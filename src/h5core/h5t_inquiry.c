@@ -94,7 +94,7 @@ h5t_get_num_elems (
 	if (t->cur_level < 0) {
 		return h5tpriv_error_undef_level (f);
 	}
-	return t->num_elems_on_level[t->cur_level];
+	return t->num_elems_on_leaf_level[t->cur_level];
 }
 
 /*!

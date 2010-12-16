@@ -36,6 +36,14 @@ init_loc_elems_struct (
 		}
 		loc_elem->level_idx = level_idx;
 
+		// refinement level
+		loc_elem->refinement_level = 0;
+		h5_loc_triangle_t* elem = loc_elem;
+		while (elem->parent_idx > 0) {
+			elem = t->loc_elems.tris + elem->parent_idx;
+			loc_elem->refinement_level++;
+		}
+
 		// vertex indices
 		TRY( h5t_map_global_vertex_indices2local (
 			     f,
@@ -49,16 +57,7 @@ init_loc_elems_struct (
 			     glb_elem->neighbor_indices,
 			     num_facets,
 			     loc_elem->neighbor_indices) );
-#if 0
-		// on boundary?
-		int i;
-		for (i=0; i < num_facets; i++) {
-			if (loc_elem->neighbor_indices[i] == -1) {
-				loc_elem->flags |= H5T_BOUNDARY_ELEM_FLAG;
-				break;
-			}
-		}
-#endif
+
 	}
 	return H5_SUCCESS;
 }

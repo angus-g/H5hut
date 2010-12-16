@@ -139,7 +139,7 @@ h5t_add_level (
 	t->num_loaded_levels = t->num_levels;
 	t->dsinfo_num_vertices.dims[0] = t->num_levels;
 	t->dsinfo_num_elems.dims[0] = t->num_levels;
-	t->dsinfo_num_elems_on_level.dims[0] = t->num_levels;
+	t->dsinfo_num_elems_on_leaf_level.dims[0] = t->num_levels;
 
 	ssize_t num_bytes = t->num_levels*sizeof (h5_size_t);
 	TRY( t->num_vertices = h5_alloc (f, t->num_vertices, num_bytes) );
@@ -147,9 +147,9 @@ h5t_add_level (
 
 	TRY( t->num_elems = h5_alloc (f, t->num_elems, num_bytes) );
 	t->num_elems[t->cur_level] = -1;
-	TRY( t->num_elems_on_level = h5_alloc (
-		     f, t->num_elems_on_level, num_bytes) );
-	t->num_elems_on_level[t->cur_level] = -1;
+	TRY( t->num_elems_on_leaf_level = h5_alloc (
+		     f, t->num_elems_on_leaf_level, num_bytes) );
+	t->num_elems_on_leaf_level[t->cur_level] = -1;
 
 	if (t->cur_level == 0) {
 		/* nothing stored yet */
@@ -238,8 +238,8 @@ h5t_begin_store_elems (
 	t->num_elems[t->cur_level] = new;
 	t->dsinfo_elems.dims[0] = new;
 
-	t->num_elems_on_level[t->cur_level] = t->cur_level > 0 ?
-		num + t->num_elems_on_level[t->cur_level-1] : num;
+	t->num_elems_on_leaf_level[t->cur_level] = t->cur_level > 0 ?
+		num + t->num_elems_on_leaf_level[t->cur_level-1] : num;
 	/*
 	  We allocate a hash table for a minimum of 2^21 edges to
 	  avoid resizing.

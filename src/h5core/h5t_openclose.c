@@ -235,7 +235,7 @@ init_fdata (
 	t->glb_elems.data =		NULL;
 	t->loc_elems.data =		NULL;
 	t->num_elems =			NULL;
-	t->num_elems_on_level =		NULL;
+	t->num_elems_on_leaf_level =	NULL;
 	t->map_elem_g2l.items =		NULL;
 	t->vertices =			NULL; 
 	t->num_vertices =		NULL;
@@ -310,21 +310,21 @@ init_fdata (
 	t->dsinfo_num_elems.access_prop = H5P_DEFAULT;
 
 	/* NumElemsOnLevel */
-	strcpy (t->dsinfo_num_elems_on_level.name, "NumElemsOnLevel");
-	t->dsinfo_num_elems_on_level.rank = 1;
-	t->dsinfo_num_elems_on_level.dims[0] = 0;
-	t->dsinfo_num_elems_on_level.max_dims[0] = H5S_UNLIMITED;
-	t->dsinfo_num_elems_on_level.chunk_dims[0] = 4096;
-	t->dsinfo_num_elems_on_level.type_id = t->dtypes.h5_glb_idx_t;
-	TRY( t->dsinfo_num_elems_on_level.create_prop = h5priv_create_hdf5_property (
+	strcpy (t->dsinfo_num_elems_on_leaf_level.name, "NumElemsOnLeafLevel");
+	t->dsinfo_num_elems_on_leaf_level.rank = 1;
+	t->dsinfo_num_elems_on_leaf_level.dims[0] = 0;
+	t->dsinfo_num_elems_on_leaf_level.max_dims[0] = H5S_UNLIMITED;
+	t->dsinfo_num_elems_on_leaf_level.chunk_dims[0] = 4096;
+	t->dsinfo_num_elems_on_leaf_level.type_id = t->dtypes.h5_glb_idx_t;
+	TRY( t->dsinfo_num_elems_on_leaf_level.create_prop = h5priv_create_hdf5_property (
 		     f,
 		     H5P_DATASET_CREATE) );
 	TRY( h5priv_set_hdf5_chunk_property (
 		     f,
-		     t->dsinfo_num_elems_on_level.create_prop,
-		     t->dsinfo_num_elems_on_level.rank,
-		     t->dsinfo_num_elems_on_level.chunk_dims) );
-	t->dsinfo_num_elems_on_level.access_prop = H5P_DEFAULT;
+		     t->dsinfo_num_elems_on_leaf_level.create_prop,
+		     t->dsinfo_num_elems_on_leaf_level.rank,
+		     t->dsinfo_num_elems_on_leaf_level.chunk_dims) );
+	t->dsinfo_num_elems_on_leaf_level.access_prop = H5P_DEFAULT;
 
 	return H5_SUCCESS;
 }
@@ -499,7 +499,7 @@ release_elems (
 	TRY( h5_free (f, t->glb_elems.data) );
 	TRY( h5_free (f, t->loc_elems.data) );
 	TRY( h5_free (f, t->num_elems) );
-	TRY( h5_free (f, t->num_elems_on_level) );
+	TRY( h5_free (f, t->num_elems_on_leaf_level) );
 	TRY( h5_free (f, t->map_elem_g2l.items) );
 
 	return H5_SUCCESS;
