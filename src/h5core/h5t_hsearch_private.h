@@ -18,17 +18,17 @@ typedef struct h5t_idlisthash_key {
   The face is specified by its local vertex IDs.
  */
 typedef struct h5_te_entry {
-	h5_idlist_t value;
+	h5_idlist_t* value;
 	h5t_te_entry_key_t key;
 } h5t_te_entry_t;
 
 typedef struct h5_td_entry {
-	h5_idlist_t value;
+	h5_idlist_t* value;
 	h5t_td_entry_key_t key;
 } h5t_td_entry_t;
 
 typedef struct h5t_idlisthash_entry {
-	h5_idlist_t value;
+	h5_idlist_t* value;
 	h5t_idlisthash_key_t key;
 } h5t_idlisthash_entry_t;
 

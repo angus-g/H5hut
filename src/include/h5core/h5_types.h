@@ -78,7 +78,7 @@ typedef unsigned long		MPI_Datatype;
 typedef struct h5_idlist {
 	int32_t		size;		/* allocated space in number of items */
 	int32_t		num_items;	/* stored items	*/
-	h5_id_t		*items;
+	h5_id_t		items[1];
 } h5_idlist_t;
 
 struct h5_idxmap;

@@ -63,7 +63,7 @@ h5tpriv_search_te2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
-	h5_idlist_t** retval
+	h5_idlist_t** idlist
 	) {
 	h5t_fdata_t* t = f->t;
 	h5t_adjacencies_t* a = &t->adjacencies;
@@ -104,11 +104,13 @@ h5tpriv_search_te2 (
 		     f,
 		     &te_entry->value,
 		     h5tpriv_build_edge_id (face_idx, elem_idx)) );
-	if (entry->value.num_items > 1) {
-		/* search returned an existing entry */
+	if (te_entry->value->num_items > 1) {
+		/* search returned existing entry */
 		TRY( h5_free (f, entry) );
 	}
-	*retval = &te_entry->value;
+	if (idlist) {
+		*idlist = te_entry->value;
+	}
 	return H5_SUCCESS;
 }
 
@@ -120,8 +122,8 @@ h5tpriv_search_te2 (
 h5_err_t
 h5tpriv_find_te (
 	h5_file_t* const f,
-	h5t_te_entry_t* item,
-	h5_idlist_t** retval
+	h5t_te_entry_t* item,	// in: item to find
+	h5_idlist_t** idlist	// out: 
 	) {
 	void* __entry;
 	TRY( h5priv_hsearch (
@@ -132,10 +134,11 @@ h5tpriv_find_te (
 		     &f->t->adjacencies.te_hash) );
 	h5t_te_entry_t* entry = (h5t_te_entry_t*)__entry;
 	if (entry ==NULL) {
-		// not found
-		return H5_NOK;
+		return H5_NOK;	// not found
 	}
-	*retval = &entry->value;
+	if (idlist) {
+		*idlist = entry->value;
+	}
 	return H5_SUCCESS;
 }
 
@@ -147,9 +150,9 @@ h5tpriv_find_te (
 h5_err_t
 h5tpriv_find_te2 (
 	h5_file_t* const f,
-	h5_loc_idx_t face_idx,
-	h5_loc_idx_t elem_idx,
-	h5_idlist_t** retval
+	h5_loc_idx_t face_idx,	// in
+	h5_loc_idx_t elem_idx,	// in 
+	h5_idlist_t** idlist	// out
 	) {
 	h5t_te_entry_t item;
 	TRY( h5t_get_vertex_indices_of_edge2 (
@@ -157,7 +160,7 @@ h5tpriv_find_te2 (
 		     face_idx,
 		     elem_idx,
 		     item.key.vids) );
-	return h5tpriv_find_te (f, &item, retval);
+	return h5tpriv_find_te (f, &item, idlist);
 }
 
 static int
@@ -220,7 +223,7 @@ h5tpriv_search_td2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
-	h5_idlist_t** retval
+	h5_idlist_t** idlist	// out
 	) {
 	h5t_fdata_t* t = f->t;
 	h5t_adjacencies_t* a = &f->t->adjacencies;
@@ -255,11 +258,12 @@ h5tpriv_search_td2 (
 		     f,
 		     &td_entry->value,
 		     h5tpriv_build_triangle_id (face_idx, elem_idx)) );
-	if (td_entry->value.num_items > 1) {
+	if (td_entry->value->num_items > 1) {
 		TRY( h5_free (f, entry) );
 	}
-	*retval = &td_entry->value;
-
+	if (idlist) {
+		*idlist = td_entry->value;
+	}
 	return H5_SUCCESS;
 }
 
@@ -267,7 +271,7 @@ h5_err_t
 h5tpriv_find_td (
 	h5_file_t* const f,
 	h5t_td_entry_t* item,
-	h5_idlist_t** retval
+	h5_idlist_t** idlist	// out
 	) {
 	void* __entry;
 	h5priv_hsearch (
@@ -280,7 +284,7 @@ h5tpriv_find_td (
 		return h5tpriv_error_local_triangle_nexist (f, item->key.vids);
 	}
 	h5t_td_entry_t* entry = (h5t_td_entry_t*)__entry;
-	*retval = &entry->value;
+	*idlist = entry->value;
 	return H5_SUCCESS;
 }
 
@@ -289,7 +293,7 @@ h5tpriv_find_td2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
-	h5_idlist_t** retval
+	h5_idlist_t** idlist
 	) {
 	h5t_td_entry_t item;
 	TRY( h5t_get_vertex_indices_of_triangle2 (
@@ -297,7 +301,7 @@ h5tpriv_find_td2 (
 		     face_idx,
 		     elem_idx,
 		     item.key.vids) );
-	return h5tpriv_find_td (f, &item, retval);
+	return h5tpriv_find_td (f, &item, idlist);
 }
 
 /*
@@ -308,14 +312,11 @@ h5tpriv_find_tv2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
-	h5_idlist_t** retval
+	h5_idlist_t** idlist
 	) {
-
-	h5_loc_idx_t idx = h5tpriv_get_loc_elem_vertex_idx (
-		f, elem_idx, face_idx);
-	*retval = &f->t->adjacencies.tv.v[idx];
+	h5_loc_idx_t idx;
+	TRY( idx = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx) );
+	*idlist = f->t->adjacencies.tv.v[idx];
 
 	return H5_SUCCESS;
 }
-
-

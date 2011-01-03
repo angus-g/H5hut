@@ -50,7 +50,7 @@ H5FedGetNumLevels (
 	h5_file_t* const f
 	) {
 	H5_API_ENTER;
-	h5_ssize_t num = h5t_get_num_levels (f);
+	h5_ssize_t num = h5t_get_num_leaf_levels (f);
 	H5_API_RETURN (num);
 }
 

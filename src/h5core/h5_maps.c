@@ -4,33 +4,12 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
-static inline h5_err_t
-alloc_idlist_items (
-	h5_file_t* const f,
-	h5_idlist_t* list,
-	const h5_size_t	size	// new size of list
-	) {
-	int new = (list->items == NULL);
-	size_t size_in_bytes = size * sizeof (list->items[0]);
-	TRY( list->items = h5_alloc (f, list->items, size_in_bytes) );
-	list->size = size;
-	if (new) list->num_items = 0;
-	return H5_SUCCESS;
-}
 
-h5_err_t
-h5priv_free_idlist_items (
-	h5_file_t* const f,
-	h5_idlist_t* list
-	) {
-	UNUSED_ARGUMENT (f);
-	if (list->items != NULL) free (list->items);
-	list->items = NULL;
-	list->size = 0;
-	list->num_items = 0;
-	return H5_SUCCESS;
-}
+/*
+  Functions for ID-list handling.
 
+  ID-lists are data blobs to store ID or indices.
+ */
 /*
   Allocate new/empty id-list
  */
@@ -40,9 +19,7 @@ h5priv_alloc_idlist (
 	h5_idlist_t** list,
 	const h5_size_t	size
 	) {
-	TRY( (*list = h5_calloc (f, 1, sizeof (**list))) );
-	size_t size_in_bytes = size * sizeof ((*list)->items[0]);
-	TRY( (*list)->items = h5_alloc (f, (*list)->items, size_in_bytes) );
+	TRY( *list = h5_calloc (f, 1, sizeof (**list)+size*sizeof ((*list)->items[0])) );
 	(*list)->size = size;
 	return H5_SUCCESS;
 }
@@ -53,70 +30,55 @@ h5priv_free_idlist (
 	h5_idlist_t** list
 	) {
 	if (*list == NULL) return H5_SUCCESS;
-	TRY( h5priv_free_idlist_items (f, *list) );
 	TRY( h5_free( f, *list) );
 	*list = NULL;
 	return H5_SUCCESS;
 }
 
-h5_err_t
-h5priv_append_to_idlist (
+static inline h5_err_t
+grow_idlist (
 	h5_file_t* const f,
-	h5_idlist_t* list,
-	h5_loc_id_t id
+	h5_idlist_t** list,
+	size_t num_items
 	) {
-	if (list->num_items == list->size) {
-		h5_size_t size = list->size;
+	size_t size = sizeof (**list) + (num_items-1)*sizeof((*list)->items[0]);
+	TRY( *list = h5_alloc (f, *list, size) );
+	return H5_SUCCESS;
+}
+
+/*
+  Add item to list at position given by \c idx.
+*/
+h5_loc_idx_t
+h5priv_insert_idlist (
+	h5_file_t* const f,
+	h5_idlist_t** list,
+	h5_loc_id_t id,
+	h5_loc_idx_t idx
+	) {
+	if (*list == NULL) {
+		TRY( h5priv_alloc_idlist (f, list, 2) );
+	} else if ((*list)->num_items == (*list)->size) {
+		h5_size_t size = (*list)->size;
 		if (size == 0) {
-			size = 2;
+			size = 16;
 		} else {
 			size *= 2;
 		}
-		TRY( alloc_idlist_items (f, list, size) );
+		TRY( grow_idlist (f, list, size) );
 	}
-	list->items[list->num_items++] = id;
-	return H5_SUCCESS;
-}
-
-int
-h5priv_cmp_ids_by_eid (
-	const void* _id1,
-	const void* _id2
-	) {
-	h5_loc_id_t	id1 = h5tpriv_get_elem_idx (*(h5_loc_id_t*)_id1); 
-	h5_loc_id_t	id2 = h5tpriv_get_elem_idx (*(h5_loc_id_t*)_id2); 
-	
-	if (id1 < id2) return -1;
-	if (id1 > id2) return 1;
-	return 0;
-}
-
-int
-h5priv_cmp_ids (
-	const void* _id1,
-	const void* _id2
-	) {
-	h5_loc_id_t	*id1 = (h5_loc_id_t*)_id1;
-	h5_loc_id_t	*id2 = (h5_loc_id_t*)_id2;
-	
-	if (*id1 < *id2) return -1;
-	if (*id1 > *id2) return 1;
-	return 0;
-}
-
-h5_err_t
-h5priv_sort_idlist_by_eid (
-	h5_file_t* const f,
-	h5_idlist_t* list
-	) {
-	UNUSED_ARGUMENT (f);
-	qsort (
-		list->items,
-		list->num_items,
-		sizeof (list->items[0]),
-		h5priv_cmp_ids_by_eid);
-	
-	return H5_SUCCESS;
+	h5_idlist_t* l = *list;
+	if (idx == -1) {
+		idx = l->num_items;
+	} else {
+		memmove ( 
+			&l->items[idx+1],
+			&l->items[idx],
+			(l->num_items - idx) * sizeof (l->items[0]));
+	}
+	l->items[idx] = id;
+	l->num_items++;
+	return idx;
 }
 
 /*
@@ -129,6 +91,9 @@ h5priv_find_idlist (
 	h5_loc_id_t item
 	) {
 	UNUSED_ARGUMENT (f);
+	if (!list) {
+		return -1;
+	}
 	register h5_loc_idx_t low = 0;
 	register h5_loc_idx_t high = list->num_items - 1;
 	while (low <= high) {
@@ -144,33 +109,6 @@ h5priv_find_idlist (
        	return -(low+1);  // not found
 }
 
-/*
-  Add item to list at position given by \c idx.
-*/
-h5_loc_idx_t
-h5priv_insert_idlist (
-	h5_file_t* const f,
-	h5_idlist_t* list,
-	h5_loc_id_t item,
-	h5_loc_idx_t idx
-	) {
-	if (list->num_items == list->size) {
-		h5_size_t size = list->size;
-		if (size == 0) {
-			size = 16;
-		} else {
-			size *= 2;
-		}
-		TRY( alloc_idlist_items (f, list, size) );
-	}
-	memmove ( 
-		&list->items[idx+1],
-		&list->items[idx],
-		(list->num_items - idx) * sizeof (list->items[0]));
-	list->items[idx] = item;
-	list->num_items++;
-	return idx;
-}
 
 /*
   Search in sorted list. If item is not in list, add it.
@@ -178,10 +116,10 @@ h5priv_insert_idlist (
 h5_loc_idx_t
 h5priv_search_idlist (
 	h5_file_t* const f,
-	h5_idlist_t* list,
+	h5_idlist_t** list,
 	h5_loc_id_t item
 	) {
-	h5_loc_idx_t idx = h5priv_find_idlist (f, list, item);
+	h5_loc_idx_t idx = h5priv_find_idlist (f, *list, item);
 	if (idx < 0) {
 		idx = -(idx+1);
 		idx = h5priv_insert_idlist (f, list, item, idx);

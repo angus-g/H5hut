@@ -8,7 +8,7 @@ h5t_get_num_meshes (
 	);
 
 h5_size_t
-h5t_get_num_levels (
+h5t_get_num_leaf_levels (
 	h5_file_t * const f
 	);
 

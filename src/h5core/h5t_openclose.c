@@ -221,8 +221,12 @@ init_fdata (
 	h5t_fdata_t* t = f->t;
 
 	memset (t->mesh_name, 0, sizeof (t->mesh_name));
-	t->num_meshes = -1;
+	memset (t->mesh_label, 0, sizeof (t->mesh_label));
+	t->mesh_type = 0;
+	t->ref_elem = NULL;
 	t->cur_mesh = -1;
+	t->mesh_changed = 0;
+	t->num_meshes = -1;
 	t->num_leaf_levels = -1;
 	t->leaf_level = -1;
 	t->last_stored_vid = -1;
@@ -497,10 +501,15 @@ release_elems (
 	) {
 	h5t_fdata_t* t = f->t;
 	TRY( h5_free (f, t->glb_elems.data) );
+	t->glb_elems.data = NULL;
 	TRY( h5_free (f, t->loc_elems.data) );
+	t->loc_elems.data = NULL;
 	TRY( h5_free (f, t->num_elems) );
+	t->num_elems = NULL;
 	TRY( h5_free (f, t->num_elems_on_leaf_level) );
+	t->num_elems_on_leaf_level = NULL;
 	TRY( h5_free (f, t->map_elem_g2l.items) );
+	t->map_elem_g2l.items = NULL;
 
 	return H5_SUCCESS;
 }
@@ -511,8 +520,11 @@ release_vertices (
 	) {
 	h5t_fdata_t* t = f->t;
 	TRY( h5_free (f, t->vertices) );
+	t->vertices = NULL;
 	TRY( h5_free (f, t->num_vertices) );
+	t->num_vertices = NULL;
 	TRY( h5_free (f, t->map_vertex_g2l.items) );
+	t->map_vertex_g2l.items = NULL;
 
 	return H5_SUCCESS;
 }
@@ -525,7 +537,6 @@ release_memory (
 	TRY( h5tpriv_release_adjacency_structs (f) );
 	TRY( release_elems (f) );
 	TRY( release_vertices (f) );
-
 	return H5_SUCCESS;
 }
 

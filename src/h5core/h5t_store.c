@@ -304,14 +304,9 @@ h5t_store_elem (
 	/* add edges to map  edges -> elements */
 	h5_loc_idx_t face_idx;
 	int num_faces = h5tpriv_ref_elem_get_num_edges (t);
-	h5_idlist_t* retval;
 	for (face_idx = 0; face_idx < num_faces; face_idx++) {
 		// add edges to neighbour struct
-		TRY( h5tpriv_search_te2 (
-			      f,
-			      face_idx,
-			      elem_idx,
-			      &retval) );
+		TRY( h5tpriv_search_te2 (f, face_idx, elem_idx, NULL) );
 	}
 	return elem_idx;
 }
@@ -350,7 +345,7 @@ h5t_mark_entity (
 	const h5_loc_id_t entity_id
 	) {
 	h5t_fdata_t* const t = f->t;
-	return h5priv_append_to_idlist (f, t->marked_entities, entity_id);
+	return h5priv_insert_idlist (f, &t->marked_entities, entity_id, -1);
 }
 
 /*

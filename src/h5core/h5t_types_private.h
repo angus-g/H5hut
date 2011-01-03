@@ -98,7 +98,7 @@ typedef struct h5_dtypes {
 typedef struct h5t_adjacencies {
 	struct {
 		// h5_size_t size;
-		h5_idlist_t* v;
+		h5_idlist_t** v;
 	} tv;
 	h5_hashtable_t te_hash;
 	h5_hashtable_t td_hash;
