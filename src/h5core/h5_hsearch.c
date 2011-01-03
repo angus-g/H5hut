@@ -186,7 +186,7 @@ h5priv_hsearch (
 		   value. */
 		if (htab->table[idx].used == hval
 		    && ((*htab->compare) (item, htab->table[idx].entry) == 0) ) {
-			if (retval && *retval) {
+			if (retval) {
 				*retval = htab->table[idx].entry;
 			}
 			return H5_SUCCESS;
@@ -198,7 +198,7 @@ h5priv_hsearch (
 		
 		do {
 			/* Because SIZE is prime this guarantees to step
-			   through all available indeces.  */
+			   through all available indices.  */
 			if (idx <= hval2)
 				idx = htab->size + idx - hval2;
 			else
@@ -318,14 +318,15 @@ static unsigned int
 hcompute_loc_id_keyed (
 	const void*__item
 	) {
-	char* key = (char*)__item;
-	unsigned int count = sizeof (h5_loc_id_t);
-	unsigned int hval = count;
-	while (count-- > 0) {
-		if (key[count]) {
-			hval <<= 4;
-			hval += key[count];
+	register uint16_t* key = (uint16_t*)__item;
+	register int count = sizeof(h5_loc_id_t)/sizeof(uint16_t);
+	register unsigned int hval = sizeof (h5_loc_id_t);
+	while (count--) {
+		if (*key) {
+			hval <<= 6;
+			hval += *key;
 		}
+		key++;
 	}
 	return hval;
 }
