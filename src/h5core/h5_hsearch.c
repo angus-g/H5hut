@@ -213,7 +213,7 @@ h5priv_hsearch (
 			if (htab->table[idx].used == hval
 			    && ((*htab->compare) (
 					item, htab->table[idx].entry) == 0) ) {
-				if (retval && *retval) {
+				if (retval) {
 					*retval = htab->table[idx].entry;
 				}
 				return H5_SUCCESS;
@@ -238,7 +238,7 @@ h5priv_hsearch (
 		
 		++htab->filled;
 
-		if (retval && *retval) {
+		if (retval) {
 			*retval = htab->table[idx].entry;
 		}
 		return H5_SUCCESS;

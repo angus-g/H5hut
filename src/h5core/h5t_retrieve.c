@@ -208,6 +208,7 @@ h5t_init_leaf_iterator (
 	} else if (it->codim == 0) {
 		it->iter = iterate_leaf_elems;
 	}
+	TRY2( h5tpriv_init_entity_iterator (f, iter, codim) );
 	H5_CORE_API_RETURN (h5err);
 }
 
@@ -219,7 +220,7 @@ h5t_init_boundary_face_iterator (
 	) {
 	H5_CORE_API_ENTER;
 	h5_err_t h5err = H5_SUCCESS;
-	h5t_leaf_iterator_t* it;
+	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)iter;
 	it->face_idx = 999; // something > max number of faces
 	it->elem_idx = -1;
 	it->codim = codim;
