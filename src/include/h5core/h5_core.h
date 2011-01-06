@@ -9,7 +9,7 @@
 
 #define TRY2( func )						\
 	if ((int64_t)(ptrdiff_t)(func) <= (int64_t)H5_ERR)	\
-		goto exit;					\
+		goto done;					\
 
 
 #include "h5_types.h"
