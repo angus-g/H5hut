@@ -1,6 +1,6 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5hut], [1.99.0], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [1.99.1], [h5part@lists.psi.ch], H5hut)
 
 
 # Ensure that a recent enough version of Autoconf is being used. 
@@ -121,7 +121,7 @@ AC_CANONICAL_HOST
 
 
 uname=`uname -s`
-if test $uname = "AIX"; then
+if test "x$uname" = "xAIX"; then
 	AC_MSG_CHECKING([if system is AIX])
 	AC_MSG_RESULT([OK])
 
@@ -153,6 +153,9 @@ AC_PROG_CXX(pgCC pathCC icc cc_r g++ gcc cc)
 # Otherwise, set INSTALL to `dir/install-sh -c`
 AC_PROG_INSTALL
 
+if test "x$CC" = "xgcc"; then
+	CFLAGS="$CFLAGS -std=c99"
+fi
 
 # AM_INIT_AUTOMAKE is required to use autoconf with automake
 AM_INIT_AUTOMAKE()
