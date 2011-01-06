@@ -40,7 +40,7 @@ typedef struct h5_glb_tetrahedron {
 typedef h5_glb_tetrahedron_t	h5_glb_tet_t;
 
 typedef struct h5_loc_tetrahedron {
-	h5_loc_idx_t	glb_idx;
+	h5_glb_idx_t	glb_idx;
 	h5_loc_idx_t	parent_idx;
 	h5_loc_idx_t	child_idx;
 	h5t_lvl_idx_t	level_idx;
@@ -62,7 +62,7 @@ typedef struct h5_generic_loc_elem {
 	h5_glb_idx_t	glb_idx;
 	h5_loc_idx_t	parent_idx;
 	h5_loc_idx_t	child_idx;
-	h5_int32_t	level_idx;
+	h5t_lvl_idx_t	level_idx;
 	h5t_lvl_idx_t	refinement_level;
 	h5t_elem_flags_t flags;
 	h5_loc_idx_t	indices[1];

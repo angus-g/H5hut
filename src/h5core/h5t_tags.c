@@ -5,28 +5,16 @@
 #include "h5_core_private.h"
 
 /*
-  To discuss:
+  TODO:
   - read tagsets on demand
  */
 
-/*
-  Initialize a tag container
- */
-static h5_err_t
-init_container (
-	h5_file_t* const f,
-	const size_t ntags,
-	h5t_tagcontainer_t* ctn
-	) {
-	ctn->names = h5_calloc (f, ntags, sizeof(char*));
-	TRY( h5priv_hcreate_string_keyed (f, ntags, &ctn->sets));
-	return H5_SUCCESS;
-}
+
 
 /*
   Release a tag-set
  */
-static h5_err_t
+static inline h5_err_t
 release_tagset (
 	h5_file_t* const f,
 	h5t_tagset_t* tagset
@@ -57,6 +45,22 @@ release_tagset2 (
 	return release_tagset (f, tagset);
 }
 
+
+/*
+  Initialize a tag container
+ */
+static inline h5_err_t
+init_container (
+	h5_file_t* const f,
+	const size_t ntags,
+	h5t_tagcontainer_t* ctn
+	) {
+	ctn->names = h5_calloc (f, ntags, sizeof(char*));
+	TRY( h5priv_hcreate_string_keyed (f, ntags, &ctn->sets,
+					  release_tagset2) );
+	return H5_SUCCESS;
+}
+
 /*
   Release all sets in given container
  */
@@ -66,7 +70,7 @@ release_container (
 	h5t_tagcontainer_t* ctn
 	) {
 	if (ctn->num_sets == 0) return H5_SUCCESS;
-	TRY( h5priv_hwalk (f, &ctn->sets, release_tagset2) ); 
+	TRY( h5priv_hdestroy (f, &ctn->sets) ); 
 	TRY( h5_free (f, ctn->names) );
 	memset (ctn, 0, sizeof (*ctn));
 	return H5_SUCCESS;

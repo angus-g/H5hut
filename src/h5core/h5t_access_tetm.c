@@ -7,7 +7,8 @@ get_loc_elem (
 	h5_file_t* const f,
 	const h5_loc_idx_t elem_idx
 	) {
-	return (h5_generic_loc_elem_t*)&f->t->loc_elems.tets[elem_idx];
+	h5_loc_tet_t* elem = &f->t->loc_elems.tets[elem_idx];
+	return (h5_generic_loc_elem_t*)elem;
 }
 
 static h5_loc_idx_t

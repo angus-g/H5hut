@@ -19,14 +19,18 @@
 
 static inline h5_err_t
 alloc_tv (
-	h5_file_t* const f
+	h5_file_t* const f,
+	const h5t_lvl_idx_t from_lvl
 	) {
 	h5t_fdata_t* t = f->t;
 	h5_loc_idx_t num_vertices = t->num_vertices[t->num_leaf_levels-1];
 
 	h5t_adjacencies_t* adj = &t->adjacencies;
-	// allocate one ID list per vertex
-	TRY( adj->tv.v = h5_calloc (f, num_vertices, sizeof(*adj->tv.v)) );
+	// allocate ptr to ID-list per vertex
+	TRY( adj->tv.v = h5_alloc (f, adj->tv.v, num_vertices*sizeof(*adj->tv.v)) );
+
+	size_t i = from_lvl <= 0 ? 0 : t->num_vertices[from_lvl-1];
+	bzero (adj->tv.v+i, (num_vertices-i)*sizeof(*adj->tv.v));
 
 	return H5_SUCCESS;
 }
@@ -57,9 +61,8 @@ compute_elems_of_vertices (
 	h5_file_t* const f,
 	const h5t_lvl_idx_t from_lvl
 	) {
-	h5_debug (f, "%s (%lld)", __func__, (long long)from_lvl);
 	/* expand structure */
-	TRY( alloc_tv (f) );
+	TRY( alloc_tv (f, from_lvl) );
 
 	/* loop over all elements in current level */
 	h5t_fdata_t *t = f->t;
@@ -74,29 +77,10 @@ compute_elems_of_vertices (
 			TRY( h5priv_insert_idlist (
 				     f,
 				     &t->adjacencies.tv.v[vidx],
-				     h5tpriv_build_vertex_id (
-					     face_idx, idx), -1) );
+				     h5tpriv_build_vertex_id (face_idx, idx),
+				     -1) );
 		}
 	}
-	h5_debug (f, "%s (%lld): done", __func__, (long long)from_lvl);
-	return H5_SUCCESS;
-}
-
-static h5_err_t
-free_idlist (
-	h5_file_t * const f,
-	const void* __list
-	) {
-	h5_idlist_t* list = *(h5_idlist_t**)__list;
-	TRY( h5priv_free_idlist (f, &list) );
-	return H5_SUCCESS;
-}
-
-static inline h5_err_t
-release_te (
-	h5_file_t* const f
-	) {
-	TRY( h5priv_hwalk (f, &f->t->adjacencies.te_hash, free_idlist) ); 
 	return H5_SUCCESS;
 }
 
@@ -535,7 +519,7 @@ release_internal_structs (
 	) {
 	h5t_fdata_t *t = f->t;
 	TRY( release_tv (f) );
-	TRY( release_te (f) );
+	TRY( h5priv_hdestroy (f, &t->adjacencies.te_hash) );
 	bzero (&t->adjacencies, sizeof (t->adjacencies));
 	return H5_SUCCESS;
 }

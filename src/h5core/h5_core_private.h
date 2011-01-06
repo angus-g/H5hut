@@ -7,9 +7,13 @@
 
 #define H5_CORE_API_RETURN(retval)		\
 						\
-	goto exit;				\
-	exit:					\
+	goto done;				\
+done:						\
 	return (retval);	       		\
+
+#define H5_GOTO_DONE( ret_val)						\
+	ret_value = ret_val;						\
+	goto done;							\
 
 /* WARNING! Changing these values will alter the data model and introduce
  * file incompatibilities with previous versions. */

@@ -33,12 +33,6 @@ typedef struct h5t_idlisthash_entry {
 } h5t_idlisthash_entry_t;
 
 h5_err_t
-h5tpriv_create_te_htab (
-	h5_file_t * const f,
-	size_t nel
-	);
-
-h5_err_t
 h5tpriv_resize_te_htab (
 	h5_file_t * const f,
 	size_t nel
@@ -65,13 +59,6 @@ h5tpriv_find_te2 (
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
 	h5_idlist_t **retval
-	);
-
-
-h5_err_t
-h5tpriv_create_td_htab (
-	h5_file_t * const f,
-	size_t nel
 	);
 
 h5_err_t

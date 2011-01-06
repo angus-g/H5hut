@@ -39,10 +39,11 @@ static inline h5_err_t
 grow_idlist (
 	h5_file_t* const f,
 	h5_idlist_t** list,
-	size_t num_items
+	size_t new_size
 	) {
-	size_t size = sizeof (**list) + (num_items-1)*sizeof((*list)->items[0]);
-	TRY( *list = h5_alloc (f, *list, size) );
+	size_t bytes_to_allocate = sizeof (**list) + (new_size-1)*sizeof((*list)->items[0]);
+	TRY( *list = h5_alloc (f, *list, bytes_to_allocate) );
+	(*list)->size = new_size;
 	return H5_SUCCESS;
 }
 

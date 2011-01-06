@@ -7,6 +7,7 @@ typedef struct hsearch_data {
 	unsigned int filled;
 	int (*compare)(const void*, const void*);
 	unsigned int (*compute_hash)(const void*);
+	h5_err_t (*free_entry)(h5_file_t* const f, const void*);
 } h5_hashtable_t; 
 
 /* Action which shall be performed in the call to hsearch.  */
@@ -37,7 +38,8 @@ h5priv_hcreate (
 	size_t __nel,
 	h5_hashtable_t* __htab,
 	int (*compare)(const void*, const void*),
-	unsigned int (*compute_hash)(const void*)
+	unsigned int (*compute_hash)(const void*),
+	h5_err_t (*free_entry)(h5_file_t* const f, const void*)
 	);
 
 extern h5_err_t
@@ -54,24 +56,11 @@ h5priv_hdestroy (
 	);
 
 extern h5_err_t
-h5priv_hwalk (
-	h5_file_t* f,
-	h5_hashtable_t* __htab,
-	h5_err_t (*visit)(h5_file_t* const f, const void* __item)
-	);
-
-extern h5_err_t
 h5priv_hcreate_string_keyed (
 	h5_file_t* const f,
 	size_t nel,
-	h5_hashtable_t* htab 
-	);
-
-h5_err_t
-h5priv_hcreate_loc_id_keyed (
-	h5_file_t* const f,
-	size_t nel,
-	h5_hashtable_t* htab 
+	h5_hashtable_t* htab,
+	h5_err_t (*free_entry)(h5_file_t* const f, const void*)
 	);
 
 #endif

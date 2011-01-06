@@ -30,18 +30,16 @@ compute_te_hashval (
 	return hval;
 }
 
-h5_err_t
-h5tpriv_create_te_htab (
-	h5_file_t* const f,
-	size_t nel
+static h5_err_t
+release_te_entry (
+	h5_file_t * const f,
+	const void* __entry
 	) {
-	h5t_adjacencies_t* a = &f->t->adjacencies;
-	return h5priv_hcreate (
-		      f,
-		      nel,
-		      &a->te_hash,
-		      cmp_te_entries,
-		      compute_te_hashval);
+	struct h5_te_entry* entry = *(struct h5_te_entry**)__entry;
+	h5_idlist_t* list = entry->value;
+	TRY( h5priv_free_idlist (f, &list) );
+	TRY( h5_free (f, entry) );
+	return H5_SUCCESS;
 }
 
 h5_err_t
@@ -51,7 +49,13 @@ h5tpriv_resize_te_htab (
 	) {
 	h5t_adjacencies_t* a = &f->t->adjacencies;
 	if ( a->te_hash.size == 0 ) {
-		TRY( h5tpriv_create_te_htab (f, nel) );
+		TRY( h5priv_hcreate (
+			     f,
+			     nel,
+			     &a->te_hash,
+			     cmp_te_entries,
+			     compute_te_hashval,
+			     release_te_entry) );
 	} else if (a->te_hash.size < nel) {
 		TRY( h5priv_hresize (f, nel, &a->te_hash) );
 	}
@@ -190,19 +194,18 @@ compute_td_hashval (
 	return hval;
 }
 
-h5_err_t
-h5tpriv_create_td_htab (
-	h5_file_t* const f,
-	size_t nel
+static h5_err_t
+release_td_entry (
+	h5_file_t * const f,
+	const void* __entry
 	) {
-	h5t_adjacencies_t* a = &f->t->adjacencies;
-	return h5priv_hcreate (
-		f,
-		nel,
-		&a->td_hash,
-		cmp_td_entries,
-		compute_td_hashval);
+	struct h5_td_entry* entry = *(struct h5_td_entry**)__entry;
+	h5_idlist_t* list = entry->value;
+	TRY( h5priv_free_idlist (f, &list) );
+	TRY( h5_free (f, entry) );
+	return H5_SUCCESS;
 }
+
 
 h5_err_t
 h5tpriv_resize_td_htab (
@@ -211,7 +214,13 @@ h5tpriv_resize_td_htab (
 	) {
 	h5t_adjacencies_t* a = &f->t->adjacencies;
 	if (a->td_hash.size == 0) {
-		TRY( h5tpriv_create_td_htab (f, nel) );
+		TRY( h5priv_hcreate (
+			     f,
+			     nel,
+			     &a->td_hash,
+			     cmp_td_entries,
+			     compute_td_hashval,
+			     release_td_entry) );
 	} else if (a->td_hash.size < nel) {
 		TRY( h5priv_hresize (f, nel, &a->td_hash) );
 	}
