@@ -89,7 +89,7 @@ H5FedStoreVertex (
 			f,
 			H5_ERR_INVAL,
 			"Vertices can be added to level 0 only!");
-		goto exit;
+		goto done;
 	}
 	idx = h5t_store_vertex (f, vertex_id, P);
 	H5_API_RETURN (idx);
