@@ -232,8 +232,8 @@ h5_set_funcname (
 
 #define H5_API_RETURN(retval)			\
 			     			\
-	goto exit;				\
-	exit:					\
+	goto done;				\
+	done:					\
 	return retval;				\
 
 #endif
