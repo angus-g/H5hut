@@ -88,6 +88,8 @@
 #define h5tpriv_build_triangle_id( face_idx, elem_idx )	 \
 	( h5tpriv_build_entity_id ( H5T_TYPE_TRIANGLE, face_idx, elem_idx ) )
 
+#define h5tpriv_build_tet_id( face_idx, elem_idx )	 \
+	( h5tpriv_build_entity_id ( H5T_TYPE_TET, face_idx, elem_idx ) )
 
 
 #define h5tpriv_get_face_idx( entity_id )				\

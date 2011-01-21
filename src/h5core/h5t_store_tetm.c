@@ -37,7 +37,12 @@ alloc_tets (
 	return  H5_SUCCESS;
 }
 
-
+/*
+  Return the two direct children of the edge given by face and
+  element index of first child.
+  Note: the semantic of elem_idx is a bit confusing.
+  
+ */
 static h5_err_t
 get_direct_children_of_edge (
 	h5_file_t* const f,

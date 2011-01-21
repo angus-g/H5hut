@@ -371,7 +371,7 @@ _dissolve_ghostzones (
 		
 		_dissolve_ghostzone ( f, p_max->p, p_max->q );
 
-		free ( p_max );
+		h5_free (f, p_max);
 		p_el = p_max = p_begin->next;
 
 		while ( p_el ) {
@@ -385,13 +385,13 @@ _dissolve_ghostzones (
 					p_el->next->prev = p_el->prev;
 				p_el->prev->next = p_el->next;
 				p_save = p_el->next;
-				free ( p_el );
+				h5_free (f, p_el);
 				p_el = p_save;
 			}
 		}
 
 	}
-	free ( p_begin );
+	h5_free (f, p_begin);
 
 	return H5_SUCCESS;
 }
@@ -581,8 +581,8 @@ h5b_3d_set_view (
 
 
 
-	free(user_layout);
-	free(write_layout);
+	h5_free(f, user_layout);
+	h5_free(f, write_layout);
 
 	TRY( h5bpriv_release_hyperslab(f) );
 #endif

@@ -89,7 +89,7 @@ h5_loc_id_t
 h5priv_find_idlist (
 	h5_file_t* const f,
 	h5_idlist_t* list,
-	h5_loc_id_t item
+	const h5_loc_id_t item
 	) {
 	UNUSED_ARGUMENT (f);
 	if (!list) {
@@ -97,9 +97,17 @@ h5priv_find_idlist (
 	}
 	register h5_loc_idx_t low = 0;
 	register h5_loc_idx_t high = list->num_items - 1;
+	register h5_loc_id_t diff;
+	register h5_loc_id_t mid;
+	const h5_loc_id_t face_idx =  h5tpriv_get_face_idx(item);
+	const h5_loc_id_t elem_idx =  h5tpriv_get_elem_idx(item);
 	while (low <= high) {
-		register h5_loc_idx_t mid = (low + high) / 2;
-		register h5_loc_id_t diff = list->items[mid] - item;
+		mid = (low + high) / 2;
+		diff = h5tpriv_get_elem_idx(list->items[mid]) - elem_idx;
+		// if element indices are equal, we decide on the face indices
+		if (diff == 0) {
+			diff = h5tpriv_get_face_idx(list->items[mid]) - face_idx;
+		}
            	if ( diff > 0 )
                		high = mid - 1;
            	else if ( diff < 0 )

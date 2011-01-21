@@ -176,7 +176,9 @@ h5tpriv_rebuild_elem_indices_mapping (
 	return H5_SUCCESS;
 }
 
-
+/*
+  Get local vertex indices of entity given by it's local ID.
+ */
 h5_err_t
 h5t_get_vertex_indices_of_entity (
 	h5_file_t* const f,		// in
@@ -195,10 +197,13 @@ h5t_get_vertex_indices_of_entity (
 	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	int dim = map_entity_type_to_dimension[entity_type];
-
+	assert (dim >= 0);
 	return h5t_get_vertex_indices_of_entity2 (f, dim, face_idx, elem_idx, vertex_indices);
 }
 
+/*
+  Get local vertex indices of entity given by it's face and local element index.
+ */
 h5_err_t
 h5t_get_vertex_indices_of_entity2 (
 	h5_file_t* const f,		// [in]
@@ -212,7 +217,7 @@ h5t_get_vertex_indices_of_entity2 (
 	int num_vertices = ref_elem->num_vertices_of_face[dim][face_idx];
 	int i;
 	for (i = 0; i < num_vertices; i++) {
-		int idx = ref_elem->map[dim][face_idx][i];
+		int idx = h5tpriv_ref_elem_get_vertex_idx(f->t, dim, face_idx, i);
 		vertex_indices[i] = indices[idx];
 	}
 	return H5_SUCCESS;
@@ -271,10 +276,12 @@ h5t_get_vertex_indices_of_edge2 (
 	h5_loc_idx_t* vertex_indices	// OUT: vertex indices
 	) {
 	const h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
-	const h5t_ref_elem_t* ref_elem = f->t->ref_elem;
 
- 	vertex_indices[0] = indices[ ref_elem->map[1][face_idx][0] ];
-	vertex_indices[1] = indices[ ref_elem->map[1][face_idx][1] ];
+	h5_loc_idx_t idx;
+	idx = h5tpriv_ref_elem_get_vertex_idx (f->t, 1, face_idx, 0); 
+ 	vertex_indices[0] = indices[idx];
+	idx = h5tpriv_ref_elem_get_vertex_idx (f->t, 1, face_idx, 1);
+	vertex_indices[1] = indices[idx];
 	return H5_SUCCESS;
 }
 
@@ -297,13 +304,15 @@ h5t_get_vertex_indices_of_triangle2 (
 	const h5_loc_idx_t elem_idx,
 	h5_loc_idx_t* vertex_indices
 	) {
-	const h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (
-		f, elem_idx);
-	const h5t_ref_elem_t* ref_elem = f->t->ref_elem;
+	const h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (f, elem_idx);
 
- 	vertex_indices[0] = indices[ ref_elem->map[2][face_idx][0] ];
-	vertex_indices[1] = indices[ ref_elem->map[2][face_idx][1] ];
-	vertex_indices[2] = indices[ ref_elem->map[2][face_idx][2] ];
+	h5_loc_idx_t idx;
+	idx = h5tpriv_ref_elem_get_vertex_idx (f->t, 2, face_idx, 0); 
+ 	vertex_indices[0] = indices[idx];
+	idx = h5tpriv_ref_elem_get_vertex_idx (f->t, 2, face_idx, 1);
+	vertex_indices[1] = indices[idx];
+	idx = h5tpriv_ref_elem_get_vertex_idx (f->t, 2, face_idx, 2);
+	vertex_indices[2] = indices[idx];
 
 	return H5_SUCCESS;
 }
@@ -317,12 +326,16 @@ h5t_get_vertex_indices_of_tet (
 	const h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	const h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (
 		f, elem_idx);
-	const h5t_ref_elem_t* ref_elem = f->t->ref_elem;
 
- 	vertex_indices[0] = indices[ ref_elem->map[3][0][0] ];
-	vertex_indices[1] = indices[ ref_elem->map[3][0][1] ];
-	vertex_indices[2] = indices[ ref_elem->map[3][0][2] ];
-	vertex_indices[3] = indices[ ref_elem->map[3][0][3] ];
+	h5_loc_idx_t idx;
+	idx = h5tpriv_ref_elem_get_vertex_idx (f->t, 3, 0, 0); 
+ 	vertex_indices[0] = indices[idx];
+	idx = h5tpriv_ref_elem_get_vertex_idx (f->t, 3, 0, 1);
+	vertex_indices[1] = indices[idx];
+	idx = h5tpriv_ref_elem_get_vertex_idx (f->t, 3, 0, 2);
+	vertex_indices[2] = indices[idx];
+	idx = h5tpriv_ref_elem_get_vertex_idx (f->t, 3, 0, 3);
+	vertex_indices[3] = indices[idx];
 
 	return H5_SUCCESS;
 }

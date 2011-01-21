@@ -33,7 +33,7 @@ _get_lustre_stripe_size(h5_file_t *const f,  const char *path )
 	size_t nbytes = sizeof(struct lov_user_md) +
 				INIT_ALLOC_NUM_OSTS * sizeof(struct lov_user_ost_data);
 	struct lov_user_md *lum;
-	TRY( lum = h5_alloc(f, NULL, nbytes) );
+	TRY( lum = h5_calloc(f, 1, nbytes) );
 	lum->lmm_magic = LOV_USER_MAGIC;
 
 	int fd = open64(path, O_RDONLY);
@@ -84,7 +84,7 @@ _get_lustre_stripe_size(h5_file_t *const f,  const char *path )
 		_print_stripe_info(lum);
 
 	ssize_t stripe_size = (ssize_t)lum->lmm_stripe_size;
-	free(lum);
+	h5_free(f, lum);
 
 	return stripe_size;
 }
@@ -98,7 +98,7 @@ h5_optimize_for_lustre (
 	ssize_t stripe_size;
 	if ( f->myproc == 0 )
 	{
-		char *path = malloc(strlen(filename)+4);
+		char *path = h5_calloc(f, 1, strlen(filename)+4);
 		strcpy(path, filename);
 		/* check for existing file */
 		FILE *test = fopen(path, "r");
@@ -116,7 +116,7 @@ h5_optimize_for_lustre (
 
 		stripe_size = _get_lustre_stripe_size(f, path);
 
-		free(path);
+		h5_free(f, path);
 	}
 
 	TRY( h5priv_mpi_bcast(f, &stripe_size, 1, MPI_LONG_LONG, 0, f->comm) );

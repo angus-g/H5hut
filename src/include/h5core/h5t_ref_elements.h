@@ -10,11 +10,10 @@ typedef struct {
 	int entity_types[H5T_MAX_DIM+1];
 	int num_faces[H5T_MAX_DIM+1];
 	int num_vertices_of_face[H5T_MAX_DIM+1][H5T_MAX_FACES];
-	int map[H5T_MAX_DIM+1][H5T_MAX_FACES][H5T_MAX_VERTICES];
-	int edges_connected_to_vertex[H5T_MAX_VERTICES][H5T_MAX_FACES];
-	int triangles_connected_to_vertex[H5T_MAX_VERTICES][H5T_MAX_FACES];
+	int connect[H5T_MAX_DIM+1][H5T_MAX_DIM+1][H5T_MAX_FACES][H5T_MAX_FACES];
 	h5_float64_t coords[H5T_MAX_VERTICES][H5T_MAX_DIM];
 } h5t_ref_elem_t;
+
 
 extern const h5t_ref_elem_t h5t_tet_ref_elem;
 extern const h5t_ref_elem_t h5t_tri_ref_elem;

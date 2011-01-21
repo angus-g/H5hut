@@ -1247,7 +1247,7 @@ _iter_op_get_obj_type (
 
 	if ( info->type == H5L_TYPE_EXTERNAL ) {
 		char *buf;
-		TRY( buf = h5_alloc(f, NULL, info->u.val_size) );
+		TRY( buf = h5_calloc(f, 1, info->u.val_size) );
 
 		herr = H5Lget_val(g_id, name, buf,
 					info->u.val_size, H5P_DEFAULT);
@@ -1271,7 +1271,7 @@ _iter_op_get_obj_type (
 			"Followed external link to file '%s' / object '%s'.",
 			filename, objname);
 
-		free(buf);
+		h5_free(f, buf);
 
 		hid_t obj_id = H5Oopen(g_id, name, H5P_DEFAULT);
 		if ( obj_id < 0 )

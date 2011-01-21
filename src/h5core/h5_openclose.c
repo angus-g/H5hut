@@ -302,7 +302,7 @@ h5upriv_close_file (
 	TRY( h5priv_close_hdf5_dataspace (f, u->diskshape) );
 	TRY( h5priv_close_hdf5_dataspace (f, u->memshape) );
 	TRY( h5priv_close_hdf5_property (f, u->dcreate_prop) );
-	free (f->u);
+	h5_free (f, f->u);
 	f->u = NULL;
 
 	return f->__errno;
@@ -333,7 +333,7 @@ h5bpriv_close_file (
 #if defined(PARALLEL_IO)
 	TRY( h5priv_mpi_type_free (f, &b->partition_mpi_t) );
 #endif
-	free (f->b);
+	h5_free (f, f->b);
 	f->b = NULL;
 
 	return H5_SUCCESS;
@@ -368,9 +368,9 @@ h5_close_file (
 	TRY( h5priv_close_hdf5_property (f, f->create_prop) );
 	TRY( h5priv_close_hdf5_group (f, f->root_gid) );
 	TRY( h5priv_close_hdf5_file (f, f->file) );
-
-	free (f);
 	h5_debug (f, "%s (): done", __func__);
+
+	h5_free (f, f);
 	return H5_SUCCESS;
 }
 

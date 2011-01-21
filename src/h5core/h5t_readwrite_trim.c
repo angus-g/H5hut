@@ -14,7 +14,7 @@ init_loc_elems_struct (
 	const h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
 	h5t_lvl_idx_t level_idx = 0;
 	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
-	int num_facets = h5tpriv_ref_elem_get_num_faces (t,1);
+	int num_facets = h5tpriv_ref_elem_get_num_facets (t);
 	h5_loc_triangle_t* loc_elem = t->loc_elems.tris;
 	h5_glb_triangle_t* glb_elem = t->glb_elems.tris;
 
@@ -70,7 +70,7 @@ init_geom_boundary_info (
 	h5t_fdata_t* const t = f->t;
 	h5_loc_idx_t elem_idx = 0;
 	const h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
-	int num_facets = h5tpriv_ref_elem_get_num_faces (t, 1);
+	int num_facets = h5tpriv_ref_elem_get_num_facets (t);
 	h5_loc_triangle_t* loc_elem = t->loc_elems.tris;
 	h5_glb_triangle_t* glb_elem = t->glb_elems.tris;
 
@@ -87,46 +87,6 @@ init_geom_boundary_info (
 		if (i == num_facets) {
 			continue; // no facet on boundary
 		}
-
-#if 0
-		// mark elements which are edge- or vertex- adjacent to the boundary
-		// are there more facets on the boundary?
-		int j;
-		for (j = i+1; j < num_facets; j++) {
-			if (loc_elem->neighbor_indices[j] == -1) {
-				break; // found another boundary facet
-			}
-		}
-		// get vertex ID's of vertices on boundary
-		h5_loc_idx_t vertex_indices[4];
-		if (j < num_facets) {
-			// all vertices on boundary
-			vertex_indices[0] = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, 0);
-			vertex_indices[1] = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, 1);
-			vertex_indices[2] = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, 2);
-			num_vertices = 3;
-		} else {
-			// two vertices on boundary
-			// get vertices of edge i
-			h5_loc_idx_t face_idx;
-			face_idx = t->ref_elem->map[1][i][0];
-			vertex_indices[0] = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx);
-			face_idx = t->ref_elem->map[1][i][1];
-			vertex_indices[1] = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx);
-			num_vertices = 2;
-		}
-		// mark elements
-		for (i = 0; i < num_vertices; i++) {
-			// get upward adjacent elements
-			const h5_loc_idx_t vertex_idx = vertex_indices[i];
-			h5_idlist_t* list = &t->adjacencies.tv.v[vertex_idx];
-			// set flag
-			for (j=0; j < list->num_items; j++) {
-				h5_loc_idx_t idx = h5tpriv_get_elem_idx (list->items[j]);
-				t->loc_elems.tris[idx].flags |= H5T_BOUNDARY_ELEM_FLAG;
-			}
-		}
-#endif
 	}
 	return H5_SUCCESS;
 }

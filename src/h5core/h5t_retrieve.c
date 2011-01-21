@@ -15,10 +15,10 @@ iter_leaf_elem_idx (
 	do {
 		iter->elem_idx++;
 		if (iter->elem_idx >= f->t->num_elems[iter->leaf_level]) {
-			return H5_NOK;
+			return H5_NOK; // done
 		}
 		el = h5tpriv_get_loc_elem (f, iter->elem_idx);
-	} while (h5tpriv_elem_is_on_level (f, el, iter->leaf_level) == H5_NOK);
+	} while (!h5tpriv_is_leaf_elem (f, el));
 	return H5_SUCCESS;
 }
 
@@ -32,8 +32,8 @@ iterate_leaf_elems (
 		h5_debug ( f, "Traversing done!" );
 		return H5_NOK;
 	}
-	int dim = it->ref_elem->dim;
-	h5_loc_id_t type_id = it->ref_elem->entity_types[dim];
+	int dim = h5tpriv_ref_elem_get_dim (it);
+	h5_loc_id_t type_id = h5tpriv_ref_elem_get_entity_type (it, dim);
 	return h5tpriv_build_entity_id (type_id, 0, it->elem_idx );
 }
 
@@ -49,8 +49,8 @@ iterate_boundary_elems (
 			return H5_NOK;
 		}
 	} while (!h5tpriv_is_boundary_elem (f, it->elem_idx));
-	int dim = it->ref_elem->dim;
-	h5_loc_id_t type_id = it->ref_elem->entity_types[dim];
+	int dim = h5tpriv_ref_elem_get_dim (it);
+	h5_loc_id_t type_id = h5tpriv_ref_elem_get_entity_type (it, dim);
 	return h5tpriv_build_entity_id (type_id, 0, it->elem_idx );
 }
 
@@ -80,7 +80,7 @@ iterate_boundary_facets (
 			it->face_idx++;
 		}
 	} while (! h5tpriv_is_boundary_facet (f, it->elem_idx, it->face_idx));
-	int type = h5tpriv_ref_elem_get_entity_type (it->ref_elem, dim);
+	int type = h5tpriv_ref_elem_get_entity_type (it, dim);
 	return h5tpriv_build_entity_id (type, it->face_idx, it->elem_idx );
 }
 
@@ -120,7 +120,7 @@ iterate_leaf_faces (
 			i++;
 			h5_loc_idx_t idx = h5tpriv_get_elem_idx (entry->items[i]);
 			el = h5tpriv_get_loc_elem (f, idx);
-		} while (h5tpriv_elem_is_on_level (f, el, it->leaf_level) == H5_NOK);
+		} while (!h5tpriv_is_leaf_elem (f, el));
 
 		// 3. Face already visited if 
 	} while (it->elem_idx > h5tpriv_get_elem_idx(entry->items[i]));
@@ -130,7 +130,7 @@ iterate_leaf_faces (
 	  current level and the element index of entry->items[i] is the smallest
 	  element index with the given face on the current level.
 	*/
-	return entry->items[0];
+	return entry->items[i];
 }
 
 /*

@@ -3,6 +3,32 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
+
+h5_err_t
+h5tpriv_search_tv2 (
+	h5_file_t* const f,
+	h5_loc_idx_t face_idx,
+	h5_loc_idx_t elem_idx,
+	h5_idlist_t** idlist
+	) {
+	H5_CORE_API_ENTER;
+	h5_err_t ret_value = H5_SUCCESS;
+	h5t_fdata_t* t = f->t;
+
+	h5_loc_idx_t vertex_idx;
+	TRY2( ret_value = h5t_get_vertex_index_of_vertex2 (
+		      f,
+		      face_idx, elem_idx,
+		      &vertex_idx) );
+
+	TRY2( ret_value = h5priv_search_idlist (
+		      f,
+		      &t->adjacencies.tv.v[vertex_idx],
+		      h5tpriv_build_vertex_id (face_idx, elem_idx)) );
+
+	H5_CORE_API_RETURN (ret_value);
+}
+
 static int
 cmp_te_entries (
 	const void* __a,
@@ -18,14 +44,15 @@ compute_te_hashval (
 	const void* __item
 	) {
 	h5t_te_entry_t* item = (h5t_te_entry_t*)__item;
-	char* key = (char*)item->key.vids;
-	unsigned int count = 2 * sizeof (item->key.vids[0]);
+	uint16_t* key =  (uint16_t*)item->key.vids;
+	unsigned int count = 2*sizeof (item->key.vids[0]) / sizeof (uint16_t); 
 	unsigned int hval = count;
-	while (count-- > 0) {
-		if (key[count]) {
-			hval <<= 4;
-			hval += key[count];
+	while (count--) {
+		if (*key) {
+			hval <<= 6;
+			hval += *key;
 		}
+		key++;
 	}
 	return hval;
 }
@@ -123,8 +150,8 @@ h5tpriv_search_te2 (
 
   Passing item with type entry type.
 */
-h5_err_t
-h5tpriv_find_te (
+static inline h5_err_t
+find_te (
 	h5_file_t* const f,
 	h5t_te_entry_t* item,	// in: item to find
 	h5_idlist_t** idlist	// out: 
@@ -152,6 +179,20 @@ h5tpriv_find_te (
   Passing item with face and local element ID.
 */
 h5_err_t
+h5tpriv_find_te (
+	h5_file_t* const f,
+	h5_loc_idx_t edge_id,	// in
+	h5_idlist_t** idlist	// out
+	) {
+	h5t_te_entry_t item;
+	TRY( h5t_get_vertex_indices_of_edge (
+		     f,
+		     edge_id,
+		     item.key.vids) );
+	return find_te (f, &item, idlist);
+}
+
+h5_err_t
 h5tpriv_find_te2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,	// in
@@ -164,7 +205,7 @@ h5tpriv_find_te2 (
 		     face_idx,
 		     elem_idx,
 		     item.key.vids) );
-	return h5tpriv_find_te (f, &item, idlist);
+	return find_te (f, &item, idlist);
 }
 
 static int
@@ -177,12 +218,13 @@ cmp_td_entries (
 	return memcmp (a->key.vids, b->key.vids, sizeof(a->key.vids));
 }
 
+#if 0
 static unsigned int
 compute_td_hashval (
 	const void* __item
 	) {
 	h5t_te_entry_t* item = (h5t_te_entry_t*)__item;
-	char* key = (char*)item->key.vids;
+	unsigned char* key = (unsigned char*)item->key.vids;
 	unsigned int count = sizeof (h5_3id_t);
 	unsigned int hval = count;
 	while (count-- > 0) {
@@ -190,6 +232,25 @@ compute_td_hashval (
 			hval <<= 4;
 			hval += key[count];
 		}
+	}
+	return hval;
+}
+#endif
+
+static unsigned int
+compute_td_hashval (
+	const void* __item
+	) {
+	h5t_td_entry_t* item = (h5t_td_entry_t*)__item;
+	uint16_t* key =  (uint16_t*)item->key.vids;
+	unsigned int count = 3 * sizeof (item->key.vids[0]) / sizeof (uint16_t); 
+	unsigned int hval = count;
+	while (count--) {
+		if (*key) {
+			hval <<= 6;
+			hval += *key;
+		}
+		key++;
 	}
 	return hval;
 }
@@ -276,8 +337,8 @@ h5tpriv_search_td2 (
 	return H5_SUCCESS;
 }
 
-h5_err_t
-h5tpriv_find_td (
+static inline h5_err_t
+find_td (
 	h5_file_t* const f,
 	h5t_td_entry_t* item,
 	h5_idlist_t** idlist	// out
@@ -298,6 +359,20 @@ h5tpriv_find_td (
 }
 
 h5_err_t
+h5tpriv_find_td (
+	h5_file_t* const f,
+	h5_loc_idx_t triangle_id,
+	h5_idlist_t** idlist
+	) {
+	h5t_td_entry_t item;
+	TRY( h5t_get_vertex_indices_of_triangle (
+		     f,
+		     triangle_id,
+		     item.key.vids) );
+	return find_td (f, &item, idlist);
+}
+
+h5_err_t
 h5tpriv_find_td2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,
@@ -310,7 +385,7 @@ h5tpriv_find_td2 (
 		     face_idx,
 		     elem_idx,
 		     item.key.vids) );
-	return h5tpriv_find_td (f, &item, idlist);
+	return find_td (f, &item, idlist);
 }
 
 /*
