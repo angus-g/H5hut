@@ -35,7 +35,9 @@ print_adjacencies_of_vertex (
 		char t[256];
 		h5_id_t local_vids[4];
 		if (i == 0) {
-			snprintf (v, sizeof(v), "=%llx=", local_id);
+			H5FedGetVertexIndicesOfEntity (
+				f, local_id, local_vids);
+			snprintf (v, sizeof(v), "=[%lld]=", local_vids[0]);
 		} else {
 			*v = '\0';
 		}
@@ -98,13 +100,18 @@ print_adjacencies_of_edge (
 		char t[256];
 		h5_id_t local_vids[4];
 		if (i < dadj_vertices->num_items) {
+			H5FedGetVertexIndicesOfEntity (
+				f, dadj_vertices->items[i], local_vids);
 			snprintf (v, sizeof(v), "=[%lld]=",
-				   dadj_vertices->items[i]);
+				   local_vids[0]);
 		} else {
 			*v = '\0';
 		}
 		if (i == 0) {
-			snprintf (k, sizeof(k), "=%llx=", local_id);
+			H5FedGetVertexIndicesOfEntity (
+				f, local_id, local_vids);
+			snprintf (k, sizeof(k), "=[%lld,%lld]=",
+				  local_vids[0], local_vids[1]);
 		} else {
 			*k = '\0';
 		}
@@ -158,8 +165,10 @@ print_adjacencies_of_triangle (
 		char t[256];
 		h5_id_t local_vids[4];
 		if (i < dadj_vertices->num_items) {
+			H5FedGetVertexIndicesOfEntity (
+				f, dadj_vertices->items[i], local_vids);
 			snprintf (v, sizeof(v), "=[%lld]=",
-				   dadj_vertices->items[i]);
+				   local_vids[0]);
 		} else {
 			*v = '\0';
 		}
@@ -172,7 +181,10 @@ print_adjacencies_of_triangle (
 			*k = '\0';
 		}
 		if (i == 0) {
-			snprintf (d, sizeof(d), "=%llx=", local_id);
+			H5FedGetVertexIndicesOfEntity (
+				f, local_id, local_vids);
+			snprintf (d, sizeof(k), "=[%lld,%lld,%lld]=",
+				  local_vids[0], local_vids[1], local_vids[2]);
 		} else {
 			*d = '\0';
 		}
@@ -218,8 +230,10 @@ print_adjacencies_of_tet (
 		char t[256];
 		h5_id_t local_vids[4];
 		if (i < dadj_vertices->num_items) {
+			H5FedGetVertexIndicesOfEntity (
+				f, dadj_vertices->items[i], local_vids);
 			snprintf (v, sizeof(v), "=[%lld]=",
-				   dadj_vertices->items[i]);
+				   local_vids[0]);
 		} else {
 			*v = '\0';
 		}
@@ -240,7 +254,10 @@ print_adjacencies_of_tet (
 			*d = '\0';
 		}
 		if (i == 0) {
-			snprintf (t, sizeof(t), "=%llx=", local_id);
+			H5FedGetVertexIndicesOfEntity (
+				f, local_id, local_vids);
+			snprintf (d, sizeof(k), "=[%lld,%lld,%lld,%lld]=",
+				  local_vids[0], local_vids[1], local_vids[2], local_vids[2]);
 		} else {
 			*t = '\0';
 		}
@@ -264,9 +281,6 @@ traverse_vertices (
 	clock_t t = 0;
 	printf ("\nAdjacencies to vertices\n");
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 3);
-	fprintf (
-		stderr,
-		"Computing all adjacencies of all vertices ... ");
 	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
 		print_adjacencies_of_vertex (f, local_id, &t);
 		num++;
@@ -297,9 +311,6 @@ traverse_edges (
 	clock_t t = 0;
 	printf ("\nAdjacencies to edges\n");
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
-	fprintf (
-		stderr,
-		"Computing all adjacencies of all edges ... ");
 	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
 		print_adjacencies_of_edge (f, local_id, &t);
 		num++;
@@ -330,9 +341,6 @@ traverse_triangles (
 	clock_t t = 0;
 	printf ("\nAdjacencies to triangle\n");
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
-	fprintf (
-		stderr,
-		"Computing all adjacencies of all triangles ... ");
 	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
 		print_adjacencies_of_triangle (f, local_id, &t);
 		num++;
@@ -363,9 +371,6 @@ traverse_elems (
 	clock_t t = 0;
 	printf ("\nAdjacencies to tetrahedra\n");
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
-	fprintf (
-		stderr,
-		"Computing all adjacencies of all tetrahedra ... ");
 	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
 		print_adjacencies_of_tet (f, local_id, &t);
 		num++;
@@ -428,7 +433,7 @@ main (
 
 	/* abort program on error, so we don't have to handle them */
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (4);
+	H5SetVerbosityLevel (2);
 
 	/* open file and get number of meshes */
 	h5_file_t *f = H5OpenFile (FNAME, H5_O_RDONLY, 0);

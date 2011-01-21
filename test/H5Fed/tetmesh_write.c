@@ -20,7 +20,7 @@ typedef struct vertex {
 typedef struct elem {
 	h5_id_t vids[4];
 } elem_t;
-	       
+
 vertex_t Vertices[] = {
 	{{-1.0,  0.0,  0.0}},
 	{{ 1.0,  0.0,  0.0}},

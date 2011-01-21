@@ -5,7 +5,7 @@
 #include "H5hut.h"
 
 const h5_oid_t MESH_TYPE = H5_TETRAHEDRAL_MESH;
-const char* FNAME = "simple_tet.h5";
+const char* FNAME = "large_tet.h5";
 const h5_int32_t num_levels = 11;
 
 

@@ -11,7 +11,7 @@ static h5_err_t
 traverse_vertices (
 	h5_file_t* const f
 	) {
-	printf ( "Traversing vertices on level %lld:\n", H5FedGetLevel(f) );
+	printf ( "Traversing vertices on level %lld:\n", (long long)H5FedGetLevel(f) );
 
 	/* get number of vertices we have to expect */
 	h5_size_t num_vertices_expect = H5FedGetNumVerticesTotal (f);
@@ -51,7 +51,7 @@ static h5_err_t
 traverse_edges (
 	h5_file_t* const f
 	) {
-	printf ( "Travering edges on level %lld:\n", H5FedGetLevel(f) );
+	printf ( "Travering edges on level %lld:\n", (long long)H5FedGetLevel(f) );
 
 	/* get iterator for co-dim 2 entities, i.e. edges */
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
@@ -82,7 +82,7 @@ static h5_err_t
 traverse_triangles (
 	h5_file_t* const f
 	) {
-	printf ( "Travering triangles on level %lld:\n", H5FedGetLevel(f) );
+	printf ( "Travering triangles on level %lld:\n", (long long)H5FedGetLevel(f) );
 
 	/* get iterator for co-dim 1 entities, i.e. triangles */
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
@@ -114,7 +114,7 @@ static h5_err_t
 traverse_boundary_triangles (
 	h5_file_t* const f
 	) {
-	printf ( "Travering boundary triangles on level %lld:\n", H5FedGetLevel(f) );
+	printf ( "Travering boundary triangles on level %lld:\n", (long long)H5FedGetLevel(f) );
 
 	/* get iterator for co-dim 1 entities, i.e. triangles */
 	h5t_iterator_t* iter = H5FedBeginTraverseBoundaryFaces (f, 1);
@@ -225,10 +225,9 @@ main (
 	int argc,
 	char* argv[]
 	) {
-
 	/* abort program on error, so we don't have to handle them */
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (4);
+	H5SetVerbosityLevel (2);
 
 	/* open file and get number of meshes */
 	h5_file_t* f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
