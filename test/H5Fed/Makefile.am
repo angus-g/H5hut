@@ -24,6 +24,7 @@ noinst_PROGRAMS =				\
 		tetmesh_read_tags		\
 		trimesh_read			\
 		trimesh_write			\
+		trimesh_adjacencies		\
 		trimesh_write_dunetest
 
 #		map_tet2globalid \
@@ -31,12 +32,13 @@ noinst_PROGRAMS =				\
 
 # Extra files that I wish to include in the dist tar ball.
 EXTRA_DIST =					\
-		tetmesh_write.c			\
-		tetmesh_write2.c		\
-		tetmesh_read.c			\
 		tetmesh_adjacencies.c		\
-		tetmesh_write_tags.c		\
+		tetmesh_read.c			\
 		tetmesh_read_tags.c		\
+g		tetmesh_write.c			\
+		tetmesh_write2.c		\
+		tetmesh_write_tags.c		\
+		trimesh_adjacencies.c		\
 		trimesh_read.c			\
 		trimesh_write.c			\
 		trimesh_write_dunetest.c
