@@ -7,9 +7,9 @@ program H5PartTest
   include 'H5PartF.h'
 
 #ifdef PARALLEL_IO
-  integer :: comm, ierr, i
-  integer*8 :: file_id, status, npoints
+  integer :: comm, ierr
 #endif
+  integer*8 :: file_id, status, npoints, i
   real*8, allocatable :: x(:),y(:),z(:),px(:),py(:),pz(:)
   integer*8, allocatable :: id(:)
 
@@ -18,10 +18,10 @@ program H5PartTest
   comm = MPI_COMM_WORLD
 #endif
 
-  ! this enables level 3 ("info") messages to be
+  ! this enables level 4 ("debug") messages to be
   ! printed by the H5Part library
-  ! (3_8 is the literal for an integer*8 with value 3)
-  status = h5pt_set_verbosity_level (3_8)
+  ! (4_8 is the literal for an integer*8 with value 4)
+  status = h5pt_set_verbosity_level (4_8)
 
   ! open the a file called 'test.h5' in parallel for writing
 #ifdef PARALLEL_IO

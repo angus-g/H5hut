@@ -365,7 +365,7 @@ h5bl_has_fielddata (
 }
 
 h5part_int64_t
-h5b_3d_get_field_spacing (
+h5bl_3d_get_field_spacing (
 	h5part_int64_t *f,
 	const char *field_name,
 	h5part_float64_t *x,
@@ -386,7 +386,7 @@ h5b_3d_get_field_spacing (
 }
 
 h5part_int64_t
-h5b_3d_set_field_spacing (
+h5bl_3d_set_field_spacing (
 	h5part_int64_t *f,
 	const char *field_name,
 	const h5part_float64_t *x,
@@ -407,7 +407,7 @@ h5b_3d_set_field_spacing (
 }
 
 h5part_int64_t
-h5b_3d_get_field_origin (
+h5bl_3d_get_field_origin (
 	h5part_int64_t *f,
 	const char *field_name,
 	h5part_float64_t *x,
@@ -428,7 +428,7 @@ h5b_3d_get_field_origin (
 }
 
 h5part_int64_t
-h5b_3d_set_field_origin (
+h5bl_3d_set_field_origin (
 	h5part_int64_t *f,
 	const char *field_name,
 	const h5part_float64_t *x,

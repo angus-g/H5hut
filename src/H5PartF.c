@@ -623,7 +623,7 @@ h5pt_setview (
 
 	H5PartFile *filehandle = (H5PartFile*)(size_t)*f;
 
-	return H5PartSetView ( filehandle, *start, *end );
+	return H5PartSetView ( filehandle, (*start)-1, (*end)-1 );
 }
 
 h5part_int64_t
