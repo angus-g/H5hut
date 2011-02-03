@@ -11,16 +11,6 @@ alloc_tets (
 	) {
 	h5t_fdata_t *t = f->t;
 
-	/* alloc mem for elements */
-	TRY ( t->glb_elems.tets = h5_alloc (
-		      f,
-		      t->glb_elems.tets,
-		      new * sizeof(t->glb_elems.tets[0]) ) );
-	memset (
-		t->glb_elems.tets + cur,
-		-1,
-		(new-cur) * sizeof(t->glb_elems.tets[0]) );
-
 	/* alloc mem for local data of elements */
 	TRY ( t->loc_elems.tets = h5_alloc (
 		      f,
@@ -84,7 +74,7 @@ bisect_edge (
 	const h5_loc_idx_t elem_idx
 	) {
 	h5t_fdata_t* t = f->t;
-	h5_idlist_t* retval;
+	h5_loc_idlist_t* retval;
 	/*
 	  get all elements sharing the given edge
 	 */
@@ -220,7 +210,6 @@ refine_tet (
 	new_elem[3] = vertices[9];
 	TRY( h5t_store_elem (f, elem_idx, new_elem) );
 
-	// t->glb_elems.tets[elem_idx].child_idx = elem_idx_of_first_child;
 	t->loc_elems.tets[elem_idx].child_idx = elem_idx_of_first_child;
 	t->num_elems_on_leaf_level[t->leaf_level]--;
 
@@ -235,7 +224,7 @@ compute_neighbor_of_face (
 	) {
 
 	h5t_fdata_t * const t = f->t;
-	h5_idlist_t* td;
+	h5_loc_idlist_t* td;
 	h5_loc_idx_t neighbor_idx = -2;
 
 	do {

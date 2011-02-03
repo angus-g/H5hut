@@ -9,7 +9,7 @@ h5tpriv_search_tv2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
-	h5_idlist_t** idlist
+	h5_loc_idlist_t** idlist
 	) {
 	H5_CORE_API_ENTER;
 	h5_err_t ret_value = H5_SUCCESS;
@@ -63,7 +63,7 @@ release_te_entry (
 	const void* __entry
 	) {
 	struct h5_te_entry* entry = *(struct h5_te_entry**)__entry;
-	h5_idlist_t* list = entry->value;
+	h5_loc_idlist_t* list = entry->value;
 	TRY( h5priv_free_idlist (f, &list) );
 	TRY( h5_free (f, entry) );
 	return H5_SUCCESS;
@@ -94,7 +94,7 @@ h5tpriv_search_te2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
-	h5_idlist_t** idlist
+	h5_loc_idlist_t** idlist
 	) {
 	h5t_fdata_t* t = f->t;
 	h5t_adjacencies_t* a = &t->adjacencies;
@@ -154,7 +154,7 @@ static inline h5_err_t
 find_te (
 	h5_file_t* const f,
 	h5t_te_entry_t* item,	// in: item to find
-	h5_idlist_t** idlist	// out: 
+	h5_loc_idlist_t** idlist	// out: 
 	) {
 	void* __entry;
 	TRY( h5priv_hsearch (
@@ -182,7 +182,7 @@ h5_err_t
 h5tpriv_find_te (
 	h5_file_t* const f,
 	h5_loc_idx_t edge_id,	// in
-	h5_idlist_t** idlist	// out
+	h5_loc_idlist_t** idlist	// out
 	) {
 	h5t_te_entry_t item;
 	TRY( h5t_get_vertex_indices_of_edge (
@@ -197,7 +197,7 @@ h5tpriv_find_te2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,	// in
 	h5_loc_idx_t elem_idx,	// in 
-	h5_idlist_t** idlist	// out
+	h5_loc_idlist_t** idlist	// out
 	) {
 	h5t_te_entry_t item;
 	TRY( h5t_get_vertex_indices_of_edge2 (
@@ -217,25 +217,6 @@ cmp_td_entries (
 	h5t_td_entry_t* b = (h5t_td_entry_t*)__b;
 	return memcmp (a->key.vids, b->key.vids, sizeof(a->key.vids));
 }
-
-#if 0
-static unsigned int
-compute_td_hashval (
-	const void* __item
-	) {
-	h5t_te_entry_t* item = (h5t_te_entry_t*)__item;
-	unsigned char* key = (unsigned char*)item->key.vids;
-	unsigned int count = sizeof (h5_3id_t);
-	unsigned int hval = count;
-	while (count-- > 0) {
-		if (key[count]) {
-			hval <<= 4;
-			hval += key[count];
-		}
-	}
-	return hval;
-}
-#endif
 
 static unsigned int
 compute_td_hashval (
@@ -261,7 +242,7 @@ release_td_entry (
 	const void* __entry
 	) {
 	struct h5_td_entry* entry = *(struct h5_td_entry**)__entry;
-	h5_idlist_t* list = entry->value;
+	h5_loc_idlist_t* list = entry->value;
 	TRY( h5priv_free_idlist (f, &list) );
 	TRY( h5_free (f, entry) );
 	return H5_SUCCESS;
@@ -293,7 +274,7 @@ h5tpriv_search_td2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
-	h5_idlist_t** idlist	// out
+	h5_loc_idlist_t** idlist	// out
 	) {
 	h5t_fdata_t* t = f->t;
 	h5t_adjacencies_t* a = &f->t->adjacencies;
@@ -341,7 +322,7 @@ static inline h5_err_t
 find_td (
 	h5_file_t* const f,
 	h5t_td_entry_t* item,
-	h5_idlist_t** idlist	// out
+	h5_loc_idlist_t** idlist	// out
 	) {
 	void* __entry;
 	h5priv_hsearch (
@@ -362,7 +343,7 @@ h5_err_t
 h5tpriv_find_td (
 	h5_file_t* const f,
 	h5_loc_idx_t triangle_id,
-	h5_idlist_t** idlist
+	h5_loc_idlist_t** idlist
 	) {
 	h5t_td_entry_t item;
 	TRY( h5t_get_vertex_indices_of_triangle (
@@ -377,7 +358,7 @@ h5tpriv_find_td2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
-	h5_idlist_t** idlist
+	h5_loc_idlist_t** idlist
 	) {
 	h5t_td_entry_t item;
 	TRY( h5t_get_vertex_indices_of_triangle2 (
@@ -396,7 +377,7 @@ h5tpriv_find_tv2 (
 	h5_file_t* const f,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
-	h5_idlist_t** idlist
+	h5_loc_idlist_t** idlist
 	) {
 	h5_loc_idx_t idx;
 	TRY( idx = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx) );

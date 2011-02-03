@@ -142,23 +142,23 @@ create_tag_types (
 	h5_dtypes_t* dtypes = &f->t->dtypes;
 
 	TRY (
-		dtypes->h5t_tag_idx_t = h5priv_create_hdf5_type (
+		dtypes->h5t_glb_tag_idx_t = h5priv_create_hdf5_type (
 			f,
 			H5_COMPOUND_T,
-			sizeof (h5t_tag_idx_t)) );
+			sizeof (h5t_glb_tag_idx_t)) );
 	TRY (
 		h5priv_insert_hdf5_type (
 			f,
-			dtypes->h5t_tag_idx_t,
+			dtypes->h5t_glb_tag_idx_t,
 			"eid",
-			HOFFSET (h5t_tag_idx_t, eid),
+			HOFFSET (h5t_glb_tag_idx_t, eid),
 			H5_ID_T) );
 	TRY (
 		h5priv_insert_hdf5_type (
 			f,
-			dtypes->h5t_tag_idx_t,
+			dtypes->h5t_glb_tag_idx_t,
 			"idx",
-			HOFFSET (h5t_tag_idx_t, idx),
+			HOFFSET (h5t_glb_tag_idx_t, idx),
 			H5_ID_T) );
 
 	return H5_SUCCESS;
@@ -500,8 +500,6 @@ release_elems (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
-	TRY( h5_free (f, t->glb_elems.data) );
-	t->glb_elems.data = NULL;
 	TRY( h5_free (f, t->loc_elems.data) );
 	t->loc_elems.data = NULL;
 	TRY( h5_free (f, t->num_elems) );

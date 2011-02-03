@@ -148,7 +148,7 @@ add_tagset (
 	// check if a tagset with given name already exists
 	h5_err_t h5err;
 	TRY( h5err = tagset_exists (f, ctn, name) );
-	if (h5err != H5_SUCCESS) {
+	if (h5err == H5_SUCCESS) {
 		return h5_error (f, H5_ERR_INVAL,
 				 "Tagset with name %s already exists!",
 				 name);
@@ -163,6 +163,8 @@ add_tagset (
 	TRY( tagset->name = h5priv_strdup (f, name) );
 	tagset->type = type;
 	tagset->num_elems = t->num_elems[t->num_leaf_levels-1];
+	tagset->scope.min_level = 32767;
+	tagset->scope.max_level = -1;
 
 	// add tagset to hash of tagsets
 	TRY( h5priv_hsearch (f, tagset, H5_ENTER, NULL, &ctn->sets) );
@@ -465,7 +467,7 @@ set_tag (
 	}
 	h5t_tageleminfo_t* eleminfo = tagset->elems[elem_idx];
 	int i = find_face_id (eleminfo, face_id);
-	h5t_taginfo_t* ti = eleminfo->ti + i; // maybe an invalid pointer!!!
+	h5t_taginfo_t* ti = eleminfo->ti + i;
 	if (i >= 0 && dim != ti->val_dim) {
 		/*
 		  This is a very unusual case! So the processing can be
@@ -669,7 +671,7 @@ open_space_all (
 }
 
 /*
-  Store given tagset.
+  Write tagset to disk.
  */
 static h5_err_t
 write_tagset (
@@ -680,12 +682,12 @@ write_tagset (
 	h5t_fdata_t* t = f->t;
 	h5t_tageleminfo_t** eleminfos = tagset->elems;
 	hid_t group_id;
-	h5t_tag_idx_t* elems = NULL;
-	h5t_tag_idx_t* elem = NULL;
+	h5t_glb_tag_idx_t* elems = NULL;   // in memory dataset
+	h5t_glb_tag_idx_t* elem = NULL;	   // reference an element in elems
 	h5_loc_idx_t num_elems = 0;
-	h5t_tag_idx_t* entities = NULL;
-	h5t_tag_idx_t* entity = NULL;
-	h5t_tagval_t* values = NULL;
+	h5t_glb_tag_idx_t* entities = NULL;// in memory dataset
+	h5t_glb_tag_idx_t* entity = NULL;  // reference an element in entities
+	h5t_tagval_t* values = NULL;	   // in memory dataset
 
 	h5_loc_idx_t elem_idx = 0;
 	h5_loc_idx_t entity_idx = 0;
@@ -722,10 +724,11 @@ write_tagset (
 
 		// loop over tagged faces of this element
 		int ti_idx;
-		for (ti_idx = 0; ti_idx < eleminfo->num_tags; ti_idx++) {
+		for (ti_idx = 0; eleminfo && ti_idx < eleminfo->num_tags; ti_idx++) {
 			h5t_taginfo_t* ti = eleminfo->ti+ti_idx;
-
-			entity->eid = h5tpriv_build_entity_id2 (ti->face_id, elem_idx);
+			h5_glb_idx_t glb_elem_idx = h5tpriv_get_loc_elem_glb_idx (f, elem_idx);
+			entity->eid = h5tpriv_build_entity_id2 (
+				(h5_glb_id_t)ti->face_id, glb_elem_idx);
 			entity->idx = val_idx;
 
 			// copy values 
@@ -737,7 +740,7 @@ write_tagset (
 			entity++;
 		}
 		elem_idx++;
-		     eleminfos++;
+		eleminfos++;
 		elem++;
 	}
 	elem->eid = -1;		// last entry
@@ -756,7 +759,7 @@ write_tagset (
 
 	strcpy (dsinfo.name, "elems");
 	dsinfo.dims[0] = num_elems + 1;
-	dsinfo.type_id = t->dtypes.h5t_tag_idx_t;
+	dsinfo.type_id = t->dtypes.h5t_glb_tag_idx_t;
 	TRY( dsinfo.create_prop = h5priv_create_hdf5_property (f,
 							H5P_DATASET_CREATE ) );
 	TRY( h5priv_set_hdf5_chunk_property (f, dsinfo.create_prop, dsinfo.rank,
@@ -787,10 +790,14 @@ write_tagset (
 		     f,
 		     group_id,
 		     &dsinfo,
-		      open_space_all, open_space_all,
+		     open_space_all, open_space_all,
 		     values) );
-
+	h5_int64_t scope = tagset->scope.min_level;
+	TRY( h5priv_write_attrib (f, group_id, "__scope_min__", H5_INT64_T, &scope, 1) );
+	scope = tagset->scope.max_level;
+	TRY( h5priv_write_attrib (f, group_id, "__scope_max__", H5_INT64_T, &scope, 1) );
 cleanup:
+	TRY( h5priv_close_hdf5_group (f, group_id) );
 	TRY( h5_free (f, elems) );
 	TRY( h5_free (f, entities) );
 	TRY( h5_free (f, values) );
@@ -861,7 +868,7 @@ read_tagset (
 	/*
 	  read datasets: "elems", "entities" and "values"
 	*/
-	h5t_tag_idx_t* elems;
+	h5t_glb_tag_idx_t* elems;
 	size_t num_elems = 0;
 
 	TRY( dset_id = h5priv_open_hdf5_dataset (f, group_id, "elems") );
@@ -869,7 +876,7 @@ read_tagset (
 	TRY( elems = h5_calloc (f, num_elems, sizeof(*elems)) );
 	h5_dsinfo_t dsinfo;
 	memset (&dsinfo, 0, sizeof (dsinfo));
-	dsinfo.type_id = t->dtypes.h5t_tag_idx_t;
+	dsinfo.type_id = t->dtypes.h5t_glb_tag_idx_t;
 	TRY( h5priv_read_dataset (
 		     f,
 		     dset_id,
@@ -879,7 +886,7 @@ read_tagset (
 	TRY( h5priv_close_hdf5_dataset (f, dset_id) );
 	num_elems--;
 
-	h5t_tag_idx_t* entities;
+	h5t_glb_tag_idx_t* entities;
 	size_t ent_idx = 0;
 	size_t num_entities = 0;
 	TRY( dset_id = h5priv_open_hdf5_dataset (f, group_id, "entities") );
@@ -913,14 +920,27 @@ read_tagset (
 	*/
 	h5t_tagset_t* tagset;
 	TRY( add_tagset (f, ctn, name, type, &tagset) );
+
+	h5_int64_t scope;
+	TRY( h5priv_read_attrib (f, group_id, "__scope_min__", H5_INT64_T, &scope) );
+	tagset->scope.min_level = scope;
+	TRY( h5priv_read_attrib (f, group_id, "__scope_max__", H5_INT64_T, &scope) );
+	tagset->scope.max_level = scope;
+
 	for (ent_idx = 0; ent_idx < num_entities; ent_idx++) {
-		h5t_tag_idx_t *entity = &entities[ent_idx];
+		h5t_glb_tag_idx_t *entity = &entities[ent_idx];
 		size_t dim = (entity+1)->idx - entity->idx;
+		// map global face id and global element idx to local
+		h5_loc_idx_t face_id;
+		h5_loc_idx_t elem_idx;
+		h5_glb_idx_t glb_elem_idx = h5tpriv_get_elem_idx (entity->eid);
+		TRY( elem_idx = h5t_map_glb_elem_idx2loc (f, glb_elem_idx) );
+		face_id = h5tpriv_get_face_id (entity->eid);
 		TRY( set_tag (
 			     f,
 			     tagset,
-			     h5tpriv_get_face_id (entity->eid),
-			     h5tpriv_get_elem_idx (entity->eid),
+			     face_id,
+			     elem_idx,
 			     dim,
 			     &vals[entity->idx] ) );
 	}

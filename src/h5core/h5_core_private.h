@@ -28,6 +28,7 @@ done:						\
 
 #include "h5_types_private.h"
 
+#include "h5_attribs_private.h"
 #include "h5_errorhandling_private.h"
 #include "h5_fcmp_private.h"
 #include "h5_hdf5_private.h"

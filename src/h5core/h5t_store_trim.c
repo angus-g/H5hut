@@ -11,16 +11,6 @@ alloc_triangles (
 	) {
 	h5t_fdata_t *t = f->t;
 
-	/* alloc mem for elements */
-	TRY ( t->glb_elems.tris = h5_alloc (
-		      f,
-		      t->glb_elems.tris,
-		      new * sizeof(t->glb_elems.tris[0]) ) );
-	memset (
-		t->glb_elems.tris + cur,
-		-1,
-		(new-cur) * sizeof(t->glb_elems.tris[0]) );
-
 	/* alloc mem for local data of elements */
 	TRY ( t->loc_elems.tris = h5_alloc (
 		      f,
@@ -78,7 +68,7 @@ bisect_edge (
 	const h5_loc_idx_t elem_idx
 	) {
 	h5t_fdata_t* const t = f->t;
-	h5_idlist_t* retval;
+	h5_loc_idlist_t* retval;
 	/*
 	  get all elements sharing the given edge
 	 */
@@ -179,7 +169,6 @@ refine_triangle (
 	new_elem[2] = vertices[5];
 	TRY( h5t_store_elem (f, elem_idx, new_elem) );
 
-	t->glb_elems.tris[elem_idx].child_idx = elem_idx_of_first_child;
 	t->loc_elems.tris[elem_idx].child_idx = elem_idx_of_first_child;
 	t->num_elems_on_leaf_level[t->leaf_level]--;
 
@@ -194,7 +183,7 @@ compute_neighbor_of_face (
 	) {
 
 	h5t_fdata_t * const t = f->t;
-	h5_idlist_t* te;
+	h5_loc_idlist_t* te;
 	h5_loc_idx_t neighbor_idx = -2;
 
 	do {

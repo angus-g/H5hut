@@ -6,7 +6,7 @@ struct h5t_adjacency_methods {
 	h5_err_t (*release_internal_structs)(h5_file_t* const);
 	h5_err_t (*get_adjacencies)(
 		h5_file_t * const,
-		const h5_loc_id_t, const h5_int32_t, h5_idlist_t**);
+		const h5_loc_id_t, const h5_int32_t, h5_loc_idlist_t**);
 };
 
 extern struct h5t_adjacency_methods h5tpriv_trim_adjacency_methods;
@@ -17,7 +17,7 @@ h5tpriv_get_adjacencies (
 	h5_file_t* const f,
 	const h5_loc_id_t entity_id,
 	const h5_int32_t dim,
-	h5_idlist_t** list
+	h5_loc_idlist_t** list
 	) {
 	if (f->t->methods.adjacency == NULL) {
 		h5_error_internal (f, __FILE__, __func__, __LINE__);

@@ -106,7 +106,7 @@ H5FedEndTraverseEntities (
 h5_err_t
 H5FedGetVertexCoordsByIndex (
 	h5_file_t* const f,
-	h5_id_t vertex_index,
+	h5_loc_idx_t vertex_index,
 	h5_float64_t P[3]
 	) {
 	H5_API_ENTER;
@@ -117,7 +117,7 @@ H5FedGetVertexCoordsByIndex (
 h5_err_t
 H5FedGetVertexCoordsByID (
 	h5_file_t* const f,
-	h5_id_t vertex_id,
+	h5_loc_id_t vertex_id,
 	h5_float64_t P[3]
 	) {
 	H5_API_ENTER;
@@ -128,8 +128,8 @@ H5FedGetVertexCoordsByID (
 h5_err_t
 H5FedGetVertexIndicesOfEdge (
 	h5_file_t* const f,
-	h5_id_t entity_id,
-	h5_id_t* vertex_indices
+	h5_loc_id_t entity_id,
+	h5_loc_idx_t* vertex_indices
 	) {
 	H5_API_ENTER;
 	h5_err_t h5err = h5t_get_vertex_indices_of_edge (f, entity_id, vertex_indices);
@@ -139,8 +139,8 @@ H5FedGetVertexIndicesOfEdge (
 h5_err_t
 H5FedGetVertexIndicesOfTriangle (
 	h5_file_t* const f,
-	h5_id_t entity_id,
-	h5_id_t* vertex_indices
+	h5_loc_id_t entity_id,
+	h5_loc_idx_t* vertex_indices
 	) {
 	H5_API_ENTER;
 	h5_err_t h5err = h5t_get_vertex_indices_of_triangle (f, entity_id, vertex_indices);
@@ -150,8 +150,8 @@ H5FedGetVertexIndicesOfTriangle (
 h5_err_t
 H5FedGetVertexIndicesOfTet (
 	h5_file_t* const f,
-	h5_id_t entity_id,
-	h5_id_t* vertex_indices
+	h5_loc_id_t entity_id,
+	h5_loc_idx_t* vertex_indices
 	) {
 	H5_API_ENTER
 	h5_err_t h5err = h5t_get_vertex_indices_of_tet (f, entity_id, vertex_indices);
@@ -161,8 +161,8 @@ H5FedGetVertexIndicesOfTet (
 h5_err_t
 H5FedGetVertexIndicesOfEntity (
 	h5_file_t* const f,
-	h5_id_t entity_id,
-	h5_id_t* vertex_indices
+	h5_loc_id_t entity_id,
+	h5_loc_idx_t* vertex_indices
 	) {
 	H5_API_ENTER;
 	h5_err_t h5err = h5t_get_vertex_indices_of_entity (f, entity_id, vertex_indices);

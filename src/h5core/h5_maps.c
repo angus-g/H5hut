@@ -16,7 +16,7 @@
 h5_err_t
 h5priv_alloc_idlist (
 	h5_file_t* const f,
-	h5_idlist_t** list,
+	h5_loc_idlist_t** list,
 	const h5_size_t	size
 	) {
 	TRY( *list = h5_calloc (f, 1, sizeof (**list)+size*sizeof ((*list)->items[0])) );
@@ -27,7 +27,7 @@ h5priv_alloc_idlist (
 h5_err_t
 h5priv_free_idlist (
 	h5_file_t* const f,
-	h5_idlist_t** list
+	h5_loc_idlist_t** list
 	) {
 	if (*list == NULL) return H5_SUCCESS;
 	TRY( h5_free( f, *list) );
@@ -38,7 +38,7 @@ h5priv_free_idlist (
 static inline h5_err_t
 grow_idlist (
 	h5_file_t* const f,
-	h5_idlist_t** list,
+	h5_loc_idlist_t** list,
 	size_t new_size
 	) {
 	size_t bytes_to_allocate = sizeof (**list) + (new_size-1)*sizeof((*list)->items[0]);
@@ -53,7 +53,7 @@ grow_idlist (
 h5_loc_idx_t
 h5priv_insert_idlist (
 	h5_file_t* const f,
-	h5_idlist_t** list,
+	h5_loc_idlist_t** list,
 	h5_loc_id_t id,
 	h5_loc_idx_t idx
 	) {
@@ -68,7 +68,7 @@ h5priv_insert_idlist (
 		}
 		TRY( grow_idlist (f, list, size) );
 	}
-	h5_idlist_t* l = *list;
+	h5_loc_idlist_t* l = *list;
 	if (idx == -1) {
 		idx = l->num_items;
 	} else {
@@ -88,7 +88,7 @@ h5priv_insert_idlist (
 h5_loc_id_t
 h5priv_find_idlist (
 	h5_file_t* const f,
-	h5_idlist_t* list,
+	h5_loc_idlist_t* list,
 	const h5_loc_id_t item
 	) {
 	UNUSED_ARGUMENT (f);
@@ -125,7 +125,7 @@ h5priv_find_idlist (
 h5_loc_idx_t
 h5priv_search_idlist (
 	h5_file_t* const f,
-	h5_idlist_t** list,
+	h5_loc_idlist_t** list,
 	h5_loc_id_t item
 	) {
 	h5_loc_idx_t idx = h5priv_find_idlist (f, *list, item);

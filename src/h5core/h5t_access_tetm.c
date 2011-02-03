@@ -2,6 +2,8 @@
 #include "h5_core_private.h"
 
 /*** op's on local elements ***/
+
+
 static h5_generic_loc_elem_t*
 get_loc_elem (
 	h5_file_t* const f,
@@ -9,6 +11,24 @@ get_loc_elem (
 	) {
 	h5_loc_tet_t* elem = &f->t->loc_elems.tets[elem_idx];
 	return (h5_generic_loc_elem_t*)elem;
+}
+
+static h5_glb_idx_t
+get_loc_elem_glb_idx (
+	h5_file_t* const f,
+	const h5_loc_idx_t elem_idx
+	) {
+	return f->t->loc_elems.tets[elem_idx].glb_idx;
+}
+
+static h5_glb_idx_t
+set_loc_elem_glb_idx (
+	h5_file_t* const f,
+	const h5_loc_idx_t elem_idx,
+	const h5_glb_idx_t glb_idx
+	) {
+	f->t->loc_elems.tets[elem_idx].glb_idx = glb_idx;
+	return glb_idx;
 }
 
 static h5_loc_idx_t
@@ -311,6 +331,8 @@ is_boundary_face (
 
 struct h5t_access_methods h5tpriv_access_tetm_methods = {
 	get_loc_elem,
+	get_loc_elem_glb_idx,
+	set_loc_elem_glb_idx,
 	get_loc_elem_parent_idx,
 	set_loc_elem_parent_idx,
 	get_loc_elem_child_idx,

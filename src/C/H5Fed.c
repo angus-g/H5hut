@@ -38,7 +38,7 @@ H5FedCloseMesh (
 h5_err_t
 H5FedSetLevel (
 	h5_file_t* const f,
-	const h5_id_t level_id
+	const h5t_lvl_idx_t level_id
 	) {
 	H5_API_ENTER;
 	h5_err_t h5err = h5t_set_level (f, level_id);

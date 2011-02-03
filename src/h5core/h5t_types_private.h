@@ -6,10 +6,7 @@ typedef struct h5_glb_vertex {
 	h5_coord3d_t	P;
 } h5_glb_vertex_t;
 
-typedef struct h5_loc_vertex {
-	h5_loc_idx_t	idx;
-	h5_coord3d_t	P;
-} h5_loc_vertex_t;
+typedef struct h5_glb_vertex h5_loc_vertex_t;
 
 typedef struct h5_glb_triangle {
 	h5_glb_idx_t	idx;
@@ -92,13 +89,13 @@ typedef struct h5_dtypes {
 	hid_t		h5_vertex_t;		/* vertex structure */
 	hid_t		h5_triangle_t;		/* triangle structure */
 	hid_t		h5_tet_t;		/* tetrahedron structure */
-	hid_t		h5t_tag_idx_t;
+	hid_t		h5t_glb_tag_idx_t;
 } h5_dtypes_t;
 
 typedef struct h5t_adjacencies {
 	struct {
 		// h5_size_t size;
-		h5_idlist_t** v;
+		h5_loc_idlist_t** v;
 	} tv;
 	h5_hashtable_t te_hash;
 	h5_hashtable_t td_hash;
@@ -166,7 +163,7 @@ typedef struct h5t_fdata {
 	h5_dsinfo_t	dsinfo_num_elems;
 	h5_dsinfo_t	dsinfo_num_elems_on_leaf_level;
 
-	h5_idlist_t*	marked_entities;
+	h5_loc_idlist_t* marked_entities;
 
 	/*** Adjacencies ***/
 	h5t_adjacencies_t adjacencies;

@@ -11,8 +11,8 @@ typedef struct {
 	h5_loc_idx_t elem_idx;
 	h5_loc_idx_t face_idx;	// face according reference element
 	int codim;		// dimension of entities to traverse
-	h5_err_t (*find)(h5_file_t *const f, h5_id_t face_idx,
-			 h5_id_t elem_idx, h5_idlist_t **retval);
+	h5_err_t (*find)(h5_file_t *const f, h5_loc_id_t face_idx,
+			 h5_loc_id_t elem_idx, h5_loc_idlist_t **retval);
 } h5t_leaf_iterator_t;
 
 typedef struct {
@@ -22,8 +22,8 @@ typedef struct {
 	h5_loc_idx_t elem_idx;
 	h5_loc_idx_t face_idx;	// face  according reference element
 	int codim;		// dimension of entities to traverse
-	h5_err_t (*find)(h5_file_t *const f, h5_id_t face_idx,
-			 h5_id_t elem_idx, h5_idlist_t **retval);
+	h5_err_t (*find)(h5_file_t *const f, h5_loc_id_t face_idx,
+			 h5_loc_id_t elem_idx, h5_loc_idlist_t **retval);
 } h5t_level_iterator_t;
 
 typedef struct {
@@ -73,7 +73,7 @@ h5t_release_entity_iterator (
 	h5t_iterator_t* iter
 	);
 
-h5_id_t
+h5_loc_id_t
 h5t_iterate_entities (
 	h5_file_t * const f,
 	h5t_iterator_t *iter

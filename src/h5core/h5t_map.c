@@ -167,7 +167,7 @@ h5tpriv_rebuild_elem_indices_mapping (
 	h5_idxmap_el_t *item = &t->map_elem_g2l.items[loc_idx];
 
 	for (; loc_idx < num_loc_elems; loc_idx++, item++) {
-		item->glb_idx = h5tpriv_get_glb_elem_idx (f, loc_idx);
+		item->glb_idx = h5tpriv_get_loc_elem_glb_idx (f, loc_idx);
 		item->loc_idx = loc_idx;
 		t->map_elem_g2l.num_items++;
 	}
@@ -185,19 +185,18 @@ h5t_get_vertex_indices_of_entity (
 	const h5_loc_id_t entity_id,	// in
 	h5_loc_idx_t* vertex_indices   	// out
 	) {
-	static int map_entity_type_to_dimension[] = {
-		-1,
-		[H5_OID_VERTEX] = 0,
-		[H5_OID_EDGE] = 1,
-		[H5_OID_TRIANGLE] = 2,
-		[H5_OID_TETRAHEDRON] = 3
-	};
-
-	h5_loc_id_t entity_type = h5tpriv_get_entity_type (entity_id);
+	h5_loc_idx_t type = h5tpriv_get_entity_type (entity_id);
 	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	int dim = map_entity_type_to_dimension[entity_type];
-	assert (dim >= 0);
+	int dim = 0;
+	switch (type) {
+	case H5T_TYPE_VERTEX:   dim = 0; break;
+	case H5T_TYPE_EDGE:     dim = 1; break;
+	case H5T_TYPE_TRIANGLE: dim = 2; break;
+	case H5T_TYPE_TET:      dim = 3; break;
+	default:
+		h5_error_internal (f, __FILE__, __func__, __LINE__);
+	}
 	return h5t_get_vertex_indices_of_entity2 (f, dim, face_idx, elem_idx, vertex_indices);
 }
 

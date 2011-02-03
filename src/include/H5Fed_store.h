@@ -55,10 +55,10 @@ H5FedBeginStoreElements (
 	);
 
 
-h5_err_t
+h5_loc_idx_t
 H5FedStoreElement (
-	h5_file_t * const f,
-	const h5_loc_idx_t vertex_indices[]
+	h5_file_t* const f,
+	const h5_loc_idx_t local_vids[]
 	);
 
 h5_err_t

@@ -42,7 +42,7 @@ H5FedCloseMesh (
 h5_err_t
 H5FedSetLevel (
 	h5_file_t * f,
-	const h5_id_t level_id
+	const h5t_lvl_idx_t level_id
 	);
 
 h5_err_t

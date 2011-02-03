@@ -93,7 +93,7 @@ iterate_leaf_faces (
 	h5t_iterator_t* iter
 	) {
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)iter;
-	h5_idlist_t* entry;
+	h5_loc_idlist_t* entry;
 	int dim = h5tpriv_ref_elem_get_dim (it) - it->codim;
 	int num_faces = h5tpriv_ref_elem_get_num_faces (it, dim) - 1;
 	int i = -1;

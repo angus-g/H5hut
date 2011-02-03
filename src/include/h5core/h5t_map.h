@@ -1,9 +1,9 @@
 #ifndef __H5T_MAP_H
 #define __H5T_MAP_H
 
-h5_id_t
+h5_loc_idx_t
 h5t_map_global_vertex_idx2local (
-	h5_file_t * const f,
+	h5_file_t* const f,
 	h5_glb_idx_t glb_idx
 	);
 
@@ -33,7 +33,7 @@ h5_err_t
 h5t_get_vertex_index_of_vertex (
 	h5_file_t* const f,
 	const h5_loc_id_t entity_id,
-	h5_id_t* vertex_index
+	h5_loc_idx_t* vertex_index
 	);
 
 h5_err_t

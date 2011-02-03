@@ -18,7 +18,7 @@ h5t_begin_store_vertices (
 	const h5_size_t num
 	);
 
-h5_id_t
+h5_loc_id_t
 h5t_store_vertex (
 	h5_file_t * const f,
 	const h5_glb_id_t glb_id,
@@ -53,7 +53,7 @@ h5t_begin_refine_elems (
 	h5_file_t * const f
 	);
 
-h5_id_t
+h5_err_t
 h5t_refine_marked_elems (
 	h5_file_t * const f
 	);

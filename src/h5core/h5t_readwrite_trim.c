@@ -1,3 +1,4 @@
+#include <string.h>
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
@@ -91,7 +92,85 @@ init_geom_boundary_info (
 	return H5_SUCCESS;
 }
 
+/*
+  Alloc mem for elements
+*/
+static h5_err_t
+alloc_glb_elems_struct (
+	h5_file_t* const f,
+	h5_loc_idx_t num_elems
+	) {
+	h5t_fdata_t* const t = f->t;
+
+	TRY ( t->glb_elems.tris = h5_calloc (
+		      f,
+		      num_elems,
+		      sizeof(t->glb_elems.tris[0]) ) );
+	memset (
+		t->glb_elems.tris,
+		-1,
+		(num_elems) * sizeof(t->glb_elems.tris[0]) );
+	return H5_SUCCESS;
+}
+
+static h5_err_t
+init_glb2loc_elem_map (
+	h5_file_t* const f
+	) {
+	h5_debug (f, "%s()", __func__);
+	h5t_fdata_t* t = f->t;
+
+	if (t->num_leaf_levels <= 0) return H5_SUCCESS;
+
+	h5_loc_idx_t loc_idx = 0;
+	h5_loc_idx_t num_loc_elems = t->num_elems[t->num_leaf_levels-1];
+	h5_idxmap_el_t* item = &t->map_elem_g2l.items[loc_idx];
+	h5_glb_triangle_t* elem = t->glb_elems.tris;
+
+	for (; loc_idx < num_loc_elems; elem++, loc_idx++, item++) {
+		item->glb_idx = elem->idx;
+		item->loc_idx = loc_idx;
+		t->map_elem_g2l.num_items++;
+	}
+	h5priv_sort_idxmap (&t->map_elem_g2l);
+
+	return H5_SUCCESS;
+}
+
+/*
+  Setup data structure to be written on disk. We always write the hole mesh. 
+*/
+static h5_err_t
+init_glb_elems_struct (
+	h5_file_t* const f
+	) {
+	h5t_fdata_t* const t = f->t;
+	h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
+
+	// simple in serial runs: global index = local index
+	h5_loc_triangle_t* loc_elem = t->loc_elems.tris;
+	h5_glb_triangle_t* glb_elem = t->glb_elems.tris;
+	h5_loc_triangle_t* end = loc_elem + num_elems;
+
+	while (loc_elem < end) {
+		glb_elem->idx = loc_elem->glb_idx;
+		glb_elem->parent_idx = loc_elem->parent_idx;
+		glb_elem->child_idx = loc_elem->child_idx;
+		int i;
+		for (i = 0; i < 3; i++) {
+			glb_elem->vertex_indices[i] = loc_elem->vertex_indices[i];
+			glb_elem->neighbor_indices[i] = loc_elem->neighbor_indices[i];
+		}
+		loc_elem++;
+		glb_elem++;
+	}
+	return H5_SUCCESS;
+}
+
 struct h5t_read_methods h5tpriv_read_trim_methods = {
 	init_loc_elems_struct,
 	init_geom_boundary_info,
+	alloc_glb_elems_struct,
+	init_glb2loc_elem_map,
+	init_glb_elems_struct,
 };

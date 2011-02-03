@@ -4,6 +4,10 @@
 struct h5t_access_methods {
 	h5_generic_loc_elem_t* (*get_loc_elem)(
 		h5_file_t* const, const h5_loc_idx_t);
+	h5_glb_idx_t (*get_loc_elem_glb_idx) (
+		h5_file_t* const, const h5_loc_idx_t);
+	h5_glb_idx_t (*set_loc_elem_glb_idx) (
+		h5_file_t* const, const h5_loc_idx_t, const h5_glb_idx_t);
 	h5_loc_idx_t (*get_loc_elem_parent_idx)(
 		h5_file_t* const, const h5_loc_idx_t);
 	h5_loc_idx_t (*set_loc_elem_parent_idx)(
@@ -77,6 +81,23 @@ h5tpriv_get_loc_elem (
 	const h5_loc_idx_t elem_idx
 	) {
 	return (*f->t->methods.access->get_loc_elem)(f, elem_idx);
+}
+
+static inline h5_glb_idx_t
+h5tpriv_set_loc_elem_glb_idx (
+	h5_file_t* const f,
+	h5_loc_idx_t loc_elem_idx,
+	h5_glb_idx_t glb_elem_idx
+	) {
+	return (*f->t->methods.access->set_loc_elem_glb_idx)(f, loc_elem_idx, glb_elem_idx);
+}
+
+static inline h5_glb_idx_t
+h5tpriv_get_loc_elem_glb_idx (
+	h5_file_t* const f,
+	h5_loc_idx_t loc_elem_idx
+	) {
+	return (*f->t->methods.access->get_loc_elem_glb_idx)(f, loc_elem_idx);
 }
 
 static inline h5_loc_idx_t

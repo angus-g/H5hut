@@ -53,7 +53,12 @@ write_elems (
 	h5t_fdata_t* t = f->t;
 	assert (t->num_leaf_levels > 0);
 
-	t->dsinfo_elems.dims[0] = t->num_elems[t->num_leaf_levels-1];
+	h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
+	// alloc and inititalize data in memory
+	TRY( h5tpriv_alloc_glb_elems_struct (f, num_elems) );
+	TRY( h5tpriv_init_glb_elems_struct (f) );
+
+	t->dsinfo_elems.dims[0] = num_elems;
 	TRY( h5priv_write_dataset_by_name (
 		     f,
 		     t->mesh_gid,
@@ -77,7 +82,9 @@ write_elems (
 		     open_space_all,
 		     open_space_all,
 		     t->num_elems_on_leaf_level) );
-
+	// release mem
+	TRY( h5_free (f, t->glb_elems.data) );
+	t->glb_elems.tets = NULL;
 	return H5_SUCCESS;
 }
 
@@ -180,39 +187,6 @@ read_vertices (
 	return H5_SUCCESS;
 }
 
-
-
-static h5_err_t
-read_num_elems (
-	h5_file_t* const f
-	) {
-	h5t_fdata_t* t = f->t;
-
- 	if (t->mesh_gid < 0) {
-		return h5_error_internal (f, __FILE__, __func__, __LINE__);
-	}
-	size_t size = t->num_leaf_levels * sizeof (t->num_elems[0]);
-	TRY( t->num_elems = h5_calloc (f, 1, size) );
-	TRY( t->num_elems_on_leaf_level = h5_calloc (f, 1, size) );
-	TRY( h5priv_read_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_num_elems,
-		     open_space_all,
-		     open_space_all,
-		     t->num_elems) );
-
-	TRY( h5priv_read_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_num_elems_on_leaf_level,
-		     open_space_all,
-		     open_space_all,
-		     t->num_elems_on_leaf_level) );
-	
-	return H5_SUCCESS;
-}
-
 static hid_t
 open_mem_space_elems (
 	h5_file_t* const f,
@@ -239,7 +213,28 @@ read_elems (
 	) {
 	h5t_fdata_t* t = f->t;
 
-	TRY( h5tpriv_alloc_elems(f, 0, t->num_elems[t->num_leaf_levels-1]) );
+	size_t size = t->num_leaf_levels * sizeof (t->num_elems[0]);
+	TRY( t->num_elems = h5_calloc (f, 1, size) );
+	TRY( t->num_elems_on_leaf_level = h5_calloc (f, 1, size) );
+	TRY( h5priv_read_dataset_by_name (
+		     f,
+		     t->mesh_gid,
+		     &t->dsinfo_num_elems,
+		     open_space_all,
+		     open_space_all,
+		     t->num_elems) );
+
+	TRY( h5priv_read_dataset_by_name (
+		     f,
+		     t->mesh_gid,
+		     &t->dsinfo_num_elems_on_leaf_level,
+		     open_space_all,
+		     open_space_all,
+		     t->num_elems_on_leaf_level) );
+
+	h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
+	TRY( h5tpriv_alloc_elems (f, 0, num_elems) );
+	TRY( h5tpriv_alloc_glb_elems_struct (f, num_elems) );
 	TRY( h5priv_read_dataset_by_name (
 		     f,
 		     t->mesh_gid,
@@ -274,14 +269,15 @@ h5tpriv_read_mesh (
 	}
 	TRY( read_num_leaf_levels (f) );
 	TRY( read_num_vertices (f) );
-	TRY( read_num_elems (f) );
 
 	TRY( read_vertices (f) );
 	TRY( h5tpriv_rebuild_vertex_indices_mapping (f) );
 
 	TRY( read_elems (f) );
-	TRY( h5tpriv_rebuild_elem_indices_mapping (f) );
+
+	TRY( h5tpriv_init_glb2loc_elem_map (f) );
 	TRY( h5tpriv_init_loc_elems_struct (f, 0) );
+	TRY( h5_free (f, t->glb_elems.data) );
 	TRY( h5tpriv_update_adjacency_structs (f, 0) );
 	TRY( h5tpriv_init_geom_boundary_info (f, 0) );
 

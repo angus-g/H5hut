@@ -10,6 +10,24 @@ get_loc_elem (
 	return (h5_generic_loc_elem_t*)&f->t->loc_elems.tris[elem_idx];
 }
 
+static h5_glb_idx_t
+get_loc_elem_glb_idx (
+	h5_file_t* const f,
+	const h5_loc_idx_t elem_idx
+	) {
+	return f->t->loc_elems.tris[elem_idx].glb_idx;
+}
+
+static h5_glb_idx_t
+set_loc_elem_glb_idx (
+	h5_file_t* const f,
+	const h5_loc_idx_t elem_idx,
+	const h5_glb_idx_t glb_idx
+	) {
+	f->t->loc_elems.tris[elem_idx].glb_idx = glb_idx;
+	return glb_idx;
+}
+
 static h5_loc_idx_t
 get_loc_elem_parent_idx (
 	h5_file_t* const f,
@@ -309,6 +327,8 @@ is_boundary_face (
 
 struct h5t_access_methods h5tpriv_access_trim_methods = {
 	get_loc_elem,
+	get_loc_elem_glb_idx,
+	set_loc_elem_glb_idx,
 	get_loc_elem_parent_idx,
 	set_loc_elem_parent_idx,
 	get_loc_elem_child_idx,

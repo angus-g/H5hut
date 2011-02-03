@@ -103,7 +103,7 @@ h5_err_t
 H5FedSetMTag (
 	h5_file_t* const f,
 	char name[],
-	h5_id_t id,
+	h5_loc_id_t id,
 	const size_t dims,
 	void* val 
 	) {
@@ -127,7 +127,7 @@ h5_err_t
 H5FedGetMTag (
 	h5_file_t* const f,
 	const char name[],
-	const h5_id_t id,
+	const h5_loc_id_t id,
 	size_t* dim,
 	void* vals
 	) {
@@ -147,7 +147,7 @@ h5_err_t
 H5FedRemoveMTag (
 	h5_file_t* const f,
 	const char name[],
-	const h5_id_t id
+	const h5_loc_id_t id
 	) {
 	H5_API_ENTER;
 	h5_err_t h5err = h5t_remove_mtag_by_name (f, name, id);

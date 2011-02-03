@@ -24,9 +24,9 @@
 h5_err_t
 H5FedGetAdjacencies (
 	h5_file_t* const f,
-	const h5_id_t entity_id,
+	const h5_loc_id_t entity_id,
 	const h5_int32_t dim,
-	h5_idlist_t** list
+	h5_loc_idlist_t** list
 	) {
 	H5_API_ENTER;
 	h5_err_t h5err = h5t_get_adjacencies (f, entity_id, dim, list);
@@ -36,7 +36,7 @@ H5FedGetAdjacencies (
 h5_err_t
 H5FedReleaseListOfAdjacencies (
 	h5_file_t* const f,
-	h5_idlist_t** list
+	h5_loc_idlist_t** list
 	) {
 	H5_API_ENTER
 	h5_err_t h5err = h5t_release_list_of_adjacencies (f, list);

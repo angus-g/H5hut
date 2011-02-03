@@ -84,7 +84,12 @@ struct h5t_tagcontainer {
 typedef struct {
 	h5_glb_id_t eid ;	// global entity id
 	h5_glb_idx_t idx;	// global index
-} h5t_tag_idx_t;
+} h5t_glb_tag_idx_t;
+
+typedef struct {
+	h5_loc_id_t eid ;	// local entity id
+	h5_loc_idx_t idx;	// local index
+} h5t_loc_tag_idx_t;
 
 h5_err_t h5tpriv_write_mtags ( h5_file_t *const f );
 h5_err_t h5tpriv_release_tags ( h5_file_t * const f );
