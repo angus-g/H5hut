@@ -10,21 +10,21 @@
 #endif
 
 struct vertex {
-	h5_id_t global_id;
+	h5_glb_id_t global_id;
 	h5_float64_t P[3];
 };
 
 typedef struct vertex vertex_t; 
 
 struct tet {
-	h5_id_t global_id;
-	h5_id_t parent_id;
-	h5_id_t vids[4];
+	h5_glb_id_t global_id;
+	h5_glb_id_t parent_id;
+	h5_glb_id_t vids[4];
 };
 typedef struct tet tet_t;
 
 struct boundary {
-	h5_id_t vids[3];
+	h5_glb_id_t vids[3];
 };
 typedef struct boundary boundary_t;
 

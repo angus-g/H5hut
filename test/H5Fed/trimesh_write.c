@@ -7,26 +7,23 @@ const h5_oid_t MESH_TYPE = H5_TRIANGLE_MESH;
 const char* FNAME = "simple_triangle.h5";
 
 typedef struct vertex {
-h5_id_t global_id;
 	h5_float64_t P[3];
 } vertex_t; 
 
 typedef struct elem {
-h5_id_t global_id;
-	h5_id_t parent_id;
-	h5_id_t vids[3];
+	h5_loc_idx_t vids[3];
 } elem_t;
 	       
 vertex_t Vertices[] = {
-	{ 0, {-1.0,  0.0,  0.0} },
-	{ 1, { 1.0,  0.0,  0.0} },
-	{ 2, { 0.0,  1.0,  0.0} },
-	{ 3, { 0.0, -1.0,  0.0} }
+	{ {-1.0,  0.0,  0.0} },
+	{ { 1.0,  0.0,  0.0} },
+	{ { 0.0,  1.0,  0.0} },
+	{ { 0.0, -1.0,  0.0} }
 };
 
 elem_t Elems[] = {
-	{ 1, -1, { 0, 1, 2 } },
-	{ 0, -1, { 0, 1, 3 } }
+	{ { 0, 1, 2 } },
+	{ { 0, 1, 3 } }
 };
 
 const int num_vertices = sizeof (Vertices) / sizeof (Vertices[0]);

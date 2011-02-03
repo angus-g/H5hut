@@ -13,12 +13,12 @@ const char* FNAME = "simple_tet.h5";
 static h5_err_t
 print_adjacencies_of_vertex (
 	h5_file_t* const f,
-	h5_id_t local_id,
+	h5_loc_id_t local_id,
 	clock_t* time_used
 	) {
-	h5_idlist_t* uadj_edges;
-	h5_idlist_t* uadj_triangles;
-	h5_idlist_t* uadj_tets;
+	h5_loc_idlist_t* uadj_edges;
+	h5_loc_idlist_t* uadj_triangles;
+	h5_loc_idlist_t* uadj_tets;
 	clock_t time_used_before = clock();
 	H5FedGetAdjacencies (f, local_id, 1, &uadj_edges);
 	H5FedGetAdjacencies (f, local_id, 2, &uadj_triangles);
@@ -33,11 +33,12 @@ print_adjacencies_of_vertex (
 		char k[256];
 		char d[256];
 		char t[256];
-		h5_id_t local_vids[4];
+		h5_loc_id_t local_vids[4];
 		if (i == 0) {
 			H5FedGetVertexIndicesOfEntity (
 				f, local_id, local_vids);
-			snprintf (v, sizeof(v), "=[%lld]=", local_vids[0]);
+			snprintf (v, sizeof(v), "=[%lld]=",
+				  (long long)local_vids[0]);
 		} else {
 			*v = '\0';
 		}
@@ -45,7 +46,8 @@ print_adjacencies_of_vertex (
 			H5FedGetVertexIndicesOfEntity (
 				f, uadj_edges->items[i], local_vids);
 			snprintf (k, sizeof(k), "=[%lld,%lld]=",
-				   local_vids[0], local_vids[1]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1]);
 		} else {
 			*k = '\0';
 		}
@@ -53,7 +55,9 @@ print_adjacencies_of_vertex (
 			H5FedGetVertexIndicesOfEntity (
 				f, uadj_triangles->items[i], local_vids);
 			snprintf (d, sizeof(d), "=[%lld,%lld,%lld]=",
-				   local_vids[0], local_vids[1], local_vids[2]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1],
+				  (long long)local_vids[2]);
 		} else {
 			*d = '\0';
 		}
@@ -61,8 +65,10 @@ print_adjacencies_of_vertex (
 			H5FedGetVertexIndicesOfEntity (
 				f, uadj_tets->items[i], local_vids);
 			snprintf (t, sizeof(t), "=[%lld,%lld,%lld,%lld]=",
-				   local_vids[0], local_vids[1],
-				   local_vids[2], local_vids[3]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1],
+				  (long long)local_vids[2],
+				  (long long)local_vids[3]);
 		} else {
 			*t = '\0';
 		}
@@ -77,12 +83,12 @@ print_adjacencies_of_vertex (
 static h5_err_t
 print_adjacencies_of_edge (
 	h5_file_t* const f,
-	h5_id_t local_id,
+	h5_loc_id_t local_id,
 	clock_t* time_used
 	) {
-	h5_idlist_t* dadj_vertices;
-	h5_idlist_t* uadj_triangles;
-	h5_idlist_t* uadj_tets;
+	h5_loc_idlist_t* dadj_vertices;
+	h5_loc_idlist_t* uadj_triangles;
+	h5_loc_idlist_t* uadj_tets;
 	clock_t time_used_before = clock();
 	H5FedGetAdjacencies (f, local_id, 0, &dadj_vertices);
 	H5FedGetAdjacencies (f, local_id, 2, &uadj_triangles);
@@ -98,12 +104,12 @@ print_adjacencies_of_edge (
 		char k[256];
 		char d[256];
 		char t[256];
-		h5_id_t local_vids[4];
+		h5_loc_id_t local_vids[4];
 		if (i < dadj_vertices->num_items) {
 			H5FedGetVertexIndicesOfEntity (
 				f, dadj_vertices->items[i], local_vids);
 			snprintf (v, sizeof(v), "=[%lld]=",
-				   local_vids[0]);
+				  (long long)local_vids[0]);
 		} else {
 			*v = '\0';
 		}
@@ -111,7 +117,8 @@ print_adjacencies_of_edge (
 			H5FedGetVertexIndicesOfEntity (
 				f, local_id, local_vids);
 			snprintf (k, sizeof(k), "=[%lld,%lld]=",
-				  local_vids[0], local_vids[1]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1]);
 		} else {
 			*k = '\0';
 		}
@@ -119,7 +126,9 @@ print_adjacencies_of_edge (
 			H5FedGetVertexIndicesOfEntity (
 				f, uadj_triangles->items[i], local_vids);
 			snprintf (d, sizeof(d), "=[%lld,%lld,%lld]=",
-				  local_vids[0], local_vids[1], local_vids[2]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1],
+				  (long long)local_vids[2]);
 		} else {
 			*d = '\0';
 		}
@@ -127,8 +136,10 @@ print_adjacencies_of_edge (
 			H5FedGetVertexIndicesOfEntity (
 				f, uadj_tets->items[i], local_vids);
 			snprintf (t, sizeof(t), "=[%lld,%lld,%lld,%lld]=",
-				   local_vids[0], local_vids[1],
-				   local_vids[2], local_vids[3]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1],
+				  (long long)local_vids[2],
+				  (long long)local_vids[3]);
 		} else {
 			*t = '\0';
 		}
@@ -143,12 +154,12 @@ print_adjacencies_of_edge (
 static h5_err_t
 print_adjacencies_of_triangle (
 	h5_file_t* const f,
-	h5_id_t local_id,
+	h5_loc_id_t local_id,
 	clock_t* time_used
 	) {
-	h5_idlist_t* dadj_vertices;
-	h5_idlist_t* dadj_edges;
-	h5_idlist_t* uadj_tets;
+	h5_loc_idlist_t* dadj_vertices;
+	h5_loc_idlist_t* dadj_edges;
+	h5_loc_idlist_t* uadj_tets;
 	clock_t time_used_before = clock();
 	H5FedGetAdjacencies (f, local_id, 0, &dadj_vertices);
 	H5FedGetAdjacencies (f, local_id, 1, &dadj_edges);
@@ -163,12 +174,12 @@ print_adjacencies_of_triangle (
 		char k[256];
 		char d[256];
 		char t[256];
-		h5_id_t local_vids[4];
+		h5_loc_id_t local_vids[4];
 		if (i < dadj_vertices->num_items) {
 			H5FedGetVertexIndicesOfEntity (
 				f, dadj_vertices->items[i], local_vids);
 			snprintf (v, sizeof(v), "=[%lld]=",
-				   local_vids[0]);
+				  (long long)local_vids[0]);
 		} else {
 			*v = '\0';
 		}
@@ -176,7 +187,8 @@ print_adjacencies_of_triangle (
 			H5FedGetVertexIndicesOfEntity (
 				f, dadj_edges->items[i], local_vids);
 			snprintf (k, sizeof(k), "=[%lld,%lld]=",
-				   local_vids[0], local_vids[1]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1]);
 		} else {
 			*k = '\0';
 		}
@@ -184,7 +196,9 @@ print_adjacencies_of_triangle (
 			H5FedGetVertexIndicesOfEntity (
 				f, local_id, local_vids);
 			snprintf (d, sizeof(k), "=[%lld,%lld,%lld]=",
-				  local_vids[0], local_vids[1], local_vids[2]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1],
+				  (long long)local_vids[2]);
 		} else {
 			*d = '\0';
 		}
@@ -192,8 +206,10 @@ print_adjacencies_of_triangle (
 			H5FedGetVertexIndicesOfEntity (
 				f, uadj_tets->items[i], local_vids);
 			snprintf (t, sizeof(t), "=[%lld,%lld,%lld,%lld]=",
-				  local_vids[0], local_vids[1],
-				  local_vids[2], local_vids[3]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1],
+				  (long long)local_vids[2],
+				  (long long)local_vids[3]);
 		} else {
 			*t = '\0';
 		}
@@ -208,12 +224,12 @@ print_adjacencies_of_triangle (
 static h5_err_t
 print_adjacencies_of_tet (
 	h5_file_t* const f,
-	h5_id_t local_id,
+	h5_loc_id_t local_id,
 	clock_t* time_used
 	) {
-	h5_idlist_t* dadj_vertices;
-	h5_idlist_t* dadj_edges;
-	h5_idlist_t* dadj_triangles;
+	h5_loc_idlist_t* dadj_vertices;
+	h5_loc_idlist_t* dadj_edges;
+	h5_loc_idlist_t* dadj_triangles;
 	clock_t time_used_before = clock();
 	H5FedGetAdjacencies (f, local_id, 0, &dadj_vertices);
 	H5FedGetAdjacencies (f, local_id, 1, &dadj_edges);
@@ -228,12 +244,12 @@ print_adjacencies_of_tet (
 		char k[256];
 		char d[256];
 		char t[256];
-		h5_id_t local_vids[4];
+		h5_loc_id_t local_vids[4];
 		if (i < dadj_vertices->num_items) {
 			H5FedGetVertexIndicesOfEntity (
 				f, dadj_vertices->items[i], local_vids);
 			snprintf (v, sizeof(v), "=[%lld]=",
-				   local_vids[0]);
+				  (long long)local_vids[0]);
 		} else {
 			*v = '\0';
 		}
@@ -241,7 +257,8 @@ print_adjacencies_of_tet (
 			H5FedGetVertexIndicesOfEntity (
 				f, dadj_edges->items[i], local_vids);
 			snprintf (k, sizeof(k), "=[%lld,%lld]=",
-				   local_vids[0], local_vids[1]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1]);
 		} else {
 			*k = '\0';
 		}
@@ -249,7 +266,9 @@ print_adjacencies_of_tet (
 			H5FedGetVertexIndicesOfEntity (
 				f, dadj_triangles->items[i], local_vids);
 			snprintf (d, sizeof(d), "=[%lld,%lld,%lld]=",
-				   local_vids[0], local_vids[1], local_vids[2]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1],
+				  (long long)local_vids[2]);
 		} else {
 			*d = '\0';
 		}
@@ -257,7 +276,10 @@ print_adjacencies_of_tet (
 			H5FedGetVertexIndicesOfEntity (
 				f, local_id, local_vids);
 			snprintf (d, sizeof(k), "=[%lld,%lld,%lld,%lld]=",
-				  local_vids[0], local_vids[1], local_vids[2], local_vids[2]);
+				  (long long)local_vids[0],
+				  (long long)local_vids[1],
+				  (long long)local_vids[2],
+				  (long long)local_vids[2]);
 		} else {
 			*t = '\0';
 		}
@@ -273,8 +295,8 @@ static h5_err_t
 traverse_vertices (
 	h5_file_t* const f
 	) {
-	h5_id_t local_id;
-	h5_id_t num = 0;
+	h5_loc_id_t local_id;
+	h5_loc_idx_t num = 0;
 	clock_t t_total = 0;
 	clock_t t_min = CLOCKS_PER_SEC;
 	clock_t t_max = 0;
@@ -291,7 +313,7 @@ traverse_vertices (
 	fprintf (
 		stderr,
 		"%lld\ttotal: %f\tmin: %f\tavg: %f\tmax: %f\n",
-		num,
+		(long long)num,
 		(double)t_total / (double)CLOCKS_PER_SEC,
 		(double)t_min / (double)CLOCKS_PER_SEC,
 		(double)t_total / (double)CLOCKS_PER_SEC / (double)num,
@@ -303,8 +325,8 @@ static h5_err_t
 traverse_edges (
 	h5_file_t* const f
 	) {
-	h5_id_t local_id;
-	h5_id_t num = 0;
+	h5_loc_id_t local_id;
+	h5_loc_idx_t num = 0;
 	clock_t t_total = 0;
 	clock_t t_min = CLOCKS_PER_SEC;
 	clock_t t_max = 0;
@@ -321,7 +343,7 @@ traverse_edges (
 	fprintf (
 		stderr,
 		"%lld\ttotal: %f\tmin: %f\tavg: %f\tmax: %f\n",
-		num,
+		(long long)num,
 		(double)t_total / (double)CLOCKS_PER_SEC,
 		(double)t_min / (double)CLOCKS_PER_SEC,
 		(double)t_total / (double)CLOCKS_PER_SEC / (double)num,
@@ -333,8 +355,8 @@ static h5_err_t
 traverse_triangles (
 	h5_file_t* const f
 	) {
-	h5_id_t local_id;
-	h5_id_t num = 0;
+	h5_loc_id_t local_id;
+	h5_loc_idx_t num = 0;
 	clock_t t_min = CLOCKS_PER_SEC;
 	clock_t t_max = 0;
 	clock_t t_total = 0;
@@ -351,7 +373,7 @@ traverse_triangles (
 	fprintf (
 		stderr,
 		"%lld\ttotal: %f\tmin: %f\tavg: %f\tmax: %f\n",
-		num,
+		(long long)num,
 		(double)t_total / (double)CLOCKS_PER_SEC,
 		(double)t_min / (double)CLOCKS_PER_SEC,
 		(double)t_total / (double)CLOCKS_PER_SEC / (double)num,
@@ -363,8 +385,8 @@ static h5_err_t
 traverse_elems (
 	h5_file_t* const f
 	) {
-	h5_id_t local_id;
-	h5_id_t num = 0;
+	h5_loc_id_t local_id;
+	h5_loc_idx_t num = 0;
 	clock_t t_total = 0;
 	clock_t t_min = CLOCKS_PER_SEC;
 	clock_t t_max = 0;
@@ -381,7 +403,7 @@ traverse_elems (
 	fprintf (
 		stderr,
 		"%lld\ttotal: %f\tmin: %f\tavg: %f\tmax: %f\n",
-		num,
+		(long long)num,
 		(double)t_total / (double)CLOCKS_PER_SEC,
 		(double)t_min / (double)CLOCKS_PER_SEC,
 		(double)t_total / (double)CLOCKS_PER_SEC / (double)num,
@@ -392,9 +414,9 @@ traverse_elems (
 static h5_err_t
 traverse_level (
 	h5_file_t* const f,
-	const h5_id_t level_id
+	const h5t_lvl_idx_t level_id
 	) {
-	printf ("    Setting level to %lld\n", level_id);
+	printf ("    Setting level to %d\n", level_id);
 	H5FedSetLevel (f, level_id);
 	traverse_vertices (f);
 	traverse_edges (f);
@@ -416,7 +438,7 @@ traverse_mesh (
 	printf ("    Number of levels in mesh: %lld\n", (long long)num_levels);
 
 	/* loop over all levels */
-	h5_id_t level_id;
+	h5t_lvl_idx_t level_id;
 	for (level_id = 0; level_id < num_levels; level_id++) {
 		traverse_level (f, level_id);
 	}

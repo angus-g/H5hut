@@ -16,9 +16,9 @@ struct vertex {
 typedef struct vertex vertex_t; 
 
 struct tet {
-	h5_id_t global_id;
-	h5_id_t parent_id;
-	h5_id_t vids[4];
+	h5_glb_id_t global_id;
+	h5_glb_id_t parent_id;
+	h5_glb_id_t vids[4];
 };
 typedef struct tet tet_t;
 
@@ -46,8 +46,8 @@ main (
 		fprintf ( stderr, "!!! Can't open mesh %d\n", mesh_id );
 		return -1;
 	}
-	h5_id_t global_vids[3] = { 3, 4, 5 }; // sorted 4, 5, 3
-	h5_id_t global_tid = H5FedMapTriangle2GlobalID ( f, global_vids );
+	h5_glb_id_t global_vids[3] = { 3, 4, 5 }; // sorted 4, 5, 3
+	h5_glb_id_t global_tid = H5FedMapTriangle2GlobalID ( f, global_vids );
 	if ( global_tid < 0 ) {
 		fprintf ( stderr, "!!! Oops ...\n" );
 		return 1;

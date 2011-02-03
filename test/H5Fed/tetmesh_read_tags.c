@@ -17,9 +17,9 @@ struct vertex {
 typedef struct vertex vertex_t; 
 
 struct tet {
-	h5_id_t global_id;
-	h5_id_t parent_id;
-	h5_id_t vids[4];
+	h5_glb_id_t global_id;
+	h5_glb_id_t parent_id;
+	h5_glb_id_t vids[4];
 };
 typedef struct tet tet_t;
 
@@ -27,7 +27,7 @@ static h5_err_t
 traverse_vertices (
 	h5_file_t * f
 	) {
-	h5_id_t local_id;
+	h5_loc_id_t local_id;
 	h5_size_t real_num = 0;
 
 	h5_size_t num = H5FedGetNumVerticesTotal ( f );
@@ -41,7 +41,7 @@ traverse_vertices (
 		     (retval[1] != local_id+1) ||
 		     (retval[2] != local_id+2) ) {
 			fprintf ( stderr, "!!! Wrong tag values for vertex %lld\n",
-				  local_id );
+				  (long long)local_id );
 			exit ( 1 );
 		}
 		real_num++;
@@ -60,11 +60,11 @@ static h5_err_t
 traverse_edges (
 	h5_file_t * f
 	) {
-	h5_id_t local_id;
+	h5_loc_id_t local_id;
 
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
 	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
-		h5_id_t local_vids[4];
+		h5_loc_id_t local_vids[4];
 		H5FedGetVertexIndicesOfEntity( f, local_id, local_vids );
 		size_t size;
 		h5_int64_t retval[3];
@@ -73,7 +73,7 @@ traverse_edges (
 		     (retval[1] != local_id+1) ||
 		     (retval[1] != local_id+1) ) {
 			fprintf ( stderr, "!!! Wrong tag values for edge %lld\n",
-				  local_id );
+				  (long long)local_id );
 			exit ( 1 );
 		}
 	}
@@ -85,7 +85,7 @@ static h5_err_t
 traverse_triangles (
 	h5_file_t * f
 	) {
-	h5_id_t local_id;
+	h5_loc_id_t local_id;
 
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
 	while ( (local_id = H5FedTraverseEntities (f, iter)) >= 0 ) {
@@ -96,7 +96,7 @@ traverse_triangles (
 		     (retval[1] != local_id+1) ||
 		     (retval[1] != local_id+1) ) {
 			fprintf ( stderr, "!!! Wrong tag values for edge %lld\n",
-				  local_id );
+				  (long long)local_id );
 			exit ( 1 );
 		}
 	}
@@ -108,7 +108,7 @@ static h5_err_t
 traverse_tets (
 	h5_file_t * f
 	) {
-	h5_id_t local_id;
+	h5_loc_id_t local_id;
 	h5_size_t real_num = 0;
 
 	h5_size_t num = H5FedGetNumElementsTotal ( f );
@@ -123,7 +123,7 @@ traverse_tets (
 		     (retval[1] != local_id+1) ||
 		     (retval[1] != local_id+1) ) {
 			fprintf ( stderr, "!!! Wrong tag values for edge %lld\n",
-				  local_id );
+				  (long long)local_id );
 			exit ( 1 );
 		}
 		real_num++;
@@ -154,13 +154,13 @@ traverse_mesh (
 	h5_file_t * f
 	) {
 
-	h5_id_t level_id;
+	h5_loc_id_t level_id;
 	h5_size_t num_levels = H5FedGetNumLevels ( f );
 	printf ( "    Number of levels in mesh: %lld\n", (long long)num_levels );
 	for ( level_id = 2; level_id < num_levels; level_id++ ) {
 		h5_err_t h5err = H5FedSetLevel ( f, level_id );
 		if ( h5err < 0 ) {
-			fprintf ( stderr, "!!! Can't set level %lld.\n",
+			fprintf ( stderr, "!!! Can't set level %d.\n",
 				  level_id );
 			return -1;
 		}

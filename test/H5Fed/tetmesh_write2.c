@@ -14,7 +14,7 @@ typedef struct vertex {
 } vertex_t; 
 
 typedef struct elem {
-	h5_id_t vids[4];
+	h5_loc_idx_t vids[4];
 } elem_t;
 	       
 vertex_t Vertices[] = {

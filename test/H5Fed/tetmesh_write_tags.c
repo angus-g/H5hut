@@ -12,7 +12,7 @@ static h5_err_t
 set_vertex_tags (
 	h5_file_t* const f
 	) {
-	h5_id_t local_id;
+	h5_loc_id_t local_id;
 	h5_int64_t val[3];
 
 	printf ("\nSet tags to vertices\n");
@@ -28,7 +28,7 @@ set_vertex_tags (
 		if (memcmp (val, retval, sizeof(val))) {
 			fprintf ( stderr, "Oops!\n");
 		}
-		printf ("Set tag for entity %llx\n", local_id);
+		printf ("Set tag for entity %llx\n", (long long)local_id);
 	}
 	return H5FedEndTraverseEntities (f, iter);
 }
@@ -37,7 +37,7 @@ static h5_err_t
 set_edge_tags (
 	h5_file_t* const f
 	) {
-	h5_id_t local_id;
+	h5_loc_id_t local_id;
 	h5_int64_t val[3];
 	printf ("\nSet tags to edges\n");
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
@@ -60,7 +60,7 @@ static h5_err_t
 set_tri_tags (
 	h5_file_t* const f
 	) {
-	h5_id_t local_id;
+	h5_loc_id_t local_id;
 	h5_int64_t val[3];
 	printf ("\nSet tags to triangle\n");
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
@@ -83,7 +83,7 @@ static h5_err_t
 set_tet_tags (
 	h5_file_t* const f
 	) {
-	h5_id_t local_id;
+	h5_loc_id_t local_id;
 	h5_int64_t val[3];
 	printf ("\nSet tags to tetrahedra\n");
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
