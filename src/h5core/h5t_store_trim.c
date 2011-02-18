@@ -1,4 +1,4 @@
-#include <string.h>
+#include <string.H>
 
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
@@ -9,11 +9,11 @@ alloc_triangles (
 	const size_t cur,
 	const size_t new
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t *t = f->t;
 
 	/* alloc mem for local data of elements */
 	TRY ( t->loc_elems.tris = h5_alloc (
-		      f,
 		      t->loc_elems.tris,
 		      new * sizeof (t->loc_elems.tris[0]) ) );
 	memset (
@@ -24,7 +24,7 @@ alloc_triangles (
 	/* alloc mem for global to local ID mapping */
 	TRY ( h5priv_alloc_idxmap ( f, &t->map_elem_g2l, new ) );
 
-	return  H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -34,6 +34,7 @@ get_direct_children_of_edge (
 	const h5_loc_idx_t elem_idx,
 	h5_loc_id_t children[2]
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	/*
 	  Please note: The face index of the children and the father is
 	  always the same. The only think we have to know, is the offset
@@ -51,11 +52,12 @@ get_direct_children_of_edge (
 	};
 	h5_loc_idx_t num_faces = h5tpriv_ref_elem_get_num_edges (f->t);
 	if ((face_idx < 0) || (face_idx >= num_faces)) {
-		return  h5_error_internal (f, __FILE__, __func__, __LINE__); 
+		H5_PRIV_FUNC_LEAVE (
+			h5_error_internal (__FILE__, __func__, __LINE__));
 	}
 	children[0] = h5tpriv_build_edge_id (face_idx, elem_idx+off[face_idx][0]);
 	children[1] = h5tpriv_build_edge_id (face_idx, elem_idx+off[face_idx][1]);
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -67,6 +69,7 @@ bisect_edge (
 	const h5_loc_idx_t face_idx,
 	const h5_loc_idx_t elem_idx
 	) {
+	H5_PRIV_FUNC_ENTER (h5_loc_idx_t);
 	h5t_fdata_t* const t = f->t;
 	h5_loc_idlist_t* retval;
 	/*
@@ -95,10 +98,11 @@ bisect_edge (
 			h5_loc_idx_t edge0[2], edge1[2];
 			TRY( h5t_get_vertex_indices_of_edge ( f, kids[0], edge0 ) );
 			TRY( h5t_get_vertex_indices_of_edge ( f, kids[1], edge1 ) );
-			if ((edge0[0] == edge1[0]) || (edge0[0] == edge1[1]))
-				return edge0[0];
-			else
-				return edge0[1];
+			if ((edge0[0] == edge1[0]) || (edge0[0] == edge1[1])) {
+				H5_PRIV_FUNC_LEAVE (edge0[0]);
+			} else {
+				H5_PRIV_FUNC_LEAVE (edge0[1]);
+			}
 		}
 	}
 	/*
@@ -114,7 +118,7 @@ bisect_edge (
 	P[1] = (P0[1] + P1[1]) / 2.0;
 	P[2] = (P0[2] + P1[2]) / 2.0;
 
-	return h5t_store_vertex (f, -1, P);
+	H5_PRIV_FUNC_RETURN (h5t_store_vertex (f, -1, P));
 }
 
 /*!
@@ -127,18 +131,19 @@ refine_triangle (
 	h5_file_t* const f,
 	const h5_loc_idx_t elem_idx
 	) {
+	H5_PRIV_FUNC_ENTER (h5_loc_idx_t);
 	h5t_fdata_t* const t = f->t;
 	h5_loc_idx_t vertices[6];	// local vertex indices
 	h5_loc_idx_t elem_idx_of_first_child;
 	h5_loc_triangle_t* el = &t->loc_elems.tris[elem_idx];
 
 	if (el->child_idx >= 0)
-		return h5_error (
-			f,
-			H5_ERR_INVAL,
-			"Element %lld already refined.",
-			(long long)elem_idx);
-
+		H5_PRIV_FUNC_LEAVE (
+			h5_error (
+				H5_ERR_INVAL,
+				"Element %lld already refined.",
+				(long long)elem_idx));
+			
 	vertices[0] = el->vertex_indices[0];
 	vertices[1] = el->vertex_indices[1];
 	vertices[2] = el->vertex_indices[2];
@@ -172,7 +177,7 @@ refine_triangle (
 	t->loc_elems.tris[elem_idx].child_idx = elem_idx_of_first_child;
 	t->num_elems_on_leaf_level[t->leaf_level]--;
 
-	return elem_idx_of_first_child;
+	H5_PRIV_FUNC_RETURN (elem_idx_of_first_child);
 }
 
 static inline h5_loc_idx_t
@@ -181,7 +186,7 @@ compute_neighbor_of_face (
 	h5_loc_idx_t elem_idx,
 	const h5_loc_idx_t face_idx
 	) {
-
+	H5_PRIV_FUNC_ENTER (h5_loc_idx_t);
 	h5t_fdata_t * const t = f->t;
 	h5_loc_idlist_t* te;
 	h5_loc_idx_t neighbor_idx = -2;
@@ -193,8 +198,8 @@ compute_neighbor_of_face (
 			     elem_idx,
 			     &te) );
 		if (te == NULL) {
-			return h5_error_internal (
-				f, __FILE__, __func__, __LINE__);
+			H5_PRIV_FUNC_LEAVE (
+				h5_error_internal (__FILE__, __func__, __LINE__));
 		}
 		if (te->num_items == 1) {
 			// neighbor is coarser or face is on the boundary
@@ -212,11 +217,11 @@ compute_neighbor_of_face (
 			}
 			
 		} else {
-			return h5_error_internal (
-				f, __FILE__, __func__, __LINE__);
+			H5_PRIV_FUNC_LEAVE (
+				h5_error_internal (__FILE__, __func__, __LINE__));
 		}
 	} while (neighbor_idx < -1);
-	return neighbor_idx;
+	H5_PRIV_FUNC_RETURN (neighbor_idx);
 }
 
 /*
@@ -227,12 +232,16 @@ compute_neighbors_of_elems (
 	h5_file_t* const f,
 	h5t_lvl_idx_t level
 	) {
-	h5_debug (f, "%s()", __func__);
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t * const t = f->t;
 	if (level < 0 || level >= t->num_leaf_levels) {
-		return h5_error (f, H5_ERR_INVAL,
-				 "level idx %lld out of bound, must be in [%lld,%lld]",
-				 (long long)level, (long long)0, (long long)t->num_leaf_levels);
+		H5_PRIV_FUNC_LEAVE (
+			h5_error (
+				H5_ERR_INVAL,
+				"level idx %lld out of bound, must be in [%lld,%lld]",
+				(long long)level,
+				(long long)0,
+				(long long)t->num_leaf_levels));
 	}
 	h5_loc_idx_t elem_idx = level == 0 ? 0 : t->num_elems[level-1];
 	const h5_loc_idx_t last_idx = t->num_elems[level] - 1;
@@ -247,20 +256,20 @@ compute_neighbors_of_elems (
 		el++;
 	}
 
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
 end_store_elems (
 	h5_file_t* const f
 	) {
-	h5_debug (f, "%s()", __func__);
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
 	TRY( h5tpriv_update_adjacency_structs (f, t->leaf_level) );
 	TRY( compute_neighbors_of_elems (f, t->leaf_level) );
 	TRY( h5tpriv_init_geom_boundary_info (f, t->leaf_level) );
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 struct h5t_store_methods h5tpriv_trim_store_methods = {

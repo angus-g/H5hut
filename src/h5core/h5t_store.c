@@ -13,14 +13,12 @@ h5t_add_mesh (
 	h5_file_t* const f,
 	const h5_oid_t mesh_type
 	) {
+	H5_CORE_API_ENTER (h5_id_t);
 	h5_id_t mesh_id = 0;
-
-	TRY( (mesh_id = h5t_open_mesh (f, -1, mesh_type)) ); 
-	TRY( h5t_add_level (f) );
-	
+	TRY (mesh_id = h5t_open_mesh (f, -1, mesh_type)); 
+	TRY (h5t_add_level (f));
 	f->t->mesh_changed = 1;
-
-	return mesh_id;
+	H5_CORE_API_RETURN (mesh_id);
 }
 
 /*
@@ -78,15 +76,16 @@ h5t_lvl_idx_t
 h5t_add_level (
 	h5_file_t* const f
 	) {
+	H5_CORE_API_ENTER (h5t_lvl_idx_t);
 	h5t_fdata_t* const t = f->t;
 
 	if (f->mode == H5_O_RDONLY) {
-		return H5_ERR_INVAL;
+		H5_CORE_API_LEAVE (h5priv_handle_file_mode_error(f->mode));
 	}
 
 	/* t->num_leaf_levels will be set to zero on file creation(!) */
 	if ((t->cur_mesh < 0) || (t->num_leaf_levels == -1)) {
-		return h5tpriv_error_undef_mesh (f);
+		H5_CORE_API_LEAVE (h5tpriv_error_undef_mesh ());
 	}
 	t->leaf_level = t->num_leaf_levels++;
 	t->num_loaded_levels = t->num_leaf_levels;
@@ -95,13 +94,13 @@ h5t_add_level (
 	t->dsinfo_num_elems_on_leaf_level.dims[0] = t->num_leaf_levels;
 
 	ssize_t num_bytes = t->num_leaf_levels*sizeof (h5_size_t);
-	TRY( t->num_vertices = h5_alloc (f, t->num_vertices, num_bytes) );
+	TRY (t->num_vertices = h5_alloc (t->num_vertices, num_bytes));
 	t->num_vertices[t->leaf_level] = -1;
 
-	TRY( t->num_elems = h5_alloc (f, t->num_elems, num_bytes) );
+	TRY (t->num_elems = h5_alloc (t->num_elems, num_bytes));
 	t->num_elems[t->leaf_level] = -1;
-	TRY( t->num_elems_on_leaf_level = h5_alloc (
-		     f, t->num_elems_on_leaf_level, num_bytes) );
+	TRY ( t->num_elems_on_leaf_level = h5_alloc (
+		     t->num_elems_on_leaf_level, num_bytes));
 	t->num_elems_on_leaf_level[t->leaf_level] = -1;
 
 	if (t->leaf_level == 0) {
@@ -110,7 +109,7 @@ h5t_add_level (
 		t->last_stored_eid = -1;
 	}
 
-	return t->leaf_level;
+	H5_CORE_API_RETURN (t->leaf_level);
 }
 
 /*!
@@ -121,16 +120,17 @@ h5t_begin_store_vertices (
 	h5_file_t* const f,
 	const h5_size_t num
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 
 	if (t->leaf_level < 0) {
-		return h5tpriv_error_undef_level(f);
+		H5_CORE_API_LEAVE (h5tpriv_error_undef_level());
 	}
 	h5_size_t cur_num_vertices = (t->leaf_level > 0 ?
 				      t->num_vertices[t->leaf_level-1] : 0);
 	t->num_vertices[t->leaf_level] = cur_num_vertices+num;
 	t->dsinfo_vertices.dims[0] = cur_num_vertices+num;
-	return h5tpriv_alloc_num_vertices (f, cur_num_vertices+num);
+	H5_CORE_API_RETURN (h5tpriv_alloc_num_vertices (f, cur_num_vertices+num));
 }
 
 h5_loc_idx_t
@@ -139,38 +139,40 @@ h5t_store_vertex (
 	const h5_glb_idx_t glb_id,	/*!< global vertex id from mesher or -1	*/
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
+	H5_CORE_API_ENTER (h5_loc_idx_t);
 	h5t_fdata_t* const t = f->t;
 	
 	/*
 	  more than allocated
 	*/
 	if (t->last_stored_vid+1 >= t->num_vertices[t->leaf_level]) 
-		return HANDLE_H5_OVERFLOW_ERR(
-			f, "vertex", t->num_vertices[t->leaf_level]);
+		H5_CORE_API_LEAVE (HANDLE_H5_OVERFLOW_ERR(
+					   "vertex", t->num_vertices[t->leaf_level]));
 	
 	/*
 	  missing call to add the first level
 	 */
 	if (t->leaf_level < 0)
-		return h5tpriv_error_undef_level(f);
+		H5_CORE_API_LEAVE (h5tpriv_error_undef_level());
 
 	h5_loc_idx_t local_idx = ++t->last_stored_vid;
 	h5_loc_vertex_t *vertex = &t->vertices[local_idx];
 	vertex->idx = glb_id;     /* ID from mesher, replaced later!*/
 	memcpy (&vertex->P, P, sizeof (vertex->P));
-	return local_idx;
+	H5_CORE_API_RETURN (local_idx);
 }
 
 h5_err_t
 h5t_end_store_vertices (
 	h5_file_t* const f
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 
 	t->num_vertices[t->leaf_level] = t->last_stored_vid+1;
-	TRY( assign_global_vertex_indices (f) );
-	TRY( h5tpriv_rebuild_vertex_indices_mapping (f) );
-	return H5_SUCCESS;
+	TRY (assign_global_vertex_indices (f));
+	TRY (h5tpriv_rebuild_vertex_indices_mapping (f));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -184,6 +186,7 @@ h5t_begin_store_elems (
 	h5_file_t* const f,
 	const h5_size_t num
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 
 	size_t cur = t->leaf_level > 0 ? t->num_elems[t->leaf_level-1] : 0;
@@ -198,8 +201,8 @@ h5t_begin_store_elems (
 	  avoid resizing.
 	 */
 	size_t nel = 2097152 > 5*new ? 2097152 : 5*new;
-	TRY( h5tpriv_resize_te_htab (f, nel) );
-	return h5tpriv_alloc_elems (f, cur, new);
+	TRY (h5tpriv_resize_te_htab (f, nel));
+	H5_CORE_API_RETURN (h5tpriv_alloc_elems (f, cur, new));
 }
 
 
@@ -218,17 +221,20 @@ h5t_store_elem (
 	const h5_loc_idx_t parent_idx,
 	const h5_loc_idx_t* vertex_indices
 	) {
+	H5_CORE_API_ENTER (h5_loc_idx_t);
 	h5t_fdata_t* t = f->t;
 
 	/* level set? */
 	if (t->leaf_level < 0)
-		return h5tpriv_error_undef_level(f);
+		H5_CORE_API_LEAVE (
+			h5tpriv_error_undef_level());
 
 	/*  more than allocated? */
 	if ( t->last_stored_eid+1 >= t->num_elems[t->leaf_level] ) 
-		return HANDLE_H5_OVERFLOW_ERR(
-			f, h5tpriv_map_oid2str(t->mesh_type),
-			t->num_elems[t->leaf_level] );
+		H5_CORE_API_LEAVE (
+			HANDLE_H5_OVERFLOW_ERR(
+				h5tpriv_map_oid2str(t->mesh_type),
+				t->num_elems[t->leaf_level]));
 
 	/* check parent id */
 	if ((t->leaf_level == 0 && parent_idx != -1) ||
@@ -236,8 +242,9 @@ h5t_store_elem (
 	    (t->leaf_level >  0
 	     && parent_idx >= t->num_elems[t->leaf_level-1])
 		) {
-		return HANDLE_H5_PARENT_ID_ERR (
-			f, h5tpriv_map_oid2str (t->mesh_type), parent_idx);
+		H5_CORE_API_LEAVE (
+			HANDLE_H5_PARENT_ID_ERR (
+				h5tpriv_map_oid2str (t->mesh_type), parent_idx));
 	}
 
 	/* store elem data (but neighbors) */
@@ -259,31 +266,30 @@ h5t_store_elem (
 	int num_faces = h5tpriv_ref_elem_get_num_edges (t);
 	for (face_idx = 0; face_idx < num_faces; face_idx++) {
 		// add edges to neighbour struct
-		TRY( h5tpriv_search_te2 (f, face_idx, elem_idx, NULL) );
+		TRY (h5tpriv_search_te2 (f, face_idx, elem_idx, NULL));
 	}
-	return elem_idx;
+	H5_CORE_API_RETURN (elem_idx);
 }
 
 h5_err_t
 h5t_end_store_elems (
 	h5_file_t* const f
 	) {
-	h5_debug (f, "%s ()", __func__);
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 
 	t->num_elems[t->leaf_level] = t->last_stored_eid+1;
 
 	/* assign global indices to new indices */
-	TRY( assign_glb_elem_indices (f) );
+	TRY (assign_glb_elem_indices (f));
 
 	/* rebuild map: global index -> local_index */
-	TRY( h5tpriv_rebuild_elem_indices_mapping (f) );
+	TRY (h5tpriv_rebuild_elem_indices_mapping (f));
 
 	/* mesh specific finalize */
-	TRY( (t->methods.store->end_store_elems)(f) );
+	TRY (t->methods.store->end_store_elems (f));
 
-	h5_debug (f, "%s (): done", __func__);
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -294,8 +300,9 @@ h5t_mark_entity (
 	h5_file_t* const f,
 	const h5_loc_id_t entity_id
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
-	return h5priv_insert_idlist (f, &t->marked_entities, entity_id, -1);
+	H5_CORE_API_RETURN (h5priv_insert_idlist (f, &t->marked_entities, entity_id, -1));
 }
 
 /*
@@ -323,6 +330,7 @@ h5_err_t
 h5t_pre_refine (
 	h5_file_t* const f
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 	unsigned int num_elems_to_refine = t->marked_entities->num_items;
 	unsigned int num_elems_to_add = 0;
@@ -338,12 +346,12 @@ h5t_pre_refine (
 		num_elems_to_add = num_elems_to_refine*4;
 		break;
 	default:
-		return h5_error_internal (f, __FILE__, __func__, __LINE__);
+		H5_CORE_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
 	}
-	TRY( h5t_begin_store_vertices (f, num_vertices_to_add) );
-	TRY( h5t_begin_store_elems (f, num_elems_to_add) );
+	TRY (h5t_begin_store_vertices (f, num_vertices_to_add));
+	TRY (h5t_begin_store_elems (f, num_elems_to_add));
 
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -353,22 +361,24 @@ h5_err_t
 h5t_refine_marked_elems (
 	h5_file_t* const f
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 	int i;
 	for (i = 0; i < t->marked_entities->num_items; i++) {
-		TRY( h5tpriv_refine_elem (f, t->marked_entities->items[i]) );
+		TRY (h5tpriv_refine_elem (f, t->marked_entities->items[i]));
 	}
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
 h5t_post_refine (
 	h5_file_t* const f
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
-	TRY( h5t_end_store_vertices (f) );
-	TRY( h5t_end_store_elems (f) );
-	return h5priv_free_idlist (f, &t->marked_entities);
+	TRY (h5t_end_store_vertices (f));
+	TRY (h5t_end_store_elems (f));
+	H5_CORE_API_RETURN (h5priv_free_idlist (f, &t->marked_entities));
 }
 
 
@@ -376,14 +386,15 @@ h5_err_t
 h5t_begin_refine_elems (
 	h5_file_t* const f
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 
 	/*
 	  Pre-allocate space for items to avoid allocating small pieces of
 	  memory.
 	*/
-	TRY( h5priv_alloc_idlist (f, &t->marked_entities, 2048) );
-	return H5_SUCCESS;
+	TRY (h5priv_alloc_idlist (f, &t->marked_entities, 2048));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 
@@ -391,30 +402,31 @@ h5_err_t
 h5t_end_refine_elems (
 	h5_file_t* const f
 	) {
-	TRY( h5t_pre_refine (f) );
-	TRY( h5t_refine_marked_elems (f) );
-	TRY( h5t_post_refine (f) );
-
-	return H5_SUCCESS;
+	H5_CORE_API_ENTER (h5_err_t);
+	TRY (h5t_pre_refine (f));
+	TRY (h5t_refine_marked_elems (f));
+	TRY (h5t_post_refine (f));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
 h5t_create_index_set (
 	h5_file_t* const f
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	int codim;
 	int dim = h5tpriv_ref_elem_get_dim (f->t);
 	// todo: check tagset already exist
-	TRY( h5t_add_mtagset (f, "__IndexSet__", H5_INT64_T) );
+	TRY (h5t_add_mtagset (f, "__IndexSet__", H5_INT64_T));
 
 	for (codim = 0; codim <= dim; codim++) {
 		h5_glb_idx_t idx = 0;
 		h5t_leaf_iterator_t it;
 		h5_glb_id_t entity_id;
-		TRY( h5t_init_leaf_iterator (f, (h5t_iterator_t*)&it, codim) );
+		TRY (h5t_init_leaf_iterator (f, (h5t_iterator_t*)&it, codim));
 		while ((entity_id = it.iter(f, (h5t_iterator_t*)&it)) >= 0) {
-			TRY( h5t_set_mtag_by_name (f, "__IndexSet__", entity_id, 1, &idx) );
+			TRY (h5t_set_mtag_by_name (f, "__IndexSet__", entity_id, 1, &idx));
 		}
 	}
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }

@@ -8,8 +8,8 @@ h5u_read_data (
 	void *data,		/*!< [out] Array of data */
 	const hid_t type
 	) {
-
-	CHECK_TIMEGROUP( f );
+	H5_CORE_API_ENTER (h5_err_t);
+	CHECK_TIMEGROUP (f);
 
 	struct h5u_fdata *u = f->u;
 	hid_t dataset_id;
@@ -18,40 +18,39 @@ h5u_read_data (
 	hsize_t ndisk, nread, nmem;
 
 	if ( f->step_gid < 0 ) {
-		TRY( h5_set_step ( f, f->step_idx ) );
+		TRY (h5_set_step (f, f->step_idx));
 	}
 
 	char name2[H5_DATANAME_LEN];
-	TRY ( h5_normalize_dataset_name (f, name, name2) );
+	TRY (h5_normalize_dataset_name (f, name, name2));
 
-	TRY( (dataset_id = h5priv_open_hdf5_dataset ( f, f->step_gid, name2 ) ) );
+	TRY (dataset_id = hdf5_open_dataset (f->step_gid, name2));
 
 	/* default spaces, if not using a view selection */
 	memspace_id = H5S_ALL;
-	TRY( space_id = h5priv_get_hdf5_dataset_space(f, dataset_id) );
+	TRY (space_id = hdf5_get_dataset_space (dataset_id));
 
 	/* get the number of elements on disk for the datset */
-	TRY ( ndisk = h5priv_get_npoints_of_hdf5_dataspace(f, space_id) );
+	TRY (ndisk = hdf5_get_npoints_of_dataspace (space_id));
 
 	if (u->diskshape != H5S_ALL) {
-		TRY( nread = h5priv_get_npoints_of_hdf5_dataspace(f, u->diskshape) );
+		TRY (nread = hdf5_get_npoints_of_dataspace(u->diskshape));
 
 		/* make sure the disk space selected by the view doesn't
 		 * exceed the size of the dataset */
 		if (nread <= ndisk) {
 			/* we no longer need the dataset space... */
-			TRY( h5priv_close_hdf5_dataspace(f, space_id) );
+			TRY (hdf5_close_dataspace(space_id));
 			/* ...because it's safe to use the view selection */
 			space_id = f->u->diskshape;
 		} else {
 			/* the view selection is too big?
 			 * fall back to using the dataset space */
 			h5_warn (
-					f,
-					"Ignoring view: dataset[%s] has fewer "
-					"elements on disk (%lld) than are selected "
-					"(%lld).",
-					name2, (long long)ndisk, (long long)nread );
+				"Ignoring view: dataset[%s] has fewer "
+				"elements on disk (%lld) than are selected "
+				"(%lld).",
+				name2, (long long)ndisk, (long long)nread );
 			nread = ndisk;
 		}
 	} else {
@@ -61,7 +60,7 @@ h5u_read_data (
 	}
 
 	if (u->memshape != H5S_ALL) {
-		TRY( nmem = h5priv_get_npoints_of_hdf5_dataspace(f, u->memshape) );
+		TRY (nmem = hdf5_get_npoints_of_dataspace (u->memshape));
 
 		/* make sure the memory space selected by the view has
 		 * enough capacity for the read */
@@ -71,31 +70,33 @@ h5u_read_data (
 			/* the view selection is too small?
 			 * fall back to using H5S_ALL */
 			h5_warn (
-					f,
-					"Ignoring view: dataset[%s] has more "
-					"elements selected (%lld) than are available "
-					"in memory (%lld).",
-					name2, (long long)nread, (long long)nmem );
+				"Ignoring view: dataset[%s] has more "
+				"elements selected (%lld) than are available "
+				"in memory (%lld).",
+				name2, (long long)nread, (long long)nmem );
 			memspace_id = H5S_ALL;
 		}
 	}
-
-	TRY( h5priv_read_hdf5_dataset (
-		f,
-		dataset_id,
-		type,
-		memspace_id,
-		space_id,
-		f->xfer_prop,
-		data ) );
-
-	if ( space_id != f->u->diskshape ) {
-		TRY( h5priv_close_hdf5_dataspace( f, space_id ) );
+#ifdef PARALLEL_IO
+	TRY (h5_start_throttle (f));
+#endif
+	TRY (hdf5_read_dataset (
+		     dataset_id,
+		     type,
+		     memspace_id,
+		     space_id,
+		     f->xfer_prop,
+		     data ));
+#ifdef PARALLEL_IO
+	TRY (h5_end_throttle (f));
+#endif
+	if (space_id != f->u->diskshape) {
+		TRY (hdf5_close_dataspace (space_id));
 	}
 
-	TRY( h5priv_close_hdf5_dataset ( f, dataset_id ) );
+	TRY (hdf5_close_dataset (dataset_id));
 	
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -105,7 +106,7 @@ h5u_write_data (
 	const void *data,	/*!< IN: Array to commit to disk */
 	const hid_t type	/*!< IN: Type of data */
 	) {
-
+	H5_CORE_API_ENTER (h5_err_t);
 	CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
 
@@ -113,10 +114,10 @@ h5u_write_data (
 	hid_t dset_id;
 
 	char name2[H5_DATANAME_LEN];
-	TRY ( h5_normalize_dataset_name (f, name, name2) );
+	TRY (h5_normalize_dataset_name (f, name, name2));
 
 	if ( u->shape == H5S_ALL )
-		h5_warn(f, "The view is unset or invalid.");
+		h5_warn("The view is unset or invalid.");
 
 	/* test for existing dataset */
 	H5E_BEGIN_TRY
@@ -124,34 +125,36 @@ h5u_write_data (
 	H5E_END_TRY
 
 	if (dset_id > 0) {
-		h5_warn( f,
-			"Dataset %s/%s already exists",
+		h5_warn("Dataset %s/%s already exists",
 			h5_get_objname(f->step_gid), name2);
 	} else {
-		TRY( dset_id = h5priv_create_hdf5_dataset (
-			f,
-			f->step_gid,
-			name2,
-			type,
-			u->shape,
-			H5P_DEFAULT) );
+		TRY (dset_id = hdf5_create_dataset (
+			     f->step_gid,
+			     name2,
+			     type,
+			     u->shape,
+			     H5P_DEFAULT));
 	}
 
-	h5_info (f,
-		"Writing dataset %s/%s.",
+#ifdef PARALLEL_IO
+	TRY (h5_start_throttle (f));
+#endif
+	h5_info ("Writing dataset %s/%s.",
 		h5_get_objname(f->step_gid), name2); 
-	TRY( h5priv_write_hdf5_dataset (
-		     f,
+	TRY (hdf5_write_dataset (
 		     dset_id,
 		     type,
 		     u->memshape,
 		     u->diskshape,
 		     f->xfer_prop,
-		     data) );
-	TRY( h5priv_close_hdf5_dataset (f, dset_id) );
+		     data));
+#ifdef PARALLEL_IO
+	TRY (h5_end_throttle (f));
+#endif
+	TRY (hdf5_close_dataset (dset_id));
 
 	f->empty = 0;
 
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 

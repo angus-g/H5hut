@@ -23,7 +23,8 @@ h5t_get_adjacencies (
 	const h5_int32_t dim,
 	h5_loc_idlist_t** list
 	) {
-	return h5tpriv_get_adjacencies (f, entity_id, dim, list);
+	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_RETURN (h5tpriv_get_adjacencies (f, entity_id, dim, list));
 }
 
 h5_err_t
@@ -31,8 +32,8 @@ h5t_release_list_of_adjacencies (
 	h5_file_t* const f,
 	h5_loc_idlist_t** list
 	) {
-	TRY( h5priv_free_idlist (f, list) );
-	return H5_SUCCESS;
+	H5_CORE_API_ENTER (h5_err_t);;
+	H5_CORE_API_RETURN (h5priv_free_idlist (f, list));
 }
 
 h5_err_t
@@ -42,5 +43,6 @@ h5t_find_te2 (
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t** retval
 	) {
-    return h5tpriv_find_te2 (f,face_idx,elem_idx,retval);
+	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_RETURN (h5tpriv_find_te2 (f,face_idx,elem_idx,retval));
 }

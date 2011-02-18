@@ -5,8 +5,7 @@ h5_file_t *
 h5_open_file (
 	const char *filename,
 	h5_int32_t flags,
-	MPI_Comm comm,
-	const char *funcname
+	MPI_Comm comm
 	);
 
 h5_int64_t

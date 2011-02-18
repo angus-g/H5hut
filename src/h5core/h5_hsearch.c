@@ -68,12 +68,11 @@ h5priv_hcreate (
 	unsigned int (*compute_hash)(const void*),
 	h5_err_t (*free_entry)(h5_file_t* const f, const void*)
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t h5err = H5_SUCCESS;
+	H5_PRIV_API_ENTER (h5_err_t);
 
 	/* Test for correct arguments.  */
 	if (htab == NULL || htab->table != NULL) {
-		TRY2( h5_error_internal (f, __FILE__, __func__, __LINE__) );
+		H5_PRIV_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
 	}
 	/* Change nel to the first prime number not smaller as nel. */
 	nel |= 1;      /* make odd */
@@ -87,11 +86,11 @@ h5priv_hcreate (
 	htab->free_entry = free_entry;
 
 	/* allocate memory and zero out */
-	TRY2( (htab->table = (_ENTRY *) h5_calloc (
-		       f, htab->size + 1, sizeof (_ENTRY))) );
+	TRY (htab->table = (_ENTRY *) h5_calloc (
+		      htab->size + 1, sizeof (_ENTRY)));
 
 	/* everything went alright */
-	H5_CORE_API_RETURN (h5err);
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -103,40 +102,38 @@ h5priv_hresize (
 	size_t nel,		// number of entries to grow
 	h5_hashtable_t* htab	// hash table to resize
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t h5err = H5_SUCCESS;
+	H5_PRIV_API_ENTER (h5_err_t);
 	if (htab == NULL || htab->table == NULL) {
-		TRY2( h5_error_internal (f, __FILE__, __func__, __LINE__) );
+		H5_PRIV_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
 	}
 	// create new hash table
 	h5_hashtable_t __htab;
 	memset (&__htab, 0, sizeof (__htab));
 	nel += htab->size;
-	h5_debug (f, "Resize hash table from %u to %lu elements.",
-		   htab->size, nel);
-	TRY2( h5priv_hcreate (f, nel, &__htab, htab->compare,
-			     htab->compute_hash, htab->free_entry) );
+	h5_debug ("Resize hash table from %u to %lu elements.", htab->size, nel);
+	TRY (h5priv_hcreate (f, nel, &__htab, htab->compare,
+			      htab->compute_hash, htab->free_entry));
 
 	// add all entries to new hash table
 	unsigned int idx;
 	for (idx = 1; idx <= htab->size; idx++) {
 		if (htab->table[idx].used) {
 			void* ventry;
-			TRY2( h5priv_hsearch (
+			TRY (h5priv_hsearch (
 				      f,
 				      htab->table[idx].entry,
 				      H5_ENTER,
 				      &ventry,
-				      &__htab) );
+				      &__htab));
 		}
 	}
 	/* Free used memory.  */
-	TRY2( h5_free (f, htab->table) );
+	TRY (h5_free (htab->table));
 
 	/* the sign for an existing table is an value != NULL in htable */
 	htab->table = NULL;
 	*htab = __htab;
-	H5_CORE_API_RETURN (h5err);
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -145,13 +142,14 @@ hwalk (
 	struct hsearch_data* htab,
 	h5_err_t (*visit)(h5_file_t*const f, const void *item)
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	unsigned int idx = 1;
 	for (idx = 1; idx < htab->size; idx++) {
 		if (htab->table[idx].used) {
-			TRY( (*visit)(f, &htab->table[idx].entry) );
+			TRY ((*visit)(f, &htab->table[idx].entry));
 		}
 	}
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 
@@ -162,21 +160,20 @@ h5priv_hdestroy (
 	h5_file_t* const f,
 	struct hsearch_data* htab
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t ret_value = H5_SUCCESS;
+	H5_PRIV_API_ENTER (h5_err_t);
 	/* Test for correct arguments.  */
 	if (htab == NULL) {
-		TRY2( h5_error_internal (f, __FILE__, __func__, __LINE__) );
+		H5_PRIV_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
 	}
 
-	TRY2( hwalk (f, htab, htab->free_entry) );
+	TRY (hwalk (f, htab, htab->free_entry));
 
 	/* Free used memory.  */
-	TRY2( h5_free (f, htab->table) );
+	TRY (h5_free (htab->table));
 
 	/* the sign for an existing table is an value != NULL in htable */
 	htab->table = NULL;
-	H5_CORE_API_RETURN (ret_value);
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 
@@ -202,8 +199,7 @@ h5priv_hsearch (
 	void** retval,
 	struct hsearch_data* htab
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t ret_value = H5_SUCCESS;
+	H5_PRIV_API_ENTER (h5_err_t);
 	unsigned int hval;
 	unsigned int idx;
 
@@ -221,7 +217,7 @@ h5priv_hsearch (
 			if (retval) {
 				*retval = htab->table[idx].entry;
 			}
-			H5_GOTO_DONE (H5_SUCCESS);
+			H5_PRIV_API_LEAVE (H5_SUCCESS);
 		}
 
 		/* Second hash function, as suggested in [Knuth] */
@@ -248,7 +244,7 @@ h5priv_hsearch (
 				if (retval) {
 					*retval = htab->table[idx].entry;
 				}
-				H5_GOTO_DONE (H5_SUCCESS);
+				H5_PRIV_API_LEAVE (H5_SUCCESS);
 			}
 		} while (htab->table[idx].used);
 	}
@@ -258,11 +254,10 @@ h5priv_hsearch (
 		/* If table is full and another entry should be entered return
 		   with error.  */
 		if (htab->filled == htab->size)	{
-			h5_error_internal (f, __FILE__, __func__, __LINE__);
 			if (retval) {
 				*retval = NULL;
 			}
-			H5_GOTO_DONE (H5_ERR);
+			H5_PRIV_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
 		}
 
 		htab->table[idx].used  = hval;
@@ -273,16 +268,15 @@ h5priv_hsearch (
 		if (retval) {
 			*retval = htab->table[idx].entry;
 		}
-		H5_GOTO_DONE (H5_SUCCESS);
+		H5_PRIV_API_LEAVE (H5_SUCCESS);
 	} else if (action == H5_REMOVE) {
 		htab->table[idx].used = 0;		/* mark as unused, but */
 		*retval = htab->table[idx].entry;	/* return ptr to entry */
-		H5_GOTO_DONE (H5_SUCCESS);
+		H5_PRIV_API_LEAVE (H5_SUCCESS);
 	}
 	if (retval) *retval = NULL;
-	h5_debug (f, "Key not found in hash table.");
-	ret_value = H5_NOK;
-	H5_CORE_API_RETURN (ret_value);
+	h5_debug ("Key not found in hash table.");
+	H5_PRIV_API_RETURN (H5_NOK);
 }
 
 typedef struct {
@@ -319,10 +313,11 @@ free_string_keyed (
 	h5_file_t* const f,
 	const void* __entry
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5_hitem_string_keyed_t* entry = (h5_hitem_string_keyed_t*) __entry;
-	TRY( h5_free (f, entry->key) );
-	TRY( h5_free (f, entry) );
-	return H5_SUCCESS;
+	TRY (h5_free (entry->key));
+	TRY (h5_free (entry));
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -332,37 +327,17 @@ h5priv_hcreate_string_keyed (
 	h5_hashtable_t* htab,
 	h5_err_t (*free_entry)(h5_file_t* const f, const void*)
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t ret_value = H5_SUCCESS;
+	H5_PRIV_API_ENTER (h5_err_t);
 	if (free_entry == NULL) {
-		TRY2( ret_value = h5priv_hcreate (f, nel, htab,
-						  cmp_string_keyed,
-						  compute_string_keyed,
-						  free_string_keyed) );
+		TRY (h5priv_hcreate (f, nel, htab,
+				     cmp_string_keyed,
+				     compute_string_keyed,
+				     free_string_keyed));
 	} else {
-		TRY2( ret_value = h5priv_hcreate (f, nel, htab,
-						  cmp_string_keyed,
-						  compute_string_keyed,
-						  free_entry) );
+		TRY (h5priv_hcreate (f, nel, htab,
+				     cmp_string_keyed,
+				     compute_string_keyed,
+				     free_entry));
 	}
-	H5_CORE_API_RETURN (ret_value);
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
-
-#if 0
-static unsigned int
-hcompute_loc_id_keyed (
-	const void*__item
-	) {
-	register uint16_t* key = (uint16_t*)__item;
-	register int count = sizeof(h5_loc_id_t)/sizeof(uint16_t);
-	register unsigned int hval = sizeof (h5_loc_id_t);
-	while (count--) {
-		if (*key) {
-			hval <<= 6;
-			hval += *key;
-		}
-		key++;
-	}
-	return hval;
-}
-#endif

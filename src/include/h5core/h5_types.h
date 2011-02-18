@@ -51,6 +51,8 @@ typedef uint64_t		h5_size_t;	/* size in number of elements */
 typedef int64_t			h5_ssize_t;	/* size in number of elements */
 typedef int64_t			h5_err_t;
 
+typedef char*			char_p;
+typedef void*			void_p;
 typedef double			h5_float64_t;
 typedef float			h5_float32_t;
 
@@ -62,15 +64,15 @@ typedef h5_float64_t h5_coord3d_t[3];
 
 struct h5_file;
 typedef struct h5_file h5_file_t;
+typedef h5_file_t* h5_file_p;
 
 typedef h5_err_t (*h5_errorhandler_t)(
-	const h5_file_t * const,
 	const char*,
 	va_list ap );
 
 #ifndef PARALLEL_IO
-typedef unsigned long		MPI_Comm;
-typedef unsigned long		MPI_Datatype;
+typedef int	MPI_Comm;
+typedef int	MPI_Datatype;
 #endif
 
 typedef struct h5_loc_idlist {

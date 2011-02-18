@@ -5,8 +5,31 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
-static h5_errorhandler_t	h5priv_errhandler	= h5_report_errorhandler;
-h5_int32_t			h5priv_debug_level	= 1;
+static h5_errorhandler_t	h5_errhandler = h5_report_errorhandler;
+h5_err_t			h5_errno;
+h5_int32_t			h5_debug_level = 1;
+int				h5_initialized = 0;
+struct call_stack		h5_call_stack;
+
+char *h5_rfmts[] = {
+	[e_int]			"%d",
+	[e_ssize_t]		"%ld",
+	[e_char_p]		"%s",
+	[e_void_p]		"0x%p",
+	[e_h5_err_t]		"%lld",
+	[e_h5_int64_t]		"%lld",
+	[e_h5_id_t]		"%lld",
+	[e_h5_ssize_t]		"%lld",
+	[e_h5_errorhandler_t]	"0x%p",
+	[e_h5_file_p]		"0x%p",
+	[e_h5t_lvl_idx_t]	"%d",
+	[e_h5t_iterator_p]	"0x%p",
+	[e_h5_loc_id_t]		"%ld",
+	[e_h5_loc_idx_t]	"%ld",
+	[e_hid_t]		"%ld",
+	[e_H5O_type_t]		"%ld",
+	[e_herr_t]		"%ld"
+};
 
 /*!
   \ingroup h5_core
@@ -18,6 +41,15 @@ const char* const H5_O_MODES[] = {
 	"H5_O_WRONLY",
 	"H5_O_APPEND"
 };
+
+void
+h5_initialize (
+	void
+	) {
+	memset (&h5_call_stack, 0, sizeof (h5_call_stack));
+	h5_initialized = 1;
+}
+
 
 /*!
   \ingroup h5_core_errorhandling
@@ -38,9 +70,9 @@ h5_set_debuglevel (
 	const h5_id_t level	/*!< debug level */
 	) {
 	if (level < 0) 
-		h5priv_debug_level = 0;
+		h5_debug_level = 0;
 	else
-		h5priv_debug_level = level;
+		h5_debug_level = level;
 	return H5_SUCCESS;
 }
 
@@ -55,7 +87,7 @@ h5_id_t
 h5_get_debuglevel (
 	void
 	) {
-	return h5priv_debug_level;
+	return h5_debug_level;
 }
 
 /*!
@@ -69,7 +101,7 @@ h5_err_t
 h5_set_errorhandler (
 	const h5_errorhandler_t handler
 	) {
-	h5priv_errhandler = handler;
+	h5_errhandler = handler;
 	return H5_SUCCESS;
 }
 
@@ -84,7 +116,7 @@ h5_errorhandler_t
 h5_get_errorhandler (
 	void
 	) {
-	return h5priv_errhandler;
+	return h5_errhandler;
 }
 
 /*!
@@ -96,9 +128,9 @@ h5_get_errorhandler (
 */
 h5_err_t
 h5_get_errno (
-	const h5_file_t* const f
+	void
 	) {
-	return f->__errno;
+	return h5_errno;
 }
 
 /*!
@@ -110,10 +142,9 @@ h5_get_errno (
 */
 void
 h5_set_errno (
-	h5_file_t* const f,
 	const h5_err_t errno
 	) {
-	f->__errno = errno;
+	h5_errno = errno;
 }
 
 
@@ -127,15 +158,13 @@ h5_set_errno (
 */
 h5_err_t
 h5_report_errorhandler (
-	const h5_file_t* const f,
 	const char* fmt,
 	va_list ap
 	) {
-
-	if (h5priv_debug_level > 0) {
-		h5_verror (f, fmt, ap);
+	if (h5_debug_level > 0) {
+		h5_verror (fmt, ap);
 	}
-	return f->__errno;
+	return h5_errno;
 }
 
 /*!
@@ -146,20 +175,18 @@ h5_report_errorhandler (
 */
 h5_err_t
 h5_abort_errorhandler (
-	const h5_file_t* const f,
 	const char* fmt,
 	va_list ap
 	) {
-
-	if (h5priv_debug_level > 0) {
-		h5_verror (f, fmt, ap);
+	if (h5_debug_level > 0) {
+		h5_verror (fmt, ap);
 	}
 #ifdef PARALLEL_IO
-        MPI_Abort(f->comm, -(int)f->__errno);
+        MPI_Abort(MPI_COMM_WORLD, -(int)h5_errno);
 #else
-	exit (-(int)f->__errno);
+	exit (-(int)h5_errno);
 #endif
-	return -(int)f->__errno; // never executed, just to supress a warning
+	return -(int)h5_errno; // never executed, just to supress a warning
 }
 
 void
@@ -184,19 +211,18 @@ h5priv_vprintf (
 */
 h5_err_t
 h5_error (
-	h5_file_t* const f,
-	const h5_err_t __errno,
+	const h5_err_t errno_,
 	const char* fmt,
 	...
 	) {
-	f->__errno = __errno;
+	h5_errno = errno_;
 	va_list ap;
 	va_start (ap, fmt);
 
-	(*h5priv_errhandler)(f, fmt, ap);
+	(*h5_errhandler)(fmt, ap);
 
 	va_end (ap);
-	return f->__errno;
+	return h5_errno;
 }
 
 /*!
@@ -206,37 +232,10 @@ h5_error (
 */
 void
 h5_verror (
-	const h5_file_t* const f,
 	const char* fmt,
 	va_list ap
 	) {
 
-	if (h5priv_debug_level < 1) return;
-	h5priv_vprintf (stderr, "E", f->__funcname, fmt, ap);
+	if (h5_debug_level < 1) return;
+	h5priv_vprintf (stderr, "E", h5_call_stack.entry[0].name, fmt, ap);
 }
-
-/*!
-  \ingroup h5_core_errorhandling
-
-  Set function name. This name will used as prefix to all message.
-*/
-void
-h5_set_funcname (
-	h5_file_t* const f,
-	const char* const fname
-	) {
-	f->__funcname = (char *)fname;
-}
-
-/*!
-  \ingroup h5_core_errorhandling
-
-  Get function name.
-*/
-const char*
-h5_get_funcname (
-	const h5_file_t* const f
-	) {
-	return f->__funcname;
-}
-

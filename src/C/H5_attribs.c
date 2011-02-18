@@ -20,15 +20,14 @@ H5WriteFileAttribString (
 	const char *name,	/*!< [in] Name of attribute to create */
 	const char *value	/*!< [in] Value of attribute */ 
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_write_attrib (
-		f,
-		H5_ATTRIB_FILE,
-		name,
-		H5T_NATIVE_CHAR,
-		value,
-		strlen(value) + 1 );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_write_attrib (
+			       f,
+			       H5_ATTRIB_FILE,
+			       name,
+			       H5T_NATIVE_CHAR,
+			       value,
+			       strlen(value) + 1 ));
 }
 
 /*!
@@ -45,15 +44,14 @@ H5WriteStepAttribString (
 	const char *name,	/*!< [in] Name of attribute to create */
 	const char *value	/*!< [in] Value of attribute */ 
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_write_attrib (
-		f, 
-		H5_ATTRIB_STEP,
-		name,
-		H5T_NATIVE_CHAR,
-		value,
-		strlen(value) + 1 );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_write_attrib (
+			       f, 
+			       H5_ATTRIB_STEP,
+			       name,
+			       H5T_NATIVE_CHAR,
+			       value,
+			       strlen(value) + 1 ));
 }
 
 /*!
@@ -71,15 +69,14 @@ H5WriteFileAttribFloat32 (
 	const h5_float32_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_write_attrib (
-		f,
-		H5_ATTRIB_FILE,
-		name,
-		H5T_NATIVE_FLOAT,
-		values,
-		nelems );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_write_attrib (
+			       f,
+			       H5_ATTRIB_FILE,
+			       name,
+			       H5T_NATIVE_FLOAT,
+			       values,
+			       nelems ));
 }
 
 /*!
@@ -97,15 +94,14 @@ H5WriteStepAttribFloat32 (
 	const h5_float32_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_write_attrib (
-		f,
-		H5_ATTRIB_STEP,
-		name,
-		H5T_NATIVE_FLOAT,
-		values,
-		nelems );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_write_attrib (
+			       f,
+			       H5_ATTRIB_STEP,
+			       name,
+			       H5T_NATIVE_FLOAT,
+			       values,
+			       nelems ));
 }
 
 /*!
@@ -123,15 +119,14 @@ H5WriteFileAttribFloat64 (
 	const h5_float64_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_write_attrib (
-		f,
-		H5_ATTRIB_FILE,
-		name,
-		H5T_NATIVE_DOUBLE,
-		values,
-		nelems );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_write_attrib (
+			       f,
+			       H5_ATTRIB_FILE,
+			       name,
+			       H5T_NATIVE_DOUBLE,
+			       values,
+			       nelems));
 }
 
 /*!
@@ -149,15 +144,14 @@ H5WriteStepAttribFloat64 (
 	const h5_float64_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_write_attrib (
-		f,
-		H5_ATTRIB_STEP,
-		name,
-		H5T_NATIVE_DOUBLE,
-		values,
-		nelems );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_write_attrib (
+			       f,
+			       H5_ATTRIB_STEP,
+			       name,
+			       H5T_NATIVE_DOUBLE,
+			       values,
+			       nelems));
 }
 
 /*!
@@ -175,15 +169,14 @@ H5WriteFileAttribInt32 (
 	const h5_int32_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_write_attrib (
-		f,
-		H5_ATTRIB_FILE,
-		name,
-		H5T_NATIVE_INT32,
-		values,
-		nelems );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_write_attrib (
+			       f,
+			       H5_ATTRIB_FILE,
+			       name,
+			       H5T_NATIVE_INT32,
+			       values,
+			       nelems));
 }
 
 /*!
@@ -201,15 +194,14 @@ H5WriteStepAttribInt32 (
 	const h5_int32_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_write_attrib (
-		f,
-		H5_ATTRIB_STEP,
-		name,
-		H5T_NATIVE_INT32,
-		values,
-		nelems );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_write_attrib (
+			       f,
+			       H5_ATTRIB_STEP,
+			       name,
+			       H5T_NATIVE_INT32,
+			       values,
+			       nelems));
 }
 
 /*!
@@ -227,15 +219,14 @@ H5WriteFileAttribInt64 (
 	const h5_int64_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_write_attrib (
-		f,
-		H5_ATTRIB_FILE,
-		name,
-		H5T_NATIVE_INT64,
-		values,
-		nelems );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_write_attrib (
+			       f,
+			       H5_ATTRIB_FILE,
+			       name,
+			       H5T_NATIVE_INT64,
+			       values,
+			       nelems));
 }
 
 /*!
@@ -253,15 +244,14 @@ H5WriteStepAttribInt64 (
 	const h5_int64_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_write_attrib (
-		f,
-		H5_ATTRIB_STEP,
-		name,
-		H5T_NATIVE_INT64,
-		values,
-		nelems );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_write_attrib (
+			       f,
+			       H5_ATTRIB_STEP,
+			       name,
+			       H5T_NATIVE_INT64,
+			       values,
+			       nelems));
 }
 
 /*** READ ***/
@@ -280,14 +270,13 @@ H5ReadFileAttribString (
 	const char *name,	/*!< [in] Name of attribute to create */
 	char *buffer		/*!< [out] Value of attribute */ 
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_read_attrib (
-		f,
-		H5_ATTRIB_FILE,
-		name,
-		H5_STRING_T,
-		(void*)buffer);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_read_attrib (
+			       f,
+			       H5_ATTRIB_FILE,
+			       name,
+			       H5_STRING_T,
+			       (void*)buffer));
 }
 
 /*!
@@ -304,14 +293,13 @@ H5ReadStepAttribString (
 	const char *name,	/*!< [in] Name of attribute to create */
 	char *buffer		/*!< [out] Value of attribute */ 
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_read_attrib (
-		f, 
-		H5_ATTRIB_STEP,
-		name,
-		H5_STRING_T,
-		(void*)buffer);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_read_attrib (
+			       f, 
+			       H5_ATTRIB_STEP,
+			       name,
+			       H5_STRING_T,
+			       (void*)buffer));
 }
 
 /*!
@@ -328,14 +316,13 @@ H5ReadFileAttribInt32 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_int32_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_read_attrib (
-		f,
-		H5_ATTRIB_FILE,
-		name,
-		H5_INT32_T,
-		(void*)buffer);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_read_attrib (
+			       f,
+			       H5_ATTRIB_FILE,
+			       name,
+			       H5_INT32_T,
+			       (void*)buffer));
 }
 
 /*!
@@ -352,14 +339,13 @@ H5ReadStepAttribInt32 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_int32_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_read_attrib (
-		f,
-		H5_ATTRIB_STEP,
-		name,
-		H5_INT32_T,
-		(void*)buffer);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_read_attrib (
+			       f,
+			       H5_ATTRIB_STEP,
+			       name,
+			       H5_INT32_T,
+			       (void*)buffer));
 }
 
 /*!
@@ -376,14 +362,13 @@ H5ReadFileAttribInt64 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_int64_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_read_attrib (
-		f,
-		H5_ATTRIB_FILE,
-		name,
-		H5_INT64_T,
-		(void*)buffer);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_read_attrib (
+			       f,
+			       H5_ATTRIB_FILE,
+			       name,
+			       H5_INT64_T,
+			       (void*)buffer));
 }
 
 /*!
@@ -400,7 +385,7 @@ H5ReadStepAttribInt64 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_int64_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER;
+	H5_API_ENTER (h5_err_t);
 	h5_err_t h5err = h5_read_attrib (
 		f,
 		H5_ATTRIB_STEP,
@@ -424,14 +409,13 @@ H5ReadFileAttribFloat32 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_float32_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_read_attrib (
-		f,
-		H5_ATTRIB_FILE,
-		name,
-		H5_FLOAT32_T,
-		(void*)buffer);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_read_attrib (
+			       f,
+			       H5_ATTRIB_FILE,
+			       name,
+			       H5_FLOAT32_T,
+			       (void*)buffer));
 }
 
 /*!
@@ -448,14 +432,13 @@ H5ReadStepAttribFloat32 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_float32_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_read_attrib (
-		f,
-		H5_ATTRIB_STEP,
-		name,
-		H5_FLOAT32_T,
-		(void*)buffer);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_read_attrib (
+			       f,
+			       H5_ATTRIB_STEP,
+			       name,
+			       H5_FLOAT32_T,
+			       (void*)buffer));
 }
 
 /*!
@@ -472,14 +455,13 @@ H5ReadFileAttribFloat64 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_float64_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_read_attrib (
-		f,
-		H5_ATTRIB_FILE,
-		name,
-		H5_FLOAT64_T,
-		(void*)buffer);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_read_attrib (
+			       f,
+			       H5_ATTRIB_FILE,
+			       name,
+			       H5_FLOAT64_T,
+			       (void*)buffer));
 }
 
 /*!
@@ -496,14 +478,13 @@ H5ReadStepAttribFloat64 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_float64_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5_read_attrib (
-		f,
-		H5_ATTRIB_STEP,
-		name,
-		H5_FLOAT64_T,
-		(void*)buffer);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_read_attrib (
+			       f,
+			       H5_ATTRIB_STEP,
+			       name,
+			       H5_FLOAT64_T,
+			       (void*)buffer));
 }
 
 /*** QUERY ***/
@@ -519,9 +500,8 @@ h5_int64_t
 H5GetNumFileAttribs (
 	h5_file_t *const f	/*!< [in] Handle to open file */
 	) {
-	H5_API_ENTER;
-	h5_int64_t nattribs = h5_get_num_attribs ( f, H5_ATTRIB_FILE );
-	H5_API_RETURN (nattribs);
+	H5_API_ENTER (h5_int64_t);
+	H5_API_RETURN (h5_get_num_attribs (f, H5_ATTRIB_FILE));
 }
 
 /*!
@@ -535,9 +515,8 @@ h5_int64_t
 H5GetNumStepAttribs (
 	h5_file_t *const f 	/*!< [in] Handle to open file */
 	) {
-	H5_API_ENTER;
-	h5_int64_t nattribs = h5_get_num_attribs ( f, H5_ATTRIB_STEP );
-	H5_API_RETURN (nattribs);
+	H5_API_ENTER (h5_int64_t);
+	H5_API_RETURN (h5_get_num_attribs (f, H5_ATTRIB_STEP));
 }
 
 
@@ -555,7 +534,7 @@ H5GetNumStepAttribs (
   \return	\c H5_SUCCESS or error code 
 */
 
-h5_int64_t
+h5_err_t
 H5GetFileAttribInfo (
 	h5_file_t *const f,		/*!< [in]  Handle to open file */
 	const h5_size_t attrib_idx,	/*!< [in]  Index of attribute to get
@@ -566,16 +545,15 @@ H5GetFileAttribInfo (
 	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
 	h5_size_t *attrib_nelem         /*!< [out] Number of elements */
 	) {
-	H5_API_ENTER;
-	h5_int64_t h5err = h5_get_attrib_info (
-		f,
-		H5_ATTRIB_FILE,
-		attrib_idx,
-		attrib_name,
-		len_of_attrib_name,
-		attrib_type,
-		attrib_nelem );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_int64_t);
+	H5_API_RETURN (h5_get_attrib_info (
+			       f,
+			       H5_ATTRIB_FILE,
+			       attrib_idx,
+			       attrib_name,
+			       len_of_attrib_name,
+			       attrib_type,
+			       attrib_nelem));
 }
 
 /*!
@@ -591,7 +569,7 @@ H5GetFileAttribInfo (
 
   \return	\c H5_SUCCESS or error code 
 */
-h5_int64_t
+h5_err_t
 H5GetStepAttribInfo (
 	h5_file_t *const f,		/*!< [in]  Handle to open file */
 	const h5_size_t attrib_idx,	/*!< [in]  Index of attribute to
@@ -602,15 +580,14 @@ H5GetStepAttribInfo (
 	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
 	h5_size_t *attrib_nelem         /*!< [out] Number of elements */
 	) {
-	H5_API_ENTER;
-	h5_int64_t h5err = h5_get_attrib_info (
-		f,
-		H5_ATTRIB_STEP,
-		attrib_idx,
-		attrib_name,
-		len_of_attrib_name,
-		attrib_type,
-		attrib_nelem );
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5_get_attrib_info (
+			       f,
+			       H5_ATTRIB_STEP,
+			       attrib_idx,
+			       attrib_name,
+			       len_of_attrib_name,
+			       attrib_type,
+			       attrib_nelem));
 }
 

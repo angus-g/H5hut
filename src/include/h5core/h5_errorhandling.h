@@ -1,44 +1,77 @@
 #ifndef __H5_ERRORHANDLING_H
 #define __H5_ERRORHANDLING_H
 
-extern h5_int32_t h5priv_debug_level;
+enum h5_rtypes {
+	e_int = 0,
+	e_ssize_t,
+	e_char_p,
+	e_void_p,
+	e_h5_err_t,
+	e_h5_int64_t,
+	e_h5_id_t,
+	e_h5_ssize_t,
+	e_h5_errorhandler_t,
+	e_h5_file_p,
+	e_h5t_lvl_idx_t,
+	e_h5t_iterator_p,
+	e_h5_loc_id_t,
+	e_h5_loc_idx_t,
+	e_hid_t,
+	e_H5O_type_t,
+	e_herr_t
+};
+
+struct call_stack_entry {
+	char* name;
+	enum h5_rtypes type;
+};
+
+struct call_stack {
+	int level;
+	struct call_stack_entry entry[1024];
+};
+
+extern h5_int32_t h5_debug_level;
+extern int h5_initialized;
+extern struct call_stack h5_call_stack;
+extern h5_err_t	h5_errno;
+
+void
+h5_initialize (
+	void
+	);
 
 #define CHECK_FILEHANDLE( f )					\
 	if ( h5_check_filehandle ( f ) != H5_SUCCESS )		\
-		return h5_get_errno( f );
+		return h5_get_errno();
 
 
 #define CHECK_WRITABLE_MODE( f )					\
 	if ( f->mode==H5_O_RDONLY )					\
 		return h5_error (					\
-			f,						\
 			H5_ERR_INVAL,					\
 			"Attempting to write to read-only file" );
 
 #define CHECK_READONLY_MODE( f )					\
 	if ( ! f->mode==H5_O_RDONLY )					\
 		return h5_error (					\
-			f,						\
 			H5_ERR_INVAL,					\
 			"Operation is not allowed on writable files." );
 
 #define CHECK_TIMEGROUP( f )						\
 	if ( f->step_gid <= 0 )						\
 		return h5_error (					\
-			f,						\
 			H5_ERR_INVAL,					\
 			"Time step is invalid! Have you set the time step?");
 
-#define h5_error_not_implemented( f, file, func, lino )		     \
+#define h5_error_not_implemented( file, func, lino )		     \
 	h5_error(						     \
-		f,						     \
 		H5_ERR_NOT_IMPLEMENTED,				     \
 		"%s: Function \"%s\", line %d not yet implemented!", \
 		file, func, lino );
 
-#define h5_error_internal( f, file, func, lino )   \
+#define h5_error_internal( file, func, lino )   \
 	h5_error(				   \
-		f,				   \
 		H5_ERR_INTERNAL,		   \
 		"%s: Internal error: %s line %d!", \
 		file, func, lino )
@@ -66,25 +99,85 @@ h5_get_errorhandler (
 
 h5_err_t
 h5_get_errno (
-	const h5_file_t * const f
+	void
 	);
 
 void
 h5_set_errno (
-	h5_file_t * const f,
 	const h5_err_t h5_errno
 	);
 
+static inline void
+h5_call_stack_init (
+	const char* fname,
+	enum h5_rtypes type
+	) {
+	h5_call_stack.level = 0;
+	h5_call_stack.entry[0].name = (char *)fname;
+	h5_call_stack.entry[0].type = type;
+}
+
+static inline void
+h5_call_stack_push (
+	const char* fname,
+	enum h5_rtypes type
+	) {
+	h5_call_stack.entry[h5_call_stack.level].name = (char *)fname;
+	h5_call_stack.entry[h5_call_stack.level].type = type;
+	h5_call_stack.level++;
+}
+
+static inline const char*
+h5_call_stack_pop (
+	void
+	) {
+	return h5_call_stack.entry[--h5_call_stack.level].name;
+}
+
+static inline const char*
+h5_call_stack_get_name (
+	void
+	) {
+	return h5_call_stack.entry[h5_call_stack.level-1].name;
+}
+
+static inline const char*
+h5_get_funcname (
+	void
+	) {
+	return h5_call_stack.entry[0].name;
+}
+
+static inline enum h5_rtypes
+h5_call_stack_get_type (
+	void
+	) {
+	return h5_call_stack.entry[h5_call_stack.level-1].type;
+}
+
+static inline int
+h5_call_stack_get_level (
+	void
+	) {
+	return h5_call_stack.level;
+}
+
+static inline const char*
+h5_call_stack_reset (
+	void
+	) {
+	h5_call_stack.level = 0;
+	return h5_call_stack.entry[0].name;
+}
+
 h5_err_t
 h5_report_errorhandler (
-	const h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 h5_err_t
 h5_abort_errorhandler (
-	const h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
@@ -98,27 +191,19 @@ h5priv_vprintf (
 	va_list ap
 	);
 
-const char *
-h5_get_funcname (
-	const h5_file_t * const f
-	);
-
-
 h5_err_t
 h5_error (
-	h5_file_t * const f,
 	const h5_err_t error_no,
 	const char *fmt,
 	...
 	)
 #ifdef __GNUC__
-	__attribute__ ((format (printf, 3, 4)))
+	__attribute__ ((format (printf, 2, 3)))
 #endif
 ;
 
 void
 h5_verror (
-	const h5_file_t* const f,
 	const char* fmt,
 	va_list ap
 	);
@@ -129,28 +214,27 @@ h5_verror (
   Print a warning message to \c stderr.
 */
 
-static inline void
+static inline h5_err_t
 h5_warn (
-	const h5_file_t * const f,
 	const char *fmt,
 	...
 	)
 #ifdef __GNUC__
-__attribute__ ((format (printf, 2, 3)))
+__attribute__ ((format (printf, 1, 2)))
 #endif
 ;
-static inline void
+static inline h5_err_t
 h5_warn (
-	const h5_file_t* const f,
 	const char* fmt,
 	...
 	) {
-	if (h5priv_debug_level >= 2) {
+	if (h5_debug_level >= 2) {
 		va_list ap;
 		va_start (ap, fmt);
-		h5priv_vprintf (stderr, "W", h5_get_funcname(f), fmt, ap);
+		h5priv_vprintf (stderr, "W", h5_get_funcname(), fmt, ap);
 		va_end (ap);
 	}
+	return H5_NOK;
 }
 
 /*!
@@ -160,24 +244,22 @@ h5_warn (
 */
 static inline void
 h5_info (
-	const h5_file_t * const f,
 	const char *fmt,
 	...
 	)
 #ifdef __GNUC__
-__attribute__ ((format (printf, 2, 3)))
+__attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 static inline void
 h5_info (
-	const h5_file_t* const f,
 	const char* fmt,
 	...
 	) {
-	if (h5priv_debug_level >= 3) {
+	if (h5_debug_level >= 3) {
 		va_list ap;
 		va_start (ap, fmt);
-		h5priv_vprintf (stdout, "I", h5_get_funcname(f), fmt, ap);
+		h5priv_vprintf (stdout, "I", h5_get_funcname(), fmt, ap);
 		va_end (ap);
 	}
 }
@@ -187,53 +269,32 @@ h5_info (
 
   Print a debug message to \c stdout.
 */
-#if defined(HAVE__VA_ARGS__)
-#define h5_debug(f, ...)						\
-	if (h5priv_debug_level >= 4) {					\
-		h5priv_vprintf (stdout, "D", h5_get_funcname(f), __VA_ARGS__); \
-	}
-#else
 static inline void
 h5_debug (
-	const h5_file_t * const f,
 	const char *fmt,
 	...
 	)
 #ifdef __GNUC__
-__attribute__ ((format (printf, 2, 3)))
+__attribute__ ((format (printf, 1, 2)))
 #endif
 	;
 
 static inline void
 h5_debug (
-	const h5_file_t * const f,
 	const char *fmt,
 	...
 	) {
-	if (h5priv_debug_level >= 4) {
+	if (h5_debug_level >= 4) {
+		char prefix[256];
+		snprintf (prefix, sizeof(prefix), "(%d) %s",
+			  h5_call_stack_get_level(),
+			  h5_call_stack_get_name());
 		va_list ap;
 		va_start (ap, fmt);
-		h5priv_vprintf (stdout, "D", h5_get_funcname(f), fmt, ap);
+		h5priv_vprintf (stdout, "D", prefix, fmt, ap);
 		va_end (ap);
 	}
 }
-#endif
 
-void
-h5_set_funcname (
-	h5_file_t * const f,
-	const char  * const fname
-	);
-
-#define H5_API_ENTER {						\
-		h5_set_funcname( f, __func__ );			\
-		h5_debug (f, "%s", " ");			\
-	}							\
-
-#define H5_API_RETURN(retval)			\
-			     			\
-	goto done;				\
-	done:					\
-	return retval;				\
-
+	
 #endif

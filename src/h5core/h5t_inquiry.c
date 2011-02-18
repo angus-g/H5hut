@@ -9,29 +9,31 @@
 
   \return	Number of meshes of type \c type_id or error code.
  */
-h5_size_t
+h5_ssize_t
 h5t_get_num_meshes (
 	h5_file_t* const f,
 	const h5_oid_t type_id
 	) {
+	H5_CORE_API_ENTER (h5_ssize_t);
 	hid_t topo_gid = -1;
 	hid_t meshes_gid = -1;
 
 	h5_err_t exists;
-	TRY( exists = h5priv_hdf5_link_exists (f, f->root_gid, H5T_CONTAINER_GRPNAME) );
+	TRY (exists = hdf5_link_exists (f->root_gid, H5T_CONTAINER_GRPNAME));
 	if (!exists) return 0;
 
-	TRY( topo_gid = h5priv_open_hdf5_group (f, f->root_gid, H5T_CONTAINER_GRPNAME) );
+	TRY (topo_gid = hdf5_open_group (f->root_gid, H5T_CONTAINER_GRPNAME));
 
-	TRY( exists = h5priv_hdf5_link_exists (f, topo_gid, h5tpriv_meshes_grpnames[type_id]) );
+	TRY (exists = hdf5_link_exists (topo_gid, h5tpriv_meshes_grpnames[type_id]));
 	if (!exists) return 0;
 
-	TRY( meshes_gid = h5priv_open_hdf5_group (f, topo_gid, h5tpriv_meshes_grpnames[type_id]) );
+	TRY (meshes_gid = hdf5_open_group (topo_gid, h5tpriv_meshes_grpnames[type_id]));
+	h5_ssize_t num_meshes;
+	TRY (num_meshes = h5_get_num_hdf5_groups (meshes_gid));
+	TRY (hdf5_close_group (meshes_gid) );
+	TRY (hdf5_close_group (topo_gid) );
 
-	h5_size_t num_meshes = h5_get_num_hdf5_groups (f, meshes_gid);
-	TRY( h5priv_close_hdf5_group (f, meshes_gid) );
-	TRY( h5priv_close_hdf5_group (f, topo_gid) );
-	return num_meshes;
+	H5_CORE_API_RETURN (num_meshes);
 }
 
 /*!
@@ -41,16 +43,15 @@ h5t_get_num_meshes (
 
   \return	Number of hierarchical mesh levels or error code.
  */
-h5_size_t
+h5_ssize_t
 h5t_get_num_leaf_levels (
 	h5_file_t* const f
 	) {
-	h5t_fdata_t* t = f->t;
-
-	if (t->cur_mesh < 0) {
-		return h5tpriv_error_undef_mesh (f);
+	H5_CORE_API_ENTER (h5_ssize_t);
+	if (f->t->cur_mesh < 0) {
+		H5_CORE_API_LEAVE (h5tpriv_error_undef_mesh ());
 	}
-	return t->num_leaf_levels;
+	H5_CORE_API_RETURN (f->t->num_leaf_levels);
 }
 
 /*!
@@ -64,7 +65,8 @@ h5t_lvl_idx_t
 h5t_get_level (
 	h5_file_t* const f
 	) {
-	return f->t->leaf_level;
+	H5_CORE_API_ENTER (h5t_lvl_idx_t);
+	H5_CORE_API_RETURN (f->t->leaf_level);
 }
 
 /*!
@@ -80,21 +82,21 @@ h5t_get_level (
 
   \return	Number of elements or error code.
  */
-h5_size_t
+h5_ssize_t
 h5t_get_num_elems (
 	h5_file_t* const f,
 	const h5_id_t cnode
 	) {
+	H5_CORE_API_ENTER (h5_ssize_t);
 	UNUSED_ARGUMENT (cnode);
-	h5t_fdata_t* t = f->t;
 
-	if (t->cur_mesh < 0) {
-		return h5tpriv_error_undef_mesh (f);
+	if (f->t->cur_mesh < 0) {
+		H5_CORE_API_LEAVE (h5tpriv_error_undef_mesh ());
 	}
-	if (t->leaf_level < 0) {
-		return h5tpriv_error_undef_level (f);
+	if (f->t->leaf_level < 0) {
+		H5_CORE_API_LEAVE (h5tpriv_error_undef_level ());
 	}
-	return t->num_elems_on_leaf_level[t->leaf_level];
+	H5_CORE_API_RETURN (f->t->num_elems_on_leaf_level[f->t->leaf_level]);
 }
 
 /*!
@@ -110,20 +112,20 @@ h5t_get_num_elems (
 
   \return	Number of vertices or error code.
  */
-h5_size_t
+h5_ssize_t
 h5t_get_num_vertices (
 	h5_file_t* const f,
 	h5_id_t cnode
 	) {
+	H5_CORE_API_ENTER (h5_ssize_t);
 	UNUSED_ARGUMENT (cnode);
-	h5t_fdata_t* t = f->t;
 
-	if (t->cur_mesh < 0) {
-		return h5tpriv_error_undef_mesh (f);
+	if (f->t->cur_mesh < 0) {
+		H5_CORE_API_LEAVE (h5tpriv_error_undef_mesh ());
 	}
-	if (t->leaf_level < 0) {
-		return h5tpriv_error_undef_level (f);
+	if (f->t->leaf_level < 0) {
+		H5_CORE_API_LEAVE (h5tpriv_error_undef_level ());
 	}
-	return t->num_vertices[t->leaf_level];
+	H5_CORE_API_RETURN (f->t->num_vertices[f->t->leaf_level]);
 }
 

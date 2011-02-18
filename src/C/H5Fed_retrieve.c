@@ -31,27 +31,27 @@
   \return	H5_SUCCESS or error code
 */
 
-h5t_iterator_t*
+h5t_iterator_p
 H5FedBeginTraverseEntities (
 	h5_file_t* const f,
 	const int codim
 	) {
-	H5_API_ENTER;
-	h5t_iterator_t* iter;
-	TRY2( iter = h5_calloc (f, 1, sizeof (*iter)) );
-	TRY2( h5t_init_leaf_iterator (f, iter, codim) );
+	H5_API_ENTER (h5t_iterator_p);
+	h5t_iterator_p iter;
+	TRY2 (iter = h5_calloc (1, sizeof (*iter)));
+	TRY2 (h5t_init_leaf_iterator (f, iter, codim));
 	H5_API_RETURN (iter);
 }
 
-h5t_iterator_t*
+h5t_iterator_p
 H5FedBeginTraverseBoundaryFaces (
 	h5_file_t* const f,
 	const int codim
 	) {
-	H5_API_ENTER;
-	h5t_iterator_t* iter;
-	TRY2( iter = h5_calloc (f, 1, sizeof (*iter)) );
-	TRY2( h5t_init_boundary_face_iterator (f, iter, codim) );
+	H5_API_ENTER (h5t_iterator_p);
+	h5t_iterator_p iter;
+	TRY2 (iter = h5_calloc (1, sizeof (*iter)));
+	TRY2 (h5t_init_boundary_face_iterator (f, iter, codim));
 	H5_API_RETURN (iter);
 }
 
@@ -70,9 +70,8 @@ H5FedTraverseEntities (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
-	H5_API_ENTER;
-	h5_loc_id_t id = h5t_iterate_entities (f, iter);
-	H5_API_RETURN (id);
+	H5_API_ENTER (h5_loc_id_t);
+	H5_API_RETURN (h5t_iterate_entities (f, iter));
 }
 
 /*!
@@ -88,9 +87,8 @@ H5FedEndTraverseEntities (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5t_release_entity_iterator (f, iter);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5t_release_entity_iterator (f, iter));
 }
 
 
@@ -109,9 +107,8 @@ H5FedGetVertexCoordsByIndex (
 	h5_loc_idx_t vertex_index,
 	h5_float64_t P[3]
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5t_get_vertex_coords_by_index (f, vertex_index, P);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5t_get_vertex_coords_by_index (f, vertex_index, P));
 }
 
 h5_err_t
@@ -120,9 +117,8 @@ H5FedGetVertexCoordsByID (
 	h5_loc_id_t vertex_id,
 	h5_float64_t P[3]
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5t_get_vertex_coords_by_id (f, vertex_id, P);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5t_get_vertex_coords_by_id (f, vertex_id, P));
 }
 
 h5_err_t
@@ -131,9 +127,8 @@ H5FedGetVertexIndicesOfEdge (
 	h5_loc_id_t entity_id,
 	h5_loc_idx_t* vertex_indices
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5t_get_vertex_indices_of_edge (f, entity_id, vertex_indices);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5t_get_vertex_indices_of_edge (f, entity_id, vertex_indices));
 }
 
 h5_err_t
@@ -142,9 +137,8 @@ H5FedGetVertexIndicesOfTriangle (
 	h5_loc_id_t entity_id,
 	h5_loc_idx_t* vertex_indices
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5t_get_vertex_indices_of_triangle (f, entity_id, vertex_indices);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5t_get_vertex_indices_of_triangle (f, entity_id, vertex_indices));
 }
 
 h5_err_t
@@ -153,9 +147,8 @@ H5FedGetVertexIndicesOfTet (
 	h5_loc_id_t entity_id,
 	h5_loc_idx_t* vertex_indices
 	) {
-	H5_API_ENTER
-	h5_err_t h5err = h5t_get_vertex_indices_of_tet (f, entity_id, vertex_indices);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5t_get_vertex_indices_of_tet (f, entity_id, vertex_indices));
 }
 
 h5_err_t
@@ -164,9 +157,8 @@ H5FedGetVertexIndicesOfEntity (
 	h5_loc_id_t entity_id,
 	h5_loc_idx_t* vertex_indices
 	) {
-	H5_API_ENTER;
-	h5_err_t h5err = h5t_get_vertex_indices_of_entity (f, entity_id, vertex_indices);
-	H5_API_RETURN (h5err);
+	H5_API_ENTER (h5_err_t);
+	H5_API_RETURN (h5t_get_vertex_indices_of_entity (f, entity_id, vertex_indices));
 }
 
 

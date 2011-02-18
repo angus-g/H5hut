@@ -23,7 +23,7 @@ h5priv_mpi_recv(
 		MPI_STATUS_IGNORE
 		);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot receive data");
+		return h5_error (H5_ERR_MPI, "Cannot receive data");
 	return H5_SUCCESS;
 }
 
@@ -46,7 +46,7 @@ h5priv_mpi_send(
 		comm
 		);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot send data");
+		return h5_error (H5_ERR_MPI, "Cannot send data");
 	return H5_SUCCESS;
 }
 
@@ -67,7 +67,7 @@ h5priv_mpi_bcast (
 		comm
 		);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot perform broadcast");
+		return h5_error (H5_ERR_MPI, "Cannot perform broadcast");
 	return H5_SUCCESS;
 }
 
@@ -91,7 +91,7 @@ h5priv_mpi_sum (
 		comm
 		);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot perform sum reduction");
+		return h5_error (H5_ERR_MPI, "Cannot perform sum reduction");
 	return H5_SUCCESS;
 }
 
@@ -113,7 +113,7 @@ h5priv_mpi_prefix_sum (
 		comm
 		);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot perform prefix sum");
+		return h5_error (H5_ERR_MPI, "Cannot perform prefix sum");
 	return H5_SUCCESS;
 }
 
@@ -137,7 +137,7 @@ h5priv_mpi_allgather (
 		recvtype,
 		comm);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot gather data");
+		return h5_error (H5_ERR_MPI, "Cannot gather data");
 	return H5_SUCCESS;
 }
 
@@ -149,7 +149,7 @@ h5priv_mpi_comm_size (
 	) {
 	int err = MPI_Comm_size (comm, size);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot get communicator size");
+		return h5_error (H5_ERR_MPI, "Cannot get communicator size");
 	return H5_SUCCESS;
 }
 
@@ -162,7 +162,7 @@ h5priv_mpi_comm_rank (
 	) {
 	int err = MPI_Comm_rank (comm, rank);
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot get this task's rank");
+		return h5_error (H5_ERR_MPI, "Cannot get this task's rank");
 	return H5_SUCCESS;
 }
 
@@ -176,10 +176,10 @@ h5priv_mpi_type_contiguous (
 	int err;
 	err = MPI_Type_contiguous ( nelems, oldtype, newtype );
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot create new MPI type");
+		return h5_error (H5_ERR_MPI, "Cannot create new MPI type");
 	err = MPI_Type_commit ( newtype );
 	if (err != MPI_SUCCESS)
-		return h5_error (f, H5_ERR_MPI, "Cannot commit new MPI type");
+		return h5_error (H5_ERR_MPI, "Cannot commit new MPI type");
 	return H5_SUCCESS;
 }
 
@@ -190,7 +190,7 @@ h5priv_mpi_type_free (
 	) {
 	int err = MPI_Type_free( type );
 	if (err != MPI_SUCCESS)
-		return h5_error(f, H5_ERR_MPI, "Cannot free MPI type");
+		return h5_error(H5_ERR_MPI, "Cannot free MPI type");
 	return H5_SUCCESS;
 }
 
@@ -207,7 +207,7 @@ h5priv_mpi_cart_create (
 	int err = MPI_Cart_create(
 		old_comm, ndims, dims, period, reorder, new_comm);
 	if (err != MPI_SUCCESS)
-		return h5_error(f, H5_ERR_MPI, "Cannot create cartesian grid");
+		return h5_error(H5_ERR_MPI, "Cannot create cartesian grid");
 	return H5_SUCCESS;
 }
 
@@ -221,7 +221,7 @@ h5priv_mpi_cart_coords (
 	) {
 	int err = MPI_Cart_coords( comm, rank, maxdim, coords );
 	if (err != MPI_SUCCESS)
-		return h5_error(f, H5_ERR_MPI, "Cannot create cartesian grid");
+		return h5_error(H5_ERR_MPI, "Cannot create cartesian grid");
 	return H5_SUCCESS;
 }
 

@@ -45,6 +45,7 @@ typedef union h5t_iterator {
 	h5t_generic_iterator_t	generic;
 } h5t_iterator_t;
 
+typedef h5t_iterator_t* h5t_iterator_p;
 
 h5_err_t
 h5t_init_leaf_iterator (

@@ -34,7 +34,7 @@ traverse_vertices (
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 3 );
 	while ( (real_num < num) &&
 		((local_id = H5FedTraverseEntities (f, iter)) >= 0) ) {
-		size_t size;
+		size_t size = 3;
 		h5_int64_t retval[3];
 		H5FedGetMTag ( f, "testtag", local_id, &size, retval );
 		if ( (retval[0] != local_id) ||

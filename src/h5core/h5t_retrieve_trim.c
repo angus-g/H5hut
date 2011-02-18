@@ -21,7 +21,7 @@ begin_iterate_entities (
 		it->find = NULL;
 		break;
 	default:
-		return h5_error_internal (f, __FILE__, __func__, __LINE__);
+		return h5_error_internal (__FILE__, __func__, __LINE__);
 	}
 	return H5_SUCCESS;
 }

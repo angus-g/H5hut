@@ -14,9 +14,6 @@ struct h5_file {
 	h5_int32_t	mode;		/* file access mode		*/
 	char		empty;
 
-	h5_err_t	__errno;	/* error number			*/
-	const char *	__funcname;	/* H5Block/Fed/Part API function*/
-
 	/* MPI */
 
 	MPI_Comm comm;			/* MPI communicator		*/

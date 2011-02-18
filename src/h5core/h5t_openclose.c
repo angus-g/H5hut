@@ -22,202 +22,187 @@ static struct h5t_methods tri_funcs = {
 /*
   create several HDF5 types
 */
-static h5_err_t
+static inline h5_err_t
 create_array_types (
 	h5_file_t* const f
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 	h5_dtypes_t* dtypes = &(t->dtypes);
 
 	hsize_t dims[1] = { 3 };
 	TRY(
-		dtypes->h5_coord3d_t = h5priv_create_hdf5_array_type (
-			f,
+		dtypes->h5_coord3d_t = hdf5_create_array_type (
 			H5_FLOAT64_T,
 			1,
 			dims)
 		);
 	TRY( 
-		dtypes->h5_3glb_idx_t = h5priv_create_hdf5_array_type (
-			f,
+		dtypes->h5_3glb_idx_t = hdf5_create_array_type (
 			H5_ID_T,
 			1,
 			dims)
 		);
 	dims[0] = 4;
 	TRY(
-		dtypes->h5_4glb_idx_t = h5priv_create_hdf5_array_type (
-			f,
+		dtypes->h5_4glb_idx_t = hdf5_create_array_type (
 			H5_ID_T,
 			1,
 			dims)
 		);
 
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
-static h5_err_t
+static inline h5_err_t
 create_vertex_type (
 	h5_file_t* const f
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5_dtypes_t* dtypes = &f->t->dtypes;
 
 	TRY(
-		dtypes->h5_vertex_t = h5priv_create_hdf5_type (
-			f,
+		dtypes->h5_vertex_t = hdf5_create_type (
 			H5_COMPOUND_T,
 			sizeof (h5_glb_vertex_t)) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_vertex_t,
 			"idx",
 			HOFFSET (h5_glb_vertex_t, idx),
 			H5_ID_T) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_vertex_t,
 			"P",
 			HOFFSET (h5_glb_vertex_t, P),
 			dtypes->h5_coord3d_t) );
 
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
-static h5_err_t
+static inline h5_err_t
 create_triangle_type (
 	h5_file_t* const f
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5_dtypes_t* dtypes = &f->t->dtypes;
 
 	TRY(
-		dtypes->h5_triangle_t = h5priv_create_hdf5_type (
-			f,
+		dtypes->h5_triangle_t = hdf5_create_type (
 			H5_COMPOUND_T,
 			sizeof (h5_glb_triangle_t)) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_triangle_t,
 			"idx",
 			HOFFSET (h5_glb_triangle_t, idx),
 			H5_ID_T) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_triangle_t,
 			"parent_idx",
 			HOFFSET (h5_glb_triangle_t, parent_idx),
 			H5_ID_T) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_triangle_t,
 			"child_idx",
 			HOFFSET(h5_glb_triangle_t, child_idx),
 			H5_ID_T) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_triangle_t,
 			"vertex_indices",
 			HOFFSET (h5_glb_triangle_t, vertex_indices),
 			dtypes->h5_3glb_idx_t) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_triangle_t,
 			"neighbor_indices",
 			HOFFSET(h5_glb_triangle_t, neighbor_indices),
 			dtypes->h5_3glb_idx_t) );
 
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
-static h5_err_t
+static inline h5_err_t
 create_tag_types (
 	h5_file_t* const f
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5_dtypes_t* dtypes = &f->t->dtypes;
 
 	TRY (
-		dtypes->h5t_glb_tag_idx_t = h5priv_create_hdf5_type (
-			f,
+		dtypes->h5t_glb_tag_idx_t = hdf5_create_type (
 			H5_COMPOUND_T,
 			sizeof (h5t_glb_tag_idx_t)) );
 	TRY (
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5t_glb_tag_idx_t,
 			"eid",
 			HOFFSET (h5t_glb_tag_idx_t, eid),
 			H5_ID_T) );
 	TRY (
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5t_glb_tag_idx_t,
 			"idx",
 			HOFFSET (h5t_glb_tag_idx_t, idx),
 			H5_ID_T) );
 
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
-static h5_err_t
+static inline h5_err_t
 create_tet_type (
 	h5_file_t* const f
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5_dtypes_t* dtypes = &f->t->dtypes;
 
 	TRY(
-		dtypes->h5_tet_t = h5priv_create_hdf5_type (
-			f,
+		dtypes->h5_tet_t = hdf5_create_type (
 			H5_COMPOUND_T,
 			sizeof (h5_glb_tetrahedron_t)) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_tet_t,
 			"idx",
 			HOFFSET (h5_glb_tetrahedron_t, idx),
 			H5_ID_T) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_tet_t,
 			"parent_idx",
 			HOFFSET (h5_glb_tetrahedron_t, parent_idx),
 			H5_ID_T) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_tet_t,
 			"child_idx",
 			HOFFSET (h5_glb_tetrahedron_t, child_idx),
 			H5T_NATIVE_INT32) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_tet_t,
 			"vertex_indices",
 			HOFFSET (h5_glb_tetrahedron_t, vertex_indices),
 			dtypes->h5_4glb_idx_t) );
 	TRY(
-		h5priv_insert_hdf5_type (
-			f,
+		hdf5_insert_type (
 			dtypes->h5_tet_t,
 			"neighbor_indices",
 			HOFFSET (h5_glb_tetrahedron_t, neighbor_indices),
 			dtypes->h5_4glb_idx_t) );
 
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
 init_fdata (
 	h5_file_t* const f
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
 	memset (t->mesh_name, 0, sizeof (t->mesh_name));
@@ -253,28 +238,24 @@ init_fdata (
 	t->dsinfo_vertices.max_dims[0] = H5S_UNLIMITED;
 	t->dsinfo_vertices.chunk_dims[0] = 4096;
 	t->dsinfo_vertices.type_id = t->dtypes.h5_vertex_t;
-	TRY( t->dsinfo_vertices.create_prop = h5priv_create_hdf5_property (
-		     f,
+	TRY (t->dsinfo_vertices.create_prop = hdf5_create_property (
 		     H5P_DATASET_CREATE) );
-	TRY( h5priv_set_hdf5_chunk_property (
-		     f,
+	TRY (hdf5_set_chunk_property (
 		     t->dsinfo_vertices.create_prop,
 		     t->dsinfo_vertices.rank,
 		     t->dsinfo_vertices.chunk_dims) );
 	t->dsinfo_vertices.access_prop = H5P_DEFAULT;
 
 	/* NumVertices */
-	strcpy( t->dsinfo_num_vertices.name, "NumVertices" );
+	strcpy (t->dsinfo_num_vertices.name, "NumVertices");
 	t->dsinfo_num_vertices.rank = 1;
 	t->dsinfo_num_vertices.dims[0] = 0;
 	t->dsinfo_num_vertices.max_dims[0] = H5S_UNLIMITED;
 	t->dsinfo_num_vertices.chunk_dims[0] = 4096;
 	t->dsinfo_num_vertices.type_id = t->dtypes.h5_glb_idx_t;
-	TRY( t->dsinfo_num_vertices.create_prop = h5priv_create_hdf5_property (
-		     f,
+	TRY (t->dsinfo_num_vertices.create_prop = hdf5_create_property (
 		     H5P_DATASET_CREATE) );
-	TRY( h5priv_set_hdf5_chunk_property (
-		     f,
+	TRY (hdf5_set_chunk_property (
 		     t->dsinfo_num_vertices.create_prop,
 		     t->dsinfo_num_vertices.rank,
 		     t->dsinfo_num_vertices.chunk_dims) );
@@ -286,11 +267,9 @@ init_fdata (
 	t->dsinfo_elems.dims[0] = 0;
 	t->dsinfo_elems.max_dims[0] = H5S_UNLIMITED;
 	t->dsinfo_elems.chunk_dims[0] = 4096;
-	TRY( t->dsinfo_elems.create_prop = h5priv_create_hdf5_property (
-		     f,
+	TRY (t->dsinfo_elems.create_prop = hdf5_create_property (
 		     H5P_DATASET_CREATE) );
-	TRY( h5priv_set_hdf5_chunk_property (
-		     f,
+	TRY (hdf5_set_chunk_property (
 		     t->dsinfo_elems.create_prop,
 		     t->dsinfo_elems.rank,
 		     t->dsinfo_elems.chunk_dims) );
@@ -303,11 +282,9 @@ init_fdata (
 	t->dsinfo_num_elems.max_dims[0] = H5S_UNLIMITED;
 	t->dsinfo_num_elems.chunk_dims[0] = 4096;
 	t->dsinfo_num_elems.type_id = t->dtypes.h5_glb_idx_t;
-	TRY( t->dsinfo_num_elems.create_prop = h5priv_create_hdf5_property (
-		     f,
+	TRY (t->dsinfo_num_elems.create_prop = hdf5_create_property (
 		     H5P_DATASET_CREATE) );
-	TRY( h5priv_set_hdf5_chunk_property (
-		     f,
+	TRY( hdf5_set_chunk_property (
 		     t->dsinfo_num_elems.create_prop,
 		     t->dsinfo_num_elems.rank,
 		     t->dsinfo_num_elems.chunk_dims) );
@@ -320,17 +297,15 @@ init_fdata (
 	t->dsinfo_num_elems_on_leaf_level.max_dims[0] = H5S_UNLIMITED;
 	t->dsinfo_num_elems_on_leaf_level.chunk_dims[0] = 4096;
 	t->dsinfo_num_elems_on_leaf_level.type_id = t->dtypes.h5_glb_idx_t;
-	TRY( t->dsinfo_num_elems_on_leaf_level.create_prop = h5priv_create_hdf5_property (
-		     f,
+	TRY( t->dsinfo_num_elems_on_leaf_level.create_prop = hdf5_create_property (
 		     H5P_DATASET_CREATE) );
-	TRY( h5priv_set_hdf5_chunk_property (
-		     f,
+	TRY( hdf5_set_chunk_property (
 		     t->dsinfo_num_elems_on_leaf_level.create_prop,
 		     t->dsinfo_num_elems_on_leaf_level.rank,
 		     t->dsinfo_num_elems_on_leaf_level.chunk_dims) );
 	t->dsinfo_num_elems_on_leaf_level.access_prop = H5P_DEFAULT;
 
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -347,30 +322,30 @@ h5_err_t
 h5tpriv_open_file (
 	h5_file_t* const f			/*!< IN: file handle */
 	) {
-
-	TRY( (f->t = h5_calloc (f, 1, sizeof (*f->t))) );
+	H5_PRIV_API_ENTER (h5_err_t);
+	TRY (f->t = h5_calloc (1, sizeof (*f->t)));
 	h5t_fdata_t* t = f->t;
 
 	t->dtypes.h5_glb_idx_t = H5_INT64_T;
 	t->dtypes.h5_int64_t = H5_INT64_T;
 	t->dtypes.h5_float64_t = H5_FLOAT64_T;
 
-	TRY( create_array_types (f) );
-	TRY( create_vertex_type (f) );
-	TRY( create_triangle_type (f) );
-	TRY( create_tet_type (f) );
-	TRY( create_tag_types (f) );
-	TRY( init_fdata (f) );
-
-	return H5_SUCCESS;
+	TRY (create_array_types (f));
+	TRY (create_vertex_type (f));
+	TRY (create_triangle_type (f));
+	TRY (create_tet_type (f));
+	TRY (create_tag_types (f));
+	TRY (init_fdata (f));
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
 h5tpriv_init_step (
 	h5_file_t* const f
 	) {
+	H5_PRIV_API_ENTER (h5_err_t);
 	UNUSED_ARGUMENT (f);
-	return H5_SUCCESS;
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -382,8 +357,9 @@ h5_err_t
 h5tpriv_close_step (
 	h5_file_t* const f
 	) {
+	H5_PRIV_API_ENTER (h5_err_t);
 	UNUSED_ARGUMENT (f);
-	return H5_SUCCESS;
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 
@@ -391,11 +367,12 @@ h5_err_t
 h5tpriv_open_topo_group (
 	h5_file_t * const f
 	) {
+	H5_PRIV_API_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 	if (t->topo_gid == 0 || t->topo_gid == -1) {
-		t->topo_gid = h5priv_open_group (f, f->root_gid, H5T_CONTAINER_GRPNAME);
+		TRY (t->topo_gid = h5priv_open_group (f, f->root_gid, H5T_CONTAINER_GRPNAME));
 	}
-	return t->topo_gid;
+	H5_PRIV_API_RETURN (t->topo_gid);
 }
 
 h5_err_t
@@ -403,18 +380,19 @@ h5tpriv_open_meshes_group (
 	h5_file_t* const f,
 	const h5_oid_t type_id
 	) {
+	H5_PRIV_API_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
 	if (t->topo_gid < 0) {
-		TRY( h5tpriv_open_topo_group (f) );
+		TRY (h5tpriv_open_topo_group (f));
 	}
-	TRY( (t->meshes_gid = h5priv_open_group (
+	TRY (t->meshes_gid = h5priv_open_group (
 		      f,
 		      t->topo_gid,
-		      h5tpriv_meshes_grpnames[type_id])) );
+		      h5tpriv_meshes_grpnames[type_id]));
 	t->mesh_type = type_id;
 
-	return H5_SUCCESS;
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -427,19 +405,20 @@ h5tpriv_open_mesh_group (
 	const h5_oid_t type_id,
 	const h5_id_t id
 	) {
+	H5_PRIV_API_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
 	if (t->meshes_gid < 0) {
-		TRY( h5tpriv_open_meshes_group (f, type_id) );
+		TRY (h5tpriv_open_meshes_group (f, type_id));
 	}
 	snprintf (t->mesh_name, sizeof (t->mesh_name), "%lld", (long long)id);
 
-	TRY( (t->mesh_gid = h5priv_open_group (
+	TRY (t->mesh_gid = h5priv_open_group (
 		      f,
 		      t->meshes_gid,
-		      t->mesh_name)) );
+		      t->mesh_name));
 	t->cur_mesh = id;
-	return H5_SUCCESS;
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -451,17 +430,17 @@ h5t_open_mesh (
 	h5_id_t id,
 	const h5_oid_t type_id
 	) {
-	h5_debug (f, "%s ()", __func__);
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
-	TRY( h5t_close_mesh (f) );
+	TRY (h5t_close_mesh (f));
 
 	if (t->num_meshes < 0) {
 		h5_size_t result = h5t_get_num_meshes (f, type_id);
 		t->num_meshes = (result > 0 ? result : 0);
 	}
 	if ((id < -1) || (id >= t->num_meshes)) {
-		return HANDLE_H5_OUT_OF_RANGE_ERR (f, "mesh", id);
+		H5_CORE_API_LEAVE (HANDLE_H5_OUT_OF_RANGE_ERR ("mesh", id));
 	}
 	if (id == -1) {  /* append new mesh */
 		id = t->num_meshes;
@@ -478,13 +457,14 @@ h5t_open_mesh (
 		t->ref_elem = &h5t_tri_ref_elem;
 		break;
 	default:
-		return h5_error_internal (f, __FILE__, __func__, __LINE__);
+		H5_CORE_API_LEAVE (
+			h5_error_internal (__FILE__, __func__, __LINE__));
 	}
 
-	TRY( h5tpriv_open_mesh_group (f, type_id, id) );
+	TRY (h5tpriv_open_mesh_group (f, type_id, id));
 
 	if (id != t->num_meshes) {	/* open existing */
-		TRY( h5tpriv_read_mesh (f) );
+		TRY (h5tpriv_read_mesh (f));
 
 	} else {			/* append new */
 		t->num_meshes++;
@@ -492,67 +472,70 @@ h5t_open_mesh (
 		t->num_leaf_levels = 0;
 	} 
 
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
 release_elems (
 	h5_file_t* const f
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
-	TRY( h5_free (f, t->loc_elems.data) );
+	TRY( h5_free (t->loc_elems.data) );
 	t->loc_elems.data = NULL;
-	TRY( h5_free (f, t->num_elems) );
+	TRY( h5_free (t->num_elems) );
 	t->num_elems = NULL;
-	TRY( h5_free (f, t->num_elems_on_leaf_level) );
+	TRY( h5_free (t->num_elems_on_leaf_level) );
 	t->num_elems_on_leaf_level = NULL;
-	TRY( h5_free (f, t->map_elem_g2l.items) );
+	TRY( h5_free (t->map_elem_g2l.items) );
 	t->map_elem_g2l.items = NULL;
 
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
 release_vertices (
 	h5_file_t* const f
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
-	TRY( h5_free (f, t->vertices) );
+	TRY( h5_free (t->vertices) );
 	t->vertices = NULL;
-	TRY( h5_free (f, t->num_vertices) );
+	TRY( h5_free (t->num_vertices) );
 	t->num_vertices = NULL;
-	TRY( h5_free (f, t->map_vertex_g2l.items) );
+	TRY( h5_free (t->map_vertex_g2l.items) );
 	t->map_vertex_g2l.items = NULL;
 
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
 release_memory (
 	h5_file_t* const f
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	TRY( h5tpriv_release_tags (f) );
 	TRY( h5tpriv_release_adjacency_structs (f) );
 	TRY( release_elems (f) );
 	TRY( release_vertices (f) );
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
 h5t_close_mesh (
 	h5_file_t* const f
 	) {
-	h5_debug (f, "%s ()", __func__);
+	H5_CORE_API_ENTER (h5_err_t);
 	if (!(f->mode & H5_O_RDONLY)) {
-		TRY( h5tpriv_write_mesh (f) );
+		TRY (h5tpriv_write_mesh (f));
 	}
-	TRY( h5priv_close_hdf5_group (f, f->t->mesh_gid) );
-	TRY( h5priv_close_hdf5_group (f, f->t->meshes_gid) );
-	TRY( h5priv_close_hdf5_group (f, f->t->topo_gid) );
+	TRY (hdf5_close_group (f->t->mesh_gid));
+	TRY (hdf5_close_group (f->t->meshes_gid));
+	TRY (hdf5_close_group (f->t->topo_gid));
 
-	TRY( release_memory (f) );
-	TRY( init_fdata (f) );
-	return H5_SUCCESS;
+	TRY (release_memory (f));
+	TRY (init_fdata (f));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -560,18 +543,19 @@ h5t_set_level (
 	h5_file_t* const f,
 	const h5t_lvl_idx_t level_id
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
 	if ((level_id < 0) || (level_id >= t->num_leaf_levels))
-		return HANDLE_H5_OUT_OF_RANGE_ERR (f, "Level", level_id);
+		H5_CORE_API_LEAVE (HANDLE_H5_OUT_OF_RANGE_ERR ("Level", level_id));
 
 	h5t_lvl_idx_t prev_level = t->leaf_level;
 	t->leaf_level = level_id;
 
 	if (level_id >= t->num_loaded_levels) {
-		TRY( (h5tpriv_update_adjacency_structs)(f, prev_level+1) );
+		TRY (h5tpriv_update_adjacency_structs (f, prev_level+1));
 	}
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -582,13 +566,12 @@ h5tpriv_alloc_num_vertices (
 	h5_file_t* const f,
 	const h5_size_t num
 	) {
+	H5_PRIV_API_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
-
 	ssize_t size = num * sizeof (t->vertices[0]);
-	TRY( t->vertices = h5_alloc (f, t->vertices, size) );
-	TRY( h5priv_alloc_idxmap (f, &t->map_vertex_g2l, num) );
-
-	return H5_SUCCESS;
+	TRY (t->vertices = h5_alloc (t->vertices, size));
+	TRY (h5priv_alloc_idxmap (f, &t->map_vertex_g2l, num));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -605,9 +588,8 @@ h5_err_t
 h5tpriv_close_file (
 	h5_file_t* const f		/*!< IN: file handle */
 	) {
-	h5_debug (f, "%s ()", __func__);
-	TRY( h5t_close_mesh (f) );
-	TRY( h5priv_close_hdf5_group (f, f->t->meshes_gid) );
-
-	return H5_SUCCESS;
+	H5_PRIV_API_ENTER (h5_err_t);
+	TRY (h5t_close_mesh (f));
+	TRY (hdf5_close_group (f->t->meshes_gid));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }

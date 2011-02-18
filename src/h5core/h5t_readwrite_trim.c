@@ -10,6 +10,7 @@ init_loc_elems_struct (
 	h5_file_t* const f,
 	const h5t_lvl_idx_t from_lvl
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 	h5_loc_idx_t elem_idx = 0;
 	const h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
@@ -60,7 +61,7 @@ init_loc_elems_struct (
 			     loc_elem->neighbor_indices) );
 
 	}
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -68,6 +69,7 @@ init_geom_boundary_info (
 	h5_file_t* const f,
 	const h5t_lvl_idx_t from_lvl
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 	h5_loc_idx_t elem_idx = 0;
 	const h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
@@ -89,7 +91,7 @@ init_geom_boundary_info (
 			continue; // no facet on boundary
 		}
 	}
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -100,27 +102,28 @@ alloc_glb_elems_struct (
 	h5_file_t* const f,
 	h5_loc_idx_t num_elems
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 
 	TRY ( t->glb_elems.tris = h5_calloc (
-		      f,
 		      num_elems,
 		      sizeof(t->glb_elems.tris[0]) ) );
 	memset (
 		t->glb_elems.tris,
 		-1,
 		(num_elems) * sizeof(t->glb_elems.tris[0]) );
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
 init_glb2loc_elem_map (
 	h5_file_t* const f
 	) {
-	h5_debug (f, "%s()", __func__);
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
-	if (t->num_leaf_levels <= 0) return H5_SUCCESS;
+	if (t->num_leaf_levels <= 0)
+		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
 
 	h5_loc_idx_t loc_idx = 0;
 	h5_loc_idx_t num_loc_elems = t->num_elems[t->num_leaf_levels-1];
@@ -134,7 +137,7 @@ init_glb2loc_elem_map (
 	}
 	h5priv_sort_idxmap (&t->map_elem_g2l);
 
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -144,6 +147,7 @@ static h5_err_t
 init_glb_elems_struct (
 	h5_file_t* const f
 	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
 	h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
 
@@ -164,7 +168,7 @@ init_glb_elems_struct (
 		loc_elem++;
 		glb_elem++;
 	}
-	return H5_SUCCESS;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 struct h5t_read_methods h5tpriv_read_trim_methods = {

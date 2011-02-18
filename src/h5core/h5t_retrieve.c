@@ -29,7 +29,7 @@ iterate_leaf_elems (
 	) {
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)&iter->leaf;
 	if ( iter_leaf_elem_idx (f, it) == H5_NOK) {
-		h5_debug ( f, "Traversing done!" );
+		h5_debug ("Traversing done!");
 		return H5_NOK;
 	}
 	int dim = h5tpriv_ref_elem_get_dim (it);
@@ -45,7 +45,7 @@ iterate_boundary_elems (
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)&iter->leaf;
 	do {
 		if ( iter_leaf_elem_idx (f, it) == H5_NOK) {
-			h5_debug ( f, "Traversing done!" );
+			h5_debug ("Traversing done!");
 			return H5_NOK;
 		}
 	} while (!h5tpriv_is_boundary_elem (f, it->elem_idx));
@@ -64,6 +64,7 @@ iterate_boundary_facets (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
+	H5_PRIV_FUNC_ENTER (h5_loc_id_t);
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)&iter->leaf;
 	int num_facets = h5tpriv_ref_elem_get_num_facets (it) - 1;
 	int dim = h5tpriv_ref_elem_get_dim (it) - it->codim;
@@ -72,7 +73,7 @@ iterate_boundary_facets (
 			h5_loc_id_t elem_id;
 			TRY( elem_id = iterate_boundary_elems (f, iter) );
 			if (elem_id == H5_NOK) {
-				return H5_NOK;	// done!
+				H5_PRIV_FUNC_LEAVE (H5_NOK);	// done!
 			}
 			it->elem_idx = h5tpriv_get_elem_idx (elem_id);
 			it->face_idx = 0;
@@ -81,7 +82,7 @@ iterate_boundary_facets (
 		}
 	} while (! h5tpriv_is_boundary_facet (f, it->elem_idx, it->face_idx));
 	int type = h5tpriv_ref_elem_get_entity_type (it, dim);
-	return h5tpriv_build_entity_id (type, it->face_idx, it->elem_idx );
+	H5_PRIV_FUNC_RETURN (h5tpriv_build_entity_id (type, it->face_idx, it->elem_idx));
 }
 
 /*!
@@ -92,6 +93,7 @@ iterate_leaf_faces (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
+	H5_PRIV_FUNC_ENTER (h5_loc_id_t);
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)iter;
 	h5_loc_idlist_t* entry;
 	int dim = h5tpriv_ref_elem_get_dim (it) - it->codim;
@@ -100,8 +102,8 @@ iterate_leaf_faces (
 	do {
 		if (it->face_idx >= num_faces) {
 			if (iter_leaf_elem_idx (f, it) == H5_NOK) {
-				h5_debug (f, "Traversing done!");
-				return H5_NOK;
+				h5_debug ("Traversing done!");
+				H5_PRIV_FUNC_LEAVE (H5_NOK);	// done!
 			}
 			it->face_idx = 0;
 		} else {
@@ -130,17 +132,18 @@ iterate_leaf_faces (
 	  current level and the element index of entry->items[i] is the smallest
 	  element index with the given face on the current level.
 	*/
-	return entry->items[i];
+	H5_PRIV_FUNC_RETURN (entry->items[i]);
 }
 
 /*
-  Iterate boundary faces
+  Iterate boundary faces with co-dim > 1
  */
 static h5_loc_id_t
 iterate_boundary_faces (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
+	H5_PRIV_FUNC_ENTER (h5_loc_id_t);
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)iter;
 	// TODO!!!
 	int dim = h5tpriv_ref_elem_get_dim (it) - it->codim;
@@ -154,7 +157,7 @@ iterate_boundary_faces (
 				h5_loc_id_t elem_id;
 				TRY( elem_id = iterate_boundary_elems (f, iter) );
 				if (elem_id == H5_NOK) {
-					return H5_NOK;	// done!
+					H5_PRIV_FUNC_LEAVE (H5_NOK);	// done!
 				}
 				it->face_idx = 0;
 			} else {
@@ -164,7 +167,7 @@ iterate_boundary_faces (
 				 f, dim, it->elem_idx, it->face_idx));
 		// Skip already visited faces
 	} while (0);
-	return h5_error_internal (f, __FILE__, __func__, __LINE__);
+	H5_PRIV_FUNC_RETURN (h5_error_internal (__FILE__, __func__, __LINE__));
 }
 
 static h5_loc_id_t
@@ -172,6 +175,7 @@ iterate_tags (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
+	H5_PRIV_FUNC_ENTER (h5_loc_id_t);
 	UNUSED_ARGUMENT (f);
 #if 0
 	h5t_tagsel_t* tags;
@@ -184,8 +188,8 @@ iterate_tags (
 		}
 		tags = iter->tagset->elems[iter->elem_idx];
 	} while ((tags == NULL) || (tags->idx[iter->subentity_idx]));
-#endif	
-	return 0;
+#endif
+	H5_PRIV_FUNC_RETURN (h5_error_internal (__FILE__, __func__, __LINE__));
 }
 
 h5_err_t
@@ -194,8 +198,7 @@ h5t_init_leaf_iterator (
 	h5t_iterator_t* iter,
 	int codim
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t h5err = H5_SUCCESS;
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)&iter->leaf;
 	it->face_idx = 999;
 	it->elem_idx = -1;
@@ -208,8 +211,8 @@ h5t_init_leaf_iterator (
 	} else if (it->codim == 0) {
 		it->iter = iterate_leaf_elems;
 	}
-	TRY2( h5tpriv_init_entity_iterator (f, iter, codim) );
-	H5_CORE_API_RETURN (h5err);
+	TRY (h5tpriv_init_entity_iterator (f, iter, codim));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -218,8 +221,7 @@ h5t_init_boundary_face_iterator (
 	h5t_iterator_t* iter,
 	int codim
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t h5err = H5_SUCCESS;
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)iter;
 	it->face_idx = 999; // something > max number of faces
 	it->elem_idx = -1;
@@ -228,14 +230,14 @@ h5t_init_boundary_face_iterator (
 	it->ref_elem = f->t->ref_elem;
 
 	if (it->codim <= 0 || it->codim > it->ref_elem->dim) {
-		return h5tpriv_inval_codim (f, codim, 1, it->ref_elem->dim);
+		H5_CORE_API_LEAVE (h5tpriv_inval_codim (f, codim, 1, it->ref_elem->dim));
 	} else if (it->codim == 1) {
 		it->iter = iterate_boundary_facets;
 	}
 	else if (it->codim > 1) {
 		it->iter = iterate_boundary_faces;
 	}
-	H5_CORE_API_RETURN (h5err);
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -244,16 +246,14 @@ h5t_init_mtag_iterator (
 	h5t_iterator_t* iter,
 	const char* name
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t h5err = H5_SUCCESS;
+	H5_CORE_API_ENTER (h5_err_t);
 	h5t_tag_iterator_t* it = (h5t_tag_iterator_t*)iter;
-	TRY2( h5err = h5t_open_mtagset (f, name, &it->tagset) );
+	TRY (h5t_open_mtagset (f, name, &it->tagset));
 	it->elem_idx = -1;
 	it->subentity_idx = 999;
 	it->level_idx = f->t->leaf_level;
 	it->iter = iterate_tags;
-	h5err = H5_SUCCESS;
-	H5_CORE_API_RETURN (h5err);
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -261,9 +261,8 @@ h5t_release_entity_iterator (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t h5err = h5_free (f, iter);
-	H5_CORE_API_RETURN (h5err);
+	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_RETURN (h5_free (iter));
 }
 
 h5_loc_id_t
@@ -271,10 +270,9 @@ h5t_iterate_entities (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
-	H5_CORE_API_ENTER;
+	H5_CORE_API_ENTER (h5_loc_id_t);
 	h5t_generic_iterator_t* it = (h5t_generic_iterator_t*)iter;
-	h5_err_t h5err = it->iter (f, iter);
-	H5_CORE_API_RETURN (h5err);
+	H5_CORE_API_RETURN (it->iter (f, iter));
 }
 		   
 h5_err_t
@@ -283,14 +281,13 @@ h5t_end_iterate_entities (
 	h5t_iterator_t* iter
 	) {
 	UNUSED_ARGUMENT (f);
-	H5_CORE_API_ENTER;
-	h5_err_t h5err = H5_SUCCESS;
+	H5_CORE_API_ENTER (h5_err_t);
 	bzero (iter, sizeof(*iter));
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)iter;
 	it->face_idx = -1;
 	it->elem_idx = -1;
 	it->codim = -1;
-	H5_CORE_API_RETURN (h5err);
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -299,11 +296,10 @@ h5t_get_vertex_coords_by_index (
 	h5_loc_idx_t vertex_index,
 	h5_float64_t P[3]
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t h5err = H5_SUCCESS;
+	H5_CORE_API_ENTER (h5_err_t);
 	h5_loc_vertex_t *vertex = &f->t->vertices[vertex_index];
 	memcpy ( P, &vertex->P, sizeof ( vertex->P ) );
-	H5_CORE_API_RETURN (h5err);
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -312,11 +308,10 @@ h5t_get_vertex_coords_by_id (
 	h5_loc_id_t vertex_id,
 	h5_float64_t P[3]
 	) {
-	H5_CORE_API_ENTER;
-	h5_err_t h5err = H5_SUCCESS;
+	H5_CORE_API_ENTER (h5_err_t);
 	h5_loc_idx_t vertex_index;
-	TRY2( h5err = h5t_get_vertex_index_of_vertex (f, vertex_id, &vertex_index) );
-	TRY2( h5t_get_vertex_coords_by_index (f, vertex_index, P) );
-	H5_CORE_API_RETURN (h5err);
+	TRY (h5t_get_vertex_index_of_vertex (f, vertex_id, &vertex_index));
+	TRY (h5t_get_vertex_coords_by_index (f, vertex_index, P));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 

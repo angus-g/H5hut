@@ -107,14 +107,12 @@ H5GetErrorHandler (
 
 h5_err_t
 H5ReportErrorhandler (
-	const h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);
 
 h5_err_t
 H5AbortErrorhandler (
-	const h5_file_t * const f,
 	const char *fmt,
 	va_list ap
 	);

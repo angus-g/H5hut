@@ -5,73 +5,69 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
-void*
+void_p
 h5_alloc (
-	h5_file_t* const f,
 	void* ptr,
 	const size_t size
 	) {
-	h5_debug (f, "%s (ptr=%p, size=%lu)", __func__, ptr, size); 
+	MALLOC_WRAPPER_ENTER2 (void_p,
+			       "ptr=%p, size=%lu", ptr, size); 
 	ptr = realloc (ptr, size);
 	if (ptr == NULL) {
-		h5_error (f, H5_ERR_NOMEM, "Out of memory.");
-		return (void*)(H5_ERR);
+		MALLOC_WRAPPER_LEAVE (
+			(void_p)h5_error (H5_ERR_NOMEM, "Out of memory."));
 	}
-	h5_debug (f, "%s (): return address: 0x%p", __func__, ptr);
-	return ptr;
+	MALLOC_WRAPPER_RETURN (ptr);
 }
 
-void*
+void_p
 h5_calloc (
-	h5_file_t* const f,
 	const size_t count,
 	const size_t size
 	) {
-	h5_debug (f, "%s (count=%lu , size=%lu)", __func__, count, size);
+	MALLOC_WRAPPER_ENTER2 (void_p,
+			      "count=%lu , size=%lu", count, size);
 	void* ptr = calloc (count, size);
 	if (ptr == NULL) {
-		h5_error (f, H5_ERR_NOMEM, "Out of memory.");
-		return (void*)(H5_ERR);
+		MALLOC_WRAPPER_LEAVE (
+			(void_p)h5_error (H5_ERR_NOMEM, "Out of memory."));
 	}
-	h5_debug (f, "%s (): return address: 0x%p", __func__, ptr);
-	return ptr;
+	MALLOC_WRAPPER_RETURN (ptr);
 }
 
-char*
+char_p
 h5priv_strdup (
-	h5_file_t* const f,
 	const char* s1
 	) {
-	char* s2 = strdup (s1);
+	MALLOC_WRAPPER_ENTER1 (char_p, "s=%s", s1);
+	char_p s2 = strdup (s1);
 	if (s2 == NULL) {
-		h5_error (f, H5_ERR_NOMEM, "Out of memory.");
-		return (void*)(H5_ERR);
+		MALLOC_WRAPPER_LEAVE (
+			(char_p)h5_error (H5_ERR_NOMEM, "Out of memory."));
 	}
-	return s2;
+	MALLOC_WRAPPER_RETURN (s2);
 }
 
 h5_err_t
 h5_free (
-	h5_file_t* const f,
 	void* ptr
 	) {
+	MALLOC_WRAPPER_ENTER1 (h5_err_t, "ptr=0x%p", ptr);
 	if (ptr) {
-		h5_debug (f, "%s (%p)", __func__,  ptr); 
 		free (ptr);
 	}
-	return H5_SUCCESS;
+	MALLOC_WRAPPER_RETURN (H5_SUCCESS);
 }
 
 void*
 h5priv_tsearch (
-	h5_file_t* const f,
 	const void* key,
 	void** rootp,
 	int (*compar) (const void* key1, const void* key2) 
 	) {
 	void* ptr = tsearch (key, rootp, compar);
 	if (ptr == NULL) {
-		h5_error (f, H5_ERR_NOMEM, "Out of memory.");
+		h5_error (H5_ERR_NOMEM, "Out of memory.");
 		return (void*)(H5_ERR);
 	}
 	return ptr;
@@ -79,12 +75,10 @@ h5priv_tsearch (
 
 void*
 h5priv_tfind (
-	h5_file_t* const f,
 	const void* key,
 	void* const* rootp,
 	int (*compar) (const void* key1, const void* key2) 
 	) {
-	UNUSED_ARGUMENT (f);
 	void* ptr = tfind (key, rootp, compar);
 	if (ptr == NULL) {
 		return (void*)(H5_ERR);

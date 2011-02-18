@@ -10,7 +10,7 @@ get_hdf5_obj_id(
 	if (mode == H5_ATTRIB_FILE) *id = f->root_gid;
 	else if (mode == H5_ATTRIB_STEP) *id = f->step_gid;
 	else if (mode == H5_ATTRIB_FIELD) *id = f->b->field_gid;
-	else h5_error(f, H5_ERR_INVAL, "Attibute flag not recognized");
+	else h5_error(H5_ERR_INVAL, "Attibute flag not recognized");
 	return H5_SUCCESS;
 }
 
@@ -22,29 +22,30 @@ h5priv_read_attrib (
 	const hid_t attrib_type,	/*!< HDF5 type of attribute */
 	void* const attrib_value	/*!< OUT: attribute value */
 	) {
+	H5_PRIV_API_ENTER (h5_err_t);
 	hid_t attrib_id;
 	hid_t type_id;
 	hid_t space_id;
-	TRY( attrib_id = h5priv_open_hdf5_attribute (f, id, attrib_name) );
-	TRY( type_id = h5priv_get_hdf5_attribute_type (f, attrib_id) );
+	TRY (attrib_id = hdf5_open_attribute (id, attrib_name));
+	TRY (type_id = hdf5_get_attribute_type (attrib_id));
 
         hid_t h5type_id;
-        TRY( h5type_id = h5_normalize_h5_type(f, type_id) );
-	if ( h5type_id != attrib_type )
-		return h5_error (
-			f,
-			H5_ERR_HDF5,
-			"Attribute '%s' has type '%s' but was requested as '%s'.",
-			attrib_name,
-			h5priv_get_base_type_name(f, h5type_id),
-			h5priv_get_base_type_name(f, attrib_type) );
+        TRY (h5type_id = h5_normalize_h5_type (f, type_id));
+	if (h5type_id != attrib_type)
+		H5_PRIV_API_LEAVE (
+			h5_error (
+				H5_ERR_HDF5,
+				"Attribute '%s' has type '%s' but was requested as '%s'.",
+				attrib_name,
+				hdf5_get_type_name (h5type_id),
+				hdf5_get_type_name (attrib_type)));
 
-	TRY( space_id = h5priv_get_hdf5_attribute_dataspace (f, attrib_id) );
-	TRY( h5priv_read_hdf5_attribute (f, attrib_id, type_id, attrib_value) );
-	TRY( h5priv_close_hdf5_dataspace(f, space_id) );
-	TRY( h5priv_close_hdf5_type(f, type_id) );
-	TRY( h5priv_close_hdf5_attribute (f, attrib_id) );
-	return H5_SUCCESS;
+	TRY (space_id = hdf5_get_attribute_dataspace (attrib_id));
+	TRY (hdf5_read_attribute (attrib_id, type_id, attrib_value));
+	TRY (hdf5_close_dataspace(space_id));
+	TRY (hdf5_close_type (type_id));
+	TRY (hdf5_close_attribute (attrib_id));
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -64,13 +65,13 @@ h5_read_attrib (
 	const hid_t attrib_type,	/*!< HDF5 type of attribute */
 	void* const attrib_value	/*!< OUT: attribute value */
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 
 	hid_t id;
-	TRY( get_hdf5_obj_id(f, mode, &id) );
-	TRY( h5priv_read_attrib (f, id, attrib_name, attrib_type, attrib_value) );
-
-	return H5_SUCCESS;
+	TRY (get_hdf5_obj_id(f, mode, &id));
+	TRY (h5priv_read_attrib (f, id, attrib_name, attrib_type, attrib_value));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -82,37 +83,33 @@ h5priv_write_attrib (
 	const void* attrib_value,	/*!< value of attribute */
 	const hsize_t attrib_nelem	/*!< number of elements (dimension) */
 	) {
-
+	H5_PRIV_API_ENTER (h5_err_t);
 	hid_t space_id;
 	hid_t attrib_id;
         hid_t type_id;
 	if ( attrib_type == H5T_NATIVE_CHAR ) {
-		TRY( type_id = h5priv_create_hdf5_string_type(f,
-			    				attrib_nelem) );
-		TRY( space_id = h5priv_create_hdf5_dataspace_scalar(f) );
+		TRY (type_id = hdf5_create_string_type (attrib_nelem));
+		TRY (space_id = hdf5_create_dataspace_scalar ());
 	} else {
 		type_id = attrib_type;
-		TRY( space_id = h5priv_create_hdf5_dataspace (f,
-			    			1, &attrib_nelem, NULL) );
+		TRY (space_id = hdf5_create_dataspace (1, &attrib_nelem, NULL));
 	}
 
-	TRY( attrib_id = h5priv_create_hdf5_attribute ( 
-		      f,
+	TRY (attrib_id = hdf5_create_attribute (
 		      id,
 		      attrib_name,
 		      type_id,
 		      space_id,
-		      H5P_DEFAULT, H5P_DEFAULT) );
+		      H5P_DEFAULT, H5P_DEFAULT));
 
-	TRY( h5priv_write_hdf5_attribute (f,
-			    attrib_id, type_id, attrib_value) );
-	TRY( h5priv_close_hdf5_attribute (f, attrib_id) );
-	TRY( h5priv_close_hdf5_dataspace (f, space_id) );
+	TRY (hdf5_write_attribute (attrib_id, type_id, attrib_value));
+	TRY (hdf5_close_attribute (attrib_id));
+	TRY (hdf5_close_dataspace (space_id));
 
-	if ( attrib_type == H5T_NATIVE_CHAR )
-		TRY( h5priv_close_hdf5_type(f, type_id) );
+	if (attrib_type == H5T_NATIVE_CHAR)
+		TRY (hdf5_close_type (type_id));
 
-	return H5_SUCCESS;
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -131,14 +128,15 @@ h5_write_attrib (
 	const void* attrib_value,	/*!< value of attribute */
 	const hsize_t attrib_nelem	/*!< number of elements (dimension) */
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
 
 	hid_t id;
-	TRY( get_hdf5_obj_id(f, mode, &id) );
-	TRY( h5priv_write_attrib (f, id, attrib_name, attrib_type,
-				  attrib_value, attrib_nelem) );
-	return H5_SUCCESS;
+	TRY (get_hdf5_obj_id(f, mode, &id));
+	TRY (h5priv_write_attrib (f, id, attrib_name, attrib_type,
+				  attrib_value, attrib_nelem));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -151,34 +149,32 @@ h5priv_get_attrib_info (
 	h5_int64_t* attrib_type,	/*!< OUT: H5 type of attribute */
 	h5_size_t* attrib_nelem		/*!< OUT: number of elements */
 	) {
+	H5_PRIV_API_ENTER (h5_err_t);
 	hid_t attrib_id;
 	hid_t mytype;
 	hid_t space_id;
-	TRY( attrib_id = h5priv_open_hdf5_attribute_idx (
-		      f,
+	TRY (attrib_id = hdf5_open_attribute_idx (
 		      id,
-		      (unsigned int)attrib_idx) );
+		      (unsigned int)attrib_idx));
 
 	if (attrib_nelem) {
-		TRY( space_id = h5priv_get_hdf5_attribute_dataspace (f, attrib_id) );
-		TRY( *attrib_nelem = h5priv_get_npoints_of_hdf5_dataspace (
-			      f, space_id) );
-		TRY( h5priv_close_hdf5_dataspace (f, space_id) );
+		TRY (space_id = hdf5_get_attribute_dataspace (attrib_id));
+		TRY (*attrib_nelem = hdf5_get_npoints_of_dataspace (space_id));
+		TRY (hdf5_close_dataspace (space_id));
 	}
 	if (attrib_name) {
-		TRY( h5priv_get_hdf5_attribute_name (
-			      f,
-			      attrib_id,
-			      (size_t)len_attrib_name,
-			      attrib_name) );
+		TRY (hdf5_get_attribute_name (
+			     attrib_id,
+			     (size_t)len_attrib_name,
+			     attrib_name));
 	}
 	if (attrib_type) {
-		TRY( mytype = h5priv_get_hdf5_attribute_type (f, attrib_id) );
-		TRY( *attrib_type = h5_normalize_h5_type (f, mytype) );
-		TRY( h5priv_close_hdf5_type(f, mytype) );
+		TRY (mytype = hdf5_get_attribute_type (attrib_id));
+		TRY (*attrib_type = h5_normalize_h5_type (f, mytype));
+		TRY (hdf5_close_type (mytype));
 	}
-	TRY( h5priv_close_hdf5_attribute (f, attrib_id) );
-	return H5_SUCCESS;
+	TRY (hdf5_close_attribute (attrib_id));
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -198,13 +194,14 @@ h5_get_attrib_info (
 	h5_int64_t* attrib_type,		/*!< OUT: H5 type of attribute */
 	h5_size_t* attrib_nelem			/*!< OUT: number of elements */
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 
 	hid_t id;
-	TRY( get_hdf5_obj_id(f, mode, &id) );
-	TRY( h5priv_get_attrib_info (f, id, attrib_idx, attrib_name, len_attrib_name,
-				     attrib_type, attrib_nelem) );
-	return H5_SUCCESS;
+	TRY (get_hdf5_obj_id(f, mode, &id));
+	TRY (h5priv_get_attrib_info (f, id, attrib_idx, attrib_name, len_attrib_name,
+				     attrib_type, attrib_nelem));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -219,9 +216,10 @@ h5_get_num_attribs (
 	h5_file_t *const f,	/*!< handle to open file */
 	const char mode		/*!< FILE or STEP flag */
 	) {
+	H5_CORE_API_ENTER (h5_ssize_t);
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 	hid_t id;
-	TRY( get_hdf5_obj_id(f, mode, &id) );
-	return h5priv_get_num_hdf5_attribute (f, id);
+	TRY (get_hdf5_obj_id(f, mode, &id));
+	H5_CORE_API_RETURN (hdf5_get_num_attribute (id));
 }
 

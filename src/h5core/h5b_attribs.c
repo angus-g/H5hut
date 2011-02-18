@@ -10,7 +10,7 @@ h5_write_field_attrib (
 	const void *attrib_value,		/*!< IN: attribute value */
 	const h5_int64_t attrib_nelem		/*!< IN: number of elements */
 	) {
-
+	H5_CORE_API_ENTER (h5_err_t);
 	TRY( h5bpriv_create_field_group(f, field_name) );
 
 	TRY( h5_write_attrib (
@@ -21,7 +21,7 @@ h5_write_field_attrib (
 		attrib_value,
 		attrib_nelem) );
 
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -32,7 +32,7 @@ h5_read_field_attrib (
 	const h5_int64_t attrib_type,		/*!< IN: attribute type */
 	void *buffer		                /*!< OUT: attribute value */
 	) {
-
+	H5_CORE_API_ENTER (h5_err_t);
 	TRY( h5bpriv_open_field_group(f, field_name) );
 
 	TRY( h5_read_attrib (
@@ -42,7 +42,7 @@ h5_read_field_attrib (
 		attrib_type,
 		buffer) );
 
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_ssize_t
@@ -50,13 +50,11 @@ h5b_get_num_field_attribs (
 	h5_file_t *const f,			/*<! IN: file handle */
 	const char *field_name			/*<! IN: field name */
 	) {
+	H5_CORE_API_ENTER (h5_ssize_t);
 
-	h5_ssize_t n;
+	TRY (h5bpriv_open_field_group(f, field_name));
 
-	TRY( h5bpriv_open_field_group(f, field_name) );
-	TRY( n = h5priv_get_num_hdf5_attribute(f, f->b->field_gid ) );
-
-	return n;
+	H5_CORE_API_RETURN (hdf5_get_num_attribute (f->b->field_gid));
 }
 
 h5_err_t
@@ -69,16 +67,17 @@ h5b_get_field_attrib_info (
 	h5_int64_t *attrib_type,		/*!< OUT: attribute type */
 	h5_size_t *attrib_nelem			/*!< OUT: number of elements */
 	) {
+	H5_CORE_API_ENTER (h5_err_t);
+	TRY (h5bpriv_open_field_group(f, field_name));
 
-	TRY( h5bpriv_open_field_group(f, field_name) );
-
-	return h5_get_attrib_info (
-		f,
-		H5_ATTRIB_FIELD,
-		attrib_idx,
-		attrib_name,
-		len_attrib_name,
-		attrib_type,
-		attrib_nelem );
+	H5_CORE_API_RETURN (
+		h5_get_attrib_info (
+			f,
+			H5_ATTRIB_FIELD,
+			attrib_idx,
+			attrib_name,
+			len_attrib_name,
+			attrib_type,
+			attrib_nelem));
 }
 
