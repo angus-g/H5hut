@@ -465,3 +465,119 @@ H5BlockGetFieldAttribInfo (
 			attrib_nelem));
 }
 
+#define H5BLOCK_FIELD_ORIGIN_NAME	"__Origin__"
+#define H5BLOCK_FIELD_SPACING_NAME	"__Spacing__"
+
+/*!
+  \ingroup h5block_c_api
+
+  Get field origin.
+
+  \return \c H5_SUCCESS or error code
+*/
+h5_err_t
+H5Block3dGetFieldOrigin (
+	h5_file_t *f,			/*!< IN: file handle */
+	const char *field_name,		/*!< IN: field name */
+	h5_float64_t *x_origin,		/*!< OUT: X origin */
+	h5_float64_t *y_origin,		/*!< OUT: Y origin */
+	h5_float64_t *z_origin		/*!< OUT: Z origin */
+	) {
+	H5_API_ENTER (h5_err_t);
+	h5_float64_t origin[3];
+
+	TRY (h5_read_field_attrib (
+		     f,
+		     field_name,
+		     H5BLOCK_FIELD_ORIGIN_NAME,
+		     H5_FLOAT64_T,
+		     origin));
+
+	*x_origin = origin[0];
+	*y_origin = origin[1];
+	*z_origin = origin[2];
+
+	H5_API_RETURN (H5_SUCCESS);
+}
+
+/*!
+  \ingroup h5block_c_api
+
+  Set field origin.
+
+  \return \c H5_SUCCESS or error code
+*/
+h5_err_t
+H5Block3dSetFieldOrigin (
+	h5_file_t *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const h5_float64_t x_origin,	/*!< IN: X origin */
+	const h5_float64_t y_origin,	/*!< IN: Y origin */
+	const h5_float64_t z_origin		/*!< IN: Z origin */
+	) {
+	H5_API_ENTER (h5_err_t);
+	h5_float64_t origin[3] = { x_origin, y_origin, z_origin };
+	H5_API_RETURN (h5_write_field_attrib (
+			       f,
+			       field_name,
+			       H5BLOCK_FIELD_ORIGIN_NAME,
+			       (hid_t)H5_FLOAT64_T, 
+			       origin,
+			       3));
+}
+
+/*!
+  \ingroup h5block_c_api
+
+  Get field spacing for field \c field_name in the current time step.
+
+  \return \c H5_SUCCESS or error code
+*/
+h5_err_t
+H5Block3dGetFieldSpacing (
+	h5_file_t *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	h5_float64_t *x_spacing,		/*!< OUT: X spacing */
+	h5_float64_t *y_spacing,		/*!< OUT: Y spacing */
+	h5_float64_t *z_spacing		/*!< OUT: Z spacing */
+	) {
+	H5_API_ENTER (h5_err_t);
+	h5_float64_t spacing[3];
+	TRY (h5_read_field_attrib (
+		     f,
+		     field_name,
+		     H5BLOCK_FIELD_SPACING_NAME,
+		     H5_FLOAT64_T,
+		     spacing));
+	*x_spacing = spacing[0];
+	*y_spacing = spacing[1];
+	*z_spacing = spacing[2];
+	H5_API_RETURN (H5_SUCCESS);
+}
+
+/*!
+  \ingroup h5block_c_api
+
+  Set field spacing for field \c field_name in the current time step.
+
+  \return \c H5_SUCCESS or error code
+*/
+h5_err_t
+H5Block3dSetFieldSpacing (
+	h5_file_t *f,				/*!< IN: file handle */
+	const char *field_name,			/*!< IN: field name */
+	const h5_float64_t x_spacing,	/*!< IN: X spacing */
+	const h5_float64_t y_spacing,	/*!< IN: Y spacing */
+	const h5_float64_t z_spacing	/*!< IN: Z spacing */
+	) {
+	H5_API_ENTER (h5_err_t);
+	h5_float64_t spacing[3] = { x_spacing, y_spacing, z_spacing };
+	H5_API_RETURN (h5_write_field_attrib (
+			       f,
+			       field_name,
+			       H5BLOCK_FIELD_SPACING_NAME,
+			       (hid_t)H5_FLOAT64_T, 
+			       spacing,
+			       3));
+}
+

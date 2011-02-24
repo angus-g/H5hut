@@ -153,5 +153,40 @@ H5BlockGetFieldAttribInfo (
 	h5_size_t *const attrib_nelem         /*<! OUT: Number of elements */
 	);
 
+h5_err_t
+H5Block3dGetFieldOrigin (
+	h5_file_t *f,
+	const char *field_name,
+	h5_float64_t *x_origin,
+	h5_float64_t *y_origin,
+	h5_float64_t *z_origin
+	);
 
+h5_err_t
+H5Block3dSetFieldOrigin (
+	h5_file_t *f,
+	const char *field_name,
+	const h5_float64_t x_origin,
+	const h5_float64_t y_origin,
+	const h5_float64_t z_origin
+	);
+
+h5_err_t
+H5Block3dGetFieldSpacing (
+	h5_file_t *f,
+	const char *field_name,
+	h5_float64_t *x_spacing,
+	h5_float64_t *y_spacing,
+	h5_float64_t *z_spacing
+	);
+
+h5_err_t
+H5Block3dSetFieldSpacing (
+	h5_file_t *f,
+	const char *field_name,
+	const h5_float64_t x_spacing,
+	const h5_float64_t y_spacing,
+	const h5_float64_t z_spacing
+	);
 #endif
+
