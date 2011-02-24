@@ -31,7 +31,7 @@ alloc_tv (
 	TRY( adj->tv.v = h5_alloc (adj->tv.v, num_vertices*sizeof(*adj->tv.v)) );
 
 	size_t i = from_lvl <= 0 ? 0 : t->num_vertices[from_lvl-1];
-	bzero (adj->tv.v+i, (num_vertices-i)*sizeof(*adj->tv.v));
+	memset (adj->tv.v+i, 0, (num_vertices-i)*sizeof(*adj->tv.v));
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
@@ -555,7 +555,7 @@ release_internal_structs (
 	h5t_fdata_t *t = f->t;
 	TRY( release_tv (f) );
 	TRY( h5priv_hdestroy (&t->adjacencies.te_hash) );
-	bzero (&t->adjacencies, sizeof (t->adjacencies));
+	memset (&t->adjacencies, 0, sizeof (t->adjacencies));
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 

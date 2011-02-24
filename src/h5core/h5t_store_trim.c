@@ -1,4 +1,4 @@
-#include <string.H>
+#include <string.h>
 
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"

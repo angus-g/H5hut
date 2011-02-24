@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <search.h>
-#include <strings.h>
+#include <string.h>
 
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
@@ -40,12 +40,14 @@ h5priv_strdup (
 	const char* s1
 	) {
 	MALLOC_WRAPPER_ENTER1 (char_p, "s=%s", s1);
-	char_p s2 = strdup (s1);
+	
+	char_p s2 = h5_calloc (1, strlen (s1)+1 );
 	if (s2 == NULL) {
 		MALLOC_WRAPPER_LEAVE (
 			(char_p)h5_error (H5_ERR_NOMEM, "Out of memory."));
 	}
-	MALLOC_WRAPPER_RETURN (s2);
+	MALLOC_WRAPPER_RETURN (strcpy (s2, s1));
+
 }
 
 h5_err_t

@@ -284,7 +284,7 @@ h5t_end_iterate_entities (
 	) {
 	UNUSED_ARGUMENT (f);
 	H5_CORE_API_ENTER (h5_err_t);
-	bzero (iter, sizeof(*iter));
+	memset (iter, 0, sizeof(*iter));
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)iter;
 	it->face_idx = -1;
 	it->elem_idx = -1;

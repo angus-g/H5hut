@@ -62,9 +62,9 @@ h5t_init_boundary_face_iterator (
 	);
 
 h5_err_t
-h5t_create_mtag_iterator (
+h5t_init_mtag_iterator (
 	h5_file_t* f,
-	h5t_iterator_t** iter,
+	h5t_iterator_t* iter,
 	const char* name
 	);
 
