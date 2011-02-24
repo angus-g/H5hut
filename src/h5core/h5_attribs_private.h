@@ -3,7 +3,6 @@
 
 h5_err_t
 h5priv_read_attrib (
-	h5_file_t* const f,
 	const hid_t id,
 	const char* attrib_name,
 	const hid_t attrib_type,
@@ -12,7 +11,6 @@ h5priv_read_attrib (
 
 h5_err_t
 h5priv_write_attrib (
-	h5_file_t* const f,
 	const hid_t id,
 	const char* attrib_name,
 	const hid_t attrib_type,
@@ -22,7 +20,6 @@ h5priv_write_attrib (
 
 h5_err_t
 h5priv_get_attrib_info (
-	h5_file_t* const f,
 	const hid_t id,
 	const h5_size_t attrib_idx,
 	char* attrib_name,

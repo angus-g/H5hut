@@ -22,7 +22,7 @@ h5u_read_data (
 	}
 
 	char name2[H5_DATANAME_LEN];
-	TRY (h5_normalize_dataset_name (f, name, name2));
+	TRY (h5_normalize_dataset_name (name, name2));
 
 	TRY (dataset_id = hdf5_open_dataset (f->step_gid, name2));
 
@@ -114,7 +114,7 @@ h5u_write_data (
 	hid_t dset_id;
 
 	char name2[H5_DATANAME_LEN];
-	TRY (h5_normalize_dataset_name (f, name, name2));
+	TRY (h5_normalize_dataset_name (name, name2));
 
 	if ( u->shape == H5S_ALL )
 		h5_warn("The view is unset or invalid.");

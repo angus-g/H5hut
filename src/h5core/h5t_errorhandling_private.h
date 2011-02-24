@@ -21,7 +21,7 @@ h5tpriv_error_local_elem_nexist (
 			"%lld,", (long long)vertex_indices[i]);
 		if ((sizeof (s) - num_chars_printed) < 32) {
 			// buffer to small
-			return h5_error_internal (__FILE__, __func__, __LINE__);
+			return h5_error_internal ();
 		}
 	}
 
@@ -30,7 +30,6 @@ h5tpriv_error_local_elem_nexist (
 
 static inline h5_err_t
 h5tpriv_inval_codim (
-	h5_file_t * const f,
 	int codim,
 	int min_codim,
 	int max_codim

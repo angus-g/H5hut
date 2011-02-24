@@ -167,7 +167,7 @@ iterate_boundary_faces (
 				 f, dim, it->elem_idx, it->face_idx));
 		// Skip already visited faces
 	} while (0);
-	H5_PRIV_FUNC_RETURN (h5_error_internal (__FILE__, __func__, __LINE__));
+	H5_PRIV_FUNC_RETURN (h5_error_internal ());
 }
 
 static h5_loc_id_t
@@ -177,6 +177,7 @@ iterate_tags (
 	) {
 	H5_PRIV_FUNC_ENTER (h5_loc_id_t);
 	UNUSED_ARGUMENT (f);
+	UNUSED_ARGUMENT (iter);
 #if 0
 	h5t_tagsel_t* tags;
 	do {
@@ -189,7 +190,7 @@ iterate_tags (
 		tags = iter->tagset->elems[iter->elem_idx];
 	} while ((tags == NULL) || (tags->idx[iter->subentity_idx]));
 #endif
-	H5_PRIV_FUNC_RETURN (h5_error_internal (__FILE__, __func__, __LINE__));
+	H5_PRIV_FUNC_RETURN (h5_error_internal ());
 }
 
 h5_err_t
@@ -230,7 +231,7 @@ h5t_init_boundary_face_iterator (
 	it->ref_elem = f->t->ref_elem;
 
 	if (it->codim <= 0 || it->codim > it->ref_elem->dim) {
-		H5_CORE_API_LEAVE (h5tpriv_inval_codim (f, codim, 1, it->ref_elem->dim));
+		H5_CORE_API_LEAVE (h5tpriv_inval_codim (codim, 1, it->ref_elem->dim));
 	} else if (it->codim == 1) {
 		it->iter = iterate_boundary_facets;
 	}
@@ -261,6 +262,7 @@ h5t_release_entity_iterator (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
+	UNUSED_ARGUMENT (f);
 	H5_CORE_API_ENTER (h5_err_t);
 	H5_CORE_API_RETURN (h5_free (iter));
 }

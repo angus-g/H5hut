@@ -137,9 +137,9 @@ h5u_set_num_particles (
 	  acquire the number of particles to be written from each MPI process
 	*/
 
-	TRY( h5priv_mpi_sum(f,
+	TRY( h5priv_mpi_sum(
                     &(u->nparticles), &total, 1, MPI_LONG_LONG, f->comm ) );
-        TRY( h5priv_mpi_prefix_sum(f,
+        TRY( h5priv_mpi_prefix_sum(
                     &(u->nparticles), &start, 1, MPI_LONG_LONG, f->comm ) );
 	start -= u->nparticles;
 

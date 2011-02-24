@@ -15,7 +15,6 @@
  */
 h5_err_t
 h5priv_alloc_idlist (
-	h5_file_t* const f,
 	h5_loc_idlist_t** list,
 	const h5_size_t	size
 	) {
@@ -28,7 +27,6 @@ h5priv_alloc_idlist (
 
 h5_err_t
 h5priv_free_idlist (
-	h5_file_t* const f,
 	h5_loc_idlist_t** list
 	) {
 	H5_PRIV_API_ENTER (h5_err_t);
@@ -40,7 +38,6 @@ h5priv_free_idlist (
 
 static inline h5_err_t
 grow_idlist (
-	h5_file_t* const f,
 	h5_loc_idlist_t** list,
 	size_t new_size
 	) {
@@ -56,14 +53,13 @@ grow_idlist (
 */
 h5_loc_idx_t
 h5priv_insert_idlist (
-	h5_file_t* const f,
 	h5_loc_idlist_t** list,
 	h5_loc_id_t id,
 	h5_loc_idx_t idx
 	) {
 	H5_PRIV_API_ENTER (h5_loc_idx_t);
 	if (*list == NULL) {
-		TRY (h5priv_alloc_idlist (f, list, 2));
+		TRY (h5priv_alloc_idlist (list, 2));
 	} else if ((*list)->num_items == (*list)->size) {
 		h5_size_t size = (*list)->size;
 		if (size == 0) {
@@ -71,7 +67,7 @@ h5priv_insert_idlist (
 		} else {
 			size *= 2;
 		}
-		TRY (grow_idlist (f, list, size));
+		TRY (grow_idlist (list, size));
 	}
 	h5_loc_idlist_t* l = *list;
 	if (idx == -1) {
@@ -92,12 +88,10 @@ h5priv_insert_idlist (
 */
 h5_loc_id_t
 h5priv_find_idlist (
-	h5_file_t* const f,
 	h5_loc_idlist_t* list,
 	const h5_loc_id_t item
 	) {
 	H5_PRIV_API_ENTER (h5_loc_id_t);
-	UNUSED_ARGUMENT (f);
 	if (!list) {
 		H5_PRIV_API_LEAVE (-1);
 	}
@@ -130,15 +124,14 @@ h5priv_find_idlist (
  */
 h5_loc_idx_t
 h5priv_search_idlist (
-	h5_file_t* const f,
 	h5_loc_idlist_t** list,
 	h5_loc_id_t item
 	) {
 	H5_PRIV_API_ENTER (h5_loc_idx_t);
-	h5_loc_idx_t idx = h5priv_find_idlist (f, *list, item);
+	h5_loc_idx_t idx = h5priv_find_idlist (*list, item);
 	if (idx < 0) {
 		idx = -(idx+1);
-		TRY (idx = h5priv_insert_idlist (f, list, item, idx));
+		TRY (idx = h5priv_insert_idlist (list, item, idx));
 	}
 	H5_PRIV_API_RETURN (idx);
 }
@@ -146,7 +139,6 @@ h5priv_search_idlist (
 
 h5_err_t
 h5priv_alloc_idxmap (
-	h5_file_t* const f,
 	h5_idxmap_t* map,
 	const h5_size_t	size
 	) {
@@ -161,7 +153,6 @@ h5priv_alloc_idxmap (
 
 h5_err_t
 h5priv_insert_idxmap (
-	h5_file_t* const f,
 	h5_idxmap_t* map,
 	h5_glb_idx_t glb_idx,
 	h5_loc_idx_t loc_idx

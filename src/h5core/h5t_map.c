@@ -200,7 +200,7 @@ h5t_get_vertex_indices_of_entity (
 	case H5T_TYPE_TRIANGLE: dim = 2; break;
 	case H5T_TYPE_TET:      dim = 3; break;
 	default:
-		H5_CORE_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
+		H5_CORE_API_LEAVE (h5_error_internal ());
 	}
 	H5_CORE_API_RETURN (h5t_get_vertex_indices_of_entity2 (f, dim, face_idx, elem_idx, vertex_indices));
 }

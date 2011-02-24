@@ -159,7 +159,7 @@ read_num_vertices (
 
  	if (t->mesh_gid < 0) {
 		H5_PRIV_FUNC_LEAVE (
-			h5_error_internal (__FILE__, __func__, __LINE__));
+			h5_error_internal ());
 	}
 	ssize_t num_bytes = t->num_leaf_levels*sizeof (t->num_vertices[0]);
 	TRY( t->num_vertices = h5_alloc (t->num_vertices, num_bytes) );
@@ -275,7 +275,7 @@ h5tpriv_read_mesh (
 	H5_PRIV_API_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
  	if (t->mesh_gid < 0) {
-		H5_PRIV_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
+		H5_PRIV_API_LEAVE (h5_error_internal ());
 	}
 	TRY (read_num_leaf_levels (f));
 	TRY (read_num_vertices (f));

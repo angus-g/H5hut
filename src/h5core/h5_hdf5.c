@@ -1188,9 +1188,9 @@ hdf5_get_attribute_name (
 	char *buf
 	) {
 	HDF5_WRAPPER_ENTER4 (h5_ssize_t,
-			     "attr_id=%d (%s), buf_size=%zd, buf=0x%p",
+			     "attr_id=%d (%s), buf_size=%llu, buf=0x%p",
 			     attr_id, h5_get_objname (attr_id),
-			     buf_size, buf);
+			     (unsigned long long)buf_size, buf);
 	ssize_t size = H5Aget_name ( attr_id, buf_size, buf );
 	if (size < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1336,36 +1336,34 @@ iter_op_get_obj_type (
 	const char* name,
 	const H5L_info_t* info
 	) {
-	H5_PRIV_FUNC_ENTER3 (H5O_type_t,
-			     "g_id=%d, name=\"%s\", info=0x%p",
-			     g_id, name, info);
 	herr_t herr;
 	H5O_info_t objinfo;
 
-	if ( info->type == H5L_TYPE_EXTERNAL ) {
-		char *buf;
-		TRY (buf = h5_calloc (1, info->u.val_size));
-
+	if (info->type == H5L_TYPE_EXTERNAL) {
+		char* buf = h5_calloc (1, info->u.val_size);
+		if ((ptrdiff_t)buf == (ptrdiff_t)H5_ERR) {
+			return H5O_TYPE_UNKNOWN;
+		}
 		herr = H5Lget_val(g_id, name, buf,
 					info->u.val_size, H5P_DEFAULT);
-		if (herr < 0)
-			H5_PRIV_FUNC_LEAVE (
-				(H5O_type_t)h5_error (
-					H5_ERR_HDF5,
-					"Can't get external link for object '%s'!",
-					name));
-
+		if (herr < 0) {
+			h5_error (
+				H5_ERR_HDF5,
+				"Can't get external link for object '%s'!",
+				name);
+			return H5O_TYPE_UNKNOWN;
+		}
 		const char *filename;
 		const char *objname;
 		herr = H5Lunpack_elink_val(buf, info->u.val_size, 0,
 					   &filename, &objname);
-		if (herr < 0)
-			H5_PRIV_FUNC_LEAVE (
-				(H5O_type_t)h5_error(
-					H5_ERR_HDF5,
-					"Can't unpack external link for object '%s'!",
-					name));
-		
+		if (herr < 0) {
+			h5_error(
+				H5_ERR_HDF5,
+				"Can't unpack external link for object '%s'!",
+				name);
+			return H5O_TYPE_UNKNOWN;
+		}
 		h5_debug(
 			"Followed external link to file '%s' / object '%s'.",
 			filename, objname);
@@ -1373,25 +1371,26 @@ iter_op_get_obj_type (
 		h5_free (buf);
 
 		hid_t obj_id = H5Oopen(g_id, name, H5P_DEFAULT);
-		if (obj_id < 0)
-			H5_PRIV_FUNC_LEAVE (
-				(H5O_type_t)h5_error(
-					H5_ERR_HDF5,
-					"Can't open external link for object '%s'!",
-					name));
+		if (obj_id < 0) {
+			h5_error(
+				H5_ERR_HDF5,
+				"Can't open external link for object '%s'!",
+				name);
+			return H5O_TYPE_UNKNOWN;
+		}
 		herr = H5Oget_info(obj_id, &objinfo);	
 	}
 	else { // H5L_TYPE_HARD
 		herr = H5Oget_info_by_name(g_id, name, &objinfo, H5P_DEFAULT);
 	}
 	
-	if (herr < 0)
-		H5_PRIV_FUNC_LEAVE (
-			(H5O_type_t)h5_error(
-				H5_ERR_HDF5,
-				"Can't query object with name '%s'!", name));
-
-	H5_PRIV_FUNC_RETURN (objinfo.type);
+	if (herr < 0) {
+		h5_error(
+			H5_ERR_HDF5,
+			"Can't query object with name '%s'!", name);
+		return H5O_TYPE_UNKNOWN;
+	}
+	return objinfo.type;
 }
 
 static herr_t
@@ -1401,16 +1400,13 @@ iter_op_count (
 	const H5L_info_t* info,
 	void* _op_data
 	) {
-	H5_PRIV_FUNC_ENTER4 (herr_t,
-			     "g_id=%d, name=\"%s\", info=0x%p, _op_data=0x%p",
-			     g_id, name, info, _op_data);
 	op_data_t* op_data = (op_data_t*)_op_data;
-	H5O_type_t type;
-	TRY (type = iter_op_get_obj_type (g_id, name, info));
-	if (type != op_data->type )
-		H5_PRIV_FUNC_LEAVE (0);
-	op_data->cnt++;
-	H5_PRIV_FUNC_RETURN (0);
+	H5O_type_t type = iter_op_get_obj_type (g_id, name, info);
+	if (type == H5O_TYPE_UNKNOWN)
+		return -1;
+	if (type == op_data->type)
+		op_data->cnt++;
+	return 0;
 }
 
 static herr_t
@@ -1420,22 +1416,20 @@ iter_op_idx (
 	const H5L_info_t* info,
 	void* _op_data
 	) {
-	H5_PRIV_FUNC_ENTER4 (herr_t,
-			     "g_id=%d, name=\"%s\", info=0x%p, _op_data=0x%p",
-			     g_id, name, info, _op_data);
 	op_data_t* op_data = (op_data_t*)_op_data;
-	H5O_type_t type;
-	TRY (type = iter_op_get_obj_type (g_id, name, info));
+	H5O_type_t type = iter_op_get_obj_type (g_id, name, info);
+	if (type == H5O_TYPE_UNKNOWN)
+		return -1;
 	if (type != op_data->type)
-		H5_PRIV_FUNC_LEAVE (0);
+		return 0;	// ignore on wrong type
 	op_data->cnt++;
 	/* stop iterating if index is equal cnt */
 	if (op_data->queried_idx == op_data->cnt) {
 		memset (op_data->name, 0, op_data->len);
 		strncpy (op_data->name, name, op_data->len-1);
-		H5_PRIV_FUNC_LEAVE (1);
+		return 1;
 	}
-	H5_PRIV_FUNC_RETURN (0);
+	return 0;
 }
 
 static herr_t
@@ -1518,9 +1512,9 @@ h5_get_hdf5_groupname_by_idx (
 	size_t len
 	) {
 	HDF5_WRAPPER_ENTER5 (h5_err_t,
-			     "loc_id=%d (%s), idx=%llu, name=0x%p, len=%zd",
+			     "loc_id=%d (%s), idx=%llu, name=0x%p, len=%llu",
 			     loc_id, h5_get_objname (loc_id),
-			     idx, name, len);
+			     idx, name, (unsigned long long)len);
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
 	op_data.type = H5O_TYPE_GROUP;
@@ -1578,9 +1572,9 @@ h5_get_hdf5_datasetname_by_idx (
 	size_t len
 	) {
 	HDF5_WRAPPER_ENTER5 (h5_err_t,
-			     "loc_id=%d (%s), idx=%llu, name=0x%p, len=%zd",
+			     "loc_id=%d (%s), idx=%llu, name=0x%p, len=%llu",
 			     loc_id, h5_get_objname (loc_id),
-			     idx, name, len);
+			     idx, name, (unsigned long long)len);
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
 	op_data.type = H5O_TYPE_DATASET;

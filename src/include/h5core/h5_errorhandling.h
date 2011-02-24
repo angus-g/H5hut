@@ -64,17 +64,17 @@ h5_initialize (
 			H5_ERR_INVAL,					\
 			"Time step is invalid! Have you set the time step?");
 
-#define h5_error_not_implemented( file, func, lino )		     \
+#define h5_error_not_implemented()				     \
 	h5_error(						     \
 		H5_ERR_NOT_IMPLEMENTED,				     \
 		"%s: Function \"%s\", line %d not yet implemented!", \
-		file, func, lino );
+		__FILE__, __func__, __LINE__);
 
-#define h5_error_internal( file, func, lino )   \
+#define h5_error_internal()   \
 	h5_error(				   \
 		H5_ERR_INTERNAL,		   \
 		"%s: Internal error: %s line %d!", \
-		file, func, lino )
+		__FILE__, __func__, __LINE__)
 
 
 h5_err_t

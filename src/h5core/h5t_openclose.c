@@ -458,7 +458,7 @@ h5t_open_mesh (
 		break;
 	default:
 		H5_CORE_API_LEAVE (
-			h5_error_internal (__FILE__, __func__, __LINE__));
+			h5_error_internal ());
 	}
 
 	TRY (h5tpriv_open_mesh_group (f, type_id, id));
@@ -553,7 +553,7 @@ h5t_set_level (
 	t->leaf_level = level_id;
 
 	if (level_id >= t->num_loaded_levels) {
-		TRY (h5tpriv_update_adjacency_structs (f, prev_level+1));
+		TRY (h5tpriv_update_adjacency_structs (f, ++prev_level));
 	}
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
@@ -570,7 +570,7 @@ h5tpriv_alloc_num_vertices (
 	h5t_fdata_t* t = f->t;
 	ssize_t size = num * sizeof (t->vertices[0]);
 	TRY (t->vertices = h5_alloc (t->vertices, size));
-	TRY (h5priv_alloc_idxmap (f, &t->map_vertex_g2l, num));
+	TRY (h5priv_alloc_idxmap (&t->map_vertex_g2l, num));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 

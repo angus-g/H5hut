@@ -5,7 +5,6 @@
 
 h5_err_t
 h5priv_mpi_recv(
-	h5_file_t *const f,
 	void* buf,
 	const int count,
 	const MPI_Datatype type,
@@ -29,7 +28,6 @@ h5priv_mpi_recv(
 
 h5_err_t
 h5priv_mpi_send(
-	h5_file_t *f,
 	void* buf,
 	const int count,
 	const MPI_Datatype type,
@@ -52,7 +50,6 @@ h5priv_mpi_send(
 
 h5_err_t
 h5priv_mpi_bcast (
-	h5_file_t* const f,
 	void* buf,
 	const int count,
 	const MPI_Datatype type,
@@ -75,7 +72,6 @@ h5priv_mpi_bcast (
 
 h5_err_t
 h5priv_mpi_sum (
-	h5_file_t* const f,
 	void* sendbuf,
 	void* recvbuf,
 	const int count,
@@ -97,7 +93,6 @@ h5priv_mpi_sum (
 
 h5_err_t
 h5priv_mpi_prefix_sum (
-	h5_file_t* const f,
 	void* sendbuf,
 	void* recvbuf,
 	const int count,
@@ -119,7 +114,6 @@ h5priv_mpi_prefix_sum (
 
 h5_err_t
 h5priv_mpi_allgather (
-	h5_file_t* const f,
 	void* sendbuf,
 	const int sendcount,
 	const MPI_Datatype sendtype,
@@ -143,7 +137,6 @@ h5priv_mpi_allgather (
 
 h5_err_t
 h5priv_mpi_comm_size (
-	h5_file_t* const f,
 	MPI_Comm comm,
 	int* size
 	) {
@@ -156,7 +149,6 @@ h5priv_mpi_comm_size (
 
 h5_err_t
 h5priv_mpi_comm_rank (
-	h5_file_t* const f,
 	MPI_Comm comm,
 	int* rank
 	) {
@@ -168,7 +160,6 @@ h5priv_mpi_comm_rank (
 
 h5_err_t
 h5priv_mpi_type_contiguous (
-	h5_file_t* const f,
 	const size_t nelems,
 	const MPI_Datatype oldtype,
 	MPI_Datatype *const newtype
@@ -185,7 +176,6 @@ h5priv_mpi_type_contiguous (
 
 h5_err_t
 h5priv_mpi_type_free (
-	h5_file_t* const f,
 	MPI_Datatype *type
 	) {
 	int err = MPI_Type_free( type );
@@ -196,7 +186,6 @@ h5priv_mpi_type_free (
 
 h5_err_t
 h5priv_mpi_cart_create (
-	h5_file_t* const f,
 	MPI_Comm old_comm,
 	int ndims,
 	int *dims,
@@ -213,7 +202,6 @@ h5priv_mpi_cart_create (
 
 h5_err_t
 h5priv_mpi_cart_coords (
-	h5_file_t* const f,
 	MPI_Comm comm,
 	int rank,
 	int maxdim,

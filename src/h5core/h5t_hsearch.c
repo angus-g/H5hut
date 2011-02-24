@@ -7,9 +7,9 @@
 h5_err_t
 h5tpriv_search_tv2 (
 	h5_file_t* const f,
-	h5_loc_idx_t face_idx,
-	h5_loc_idx_t elem_idx,
-	h5_loc_idlist_t** idlist
+	h5_loc_idx_t face_idx,		// in
+	h5_loc_idx_t elem_idx,		// in
+	h5_loc_idlist_t** idlist	// out
 	) {
 	H5_PRIV_API_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
@@ -21,9 +21,12 @@ h5tpriv_search_tv2 (
 		     &vertex_idx));
 
 	TRY (h5priv_search_idlist (
-		     f,
 		     &t->adjacencies.tv.v[vertex_idx],
 		     h5tpriv_build_vertex_id (face_idx, elem_idx)));
+	if (idlist) {
+		*idlist = t->adjacencies.tv.v[vertex_idx];
+	}
+
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
@@ -57,13 +60,12 @@ compute_te_hashval (
 
 static h5_err_t
 release_te_entry (
-	h5_file_t * const f,
 	const void* __entry
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t);
 	struct h5_te_entry* entry = *(struct h5_te_entry**)__entry;
 	h5_loc_idlist_t* list = entry->value;
-	TRY (h5priv_free_idlist (f, &list));
+	TRY (h5priv_free_idlist (&list));
 	TRY (h5_free (entry));
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
@@ -77,14 +79,13 @@ h5tpriv_resize_te_htab (
 	h5t_adjacencies_t* a = &f->t->adjacencies;
 	if ( a->te_hash.size == 0 ) {
 		TRY (h5priv_hcreate (
-			     f,
 			     nel,
 			     &a->te_hash,
 			     cmp_te_entries,
 			     compute_te_hashval,
 			     release_te_entry));
 	} else if (a->te_hash.size < nel) {
-		TRY (h5priv_hresize (f, nel, &a->te_hash));
+		TRY (h5priv_hresize (nel, &a->te_hash));
 	}
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
@@ -121,19 +122,16 @@ h5tpriv_search_te2 (
 		 */
 		h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
 		TRY (h5priv_hresize (
-			     f,
 			     3*(num_elems - elem_idx),
 			     &a->te_hash));
 	}
 	TRY (h5priv_hsearch (
-		     f,
 		     entry,
 		     H5_ENTER,
 		     &__retval,
 		     &a->te_hash));
 	h5t_te_entry_t* te_entry = (h5t_te_entry_t *)__retval;
 	TRY (h5priv_search_idlist (
-		     f,
 		     &te_entry->value,
 		     h5tpriv_build_edge_id (face_idx, elem_idx)));
 	if (te_entry->value->num_items > 1) {
@@ -160,7 +158,6 @@ find_te (
 	H5_PRIV_FUNC_ENTER (h5_err_t);
 	void* __entry;
 	TRY (h5priv_hsearch (
-		     f,
 		     item,
 		     H5_FIND,
 		     &__entry,
@@ -244,13 +241,12 @@ compute_td_hashval (
 
 static h5_err_t
 release_td_entry (
-	h5_file_t * const f,
 	const void* __entry
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t);
 	struct h5_td_entry* entry = *(struct h5_td_entry**)__entry;
 	h5_loc_idlist_t* list = entry->value;
-	TRY (h5priv_free_idlist (f, &list));
+	TRY (h5priv_free_idlist (&list));
 	TRY (h5_free (entry));
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
@@ -265,14 +261,13 @@ h5tpriv_resize_td_htab (
 	h5t_adjacencies_t* a = &f->t->adjacencies;
 	if (a->td_hash.size == 0) {
 		TRY (h5priv_hcreate (
-			     f,
 			     nel,
 			     &a->td_hash,
 			     cmp_td_entries,
 			     compute_td_hashval,
 			     release_td_entry));
 	} else if (a->td_hash.size < nel) {
-		TRY (h5priv_hresize (f, nel, &a->td_hash));
+		TRY (h5priv_hresize (nel, &a->td_hash));
 	}
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
@@ -299,14 +294,10 @@ h5tpriv_search_td2 (
 	*/
 	if ((a->td_hash.size*6) <= (a->td_hash.filled<<3)) {
 		h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
-		TRY (h5priv_hresize (
-			     f,
-			     3*(num_elems-elem_idx),
-			     &a->td_hash));
+		TRY (h5priv_hresize (3*(num_elems-elem_idx), &a->td_hash));
 	}
-	/* search in directory, add if entry doen't already exists */
+	/* search in directory, add if entry doesn't already exists */
 	TRY (h5priv_hsearch (
-		     f,
 		     entry,
 		     H5_ENTER,
 		     &__retval,
@@ -315,7 +306,6 @@ h5tpriv_search_td2 (
 	/* search ID in list of IDs for given triangle */
 	h5t_td_entry_t *td_entry = (h5t_td_entry_t *)__retval;
 	TRY (h5priv_search_idlist (
-		     f,
 		     &td_entry->value,
 		     h5tpriv_build_triangle_id (face_idx, elem_idx)));
 	if (td_entry->value->num_items > 1) {
@@ -335,7 +325,6 @@ find_td (
 	) {
 	void* __entry;
 	h5priv_hsearch (
-		f,
 		item,
 		H5_FIND,
 		&__entry,

@@ -5,7 +5,6 @@
 
 static h5_err_t
 begin_iterate_entities (
-	h5_file_t* f,
 	h5t_iterator_t* iter,
 	const int codim
 	) {
@@ -21,7 +20,7 @@ begin_iterate_entities (
 		it->find = NULL;
 		break;
 	default:
-		return h5_error_internal (__FILE__, __func__, __LINE__);
+		return h5_error_internal ();
 	}
 	return H5_SUCCESS;
 }

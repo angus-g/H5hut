@@ -22,7 +22,7 @@ alloc_triangles (
 		(new-cur) * sizeof (t->loc_elems.tris[0]) );
 
 	/* alloc mem for global to local ID mapping */
-	TRY ( h5priv_alloc_idxmap ( f, &t->map_elem_g2l, new ) );
+	TRY (h5priv_alloc_idxmap (&t->map_elem_g2l, new));
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
@@ -52,8 +52,7 @@ get_direct_children_of_edge (
 	};
 	h5_loc_idx_t num_faces = h5tpriv_ref_elem_get_num_edges (f->t);
 	if ((face_idx < 0) || (face_idx >= num_faces)) {
-		H5_PRIV_FUNC_LEAVE (
-			h5_error_internal (__FILE__, __func__, __LINE__));
+		H5_PRIV_FUNC_LEAVE (h5_error_internal ());
 	}
 	children[0] = h5tpriv_build_edge_id (face_idx, elem_idx+off[face_idx][0]);
 	children[1] = h5tpriv_build_edge_id (face_idx, elem_idx+off[face_idx][1]);
@@ -198,8 +197,7 @@ compute_neighbor_of_face (
 			     elem_idx,
 			     &te) );
 		if (te == NULL) {
-			H5_PRIV_FUNC_LEAVE (
-				h5_error_internal (__FILE__, __func__, __LINE__));
+			H5_PRIV_FUNC_LEAVE (h5_error_internal ());
 		}
 		if (te->num_items == 1) {
 			// neighbor is coarser or face is on the boundary
@@ -217,8 +215,7 @@ compute_neighbor_of_face (
 			}
 			
 		} else {
-			H5_PRIV_FUNC_LEAVE (
-				h5_error_internal (__FILE__, __func__, __LINE__));
+			H5_PRIV_FUNC_LEAVE (h5_error_internal ());
 		}
 	} while (neighbor_idx < -1);
 	H5_PRIV_FUNC_RETURN (neighbor_idx);

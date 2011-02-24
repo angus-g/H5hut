@@ -302,7 +302,7 @@ h5t_mark_entity (
 	) {
 	H5_CORE_API_ENTER (h5_err_t);
 	h5t_fdata_t* const t = f->t;
-	H5_CORE_API_RETURN (h5priv_insert_idlist (f, &t->marked_entities, entity_id, -1));
+	H5_CORE_API_RETURN (h5priv_insert_idlist (&t->marked_entities, entity_id, -1));
 }
 
 /*
@@ -346,7 +346,7 @@ h5t_pre_refine (
 		num_elems_to_add = num_elems_to_refine*4;
 		break;
 	default:
-		H5_CORE_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
+		H5_CORE_API_LEAVE (h5_error_internal ());
 	}
 	TRY (h5t_begin_store_vertices (f, num_vertices_to_add));
 	TRY (h5t_begin_store_elems (f, num_elems_to_add));
@@ -378,7 +378,7 @@ h5t_post_refine (
 	h5t_fdata_t* const t = f->t;
 	TRY (h5t_end_store_vertices (f));
 	TRY (h5t_end_store_elems (f));
-	H5_CORE_API_RETURN (h5priv_free_idlist (f, &t->marked_entities));
+	H5_CORE_API_RETURN (h5priv_free_idlist (&t->marked_entities));
 }
 
 
@@ -393,7 +393,7 @@ h5t_begin_refine_elems (
 	  Pre-allocate space for items to avoid allocating small pieces of
 	  memory.
 	*/
-	TRY (h5priv_alloc_idlist (f, &t->marked_entities, 2048));
+	TRY (h5priv_alloc_idlist (&t->marked_entities, 2048));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 

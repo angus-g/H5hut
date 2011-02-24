@@ -61,18 +61,17 @@ isprime (const unsigned int number) {
    becomes zero.  */
 h5_err_t
 h5priv_hcreate (
-	h5_file_t* const f,
 	size_t nel,
 	h5_hashtable_t* htab,
 	int (*compare)(const void*, const void*),
 	unsigned int (*compute_hash)(const void*),
-	h5_err_t (*free_entry)(h5_file_t* const f, const void*)
+	h5_err_t (*free_entry)(const void*)
 	) {
 	H5_PRIV_API_ENTER (h5_err_t);
 
 	/* Test for correct arguments.  */
 	if (htab == NULL || htab->table != NULL) {
-		H5_PRIV_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
+		H5_PRIV_API_LEAVE (h5_error_internal ());
 	}
 	/* Change nel to the first prime number not smaller as nel. */
 	nel |= 1;      /* make odd */
@@ -98,20 +97,19 @@ h5priv_hcreate (
  */
 h5_err_t
 h5priv_hresize (
-	h5_file_t* const f,
 	size_t nel,		// number of entries to grow
 	h5_hashtable_t* htab	// hash table to resize
 	) {
 	H5_PRIV_API_ENTER (h5_err_t);
 	if (htab == NULL || htab->table == NULL) {
-		H5_PRIV_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
+		H5_PRIV_API_LEAVE (h5_error_internal ());
 	}
 	// create new hash table
 	h5_hashtable_t __htab;
 	memset (&__htab, 0, sizeof (__htab));
 	nel += htab->size;
 	h5_debug ("Resize hash table from %u to %lu elements.", htab->size, nel);
-	TRY (h5priv_hcreate (f, nel, &__htab, htab->compare,
+	TRY (h5priv_hcreate (nel, &__htab, htab->compare,
 			      htab->compute_hash, htab->free_entry));
 
 	// add all entries to new hash table
@@ -120,7 +118,6 @@ h5priv_hresize (
 		if (htab->table[idx].used) {
 			void* ventry;
 			TRY (h5priv_hsearch (
-				      f,
 				      htab->table[idx].entry,
 				      H5_ENTER,
 				      &ventry,
@@ -138,15 +135,14 @@ h5priv_hresize (
 
 static inline h5_err_t
 hwalk (
-	h5_file_t* const f,
 	struct hsearch_data* htab,
-	h5_err_t (*visit)(h5_file_t*const f, const void *item)
+	h5_err_t (*visit)(const void *item)
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t);
 	unsigned int idx = 1;
 	for (idx = 1; idx < htab->size; idx++) {
 		if (htab->table[idx].used) {
-			TRY ((*visit)(f, &htab->table[idx].entry));
+			TRY ((*visit)(&htab->table[idx].entry));
 		}
 	}
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
@@ -157,16 +153,15 @@ hwalk (
    be freed and the local static variable can be marked as not used.  */
 h5_err_t
 h5priv_hdestroy (
-	h5_file_t* const f,
 	struct hsearch_data* htab
 	) {
 	H5_PRIV_API_ENTER (h5_err_t);
 	/* Test for correct arguments.  */
 	if (htab == NULL) {
-		H5_PRIV_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
+		H5_PRIV_API_LEAVE (h5_error_internal ());
 	}
 
-	TRY (hwalk (f, htab, htab->free_entry));
+	TRY (hwalk (htab, htab->free_entry));
 
 	/* Free used memory.  */
 	TRY (h5_free (htab->table));
@@ -193,7 +188,6 @@ h5priv_hdestroy (
    unnecessary expensive calls of strcmp.  */
 h5_err_t
 h5priv_hsearch (
-	h5_file_t* const f,
 	void* item,
 	const h5_action_t action,
 	void** retval,
@@ -257,7 +251,7 @@ h5priv_hsearch (
 			if (retval) {
 				*retval = NULL;
 			}
-			H5_PRIV_API_LEAVE (h5_error_internal (__FILE__, __func__, __LINE__));
+			H5_PRIV_API_LEAVE (h5_error_internal ());
 		}
 
 		htab->table[idx].used  = hval;
@@ -310,7 +304,6 @@ compute_string_keyed (
 
 static h5_err_t
 free_string_keyed (
-	h5_file_t* const f,
 	const void* __entry
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t);
@@ -322,19 +315,18 @@ free_string_keyed (
 
 h5_err_t
 h5priv_hcreate_string_keyed (
-	h5_file_t* const f,
 	size_t nel,
 	h5_hashtable_t* htab,
-	h5_err_t (*free_entry)(h5_file_t* const f, const void*)
+	h5_err_t (*free_entry)(const void*)
 	) {
 	H5_PRIV_API_ENTER (h5_err_t);
 	if (free_entry == NULL) {
-		TRY (h5priv_hcreate (f, nel, htab,
+		TRY (h5priv_hcreate (nel, htab,
 				     cmp_string_keyed,
 				     compute_string_keyed,
 				     free_string_keyed));
 	} else {
-		TRY (h5priv_hcreate (f, nel, htab,
+		TRY (h5priv_hcreate (nel, htab,
 				     cmp_string_keyed,
 				     compute_string_keyed,
 				     free_entry));

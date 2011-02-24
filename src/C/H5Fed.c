@@ -49,5 +49,5 @@ H5FedLinkMeshToStep (
 	) {
 	UNUSED_ARGUMENT (mesh_id);
 	H5_API_ENTER (h5_err_t);
-	H5_API_RETURN (h5_error_not_implemented (__FILE__, __func__, __LINE__));
+	H5_API_RETURN (h5_error_not_implemented ());
 }

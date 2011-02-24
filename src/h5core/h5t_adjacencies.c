@@ -32,8 +32,9 @@ h5t_release_list_of_adjacencies (
 	h5_file_t* const f,
 	h5_loc_idlist_t** list
 	) {
-	H5_CORE_API_ENTER (h5_err_t);;
-	H5_CORE_API_RETURN (h5priv_free_idlist (f, list));
+	UNUSED_ARGUMENT (f);
+	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_RETURN (h5priv_free_idlist (list));
 }
 
 h5_err_t

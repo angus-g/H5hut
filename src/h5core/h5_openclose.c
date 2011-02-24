@@ -110,8 +110,7 @@ h5bpriv_open_file (
 
 #if defined(PARALLEL_IO)
 	size_t n = sizeof (struct h5b_partition) / sizeof (h5_int64_t);
-	TRY (h5priv_mpi_type_contiguous(f,
-			n, MPI_LONG_LONG, &b->partition_mpi_t));
+	TRY (h5priv_mpi_type_contiguous(n, MPI_LONG_LONG, &b->partition_mpi_t));
 #endif
 	memset (b->user_layout, 0, sizeof(*b->user_layout));
 	memset (b->write_layout, 0, sizeof(*b->write_layout));
@@ -159,8 +158,8 @@ h5_open_file (
 
 #ifdef PARALLEL_IO
 	f->comm = comm;
-	TRY2 (h5priv_mpi_comm_size (f, comm, &f->nprocs));
-	TRY2 (h5priv_mpi_comm_rank (f, comm, &f->myproc));
+	TRY2 (h5priv_mpi_comm_size (comm, &f->nprocs));
+	TRY2 (h5priv_mpi_comm_rank (comm, &f->myproc));
 	
 	/* xfer_prop:  also used for parallel I/O, during actual writes
 	   rather than the access_prop which is for file creation. */
@@ -292,7 +291,7 @@ h5bpriv_close_file (
 	TRY (hdf5_close_dataspace (b->memshape));
 	TRY (hdf5_close_property (b->dcreate_prop));
 #if defined(PARALLEL_IO)
-	TRY (h5priv_mpi_type_free (f, &b->partition_mpi_t));
+	TRY (h5priv_mpi_type_free (&b->partition_mpi_t));
 #endif
 	TRY (h5_free (f->b));
 	f->b = NULL;
@@ -379,7 +378,7 @@ h5_get_stepname_fmt (
 	UNUSED_ARGUMENT (name);
 	UNUSED_ARGUMENT (l_name);
 	UNUSED_ARGUMENT (width);
-	return h5_error_not_implemented (__FILE__, __func__, __LINE__);
+	return h5_error_not_implemented ();
 }
 
 /*!
@@ -393,7 +392,8 @@ h5_id_t
 h5_get_step (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	return h5_error_not_implemented (__FILE__, __func__, __LINE__);
+	UNUSED_ARGUMENT (f);
+	return h5_error_not_implemented ();
 }
 
 /*!
@@ -453,7 +453,8 @@ h5_err_t
 h5_start_traverse_steps (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	return h5_error_not_implemented (__FILE__, __func__, __LINE__);
+	UNUSED_ARGUMENT (f);
+	return h5_error_not_implemented ();
 }
 
 /*!
@@ -467,7 +468,8 @@ h5_err_t
 h5_traverse_steps (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	return h5_error_not_implemented (__FILE__, __func__, __LINE__);
+	UNUSED_ARGUMENT (f);
+	return h5_error_not_implemented ();
 }
 
 char *

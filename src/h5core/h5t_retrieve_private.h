@@ -5,7 +5,7 @@
 
 struct h5t_retrieve_methods {
 	h5_err_t (*init_entity_iterator)(
-		h5_file_t* const, h5t_iterator_t*, const int);
+		h5t_iterator_t*, const int);
 };
 
 extern struct h5t_retrieve_methods h5tpriv_trim_retrieve_methods;
@@ -26,7 +26,7 @@ h5tpriv_init_entity_iterator (
 	h5t_iterator_t* const iter,
 	const int codim
 	) {
-	return (*f->t->methods.retrieve->init_entity_iterator) (f, iter, codim);
+	return (*f->t->methods.retrieve->init_entity_iterator) (iter, codim);
 }
 
 #endif

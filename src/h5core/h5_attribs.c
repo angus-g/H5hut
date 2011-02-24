@@ -16,7 +16,6 @@ get_hdf5_obj_id(
 
 h5_err_t
 h5priv_read_attrib (
-	h5_file_t* const f,		/*!< handle to open file */
 	const hid_t id,			/*!< HDF5 object ID */
 	const char* attrib_name,	/*!< name of HDF5 attribute to read */
 	const hid_t attrib_type,	/*!< HDF5 type of attribute */
@@ -30,7 +29,7 @@ h5priv_read_attrib (
 	TRY (type_id = hdf5_get_attribute_type (attrib_id));
 
         hid_t h5type_id;
-        TRY (h5type_id = h5_normalize_h5_type (f, type_id));
+        TRY (h5type_id = h5_normalize_h5_type (type_id));
 	if (h5type_id != attrib_type)
 		H5_PRIV_API_LEAVE (
 			h5_error (
@@ -70,13 +69,12 @@ h5_read_attrib (
 
 	hid_t id;
 	TRY (get_hdf5_obj_id(f, mode, &id));
-	TRY (h5priv_read_attrib (f, id, attrib_name, attrib_type, attrib_value));
+	TRY (h5priv_read_attrib (id, attrib_name, attrib_type, attrib_value));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
 h5priv_write_attrib (
-	h5_file_t* const f,		/*!< handle to open file */
 	const hid_t id,			/*!< HDF5 object ID */
 	const char* attrib_name,	/*!< name of HDF5 attribute to write */
 	const hid_t attrib_type,	/*!< HDF5 type of attribute */
@@ -134,14 +132,13 @@ h5_write_attrib (
 
 	hid_t id;
 	TRY (get_hdf5_obj_id(f, mode, &id));
-	TRY (h5priv_write_attrib (f, id, attrib_name, attrib_type,
+	TRY (h5priv_write_attrib (id, attrib_name, attrib_type,
 				  attrib_value, attrib_nelem));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
 h5priv_get_attrib_info (
-	h5_file_t* const f,		/*!< handle to open file */
 	const hid_t id,			/*!< HDF5 object ID */
 	const h5_size_t attrib_idx,	/*!< index of attribute */
 	char* attrib_name,		/*!< OUT: name of attribute */
@@ -170,7 +167,7 @@ h5priv_get_attrib_info (
 	}
 	if (attrib_type) {
 		TRY (mytype = hdf5_get_attribute_type (attrib_id));
-		TRY (*attrib_type = h5_normalize_h5_type (f, mytype));
+		TRY (*attrib_type = h5_normalize_h5_type (mytype));
 		TRY (hdf5_close_type (mytype));
 	}
 	TRY (hdf5_close_attribute (attrib_id));
@@ -199,7 +196,7 @@ h5_get_attrib_info (
 
 	hid_t id;
 	TRY (get_hdf5_obj_id(f, mode, &id));
-	TRY (h5priv_get_attrib_info (f, id, attrib_idx, attrib_name, len_attrib_name,
+	TRY (h5priv_get_attrib_info (id, attrib_idx, attrib_name, len_attrib_name,
 				     attrib_type, attrib_nelem));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }

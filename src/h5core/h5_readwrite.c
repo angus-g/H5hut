@@ -179,7 +179,6 @@ h5_set_step (
 */
 h5_int64_t
 h5_normalize_h5_type (
-	h5_file_t* const f,
 	hid_t type
 	) {
 	H5_CORE_API_ENTER (h5_int64_t);
@@ -219,13 +218,14 @@ h5_get_dataset_type(
 	hid_t group_id,
 	const char* dset_name
 	) {
+	UNUSED_ARGUMENT (f);
 	H5_CORE_API_ENTER (h5_int64_t);
 	hid_t dset_id;
 	hid_t hdf5_type;
 	h5_int64_t type;
 	TRY (dset_id = hdf5_open_dataset (group_id, dset_name));
 	TRY (hdf5_type = hdf5_get_dataset_type (dset_id));
-	TRY (type = h5_normalize_h5_type (f, hdf5_type));
+	TRY (type = h5_normalize_h5_type (hdf5_type));
 	TRY (hdf5_close_type (hdf5_type));
 	TRY (hdf5_close_dataset (dset_id));
 
@@ -247,7 +247,6 @@ h5_has_step (
 
 h5_err_t
 h5_normalize_dataset_name (
-	h5_file_t *const f,
 	const char *name,
 	char *name2
 	) {
@@ -301,7 +300,7 @@ h5_start_throttle (
 			h5_debug ("[%d] throttle: waiting on token from %d",
 				  f->myproc, f->myproc - f->throttle);
 			// wait to receive token before continuing with read
-            TRY( h5priv_mpi_recv(f,
+            TRY( h5priv_mpi_recv(
 				&token, 1, MPI_INT,
 				f->myproc - f->throttle, // receive from previous proc
 				f->myproc, // use this proc id as message tag
@@ -325,7 +324,6 @@ h5_end_throttle (
 			h5_debug ("[%d] throttle: passing token to %d",
 				  f->myproc, f->myproc + f->throttle);
 			TRY (h5priv_mpi_send(
-				     f,
 				     &token, 1, MPI_INT,
 				     f->myproc + f->throttle, // send to next proc
 				     f->myproc + f->throttle, // use the id of the target as tag

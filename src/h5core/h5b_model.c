@@ -239,7 +239,7 @@ _dissolve_ghostzone (
 	h5b_partition_t *const p,	/*!< IN/OUT: ptr to first partition */
 	h5b_partition_t *const q	/*!< IN/OUT: ptr to second partition */
 	) {
-
+	UNUSED_ARGUMENT (f);
 	h5b_partition_t p_;
 	h5b_partition_t q_;
 	h5b_partition_t p_best;
@@ -458,7 +458,7 @@ h5bpriv_have_field_group (
 	) {
 	H5_CORE_API_ENTER (h5_err_t);
 	char name2[H5_DATANAME_LEN];
-	h5_normalize_dataset_name(f, name, name2);
+	h5_normalize_dataset_name (name, name2);
 
 	TRY( h5bpriv_open_block_group(f) );
 	H5_CORE_API_RETURN (hdf5_link_exists(f->b->block_gid, name2));
@@ -471,7 +471,7 @@ h5bpriv_open_field_group (
 	) {
 	H5_CORE_API_ENTER (h5_err_t);
 	char name2[H5_DATANAME_LEN];
-	h5_normalize_dataset_name(f, name, name2);
+	h5_normalize_dataset_name (name, name2);
 	
 	TRY (hdf5_close_group (f->b->field_gid));
 	TRY (h5bpriv_open_block_group (f));
@@ -495,7 +495,7 @@ h5bpriv_create_field_group (
 	TRY( _create_block_group(f) );
 
 	char name2[H5_DATANAME_LEN];
-	h5_normalize_dataset_name(f, name, name2);
+	h5_normalize_dataset_name (name, name2);
 
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists ( b->block_gid, name2));
@@ -546,7 +546,7 @@ h5b_3d_set_view (
 	TRY( user_layout = h5_alloc (NULL, size) );
 	TRY( write_layout = h5_alloc (NULL, size) );
 
-	TRY( h5priv_mpi_allgather(f,
+	TRY( h5priv_mpi_allgather(
 		p, 1, f->b->partition_mpi_t,
 		user_layout, 1, f->b->partition_mpi_t, f->comm) );
 
@@ -716,7 +716,7 @@ h5b_3d_set_grid (
 
 	int dims[3] = { k, j, i };
 	int period[3] = { 0, 0, 0 };
-	TRY( h5priv_mpi_cart_create(f,
+	TRY( h5priv_mpi_cart_create(
 		f->comm, 3, dims, period, 0, &f->b->cart_comm) );
 
 	f->b->have_grid = 1;
@@ -739,7 +739,7 @@ h5b_3d_get_grid_coords (
 				 "Grid dimensions have not been set!"));
 
     	int coords[3];
-	TRY( h5priv_mpi_cart_coords(f, f->b->cart_comm, proc, 3, coords) );
+	TRY( h5priv_mpi_cart_coords(f->b->cart_comm, proc, 3, coords) );
 	*k = coords[0];
 	*j = coords[1];
 	*i = coords[2];
@@ -762,7 +762,7 @@ h5b_3d_set_dims (
 	h5_size_t dims[3] = { k, j, i };
 	h5_size_t check_dims[3] = { k, j, i };
 
-	TRY( h5priv_mpi_bcast(f,
+	TRY( h5priv_mpi_bcast(
 		check_dims, 3, MPI_LONG_LONG, 0, f->comm) );
 
 	if (	dims[0] != check_dims[0] ||
@@ -885,7 +885,7 @@ h5b_get_field_info_by_name (
 	TRY (h5type = hdf5_get_dataset_type (dataset_id));
 
 	if ( type )
-		TRY( *type = h5_normalize_h5_type(f, h5type) );
+		TRY( *type = h5_normalize_h5_type(h5type) );
 
 	TRY (hdf5_close_dataspace (dataspace_id));
 	TRY (hdf5_close_dataset (dataset_id));

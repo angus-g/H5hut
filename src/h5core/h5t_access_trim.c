@@ -322,7 +322,7 @@ is_boundary_face (
 	UNUSED_ARGUMENT (dim);
 	UNUSED_ARGUMENT (elem_idx);
 	UNUSED_ARGUMENT (facet_idx);
-	return h5_error_internal (__FILE__, __func__, __LINE__);
+	return h5_error_internal ();
 }
 
 struct h5t_access_methods h5tpriv_access_trim_methods = {

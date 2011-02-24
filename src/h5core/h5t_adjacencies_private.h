@@ -21,8 +21,7 @@ h5tpriv_get_adjacencies (
 	) {
 	H5_PRIV_API_ENTER (h5_err_t);
 	if (f->t->methods.adjacency == NULL) {
-		H5_PRIV_API_LEAVE (
-			h5_error_internal (__FILE__, __func__, __LINE__));
+		H5_PRIV_API_LEAVE (h5_error_internal ());
 	}
 	H5_PRIV_API_RETURN (f->t->methods.adjacency->get_adjacencies(
 				    f, entity_id, dim, list));
