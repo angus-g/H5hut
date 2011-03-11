@@ -411,35 +411,20 @@ h5u_get_num_datasets (
  */
 h5_err_t
 h5u_get_dataset_info (
-	h5_file_t *const f,	/*!< [in]  Handle to open file */
-	const h5_id_t idx,	/*!< [in]  Index of the dataset */
-	char *dataset_name,	/*!< [out] Name of dataset */
-	const h5_size_t len_dataset_name,
-				/*!< [in]  Size of buffer \c dataset_name */
-	h5_int64_t *type,	/*!< [out] Type of data in dataset */
-	h5_size_t *nelem	/*!< [out] Number of elements. */
+	h5_file_t* const f,		/*!< [in]  Handle to open file */
+	const h5_id_t idx,		/*!< [in]  Index of the dataset */
+	char* const dset_name,		/*!< [out] Name of dataset */
+	const h5_size_t len_dset_name,	/*!< [in]  Size of buffer \c dset_name */
+	h5_int64_t* const type,		/*!< [out] Type of data in dataset */
+	h5_size_t* const npoints	/*!< [out] Number of elements. */
 	) {
 	H5_CORE_API_ENTER (h5_err_t);
-	TRY (hdf5_get_name_of_dataset_by_idx (
-		     f->step_gid,
-		     idx,
-		     dataset_name, len_dataset_name) );
-
-	if ( nelem ) {
-		h5_ssize_t nelem_;
-		TRY (nelem_ = hdf5_get_npoints_of_dataset_by_name (
-			     f->step_gid,
-			     dataset_name) );
-		if ( nelem_ < 0 ) return nelem_;
-		*nelem = nelem_;
-	}
-
-	if ( type ) {
-		*type = h5_get_dataset_type (f->step_gid, dataset_name);
-		if ( *type < 0 ) return *type;
-	}
-
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_CORE_API_RETURN (
+		hdf5_get_dataset_info_by_idx (
+			f->step_gid,
+			idx,
+			dset_name, len_dset_name,
+			type, npoints));
 }
 
 h5_err_t
