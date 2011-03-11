@@ -393,6 +393,7 @@ src/Fortran/TestUnderscore.f -text
 src/Fortran/TestUnderscoreC.c -text
 src/Makefile.am -text
 src/h5core/Makefile.am -text
+src/h5core/h5_attachments.c -text
 src/h5core/h5_attribs.c -text
 src/h5core/h5_attribs_private.h -text
 src/h5core/h5_core_private.h -text
