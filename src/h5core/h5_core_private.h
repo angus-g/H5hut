@@ -68,6 +68,7 @@
 #define H5_BLOCKNAME_X		"0"
 #define H5_BLOCKNAME_Y		"1"
 #define H5_BLOCKNAME_Z		"2"
+#define H5_ATTACHMENT		"Attachment"
 
 #include "h5_types_private.h"
 

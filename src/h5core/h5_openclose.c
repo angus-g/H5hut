@@ -437,7 +437,7 @@ h5_size_t
 h5_get_num_steps(
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	return h5_get_num_hdf5_groups_matching_prefix (
+	return hdf5_get_num_groups_matching_prefix (
 		f->step_gid,
 		f->prefix_step_name);
 }

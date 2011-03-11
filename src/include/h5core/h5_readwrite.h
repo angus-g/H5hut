@@ -14,8 +14,7 @@ h5_normalize_h5_type (
 
 h5_int64_t
 h5_get_dataset_type(
-	h5_file_t * const f,
-	hid_t group_id,
+	const hid_t group_id,
 	const char *dataset_name
 	);
 

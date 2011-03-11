@@ -28,7 +28,7 @@ h5u_get_num_particles (
 		 * for this timestep */
 		char dataset_name[H5_DATANAME_LEN];
 		dataset_name[0] = '\0';
-		h5_err_t exists = h5_get_hdf5_datasetname_by_idx(
+		h5_err_t exists = hdf5_get_name_of_dataset_by_idx (
 				f->step_gid,
 				0,
 				dataset_name,
@@ -403,7 +403,7 @@ h5u_get_num_datasets (
 	h5_file_t *const f		/*!< [in]  Handle to open file */
 	) {
 	H5_CORE_API_ENTER (h5_ssize_t);
-	H5_CORE_API_RETURN (h5_get_num_hdf5_datasets (f->step_gid ));
+	H5_CORE_API_RETURN (hdf5_get_num_datasets (f->step_gid));
 }
 
 /*!
@@ -420,7 +420,7 @@ h5u_get_dataset_info (
 	h5_size_t *nelem	/*!< [out] Number of elements. */
 	) {
 	H5_CORE_API_ENTER (h5_err_t);
-	TRY (h5_get_hdf5_datasetname_by_idx (
+	TRY (hdf5_get_name_of_dataset_by_idx (
 		     f->step_gid,
 		     idx,
 		     dataset_name, len_dataset_name) );
@@ -435,7 +435,7 @@ h5u_get_dataset_info (
 	}
 
 	if ( type ) {
-		*type = h5_get_dataset_type( f, f->step_gid, dataset_name );
+		*type = h5_get_dataset_type (f->step_gid, dataset_name);
 		if ( *type < 0 ) return *type;
 	}
 

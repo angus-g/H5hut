@@ -3,13 +3,13 @@
 
 #define HANDLE_H5_DATASET_RANK_ERR( m, n )			  \
 	h5_error(						  \
-		H5_ERR_INVAL,				  \
+		 H5_ERR_INVAL,					  \
 		"Wrong rank of dataset: Is %d, but should be %d", \
 		m, n );
 
 #define HANDLE_H5_GROUP_EXISTS_ERR( name )		\
 	h5_error(					\
-		H5_ERR_INVAL,			\
+		H5_ERR_INVAL,				\
 		"Group \"%s\" already exists", name )
 
 /**************** H5 *********************/

@@ -126,7 +126,7 @@ h5u_write_data (
 
 	if (dset_id > 0) {
 		h5_warn("Dataset %s/%s already exists",
-			h5_get_objname(f->step_gid), name2);
+			hdf5_get_objname(f->step_gid), name2);
 	} else {
 		TRY (dset_id = hdf5_create_dataset (
 			     f->step_gid,
@@ -140,7 +140,7 @@ h5u_write_data (
 	TRY (h5_start_throttle (f));
 #endif
 	h5_info ("Writing dataset %s/%s.",
-		h5_get_objname(f->step_gid), name2); 
+		hdf5_get_objname(f->step_gid), name2); 
 	TRY (hdf5_write_dataset (
 		     dset_id,
 		     type,

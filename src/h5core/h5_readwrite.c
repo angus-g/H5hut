@@ -23,13 +23,13 @@ h5priv_write_dataset_by_name (
 	) {
 	H5_PRIV_API_ENTER (h5_err_t);
 	h5_info ("Writing dataset %s/%s.",
-		 h5_get_objname (loc_id), dsinfo->name);
+		 hdf5_get_objname (loc_id), dsinfo->name);
 
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (loc_id, dsinfo->name));
 	if ((exists > 0) && ((f->mode==H5_O_WRONLY) || (f->mode==H5_O_APPEND))) {
 		h5_warn ("Dataset %s/%s already exist.",
-			 h5_get_objname (loc_id), dsinfo->name);
+			 hdf5_get_objname (loc_id), dsinfo->name);
 		H5_PRIV_API_LEAVE (h5priv_handle_file_mode_error(f->mode));
 	}
 
@@ -214,11 +214,9 @@ h5_normalize_h5_type (
 
 h5_int64_t
 h5_get_dataset_type(
-	h5_file_t* const f,
-	hid_t group_id,
+	const hid_t group_id,
 	const char* dset_name
 	) {
-	UNUSED_ARGUMENT (f);
 	H5_CORE_API_ENTER (h5_int64_t);
 	hid_t dset_id;
 	hid_t hdf5_type;

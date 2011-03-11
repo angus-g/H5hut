@@ -29,7 +29,7 @@ h5t_get_num_meshes (
 
 	TRY (meshes_gid = hdf5_open_group (topo_gid, h5tpriv_meshes_grpnames[type_id]));
 	h5_ssize_t num_meshes;
-	TRY (num_meshes = h5_get_num_hdf5_groups (meshes_gid));
+	TRY (num_meshes = hdf5_get_num_groups (meshes_gid));
 	TRY (hdf5_close_group (meshes_gid) );
 	TRY (hdf5_close_group (topo_gid) );
 
