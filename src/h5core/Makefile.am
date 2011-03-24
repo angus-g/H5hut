@@ -6,6 +6,7 @@ LIBS = @LIBS@
 INCLUDES = -I../include @INCLUDES@
 
 EXTRA_HEADERS =					\
+	../include/h5core/h5_attach.h		\
 	../include/h5core/h5_attribs.h		\
 	../include/h5core/h5_core.h		\
 	../include/h5core/h5_errno.h		\
@@ -74,6 +75,7 @@ EXTRA_LIBRARIES = libH5hut.a
 
 # Listing of sources
 libH5hut_a_SOURCES =				\
+	h5_attach.c				\
 	h5_attribs.c				\
 	h5_errorhandling.c			\
 	h5_fcmp.c				\

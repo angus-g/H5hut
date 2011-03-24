@@ -377,13 +377,4 @@ hdf5_delete_link (
 	hid_t lapl_id
 	);
 
-/*** other ***/
-h5_err_t
-hdf5_get_dataset_info_by_name (
-	const hid_t loc_id,
-	const hsize_t idx,
-	const char* name,
-	h5_int64_t* const type,
-	hsize_t* const npoints
-	);
 #endif

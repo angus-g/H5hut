@@ -1598,62 +1598,6 @@ hdf5_get_name_of_dataset_by_idx (
 	HDF5_WRAPPER_RETURN (H5_SUCCESS);
 }
 
-h5_err_t
-hdf5_get_dataset_info_by_idx (
-	const hid_t loc_id,		/*!< [in]  Group */
-	const hsize_t idx,		/*!< [in]  Index of the dataset */
-	char* const name,		/*!< [out] Name of dataset */
-	const size_t len_name,		/*!< [in]  Size of buffer \c name */
-	h5_int64_t* const type,		/*!< [out] Type of data in dataset */
-	hsize_t* const npoints		/*!< [out] Number of elements. */
-	) {
-	HDF5_WRAPPER_ENTER5 (h5_err_t,
-			     "loc_id=%d (%s), idx=%llu, name=0x%p, len_name=%llu",
-			     loc_id, hdf5_get_objname (loc_id),
-			     idx, name, (unsigned long long)len_name);
-
-	TRY (hdf5_get_name_of_dataset_by_idx (loc_id, idx, name, len_name));
-
-	if (npoints) {
-		h5_ssize_t np;
-		TRY (np = hdf5_get_npoints_of_dataset_by_name (loc_id, name));
-		*npoints = np;
-	}
-
-	if (type) {
-		h5_int64_t t;
-		TRY (t = h5_get_dataset_type (loc_id, name));
-		*type = t;
-	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
-}
-
-h5_err_t
-hdf5_get_dataset_info_by_name (
-	const hid_t loc_id,		/*!< [in]  Group */
-	const hsize_t idx,		/*!< [in]  Index of the dataset */
-	const char* name,		/*!< [in] Name of dataset */
-	h5_int64_t* const type,		/*!< [out] Type of data in dataset */
-	hsize_t* const npoints		/*!< [out] Number of elements. */
-	) {
-	HDF5_WRAPPER_ENTER4 (h5_err_t,
-			     "loc_id=%d (%s), idx=%llu, name=\"%s\"",
-			     loc_id, hdf5_get_objname (loc_id),
-			     idx, name);
-	if (npoints) {
-		h5_ssize_t np;
-		TRY (np = hdf5_get_npoints_of_dataset_by_name (loc_id, name));
-		*npoints = np;
-	}
-
-	if (type) {
-		h5_int64_t t;
-		TRY (t = h5_get_dataset_type (loc_id, name));
-		*type = t;
-	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
-}
-
 /****** I d e n t i f i e r **************************************************/
 
 const char *

@@ -33,16 +33,6 @@ hdf5_get_name_of_dataset_by_idx (
 	size_t len
 	);
 
-h5_err_t
-hdf5_get_dataset_info_by_idx (
-	const hid_t loc_id,
-	const hsize_t idx,
-	char* const name,
-	const size_t len_name,
-	h5_int64_t* const type,
-	hsize_t* const npoints
-	);
-
 const char *
 hdf5_get_objname (
 	hid_t id

@@ -14,13 +14,13 @@
 #define H5_DEBUG_ALL		(-1)
 
 extern char* h5_rfmts[];
-#define __FUNC_ENTER(type)		\
+#define __FUNC_ENTER(type)			\
 	h5_call_stack_push (__func__,e_##type); \
 	type ret_value = (type)H5_ERR;
 
-#define __FUNC_ARGS0(mask)		\
+#define __FUNC_ARGS0(mask)			\
 	if (h5_debug_level & mask ) {		\
-		h5_debug ("(void)");	\
+		h5_debug ("(void)");		\
 	}
 
 #define __FUNC_ARGS1(fmt, a1, mask)		\
@@ -69,7 +69,7 @@ extern char* h5_rfmts[];
 	__FUNC_ARGS4(fmt, a1, a2, a3, a4, mask);
 
 #define __FUNC_ENTER5(type, fmt, a1, a2, a3, a4, a5, mask)	\
-	__FUNC_ENTER(type);				\
+	__FUNC_ENTER(type);					\
 	__FUNC_ARGS5(fmt, a1, a2, a3, a4, a5, mask);
 
 #define __FUNC_LEAVE(expr) {			\
@@ -80,8 +80,8 @@ extern char* h5_rfmts[];
 #define __FUNC_RETURN(expr, mask)		\
 	ret_value = expr;			\
 	goto done;				\
-done:						\
-	if (h5_debug_level & mask ) {			\
+done:								\
+	if (h5_debug_level & mask ) {  				\
 		char fmt[256];					\
 		snprintf (fmt, sizeof(fmt), "return: %s",	\
 			  h5_rfmts[h5_call_stack_get_type()]);	\
@@ -109,6 +109,14 @@ done:						\
 	H5_API_ENTER(type);			\
 	__FUNC_ARGS3(fmt, a1,a2,a3, H5_DEBUG_API)
 
+#define H5_API_ENTER4(type, fmt, a1, a2, a3, a4)	\
+	H5_API_ENTER(type);				\
+	__FUNC_ARGS4(fmt, a1,a2,a3, a4, H5_DEBUG_API)
+
+#define H5_API_ENTER5(type, fmt, a1, a2, a3, a4, a5)	\
+	H5_API_ENTER(type);				\
+	__FUNC_ARGS5(fmt, a1,a2,a3, a4, a5, H5_DEBUG_API)
+
 #define H5_API_LEAVE(expr)		__FUNC_LEAVE(expr)
 #define H5_API_RETURN(expr)		__FUNC_RETURN(expr, H5_DEBUG_API);
 
@@ -135,6 +143,7 @@ done:						\
 #include "h5_types.h"
 #include "h5_errno.h"
 
+#include "h5_attach.h"
 #include "h5_attribs.h"
 #include "h5_hdf5.h"
 #include "h5_maps.h"

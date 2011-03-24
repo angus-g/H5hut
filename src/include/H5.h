@@ -119,7 +119,7 @@ H5AbortErrorhandler (
 
 h5_err_t
 H5GetErrno (
-	h5_file_t * const f
+	void
 	);
 
 #ifdef PARALLEL_IO

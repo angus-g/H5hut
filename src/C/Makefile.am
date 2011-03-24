@@ -16,6 +16,7 @@ include_HEADERS =				\
 	../include/H5hut.h			\
 	../include/H5.h				\
 	../include/H5_attribs.h			\
+	../include/H5_attachments.h		\
 	../include/H5Part.h                     \
 	../include/H5Block.h			\
 	../include/H5Block_readwrite.h		\
@@ -33,6 +34,7 @@ EXTRA_HEADERS =
 libH5hutC_a_SOURCES =				\
 	H5.c					\
 	H5_attribs.c				\
+	H5_attachments.c			\
 	H5Part.c                                \
 	H5Block.c				\
 	H5Block_readwrite.c			\

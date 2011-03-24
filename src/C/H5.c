@@ -320,8 +320,7 @@ H5ReportErrorhandler (
 	const char* fmt,
 	va_list ap
 	) {
-	H5_API_ENTER (h5_err_t);
-	H5_API_RETURN (h5_report_errorhandler (fmt, ap));
+	return h5_report_errorhandler (fmt, ap);
 }
 
 h5_err_t
@@ -329,8 +328,7 @@ H5AbortErrorhandler (
 	const char* fmt,
 	va_list ap
 	) {
-	H5_API_ENTER (h5_err_t);
-	H5_API_RETURN (h5_abort_errorhandler (fmt, ap));
+	return h5_abort_errorhandler (fmt, ap);
 }
 
 /*!
@@ -342,10 +340,9 @@ H5AbortErrorhandler (
 */
 h5_err_t
 H5GetErrno (
-	h5_file_t* const f
+	void
 	) {
-	H5_API_ENTER (h5_err_t);
-	H5_API_RETURN (h5_get_errno ());
+	return h5_get_errno ();
 }
 
 

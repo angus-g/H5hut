@@ -375,6 +375,7 @@ src/C/H5Fed_retrieve.c -text
 src/C/H5Fed_store.c -text
 src/C/H5Fed_tags.c -text
 src/C/H5Part.c -text
+src/C/H5_attachments.c -text
 src/C/H5_attribs.c -text
 src/C/Makefile.am -text
 src/C/generate-h5b-readwrite.py -text
@@ -393,7 +394,7 @@ src/Fortran/TestUnderscore.f -text
 src/Fortran/TestUnderscoreC.c -text
 src/Makefile.am -text
 src/h5core/Makefile.am -text
-src/h5core/h5_attachments.c -text
+src/h5core/h5_attach.c -text
 src/h5core/h5_attribs.c -text
 src/h5core/h5_attribs_private.h -text
 src/h5core/h5_core_private.h -text
@@ -478,9 +479,11 @@ src/include/H5Fed_retrieve.h -text
 src/include/H5Fed_store.h -text
 src/include/H5Fed_tags.h -text
 src/include/H5Part.h -text
+src/include/H5_attachments.h -text
 src/include/H5_attribs.h -text
 src/include/H5hut.h -text
 src/include/grephdr -text
+src/include/h5core/h5_attach.h -text
 src/include/h5core/h5_attribs.h -text
 src/include/h5core/h5_core.h -text
 src/include/h5core/h5_errno.h -text
