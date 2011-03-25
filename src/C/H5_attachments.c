@@ -18,8 +18,11 @@ H5GetAttachmentInfoByIdx (
 	h5_int64_t* const type,		// OUT
 	h5_size_t* const npoints	// OUT
 	) {
-	H5_API_ENTER5 (h5_err_t, "idx=%llu, name=0x%p, len_name=%llu, type=0x%p, npoints=0x%p",
-		       idx, name, len_name, type, npoints);
+	H5_API_ENTER5 (h5_err_t,
+		       "idx=%llu, name=0x%p, len_name=%llu, type=0x%p, npoints=0x%p",
+		       (long long unsigned)idx,
+		       name, (long long unsigned)len_name,
+		       type, npoints);
 	H5_API_RETURN (h5_get_attachment_info_by_idx (
 			       f, idx, name, len_name, type, npoints));
 }
