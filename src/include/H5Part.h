@@ -1,6 +1,10 @@
 #ifndef __H5PART_H
 #define __H5PART_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_err_t
 H5PartSetNumParticles (
 	h5_file_t *f,		/*!< [in] Handle to open file */
@@ -141,5 +145,8 @@ H5PartSetCanonicalView (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

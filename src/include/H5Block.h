@@ -1,6 +1,10 @@
 #ifndef __H5BLOCK_H
 #define __H5BLOCK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_int64_t
 H5Block3dHasView (
 	h5_file_t *const f	/*!< IN: File handle */
@@ -188,5 +192,10 @@ H5Block3dSetFieldSpacing (
 	const h5_float64_t y_spacing,
 	const h5_float64_t z_spacing
 	);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
 

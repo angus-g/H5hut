@@ -15,6 +15,10 @@
 #ifndef __H5FED_RETRIEVE_H
 #define __H5FED_RETRIEVE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5t_iterator_t*
 H5FedBeginTraverseEntities (
 	h5_file_t* const f,
@@ -82,4 +86,9 @@ H5FedGetVertexIndicesOfEntity (
 	h5_loc_id_t entity_id,
 	h5_loc_idx_t* const vertex_indices
 	);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

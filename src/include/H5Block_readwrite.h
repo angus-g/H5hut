@@ -2,6 +2,10 @@
 #ifndef __H5BLOCK_READWRITE_H
 #define __H5BLOCK_READWRITE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_err_t
 H5Block3dWriteScalarFieldFloat64 (
 	h5_file_t *f,
@@ -197,5 +201,9 @@ H5BlockReadFieldAttribInt32 (
 	const char *attrib_name,
 	h5_int32_t *buffer
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

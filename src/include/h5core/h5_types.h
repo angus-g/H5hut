@@ -1,7 +1,6 @@
 #ifndef __H5_TYPES_H
 #define __H5_TYPES_H
 
-#include <stdarg.h>
 #include <hdf5.h>
 
 /*

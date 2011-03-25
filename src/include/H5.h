@@ -16,6 +16,10 @@
 #ifndef __H5_H
 #define __H5_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_file_t *
 H5OpenFile (
 	const char * filename,
@@ -128,6 +132,9 @@ H5SetThrottle (
 	h5_file_t* f,
 	int factor
 	);
+#endif
+#ifdef __cplusplus
+}
 #endif
 
 #endif

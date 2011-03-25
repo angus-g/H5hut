@@ -1,6 +1,10 @@
 #ifndef __H5FED_ADJACENCY_H
 #define __H5FED_ADJACENCY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_err_t
 H5FedGetAdjacencies (
 	h5_file_t* const f,
@@ -14,5 +18,9 @@ H5FedReleaseListOfAdjacencies (
 	h5_file_t * const f,
 	h5_loc_idlist_t **list
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

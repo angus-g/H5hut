@@ -1,6 +1,10 @@
 #ifndef __H5_ATTACHMENTS_H
 #define __H5_ATTACHMENTS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_ssize_t
 H5GetNumAttachments (
 	h5_file_t* const f
@@ -104,5 +108,9 @@ H5DeleteAttachment (
 	h5_file_t* const f,
 	const char* const name
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

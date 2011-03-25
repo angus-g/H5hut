@@ -19,6 +19,10 @@
 #ifndef __H5FED_STORE_H
 #define __H5FED_STORE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_id_t
 H5FedAddMesh (
 	h5_file_t * const f,
@@ -81,5 +85,9 @@ h5_err_t
 H5FedEndRefineElements (
 	h5_file_t * const f
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

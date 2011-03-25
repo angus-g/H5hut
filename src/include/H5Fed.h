@@ -25,6 +25,10 @@
 #include "H5Fed_store.h"
 #include "H5Fed_tags.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /******	General routines *****************************************************/
 
 h5_err_t
@@ -51,7 +55,9 @@ H5FedLinkMeshToStep (
 	const h5_id_t mesh_id
 	);
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

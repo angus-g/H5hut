@@ -1,5 +1,10 @@
 #ifndef __H5FED_TAGS_H
 #define __H5FED_TAGS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_err_t
 H5FedAddMTagset (
 	h5_file_t* const f,
@@ -43,5 +48,9 @@ H5FedRemoveMTag (
 	const char name[],
 	const h5_loc_id_t id
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

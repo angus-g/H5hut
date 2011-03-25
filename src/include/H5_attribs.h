@@ -1,6 +1,10 @@
 #ifndef __H5_ATTRIBS_H
 #define __H5_ATTRIBS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_err_t
 H5WriteFileAttribString (
 	h5_file_t *const f,	/*!< [in] Handle to open file */
@@ -183,5 +187,8 @@ H5GetStepAttribInfo (
 	h5_size_t *attrib_nelem         /*!< [out] Number of elements */
 	);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
