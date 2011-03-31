@@ -1,6 +1,8 @@
 #ifndef __H5_ERRORHANDLING_H
 #define __H5_ERRORHANDLING_H
 
+#include <stdarg.h>
+
 enum h5_rtypes {
 	e_int = 0,
 	e_ssize_t,

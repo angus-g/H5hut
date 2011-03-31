@@ -13,94 +13,29 @@ H5GetNumAttachments (
 h5_err_t
 H5GetAttachmentInfoByIdx (
 	h5_file_t* const f,
-	const h5_size_t idx,
-	char* const name,
-	h5_size_t len_name,
-	h5_int64_t* const type,
-	h5_size_t* const npoints
+	const h5_size_t idx,		// IN
+	char* const fname,		// OUT
+	h5_size_t len_fname,		// IN
+	h5_size_t* const fsize		// OUT
 	);
 
 h5_err_t
 H5GetAttachmentInfoByName (
 	h5_file_t* const f,
-	char* const name,
-	h5_int64_t* const type,
-	h5_size_t* const npoints
+	char* const fname,
+	h5_size_t* const fsize
 	);
 
 h5_err_t
-H5WriteAttachmentBitstream (
+H5AddAttachment (
 	h5_file_t* const f,
-	const char* name,
-	const void* const content,
-	const h5_size_t size
+	const char* fname
 	);
 
 h5_err_t
-H5WriteAttachmentFloat32 (
+H5GetAttachment (
 	h5_file_t* const f,
-	const char* name,
-	const void* const content,
-	const h5_size_t size
-	);
-
-h5_err_t
-H5WriteAttachmentFloat64 (
-	h5_file_t* const f,
-	const char* name,
-	const void* const content,
-	const h5_size_t size
-	);
-
-h5_err_t
-H5WriteAttachmentInt32 (
-	h5_file_t* const f,
-	const char* name,
-	const void* const content,
-	const h5_size_t size
-	);
-
-h5_err_t
-H5WriteAttachmentInt64 (
-	h5_file_t* const f,
-	const char* name,
-	const void* const content,
-	const h5_size_t size
-	);
-
-h5_err_t
-H5ReadAttachmentBitstream (
-	h5_file_t* const f,
-	const char* name,
-	void* const content
-	);
-
-h5_err_t
-H5ReadAttachmentFloat32 (
-	h5_file_t* const f,
-	const char* name,
-	void* const content
-	);
-
-h5_err_t
-H5ReadAttachmentFloat64 (
-	h5_file_t* const f,
-	const char* name,
-	void* const content
-	);
-
-h5_err_t
-H5ReadAttachmentInt32 (
-	h5_file_t* const f,
-	const char* name,
-	void* const content
-	);
-
-h5_err_t
-H5ReadAttachmentInt64 (
-	h5_file_t* const f,
-	const char* name,
-	void* const content
+	const char* name
 	);
 
 h5_err_t

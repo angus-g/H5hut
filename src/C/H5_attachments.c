@@ -13,148 +13,53 @@ h5_err_t
 H5GetAttachmentInfoByIdx (
 	h5_file_t* const f,
 	const h5_size_t idx,		// IN
-	char* const name,		// OUT
-	h5_size_t len_name,		// IN
-	h5_int64_t* const type,		// OUT
-	h5_size_t* const npoints	// OUT
+	char* const fname,		// OUT
+	h5_size_t len_fname,		// IN
+	h5_size_t* const fsize		// OUT
 	) {
-	H5_API_ENTER5 (h5_err_t,
-		       "idx=%llu, name=0x%p, len_name=%llu, type=0x%p, npoints=0x%p",
+	H5_API_ENTER4 (h5_err_t,
+		       "idx=%llu, fname=0x%p, len_fname=%llu, fsize=0x%p",
 		       (long long unsigned)idx,
-		       name, (long long unsigned)len_name,
-		       type, npoints);
+		       fname, (long long unsigned)len_fname,
+		       fsize);
 	H5_API_RETURN (h5_get_attachment_info_by_idx (
-			       f, idx, name, len_name, type, npoints));
+			       f, idx, fname, len_fname, fsize));
 }
 
 h5_err_t
 H5GetAttachmentInfoByName (
 	h5_file_t* const f,
-	char* const name,		// OUT
-	h5_int64_t* const type,		// OUT
-	h5_size_t* const npoints	// OUT
+	char* const fname,		// OUT
+	h5_size_t* const fsize		// OUT
 	) {
-	H5_API_ENTER3 (h5_err_t, "name=\"%s\", type=0x%p, npoints=0x%p",
-		       name, type, npoints);
+	H5_API_ENTER2 (h5_err_t, "fname=\"%s\", fsize=0x%p", fname, fsize);
 	H5_API_RETURN (h5_get_attachment_info_by_name (
-			       f, name, type, npoints));
+			       f, fname, fsize));
 }
 
 h5_err_t
-H5WriteAttachmentBitstream (
+H5AddAttachment (
 	h5_file_t* const f,		/*!< [in] Handle to open file */
-	const char* name,		/*!< [in] Name of attribute to create */
-	const void* const content,	/*!< [in] Value of attribute */ 
-	const h5_size_t size
+	const char* fname		/*!< [in] Name of file to attach */
 	) {
-	H5_API_ENTER3 (h5_err_t, "name=\"%s\", content=0x%p, size=%llu",
-		       name, content, (unsigned long long)size);
-	H5_API_RETURN (h5_write_attachment (f, name, H5T_NATIVE_CHAR, content, size));
+	H5_API_ENTER1 (h5_err_t, "fname=\"%s\"", fname);
+	H5_API_RETURN (h5_add_attachment (f, fname));
 }
 
 h5_err_t
-H5WriteAttachmentFloat32 (
-	h5_file_t* const f,		/*!< [in] Handle to open file */
-	const char* name,		/*!< [in] Name of attribute to create */
-	const void* const content,	/*!< [in] Value of attribute */ 
-	const h5_size_t size
-	) {
-	H5_API_ENTER3 (h5_err_t, "name=\"%s\", content=0x%p, size=%llu",
-		       name, content, (unsigned long long)size);
-	H5_API_RETURN (h5_write_attachment (f, name, H5T_NATIVE_FLOAT, content, size));
-}
-
-h5_err_t
-H5WriteAttachmentFloat64 (
-	h5_file_t* const f,		/*!< [in] Handle to open file */
-	const char* name,		/*!< [in] Name of attribute to create */
-	const void* const content,	/*!< [in] Value of attribute */ 
-	const h5_size_t size
-	) {
-	H5_API_ENTER3 (h5_err_t, "name=\"%s\", content=0x%p, size=%llu",
-		       name, content, (unsigned long long)size);
-	H5_API_RETURN (h5_write_attachment (f, name, H5T_NATIVE_DOUBLE, content, size));
-}
-
-h5_err_t
-H5WriteAttachmentInt32 (
-	h5_file_t* const f,		/*!< [in] Handle to open file */
-	const char* name,		/*!< [in] Name of attribute to create */
-	const void* const content,	/*!< [in] Value of attribute */ 
-	const h5_size_t size
-	) {
-	H5_API_ENTER3 (h5_err_t, "name=\"%s\", content=0x%p, size=%llu",
-		       name, content, (unsigned long long)size);
-	H5_API_RETURN (h5_write_attachment (f, name, H5T_NATIVE_INT32, content, size));
-}
-
-h5_err_t
-H5WriteAttachmentInt64 (
-	h5_file_t* const f,		/*!< [in] Handle to open file */
-	const char* name,		/*!< [in] Name of attribute to create */
-	const void* const content,	/*!< [in] Value of attribute */ 
-	const h5_size_t size
-	) {
-	H5_API_ENTER3 (h5_err_t, "name=\"%s\", content=0x%p, size=%llu",
-		       name, content, (unsigned long long)size);
-	H5_API_RETURN (h5_write_attachment (f, name, H5T_NATIVE_INT64, content, size));
-}
-
-h5_err_t
-H5ReadAttachmentBitstream (
+H5GetAttachment (
 	h5_file_t* const f,	/*!< [in] Handle to open file */
-	const char* name,	/*!< [in] Name of attribute to create */
-	void* const content	/*!< [in] Value of attribute */ 
+	const char* fname	/*!< [in] Name of attachment */
 	) {
-	H5_API_ENTER2 (h5_err_t, "name=\"%s\", content=0x%p", name, content);
-	H5_API_RETURN (h5_read_attachment (f, name, H5T_NATIVE_CHAR, content));
-}
-
-h5_err_t
-H5ReadAttachmentFloat32 (
-	h5_file_t* const f,	/*!< [in] Handle to open file */
-	const char* name,	/*!< [in] Name of attribute to create */
-	void* const content	/*!< [in] Attachment */ 
-	) {
-	H5_API_ENTER2 (h5_err_t, "name=\"%s\", content=0x%p", name, content);
-	H5_API_RETURN (h5_read_attachment (f, name, H5T_NATIVE_FLOAT, content));
-}
-
-h5_err_t
-H5ReadAttachmentFloat64 (
-	h5_file_t* const f,	/*!< [in] Handle to open file */
-	const char* name,	/*!< [in] Name of attribute to create */
-	void* const content	/*!< [out] Attachment */ 
-	) {
-	H5_API_ENTER2 (h5_err_t, "name=\"%s\", content=0x%p", name, content);
-	H5_API_RETURN (h5_read_attachment (f, name, H5T_NATIVE_DOUBLE, content));
-}
-
-h5_err_t
-H5ReadAttachmentInt32 (
-	h5_file_t* const f,	/*!< [in] Handle to open file */
-	const char* name,	/*!< [in] Name of attribute to create */
-	void* const content	/*!< [out] Attachment */ 
-	) {
-	H5_API_ENTER2 (h5_err_t, "name=\"%s\", content=0x%p", name, content);
-	H5_API_RETURN (h5_read_attachment (f, name, H5T_NATIVE_INT32, content));
-}
-
-h5_err_t
-H5ReadAttachmentInt64 (
-	h5_file_t* const f,	/*!< [in] Handle to open file */
-	const char* name,	/*!< [in] Name of attribute to create */
-	void* const content	/*!< [out] Attachment */ 
-	) {
-	H5_API_ENTER2 (h5_err_t, "name=\"%s\", content=0x%p", name, content);
-	H5_API_RETURN (h5_read_attachment (f, name, H5T_NATIVE_INT64, content));
+	H5_API_ENTER1 (h5_err_t, "fname=\"%s\"", fname);
+	H5_API_RETURN (h5_get_attachment (f, fname));
 }
 
 h5_err_t
 H5DeleteAttachment (
 	h5_file_t* const f,
-	const char* const name
+	const char* const fname
 	) {
-	H5_API_ENTER1 (h5_err_t, "name=\"%s\"", name);
-	H5_API_RETURN (h5_delete_attachment (f, name));
+	H5_API_ENTER1 (h5_err_t, "fname=\"%s\"", fname);
+	H5_API_RETURN (h5_delete_attachment (f, fname));
 }
