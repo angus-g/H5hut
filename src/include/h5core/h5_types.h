@@ -2,6 +2,7 @@
 #define __H5_TYPES_H
 
 #include <hdf5.h>
+#include <stdarg.h>
 
 /*
   file modes:
