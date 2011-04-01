@@ -1,8 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-#include "H5Part.h"
+#include <stdlib.h>
+#include "H5hut.h"
 
 /*
   A simple regression test that shows how you use this API
@@ -30,7 +28,7 @@ int main(int argc,char *argv[]){
   z=(double*)malloc(sz*nprocs*sizeof(double));
   id=(h5_int64_t*)malloc(sz*nprocs*sizeof(h5_int64_t));
   /* parallel file creation */
-  file=H5PartOpenFileParallel("parttest.h5",H5PART_WRITE,comm);
+  file=H5OpenFile ("parttest.h5",H5_O_WRONLY,comm);
   if(!file) {
     perror("File open failed:  exiting!");
     exit(0);
@@ -44,8 +42,8 @@ int main(int argc,char *argv[]){
       z[i]=0.2 + (double)(i+t*10);
       id[i]=i+sz*myproc;
     }
-    printf("Proc[%u] Writing timestep %u file=%u\n",myproc,t,file->file);
-    H5PartSetStep(file,t); /* must set the current timestep in file */
+    printf("Proc[%u] Writing timestep %u \n",myproc,t);
+    H5SetStep(file,t); /* must set the current timestep in file */
     H5PartSetNumParticles(file,sz); /* then set number of particles to store */
     /* now write different tuples of data into this timestep of the file */
     H5PartWriteDataFloat64(file,"x",x); 
@@ -63,14 +61,14 @@ int main(int argc,char *argv[]){
   unsigned int idEnd = (sz-1)+sz*myproc;
 
   printf("AllDone p[%u]\n",myproc);
-  H5PartCloseFile(file);
+  H5CloseFile(file);
   fprintf(stderr,"Closed files p[%u]\n",myproc);
   MPI_Barrier(comm);
   
   fprintf(stderr,"p[%u:%u] : OK, close file and reopen for reading idStart %u  idEnd %u \n",myproc,nprocs,idStart,idEnd);
 
-  file=H5PartOpenFileParallel("parttest.h5",H5PART_READ,comm);
-  H5PartSetStep(file,0);
+  file=H5OpenFile("parttest.h5",H5_O_RDONLY,comm);
+  H5SetStep(file,0);
  // unsigned int np = 0;
   unsigned int np = (int)H5PartGetNumParticles(file);
   nt=H5GetNumSteps(file); /* get number of steps in file */
@@ -94,7 +92,7 @@ int main(int argc,char *argv[]){
   if(id) 
     free(id);
 
-  H5PartCloseFile(file);
+  H5CloseFile(file);
   MPI_Barrier(comm);
   fprintf(stderr,"proc[%u]:  done\n",myproc);
   return MPI_Finalize();
