@@ -508,6 +508,7 @@ AC_CONFIG_FILES([
         src/Fortran/Makefile
 	test/Makefile
 	test/H5Fed/Makefile
+	test/H5Part/Makefile
 	tools/Makefile
 	tools/h5hutcc
 ])
