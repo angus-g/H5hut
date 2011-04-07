@@ -21,7 +21,7 @@ src/C++/Makefile.in
 src/C/.deps
 src/C/Makefile
 src/C/Makefile.in
-src/C/libH5hut.a
+src/C/libH5hutC.a
 src/Fortran/.deps
 src/Fortran/Makefile
 src/Fortran/Makefile.in
