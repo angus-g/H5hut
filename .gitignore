@@ -21,6 +21,7 @@ src/C++/Makefile.in
 src/C/.deps
 src/C/Makefile
 src/C/Makefile.in
+src/C/libH5hut.a
 src/Fortran/.deps
 src/Fortran/Makefile
 src/Fortran/Makefile.in
@@ -29,6 +30,7 @@ src/Makefile.in
 src/h5core/.deps
 src/h5core/Makefile
 src/h5core/Makefile.in
+src/h5core/libH5hut.a
 src/include/H5hutF.h
 src/lib
 /stamp-h1
