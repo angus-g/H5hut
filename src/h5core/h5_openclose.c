@@ -152,12 +152,11 @@ h5_open_file (
 
 	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
 
-	f->comm = 0;		/* init values for serial case */
+	f->comm = comm;		/* init values for serial case */
 	f->nprocs = 1;
 	f->myproc = 0;
 
 #ifdef PARALLEL_IO
-	f->comm = comm;
 	TRY2 (h5priv_mpi_comm_size (comm, &f->nprocs));
 	TRY2 (h5priv_mpi_comm_rank (comm, &f->myproc));
 	
@@ -438,7 +437,7 @@ h5_get_num_steps(
 	h5_file_t* const f		/*!< file handle		*/
 	) {
 	return hdf5_get_num_groups_matching_prefix (
-		f->step_gid,
+		f->root_gid,
 		f->prefix_step_name);
 }
 
