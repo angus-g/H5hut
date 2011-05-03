@@ -430,7 +430,9 @@ h5t_open_mesh (
 	h5_id_t id,
 	const h5_oid_t type_id
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			    "f=0x%p, id=%lld, type_id=%u",
+			    f, (long long)id, type_id);
 	h5t_fdata_t* t = f->t;
 
 	TRY (h5t_close_mesh (f));
@@ -479,7 +481,7 @@ static h5_err_t
 release_elems (
 	h5_file_t* const f
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* t = f->t;
 	TRY( h5_free (t->loc_elems.data) );
 	t->loc_elems.data = NULL;
@@ -497,7 +499,7 @@ static h5_err_t
 release_vertices (
 	h5_file_t* const f
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* t = f->t;
 	TRY( h5_free (t->vertices) );
 	t->vertices = NULL;
@@ -513,7 +515,7 @@ static h5_err_t
 release_memory (
 	h5_file_t* const f
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER1 (h5_err_t, "f=0x%p", f);
 	TRY( h5tpriv_release_tags (f) );
 	TRY( h5tpriv_release_adjacency_structs (f) );
 	TRY( release_elems (f) );
@@ -525,7 +527,7 @@ h5_err_t
 h5t_close_mesh (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	if (!(f->mode & H5_O_RDONLY)) {
 		TRY (h5tpriv_write_mesh (f));
 	}
@@ -543,7 +545,7 @@ h5t_set_level (
 	h5_file_t* const f,
 	const h5t_lvl_idx_t level_id
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, level_id=%d", f, level_id);
 	h5t_fdata_t* t = f->t;
 
 	if ((level_id < 0) || (level_id >= t->num_leaf_levels))
@@ -566,12 +568,15 @@ h5tpriv_alloc_num_vertices (
 	h5_file_t* const f,
 	const h5_size_t num
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER2 (h5_err_t,
+			     "f=0x%p, num=%llu",
+			     f,
+			     (long long unsigned)num);
 	h5t_fdata_t* t = f->t;
 	ssize_t size = num * sizeof (t->vertices[0]);
 	TRY (t->vertices = h5_alloc (t->vertices, size));
 	TRY (h5priv_alloc_idxmap (&t->map_vertex_g2l, num));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -588,8 +593,8 @@ h5_err_t
 h5tpriv_close_file (
 	h5_file_t* const f		/*!< IN: file handle */
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER1 (h5_err_t, "f=0x%p", f);
 	TRY (h5t_close_mesh (f));
 	TRY (hdf5_close_group (f->t->meshes_gid));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }

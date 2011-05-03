@@ -8,7 +8,9 @@ h5u_read_data (
 	void *data,		/*!< [out] Array of data */
 	const hid_t type
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER4 (h5_err_t,
+			    "f=0x%p, name=\"%s\", data=0x%p, type=%d",
+			    f, name, data, type);
 	CHECK_TIMEGROUP (f);
 
 	struct h5u_fdata *u = f->u;
@@ -106,7 +108,9 @@ h5u_write_data (
 	const void *data,	/*!< IN: Array to commit to disk */
 	const hid_t type	/*!< IN: Type of data */
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER4 (h5_err_t,
+			    "f=0x%p, name=\"%s\", data=0x%p, type=%d",
+			    f, name, data, type);
 	CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
 

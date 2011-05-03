@@ -18,7 +18,9 @@ h5priv_alloc_idlist (
 	h5_loc_idlist_t** list,
 	const h5_size_t	size
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER2 (h5_err_t,
+			    "list=0x%p, size=%llu",
+			    list, size);
 	TRY (*list = h5_calloc (
 		     1, sizeof (**list)+size*sizeof ((*list)->items[0])));
 	(*list)->size = size;
@@ -29,7 +31,7 @@ h5_err_t
 h5priv_free_idlist (
 	h5_loc_idlist_t** list
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "list=0x%p", list);
 	if (*list == NULL) return H5_SUCCESS;
 	TRY (h5_free (*list));
 	*list = NULL;
@@ -41,7 +43,9 @@ grow_idlist (
 	h5_loc_idlist_t** list,
 	size_t new_size
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER2 (h5_err_t,
+			    "list=0x%p, new_size=%llu",
+			    list, (long long unsigned)new_size);
 	size_t num_bytes = sizeof (**list) + (new_size-1)*sizeof((*list)->items[0]);
 	TRY (*list = h5_alloc (*list, num_bytes));
 	(*list)->size = new_size;
@@ -57,7 +61,11 @@ h5priv_insert_idlist (
 	h5_loc_id_t id,
 	h5_loc_idx_t idx
 	) {
-	H5_PRIV_API_ENTER (h5_loc_idx_t);
+	H5_PRIV_API_ENTER3 (h5_err_t,
+			    "list=0x%p, id=%llu, idx=%llu",
+			    list,
+			    (long long unsigned)id,
+			    (long long unsigned)idx);
 	if (*list == NULL) {
 		TRY (h5priv_alloc_idlist (list, 2));
 	} else if ((*list)->num_items == (*list)->size) {
@@ -91,7 +99,9 @@ h5priv_find_idlist (
 	h5_loc_idlist_t* list,
 	const h5_loc_id_t item
 	) {
-	H5_PRIV_API_ENTER (h5_loc_id_t);
+	H5_PRIV_API_ENTER2 (h5_err_t,
+			    "list=0x%p, item=%llu",
+			    list, (long long unsigned)item);
 	if (!list) {
 		H5_PRIV_API_LEAVE (-1);
 	}
@@ -127,7 +137,9 @@ h5priv_search_idlist (
 	h5_loc_idlist_t** list,
 	h5_loc_id_t item
 	) {
-	H5_PRIV_API_ENTER (h5_loc_idx_t);
+	H5_PRIV_API_ENTER2 (h5_err_t,
+			    "list=0x%p, item=%llu",
+			    list, (long long unsigned)item);
 	h5_loc_idx_t idx = h5priv_find_idlist (*list, item);
 	if (idx < 0) {
 		idx = -(idx+1);
@@ -142,7 +154,9 @@ h5priv_alloc_idxmap (
 	h5_idxmap_t* map,
 	const h5_size_t	size
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER2 (h5_err_t,
+			    "map=0x%p, size=%llu",
+			    map, size);
 	int new = (map->items == NULL);
 	size_t size_in_bytes = size * sizeof (map->items[0]);
 	TRY (map->items = h5_alloc (map->items, size_in_bytes));
@@ -157,7 +171,11 @@ h5priv_insert_idxmap (
 	h5_glb_idx_t glb_idx,
 	h5_loc_idx_t loc_idx
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER3 (h5_err_t,
+			    "map=0x%p, glb_idx=%llu, loc_idx=%llu",
+			    map,
+			    (long long unsigned)glb_idx,
+			    (long long unsigned)loc_idx);
 	if (map->num_items == map->size)
 		H5_PRIV_API_LEAVE (
 			HANDLE_H5_OVERFLOW_ERR (
@@ -195,6 +213,9 @@ h5priv_search_idxmap (
 	h5_idxmap_t* map,
 	h5_glb_idx_t value
 	) {
+	H5_PRIV_API_ENTER2 (h5_err_t,
+			    "map=0x%p, value=%llu",
+			    map, value);
 	register h5_loc_idx_t low = 0;
 	register h5_loc_idx_t high = map->num_items - 1;
 	while (low <= high) {
@@ -205,9 +226,9 @@ h5priv_search_idxmap (
            	else if ( diff < 0 )
                		low = mid + 1;
            	else
-               		return mid; // found
+               		H5_PRIV_API_LEAVE (mid); // found
        	}
-       	return (-(low+1));  // not found
+	H5_PRIV_API_RETURN (-(low+1));  // not found
 }
 
 static int
@@ -228,7 +249,8 @@ h5_err_t
 h5priv_sort_idxmap (
 	h5_idxmap_t* map
 	) {
+	H5_PRIV_API_ENTER1 (h5_err_t, "map=0x%p", map);
 	qsort (	map->items, map->num_items, sizeof (map->items[0]),
 		cmp_idxmap_items);
-	return (H5_SUCCESS);
+	H5_PRIV_API_RETURN (H5_SUCCESS);
 }

@@ -11,13 +11,15 @@
 #define H5_ERR_BADFD		-77
 
 #define H5_ERR_LAYOUT		-100
-#define H5_ERR_NOENT		-101
-
-#define H5_ERR_INIT		-200
-#define H5_ERR_NOENTRY		-201
+#define H5_ERR_NOENTRY		-101
 
 #define H5_ERR_MPI		-201
 #define H5_ERR_HDF5		-202
+#define H5_ERR_H5		-203
+#define H5_ERR_H5PART		-204
+#define H5_ERR_H5BLOCK		-205
+#define H5_ERR_H5FED		-206
+
 #define H5_ERR_INTERNAL		-253
 #define H5_ERR_NOT_IMPLEMENTED	-254
 

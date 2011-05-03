@@ -14,18 +14,19 @@ h5t_get_num_meshes (
 	h5_file_t* const f,
 	const h5_oid_t type_id
 	) {
-	H5_CORE_API_ENTER (h5_ssize_t);
+	H5_CORE_API_ENTER2 (h5_ssize_t,
+			    "f=0x%p, type_id=%d", f, type_id);
 	hid_t topo_gid = -1;
 	hid_t meshes_gid = -1;
 
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (f->root_gid, H5T_CONTAINER_GRPNAME));
-	if (!exists) return 0;
+	if (!exists) H5_CORE_API_LEAVE (0);
 
 	TRY (topo_gid = hdf5_open_group (f->root_gid, H5T_CONTAINER_GRPNAME));
 
 	TRY (exists = hdf5_link_exists (topo_gid, h5tpriv_meshes_grpnames[type_id]));
-	if (!exists) return 0;
+	if (!exists) H5_CORE_API_LEAVE (0);
 
 	TRY (meshes_gid = hdf5_open_group (topo_gid, h5tpriv_meshes_grpnames[type_id]));
 	h5_ssize_t num_meshes;
@@ -47,7 +48,7 @@ h5_ssize_t
 h5t_get_num_leaf_levels (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_ssize_t);
+	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
 	if (f->t->cur_mesh < 0) {
 		H5_CORE_API_LEAVE (h5tpriv_error_undef_mesh ());
 	}
@@ -65,7 +66,7 @@ h5t_lvl_idx_t
 h5t_get_level (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5t_lvl_idx_t);
+	H5_CORE_API_ENTER1 (h5t_lvl_idx_t, "f=0x%p", f);
 	H5_CORE_API_RETURN (f->t->leaf_level);
 }
 
@@ -87,7 +88,9 @@ h5t_get_num_elems (
 	h5_file_t* const f,
 	const h5_id_t cnode
 	) {
-	H5_CORE_API_ENTER (h5_ssize_t);
+	H5_CORE_API_ENTER2 (h5_ssize_t,
+			    "f=0x%p, cnode=%llu",
+			    f, (long long unsigned)cnode);
 	UNUSED_ARGUMENT (cnode);
 
 	if (f->t->cur_mesh < 0) {
@@ -117,7 +120,9 @@ h5t_get_num_vertices (
 	h5_file_t* const f,
 	h5_id_t cnode
 	) {
-	H5_CORE_API_ENTER (h5_ssize_t);
+	H5_CORE_API_ENTER2 (h5_ssize_t,
+			    "f=0x%p, cnode=%llu",
+			    f, (long long unsigned)cnode);
 	UNUSED_ARGUMENT (cnode);
 
 	if (f->t->cur_mesh < 0) {

@@ -95,7 +95,7 @@ H5Block3dSetHalo (
 	const h5_size_t k		/*!< IN: radius in \c k */ 
 	);
 
-h5_size_t
+h5_ssize_t
 H5BlockGetNumFields (
 	h5_file_t *const f			/*!< IN: file handle */
 	);

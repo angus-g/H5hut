@@ -13,7 +13,8 @@ h5t_add_mesh (
 	h5_file_t* const f,
 	const h5_oid_t mesh_type
 	) {
-	H5_CORE_API_ENTER (h5_id_t);
+	H5_CORE_API_ENTER2 (h5_id_t,
+			   "f=0x%p, mesh_type=%d", f, mesh_type);
 	h5_id_t mesh_id = 0;
 	TRY (mesh_id = h5t_open_mesh (f, -1, mesh_type)); 
 	TRY (h5t_add_level (f));
@@ -76,7 +77,7 @@ h5t_lvl_idx_t
 h5t_add_level (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5t_lvl_idx_t);
+	H5_CORE_API_ENTER1 (h5t_lvl_idx_t, "f=0x%p", f);
 	h5t_fdata_t* const t = f->t;
 
 	if (f->mode == H5_O_RDONLY) {
@@ -120,7 +121,9 @@ h5t_begin_store_vertices (
 	h5_file_t* const f,
 	const h5_size_t num
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER2 (h5_err_t,
+			   "f=0x%p, num=%llu",
+			   f, (long long unsigned)num);
 	h5t_fdata_t* const t = f->t;
 
 	if (t->leaf_level < 0) {
@@ -139,7 +142,11 @@ h5t_store_vertex (
 	const h5_glb_idx_t glb_id,	/*!< global vertex id from mesher or -1	*/
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
-	H5_CORE_API_ENTER (h5_loc_idx_t);
+	H5_CORE_API_ENTER3 (h5_loc_idx_t,
+			    "f=0x%p, glb=id=%lld, P=0x%p",
+			    f,
+			    (long long unsigned)glb_id,
+			    P);
 	h5t_fdata_t* const t = f->t;
 	
 	/*
@@ -166,7 +173,7 @@ h5_err_t
 h5t_end_store_vertices (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* const t = f->t;
 
 	t->num_vertices[t->leaf_level] = t->last_stored_vid+1;
@@ -186,7 +193,9 @@ h5t_begin_store_elems (
 	h5_file_t* const f,
 	const h5_size_t num
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER2 (h5_err_t,
+			   "f=0x%p, num=%llu",
+			   f, (long long unsigned)num);
 	h5t_fdata_t* const t = f->t;
 
 	size_t cur = t->leaf_level > 0 ? t->num_elems[t->leaf_level-1] : 0;
@@ -221,7 +230,11 @@ h5t_store_elem (
 	const h5_loc_idx_t parent_idx,
 	const h5_loc_idx_t* vertex_indices
 	) {
-	H5_CORE_API_ENTER (h5_loc_idx_t);
+	H5_CORE_API_ENTER3 (h5_loc_idx_t,
+			    "f=0x%p, parent_idx=%lld, vertex_indices=0x%p",
+			    f,
+			    (long long)parent_idx,
+			    vertex_indices);
 	h5t_fdata_t* t = f->t;
 
 	/* level set? */
@@ -275,7 +288,7 @@ h5_err_t
 h5t_end_store_elems (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* const t = f->t;
 
 	t->num_elems[t->leaf_level] = t->last_stored_eid+1;
@@ -300,7 +313,8 @@ h5t_mark_entity (
 	h5_file_t* const f,
 	const h5_loc_id_t entity_id
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, entity_id=%llu",
+			    f, (long long unsigned)entity_id);
 	h5t_fdata_t* const t = f->t;
 	H5_CORE_API_RETURN (h5priv_insert_idlist (&t->marked_entities, entity_id, -1));
 }
@@ -330,7 +344,7 @@ h5_err_t
 h5t_pre_refine (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* const t = f->t;
 	unsigned int num_elems_to_refine = t->marked_entities->num_items;
 	unsigned int num_elems_to_add = 0;
@@ -361,7 +375,7 @@ h5_err_t
 h5t_refine_marked_elems (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* const t = f->t;
 	int i;
 	for (i = 0; i < t->marked_entities->num_items; i++) {
@@ -374,7 +388,7 @@ h5_err_t
 h5t_post_refine (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* const t = f->t;
 	TRY (h5t_end_store_vertices (f));
 	TRY (h5t_end_store_elems (f));
@@ -386,7 +400,7 @@ h5_err_t
 h5t_begin_refine_elems (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* const t = f->t;
 
 	/*
@@ -402,7 +416,7 @@ h5_err_t
 h5t_end_refine_elems (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	TRY (h5t_pre_refine (f));
 	TRY (h5t_refine_marked_elems (f));
 	TRY (h5t_post_refine (f));
@@ -413,7 +427,7 @@ h5_err_t
 h5t_create_index_set (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	int codim;
 	int dim = h5tpriv_ref_elem_get_dim (f->t);
 	// todo: check tagset already exist

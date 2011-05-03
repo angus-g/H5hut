@@ -48,6 +48,21 @@ extern char* h5_rfmts[];
 		h5_debug ("(" fmt ")", a1, a2, a3, a4, a5);	\
 	}
 
+#define __FUNC_ARGS6(fmt, a1, a2, a3, a4, a5, a6, mask)	\
+	if (h5_debug_level & mask ) {			\
+		h5_debug ("(" fmt ")", a1, a2, a3, a4, a5, a6);	\
+	}
+
+#define __FUNC_ARGS7(fmt, a1, a2, a3, a4, a5, a6, a7, mask)	\
+	if (h5_debug_level & mask ) {			\
+		h5_debug ("(" fmt ")", a1, a2, a3, a4, a5, a6, a7);	\
+	}
+
+#define __FUNC_ARGS8(fmt, a1, a2, a3, a4, a5, a6, a7, a8, mask)	\
+	if (h5_debug_level & mask ) {			\
+		h5_debug ("(" fmt ")", a1, a2, a3, a4, a5, a6, a7, a8);	\
+	}
+
 #define __FUNC_ENTER0(type, mask)		\
 	__FUNC_ENTER(type);			\
 	__FUNC_ARGS0(mask);
@@ -72,6 +87,18 @@ extern char* h5_rfmts[];
 	__FUNC_ENTER(type);					\
 	__FUNC_ARGS5(fmt, a1, a2, a3, a4, a5, mask);
 
+#define __FUNC_ENTER6(type, fmt, a1, a2, a3, a4, a5, a6, mask)	\
+	__FUNC_ENTER(type);					\
+	__FUNC_ARGS6(fmt, a1, a2, a3, a4, a5, a6, mask);
+
+#define __FUNC_ENTER7(type, fmt, a1, a2, a3, a4, a5, a6, a7, mask)	\
+	__FUNC_ENTER(type);					\
+	__FUNC_ARGS7(fmt, a1, a2, a3, a4, a5, a6, a7, mask);
+
+#define __FUNC_ENTER8(type, fmt, a1, a2, a3, a4, a5, a6, a7, a8, mask)	\
+	__FUNC_ENTER(type);					\
+	__FUNC_ARGS8(fmt, a1, a2, a3, a4, a5, a6, a7, a8, mask);
+
 #define __FUNC_LEAVE(expr) {			\
 	ret_value = expr;			\
 	goto done;				\
@@ -91,31 +118,47 @@ done:								\
 	return ret_value;
 
 
-#define H5_API_ENTER(type)					\
+#define H5_API_ENTER_(type)					\
 	if (!h5_initialized) {					\
 		h5_initialize();				\
 	}							\
 	__FUNC_ENTER(type);
 
+#define H5_API_ENTER0(type)			\
+	H5_API_ENTER_(type);			\
+	__FUNC_ARGS0(H5_DEBUG_API)
+
 #define H5_API_ENTER1(type, fmt, a1)		\
-	H5_API_ENTER(type);			\
+	H5_API_ENTER_(type);			\
 	__FUNC_ARGS1(fmt, a1, H5_DEBUG_API)
 
 #define H5_API_ENTER2(type, fmt, a1, a2)	\
-	H5_API_ENTER(type);			\
+	H5_API_ENTER_(type);			\
 	__FUNC_ARGS2(fmt, a1,a2, H5_DEBUG_API)
 
 #define H5_API_ENTER3(type, fmt, a1, a2, a3)	\
-	H5_API_ENTER(type);			\
+	H5_API_ENTER_(type);			\
 	__FUNC_ARGS3(fmt, a1,a2,a3, H5_DEBUG_API)
 
 #define H5_API_ENTER4(type, fmt, a1, a2, a3, a4)	\
-	H5_API_ENTER(type);				\
+	H5_API_ENTER_(type);				\
 	__FUNC_ARGS4(fmt, a1,a2,a3, a4, H5_DEBUG_API)
 
 #define H5_API_ENTER5(type, fmt, a1, a2, a3, a4, a5)	\
-	H5_API_ENTER(type);				\
+	H5_API_ENTER_(type);				\
 	__FUNC_ARGS5(fmt, a1,a2,a3, a4, a5, H5_DEBUG_API)
+
+#define H5_API_ENTER6(type, fmt, a1, a2, a3, a4, a5, a6)	\
+	H5_API_ENTER_(type);				\
+	__FUNC_ARGS6(fmt, a1,a2,a3, a4, a5, a6, H5_DEBUG_API)
+
+#define H5_API_ENTER7(type, fmt, a1, a2, a3, a4, a5, a6, a7)	\
+	H5_API_ENTER_(type);				\
+	__FUNC_ARGS7(fmt, a1,a2,a3, a4, a5, a6, a7, H5_DEBUG_API)
+
+#define H5_API_ENTER8(type, fmt, a1, a2, a3, a4, a5, a6, a7, a8)	\
+	H5_API_ENTER_(type);				\
+	__FUNC_ARGS8(fmt, a1,a2,a3, a4, a5, a6, a7, a8, H5_DEBUG_API)
 
 #define H5_API_LEAVE(expr)		__FUNC_LEAVE(expr)
 #define H5_API_RETURN(expr)		__FUNC_RETURN(expr, H5_DEBUG_API);

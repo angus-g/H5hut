@@ -105,7 +105,9 @@ h5t_mtagset_exists (
 	h5t_tagcontainer_t* ctn,
 	char* name
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			   "f=0x%p, ctn=0x%p, name=\"%s\"",
+			   f, ctn, name);
 	H5_CORE_API_RETURN (tagset_exists (&f->t->mtags, name));
 }
 
@@ -127,7 +129,11 @@ add_tagset (
 	h5_id_t type,
 	h5t_tagset_t** rtagset
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER5 (h5_err_t,
+			     "f=0x%p, ctn=0x%p, name=\"%s\", type=%llu, rtagset=0x%p",
+			     f, ctn, name,
+			     (long long unsigned)type,
+			     rtagset);
 	h5t_fdata_t* t = f->t;
 
 	// Initialize data structure for m-tagsets, if not already done.
@@ -187,7 +193,10 @@ h5t_add_mtagset (
 	char* name,
 	h5_id_t type
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			     "f=0x%p, name=\"%s\", type=%llu",
+			     f, name,
+			    (long long unsigned)type);
 	h5t_fdata_t* t = f->t;
 	H5_CORE_API_RETURN (add_tagset (f, &t->mtags, name, type, NULL));
 }
@@ -242,7 +251,9 @@ h5t_remove_mtagset (
 	h5_file_t* const f,
 	const char name[]
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER2 (h5_err_t,
+			    "f=0x%p, name=\"%s\"",
+			    f, name);
 	h5t_fdata_t* t = f->t;
 	TRY (t->mtags.group_id = h5priv_open_group (f, t->mesh_gid, "Tags"));
 	TRY (remove_tagset (f, &t->mtags, name));
@@ -254,7 +265,7 @@ h5_ssize_t
 h5t_get_num_mtagsets (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_ssize_t);
+	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
 	h5t_fdata_t* t = f->t;
 	H5_CORE_API_RETURN (t->mtags.num_sets);
 }
@@ -272,7 +283,7 @@ h5t_get_mtagsets (
 	h5_file_t* const f,
 	char** names[]
 	) {
-	H5_CORE_API_ENTER (h5_ssize_t);
+	H5_CORE_API_ENTER2 (h5_ssize_t, "f=0x%p, names=0x%p", f, names);
 	h5t_fdata_t* t = f->t;
 	*names = t->mtags.names; 
 	H5_CORE_API_RETURN (t->mtags.num_sets);
@@ -284,7 +295,9 @@ h5t_open_mtagset (
 	const char* name,
 	h5t_tagset_t** retval
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_ssize_t,
+			    "f=0x%p, name=\"%s\", retval=0x%p",
+			    f, name, retval);
 	h5t_fdata_t* t = f->t;
 	void* __retval = NULL;
 	TRY (h5priv_hsearch (&name, H5_FIND, &__retval, &t->mtags.sets));
@@ -305,7 +318,9 @@ h5t_get_mtagset_type_by_name (
 	h5_file_t* const f,
 	char* name
 	) {
-	H5_CORE_API_ENTER (h5_id_t);
+	H5_CORE_API_ENTER2 (h5_ssize_t,
+			    "f=0x%p, name=\"%s\"",
+			    f, name);
 	h5t_tagset_t* tagset;
 	TRY (h5t_open_mtagset (f, name, &tagset));
 	H5_CORE_API_RETURN (tagset->type);
@@ -326,7 +341,9 @@ h5t_get_mtagset_info (
 	char** name,
 	h5_id_t* type
 	) {
-	H5_CORE_API_ENTER (h5_ssize_t);
+	H5_CORE_API_ENTER4 (h5_ssize_t,
+			    "f=0x%p, idx=%lld, name=0x%p, type=0x%p",
+			    f, idx, name, type);
 	h5t_fdata_t* t = f->t;
 	*name = t->mtags.names[idx];
 	void* __retval = NULL;
@@ -655,7 +672,13 @@ h5t_set_mtag_by_name (
 	const size_t dim,
 	void* val
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER5 (h5_err_t,
+			    "f=0x%p, name=\"%s\", entity_id=%lld, dim=%llu, val=0x%p",
+			    f,
+			    name,
+			    (long long)entity_id,
+			    (long long unsigned)dim,
+			    val);
 	h5t_tagset_t* tagset;
 	TRY (h5t_open_mtagset (f, name, &tagset));
 	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
@@ -681,7 +704,13 @@ h5t_get_tag (
 	size_t* const dim,
 	void* const vals
 	) {
-	H5_CORE_API_ENTER (h5_ssize_t);
+	H5_CORE_API_ENTER5 (h5_err_t,
+			    "f=0x%p, tagset=0x%p, entity_id=%lld, dim=0x%p, val=0x%p",
+			    f,
+			    tagset,
+			    (long long)entity_id,
+			    dim,
+			    vals);
 	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	H5_CORE_API_RETURN (get_tag (f, tagset, face_id, elem_idx, dim, vals));
@@ -706,7 +735,13 @@ h5t_get_mtag_by_name (
 	size_t* dim,
 	void* vals
 	) {
-	H5_CORE_API_ENTER (h5_ssize_t);
+	H5_CORE_API_ENTER5 (h5_err_t,
+			    "f=0x%p, name=\"%s\", entity_id=%lld, dim=0x%p, val=0x%p",
+			    f,
+			    name,
+			    (long long)entity_id,
+			    dim,
+			    vals);
 	h5t_tagset_t* tagset;
 	TRY (h5t_open_mtagset (f, name, &tagset));
 	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
@@ -728,7 +763,11 @@ h5t_remove_mtag (
 	const h5_loc_id_t entity_id
 	) {
 	UNUSED_ARGUMENT (f);
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			    "f=0x%p, tagset=0x%p, entity_id=%lld",
+			    f,
+			    tagset,
+			    (long long)entity_id);
 	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	H5_CORE_API_RETURN (remove_tag (tagset, face_id, elem_idx));
@@ -747,7 +786,11 @@ h5t_remove_mtag_by_name (
 	const char name[],
 	const h5_loc_id_t entity_id
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			    "f=0x%p, name=\"%s\", entity_id=%lld",
+			    f,
+			    name,
+			    (long long)entity_id);
 	h5t_tagset_t* tagset;
 	TRY (h5t_open_mtagset (f, name, &tagset));
 	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
@@ -1118,7 +1161,12 @@ h5t_get_mtagset_names_of_entity (
 	char* names[],
 	const h5_size_t dim
 	) {
-	H5_CORE_API_ENTER (h5_ssize_t);
+	H5_CORE_API_ENTER4 (h5_err_t,
+			    "f=0x%p, entity_id=%lld, names=0x%p, dim=%llu",
+			    f,
+			    (long long)entity_id,
+			    names,
+			    (long long unsigned)dim);
 	H5_CORE_API_RETURN (
 		get_tagset_names_of_entity (&f->t->mtags, entity_id, names, dim));
 }

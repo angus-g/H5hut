@@ -24,11 +24,7 @@ h5_check_filehandle (
 	h5_file_t* const f	/*!< filehandle  to check validity of */
 	) {
 
-	if (f == NULL || f->file < 0 || f->u == NULL || f->b == NULL
-#ifndef PARALLEL_IO
-		|| f->t == NULL
-#endif
-		) {
+	if (f == NULL || f->file < 0 || f->u == NULL || f->b == NULL || f->t == NULL) {
 		return h5_error (
 			H5_ERR_BADFD,
 			"Called with bad filehandle.");
@@ -66,7 +62,7 @@ static h5_err_t
 h5upriv_open_file (
 	h5_file_t* const f		/*!< IN: file handle */
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	TRY (f->u = (h5u_fdata_t*)h5_alloc (NULL, sizeof (*f->u)));
 	h5u_fdata_t *u = f->u;
 
@@ -97,7 +93,7 @@ static h5_err_t
 h5bpriv_open_file (
 	h5_file_t * const f		/*!< IN: file handle */
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5b_fdata_t* b; 
 
 	if (f->b)
@@ -142,7 +138,9 @@ h5_open_file (
 	h5_int32_t flags,	/*!< The access mode for the file. */
 	MPI_Comm comm		/*!< MPI communicator */
 	) {
-	H5_CORE_API_ENTER (h5_file_p);
+	H5_CORE_API_ENTER2 (h5_file_p,
+			    "filename=\"%s\", flags=%d, ...",
+			    filename, flags);
 	h5_info ("Opening file %s.", filename);
 	h5_file_p f = NULL;
 	TRY2 (f = h5_calloc (1, sizeof (h5_file_t)));
@@ -233,9 +231,7 @@ h5_open_file (
 
 	TRY2 (h5upriv_open_file (f));
 	TRY2 (h5bpriv_open_file (f));
-#ifndef PARALLEL_IO
 	TRY2 (h5tpriv_open_file (f));
-#endif
 	H5_CORE_API_RETURN (f);
 }
 
@@ -253,7 +249,7 @@ static h5_err_t
 h5upriv_close_file (
 	h5_file_t* const f	/*!< file handle */
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	struct h5u_fdata* u = f->u;
 
 	h5_errno = H5_SUCCESS;
@@ -281,7 +277,7 @@ static h5_err_t
 h5bpriv_close_file (
 	h5_file_t* const f	/*!< IN: file handle */
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	struct h5b_fdata* b = f->b;
 	TRY (hdf5_close_group (b->block_gid));
 	TRY (hdf5_close_group (b->field_gid));
@@ -311,7 +307,7 @@ h5_err_t
 h5_close_file (
 	h5_file_t* const f	/*!< file handle */
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5_errno = H5_SUCCESS;
 
 	CHECK_FILEHANDLE (f);
@@ -319,16 +315,14 @@ h5_close_file (
 	TRY (h5priv_close_step (f));
 	TRY (h5upriv_close_file (f));
 	TRY (h5bpriv_close_file (f));
-#ifndef PARALLEL_IO
 	TRY (h5tpriv_close_file (f));
-#endif
 	TRY (hdf5_close_property (f->xfer_prop));
 	TRY (hdf5_close_property (f->access_prop));
 	TRY (hdf5_close_property (f->create_prop));
 	TRY (hdf5_close_group (f->root_gid));
 	TRY (hdf5_close_file (f->file));
 	h5_free (f);
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -347,7 +341,8 @@ h5_set_stepname_fmt (
 	const char* name,
 	int width
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			    "f=0x%p, name=\"%s\", width=%d", f, name, width);
 	if (width < 0) width = 0;
 	else if (width > H5_STEPNAME_LEN - 1) width = H5_STEPNAME_LEN - 1;
 	strncpy (
@@ -406,7 +401,7 @@ int
 h5_get_num_procs (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	H5_CORE_API_ENTER (int);
+	H5_CORE_API_ENTER1 (int, "f=0x%p", f);
 	H5_CORE_API_RETURN (f->nprocs);
 }
 
@@ -421,7 +416,7 @@ hid_t
 h5_get_hdf5_file(
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	H5_CORE_API_ENTER (hid_t);
+	H5_CORE_API_ENTER1 (hid_t, "f=0x%p", f);
 	H5_CORE_API_RETURN (f->file);
 }
 

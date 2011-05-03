@@ -141,7 +141,7 @@ h5_get_num_attachments (
 	if (group_id < 0) {
 		H5_CORE_API_LEAVE (0);
 	}
-	TRY (num = hdf5_get_num_datasets (f->file));
+	TRY (num = hdf5_get_num_datasets (group_id));
 	TRY (hdf5_close_group (group_id));
 	H5_CORE_API_RETURN (num);
 }
@@ -204,8 +204,96 @@ h5_get_attachment (
 	const char* const fname
 	) {
 	H5_CORE_API_ENTER1 (h5_err_t, "fname=\"%s\"", fname);
-	UNUSED_ARGUMENT (f);
-	UNUSED_ARGUMENT (fname);
+	// allowed modes: O_RDWR, O_RDONLY; O_APPEND
+	// forbidden modes: O_WRONLY
+	if (f->mode == H5_O_WRONLY) {
+		H5_PRIV_FUNC_LEAVE (
+			h5priv_handle_file_mode_error (f->mode));
+	}
+
+	hid_t loc_id;
+	TRY (loc_id = h5priv_open_group (f, f->file, H5_ATTACHMENT));
+	h5_err_t exists;
+	TRY (exists = hdf5_link_exists (loc_id, fname));
+	if (f->mode == H5_O_WRONLY) {
+		H5_PRIV_FUNC_LEAVE (
+			h5priv_handle_file_mode_error (f->mode));
+	} else if (!exists) {
+		H5_PRIV_FUNC_LEAVE (
+			h5_error (
+				H5_ERR_H5,
+				"Attachment \"%s\" doesn't exist", fname));
+	}
+
+	// read dataset
+	hid_t dataset_id, diskspace_id;
+	h5_ssize_t fsize;
+	TRY (dataset_id = hdf5_open_dataset (loc_id, fname));
+	TRY (diskspace_id = hdf5_get_dataset_space (dataset_id));
+	TRY (fsize = hdf5_get_npoints_of_dataspace (diskspace_id));
+
+	hsize_t read_length;
+	char* buf = NULL;
+	if (f->myproc == 0) {
+		buf = malloc (fsize);
+		read_length = fsize;
+
+	} else {
+		buf = malloc (1);
+		read_length = 0;
+	}
+
+	hsize_t start = 0;
+	TRY (hdf5_select_hyperslab_of_dataspace (
+		     diskspace_id,
+		     H5S_SELECT_SET,
+		     &start,
+		     NULL,
+		     &read_length,
+		     NULL));
+
+	hid_t memspace_id;
+	hsize_t max = H5S_UNLIMITED;
+	TRY (memspace_id = hdf5_create_dataspace (1, &read_length, &max));
+	TRY (hdf5_read_dataset (dataset_id, 
+				 H5T_NATIVE_CHAR,
+				 memspace_id,
+				 diskspace_id,
+				 f->xfer_prop,
+				 buf));
+
+	TRY (hdf5_close_dataspace (diskspace_id));
+	TRY (hdf5_close_dataspace (memspace_id));
+	TRY (hdf5_close_dataset (dataset_id));
+	TRY (hdf5_close_group (loc_id));
+
+	// write file
+	if (f->myproc == 0) {
+		int fd;
+		if ((fd = open (fname, O_WRONLY|O_CREAT|O_TRUNC)) < 0) {
+			H5_CORE_API_LEAVE (
+				h5_error (
+					H5_ERR_H5,
+					"Error opening file \"%s\": %s",
+					fname, strerror(errno)));
+		}
+		if (write (fd, buf, fsize) != fsize) {
+			H5_CORE_API_LEAVE (
+				h5_error (
+					H5_ERR_H5,
+					"Error writing to file \"%s\": %s",
+					fname, strerror(errno)));
+		}
+		if (close (fd) < 0) {
+			H5_CORE_API_LEAVE (
+				h5_error (
+					H5_ERR_H5,
+					"Error closing file \"%s\": %s",
+					fname, strerror(errno)));
+		}
+	}
+	TRY (h5_free (buf));
+
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 

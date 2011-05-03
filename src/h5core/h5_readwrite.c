@@ -21,7 +21,12 @@ h5priv_write_dataset_by_name (
 	hid_t (*set_diskspace)(h5_file_t*,hid_t),
 	const void* const data
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER7 (h5_err_t,
+			    "f=0x%p, loc_id=%d (%s), dsinfo=0x%p, set_memspace=0x%p, "
+			    "set_diskspace=0x%p, data=0x%p",
+			    f, loc_id, hdf5_get_objname(loc_id),
+			    dsinfo,
+			    set_memspace, set_diskspace, data);
 	h5_info ("Writing dataset %s/%s.",
 		 hdf5_get_objname (loc_id), dsinfo->name);
 
@@ -92,7 +97,13 @@ h5priv_read_dataset (
 	hid_t (*set_dspace)(h5_file_t*,hid_t),
 	void* const data
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER7 (h5_err_t,
+			    "f=0x%p, dset_id=%d (%s), dsinfo=0x%p, set_mspace=0x%p, "
+			    "set_dspace=0x%p, data=0x%p",
+			    f, dset_id, hdf5_get_objname(dset_id),
+			    dsinfo,
+			    set_mspace, set_dspace, data);
+
 	hid_t mspace_id;
 	hid_t dspace_id;
 
@@ -126,7 +137,12 @@ h5priv_read_dataset_by_name (
 	hid_t (*set_dspace)(h5_file_t*,hid_t),
 	void* const data
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER7 (h5_err_t,
+			    "f=0x%p, loc_id=%d (%s), dsinfo=0x%p, "
+			    "set_mpace=0x%p, set_dspace=0x%p, data=0x%p",
+			    f, loc_id, hdf5_get_objname(loc_id),
+			    dsinfo,
+			    set_mspace, set_dspace, data);
 	hid_t dset_id;
 	TRY (dset_id = hdf5_open_dataset (loc_id, dsinfo->name));
 	TRY (h5priv_read_dataset (f, dset_id, dsinfo, set_mspace, set_dspace, data));
@@ -139,7 +155,7 @@ h5_err_t
 h5priv_close_step (
 	h5_file_t* const f
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	if (f->step_gid <= 0)
 		H5_PRIV_API_LEAVE (H5_SUCCESS);
 	TRY (h5tpriv_close_step (f));
@@ -155,7 +171,7 @@ h5_set_step (
 	h5_file_t* const f,		/*!< [in]  Handle to open file */
 	const h5_id_t step_idx		/*!< [in]  Step to set. */
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, step_idx=%llu", f, step_idx);
 	TRY (h5priv_close_step (f));
 	f->step_idx = step_idx;
 
@@ -181,7 +197,7 @@ h5_int64_t
 h5_normalize_h5_type (
 	hid_t type
 	) {
-	H5_CORE_API_ENTER (h5_int64_t);
+	H5_CORE_API_ENTER1 (h5_int64_t, "type=%d", type);
 	H5T_class_t tclass;
 	int size;
 	TRY (tclass = H5Tget_class (type));
@@ -217,7 +233,9 @@ h5_get_dataset_type(
 	const hid_t group_id,
 	const char* dset_name
 	) {
-	H5_CORE_API_ENTER (h5_int64_t);
+	H5_CORE_API_ENTER2 (h5_int64_t,
+			    "group_id=%d, dset_name=\"%s\"",
+			    group_id, dset_name);
 	hid_t dset_id;
 	hid_t hdf5_type;
 	h5_int64_t type;
@@ -233,13 +251,13 @@ h5_get_dataset_type(
 h5_err_t
 h5_has_step (
 	h5_file_t* const f,		/*!< [in]  Handle to open file */
-	const h5_id_t step		/*!< [in]  Step number to query */
+	const h5_id_t step_idx		/*!< [in]  Step number to query */
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, step_idx=%llu", f, step_idx);
 	char name[2*H5_STEPNAME_LEN];
 	sprintf (name,
 		"%s#%0*lld",
-		f->prefix_step_name, f->width_step_idx, (long long)step);
+		f->prefix_step_name, f->width_step_idx, (long long)step_idx);
 	H5_CORE_API_RETURN (hdf5_link_exists(f->file, name));
 }
 
@@ -248,7 +266,9 @@ h5_normalize_dataset_name (
 	const char *name,
 	char *name2
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER2 (h5_err_t,
+			    "name=\"%s\", name2=\"%s\"",
+			    name, name2);
 	if ( strlen(name) > H5_DATANAME_LEN ) {
 		strncpy ( name2, name, H5_DATANAME_LEN-1 );
 		name2[H5_DATANAME_LEN-1] = '\0';
@@ -274,7 +294,7 @@ h5_set_throttle (
 	h5_file_t* const f,
 	const int factor
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, factor=%d", f, factor);
 	if ( (f->mode & H5_VFD_INDEPENDENT) || (f->mode & H5_VFD_MPIPOSIX) ) {
 		f->throttle = factor;
 		h5_info ("Throttling enabled with factor = %d", f->throttle );
@@ -290,7 +310,7 @@ h5_err_t
 h5_start_throttle (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	if (f->throttle > 0) {
 		int token = 1;
 		h5_info ("Throttling with factor = %d",	f->throttle);
@@ -314,7 +334,7 @@ h5_err_t
 h5_end_throttle (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	if (f->throttle > 0) {
 		int token;
 		if (f->myproc + f->throttle < f->nprocs) {

@@ -33,7 +33,7 @@ H5FedGetNumMeshes (
 	h5_file_t* const f,
 	const h5_oid_t type_id
 	) {
-	H5_API_ENTER (h5_ssize_t);
+	H5_API_ENTER2 (h5_err_t, "f=0x%p, type_id=%u", f, type_id);
 	H5_API_RETURN (h5t_get_num_meshes (f, type_id));
 }
 
@@ -48,7 +48,7 @@ h5_ssize_t
 H5FedGetNumLevels (
 	h5_file_t* const f
 	) {
-	H5_API_ENTER (h5_ssize_t);
+	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
 	H5_API_RETURN (h5t_get_num_leaf_levels (f));
 }
 
@@ -63,7 +63,7 @@ h5t_lvl_idx_t
 H5FedGetLevel (
 	h5_file_t* const f
 	) {
-	H5_API_ENTER (h5t_lvl_idx_t);
+	H5_API_ENTER1 (h5t_lvl_idx_t, "f=0x%p", f);
 	H5_API_RETURN (h5t_get_level (f));
 }
 
@@ -79,7 +79,7 @@ h5_ssize_t
 H5FedGetNumVertices (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	H5_API_ENTER (h5_ssize_t);
+	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
 	H5_API_RETURN (h5t_get_num_vertices (f, -1));
 }
 
@@ -95,9 +95,9 @@ H5FedGetNumVertices (
 h5_ssize_t
 H5FedGetNumVerticesCnode (
 	h5_file_t* const f,
-	const h5_id_t cnode
+	const int cnode
 	) {
-	H5_API_ENTER (h5_ssize_t);
+	H5_API_ENTER2 (h5_ssize_t, "f=0x%p, cnode=%d", f, cnode);
 	H5_API_RETURN (h5t_get_num_vertices (f, cnode));
 }
 
@@ -113,7 +113,7 @@ h5_ssize_t
 H5FedGetNumVerticesTotal (
 	h5_file_t* const f
 	) {
-	H5_API_ENTER (h5_ssize_t);
+	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
 	H5_API_RETURN (h5t_get_num_vertices (f, -1));
 }
 
@@ -129,7 +129,7 @@ h5_ssize_t
 H5FedGetNumElements (
 	h5_file_t* const f
 	) {
-	H5_API_ENTER (h5_ssize_t);
+	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
 	// MLH: can't use field from opaque h5_file_t!
 	//h5_ssize_t num = h5t_get_num_elems (f, f->myproc);
 	H5_API_RETURN (h5t_get_num_elems (f, -1));
@@ -147,11 +147,12 @@ H5FedGetNumElements (
 h5_ssize_t
 H5FedGetNumElementsCnode (
 	h5_file_t* const f,
-	const h5_id_t cnode
+	const int cnode
 	) {
-	H5_API_ENTER (h5_ssize_t);
+	H5_API_ENTER2 (h5_ssize_t, "f=0x%p, cnode=%d", f, cnode);
 	H5_API_RETURN (h5t_get_num_elems (f, cnode));
 }
+
 /*!
   Returns the number of elements present in the mesh
   at current level over all compute nodes.
@@ -164,6 +165,6 @@ h5_ssize_t
 H5FedGetNumElementsTotal (
 	h5_file_t* const f
 	) {
-	H5_API_ENTER (h5_ssize_t);
+	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
 	H5_API_RETURN (h5t_get_num_elems (f, -1));
 }

@@ -159,7 +159,9 @@ h5b_write_scalar_data (
 	const void *data,		/*!< IN: data to write */
 	const hid_t type		/*!< IN: data type */
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER4 (h5_err_t,
+			    "f=0x%p, field_name=\"%s\", data=0x%p, type=%d",
+			    f, field_name, data, type);
 	CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_LAYOUT( f );
@@ -178,7 +180,13 @@ h5b_write_vector3d_data (
 	const void *zdata,		/*!< IN: z data to write */
 	const hid_t type		/*!< IN: data type */
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER6 (h5_err_t,
+			    "f=0x%p, field_name=\"%s\", "
+			    "xdata=0x%p, "
+			    "ydata=0x%p, "
+			    "zdata=0x%p, "
+			    "type=%d",
+			    f, field_name, xdata, ydata, zdata, type);
 	CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_LAYOUT( f );
@@ -306,7 +314,9 @@ h5b_read_scalar_data (
 	void *data,			/*!< OUT: read bufer */
 	const hid_t type		/*!< IN: data type */
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER4 (h5_err_t,
+			    "f=0x%p, field_name=\"%s\", data=0x%p, type=%d",
+			    f, field_name, data, type);
 	CHECK_TIMEGROUP( f );
 	CHECK_LAYOUT( f );
 	TRY( h5bpriv_open_field_group(f, field_name) );
@@ -323,7 +333,13 @@ h5b_read_vector3d_data (
 	void *zdata,			/*!< IN: z data to write */
 	const hid_t type		/*!< IN: data type */
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER6 (h5_err_t,
+			    "f=0x%p, field_name=\"%s\", "
+			    "xdata=0x%p, "
+			    "ydata=0x%p, "
+			    "zdata=0x%p, "
+			    "type=%d",
+			    f, field_name, xdata, ydata, zdata, type);
 	CHECK_TIMEGROUP( f );
 	CHECK_LAYOUT( f );
 	TRY( h5bpriv_open_field_group(f, field_name) );

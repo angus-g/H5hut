@@ -199,7 +199,9 @@ h5t_init_leaf_iterator (
 	h5t_iterator_t* iter,
 	int codim
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			    "f=0x%p, iter=0x%p, codim=%d",
+			    f, iter, codim);
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)&iter->leaf;
 	it->face_idx = 999;
 	it->elem_idx = -1;
@@ -222,7 +224,9 @@ h5t_init_boundary_face_iterator (
 	h5t_iterator_t* iter,
 	int codim
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			    "f=0x%p, iter=0x%p, codim=%d",
+			    f, iter, codim);
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)iter;
 	it->face_idx = 999; // something > max number of faces
 	it->elem_idx = -1;
@@ -247,7 +251,9 @@ h5t_init_mtag_iterator (
 	h5t_iterator_t* iter,
 	const char* name
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			    "f=0x%p, iter=0x%p, name=\"%s\"",
+			    f, iter, name);
 	h5t_tag_iterator_t* it = (h5t_tag_iterator_t*)iter;
 	TRY (h5t_open_mtagset (f, name, &it->tagset));
 	it->elem_idx = -1;
@@ -263,7 +269,7 @@ h5t_release_entity_iterator (
 	h5t_iterator_t* iter
 	) {
 	UNUSED_ARGUMENT (f);
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	H5_CORE_API_RETURN (h5_free (iter));
 }
 
@@ -272,7 +278,7 @@ h5t_iterate_entities (
 	h5_file_t* const f,
 	h5t_iterator_t* iter
 	) {
-	H5_CORE_API_ENTER (h5_loc_id_t);
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, iter=0x%p", f, iter);
 	h5t_generic_iterator_t* it = (h5t_generic_iterator_t*)iter;
 	H5_CORE_API_RETURN (it->iter (f, iter));
 }
@@ -283,7 +289,7 @@ h5t_end_iterate_entities (
 	h5t_iterator_t* iter
 	) {
 	UNUSED_ARGUMENT (f);
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, iter=0x%p", f, iter);
 	memset (iter, 0, sizeof(*iter));
 	h5t_leaf_iterator_t* it = (h5t_leaf_iterator_t*)iter;
 	it->face_idx = -1;
@@ -298,7 +304,11 @@ h5t_get_vertex_coords_by_index (
 	h5_loc_idx_t vertex_index,
 	h5_float64_t P[3]
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			    "f=0x%p, vertex_index=%llu, P=0x%p",
+			    f,
+			    (long long unsigned)vertex_index,
+			    P);
 	h5_loc_vertex_t *vertex = &f->t->vertices[vertex_index];
 	memcpy ( P, &vertex->P, sizeof ( vertex->P ) );
 	H5_CORE_API_RETURN (H5_SUCCESS);
@@ -310,7 +320,11 @@ h5t_get_vertex_coords_by_id (
 	h5_loc_id_t vertex_id,
 	h5_float64_t P[3]
 	) {
-	H5_CORE_API_ENTER (h5_err_t);
+	H5_CORE_API_ENTER3 (h5_err_t,
+			    "f=0x%p, vertex_id=%llu, P=0x%p",
+			    f,
+			    (long long unsigned)vertex_id,
+			    P);
 	h5_loc_idx_t vertex_index;
 	TRY (h5t_get_vertex_index_of_vertex (f, vertex_id, &vertex_index));
 	TRY (h5t_get_vertex_coords_by_index (f, vertex_index, P));

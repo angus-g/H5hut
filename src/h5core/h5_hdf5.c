@@ -1039,7 +1039,7 @@ hdf5_set_errorhandler (
 	if (H5Eset_auto (estack_id, func, client_data) < 0)
 		HDF5_WRAPPER_LEAVE (
 			h5_error (
-				H5_ERR_INIT,
+				H5_ERR_HDF5,
 				"Cannot initialize H5."));
 	HDF5_WRAPPER_RETURN (H5_SUCCESS);
 }
@@ -1606,13 +1606,16 @@ hdf5_get_objname (
 	) {
 	static char objname[256];
 
-	memset ( objname, 0, sizeof(objname) );
-	ssize_t size = H5Iget_name ( id, objname, sizeof(objname) );
-	if ( size < 0 ) {
-		strcpy ( objname, "[error getting object name]" );
-	} else if ( size == 0 ) {
-		strcpy ( objname, "[no name associated with identifier]" );
+	// memset ( objname, 0, sizeof(objname) );
+	if (id == -1) {
+		strcpy ( objname, "[none]" );
+	} else {
+		ssize_t size = H5Iget_name ( id, objname, sizeof(objname) );
+		if ( size < 0 ) {
+			strcpy ( objname, "[error getting object name]" );
+		} else if ( size == 0 ) {
+			strcpy ( objname, "[no name associated with identifier]" );
+		}
 	}
-
 	return objname;
 }

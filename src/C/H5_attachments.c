@@ -5,7 +5,7 @@ h5_ssize_t
 H5GetNumAttachments (
 	h5_file_t* const f	/*!< [in] Handle to open file */
 	) {
-	H5_API_ENTER (h5_ssize_t);
+	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
 	H5_API_RETURN (h5_get_num_attachments (f));
 }
 

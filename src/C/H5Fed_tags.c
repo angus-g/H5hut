@@ -29,7 +29,8 @@ H5FedAddMTagset (
 	char* name,
 	h5_id_t type
 	) {
-	H5_API_ENTER (h5_err_t);
+	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", type=%lld",
+		       f, name, (long long)type);
 	H5_API_RETURN (h5t_add_mtagset (f, name, type));
 }
 
@@ -46,7 +47,7 @@ H5FedRemoveMTagset (
 	h5_file_t* const f,
 	char name[]
 	) {
-	H5_API_ENTER (h5_err_t);
+	H5_API_ENTER2 (h5_err_t, "f=0x%p, name=\"%s\"", f, name);
 	H5_API_RETURN (h5t_remove_mtagset (f, name));
 }
 
@@ -63,7 +64,7 @@ H5FedGetMTagsets (
 	h5_file_t* const f,
 	char** names[]
 	) {
-	H5_API_ENTER (h5_ssize_t);
+	H5_API_ENTER2 (h5_ssize_t, "f=0x%p, names=0x%p", f, names);
 	H5_API_RETURN (h5t_get_mtagsets (f, names));
 }
 
@@ -80,7 +81,7 @@ H5FedGetTypeOfMTagset (
 	h5_file_t* const f,
 	char name[]
 	) {
-	H5_API_ENTER (h5_id_t);
+	H5_API_ENTER2 (h5_err_t, "f=0x%p, name=\"%s\"", f, name);
 	H5_API_RETURN (h5t_get_mtagset_type_by_name (f, name));
 }
 
@@ -100,11 +101,13 @@ H5FedSetMTag (
 	h5_file_t* const f,
 	char name[],
 	h5_loc_id_t id,
-	const size_t dims,
-	void* val 
+	const size_t dim,
+	void* buffer
 	) {
-	H5_API_ENTER (h5_err_t);
-	H5_API_RETURN (h5t_set_mtag_by_name (f, name, id, dims, val));
+	H5_API_ENTER5 (h5_err_t,
+		       "f=0x%p, name=\"%s\", id=%lld, dim=%lld, val=0x%p",
+		       f, name, (long long)id, (long long)dim, buffer);
+	H5_API_RETURN (h5t_set_mtag_by_name (f, name, id, dim, buffer));
 }
 
 /*!
@@ -124,10 +127,12 @@ H5FedGetMTag (
 	const char name[],
 	const h5_loc_id_t id,
 	size_t* dim,
-	void* vals
+	void* buffer
 	) {
-	H5_API_ENTER (h5_err_t);
-	H5_API_RETURN (h5t_get_mtag_by_name (f, name, id, dim, vals));
+	H5_API_ENTER5 (h5_err_t,
+		       "f=0x%p, name=\"%s\", id=%lld, dim=0x%p, val=0x%p",
+		       f, name, (long long)id, dim, buffer);
+	H5_API_RETURN (h5t_get_mtag_by_name (f, name, id, dim, buffer));
 }
 
 /*!
@@ -143,6 +148,7 @@ H5FedRemoveMTag (
 	const char name[],
 	const h5_loc_id_t id
 	) {
-	H5_API_ENTER (h5_err_t);
+	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", id=%lld",
+		       f, name, (long long)id);
 	H5_API_RETURN (h5t_remove_mtag_by_name (f, name, id));
 }
