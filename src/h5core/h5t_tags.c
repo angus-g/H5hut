@@ -82,7 +82,7 @@ h5_err_t
 h5tpriv_release_tags (
 	h5_file_t* const f
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* t = f->t;
 	TRY (release_container (&t->mtags));
 	H5_PRIV_API_RETURN (H5_SUCCESS);
@@ -973,7 +973,7 @@ h5_err_t
 h5tpriv_write_mtags (
 	h5_file_t* const f
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* t = f->t;
 	TRY (t->mtags.group_id = h5priv_open_group (f, t->mesh_gid, "Tags"));
 	TRY (write_container (f, &f->t->mtags));
@@ -1086,7 +1086,7 @@ h5tpriv_read_tag_container (
 	h5_file_t* const f,
 	h5t_tagcontainer_t* ctn
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER2 (h5_err_t, "f=0x%p, ctn=0x%p", f, ctn);
 	size_t num_sets;
 	TRY (num_sets = hdf5_get_num_objs_in_group (ctn->group_id));
 	hsize_t idx;

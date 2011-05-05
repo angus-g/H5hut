@@ -94,7 +94,7 @@ h5_err_t
 h5tpriv_write_mesh (
 	h5_file_t* const f
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* t = f->t;
 	if (t->mesh_changed) {
 		TRY (write_vertices (f));
@@ -108,7 +108,7 @@ h5tpriv_write_mesh (
 }
 
 static h5_ssize_t
-read_num_leaf_levels (
+get_num_leaf_levels (
 	h5_file_t* const f
 	) {
 	h5t_fdata_t* t = f->t;
@@ -116,14 +116,15 @@ read_num_leaf_levels (
 	hid_t diskspace_id;
 	hssize_t size;
 
-	H5_PRIV_FUNC_ENTER (h5_ssize_t);
+	H5_PRIV_FUNC_ENTER1 (h5_ssize_t, "f=0x%p", f);
 	if (t->cur_mesh < 0) {
-		return h5tpriv_error_undef_mesh ();
+		H5_PRIV_FUNC_LEAVE (h5tpriv_error_undef_mesh ());
 	}
 	TRY (dataset_id = hdf5_open_dataset (t->mesh_gid, "NumVertices") );
 	TRY (diskspace_id = hdf5_get_dataset_space (dataset_id) );
 	TRY (size = hdf5_get_npoints_of_dataspace (diskspace_id) );
 	TRY (hdf5_close_dataspace (diskspace_id) );
+	TRY (hdf5_close_dataset (dataset_id));
 
 	t->num_leaf_levels = size;
 	H5_PRIV_FUNC_RETURN (size);
@@ -272,12 +273,12 @@ h5_err_t
 h5tpriv_read_mesh (
 	h5_file_t* const f
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* t = f->t;
  	if (t->mesh_gid < 0) {
 		H5_PRIV_API_LEAVE (h5_error_internal ());
 	}
-	TRY (read_num_leaf_levels (f));
+	TRY (get_num_leaf_levels (f));
 	TRY (read_num_vertices (f));
 
 	TRY (read_vertices (f));

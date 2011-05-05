@@ -67,7 +67,11 @@ h5priv_hcreate (
 	unsigned int (*compute_hash)(const void*),
 	h5_err_t (*free_entry)(const void*)
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER5 (h5_err_t,
+			    "nel=%llu, htab=0x%p, compare=0x%p, "
+			    "compute_hash=0x%p, free_entry=0x%p",
+			    (long long unsigned)nel,
+			    htab, compare, compute_hash, free_entry);
 
 	/* Test for correct arguments.  */
 	if (htab == NULL || htab->table != NULL) {
@@ -100,7 +104,9 @@ h5priv_hresize (
 	size_t nel,		// number of entries to grow
 	h5_hashtable_t* htab	// hash table to resize
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER2 (h5_err_t,
+			    "nel=%llu, htab=0x%p",
+			    (long long unsigned)nel, htab);
 	if (htab == NULL || htab->table == NULL) {
 		H5_PRIV_API_LEAVE (h5_error_internal ());
 	}
@@ -138,7 +144,7 @@ hwalk (
 	struct hsearch_data* htab,
 	h5_err_t (*visit)(const void *item)
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER2 (h5_err_t, "htab=0x%p, visit=0x%p", htab, visit);
 	unsigned int idx = 1;
 	for (idx = 1; idx < htab->size; idx++) {
 		if (htab->table[idx].used) {
@@ -155,7 +161,7 @@ h5_err_t
 h5priv_hdestroy (
 	struct hsearch_data* htab
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "htab=0x%p", htab);
 	/* Test for correct arguments.  */
 	if (htab == NULL) {
 		H5_PRIV_API_LEAVE (h5_error_internal ());
@@ -193,7 +199,9 @@ h5priv_hsearch (
 	void** retval,
 	struct hsearch_data* htab
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER4 (h5_err_t,
+			    "item=0x%p, action=%d, retval=0x%p, htab=0x%p",
+			    item, action, retval, htab);
 	unsigned int hval;
 	unsigned int idx;
 
@@ -319,7 +327,7 @@ h5priv_hcreate_string_keyed (
 	h5_hashtable_t* htab,
 	h5_err_t (*free_entry)(const void*)
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER2 (h5_err_t, "htab=0x%p, free_entry=0x%p", htab, free_entry);
 	if (free_entry == NULL) {
 		TRY (h5priv_hcreate (nel, htab,
 				     cmp_string_keyed,

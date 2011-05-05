@@ -10,7 +10,7 @@ h5_write_field_attrib (
 	const void *attrib_value,		/*!< IN: attribute value */
 	const h5_int64_t attrib_nelem		/*!< IN: number of elements */
 	) {
-	H5_CORE_API_ENTER5 (h5_err_t,
+	H5_CORE_API_ENTER6 (h5_err_t,
 			    "f=%p, field_name=\"%s\", "
 			    "attrib_name=\"%s\", attrib_type=%d, "
 			    "attrib_value=%p, attrib_nelem=%lld",
@@ -20,7 +20,6 @@ h5_write_field_attrib (
 			    attrib_type,
 			    attrib_value,
 			    (long long)attrib_nelem);
-	,
 	TRY( h5bpriv_create_field_group(f, field_name) );
 
 	TRY( h5_write_attrib (

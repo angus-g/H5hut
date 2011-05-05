@@ -36,7 +36,9 @@ h5tpriv_sort_local_vertex_indices (
 	h5_loc_idx_t* const indices,	/* IN/OUT: local vertex indices */	
 	const h5_size_t size		/* size of array */
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER3 (h5_err_t,
+			   "f=0x%p, indices=0x%p, size=%llu",
+			   f, indices, (long long unsigned)size);
 	h5t_fdata_t* t = f->t;
 
 	h5_size_t i;

@@ -21,7 +21,8 @@
 #define H5_CORE_API_LEAVE(value)	__FUNC_LEAVE(value)
 #define H5_CORE_API_RETURN(value)	__FUNC_RETURN(value, H5_DEBUG_CORE_API)
 
-#define H5_PRIV_API_ENTER(type)		__FUNC_ENTER(type)
+#define H5_PRIV_API_ENTER0(type)	\
+	__FUNC_ENTER1(type, H5_DEBUG_PRIV_API)
 #define H5_PRIV_API_ENTER1(type, fmt, a1)	\
 	__FUNC_ENTER1(type, fmt, a1, H5_DEBUG_PRIV_API)
 #define H5_PRIV_API_ENTER2(type, fmt, a1, a2)		\

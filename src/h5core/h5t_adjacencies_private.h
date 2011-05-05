@@ -19,7 +19,9 @@ h5tpriv_get_adjacencies (
 	const h5_int32_t dim,
 	h5_loc_idlist_t** list
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER4 (h5_err_t,
+			    "f=0x%p, entity_id=%lld, dim=%d, list=0x%p",
+			    f, (long long)entity_id, dim, list);
 	if (f->t->methods.adjacency == NULL) {
 		H5_PRIV_API_LEAVE (h5_error_internal ());
 	}
@@ -31,11 +33,11 @@ static inline h5_err_t
 h5tpriv_release_adjacency_structs (
 	h5_file_t* const f
 	) {
-	h5_debug ("%s ()", __func__);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	if (f->t->methods.adjacency == NULL) {
-		return 0;
+		H5_PRIV_API_LEAVE (H5_OK);
 	}
-	return (*f->t->methods.adjacency->release_internal_structs)(f);
+	H5_PRIV_API_RETURN (f->t->methods.adjacency->release_internal_structs(f));
 }
 
 static inline h5_err_t
@@ -43,8 +45,11 @@ h5tpriv_update_adjacency_structs (
 	h5_file_t* const f,
 	const h5t_lvl_idx_t level_id
 	) {
-	h5_debug ("%s (%lld)", __func__, (long long)level_id);
-	return (*f->t->methods.adjacency->update_internal_structs)(f, level_id);
+	H5_PRIV_API_ENTER2 (h5_err_t, "f=0x%p, level_id=%d", f, level_id);
+	if (f->t->methods.adjacency == NULL) {
+		H5_PRIV_API_LEAVE (H5_OK);
+	}
+	H5_PRIV_API_RETURN (f->t->methods.adjacency->update_internal_structs(f, level_id));
 }
 
 #endif

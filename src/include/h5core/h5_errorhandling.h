@@ -287,9 +287,9 @@ h5_debug (
 	...
 	) {
 	if (h5_debug_level >= 4) {
-		char prefix[256];
-		snprintf (prefix, sizeof(prefix), "(%d) %s",
-			  h5_call_stack_get_level(),
+		char prefix[1024];
+		snprintf (prefix, sizeof(prefix), "%*s %s",
+			  h5_call_stack_get_level(), "",
 			  h5_call_stack_get_name());
 		va_list ap;
 		va_start (ap, fmt);

@@ -322,7 +322,7 @@ h5_err_t
 h5tpriv_open_file (
 	h5_file_t* const f			/*!< IN: file handle */
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	TRY (f->t = h5_calloc (1, sizeof (*f->t)));
 	h5t_fdata_t* t = f->t;
 
@@ -343,7 +343,7 @@ h5_err_t
 h5tpriv_init_step (
 	h5_file_t* const f
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	UNUSED_ARGUMENT (f);
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
@@ -357,7 +357,7 @@ h5_err_t
 h5tpriv_close_step (
 	h5_file_t* const f
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	UNUSED_ARGUMENT (f);
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
@@ -367,7 +367,7 @@ h5_err_t
 h5tpriv_open_topo_group (
 	h5_file_t * const f
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* t = f->t;
 	if (t->topo_gid == 0 || t->topo_gid == -1) {
 		TRY (t->topo_gid = h5priv_open_group (f, f->root_gid, H5T_CONTAINER_GRPNAME));
@@ -380,7 +380,7 @@ h5tpriv_open_meshes_group (
 	h5_file_t* const f,
 	const h5_oid_t type_id
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER2 (h5_err_t, "f=0x%p, type_id=%d", f, type_id);
 	h5t_fdata_t* t = f->t;
 
 	if (t->topo_gid < 0) {
@@ -405,7 +405,9 @@ h5tpriv_open_mesh_group (
 	const h5_oid_t type_id,
 	const h5_id_t id
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER3 (h5_err_t,
+			    "f=0x%p, type_id=%d, id=%lld",
+			    f, type_id, (long long)id);
 	h5t_fdata_t* t = f->t;
 
 	if (t->meshes_gid < 0) {

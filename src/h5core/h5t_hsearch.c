@@ -11,7 +11,9 @@ h5tpriv_search_tv2 (
 	h5_loc_idx_t elem_idx,		// in
 	h5_loc_idlist_t** idlist	// out
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER4 (h5_err_t,
+			   "f=0x%p, face_idx=%lld, elem_idx=%lld, idlist=0x%p",
+			   f, (long long)face_idx, (long long)elem_idx, idlist);
 	h5t_fdata_t* t = f->t;
 
 	h5_loc_idx_t vertex_idx;
@@ -75,7 +77,7 @@ h5tpriv_resize_te_htab (
 	h5_file_t* const f,
 	size_t nel
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER2 (h5_err_t, "f=0x%p, nel=%lld", f, (long long)nel);
 	h5t_adjacencies_t* a = &f->t->adjacencies;
 	if ( a->te_hash.size == 0 ) {
 		TRY (h5priv_hcreate (
@@ -97,7 +99,9 @@ h5tpriv_search_te2 (
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t** idlist
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER4 (h5_err_t,
+			   "f=0x%p, face_idx=%lld, elem_idx=%lld, idlist=0x%p",
+			   f, (long long)face_idx, (long long)elem_idx, idlist);
 	h5t_fdata_t* t = f->t;
 	h5t_adjacencies_t* a = &t->adjacencies;
 	void* __retval;
@@ -183,7 +187,9 @@ h5tpriv_find_te (
 	h5_loc_idx_t edge_id,	// in
 	h5_loc_idlist_t** idlist	// out
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER3 (h5_err_t,
+			    "f=0x%p, edge_id=%lld, idlist=0x%p",
+			    f, (long long)edge_id, idlist);
 	h5t_te_entry_t item;
 	TRY (h5t_get_vertex_indices_of_edge (
 		     f,
@@ -200,7 +206,9 @@ h5tpriv_find_te2 (
 	h5_loc_idx_t elem_idx,	// in 
 	h5_loc_idlist_t** idlist	// out
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER4 (h5_err_t,
+			    "f=0x%p, face_idx=%lld, elem_idx=%lld, idlist=0x%p",
+			    f, (long long)face_idx, (long long)elem_idx, idlist);
 	h5t_te_entry_t item;
 	TRY (h5t_get_vertex_indices_of_edge2 (
 		      f,
@@ -257,7 +265,7 @@ h5tpriv_resize_td_htab (
 	h5_file_t* const f,
 	size_t nel
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER2 (h5_err_t, "f=0x%p, nel=%lld", f, (long long)nel);
 	h5t_adjacencies_t* a = &f->t->adjacencies;
 	if (a->td_hash.size == 0) {
 		TRY (h5priv_hcreate (
@@ -279,7 +287,9 @@ h5tpriv_search_td2 (
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t** idlist	// out
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER4 (h5_err_t,
+			   "f=0x%p, face_idx=%lld, elem_idx=%lld, idlist=0x%p",
+			   f, (long long)face_idx, (long long)elem_idx, idlist);
 	h5t_fdata_t* t = f->t;
 	h5t_adjacencies_t* a = &f->t->adjacencies;
 	void* __retval;
@@ -343,7 +353,9 @@ h5tpriv_find_td (
 	h5_loc_idx_t triangle_id,
 	h5_loc_idlist_t** idlist
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER3 (h5_err_t,
+			    "f=0x%p, triangle_id=%lld, idlist=0x%p",
+			    f, (long long)triangle_id, idlist);
 	h5t_td_entry_t item;
 	TRY (h5t_get_vertex_indices_of_triangle (
 		     f,
@@ -360,7 +372,9 @@ h5tpriv_find_td2 (
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t** idlist
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER4 (h5_err_t,
+			   "f=0x%p, face_idx=%lld, elem_idx=%lld, idlist=0x%p",
+			   f, (long long)face_idx, (long long)elem_idx, idlist);
 	h5t_td_entry_t item;
 	TRY (h5t_get_vertex_indices_of_triangle2 (
 		     f,
@@ -381,7 +395,9 @@ h5tpriv_find_tv2 (
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t** idlist
 	) {
-	H5_PRIV_API_ENTER (h5_err_t);
+	H5_PRIV_API_ENTER4 (h5_err_t,
+			   "f=0x%p, face_idx=%lld, elem_idx=%lld, idlist=0x%p",
+			   f, (long long)face_idx, (long long)elem_idx, idlist);
 	h5_loc_idx_t idx;
 	TRY (idx = h5tpriv_get_loc_elem_vertex_idx (f, elem_idx, face_idx));
 	*idlist = f->t->adjacencies.tv.v[idx];
