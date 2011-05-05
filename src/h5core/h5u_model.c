@@ -275,8 +275,8 @@ h5u_set_view (
 h5_err_t
 h5u_set_view_indices (
 	h5_file_t *const f,	        	/*!< [in]  Handle to open file */
-	const h5_id_t *const indices,		/*!< [in]  List of indices */
-	const h5_size_t nelems		        /*!< [in]  Size of list */
+	const h5_size_t *const indices,		/*!< [in]  List of indices */
+	h5_size_t nelems		        /*!< [in]  Size of list */
 	) {
 	H5_CORE_API_ENTER3 (h5_err_t,
 			    "f=0x%p, indices=0x%p, nelems=%llu",
@@ -299,7 +299,7 @@ h5u_set_view_indices (
 	  For now, we interpret start=-1 to mean 0 and 
 	  end==-1 to mean end of file
 	*/
-	TRY ( total = (hsize_t) h5u_get_num_particles ( f ) );
+	TRY ( total = h5u_get_num_particles ( f ) );
 	if ( total == 0 ) {
 		/* No datasets have been created yet and no veiws are set.
 		 * We have to leave the view empty because we don't know how
@@ -309,19 +309,19 @@ h5u_set_view_indices (
 
 	if ( total == 0 ) return H5_SUCCESS;
 
-	u->nparticles = (hsize_t) nelems;
+	u->nparticles = nelems;
 	h5_debug ("This view selected %lld particles.", (long long)u->nparticles );
 
 	/* declare overall data size  but then will select a subset */
 	TRY (u->diskshape = hdf5_create_dataspace (1, &total, NULL));
 
 	/* declare local memory datasize */
-	total = (size_t)u->nparticles;
+	total = u->nparticles;
 	TRY (u->memshape = hdf5_create_dataspace (1, &total, &dmax));
 	TRY (hdf5_select_elements_of_dataspace ( 
-		     u->diskshape,
-		     H5S_SELECT_SET,
-		     nelems, (hsize_t*)indices ) );
+		u->diskshape,
+		H5S_SELECT_SET,
+		nelems, indices ) );
 
 	u->viewindexed = 1;
 

@@ -9,7 +9,7 @@ INCLUDES = -I../include @INCLUDES@
 lib_LIBRARIES = @LIB_C@
 
 # Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = libH5hutC.a
+EXTRA_LIBRARIES = ../lib/libH5hutC.a
 
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS =				\
@@ -31,7 +31,7 @@ include_HEADERS =				\
 EXTRA_HEADERS =
 
 # Listing of sources
-libH5hutC_a_SOURCES =				\
+___lib_libH5hutC_a_SOURCES =			\
 	H5.c					\
 	H5_attribs.c				\
 	H5_attachments.c			\
@@ -45,10 +45,7 @@ libH5hutC_a_SOURCES =				\
 	H5Fed_store.c				\
 	H5Fed_tags.c
 
-all: all-am install-libs-local
-
-install-libs-local:
-	-cp ${lib_LIBRARIES} ../lib
+all: all-am
 
 clean: clean-am
 

@@ -262,7 +262,7 @@ hdf5_close_dataset (
 			     "dataset_id=%d (%s)", 
 			    dataset_id,
 			    hdf5_get_objname (dataset_id));
-	if (dataset_id == 0 || dataset_id == -1)
+	if (dataset_id < 0)
 		HDF5_WRAPPER_LEAVE (H5_SUCCESS); 
 
 	if (H5Dclose (dataset_id) < 0) {
@@ -537,7 +537,7 @@ hdf5_select_elements_of_dataspace (
 		herr = H5Sselect_elements (
 			space_id,
 			op,
-			nelems,
+			(size_t)nelems,
 			indices);
 	} else {
 		herr = H5Sselect_none ( space_id );

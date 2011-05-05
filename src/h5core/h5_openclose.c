@@ -348,7 +348,8 @@ h5_set_stepname_fmt (
 	strncpy (
 		f->prefix_step_name,
 		name,
-		H5_STEPNAME_LEN - 1);
+		//H5_STEPNAME_LEN - 1);
+		63);
 	f->width_step_idx = width;
 
 	H5_CORE_API_RETURN (H5_SUCCESS);
@@ -474,10 +475,11 @@ h5_strdupfor2c (
 
 	char *dup = (char*)malloc ( len + 1 );
 	strncpy ( dup, s, len );
-	char *p = dup + len;
-	do {
-		*p-- = '\0';
-	} while ( *p == ' ' );
+	dup[len] = '\0';
+	for (int i=len-1; i>=0; i--) {
+		if (dup[i] == ' ') dup[i] = '\0';
+		else break;
+	}
 	return dup;
 }
 

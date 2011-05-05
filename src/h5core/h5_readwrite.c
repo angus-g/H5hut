@@ -269,7 +269,7 @@ h5_normalize_dataset_name (
 	H5_CORE_API_ENTER2 (h5_err_t,
 			    "name=\"%s\", name2=\"%s\"",
 			    name, name2);
-	if ( strlen(name) > H5_DATANAME_LEN ) {
+	if ( strlen(name) > H5_DATANAME_LEN-1 ) {
 		strncpy ( name2, name, H5_DATANAME_LEN-1 );
 		name2[H5_DATANAME_LEN-1] = '\0';
 		h5_warn ("Truncated name '%s' to '%s'.", name, name2);

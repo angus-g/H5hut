@@ -194,8 +194,8 @@ AC_MSG_CHECKING([if C interface enabled])
 if test "X$USE_C" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 	BINDINGS="$BINDINGS C"
-	LIB_C="libH5hutC.a"
-	BUILD_LIBS="$BUILD_LIBS $LIB_C"
+	LIB_C="../lib/libH5hutC.a"
+	BUILD_LIBS="$BUILD_LIBS libH5hutC.a"
 	BUILD_TESTS="$BUILD_TESTS h5u_test h5b_test"
 	BUILD_TOOLS="$BUILD_TOOLS h5hutcc"
 fi
@@ -205,8 +205,8 @@ AC_MSG_CHECKING([if fortran interface enabled])
 if test "X$USE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 	BINDINGS="$BINDINGS Fortran"
-	LIB_FORTRAN="libH5hutF.a"
-        BUILD_LIBS="$BUILD_LIBS $LIB_FORTRAN"
+	LIB_FORTRAN="../lib/libH5hutF.a"
+        BUILD_LIBS="$BUILD_LIBS libH5hutF.a"
 
 	AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
 	if test -z "$FC" ; then
@@ -507,8 +507,7 @@ AC_CONFIG_FILES([
 	src/h5core/Makefile
         src/Fortran/Makefile
 	test/Makefile
-	test/H5Fed/Makefile
-	test/H5Part/Makefile
+        test/H5Fed/Makefile
 	tools/Makefile
 	tools/h5hutcc
 ])

@@ -8,6 +8,7 @@
 #define __USE_GNU
 #include <fcntl.h>
 #undef __USE_GNU
+#include <unistd.h>
 #include <lustre/liblustreapi.h>
 
 #include "h5core/h5_core.h"
@@ -32,25 +33,29 @@ _get_lustre_stripe_size(h5_file_t *const f,  const char *path )
 {
 	size_t nbytes = sizeof(struct lov_user_md) +
 				INIT_ALLOC_NUM_OSTS * sizeof(struct lov_user_ost_data);
-	struct lov_user_md *lum;
-	TRY( lum = h5_calloc (1, nbytes) );
+	struct lov_user_md *lum = h5_calloc(1, nbytes);
+	if (!lum) {
+		h5_error(H5_ERR_INTERNAL, MSG_HEADER
+			"cannot allocate lustre struct");
+		return -1;
+	}
 	lum->lmm_magic = LOV_USER_MAGIC;
 
-	int fd = open64(path, O_RDONLY);
+	int fd = open(path, O_RDONLY);
 	if (fd < 0) {
 		extern int errno;
 		if (errno == EINVAL)
-			h5_error(f, H5_ERR_INTERNAL, MSG_HEADER
-				"open64: a flag is invalid!");
+			h5_error(H5_ERR_INTERNAL, MSG_HEADER
+				"open: a flag is invalid!");
 		else if (errno == EACCES)
-			h5_error(f, H5_ERR_INTERNAL, MSG_HEADER
-				"open64: access denied or file does not exist!");
+			h5_error(H5_ERR_INTERNAL, MSG_HEADER
+				"open: access denied or file does not exist!");
 		else if (errno == ENAMETOOLONG)
-			h5_error(f, H5_ERR_INTERNAL, MSG_HEADER
-				"open64: path is too long!");
+			h5_error(H5_ERR_INTERNAL, MSG_HEADER
+				"open: path is too long!");
 		else
-			h5_error(f, H5_ERR_INTERNAL, MSG_HEADER
-				"open64: unspecific error!");
+			h5_error(H5_ERR_INTERNAL, MSG_HEADER
+				"open: unspecific error!");
 		return -1;
 	}
 		
@@ -58,22 +63,22 @@ _get_lustre_stripe_size(h5_file_t *const f,  const char *path )
 	if (ret == -1) {
 		extern int errno;
 		if (errno == EBADF)
-			h5_error(f, H5_ERR_INTERNAL, MSG_HEADER
+			h5_error(H5_ERR_INTERNAL, MSG_HEADER
 				"ioctl: bad file handle!");
 		else if (errno == EINVAL)
-			h5_error(f, H5_ERR_INTERNAL, MSG_HEADER
+			h5_error(H5_ERR_INTERNAL, MSG_HEADER
 				"ioctl: invalid argument!");
 		else if (errno == EIO)
-			h5_error(f, H5_ERR_INTERNAL, MSG_HEADER
+			h5_error(H5_ERR_INTERNAL, MSG_HEADER
 				"ioctl: physical I/O problem!");
 		else if (errno == ENOTTY)
-			h5_error(f, H5_ERR_INTERNAL, MSG_HEADER
+			h5_error(H5_ERR_INTERNAL, MSG_HEADER
 				"ioctl: file handle does not accept control functions!");
 		else if (errno == ENODEV)
-			h5_error(f, H5_ERR_INTERNAL, MSG_HEADER
+			h5_error(H5_ERR_INTERNAL, MSG_HEADER
 				"ioctl: driver doesn't support control functions!");
 		else
-			h5_error(f, H5_ERR_INTERNAL, MSG_HEADER
+			h5_error(H5_ERR_INTERNAL, MSG_HEADER
 				"ioctl: unspecific error!");
 		return -1;
 	}
@@ -95,6 +100,7 @@ h5_optimize_for_lustre (
 	const char *filename
 	) {
 
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, filename=\"%s\"", f, filename);
 	ssize_t stripe_size;
 	if ( f->myproc == 0 )
 	{
@@ -119,23 +125,23 @@ h5_optimize_for_lustre (
 		h5_free(path);
 	}
 
-	TRY( h5priv_mpi_bcast(f, &stripe_size, 1, MPI_LONG_LONG, 0, f->comm) );
-	h5_info(f, MSG_HEADER
+	TRY( h5priv_mpi_bcast(&stripe_size, 1, MPI_LONG_LONG, 0, f->comm) );
+	h5_info(MSG_HEADER
 		"Found lustre stripe size of %lld bytes",
 		(long long)stripe_size);
 
 	hsize_t btree_ik = (stripe_size - 4096) / 96;
 	hsize_t btree_bytes = 64 + 96*btree_ik;
-	h5_info(f, MSG_HEADER
+	h5_info(MSG_HEADER
 		"Setting HDF5 btree ik to %lld (= %lld bytes at rank 3)",
 		(long long)btree_ik, (long long)btree_bytes);
-	TRY( hdf5_set_btree_ik_property(f, f->create_prop, btree_ik) );
+	TRY( hdf5_set_btree_ik_property(f->create_prop, btree_ik) );
 
 	/* set alignment to lustre stripe size */
-	TRY( hdf5_set_alignment_property(f,
+	TRY( hdf5_set_alignment_property(
 				f->access_prop, 0, stripe_size) );
 
-	h5_info(f, MSG_HEADER "Disabling metadata cache flushes.");
+	h5_info(MSG_HEADER "Disabling metadata cache flushes.");
 	/* disable metadata cache flushes */
 	/* defer metadata writes */
 	H5AC_cache_config_t config;
@@ -149,7 +155,7 @@ h5_optimize_for_lustre (
 	config.flash_incr_mode = H5C_flash_incr__off;
 	TRY( H5Pset_mdc_config( f->access_prop, &config ) );
 
-	return H5_SUCCESS;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 #endif // H5_USE_LUSTRE

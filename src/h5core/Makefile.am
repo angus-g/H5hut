@@ -32,19 +32,22 @@ EXTRA_HEADERS =					\
 	../include/h5core/h5t_retrieve.h	\
 	../include/h5core/h5t_storemesh.h	\
 	../include/h5core/h5t_tags.h		\
-	h5b_errorhandling_private.h		\
-	h5b_model_private.h			\
-	h5b_types_private.h			\
+	h5_attribs_private.h			\
 	h5_core_private.h			\
 	h5_errorhandling_private.h		\
 	h5_fcmp_private.h			\
 	h5_hdf5_private.h			\
 	h5_hsearch_private.h			\
 	h5_lustre_private.h			\
+	h5_maps_private.h			\
 	h5_mpi_private.h			\
 	h5_qsort_private.h			\
 	h5_readwrite_private.h			\
 	h5_syscall_private.h			\
+	h5_types_private.h			\
+	h5b_errorhandling_private.h		\
+	h5b_model_private.h			\
+	h5b_types_private.h			\
 	h5t_access_private.h			\
 	h5t_adjacencies_private.h		\
 	h5t_consts_private.h			\
@@ -60,7 +63,6 @@ EXTRA_HEADERS =					\
 	h5t_store_trim_private.h		\
 	h5t_tags_private.h			\
 	h5t_types_private.h			\
-	h5_types_private.h			\
 	h5u_errorhandling_private.h		\
 	h5u_types_private.h
 
@@ -68,13 +70,13 @@ EXTRA_HEADERS =					\
 EXTRA_DIST = $(EXTRA_HEADERS)
 
 # What to build... Will be determined by configure script.
-lib_LIBRARIES = libH5hut.a
+lib_LIBRARIES = ../lib/libH5hut.a
 
 # Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = libH5hut.a
+EXTRA_LIBRARIES = ../lib/libH5hut.a
 
 # Listing of sources
-libH5hut_a_SOURCES =				\
+___lib_libH5hut_a_SOURCES =			\
 	h5_attach.c				\
 	h5_attribs.c				\
 	h5_errorhandling.c			\
@@ -117,12 +119,9 @@ libH5hut_a_SOURCES =				\
 	h5t_store_trim.c			\
 	h5t_tags.c
 
-libH5hut_a_DEPENDENCIES = $(EXTRA_HEADERS)
+___lib_libH5hut_a_DEPENDENCIES = $(EXTRA_HEADERS)
 
-all: all-am install-libs-local
-
-install-libs-local:
-	-cp ${lib_LIBRARIES} ../lib
+all: all-am
 
 install-exec-local:
 	@$(INSTALL) -d $(DESTDIR)$(includedir)/h5core

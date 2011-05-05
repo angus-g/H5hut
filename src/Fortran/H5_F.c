@@ -78,7 +78,7 @@ h5_openr (
 	) {
 
 	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
-	h5_file_t* f = h5_open_file ( file_name2, H5_O_RDONLY, 0, __func__ );
+	h5_file_t* f = h5_open_file ( file_name2, H5_O_RDONLY, 0 );
 	free ( file_name2 );
 	return (h5_int64_t)(size_t)f; 
 }
@@ -90,7 +90,7 @@ h5_openw (
 	) {
 
 	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
-	h5_file_t* f = h5_open_file ( file_name2, H5_O_WRONLY, 0, __func__ );
+	h5_file_t* f = h5_open_file ( file_name2, H5_O_WRONLY, 0 );
 	free ( file_name2 );
 	return (h5_int64_t)(size_t)f; 
 }
@@ -102,7 +102,7 @@ h5pt_opena (
 	) {
 	
 	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
-	h5_file_t* f = h5_open_file ( file_name2, H5_O_APPEND, 0, __func__ );
+	h5_file_t* f = h5_open_file ( file_name2, H5_O_APPEND, 0 );
 	free ( file_name2 );
 	return (h5_int64_t)(size_t)f;
 }
@@ -123,7 +123,7 @@ h5_openr_par (
 
 	h5_int32_t fbits = H5_O_RDONLY | _flagsfor2c ( flags2 );
 
-	h5_file_t* f = h5_open_file ( file_name2, fbits, ccomm, __func__  );
+	h5_file_t* f = h5_open_file ( file_name2, fbits, ccomm );
 
 	free ( file_name2 );
 	free ( flags2 );
@@ -145,7 +145,7 @@ h5_openw_par (
 
 	h5_int32_t fbits = H5_O_WRONLY | _flagsfor2c ( flags2 );
 
-	h5_file_t* f = h5_open_file ( file_name2, ccomm, fbits, __func__ );
+	h5_file_t* f = h5_open_file ( file_name2, ccomm, fbits );
 
 	free ( file_name2 );
 	free ( flags2 );
@@ -168,7 +168,7 @@ h5pt_opena_par_align (
        
 	h5_int32_t fbits = H5_O_APPEND | _flagsfor2c ( flags2 );
 
-	h5_file_t* f = h5_open_file( file_name2, ccomm, fbits, __func__ );
+	h5_file_t* f = h5_open_file( file_name2, ccomm, fbits );
 
 	free ( file_name2 );
 	free ( flags2 );

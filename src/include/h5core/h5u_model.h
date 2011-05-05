@@ -33,8 +33,8 @@ h5u_set_view (
 h5_err_t
 h5u_set_view_indices (
 	h5_file_t *const f,
-	const h5_id_t *const indices,
-	const h5_size_t nelems
+	const h5_size_t *const indices,
+	h5_size_t nelems
 	);
 
 h5_err_t 

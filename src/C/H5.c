@@ -41,6 +41,16 @@
   Open file with name \c filbename. This function is available in the parallel
   and serial version. In the serial case \c comm may have any value.
 
+  File mode flags are:
+  - H5_O_RDONLY: only reading allowed
+  - H5_O_WRONLY: create new file, dataset must not exist
+  - H5_O_APPEND: allows to append a new datasets to an existing file
+  - H5_O_RDWR:   dataset may exist
+
+  You can also select a "virtual file driver" in the HDF5 layer using:
+  - H5_VFD_INDEPENDENT: MPI-IO in independent (asynchronous) mode
+  - H5_VFD_MPIPOSIX: parallel I/O implemented directly by HDF5, bypassing MPI-IO
+
   \return File handle.
   \return NULL on error.
 */
@@ -59,7 +69,7 @@ H5OpenFile (
 /*!
   \ingroup h5hut_file
 
-  Close file.
+  Close file and free all memory associated with the file handle.
 
   \return \c H5_SUCCESS or error code
 */
@@ -74,7 +84,7 @@ H5CloseFile (
 /*!
   \ingroup h5hut_file
 
-  Close file.
+  Verify that the file handle points to a valid H5hut file structure.
 
   \return \c H5_SUCCESS or error code
 */

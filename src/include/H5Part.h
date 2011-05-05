@@ -129,7 +129,7 @@ H5PartSetView (
 h5_err_t
 H5PartSetViewIndices (
 	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const h5_id_t *indices,		/*!< [in]  List of indices */
+	const h5_size_t *indices,	/*!< [in]  List of indices */
 	h5_size_t nelems		/*!< [in]  Size of list */
 	);
 

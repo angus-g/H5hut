@@ -2,15 +2,6 @@
 
 OBJEXT = o
 
-# COMPILER SETTING
-CC = @CC@
-CXX = @CXX@
-FC = @FC@
-
-# COMPILER FLAG SETTING
-AM_CFLAGS = @CFLAGS@
-FFLAGS = @FFLAGS@
-
 AM_LDFLAGS = -L../../src/lib @LDFLAGS@
 LIBS = -lH5hutC -lH5hut @LIBS@
 INCLUDES = -I../../src/include @INCLUDES@
@@ -35,7 +26,7 @@ EXTRA_DIST =					\
 		tetmesh_adjacencies.c		\
 		tetmesh_read.c			\
 		tetmesh_read_tags.c		\
-g		tetmesh_write.c			\
+		tetmesh_write.c			\
 		tetmesh_write2.c		\
 		tetmesh_write_tags.c		\
 		trimesh_adjacencies.c		\
@@ -46,8 +37,6 @@ g		tetmesh_write.c			\
 #		map_tet2globalid.c \
 #		map_triangle2globalid.c \
 #		$(bin_SCRIPTS)
-
-all:	$(noinst_PROGRAMS)
 
 clean: clean-am
 	rm -f *.h5

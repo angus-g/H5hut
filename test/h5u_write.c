@@ -278,7 +278,7 @@ test_write_data32(h5_file_t *file, int nparticles, int step)
 		status = H5PartWriteDataFloat32(file, "pz", pz);
 		RETURN(status, H5_SUCCESS, "H5PartWriteDataFloat32");
 		
-		status = H5PartWriteDataInt32(file, LONGNAME, id);
+		status = H5PartWriteDataInt32(file, LONGNAME2, id);
 		RETURN(status, H5_SUCCESS, "H5PartWriteDataInt32");
 
 		/* the second write phase... */

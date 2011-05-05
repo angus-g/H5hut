@@ -539,6 +539,11 @@ H5PartSetView (
   is set, or the number of particles in a dataset changes, or the view is
   "unset" by calling \c H5PartSetViewIndices(NULL,0);
 
+  When you perform a read or write on a view consisting of indices, it
+  is assumed that your buffer is \b unpacked, meaning that there is room
+  for all the intermediate values (which will not be touched by the read
+  or write).
+
   Before you set a view, the \c H5PartGetNumParticles() will return the
   total number of particles in the current time-step (even for the parallel
   reads).  However, after you set a view, it will return the number of
@@ -549,7 +554,7 @@ H5PartSetView (
 h5_err_t
 H5PartSetViewIndices (
 	h5_file_t *f,			/*!< [in]  Handle to open file */
-	const h5_id_t *indices,		/*!< [in]  List of indices */
+	const h5_size_t *indices,	/*!< [in]  List of indices */
 	h5_size_t nelems		/*!< [in]  Size of list */
 	) {
 	H5_API_ENTER3 (h5_err_t,

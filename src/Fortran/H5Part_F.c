@@ -146,7 +146,7 @@ h5pt_setview (
 
 	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
 	h5_set_funcname( filehandle, __func__ );
-	return h5u_set_view ( filehandle, *start, *end );
+	return h5u_set_view ( filehandle, (*start)-1, (*end)-1 );
 }
 
 h5_err_t

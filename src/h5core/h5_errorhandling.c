@@ -83,7 +83,7 @@ h5_set_debuglevel (
 
   \return current debug level
 */
-h5_id_t
+h5_err_t
 h5_get_debuglevel (
 	void
 	) {

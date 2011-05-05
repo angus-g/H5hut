@@ -10,7 +10,7 @@
 #endif
 
 #ifndef DISABLE_H5PART
-#include "H5Part.h"
+#include "H5hut.h"
 #endif
 
 #define FILENAME "testio"
@@ -217,7 +217,7 @@ int main(int argc,char *argv[]){
     if(rank==0) unlink(filename);
     MPI_Barrier(MPI_COMM_WORLD); /* to prevent unlink from interfering with file open */
 
-    f = H5PartOpenFileParallel(filename,H5PART_WRITE,MPI_COMM_WORLD);
+    f = H5OpenFile(filename,H5_O_WRONLY,MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD); /* to prevent unlink from interfering with file open */
     /* start the timer */
     starttime=endtime=MPI_Wtime();
@@ -228,7 +228,7 @@ int main(int argc,char *argv[]){
 	for(n=0;n<localnp;n++)
 	  (data[j])[n]=(double)rank;
       }
-      H5PartSetStep(f,i);
+      H5SetStep(f,i);
       H5PartWriteDataFloat64(f,"x",x);
       H5PartWriteDataFloat64(f,"y",y);
       H5PartWriteDataFloat64(f,"z",z);
@@ -239,7 +239,7 @@ int main(int argc,char *argv[]){
       curtime=MPI_Wtime(); /* ensure no race condition by broadcasting time */
       MPI_Bcast(&curtime,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
     }
-    H5PartCloseFile(f);
+    H5CloseFile(f);
     MPI_Barrier(MPI_COMM_WORLD);
     endtime=MPI_Wtime();
     if(rank==0){

@@ -96,7 +96,7 @@ test_read_data64(h5_file_t *file, int nparticles, int step)
         h5_int64_t val, start, end, type;
 	char name1[4];
 	char name2[8];
-	h5_id_t indices[8];
+	h5_size_t indices[8];
         h5_size_t size;
 
 	double *x,*y,*z;
@@ -212,9 +212,10 @@ test_read_data64(h5_file_t *file, int nparticles, int step)
 		val = H5PartGetNumParticles(file);
 		IVALUE(val, 4, "particle count");
 
+                x[3] = 0;
 		status = H5PartReadDataFloat64(file, "x", x);
 		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat64");
-		FVALUE(x[2], (double)(rank*2+9+nparticles*t), "x data");
+		FVALUE(x[3], (double)(rank*2+3+nparticles*t), "x data");
 
 		val = H5PartGetNumParticles(file);
 		IVALUE(val, 4, "particle count");
@@ -330,7 +331,7 @@ test_read_data32(h5_file_t *file, int nparticles, int step)
 	px=(float*)malloc(nparticles*sizeof(float));
 	py=(float*)malloc(nparticles*sizeof(float));
 	pz=(float*)malloc(nparticles*sizeof(float));
-	id=(int*)malloc(nparticles*sizeof(int));
+	id=(h5_int32_t*)malloc(nparticles*sizeof(h5_int32_t));
 
 	TEST("Reading 32-bit data");
 
@@ -365,7 +366,7 @@ test_read_data32(h5_file_t *file, int nparticles, int step)
 		status = H5PartReadDataFloat32(file, "pz", pz);
 		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat32");
 		
-		status = H5PartReadDataInt32(file, LONGNAME, id);
+		status = H5PartReadDataInt32(file, LONGNAME2, id);
 		RETURN(status, H5_SUCCESS, "H5PartReadDataInt32");
 
 		for (i=0; i<nparticles; i++)

@@ -26,15 +26,16 @@ nodist_include_HEADERS = ../include/H5hutF.h
 lib_LIBRARIES = @LIB_FORTRAN@
 
 # Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = libH5hutF.a
+EXTRA_LIBRARIES = ../lib/libH5hutF.a
 
-libH5hutF_a_SOURCES =	H5_F.c \
-			H5_attribs_F.c \
-			H5Part_F.c \
-			H5Block_F.c \
-			H5Block_readwrite_F.c
+___lib_libH5hutF_a_SOURCES = 	\
+	H5_F.c			\
+	H5_attribs_F.c		\
+	H5Part_F.c		\
+	H5Block_F.c		\
+	H5Block_readwrite_F.c
 
-libH5hutF_a_DEPENDENCIES = ../include/H5hutF.h
+___lib_libH5hutF_a_DEPENDENCIES = ../include/H5hutF.h
 
 ../include/H5hutF.h: $(F90_FILES)
 	awk '/INTEGER\*8 FUNCTION/{print "\t" $$1 " " $$3}' $^ >$@

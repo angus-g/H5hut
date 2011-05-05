@@ -3,6 +3,7 @@
 
 #define FILENAME "test.h5"
 #define LONGNAME "thisisaverylongnamethatshouldexceedthelimitof64charcausingawarningtoprint"
+#define LONGNAME2 "thisisaverylongnamethatshouldexceedthelimitof64charcausingawarni"
 #define NTIMESTEPS 10
 
 /* do not decrease this value below 99, or it will break assumptions
