@@ -73,106 +73,110 @@ _flagsfor2c (
 /* open/close interface */
 h5_err_t
 h5_openr (
-	const char *file_name,
-	const int l_file_name
+	const char *name,
+	const int l_name
 	) {
 
-	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
-	h5_file_t* f = h5_open_file ( file_name2, H5_O_RDONLY, 0 );
-	free ( file_name2 );
-	return (h5_int64_t)(size_t)f; 
+	H5_API_ENTER2(h5_err_t, "name=\"%s\", l_name=%d", name, l_name);
+	char *name2 = h5_strdupfor2c ( name, l_name );
+	h5_file_t* f = h5_open_file ( name2, H5_O_RDONLY, 0 );
+	free ( name2 );
+	H5_API_RETURN((h5_int64_t)(size_t)f);
 }
 
 h5_err_t
 h5_openw (
-	const char *file_name,
-	const int l_file_name
+	const char *name,
+	const int l_name
 	) {
 
-	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
-	h5_file_t* f = h5_open_file ( file_name2, H5_O_WRONLY, 0 );
-	free ( file_name2 );
-	return (h5_int64_t)(size_t)f; 
+	H5_API_ENTER2(h5_err_t, "name=\"%s\", l_name=%d", name, l_name);
+	char *name2 = h5_strdupfor2c ( name, l_name );
+	h5_file_t* f = h5_open_file ( name2, H5_O_WRONLY, 0 );
+	free ( name2 );
+	H5_API_RETURN((h5_int64_t)(size_t)f);
 }
 
 h5_err_t
 h5pt_opena (
-	const char *file_name,
-	const int l_file_name
+	const char *name,
+	const int l_name
 	) {
-	
-	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
-	h5_file_t* f = h5_open_file ( file_name2, H5_O_APPEND, 0 );
-	free ( file_name2 );
-	return (h5_int64_t)(size_t)f;
+
+	H5_API_ENTER2(h5_err_t, "name=\"%s\", l_name=%d", name, l_name);
+	char *name2 = h5_strdupfor2c ( name, l_name );
+	h5_file_t* f = h5_open_file ( name2, H5_O_APPEND, 0 );
+	free ( name2 );
+	H5_API_RETURN((h5_int64_t)(size_t)f);
 }
 
 #ifdef PARALLEL_IO
 h5_err_t
 h5_openr_par (
-	const char *file_name,
+	const char *name,
 	MPI_Fint *fcomm,
 	const char *flags,
-	const int l_file_name,
+	const int l_name,
 	const int l_flags
 	) {
 
+	H5_API_ENTER5(h5_err_t, "name=\"%s\", fcomm=%d, flags=%s, "
+				"l_name=%d, l_flags=%d",
+				name, *fcomm, flags, l_name, l_flags);
 	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
-	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
+	char *name2 = h5_strdupfor2c ( name, l_name );
 	char *flags2 = h5_strdupfor2c ( flags, l_flags );
-
 	h5_int32_t fbits = H5_O_RDONLY | _flagsfor2c ( flags2 );
-
-	h5_file_t* f = h5_open_file ( file_name2, fbits, ccomm );
-
-	free ( file_name2 );
+	h5_file_t* f = h5_open_file ( name2, fbits, ccomm );
+	free ( name2 );
 	free ( flags2 );
-	return (h5_int64_t)(size_t)f; 
+	H5_API_RETURN((h5_int64_t)(size_t)f); 
 }
 
 h5_err_t
 h5_openw_par (
-	const char *file_name,
+	const char *name,
 	MPI_Fint *fcomm,
 	const char *flags,
-	const int l_file_name,
+	const int l_name,
 	const int l_flags
 	) {
 
+	H5_API_ENTER5(h5_err_t, "name=\"%s\", fcomm=%d, flags=%s, "
+				"l_name=%d, l_flags=%d",
+				name, *fcomm, flags, l_name, l_flags);
 	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
-	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
+	char *name2 = h5_strdupfor2c ( name, l_name );
 	char *flags2 = h5_strdupfor2c ( flags, l_flags );
-
 	h5_int32_t fbits = H5_O_WRONLY | _flagsfor2c ( flags2 );
-
-	h5_file_t* f = h5_open_file ( file_name2, ccomm, fbits );
-
-	free ( file_name2 );
+	h5_file_t* f = h5_open_file ( name2, fbits, ccomm );
+	free ( name2 );
 	free ( flags2 );
-	return (h5_int64_t)(size_t)f; 
+	H5_API_RETURN((h5_int64_t)(size_t)f); 
 }
 
 h5_err_t
 h5pt_opena_par_align (
-	const char *file_name,
+	const char *name,
 	MPI_Fint *fcomm,
 	const h5_int64_t *align,
 	const char *flags,
-	const int l_file_name,
+	const int l_name,
 	const int l_flags
 	) {
-	
+
+	H5_API_ENTER6(h5_err_t, "name=\"%s\", fcomm=%d, align=%lld, flags=%s, "
+				"l_name=%d, l_flags=%d",
+				name, *fcomm, (long long)*align,
+				flags, l_name, l_flags);
 	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
-	char *file_name2 = h5_strdupfor2c ( file_name, l_file_name );
+	char *name2 = h5_strdupfor2c ( name, l_name );
 	char *flags2 = h5_strdupfor2c ( flags, l_flags );
-       
 	h5_int32_t fbits = H5_O_APPEND | _flagsfor2c ( flags2 );
-
-	h5_file_t* f = h5_open_file( file_name2, ccomm, fbits );
-
-	free ( file_name2 );
+	h5_file_t* f = h5_open_file ( name2, fbits, ccomm );
+	free ( name2 );
 	free ( flags2 );
-	return (h5_int64_t)(size_t)f;
+	H5_API_RETURN((h5_int64_t)(size_t)f); 
 }
 #endif
 
@@ -181,9 +185,9 @@ h5_close (
 	const h5_int64_t *f
 	) {
 
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_set_funcname( filehandle, __func__ );
-	return h5_close_file ( filehandle );
+	h5_file_t *fh = h5_filehandlefor2c(f);
+	H5_API_ENTER1(h5_err_t, "f=0x%p", fh);
+	H5_API_RETURN(h5_close_file ( fh ));
 }
 
 h5_err_t
@@ -191,9 +195,9 @@ h5_check (
 	const h5_int64_t *f
 	) {
 
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_set_funcname( filehandle, __func__ );
-	return h5_check_filehandle ( filehandle );
+	h5_file_t *fh = h5_filehandlefor2c(f);
+	H5_API_ENTER1(h5_err_t, "f=0x%p", fh);
+	H5_API_RETURN(h5_check_filehandle ( fh ));
 }
 
 h5_err_t
@@ -201,9 +205,9 @@ h5_setstep (
 	const h5_int64_t *f,
 	h5_int64_t *step ) {
 
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_set_funcname( filehandle, __func__ );
-	return h5_set_step ( filehandle, (*step)-1 );
+	h5_file_t *fh = h5_filehandlefor2c(f);
+	H5_API_ENTER2(h5_err_t, "f=0x%p, step=%lld", fh, (long long)*step);
+	H5_API_RETURN(h5_set_step ( fh, (*step)-1 ));
 }
 
 h5_ssize_t
@@ -211,15 +215,17 @@ h5_getnsteps (
 	const h5_int64_t *f
 	) {
 
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_set_funcname( filehandle, __func__ );
-	return h5_get_num_steps ( filehandle );
+	h5_file_t *fh = h5_filehandlefor2c(f);
+	H5_API_ENTER1(h5_ssize_t, "f=0x%p", fh);
+	H5_API_RETURN(h5_get_num_steps ( fh ));
 }
 
 h5_err_t
 h5_set_verbosity_level (
 	const h5_int64_t *level
 	) {
-	return h5_set_debuglevel ( *level );
+
+	H5_API_ENTER1(h5_err_t, "level=%lld", (long long)*level);
+	H5_API_RETURN(h5_set_debuglevel ( *level ));
 }
 

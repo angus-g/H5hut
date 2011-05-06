@@ -48,7 +48,7 @@ h5_get_hdf5_file(
 	h5_file_t* const f
 	);
 
-h5_size_t
+h5_ssize_t
 h5_get_num_steps (
 	h5_file_t* const f
 	);
@@ -85,5 +85,10 @@ h5_strc2for (
 	char * const str,
 	const ssize_t l_str
 	);
-	
+
+h5_file_t *
+h5_filehandlefor2c (
+	const h5_int64_t *ptr
+	);
+
 #endif

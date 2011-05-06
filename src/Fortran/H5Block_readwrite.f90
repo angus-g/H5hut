@@ -3,20 +3,20 @@
 !! See \ref H5Block3dWriteScalarFieldFloat64
 !! \return 0 on success or error code
 !<
-INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_r8 ( filehandle, name, data )
+INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_r8 ( filehandle, name, buffer )
     INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
-    REAL*8, INTENT(IN) :: data(*)    !< the array of data
+    REAL*8, INTENT(IN) :: buffer(*)    !< the array of data
 END FUNCTION
 
 !> \ingroup h5block_data_f
 !! See \ref H5Block3dReadScalarFieldFloat64
 !! \return 0 on success or error code
 !<
-INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_r8 ( filehandle, name, data )
+INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_r8 ( filehandle, name, buffer )
     INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
-    REAL*8, INTENT(OUT) :: data(*)   !< buffer to read the data into
+    REAL*8, INTENT(OUT) :: buffer(*)   !< buffer to read the data into
 END FUNCTION
  
 !> \ingroup h5block_data_f
@@ -47,20 +47,20 @@ END FUNCTION
 !! See \ref H5Block3dWriteScalarFieldFloat32
 !! \return 0 on success or error code
 !<
-INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_r4 ( filehandle, name, data )
+INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_r4 ( filehandle, name, buffer )
     INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
-    REAL*4, INTENT(IN) :: data(*)    !< the array of data
+    REAL*4, INTENT(IN) :: buffer(*)    !< the array of data
 END FUNCTION
 
 !> \ingroup h5block_data_f
 !! See \ref H5Block3dReadScalarFieldFloat32
 !! \return 0 on success or error code
 !<
-INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_r4 ( filehandle, name, data )
+INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_r4 ( filehandle, name, buffer )
     INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
-    REAL*4, INTENT(OUT) :: data(*)   !< buffer to read the data into
+    REAL*4, INTENT(OUT) :: buffer(*)   !< buffer to read the data into
 END FUNCTION
  
 !> \ingroup h5block_data_f
@@ -91,20 +91,20 @@ END FUNCTION
 !! See \ref H5Block3dWriteScalarFieldInt64
 !! \return 0 on success or error code
 !<
-INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_i8 ( filehandle, name, data )
+INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_i8 ( filehandle, name, buffer )
     INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
-    INTEGER*8, INTENT(IN) :: data(*)    !< the array of data
+    INTEGER*8, INTENT(IN) :: buffer(*)    !< the array of data
 END FUNCTION
 
 !> \ingroup h5block_data_f
 !! See \ref H5Block3dReadScalarFieldInt64
 !! \return 0 on success or error code
 !<
-INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_i8 ( filehandle, name, data )
+INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_i8 ( filehandle, name, buffer )
     INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
-    INTEGER*8, INTENT(OUT) :: data(*)   !< buffer to read the data into
+    INTEGER*8, INTENT(OUT) :: buffer(*)   !< buffer to read the data into
 END FUNCTION
  
 !> \ingroup h5block_data_f
@@ -135,20 +135,20 @@ END FUNCTION
 !! See \ref H5Block3dWriteScalarFieldInt32
 !! \return 0 on success or error code
 !<
-INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_i4 ( filehandle, name, data )
+INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_i4 ( filehandle, name, buffer )
     INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
-    INTEGER*4, INTENT(IN) :: data(*)    !< the array of data
+    INTEGER*4, INTENT(IN) :: buffer(*)    !< the array of data
 END FUNCTION
 
 !> \ingroup h5block_data_f
 !! See \ref H5Block3dReadScalarFieldInt32
 !! \return 0 on success or error code
 !<
-INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_i4 ( filehandle, name, data )
+INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_i4 ( filehandle, name, buffer )
     INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
-    INTEGER*4, INTENT(OUT) :: data(*)   !< buffer to read the data into
+    INTEGER*4, INTENT(OUT) :: buffer(*)   !< buffer to read the data into
 END FUNCTION
  
 !> \ingroup h5block_data_f
@@ -183,8 +183,8 @@ INTEGER*8 FUNCTION h5bl_writefieldattrib_r8 ( filehandle, field_name, attrib_nam
     INTEGER*8, INTENT(IN) :: filehandle		!< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: field_name	!< the name of the field
     CHARACTER(LEN=*), INTENT(IN) :: attrib_name	!< the name of the attribute
-    REAL*8, INTENT(IN) :: values(*)		!< the array of data to write into the attribute
-    INTEGER*8, INTENT(IN) :: nvalues		!< the number of elements in the array
+    REAL*8, INTENT(IN) :: buffer(*)		!< the array of data to write into the attribute
+    INTEGER*8, INTENT(IN) :: nelems		!< the number of elements in the array
 END FUNCTION
 
 !> \ingroup h5block_attrib_f
@@ -195,7 +195,7 @@ INTEGER*8 FUNCTION h5bl_readfieldattrib_r8 ( filehandle, field_name, attrib_name
     INTEGER*8, INTENT(IN) :: filehandle		!< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: field_name	!< the name of the field
     CHARACTER(LEN=*), INTENT(IN) :: attrib_name	!< the name of the attribute
-    REAL*8, INTENT(IN) :: values(*)		!< the buffer to read into
+    REAL*8, INTENT(IN) :: buffer(*)		!< the buffer to read into
 END FUNCTION
 
 !> \ingroup h5block_attrib_f
@@ -206,8 +206,8 @@ INTEGER*8 FUNCTION h5bl_writefieldattrib_r4 ( filehandle, field_name, attrib_nam
     INTEGER*8, INTENT(IN) :: filehandle		!< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: field_name	!< the name of the field
     CHARACTER(LEN=*), INTENT(IN) :: attrib_name	!< the name of the attribute
-    REAL*4, INTENT(IN) :: values(*)		!< the array of data to write into the attribute
-    INTEGER*8, INTENT(IN) :: nvalues		!< the number of elements in the array
+    REAL*4, INTENT(IN) :: buffer(*)		!< the array of data to write into the attribute
+    INTEGER*8, INTENT(IN) :: nelems		!< the number of elements in the array
 END FUNCTION
 
 !> \ingroup h5block_attrib_f
@@ -218,7 +218,7 @@ INTEGER*8 FUNCTION h5bl_readfieldattrib_r4 ( filehandle, field_name, attrib_name
     INTEGER*8, INTENT(IN) :: filehandle		!< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: field_name	!< the name of the field
     CHARACTER(LEN=*), INTENT(IN) :: attrib_name	!< the name of the attribute
-    REAL*4, INTENT(IN) :: values(*)		!< the buffer to read into
+    REAL*4, INTENT(IN) :: buffer(*)		!< the buffer to read into
 END FUNCTION
 
 !> \ingroup h5block_attrib_f
@@ -229,8 +229,8 @@ INTEGER*8 FUNCTION h5bl_writefieldattrib_i8 ( filehandle, field_name, attrib_nam
     INTEGER*8, INTENT(IN) :: filehandle		!< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: field_name	!< the name of the field
     CHARACTER(LEN=*), INTENT(IN) :: attrib_name	!< the name of the attribute
-    INTEGER*8, INTENT(IN) :: values(*)		!< the array of data to write into the attribute
-    INTEGER*8, INTENT(IN) :: nvalues		!< the number of elements in the array
+    INTEGER*8, INTENT(IN) :: buffer(*)		!< the array of data to write into the attribute
+    INTEGER*8, INTENT(IN) :: nelems		!< the number of elements in the array
 END FUNCTION
 
 !> \ingroup h5block_attrib_f
@@ -241,7 +241,7 @@ INTEGER*8 FUNCTION h5bl_readfieldattrib_i8 ( filehandle, field_name, attrib_name
     INTEGER*8, INTENT(IN) :: filehandle		!< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: field_name	!< the name of the field
     CHARACTER(LEN=*), INTENT(IN) :: attrib_name	!< the name of the attribute
-    INTEGER*8, INTENT(IN) :: values(*)		!< the buffer to read into
+    INTEGER*8, INTENT(IN) :: buffer(*)		!< the buffer to read into
 END FUNCTION
 
 !> \ingroup h5block_attrib_f
@@ -252,8 +252,8 @@ INTEGER*8 FUNCTION h5bl_writefieldattrib_i4 ( filehandle, field_name, attrib_nam
     INTEGER*8, INTENT(IN) :: filehandle		!< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: field_name	!< the name of the field
     CHARACTER(LEN=*), INTENT(IN) :: attrib_name	!< the name of the attribute
-    INTEGER*4, INTENT(IN) :: values(*)		!< the array of data to write into the attribute
-    INTEGER*8, INTENT(IN) :: nvalues		!< the number of elements in the array
+    INTEGER*4, INTENT(IN) :: buffer(*)		!< the array of data to write into the attribute
+    INTEGER*8, INTENT(IN) :: nelems		!< the number of elements in the array
 END FUNCTION
 
 !> \ingroup h5block_attrib_f
@@ -264,5 +264,5 @@ INTEGER*8 FUNCTION h5bl_readfieldattrib_i4 ( filehandle, field_name, attrib_name
     INTEGER*8, INTENT(IN) :: filehandle		!< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: field_name	!< the name of the field
     CHARACTER(LEN=*), INTENT(IN) :: attrib_name	!< the name of the attribute
-    INTEGER*4, INTENT(IN) :: values(*)		!< the buffer to read into
+    INTEGER*4, INTENT(IN) :: buffer(*)		!< the buffer to read into
 END FUNCTION

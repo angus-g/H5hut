@@ -32,18 +32,18 @@ fc_head = """
 write_scalar_h = """
 h5_err_t
 H5Block#DIM#dWriteScalarField#TYPE_ABV# (
-	h5_file_t *f,
+	h5_file_t *const f,
 	const char *name,
-	const h5_#TYPE_H5P#_t *data
+	const h5_#TYPE_H5P#_t *buffer
 	);
 """
 
 read_scalar_h = """
 h5_err_t
 H5Block#DIM#dReadScalarField#TYPE_ABV# (
-	h5_file_t *f,
+	h5_file_t *const f,
 	const char *name,
-	h5_#TYPE_H5P#_t *data
+	h5_#TYPE_H5P#_t *buffer
 	);
 """
 
@@ -61,14 +61,14 @@ write_scalar_c = """
 */
 h5_err_t
 H5Block#DIM#dWriteScalarField#TYPE_ABV# (
-	h5_file_t *f,		  /*!< IN: file handle */
-	const char *name,	       /*!< IN: name of dataset to write */
-	const h5_#TYPE_H5P#_t *data      /*!< IN: scalar data to write */
+	h5_file_t *const f,		/*!< IN: file handle */
+	const char *name,		/*!< IN: name of dataset to write */
+	const h5_#TYPE_H5P#_t *buffer	/*!< IN: pointer to write buffer */
 	) {
 
-	SET_FNAME( f, __func__ );
-
-	return h5b_write_scalar_data(f, name, (void*)data, #TYPE_HDF5# );
+	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\\"%s\\", buffer=0x%p",
+				  f, name, buffer);
+	H5_API_RETURN (h5b_write_scalar_data(f, name, (void*)buffer, #TYPE_HDF5# ));
 }
 """
 
@@ -86,14 +86,14 @@ read_scalar_c = """
 */
 h5_err_t
 H5Block#DIM#dReadScalarField#TYPE_ABV# (
-	h5_file_t *f,		  /*!< IN: file handle */
-	const char *name,	       /*!< IN: name of dataset to read */
-	h5_#TYPE_H5P#_t *data	  /*!< OUT: ptr to read buffer */
+	h5_file_t *const f,		/*!< IN: file handle */
+	const char *name,		/*!< IN: name of dataset to read */
+	h5_#TYPE_H5P#_t *buffer		/*!< OUT: pointer to read buffer */
 	) {
 
-	SET_FNAME( f, __func__ );	
-
-	return h5b_read_scalar_data(f, name, (void*)data, #TYPE_HDF5#);
+	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\\"%s\\", buffer=0x%p",
+				  f, name, buffer);
+	H5_API_RETURN (h5b_read_scalar_data(f, name, (void*)buffer, #TYPE_HDF5#));
 }
 """
 
@@ -102,10 +102,10 @@ write_scalar_fi = """
 !! See \\ref H5Block#DIM#dWriteScalarField#TYPE_ABV#
 !! \\return 0 on success or error code
 !<
-INTEGER*8 FUNCTION h5bl_#DIM#d_write_scalar_field_#TYPE_F90_ABV# ( filehandle, name, data )
+INTEGER*8 FUNCTION h5bl_#DIM#d_write_scalar_field_#TYPE_F90_ABV# ( filehandle, name, buffer )
     INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
-    #TYPE_F90#, INTENT(IN) :: data(*)    !< the array of data
+    #TYPE_F90#, INTENT(IN) :: buffer(*)    !< the array of data
 END FUNCTION
 """
 
@@ -114,10 +114,10 @@ read_scalar_fi = """
 !! See \\ref H5Block#DIM#dReadScalarField#TYPE_ABV#
 !! \\return 0 on success or error code
 !<
-INTEGER*8 FUNCTION h5bl_#DIM#d_read_scalar_field_#TYPE_F90_ABV# ( filehandle, name, data )
+INTEGER*8 FUNCTION h5bl_#DIM#d_read_scalar_field_#TYPE_F90_ABV# ( filehandle, name, buffer )
     INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
-    #TYPE_F90#, INTENT(OUT) :: data(*)   !< buffer to read the data into
+    #TYPE_F90#, INTENT(OUT) :: buffer(*)   !< buffer to read the data into
 END FUNCTION
 """
 
@@ -130,19 +130,20 @@ write_scalar_fc = """
 
 h5_err_t
 h5bl_#DIM#d_write_scalar_field_#TYPE_F90_ABV# (
-	h5_int64_t *f,
-	const char *field_name,
-	const h5_#TYPE_H5P#_t *data,
-	const int l_field_name
+	h5_int64_t *const f,
+	const char *name,
+	const h5_#TYPE_H5P#_t *buffer,
+	const int l_name
 	) {
 
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_set_funcname( filehandle, __func__ );
-	char *field_name2 =  h5_strdupfor2c ( field_name, l_field_name );
+	h5_file_t *fh = h5_filehandlefor2c(f);
+	H5_API_ENTER4 (h5_err_t, "f=0x%p, name=\\"%s\\", buffer=0x%p, l_name=%d",
+				fh, name, buffer, l_name);
+	char *name2 =  h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5b_write_scalar_data (
-		filehandle, field_name2, (void*)data, #TYPE_HDF5# );
-	free ( field_name2 );
-	return herr;
+		fh, name2, (void*)buffer, #TYPE_HDF5# );
+	free ( name2 );
+	H5_API_RETURN(herr);
 }
 """
 
@@ -155,41 +156,42 @@ read_scalar_fc = """
 
 h5_err_t
 h5bl_#DIM#d_read_scalar_field_#TYPE_F90_ABV# (
-	h5_int64_t *f,
-	const char *field_name,
-	h5_#TYPE_H5P#_t *data,
-	const int l_field_name
+	h5_int64_t *const f,
+	const char *name,
+	h5_#TYPE_H5P#_t *buffer,
+	const int l_name
 	) {
 
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_set_funcname( filehandle, __func__ );
-	char *field_name2 =  h5_strdupfor2c ( field_name,  l_field_name );
+	h5_file_t *fh = h5_filehandlefor2c(f);
+	H5_API_ENTER4 (h5_err_t, "f=0x%p, name=\\"%s\\", buffer=0x%p, l_name=%d",
+				fh, name, buffer, l_name);
+	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_scalar_data (
-		filehandle, field_name2, data, #TYPE_HDF5# );
-	free ( field_name2 );
-	return herr;
+		fh, name2, buffer, #TYPE_HDF5# );
+	free ( name2 );
+	H5_API_RETURN(herr);
 }
 """
 
 write_vector_h = """
 h5_err_t
 H5Block#DIM#dWriteVector3dField#TYPE_ABV# (
-	h5_file_t *f,
+	h5_file_t *const f,
 	const char *name,
-	const h5_#TYPE_H5P#_t *x_data,
-	const h5_#TYPE_H5P#_t *y_data,
-	const h5_#TYPE_H5P#_t *z_data
+	const h5_#TYPE_H5P#_t *x_buf,
+	const h5_#TYPE_H5P#_t *y_buf,
+	const h5_#TYPE_H5P#_t *z_buf
 	);
 """
 
 read_vector_h = """
 h5_err_t
 H5Block#DIM#dReadVector3dField#TYPE_ABV# (
-	h5_file_t *f,
+	h5_file_t *const f,
 	const char *name,
-	h5_#TYPE_H5P#_t *x_data,
-	h5_#TYPE_H5P#_t *y_data,
-	h5_#TYPE_H5P#_t *z_data
+	h5_#TYPE_H5P#_t *x_buf,
+	h5_#TYPE_H5P#_t *y_buf,
+	h5_#TYPE_H5P#_t *z_buf
 	);
 """
 
@@ -199,27 +201,27 @@ write_vector_c = """
 */
 /*!
   Write a 3-dimensional field \\c name with 3-dimensional vectors as values
-  from the buffers starting at \\c x_data, \\c y_data and \\c z_data to the
+  from the buffers starting at \\c x_buf, \\c y_buf and \\c z_buf to the
   current time-step using the defined field layout. Values are 3-dimensional
   vectors with #TYPE_FULL# values.
 
-  You must use the Fortran indexing scheme to access items in \\c data.
+  You must use the Fortran indexing scheme to access items in \\c x_buf.
 
   \\return \\c H5_SUCCESS or error code
 */
 h5_err_t
 H5Block#DIM#dWriteVector3dField#TYPE_ABV# (
-	h5_file_t *f,		  /*!< IN: file handle */
-	const char *name,	       /*!< IN: name of dataset to write */
-	const h5_#TYPE_H5P#_t *x_data, /*!< IN: X axis data */
-	const h5_#TYPE_H5P#_t *y_data, /*!< IN: Y axis data */
-	const h5_#TYPE_H5P#_t *z_data  /*!< IN: Z axis data */
+	h5_file_t *const f,		/*!< IN: file handle */
+	const char *name,		/*!< IN: name of dataset to write */
+	const h5_#TYPE_H5P#_t *x_buf,	/*!< IN: pointer to X axis buffer */
+	const h5_#TYPE_H5P#_t *y_buf,	/*!< IN: pointer to Y axis buffer */
+	const h5_#TYPE_H5P#_t *z_buf	/*!< IN: pointer to Z axis buffer */
 	) {
 
-	SET_FNAME( f, __func__ );
-
-	return h5b_write_vector3d_data(f, name,
-		(void*)x_data, (void*)y_data, (void*)z_data, #TYPE_HDF5#);
+	H5_API_ENTER5 (h5_err_t, "f=0x%p, name=\\"%s\\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p",
+					f, name, x_buf, y_buf, z_buf);
+	H5_API_RETURN(h5b_write_vector3d_data(f, name,
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, #TYPE_HDF5#));
 }
 """
 
@@ -229,7 +231,7 @@ read_vector_c = """
 */
 /*!
   Read a 3-dimensional field \\c name with 3-dimensional vectors as values
-  from the buffers starting at \\c x_data, \\c y_data and \\c z_data to the
+  from the buffers starting at \\c x_buf, \\c y_buf and \\c z_buf to the
   current time-step using the defined field layout. Values are 3-dimensional
   vectors with #TYPE_FULL# values.
 
@@ -239,17 +241,17 @@ read_vector_c = """
 */
 h5_err_t
 H5Block#DIM#dReadVector3dField#TYPE_ABV# (
-	h5_file_t *f,		  /*!< IN: file handle */
-	const char *name,	       /*!< IN: name of dataset to write */
-	h5_#TYPE_H5P#_t *x_data, /*!< OUT: X axis data */
-	h5_#TYPE_H5P#_t *y_data, /*!< OUT: Y axis data */
-	h5_#TYPE_H5P#_t *z_data  /*!< OUT: Z axis data */
+	h5_file_t *const f,		/*!< IN: file handle */
+	const char *name,		/*!< IN: name of dataset to write */
+	const h5_#TYPE_H5P#_t *x_buf,	/*!< OUT: pointer to X axis buffer */
+	const h5_#TYPE_H5P#_t *y_buf,	/*!< OUT: pointer to Y axis buffer */
+	const h5_#TYPE_H5P#_t *z_buf	/*!< OUT: pointer to Z axis buffer */
 	) {
 
-	SET_FNAME( f, __func__ );
-	
-	return h5b_read_vector3d_data(f, name,
-		(void*)x_data, (void*)y_data, (void*)z_data, #TYPE_HDF5#);
+	H5_API_ENTER5 (h5_err_t, "f=0x%p, name=\\"%s\\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p",
+					f, name, x_buf, y_buf, z_buf);
+	H5_API_RETURN(h5b_read_vector3d_data(f, name,
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, #TYPE_HDF5#));
 }
 """
 
@@ -290,22 +292,23 @@ write_vector_fc = """
 
 h5_err_t
 h5bl_#DIM#d_write_vector3d_field_#TYPE_F90_ABV# (
-	h5_int64_t *f,	      /*!< file handle */
-	const char *field_name,	 /*!< name of the data set */
-	const h5_#TYPE_H5P#_t *xval,   /*!< array of x component data */
-	const h5_#TYPE_H5P#_t *yval,   /*!< array of y component data */
-	const h5_#TYPE_H5P#_t *zval,   /*!< array of z component data */
-	const int l_field_name
+	h5_int64_t *const f,
+	const char *name,
+	const h5_#TYPE_H5P#_t *x_buf,
+	const h5_#TYPE_H5P#_t *y_buf,
+	const h5_#TYPE_H5P#_t *z_buf,
+	const int l_name
 	) {
 
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_set_funcname( filehandle, __func__ );
-	char *field_name2 =  h5_strdupfor2c ( field_name,  l_field_name );
+	h5_file_t *fh = h5_filehandlefor2c(f);
+	H5_API_ENTER6 (h5_err_t, "f=0x%p, name=\\"%s\\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p, l_name=%d",
+					fh, name, x_buf, y_buf, z_buf, l_name);
+	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_write_vector3d_data (
-		filehandle, field_name2,
-		(void*)xval, (void*)yval, (void*)zval, #TYPE_HDF5# );
-	free ( field_name2 );
-	return herr;
+		fh, name2,
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, #TYPE_HDF5# );
+	free ( name2 );
+	H5_API_RETURN(herr);
 }
 """
 
@@ -318,33 +321,34 @@ read_vector_fc = """
 
 h5_err_t
 h5bl_#DIM#d_read_vector3d_field_#TYPE_F90_ABV# (
-	h5_int64_t *f,	      /*!< file handle */
-	const char *field_name,	 /*!< name of the data set */
-	h5_#TYPE_H5P#_t *xval,	 /*!< array of x component data */
-	h5_#TYPE_H5P#_t *yval,	 /*!< array of y component data */
-	h5_#TYPE_H5P#_t *zval,	 /*!< array of z component data */
-	const int l_field_name
+	h5_int64_t *const f,
+	const char *name,
+	h5_#TYPE_H5P#_t *x_buf,
+	h5_#TYPE_H5P#_t *y_buf,
+	h5_#TYPE_H5P#_t *z_buf,
+	const int l_name
 	) {
 
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_set_funcname( filehandle, __func__ );
-	char *field_name2 =  h5_strdupfor2c ( field_name,  l_field_name );
+	h5_file_t *fh = h5_filehandlefor2c(f);
+	H5_API_ENTER6 (h5_err_t, "f=0x%p, name=\\"%s\\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p, l_name=%d",
+					fh, name, x_buf, y_buf, z_buf, l_name);
+	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_vector3d_data (
-		filehandle, field_name2,
-		(void*)xval, (void*)yval, (void*)zval, #TYPE_HDF5# );
-	free ( field_name2 );
-	return herr;
+		fh, name2,
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, #TYPE_HDF5# );
+	free ( name2 );
+	H5_API_RETURN(herr);
 }
 """
 
 write_attr_h = """
 h5_err_t
 H5BlockWriteFieldAttrib#TYPE_ABV# (
-	h5_file_t *f,
+	h5_file_t *const f,
 	const char *field_name,
 	const char *attrib_name,
-	const h5_#TYPE_H5P#_t *values,
-	const h5_size_t nvalues
+	const h5_#TYPE_H5P#_t *buffer,
+	const h5_size_t nelems
 	);
 """
 
@@ -359,22 +363,23 @@ write_attr_c = """
 */
 h5_err_t
 H5BlockWriteFieldAttrib#TYPE_ABV# (
-	h5_file_t *f,				/*!< IN: file handle */
+	h5_file_t *const f,			/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
-	const h5_#TYPE_H5P#_t *values,		/*!< IN: attribute values */
-	const h5_size_t nvalues			/*!< IN: number of elements */
+	const h5_#TYPE_H5P#_t *buffer,		/*!< IN: attribute values */
+	const h5_size_t nelems			/*!< IN: number of elements */
 	) {
 
-	SET_FNAME( f, __func__ );
-
-	return h5_write_field_attrib (
+	H5_API_ENTER5 (h5_err_t, "f=0x%p, field_name=\\"%s\\", attrib_name=\\"%s\\", "
+				 "buffer=0x%p, nelems=%lld",
+				 f, field_name, attrib_name, buffer, (long long)nelems);
+	H5_API_RETURN(h5_write_field_attrib (
 		f,
 		field_name,
 		attrib_name,
                 #TYPE_HDF5#,
-                values,
-		nvalues );
+                buffer,
+		nelems ));
 }
 """
 
@@ -387,8 +392,8 @@ INTEGER*8 FUNCTION h5bl_writefieldattrib_#TYPE_F90_ABV# ( filehandle, field_name
     INTEGER*8, INTENT(IN) :: filehandle		!< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: field_name	!< the name of the field
     CHARACTER(LEN=*), INTENT(IN) :: attrib_name	!< the name of the attribute
-    #TYPE_F90#, INTENT(IN) :: values(*)		!< the array of data to write into the attribute
-    INTEGER*8, INTENT(IN) :: nvalues		!< the number of elements in the array
+    #TYPE_F90#, INTENT(IN) :: buffer(*)		!< the array of data to write into the attribute
+    INTEGER*8, INTENT(IN) :: nelems		!< the number of elements in the array
 END FUNCTION
 """
 
@@ -401,32 +406,35 @@ write_attr_fc = """
 
 h5_err_t
 h5bl_writefieldattrib_#TYPE_F90_ABV# (
-	h5_int64_t *f,
+	h5_int64_t *const f,
 	const char *field_name,
 	const char *attrib_name,
-	const h5_#TYPE_H5P#_t *values,
-	const h5_size_t *nvalues,
+	const h5_#TYPE_H5P#_t *buffer,
+	const h5_size_t *nelems,
 	const int l_field_name,
 	const int l_attrib_name
 	) {
 
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_set_funcname( filehandle, __func__ );
+	h5_file_t *fh = h5_filehandlefor2c(f);
+	H5_API_ENTER7 (h5_err_t, "f=0x%p, field_name=\\"%s\\", attrib_name=\\"%s\\", "
+				 "buffer=0x%p, nelems=%lld, l_field_name=%d, l_attrib_name=%d",
+				 fh, field_name, attrib_name, buffer, (long long)*nelems,
+				 l_field_name, l_attrib_name);
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	h5_err_t herr = h5_write_field_attrib (
-		filehandle, field_name2, attrib_name2,
-		#TYPE_HDF5#, values, *nvalues );
+		fh, field_name2, attrib_name2,
+		#TYPE_HDF5#, buffer, *nelems );
 	free ( field_name2 );
 	free ( attrib_name2 );
-	return herr;
+	H5_API_RETURN(herr);
 }
 """
 
 read_attr_h = """
 h5_err_t
 H5BlockReadFieldAttrib#TYPE_ABV# (
-	h5_file_t *f,
+	h5_file_t *const f,
 	const char *field_name,
 	const char *attrib_name,
 	h5_#TYPE_H5P#_t *buffer
@@ -444,20 +452,20 @@ read_attr_c = """
 */
 h5_err_t
 H5BlockReadFieldAttrib#TYPE_ABV# (
-	h5_file_t *f,				/*!< IN: file handle */
+	h5_file_t *const f,			/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
 	h5_#TYPE_H5P#_t *buffer		        /*!< OUT: attribute values */
 	) {
 
-	SET_FNAME( f, __func__ );
-
-	return h5_read_field_attrib (
+        H5_API_ENTER4 (h5_err_t, "f=%p, field_name=\\\"%s\\", attrib_name=\\"%s\\", buffer=0x%p",
+				 f, field_name, attrib_name, buffer);
+	H5_API_RETURN(h5_read_field_attrib (
 		f,
 		field_name,
 		attrib_name,
                 #TYPE_HDF5#,
-                (void*)buffer);
+                (void*)buffer ));
 }
 """
 
@@ -470,7 +478,7 @@ INTEGER*8 FUNCTION h5bl_readfieldattrib_#TYPE_F90_ABV# ( filehandle, field_name,
     INTEGER*8, INTENT(IN) :: filehandle		!< the handle returned at file open
     CHARACTER(LEN=*), INTENT(IN) :: field_name	!< the name of the field
     CHARACTER(LEN=*), INTENT(IN) :: attrib_name	!< the name of the attribute
-    #TYPE_F90#, INTENT(IN) :: values(*)		!< the buffer to read into
+    #TYPE_F90#, INTENT(IN) :: buffer(*)		!< the buffer to read into
 END FUNCTION
 """
 
@@ -483,23 +491,26 @@ read_attr_fc = """
 
 h5_err_t
 h5bl_readfieldattrib_#TYPE_F90_ABV# (
-	h5_int64_t *f,
+	h5_int64_t *const f,
 	const char *field_name,
 	const char *attrib_name,
-	h5_#TYPE_H5P#_t *values,
+	h5_#TYPE_H5P#_t *buffer,
 	const int l_field_name,
 	const int l_attrib_name
 	) {
 
-	h5_file_t *filehandle = (h5_file_t*)(size_t)*f;
-	h5_set_funcname( filehandle, __func__ );
+	h5_file_t *fh = h5_filehandlefor2c(f);
+	H5_API_ENTER6 (h5_err_t, "f=0x%p, field_name=\\"%s\\", attrib_name=\\"%s\\", "
+				 "values=0x%p, l_field_name=%d, l_attrib_name=%d",
+				 fh, field_name, attrib_name, buffer,
+				 l_field_name, l_attrib_name);
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	h5_err_t herr = h5_read_field_attrib (
-		filehandle, field_name2, attrib_name2, #TYPE_HDF5#, values );
+		fh, field_name2, attrib_name2, #TYPE_HDF5#, buffer );
 	free ( field_name2 );
 	free ( attrib_name2 );
-	return herr;
+	H5_API_RETURN(herr);
 }
 """
 

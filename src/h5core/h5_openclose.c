@@ -428,7 +428,7 @@ h5_get_hdf5_file(
 
   \return Number of steps or error code
 */
-h5_size_t
+h5_ssize_t
 h5_get_num_steps(
 	h5_file_t* const f		/*!< file handle		*/
 	) {
@@ -493,5 +493,12 @@ h5_strc2for (
 	memset ( str+len, ' ', l_str-len );
 
 	return str;
+}
+
+h5_file_t *
+h5_filehandlefor2c (
+	const h5_int64_t *ptr
+	) {
+	return (h5_file_t*)(size_t)*ptr;
 }
 

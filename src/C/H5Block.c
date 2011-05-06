@@ -423,8 +423,8 @@ H5BlockWriteFieldAttribString (
 	) {
 	H5_API_ENTER4 (h5_err_t,
 		       "f=%p, "
-		       "field_name=\"%s\""
-		       "attrib_name=\"%s\""
+		       "field_name=\"%s\", "
+		       "attrib_name=\"%s\", "
 		       "buffer=\"%s\"",
 		       f,
 		       field_name,
@@ -457,8 +457,8 @@ H5BlockReadFieldAttribString (
 	) {
 	H5_API_ENTER4 (h5_err_t,
 		       "f=%p, "
-		       "field_name=\"%s\""
-		       "attrib_name=\"%s\""
+		       "field_name=\"%s\", "
+		       "attrib_name=\"%s\", "
 		       "buffer=0x%p",
 		       f,
 		       field_name,
