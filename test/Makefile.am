@@ -15,7 +15,7 @@ noinst_PROGRAMS = @BUILD_TESTS@
 TESTS_ENVIRONMENT = env LD_LIBRARY_PATH=@HDF5ROOT@/lib:$(LD_LIBRARY_PATH)
 TESTS = @BUILD_TESTS@
 
-EXTRA_PROGRAMS = h5u_test h5b_test
+EXTRA_PROGRAMS = h5u_test h5b_test h5_attach_test
 
 h5u_test_SOURCES =	\
 		h5u_test.c \
@@ -24,10 +24,6 @@ h5u_test_SOURCES =	\
 		testframe.c \
 		testframe.h \
 		params.h
-
-h5u_test_DEPENDENCIES = \
-		../src/lib/libH5hut.a \
-		../src/lib/libH5hutC.a
 
 h5b_test_SOURCES =	\
 		h5b_test.c \
@@ -40,6 +36,13 @@ h5b_test_SOURCES =	\
 h5b_test_DEPENDENCIES = \
 		../src/lib/libH5hut.a \
 		../src/lib/libH5hutC.a
+
+h5_attach_test_SOURCES = \
+		h5_attach_test.c
+
+h5_attach_test_DEPENDENCIES = \
+		../src/h5core/libH5hut.a \
+		../src/C/libH5hutC.a
 
 clean: clean-am
 	rm -f *.h5

@@ -542,6 +542,7 @@ test/H5Part/H5testF.f -text
 test/H5Part/H5testFpar.f90 -text
 test/H5Part/Makefile.am -text
 test/Makefile.am -text
+test/h5_attach_test.c -text
 test/h5b_read.c -text
 test/h5b_test.c -text
 test/h5b_write.c -text
