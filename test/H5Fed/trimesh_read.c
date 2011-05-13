@@ -2,6 +2,9 @@
 #include <stdlib.h>
 
 #include "H5hut.h"
+#if defined (PARALLEL_IO)
+#include <mpi.h>
+#endif
 
 const h5_oid_t MESH_TYPE = H5_TRIANGLE_MESH;
 const char* FNAME = "simple_triangle.h5";
@@ -171,7 +174,7 @@ traverse_mesh (
 	/* open mesh and get number of levels */
 	printf ("    Opening mesh with id %lld\n", mesh_id);
 	H5FedOpenMesh (f, mesh_id, mesh_type);
-	h5_size_t num_levels = H5FedGetNumLevels (f);
+	H5_size_t num_levels = H5FedGetNumLevels (f);
 	printf ("    Number of levels in mesh: %lld\n", (long long)num_levels);
 
 	/* loop over all levels */
@@ -191,12 +194,17 @@ main (
 	char* argv[]
 	) {
 
+	MPI_Comm comm = MPI_COMM_WORLD;
+#if defined (PARALLEL_IO)
+	MPI_Init (&argc, &argv);
+#endif
+
 	/* abort program on error, so we don't have to handle them */
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (3);
+	H5SetVerbosityLevel (255);
 
 	/* open file and get number of meshes */
-	h5_file_t* f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
+	h5_file_t* f = H5OpenFile (FNAME, H5_O_RDONLY, comm);
 	h5_size_t num_meshes = H5FedGetNumMeshes (f, MESH_TYPE);
 	printf ("    Number of meshes: %lld\n", (long long)num_meshes);
 
@@ -208,5 +216,9 @@ main (
 
 	/* done */
 	H5CloseFile (f);
+#if defined (PARALLEL_IO)
+	MPI_Finalize ();
+#endif
+
 	return 0;
 }
