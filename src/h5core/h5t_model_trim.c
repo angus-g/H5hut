@@ -17,8 +17,9 @@ open_trimeshes_group (
 	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
-	if (t->topo_gid < 0) {
-		TRY (open_topo_group (f));
+	if (t->topo_gid == 0 || t->topo_gid == -1) {
+		TRY (t->topo_gid = h5priv_open_group (
+			     f, f->root_gid, H5T_CONTAINER_GRPNAME));
 	}
 	TRY (t->meshes_gid = h5priv_open_group (
 		      f,
@@ -28,6 +29,9 @@ open_trimeshes_group (
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
+/*
+  open HDF5 group with data of specific mesh.
+ */
 static inline h5_err_t
 open_trimesh_group (
 	h5_file_t* const f,
@@ -36,9 +40,8 @@ open_trimesh_group (
 	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
-	if (t->topo_gid == 0 || t->topo_gid == -1) {
-		TRY (t->topo_gid = h5priv_open_group (
-			     f, f->root_gid, H5T_CONTAINER_GRPNAME));
+	if (t->meshes_gid < 0) {
+		TRY (open_trimeshes_group (f));
 	}
 	snprintf (t->mesh_name, sizeof (t->mesh_name), "%lld", (long long)id);
 
