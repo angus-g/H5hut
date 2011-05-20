@@ -3,35 +3,6 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
-/*!
-  Add new mesh
-
-  \return mesh id
-*/
-h5_id_t
-h5t_add_tetrahedral_mesh (
-	h5_file_t* const f
-	) {
-	H5_CORE_API_ENTER1 (h5_id_t, "f=0x%p", f);
-	h5_id_t mesh_id = 0;
-	TRY (mesh_id = h5t_open_tetrahedral_mesh (f, -1)); 
-	TRY (h5t_add_level (f));
-	f->t->mesh_changed = 1;
-	H5_CORE_API_RETURN (mesh_id);
-}
-
-h5_id_t
-h5t_add_triangle_mesh (
-	h5_file_t* const f
-	) {
-	H5_CORE_API_ENTER1 (h5_id_t, "f=0x%p", f);
-	h5_id_t mesh_id = 0;
-	TRY (mesh_id = h5t_open_triangle_mesh (f, -1)); 
-	TRY (h5t_add_level (f));
-	f->t->mesh_changed = 1;
-	H5_CORE_API_RETURN (mesh_id);
-}
-
 /*
   Assign unique global indices to vertices.
 */

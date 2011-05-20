@@ -1,16 +1,6 @@
 #ifndef __H5T_STOREMESH_H
 #define __H5T_STOREMESH_H
 
-h5_id_t
-h5t_add_tetrahedral_mesh (
-	h5_file_t * const f
-	);
-
-h5_id_t
-h5t_add_triangle_mesh (
-	h5_file_t * const f
-	);
-
 h5t_lvl_idx_t
 h5t_add_level (
 	h5_file_t * const f

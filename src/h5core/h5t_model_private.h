@@ -1,5 +1,5 @@
-#ifndef __H5T_OPENCLOSE_PRIVATE_H
-#define __H5T_OPENCLOSE_PRIVATE_H
+#ifndef __H5T_MODEL_PRIVATE_H
+#define __H5T_MODEL_PRIVATE_H
 
 h5_err_t
 h5tpriv_open_file (

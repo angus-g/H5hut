@@ -26,7 +26,7 @@ EXTRA_HEADERS =					\
 	../include/h5core/h5t_core.h		\
 	../include/h5core/h5t_inquiry.h		\
 	../include/h5core/h5t_map.h		\
-	../include/h5core/h5t_openclose.h	\
+	../include/h5core/h5t_model.h		\
 	../include/h5core/h5t_readwrite.h	\
 	../include/h5core/h5t_ref_elements.h	\
 	../include/h5core/h5t_retrieve.h	\
@@ -50,12 +50,11 @@ EXTRA_HEADERS =					\
 	h5b_types_private.h			\
 	h5t_access_private.h			\
 	h5t_adjacencies_private.h		\
-	h5t_consts_private.h			\
 	h5t_core_private.h			\
 	h5t_errorhandling_private.h		\
 	h5t_hsearch_private.h			\
 	h5t_map_private.h			\
-	h5t_openclose_private.h			\
+	h5t_model_private.h			\
 	h5t_readwrite_private.h			\
 	h5t_ref_elements_private.h		\
 	h5t_retrieve_private.h			\
@@ -101,12 +100,13 @@ ___lib_libH5hut_a_SOURCES =			\
 	h5t_adjacencies.c			\
 	h5t_adjacencies_tetm.c			\
 	h5t_adjacencies_trim.c			\
-	h5t_consts.c				\
 	h5t_errorhandling.c			\
 	h5t_hsearch.c				\
 	h5t_inquiry.c				\
 	h5t_map.c				\
-	h5t_openclose.c				\
+	h5t_model.c				\
+	h5t_model_tetm.c			\
+	h5t_model_trim.c			\
 	h5t_readwrite.c				\
 	h5t_readwrite_trim.c			\
 	h5t_readwrite_tetm.c			\

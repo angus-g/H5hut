@@ -444,8 +444,10 @@ src/h5core/h5t_hsearch_private.h -text
 src/h5core/h5t_inquiry.c -text
 src/h5core/h5t_map.c -text
 src/h5core/h5t_map_private.h -text
-src/h5core/h5t_openclose.c -text
-src/h5core/h5t_openclose_private.h -text
+src/h5core/h5t_model.c -text
+src/h5core/h5t_model_private.h -text
+src/h5core/h5t_model_tetm.c -text
+src/h5core/h5t_model_trim.c -text
 src/h5core/h5t_readwrite.c -text
 src/h5core/h5t_readwrite_private.h -text
 src/h5core/h5t_readwrite_tetm.c -text
@@ -500,7 +502,7 @@ src/include/h5core/h5t_adjacencies.h -text
 src/include/h5core/h5t_core.h -text
 src/include/h5core/h5t_inquiry.h -text
 src/include/h5core/h5t_map.h -text
-src/include/h5core/h5t_openclose.h -text
+src/include/h5core/h5t_model.h -text
 src/include/h5core/h5t_readwrite.h -text
 src/include/h5core/h5t_ref_elements.h -text
 src/include/h5core/h5t_retrieve.h -text
