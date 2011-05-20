@@ -2,6 +2,8 @@
 #define __H5T_CORE_PRIVATE_H
 
 #define H5T_CONTAINER_GRPNAME	"Topo"
+#define TETRAHEDRAL_MESHES_GRPNAME "TetMeshes"
+#define TRIANGLE_MESHES_GRPNAME "TriangleMeshes"
 
 #include "h5t_tags_private.h"
 
@@ -9,7 +11,6 @@
 
 #include "h5t_access_private.h"
 #include "h5t_adjacencies_private.h"
-#include "h5t_consts_private.h"
 #include "h5t_hsearch_private.h"
 #include "h5t_map_private.h"
 #include "h5t_openclose_private.h"

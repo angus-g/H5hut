@@ -9,13 +9,12 @@
 
   \return	Number of meshes of type \c type_id or error code.
  */
-h5_ssize_t
-h5t_get_num_meshes (
+static inline h5_ssize_t
+get_num_meshes (
 	h5_file_t* const f,
-	const h5_oid_t type_id
+	const char* grpname
 	) {
-	H5_CORE_API_ENTER2 (h5_ssize_t,
-			    "f=0x%p, type_id=%d", f, type_id);
+	H5_PRIV_FUNC_ENTER (h5_ssize_t);
 	hid_t topo_gid = -1;
 	hid_t meshes_gid = -1;
 
@@ -25,16 +24,32 @@ h5t_get_num_meshes (
 
 	TRY (topo_gid = hdf5_open_group (f->root_gid, H5T_CONTAINER_GRPNAME));
 
-	TRY (exists = hdf5_link_exists (topo_gid, h5tpriv_meshes_grpnames[type_id]));
+	TRY (exists = hdf5_link_exists (topo_gid, grpname));
 	if (!exists) H5_CORE_API_LEAVE (0);
 
-	TRY (meshes_gid = hdf5_open_group (topo_gid, h5tpriv_meshes_grpnames[type_id]));
+	TRY (meshes_gid = hdf5_open_group (topo_gid, grpname));
 	h5_ssize_t num_meshes;
 	TRY (num_meshes = hdf5_get_num_groups (meshes_gid));
 	TRY (hdf5_close_group (meshes_gid) );
 	TRY (hdf5_close_group (topo_gid) );
 
 	H5_CORE_API_RETURN (num_meshes);
+}
+
+h5_ssize_t
+h5t_get_num_tetmeshes (
+	h5_file_t* const f
+	) {
+	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_CORE_API_RETURN (get_num_meshes (f, TETRAHEDRAL_MESHES_GRPNAME));
+}
+
+h5_ssize_t
+h5t_get_num_trimeshes (
+	h5_file_t* const f
+	) {
+	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_CORE_API_RETURN (get_num_meshes (f, TRIANGLE_MESHES_GRPNAME));
 }
 
 /*!

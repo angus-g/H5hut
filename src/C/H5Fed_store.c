@@ -17,35 +17,6 @@
 #include "H5Fed.h"
 
 
-/*
-  Depricated! Please use H5FedAddTetrahedralMesh() or H5FedAddTriangleMesh().
- */
-h5_id_t
-H5FedAddMesh (
-	h5_file_t* const f,
-	const h5_oid_t mesh_type_id
-	) {
-	H5_API_ENTER2 (h5_id_t, "f=0x%p, mesh_type_id=%u", f, mesh_type_id);
-	H5_API_RETURN (h5t_add_mesh (f, mesh_type_id));
-}
-
-h5_id_t
-H5FedAddTetrahedralMesh (
-	h5_file_t* const f
-	) {
-	const h5_oid_t mesh_type_id = H5_TETRAHEDRAL_MESH;
-	H5_API_ENTER2 (h5_id_t, "f=0x%p, mesh_type_id=%u", f, mesh_type_id);
-	H5_API_RETURN (h5t_add_mesh (f, mesh_type_id));
-}
-
-h5_id_t
-H5FedAddTriangleMesh (
-	h5_file_t* const f
-	) {
-	const h5_oid_t mesh_type_id = H5_TRIANGLE_MESH;
-	H5_API_ENTER2 (h5_id_t, "f=0x%p, mesh_type_id=%u", f, mesh_type_id);
-	H5_API_RETURN (h5t_add_mesh (f, mesh_type_id));
-}
 
 /*!
   \ingroup h5fed_c_api

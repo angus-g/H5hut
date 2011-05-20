@@ -23,22 +23,21 @@
 extern "C" {
 #endif
 
-/* depricated! use explicit versions */
-h5_id_t
-H5FedAddMesh (
-	h5_file_t * const f,
-	const h5_oid_t mesh_type_id
-	);
-
-h5_id_t
+static inline h5_id_t
 H5FedAddTetrahedralMesh (
-	h5_file_t * const f
-	);
+	h5_file_t* const f
+	) {
+	H5_API_ENTER1 (h5_id_t, "f=0x%p", f);
+	H5_API_RETURN (h5t_add_tetrahedral_mesh (f));
+}
 
-h5_id_t
+static inline h5_id_t
 H5FedAddTriangleMesh (
-	h5_file_t * const f
-	);
+	h5_file_t* const f
+	) {
+	H5_API_ENTER1 (h5_id_t, "f=0x%p", f);
+	H5_API_RETURN (h5t_add_triangle_mesh (f));
+}
 
 h5t_lvl_idx_t
 H5FedAddLevel (

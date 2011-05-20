@@ -34,16 +34,16 @@
 		(long long)idx, type, group_name );
 
 
-#define HANDLE_H5_OVERFLOW_ERR( otype, max )			\
+#define HANDLE_H5_OVERFLOW_ERR( max )				\
 	h5_error(						\
 		H5_ERR_INVAL,					\
-		"Cannot store more than %lld %s", (long long)max, otype );
+		"Cannot store more than %lld items", (long long)max );
 
-#define HANDLE_H5_PARENT_ID_ERR( otype, parent_id  )			\
+#define HANDLE_H5_PARENT_ID_ERR( parent_id  )			\
 	h5_error(							\
 		H5_ERR_INVAL,						\
-		"Impossible parent_id %lld for %s.",	\
-		(long long)parent_id, otype );
+		"Wrong parent_id %lld.",	\
+		(long long)parent_id );
 
 #define HANDLE_H5_OUT_OF_RANGE_ERR( otype, oid )	\
 	h5_error(					\

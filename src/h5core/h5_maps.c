@@ -179,7 +179,7 @@ h5priv_insert_idxmap (
 	if (map->num_items == map->size)
 		H5_PRIV_API_LEAVE (
 			HANDLE_H5_OVERFLOW_ERR (
-				"g2lmap", (long long)map->size));
+				(long long)map->size));
 
 	h5_loc_idx_t i = h5priv_search_idxmap (map, glb_idx);
 	if (i >= 0)			/* global id already in use ? */

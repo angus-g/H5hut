@@ -20,22 +20,6 @@
 #include "h5core/h5_core.h"
 #include "H5Fed.h"
 
-/*!
-  Get number of meshes of given type.
-
-  \param[in]	f	File handle
-  \param[in]	type_id	Type of mesh we want the number of.
-
-  \return	Number of meshes of type \c type_id or error code.
- */
-h5_ssize_t
-H5FedGetNumMeshes ( 
-	h5_file_t* const f,
-	const h5_oid_t type_id
-	) {
-	H5_API_ENTER2 (h5_err_t, "f=0x%p, type_id=%u", f, type_id);
-	H5_API_RETURN (h5t_get_num_meshes (f, type_id));
-}
 
 /*!
   Get the number of hierarchical mesh levels.

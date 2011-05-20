@@ -15,19 +15,6 @@
 #include "h5core/h5_core.h"
 #include "H5Fed.h"
 
-h5_err_t
-H5FedOpenMesh (
-	h5_file_t* const f,
-	const h5_id_t mesh_id,
-	const h5_oid_t mesh_type_id
-	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=0x%p, mesh_id=%lld, mesh_type_id=%d",
-		       f,
-		       (long long)mesh_id,
-		       mesh_type_id);
-	H5_API_RETURN (h5t_open_mesh (f, mesh_id, mesh_type_id));
-}
 
 h5_err_t
 H5FedCloseMesh (

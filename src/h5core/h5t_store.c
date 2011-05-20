@@ -9,22 +9,31 @@
   \return mesh id
 */
 h5_id_t
-h5t_add_mesh (
-	h5_file_t* const f,
-	const h5_oid_t mesh_type
+h5t_add_tetrahedral_mesh (
+	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER2 (h5_id_t,
-			   "f=0x%p, mesh_type=%d", f, mesh_type);
+	H5_CORE_API_ENTER1 (h5_id_t, "f=0x%p", f);
 	h5_id_t mesh_id = 0;
-	TRY (mesh_id = h5t_open_mesh (f, -1, mesh_type)); 
+	TRY (mesh_id = h5t_open_tetrahedral_mesh (f, -1)); 
+	TRY (h5t_add_level (f));
+	f->t->mesh_changed = 1;
+	H5_CORE_API_RETURN (mesh_id);
+}
+
+h5_id_t
+h5t_add_triangle_mesh (
+	h5_file_t* const f
+	) {
+	H5_CORE_API_ENTER1 (h5_id_t, "f=0x%p", f);
+	h5_id_t mesh_id = 0;
+	TRY (mesh_id = h5t_open_triangle_mesh (f, -1)); 
 	TRY (h5t_add_level (f));
 	f->t->mesh_changed = 1;
 	H5_CORE_API_RETURN (mesh_id);
 }
 
 /*
-
- * Assign unique global indices to vertices.
+  Assign unique global indices to vertices.
 */
 static h5_err_t
 assign_global_vertex_indices (
@@ -154,7 +163,7 @@ h5t_store_vertex (
 	*/
 	if (t->last_stored_vid+1 >= t->num_vertices[t->leaf_level]) 
 		H5_CORE_API_LEAVE (HANDLE_H5_OVERFLOW_ERR(
-					   "vertex", t->num_vertices[t->leaf_level]));
+					   t->num_vertices[t->leaf_level]));
 	
 	/*
 	  missing call to add the first level
@@ -245,9 +254,7 @@ h5t_store_elem (
 	/*  more than allocated? */
 	if ( t->last_stored_eid+1 >= t->num_elems[t->leaf_level] ) 
 		H5_CORE_API_LEAVE (
-			HANDLE_H5_OVERFLOW_ERR(
-				h5tpriv_map_oid2str(t->mesh_type),
-				t->num_elems[t->leaf_level]));
+			HANDLE_H5_OVERFLOW_ERR (t->num_elems[t->leaf_level]));
 
 	/* check parent id */
 	if ((t->leaf_level == 0 && parent_idx != -1) ||
@@ -256,8 +263,7 @@ h5t_store_elem (
 	     && parent_idx >= t->num_elems[t->leaf_level-1])
 		) {
 		H5_CORE_API_LEAVE (
-			HANDLE_H5_PARENT_ID_ERR (
-				h5tpriv_map_oid2str (t->mesh_type), parent_idx));
+			HANDLE_H5_PARENT_ID_ERR (parent_idx));
 	}
 
 	/* store elem data (but neighbors) */

@@ -363,55 +363,88 @@ h5tpriv_close_step (
 }
 
 
-h5_err_t
-h5tpriv_open_topo_group (
+static inline h5_err_t
+open_topo_group (
 	h5_file_t * const f
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
 	h5t_fdata_t* t = f->t;
 	if (t->topo_gid == 0 || t->topo_gid == -1) {
-		TRY (t->topo_gid = h5priv_open_group (f, f->root_gid, H5T_CONTAINER_GRPNAME));
+		return (t->topo_gid = h5priv_open_group (f, f->root_gid, H5T_CONTAINER_GRPNAME));
 	}
-	H5_PRIV_API_RETURN (t->topo_gid);
+	return (t->topo_gid);
 }
 
-h5_err_t
-h5tpriv_open_meshes_group (
-	h5_file_t* const f,
-	const h5_oid_t type_id
+static inline h5_err_t
+open_tetmeshes_group (
+	h5_file_t* const f
 	) {
-	H5_PRIV_API_ENTER2 (h5_err_t, "f=0x%p, type_id=%d", f, type_id);
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
 	if (t->topo_gid < 0) {
-		TRY (h5tpriv_open_topo_group (f));
+		TRY (open_topo_group (f));
 	}
 	TRY (t->meshes_gid = h5priv_open_group (
 		      f,
 		      t->topo_gid,
-		      h5tpriv_meshes_grpnames[type_id]));
-	t->mesh_type = type_id;
+		      TETRAHEDRAL_MESHES_GRPNAME));
+	t->mesh_type = H5_OID_TETRAHEDRON;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+}
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+static inline h5_err_t
+open_trimeshes_group (
+	h5_file_t* const f
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
+	h5t_fdata_t* t = f->t;
+
+	if (t->topo_gid < 0) {
+		TRY (open_topo_group (f));
+	}
+	TRY (t->meshes_gid = h5priv_open_group (
+		      f,
+		      t->topo_gid,
+		      TRIANGLE_MESHES_GRPNAME));
+	t->mesh_type = H5_OID_TRIANGLE;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 /*
   Open HDF5 group with specific mesh
 */
 
-h5_err_t
-h5tpriv_open_mesh_group (
+static inline h5_err_t
+open_tetmesh_group (
 	h5_file_t* const f,
-	const h5_oid_t type_id,
 	const h5_id_t id
 	) {
-	H5_PRIV_API_ENTER3 (h5_err_t,
-			    "f=0x%p, type_id=%d, id=%lld",
-			    f, type_id, (long long)id);
+	H5_PRIV_FUNC_ENTER (h5_err_t);
 	h5t_fdata_t* t = f->t;
 
 	if (t->meshes_gid < 0) {
-		TRY (h5tpriv_open_meshes_group (f, type_id));
+		TRY (open_tetmeshes_group (f));
+	}
+	snprintf (t->mesh_name, sizeof (t->mesh_name), "%lld", (long long)id);
+
+	TRY (t->mesh_gid = h5priv_open_group (
+		      f,
+		      t->meshes_gid,
+		      t->mesh_name));
+	t->cur_mesh = id;
+	H5_PRIV_API_RETURN (H5_SUCCESS);
+}
+
+static inline h5_err_t
+open_trimesh_group (
+	h5_file_t* const f,
+	const h5_id_t id
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
+	h5t_fdata_t* t = f->t;
+
+	if (t->meshes_gid < 0) {
+		TRY (open_trimeshes_group (f));
 	}
 	snprintf (t->mesh_name, sizeof (t->mesh_name), "%lld", (long long)id);
 
@@ -427,55 +460,68 @@ h5tpriv_open_mesh_group (
   If the value of parameter \c id is \c -1, a new mesh will be appended.
 */
 h5_err_t
-h5t_open_mesh (
+h5t_open_tetrahedral_mesh (
 	h5_file_t* const f,
-	h5_id_t id,
-	const h5_oid_t type_id
+	h5_id_t id
 	) {
-	H5_CORE_API_ENTER3 (h5_err_t,
-			    "f=0x%p, id=%lld, type_id=%u",
-			    f, (long long)id, type_id);
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, id=%lld", f, (long long)id);
 	h5t_fdata_t* t = f->t;
 
 	TRY (h5t_close_mesh (f));
 
 	if (t->num_meshes < 0) {
-		h5_size_t result = h5t_get_num_meshes (f, type_id);
+		h5_size_t result = h5t_get_num_tetmeshes (f);
 		t->num_meshes = (result > 0 ? result : 0);
 	}
 	if ((id < -1) || (id >= t->num_meshes)) {
 		H5_CORE_API_LEAVE (HANDLE_H5_OUT_OF_RANGE_ERR ("mesh", id));
 	}
-	if (id == -1) {  /* append new mesh */
+	t->dsinfo_elems.type_id = t->dtypes.h5_tet_t;
+	t->methods = tet_funcs;
+	t->ref_elem = &h5t_tet_ref_elem;
+	TRY (open_tetmesh_group (f, id));
+
+	if (id == -1) {			// append new
 		id = t->num_meshes;
-	}
-	switch (type_id) {
-	case H5_OID_TETRAHEDRON:
-		t->dsinfo_elems.type_id = t->dtypes.h5_tet_t;
-		t->methods = tet_funcs;
-		t->ref_elem = &h5t_tet_ref_elem;
-		break;
-	case H5_OID_TRIANGLE:
-		t->dsinfo_elems.type_id = t->dtypes.h5_triangle_t;
-		t->methods = tri_funcs;
-		t->ref_elem = &h5t_tri_ref_elem;
-		break;
-	default:
-		H5_CORE_API_LEAVE (
-			h5_error_internal ());
-	}
-
-	TRY (h5tpriv_open_mesh_group (f, type_id, id));
-
-	if (id != t->num_meshes) {	/* open existing */
-		TRY (h5tpriv_read_mesh (f));
-
-	} else {			/* append new */
 		t->num_meshes++;
 		t->mesh_changed = id;
 		t->num_leaf_levels = 0;
+	} else {			// read existing
+		TRY (h5tpriv_read_mesh (f));
 	} 
+	H5_CORE_API_RETURN (H5_SUCCESS);
+}
 
+h5_err_t
+h5t_open_triangle_mesh (
+	h5_file_t* const f,
+	h5_id_t id
+	) {
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, id=%lld", f, (long long)id);
+	h5t_fdata_t* t = f->t;
+
+	TRY (h5t_close_mesh (f));
+
+	if (t->num_meshes < 0) {
+		h5_size_t result = h5t_get_num_trimeshes (f);
+		t->num_meshes = (result > 0 ? result : 0);
+	}
+	if ((id < -1) || (id >= t->num_meshes)) {
+		H5_CORE_API_LEAVE (HANDLE_H5_OUT_OF_RANGE_ERR ("mesh", id));
+	}
+	t->dsinfo_elems.type_id = t->dtypes.h5_triangle_t;
+	t->methods = tri_funcs;
+	t->ref_elem = &h5t_tri_ref_elem;
+	TRY (open_trimesh_group (f, id));
+
+	if (id == -1) {			// append new
+		id = t->num_meshes;
+		t->num_meshes++;
+		t->mesh_changed = id;
+		t->num_leaf_levels = 0;
+	} else {			// read existing
+		TRY (h5tpriv_read_mesh (f));
+	} 
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 

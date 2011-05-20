@@ -2,9 +2,13 @@
 #define __H5T_INQUIRY_H
 
 h5_ssize_t
-h5t_get_num_meshes (
-	h5_file_t * const f,
-	const enum h5_oid type
+h5t_get_num_tetmeshes (
+	h5_file_t * const f
+	);
+
+h5_ssize_t
+h5t_get_num_trimeshes (
+	h5_file_t * const f
 	);
 
 h5_ssize_t
