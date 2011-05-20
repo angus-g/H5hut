@@ -3,6 +3,7 @@
 
 struct h5t_store_methods {
 	h5_err_t (*alloc_elems)(h5_file_t* const, const size_t, const size_t);
+	h5_err_t (*pre_refine)(h5_file_t* const);
 	h5_loc_idx_t (*refine_elem)(h5_file_t* const, const h5_loc_idx_t);
 	h5_err_t (*end_store_elems)(h5_file_t* const);
 	h5_err_t (*get_direct_children_of_edge)(
@@ -31,6 +32,13 @@ h5tpriv_alloc_elems (
 	const size_t new
 	) {
 	return (*f->t->methods.store->alloc_elems) (f, cur, new);
+}
+
+static inline h5_err_t
+h5tpriv_pre_refine (
+	h5_file_t* const f
+	) {
+	return f->t->methods.store->pre_refine (f);
 }
 
 static inline h5_loc_idx_t

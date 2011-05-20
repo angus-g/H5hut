@@ -297,55 +297,6 @@ h5t_mark_entity (
 }
 
 /*
-  When calling this function, we know the number of elements to refine. But
-  we don't now the number of new vertices we will get. We have to compute
-  this number or just to guess it.
-
-  Let n be the number of elements to refine and l the number of disconnected
-  areas to be refined.
-
-  For triangle grids the upper limit of new vertices is 3n and the lower limit
-  2n + 1. The exact number is 2n + l.
-
-  For tetrahedral grids the upper limit is 6n and the lower limit is 3n+3. 
-  The exact number is 3n + 3l.
-
-  To get the real number of vertices to add, we either have to compute the
-  number of disconnected areas (which is quiet expensive), try to guess it
-  (which is impossible) or just set a limit. In most cases the number of
-  disconnected areas will be "small".
-
-  For the time being we set the maximum number of disconnected areas to 64.
- */
-h5_err_t
-h5t_pre_refine (
-	h5_file_t* const f
-	) {
-	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
-	h5t_fdata_t* const t = f->t;
-	unsigned int num_elems_to_refine = t->marked_entities->num_items;
-	unsigned int num_elems_to_add = 0;
-	unsigned int num_vertices_to_add = 0;
-
-	switch (t->mesh_type) {
-	case H5_OID_TETRAHEDRON:
-		num_vertices_to_add = num_elems_to_refine*3 + 192;
-		num_elems_to_add = num_elems_to_refine*8;
-		break;
-	case H5_OID_TRIANGLE:
-		num_vertices_to_add = num_elems_to_refine*2 + 64;
-		num_elems_to_add = num_elems_to_refine*4;
-		break;
-	default:
-		H5_CORE_API_LEAVE (h5_error_internal ());
-	}
-	TRY (h5t_begin_store_vertices (f, num_vertices_to_add));
-	TRY (h5t_begin_store_elems (f, num_elems_to_add));
-
-	H5_CORE_API_RETURN (H5_SUCCESS);
-}
-
-/*
   Refine previously marked elements.
 */
 h5_err_t
@@ -372,7 +323,6 @@ h5t_post_refine (
 	H5_CORE_API_RETURN (h5priv_free_idlist (&t->marked_entities));
 }
 
-
 h5_err_t
 h5t_begin_refine_elems (
 	h5_file_t* const f
@@ -387,7 +337,6 @@ h5t_begin_refine_elems (
 	TRY (h5priv_alloc_idlist (&t->marked_entities, 2048));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
-
 
 h5_err_t
 h5t_end_refine_elems (

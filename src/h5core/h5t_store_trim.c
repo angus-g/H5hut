@@ -120,6 +120,21 @@ bisect_edge (
 	H5_PRIV_FUNC_RETURN (h5t_store_vertex (f, -1, P));
 }
 
+/*
+  Please read note about number of new vertices in tetrahedral
+  mesh implementation.
+ */
+static h5_err_t
+pre_refine_triangle (
+	h5_file_t* const f
+	) {
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	unsigned int num_elems_to_refine = f->t->marked_entities->num_items;
+	TRY (h5t_begin_store_vertices (f, num_elems_to_refine*2 + 64));
+	TRY (h5t_begin_store_elems (f, num_elems_to_refine*4));
+	H5_CORE_API_RETURN (H5_SUCCESS);
+}
+
 /*!
   Refine triangle \c local_eid
 
@@ -271,6 +286,7 @@ end_store_elems (
 
 struct h5t_store_methods h5tpriv_trim_store_methods = {
 	alloc_triangles,
+	pre_refine_triangle,
 	refine_triangle,
 	end_store_elems,
 	get_direct_children_of_edge

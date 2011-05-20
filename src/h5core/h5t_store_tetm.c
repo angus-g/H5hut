@@ -127,6 +127,38 @@ bisect_edge (
 	H5_PRIV_FUNC_RETURN (h5t_store_vertex (f, -1, P));  // return idx of new vertex
 }
 
+/*
+  When calling this function, we know the number of elements to refine. But
+  we don't now the number of new vertices we will get. We have to compute
+  this number or just to guess it.
+
+  Let n be the number of elements to refine and l the number of disconnected
+  areas to be refined.
+
+  For triangle grids the upper limit of new vertices is 3n and the lower limit
+  2n + 1. The exact number is 2n + l.
+
+  For tetrahedral grids the upper limit is 6n and the lower limit is 3n+3. 
+  The exact number is 3n + 3l.
+
+  To get the real number of vertices to add, we either have to compute the
+  number of disconnected areas (which is quiet expensive), try to guess it
+  (which is impossible) or just set a limit. In most cases the number of
+  disconnected areas will be "small".
+
+  For the time being we set the maximum number of disconnected areas to 64.
+ */
+static h5_err_t
+pre_refine_tet (
+	h5_file_t* const f
+	) {
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	unsigned int num_elems_to_refine = f->t->marked_entities->num_items;
+	TRY (h5t_begin_store_vertices (f, num_elems_to_refine*3 + 192));
+	TRY (h5t_begin_store_elems (f, num_elems_to_refine*8));
+	H5_CORE_API_RETURN (H5_SUCCESS);
+}
+
 /*!
   Refine tetrahedron \c elem_idx
 
@@ -311,6 +343,7 @@ end_store_elems (
 
 struct h5t_store_methods h5tpriv_tetm_store_methods = {
 	alloc_tets,
+	pre_refine_tet,
 	refine_tet,
 	end_store_elems,
 	get_direct_children_of_edge
