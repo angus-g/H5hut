@@ -436,8 +436,6 @@ src/h5core/h5t_adjacencies.c -text
 src/h5core/h5t_adjacencies_private.h -text
 src/h5core/h5t_adjacencies_tetm.c -text
 src/h5core/h5t_adjacencies_trim.c -text
-src/h5core/h5t_consts.c -text
-src/h5core/h5t_consts_private.h -text
 src/h5core/h5t_core_private.h -text
 src/h5core/h5t_errorhandling.c -text
 src/h5core/h5t_errorhandling_private.h -text
