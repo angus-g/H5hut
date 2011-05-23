@@ -20,7 +20,7 @@ h5priv_alloc_idlist (
 	) {
 	H5_PRIV_API_ENTER2 (h5_err_t,
 			    "list=0x%p, size=%llu",
-			    list, size);
+			    list, (long long unsigned)size);
 	TRY (*list = h5_calloc (
 		     1, sizeof (**list)+size*sizeof ((*list)->items[0])));
 	(*list)->size = size;
@@ -156,7 +156,7 @@ h5priv_alloc_idxmap (
 	) {
 	H5_PRIV_API_ENTER2 (h5_err_t,
 			    "map=0x%p, size=%llu",
-			    map, size);
+			    map, (long long unsigned)size);
 	int new = (map->items == NULL);
 	size_t size_in_bytes = size * sizeof (map->items[0]);
 	TRY (map->items = h5_alloc (map->items, size_in_bytes));
@@ -215,7 +215,7 @@ h5priv_search_idxmap (
 	) {
 	H5_PRIV_API_ENTER2 (h5_err_t,
 			    "map=0x%p, value=%llu",
-			    map, value);
+			    map, (long long)value);
 	register h5_loc_idx_t low = 0;
 	register h5_loc_idx_t high = map->num_items - 1;
 	while (low <= high) {

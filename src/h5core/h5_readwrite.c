@@ -171,7 +171,7 @@ h5_set_step (
 	h5_file_t* const f,		/*!< [in]  Handle to open file */
 	const h5_id_t step_idx		/*!< [in]  Step to set. */
 	) {
-	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, step_idx=%llu", f, step_idx);
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, step_idx=%lld", f, (long long)step_idx);
 	TRY (h5priv_close_step (f));
 	f->step_idx = step_idx;
 
@@ -253,7 +253,7 @@ h5_has_step (
 	h5_file_t* const f,		/*!< [in]  Handle to open file */
 	const h5_id_t step_idx		/*!< [in]  Step number to query */
 	) {
-	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, step_idx=%llu", f, step_idx);
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, step_idx=%lld", f, (long long)step_idx);
 	char name[2*H5_STEPNAME_LEN];
 	sprintf (name,
 		"%s#%0*lld",

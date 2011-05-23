@@ -48,7 +48,7 @@ h5_read_field_attrib (
 			    f,
 			    field_name,
 			    attrib_name,
-			    attrib_type,
+			    (long long)attrib_type,
 			    buffer);
 
 	TRY( h5bpriv_open_field_group(f, field_name) );
@@ -97,8 +97,8 @@ h5b_get_field_attrib_info (
 			    "attrib_nelem=0x%p",
 			    f,
 			    field_name,
-			    attrib_idx,
-			    attrib_name, len_attrib_name,
+			    (long long unsigned)attrib_idx,
+			    attrib_name, (long long unsigned)len_attrib_name,
 			    attrib_type,
 			    attrib_nelem);
 

@@ -60,7 +60,8 @@ h5u_set_num_particles (
 	) {
 	H5_CORE_API_ENTER3 (h5_ssize_t,
 			    "f=0x%p, nparticles=%llu, stride=%llu",
-			    f, nparticles, stride);
+			    f, (long long unsigned)nparticles,
+			    (long long unsigned)stride);
 	struct h5u_fdata *u = f->u;
 	hsize_t hstride;
 	hsize_t count;
@@ -201,7 +202,7 @@ h5u_set_view (
 	) {
 	H5_CORE_API_ENTER3 (h5_ssize_t,
 			    "f=0x%p, start=%lld, end=%lld",
-			    f, start, end);
+			    f, (long long)start, (long long)end);
 	hsize_t total;
 	hsize_t stride = 1;
 	hsize_t hstart;
@@ -280,7 +281,7 @@ h5u_set_view_indices (
 	) {
 	H5_CORE_API_ENTER3 (h5_err_t,
 			    "f=0x%p, indices=0x%p, nelems=%llu",
-			    f, indices, nelems);
+			    f, indices, (long long unsigned)nelems);
 	hsize_t total;
 	hsize_t dmax = H5S_UNLIMITED;
 	struct h5u_fdata *u = f->u;
@@ -432,8 +433,9 @@ h5u_get_dataset_info (
 			    "dataset_name=\"%s\", len_dataset_name=%llu, "
 			    "type=0x%p, nelem=0x%p",
 			    f,
-			    idx,
-			    dataset_name, len_dataset_name,
+			    (long long unsigned)idx,
+			    dataset_name,
+			    (long long unsigned)len_dataset_name,
 			    type, nelem);
 	TRY (hdf5_get_name_of_dataset_by_idx (
 		     f->step_gid,
@@ -462,7 +464,7 @@ h5u_set_chunk (
         h5_file_t *const f,
         const h5_size_t size
         ) {
-	H5_CORE_API_ENTER2 (h5_int64_t, "f=0x%p, size=%llu", f, size);
+	H5_CORE_API_ENTER2 (h5_int64_t, "f=0x%p, size=%llu", f, (long long unsigned)size);
 	if ( size == 0 )
 	{
 		h5_info ("Disabling chunking" );

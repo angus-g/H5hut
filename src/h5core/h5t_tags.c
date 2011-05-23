@@ -343,7 +343,7 @@ h5t_get_mtagset_info (
 	) {
 	H5_CORE_API_ENTER4 (h5_ssize_t,
 			    "f=0x%p, idx=%lld, name=0x%p, type=0x%p",
-			    f, idx, name, type);
+			    f, (long long)idx, name, type);
 	h5t_fdata_t* t = f->t;
 	*name = t->mtags.names[idx];
 	void* __retval = NULL;

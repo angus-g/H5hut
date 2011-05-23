@@ -183,9 +183,9 @@ h5priv_get_attrib_info (
 			    "attrib_name=%p, len_attrib_name=%llu, "
 			    "attrib_type=%p, attrib_nelem=%p",
 			    id,
-			    attrib_idx,
+			    (long long unsigned)attrib_idx,
 			    attrib_name,
-			    len_attrib_name,
+			    (long long unsigned)len_attrib_name,
 			    attrib_type,
 			    attrib_nelem);
 	hid_t attrib_id;
@@ -237,9 +237,9 @@ h5_get_attrib_info (
 			    "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
 			    "attrib_type=%p, attrib_nelem=%p",
 			    f, mode,
-			    attrib_idx,
+			    (long long unsigned)attrib_idx,
 			    attrib_name,
-			    len_attrib_name,
+			    (long long unsigned)len_attrib_name,
 			    attrib_type,
 			    attrib_nelem);
 

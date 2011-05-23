@@ -533,9 +533,9 @@ h5b_3d_set_view (
 			    "j_start=%llu, j_end=%llu, "
 			    "k_start=%llu, k_end=%llu",
 			    f,
-			    i_start, i_end,
-			    j_start, j_end,
-			    k_start, k_end);
+			    (long long unsigned)i_start, (long long unsigned)i_end,
+			    (long long unsigned)j_start, (long long unsigned)j_end,
+			    (long long unsigned)k_start, (long long unsigned)k_end);
 	h5b_partition_t *p = f->b->user_layout;
 	p->i_start = i_start;
 	p->i_end =   i_end;
@@ -663,7 +663,10 @@ h5b_3d_set_chunk (
 	) {
 	H5_CORE_API_ENTER4 (h5_err_t,
 			    "f=0x%p, i=%llu, j=%llu, k=%llu",
-			    f, i, j, k);
+			    f,
+			    (long long unsigned)i,
+			    (long long unsigned)j,
+			    (long long unsigned)k);
 	if ( i == 0 || j == 0 || k == 0 )
 	{
 		h5_info ("Disabling chunking" );
@@ -728,7 +731,10 @@ h5b_3d_set_grid (
 	) {
 	H5_CORE_API_ENTER4 (h5_err_t,
 			    "f=0x%p, i=%llu, j=%llu, k=%llu",
-			    f, i, j, k);
+			    f,
+			    (long long unsigned)i,
+			    (long long unsigned)j,
+			    (long long unsigned)k);
 	if (i*j*k != f->nprocs) {
 		H5_CORE_API_LEAVE (
 			h5_error(H5_ERR_INVAL,
@@ -787,7 +793,10 @@ h5b_3d_set_dims (
 	) {
 	H5_CORE_API_ENTER4 (h5_err_t,
 			    "f=0x%p, i=%llu, j=%llu, k=%llu",
-			    f, i, j, k);
+			    f,
+			    (long long unsigned)i,
+			    (long long unsigned)j,
+			    (long long unsigned)k);
 	if ( ! f->b->have_grid )
 		H5_CORE_API_LEAVE (
 			h5_error(H5_ERR_INVAL,
@@ -849,7 +858,11 @@ h5b_3d_set_halo (
 	) {
 	H5_CORE_API_ENTER4 (h5_err_t,
 			    "f=0x%p, i=%llu, j=%llu, k=%llu",
-			    f, i, j, k);
+			    f,
+			    (long long unsigned)i,
+			    (long long unsigned)j,
+			    (long long unsigned)k);
+
 	if ( ! f->b->have_grid ) {
 		H5_CORE_API_LEAVE (
 			h5_error(H5_ERR_INVAL,
@@ -947,8 +960,9 @@ h5b_get_field_info (
 			    "f=0x%p, idx=%llu, "
 			    "name=0x%p, len_name=%llu, "
 			    "field_rank=0x%p, field_dims=0x%p, elem_rank=0x%p, type=0x%p",
-			    f, idx,
-			    name, len_name, 
+			    f,
+			    (long long unsigned)idx,
+			    name, (long long unsigned)len_name, 
 			    field_rank, field_dims, elem_rank, type);
 	CHECK_TIMEGROUP( f );
 

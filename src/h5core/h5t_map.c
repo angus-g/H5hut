@@ -67,8 +67,8 @@ h5t_map_global_vertex_idx2local (
 	const h5_glb_idx_t glb_idx
 	) {
 	H5_CORE_API_ENTER2 (h5_loc_idx_t,
-			    "f=0x%p, glb_idx=%llu",
-			    f, glb_idx);
+			    "f=0x%p, glb_idx=%lld",
+			    f, (long long)glb_idx);
 	if (glb_idx < 0) return -1;
 	
 	h5_loc_idx_t loc_idx = h5priv_search_idxmap (&f->t->map_vertex_g2l, glb_idx);
@@ -87,7 +87,7 @@ h5t_map_global_vertex_indices2local (
 	) {
 	H5_CORE_API_ENTER4 (h5_err_t,
 			    "f=0x%p, glb_indices=0x%p, size=%llu, loc_indices=0x%p",
-			    f, glb_indices, size, loc_indices);
+			    f, glb_indices, (long long unsigned)size, loc_indices);
 	h5_size_t i;
 	for (i = 0; i < size; i++) {
 		TRY (loc_indices[i] =
@@ -110,8 +110,8 @@ h5t_map_glb_elem_idx2loc (
 	const h5_glb_idx_t glb_idx
 	) {
 	H5_CORE_API_ENTER2 (h5_loc_idx_t,
-			    "f=0x%p, glb_idx=%llu",
-			    f, glb_idx);
+			    "f=0x%p, glb_idx=%lld",
+			    f, (long long)glb_idx);
 	if (glb_idx < 0) H5_CORE_API_LEAVE (-1);
 
 	h5_loc_idx_t loc_idx = h5priv_search_idxmap (&f->t->map_elem_g2l, glb_idx);
@@ -129,7 +129,7 @@ h5t_map_glb_elem_indices2loc (
 	) {
 	H5_CORE_API_ENTER4 (h5_err_t,
 			    "f=0x%p, glb_indices=0x%p, size=%llu, loc_indices=0x%p",
-			    f, glb_indices, size, loc_indices);
+			    f, glb_indices, (long long unsigned)size, loc_indices);
 	const h5_glb_idx_t*  end = glb_indices+size;
 
 	while (glb_indices < end) {
