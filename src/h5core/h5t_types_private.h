@@ -118,8 +118,7 @@ typedef struct h5t_methods {
 
 typedef struct h5t_fdata {
 	/*** book-keeping ***/
-	char		mesh_name[16];
-	char		mesh_label[256];
+	char		mesh_name[256];
 	h5_oid_t	mesh_type;	/* object id of element type */
 	const h5t_ref_elem_t*  ref_elem;
 	h5_id_t		cur_mesh;	/* id of current mesh */

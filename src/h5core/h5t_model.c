@@ -190,7 +190,6 @@ init_fdata (
 	h5t_fdata_t* t = f->t;
 
 	memset (t->mesh_name, 0, sizeof (t->mesh_name));
-	memset (t->mesh_label, 0, sizeof (t->mesh_label));
 	t->mesh_type = 0;
 	t->ref_elem = NULL;
 	t->cur_mesh = -1;
