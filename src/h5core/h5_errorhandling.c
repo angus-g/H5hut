@@ -10,6 +10,7 @@ h5_err_t			h5_errno;
 h5_int32_t			h5_debug_level = 1;
 int				h5_initialized = 0;
 struct call_stack		h5_call_stack;
+int				h5_myproc = 0;
 
 char *h5_rfmts[] = {
 	[e_int]			"%d",
@@ -48,6 +49,11 @@ h5_initialize (
 	) {
 	memset (&h5_call_stack, 0, sizeof (h5_call_stack));
 	h5_initialized = 1;
+#ifdef PARALLEL_IO
+	if (h5priv_mpi_comm_rank (MPI_COMM_WORLD, &h5_myproc) < 0) {
+		exit (42);
+	}
+#endif
 }
 
 
@@ -198,7 +204,8 @@ h5priv_vprintf (
 	va_list ap
 	) {
 	char fmt2[2048];
-	snprintf (fmt2, sizeof(fmt2), "%s: %s: %s\n", prefix, __funcname, fmt); 
+	snprintf (fmt2, sizeof(fmt2), "[proc %d] %s: %s: %s\n", h5_myproc, prefix,
+		  __funcname, fmt); 
 	vfprintf (f, fmt2, ap);
 }
 
