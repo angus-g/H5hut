@@ -387,12 +387,12 @@ H5PartGetDatasetName (
 	const h5_size_t len	/*!< [in]  Size of buffer \c name */
 	) {
 	H5_API_ENTER4 (h5_err_t, 
-			    "f=0x%p, "
-			    "idx=%llu, "
-			    "name=\"%s\", len=%llu, ",
-			    f,
-			    idx,
-			    name, len);
+		       "f=0x%p, "
+		       "idx=%llu, "
+		       "name=\"%s\", len=%llu, ",
+		       f,
+		       (long long)idx,
+		       name, (long long)len);
 	H5_API_RETURN (h5u_get_dataset_info(f, idx, name, len, NULL, NULL));
 }
 
@@ -422,14 +422,14 @@ H5PartGetDatasetInfo (
 	h5_size_t *nelem	/*!< [out] Number of elements. */
 	) {
 	H5_API_ENTER6 (h5_int64_t, 
-			    "f=0x%p, "
-			    "idx=%llu, "
-			    "dataset_name=\"%s\", len_dataset_name=%llu, "
-			    "type=0x%p, nelem=0x%p",
-			    f,
-			    idx,
-			    dataset_name, len_dataset_name,
-			    type, nelem);
+		       "f=0x%p, "
+		       "idx=%llu, "
+		       "dataset_name=\"%s\", len_dataset_name=%llu, "
+		       "type=0x%p, nelem=0x%p",
+		       f,
+		       (long long)idx,
+		       dataset_name, (long long)len_dataset_name,
+		       type, nelem);
 	H5_API_RETURN (h5u_get_dataset_info(f, idx, dataset_name, len_dataset_name, type, nelem));
 }
 
@@ -524,7 +524,7 @@ H5PartSetView (
 	) {
 	H5_API_ENTER3 (h5_err_t,
 		       "f=0x%p, start=%lld, end=%lld",
-		       f, start, end);
+		       f, (long long)start, (long long)end);
 	H5_API_RETURN (h5u_set_view (f, start, end));
 }
 
@@ -559,7 +559,7 @@ H5PartSetViewIndices (
 	) {
 	H5_API_ENTER3 (h5_err_t,
 		       "f=0x%p, indices=0x%p, nelems=%llu",
-		       f, indices, nelems);
+		       f, indices, (long long unsigned)nelems);
 	H5_API_RETURN (h5u_set_view_indices (f, indices, nelems));
 }
 

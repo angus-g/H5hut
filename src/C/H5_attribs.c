@@ -683,12 +683,12 @@ H5GetFileAttribInfo (
 	) {
 	H5_API_ENTER6 (h5_err_t,
 		       "f=%p, "
-		       "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
+		       "attrib_idx=%llu, attrib_name=0x%p, len_attrib_name=%llu, "
 		       "attrib_type=%p, attrib_nelem=%p",
 		       f,
-		       attrib_idx,
+		       (long long unsigned)attrib_idx,
 		       attrib_name,
-		       len_of_attrib_name,
+		       (long long unsigned)len_of_attrib_name,
 		       attrib_type,
 		       attrib_nelem);
 	H5_API_RETURN (h5_get_attrib_info (
@@ -730,9 +730,9 @@ H5GetStepAttribInfo (
 		       "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
 		       "attrib_type=%p, attrib_nelem=%p",
 		       f,
-		       attrib_idx,
+		       (long long)attrib_idx,
 		       attrib_name,
-		       len_of_attrib_name,
+		       (long long)len_of_attrib_name,
 		       attrib_type,
 		       attrib_nelem);
 	H5_API_RETURN (h5_get_attrib_info (

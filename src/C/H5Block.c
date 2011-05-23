@@ -101,13 +101,13 @@ H5Block3dSetView (
 	) {
 	H5_API_ENTER7 (h5_err_t,
 		       "f=0X%p, "
-		       "i_start=%llu, i_end=%llu, "
-		       "j_start=%llu, j_end=%llu, "
-		       "k_start=%llu, k_end=%llu",
+		       "i_start=%lld, i_end=%lld, "
+		       "j_start=%lld, j_end=%lld, "
+		       "k_start=%lld, k_end=%lld",
 		       f,
-		       i_start, i_end,
-		       j_start, j_end,
-		       k_start, k_end);
+		       (long long)i_start, (long long)i_end,
+		       (long long)j_start, (long long)j_end,
+		       (long long)k_start, (long long)k_end);
 	H5_API_RETURN (h5b_3d_set_view(f, i_start, i_end, j_start, j_end, k_start, k_end));
 }
 
@@ -186,7 +186,10 @@ H5Block3dSetChunk (
 	) {
 	H5_API_ENTER4 (h5_err_t,
 		      "f=0x%p, i=%llu, j=%llu, k=%llu",
-		      f, i, j, k);
+		       f,
+		       (long long unsigned)i,
+		       (long long unsigned)j,
+		       (long long unsigned)k);
 	H5_API_RETURN (h5b_3d_set_chunk(f, i, j, k));
 }
 
@@ -235,7 +238,10 @@ H5Block3dSetGrid (
 	) {
 	H5_API_ENTER4 (h5_err_t,
 		       "f=0x%p, i=%llu, j=%llu, k=%llu",
-		       f, i, j, k);
+		       f,
+		       (long long unsigned)i,
+		       (long long unsigned)j,
+		       (long long unsigned)k);
 	H5_API_RETURN (h5b_3d_set_grid(f, i, j, k));
 }
 
@@ -280,8 +286,11 @@ H5Block3dSetDims (
 	const h5_size_t k		/*!< IN: dimension in \c k */ 
 	) {
 	H5_API_ENTER4 (h5_err_t,
-			    "f=0x%p, i=%llu, j=%llu, k=%llu",
-			    f, i, j, k);
+		       "f=0x%p, i=%llu, j=%llu, k=%llu",
+		       f,
+		       (long long unsigned)i,
+		       (long long unsigned)j,
+		       (long long unsigned)k);
 	H5_API_RETURN (h5b_3d_set_dims(f, i, j, k));
 }
 #endif
@@ -307,7 +316,10 @@ H5Block3dSetHalo (
 	) {
 	H5_API_ENTER4 (h5_err_t,
 		       "f=0x%p, i=%llu, j=%llu, k=%llu",
-		       f, i, j, k);
+		       f,
+		       (long long unsigned)i,
+		       (long long unsigned)j,
+		       (long long unsigned)k);
 	H5_API_RETURN (h5b_3d_set_halo(f, i, j, k));
 }
 
@@ -358,9 +370,10 @@ H5BlockGetFieldInfo (
 		       "f=0x%p, idx=%llu, "
 		       "name=0x%p, len_name=%llu, "
 		       "field_rank=0x%p, field_dims=0x%p, elem_rank=0x%p, type=0x%p",
-		       f, idx,
-		       name, len_name, 
-		       field_rank, field_dims, elem_rank, type);
+		       f, (long long unsigned)idx,
+		       name, (long long unsigned)len_name, 
+		       field_rank, field_dims, elem_rank,
+		       type);
 	H5_API_RETURN (
 		h5b_get_field_info (
 			f,
@@ -524,8 +537,8 @@ H5BlockGetFieldAttribInfo (
 		       "attrib_nelem=0x%p",
 		       f,
 		       field_name,
-		       attrib_idx,
-		       attrib_name, len_attrib_name,
+		       (long long unsigned)attrib_idx,
+		       attrib_name, (long long unsigned)len_attrib_name,
 		       attrib_type,
 		       attrib_nelem);
 	H5_API_RETURN (
