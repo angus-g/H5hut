@@ -75,7 +75,7 @@ h5t_open_triangle_mesh (
 	t->ref_elem = &h5t_tri_ref_elem;
 	TRY (open_trimesh_group (f, id));
 
-	if (id == -1) {			// append new
+	if (id == -1) {			// add new
 		id = t->num_meshes;
 		t->num_meshes++;
 		t->mesh_changed = id;
@@ -86,6 +86,62 @@ h5t_open_triangle_mesh (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
+#if 0
+/*
+  open HDF5 group with data of specific mesh.
+ */
+static inline h5_err_t
+open_trimesh_group_by_name (
+	h5_file_t* const f,
+	const char* mesh_name
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t);
+	h5t_fdata_t* t = f->t;
+
+	if (t->meshes_gid < 0) {
+		TRY (open_trimeshes_group (f));
+	}
+	strncpy (t->mesh_name, mesh_name, sizeof (t->mesh_name));
+
+	TRY (t->mesh_gid = h5priv_open_group (
+		      f,
+		      t->meshes_gid,
+		      t->mesh_name));
+	t->cur_mesh = id;
+	H5_PRIV_API_RETURN (H5_SUCCESS);
+}
+
+/*
+  open existing triangle mesh given by \c name.
+*/
+h5_err_t
+h5t_open_triangle_mesh_by_name (
+	h5_file_t* const f,
+	const* char name
+	) {
+	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, name=%s", f, name);
+	h5t_fdata_t* t = f->t;
+
+	TRY (h5t_close_mesh (f));
+
+
+
+	t->dsinfo_elems.type_id = t->dtypes.h5_triangle_t;
+	t->methods = tri_funcs;
+	t->ref_elem = &h5t_tri_ref_elem;
+	TRY (open_trimesh_group (f, id));
+
+	if (id == -1) {			// add new
+		id = t->num_meshes;
+		t->num_meshes++;
+		t->mesh_changed = id;
+		t->num_leaf_levels = 0;
+	} else {			// read existing
+		TRY (h5tpriv_read_mesh (f));
+	} 
+	H5_CORE_API_RETURN (H5_SUCCESS);
+}
+#endif
 
 /*!
   Add new mesh
