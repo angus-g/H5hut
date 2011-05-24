@@ -55,7 +55,7 @@ AC_ARG_WITH(
 	[mpi],
 	[AC_HELP_STRING([--with-mpi],
 	[path to MPI installation [default=""]])],
-	[MPIPATH=$withval], [MPIPATH=""])
+	[MPIPATH=$withval; PATH="$MPIPATH:$PATH"], [MPIPATH=""])
 
 AC_ARG_WITH(
 	[hdf5],
@@ -130,12 +130,20 @@ if test "x$uname" = "xAIX"; then
 	AC_AIX
 fi
 
+#if test -n "$MPIPATH"; then
+#   	PATH="$MPIPATH/bin:$PATH"
+#fi
 
 # Determine a C compiler to use. 
 # If CC is not already set in the environment, check for gcc and cc, then
 # for other C compilers. 
 # Set output variable CC to the name of the compiler found.
-AC_PROG_CC(pgcc pathcc icc cc_r gcc cc)
+if test "x$USE_PARALLEL" = "xyes"; then
+   	AC_PROG_CC(mpicc)
+	CC=`which $CC`
+else
+	AC_PROG_CC(pgcc pathcc icc cc_r gcc cc)
+fi
 
 
 # Determine a C++ compiler to use. 
@@ -145,8 +153,12 @@ AC_PROG_CC(pgcc pathcc icc cc_r gcc cc)
 # then search for a C++ compiler under the likely names (first g++ and c++
 # then other names). 
 # If none of those checks succeed, then as a last resort set CXX to g++.
-AC_PROG_CXX(pgCC pathCC icc cc_r g++ gcc cc)
-
+if test "x$USE_PARALLEL" = "xyes"; then
+   	AC_PROG_CXX(mpicxx)
+	CXX=`which $CXX`
+else
+	AC_PROG_CXX(pgCC pathCC icc cc_r g++ gcc cc)
+fi
 
 # Set output variable INSTALL to the path of a BSD-compatible install program,
 # if one is found in the current PATH. 
