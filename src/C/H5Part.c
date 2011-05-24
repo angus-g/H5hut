@@ -388,11 +388,11 @@ H5PartGetDatasetName (
 	) {
 	H5_API_ENTER4 (h5_err_t, 
 		       "f=0x%p, "
-		       "idx=%llu, "
+		       "idx=%lld, "
 		       "name=\"%s\", len=%llu, ",
 		       f,
-		       (long long)idx,
-		       name, (long long)len);
+		       idx,
+		       name, len);
 	H5_API_RETURN (h5u_get_dataset_info(f, idx, name, len, NULL, NULL));
 }
 
@@ -423,14 +423,15 @@ H5PartGetDatasetInfo (
 	) {
 	H5_API_ENTER6 (h5_int64_t, 
 		       "f=0x%p, "
-		       "idx=%llu, "
+		       "idx=%lld, "
 		       "dataset_name=\"%s\", len_dataset_name=%llu, "
 		       "type=0x%p, nelem=0x%p",
 		       f,
 		       (long long)idx,
-		       dataset_name, (long long)len_dataset_name,
+		       dataset_name, (long long unsigned)len_dataset_name,
 		       type, nelem);
-	H5_API_RETURN (h5u_get_dataset_info(f, idx, dataset_name, len_dataset_name, type, nelem));
+	H5_API_RETURN (h5u_get_dataset_info (
+			       f, idx, dataset_name, len_dataset_name, type, nelem));
 }
 
 /*!

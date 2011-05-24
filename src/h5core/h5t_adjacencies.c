@@ -51,8 +51,8 @@ h5t_find_te2 (
 	H5_CORE_API_ENTER4 (h5_err_t,
 			    "f=0x%p, face_idx=%lld, elem_idx=%lld, retval=0x%p",
 			    f,
-			    (long long unsigned)face_idx,
-			    (long long unsigned)elem_idx,
+			    (long long)face_idx,
+			    (long long)elem_idx,
 			    retval);
 	H5_CORE_API_RETURN (h5tpriv_find_te2 (f,face_idx,elem_idx,retval));
 }

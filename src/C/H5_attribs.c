@@ -730,9 +730,9 @@ H5GetStepAttribInfo (
 		       "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
 		       "attrib_type=%p, attrib_nelem=%p",
 		       f,
-		       (long long)attrib_idx,
+		       attrib_idx,
 		       attrib_name,
-		       (long long)len_of_attrib_name,
+		       len_of_attrib_name,
 		       attrib_type,
 		       attrib_nelem);
 	H5_API_RETURN (h5_get_attrib_info (

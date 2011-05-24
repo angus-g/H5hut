@@ -427,13 +427,13 @@ h5u_get_dataset_info (
  	h5_int64_t *type,	/*!< [out] Type of data in dataset */
 	h5_size_t *nelem	/*!< [out] Number of elements. */
 	) {
-	H5_CORE_API_ENTER6 (h5_int64_t, 
+	H5_CORE_API_ENTER6 (h5_err_t, 
 			    "f=0x%p, "
-			    "idx=%llu, "
+			    "idx=%lld, "
 			    "dataset_name=\"%s\", len_dataset_name=%llu, "
 			    "type=0x%p, nelem=0x%p",
 			    f,
-			    (long long unsigned)idx,
+			    (long long)idx,
 			    dataset_name,
 			    (long long unsigned)len_dataset_name,
 			    type, nelem);

@@ -214,7 +214,7 @@ h5priv_search_idxmap (
 	h5_glb_idx_t value
 	) {
 	H5_PRIV_API_ENTER2 (h5_err_t,
-			    "map=0x%p, value=%llu",
+			    "map=0x%p, value=%lld",
 			    map, (long long)value);
 	register h5_loc_idx_t low = 0;
 	register h5_loc_idx_t high = map->num_items - 1;

@@ -125,7 +125,7 @@ h5t_store_vertex (
 	H5_CORE_API_ENTER3 (h5_loc_idx_t,
 			    "f=0x%p, glb=id=%lld, P=0x%p",
 			    f,
-			    (long long unsigned)glb_id,
+			    (long long)glb_id,
 			    P);
 	h5t_fdata_t* const t = f->t;
 	
@@ -349,6 +349,8 @@ h5t_end_refine_elems (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
+#if 0
+// index set for DUNE
 h5_err_t
 h5t_create_index_set (
 	h5_file_t* const f
@@ -370,3 +372,4 @@ h5t_create_index_set (
 	}
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
+#endif

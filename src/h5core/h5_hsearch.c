@@ -201,7 +201,7 @@ h5priv_hsearch (
 	) {
 	H5_PRIV_API_ENTER4 (h5_err_t,
 			    "item=0x%p, action=%d, retval=0x%p, htab=0x%p",
-			    item, action, retval, htab);
+			    item, (int)action, retval, htab);
 	unsigned int hval;
 	unsigned int idx;
 

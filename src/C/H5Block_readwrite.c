@@ -1,5 +1,6 @@
 
 #include "h5core/h5_core.h"
+#include "H5Block_readwrite.h"
 
 /*!
   \ingroup h5block_data
@@ -92,15 +93,15 @@ h5_err_t
 H5Block3dReadVector3dFieldFloat64 (
 	h5_file_t *const f,		/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
-	const h5_float64_t *x_buf,	/*!< OUT: pointer to X axis buffer */
-	const h5_float64_t *y_buf,	/*!< OUT: pointer to Y axis buffer */
-	const h5_float64_t *z_buf	/*!< OUT: pointer to Z axis buffer */
+	h5_float64_t *const x_buf,	/*!< OUT: pointer to X axis buffer */
+	h5_float64_t *const y_buf,	/*!< OUT: pointer to Y axis buffer */
+	h5_float64_t *const z_buf	/*!< OUT: pointer to Z axis buffer */
 	) {
 
 	H5_API_ENTER5 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p",
 					f, name, x_buf, y_buf, z_buf);
 	H5_API_RETURN(h5b_read_vector3d_data(f, name,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_DOUBLE));
+		x_buf, y_buf, z_buf, H5T_NATIVE_DOUBLE));
 }
 
 /*!
@@ -123,7 +124,7 @@ H5Block3dWriteScalarFieldFloat32 (
 
 	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p",
 				  f, name, buffer);
-	H5_API_RETURN (h5b_write_scalar_data(f, name, (void*)buffer, H5T_NATIVE_FLOAT ));
+	H5_API_RETURN (h5b_write_scalar_data(f, name, buffer, H5T_NATIVE_FLOAT ));
 }
 
 /*!
@@ -141,12 +142,12 @@ h5_err_t
 H5Block3dReadScalarFieldFloat32 (
 	h5_file_t *const f,		/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to read */
-	h5_float32_t *buffer		/*!< OUT: pointer to read buffer */
+	h5_float32_t *const buffer		/*!< OUT: pointer to read buffer */
 	) {
 
 	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p",
 				  f, name, buffer);
-	H5_API_RETURN (h5b_read_scalar_data(f, name, (void*)buffer, H5T_NATIVE_FLOAT));
+	H5_API_RETURN (h5b_read_scalar_data(f, name, buffer, H5T_NATIVE_FLOAT));
 }
 
 /*!
@@ -174,7 +175,7 @@ H5Block3dWriteVector3dFieldFloat32 (
 	H5_API_ENTER5 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p",
 					f, name, x_buf, y_buf, z_buf);
 	H5_API_RETURN(h5b_write_vector3d_data(f, name,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_FLOAT));
+		x_buf, y_buf, z_buf, H5T_NATIVE_FLOAT));
 }
 
 /*!
@@ -194,15 +195,15 @@ h5_err_t
 H5Block3dReadVector3dFieldFloat32 (
 	h5_file_t *const f,		/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
-	const h5_float32_t *x_buf,	/*!< OUT: pointer to X axis buffer */
-	const h5_float32_t *y_buf,	/*!< OUT: pointer to Y axis buffer */
-	const h5_float32_t *z_buf	/*!< OUT: pointer to Z axis buffer */
+	h5_float32_t *const x_buf,	/*!< OUT: pointer to X axis buffer */
+	h5_float32_t *const y_buf,	/*!< OUT: pointer to Y axis buffer */
+	h5_float32_t *const z_buf	/*!< OUT: pointer to Z axis buffer */
 	) {
 
 	H5_API_ENTER5 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p",
 					f, name, x_buf, y_buf, z_buf);
 	H5_API_RETURN(h5b_read_vector3d_data(f, name,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_FLOAT));
+		x_buf, y_buf, z_buf, H5T_NATIVE_FLOAT));
 }
 
 /*!
@@ -225,7 +226,7 @@ H5Block3dWriteScalarFieldInt64 (
 
 	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p",
 				  f, name, buffer);
-	H5_API_RETURN (h5b_write_scalar_data(f, name, (void*)buffer, H5T_NATIVE_INT64 ));
+	H5_API_RETURN (h5b_write_scalar_data(f, name, buffer, H5T_NATIVE_INT64 ));
 }
 
 /*!
@@ -243,12 +244,12 @@ h5_err_t
 H5Block3dReadScalarFieldInt64 (
 	h5_file_t *const f,		/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to read */
-	h5_int64_t *buffer		/*!< OUT: pointer to read buffer */
+	h5_int64_t *const buffer	/*!< OUT: pointer to read buffer */
 	) {
 
 	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p",
 				  f, name, buffer);
-	H5_API_RETURN (h5b_read_scalar_data(f, name, (void*)buffer, H5T_NATIVE_INT64));
+	H5_API_RETURN (h5b_read_scalar_data(f, name, buffer, H5T_NATIVE_INT64));
 }
 
 /*!
@@ -275,8 +276,8 @@ H5Block3dWriteVector3dFieldInt64 (
 
 	H5_API_ENTER5 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p",
 					f, name, x_buf, y_buf, z_buf);
-	H5_API_RETURN(h5b_write_vector3d_data(f, name,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_INT64));
+	H5_API_RETURN (h5b_write_vector3d_data(f, name,
+					       x_buf, y_buf, z_buf, H5T_NATIVE_INT64));
 }
 
 /*!
@@ -296,15 +297,15 @@ h5_err_t
 H5Block3dReadVector3dFieldInt64 (
 	h5_file_t *const f,		/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
-	const h5_int64_t *x_buf,	/*!< OUT: pointer to X axis buffer */
-	const h5_int64_t *y_buf,	/*!< OUT: pointer to Y axis buffer */
-	const h5_int64_t *z_buf	/*!< OUT: pointer to Z axis buffer */
+	h5_int64_t *const x_buf,	/*!< OUT: pointer to X axis buffer */
+	h5_int64_t *const y_buf,	/*!< OUT: pointer to Y axis buffer */
+	h5_int64_t *const z_buf		/*!< OUT: pointer to Z axis buffer */
 	) {
 
 	H5_API_ENTER5 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p",
-					f, name, x_buf, y_buf, z_buf);
-	H5_API_RETURN(h5b_read_vector3d_data(f, name,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_INT64));
+		       f, name, x_buf, y_buf, z_buf);
+	H5_API_RETURN (h5b_read_vector3d_data(f, name,
+					      x_buf, y_buf, z_buf, H5T_NATIVE_INT64));
 }
 
 /*!
@@ -327,7 +328,7 @@ H5Block3dWriteScalarFieldInt32 (
 
 	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p",
 				  f, name, buffer);
-	H5_API_RETURN (h5b_write_scalar_data(f, name, (void*)buffer, H5T_NATIVE_INT32 ));
+	H5_API_RETURN (h5b_write_scalar_data(f, name, buffer, H5T_NATIVE_INT32 ));
 }
 
 /*!
@@ -345,12 +346,12 @@ h5_err_t
 H5Block3dReadScalarFieldInt32 (
 	h5_file_t *const f,		/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to read */
-	h5_int32_t *buffer		/*!< OUT: pointer to read buffer */
+	h5_int32_t *const buffer	/*!< OUT: pointer to read buffer */
 	) {
 
 	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p",
 				  f, name, buffer);
-	H5_API_RETURN (h5b_read_scalar_data(f, name, (void*)buffer, H5T_NATIVE_INT32));
+	H5_API_RETURN (h5b_read_scalar_data(f, name, buffer, H5T_NATIVE_INT32));
 }
 
 /*!
@@ -376,9 +377,9 @@ H5Block3dWriteVector3dFieldInt32 (
 	) {
 
 	H5_API_ENTER5 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p",
-					f, name, x_buf, y_buf, z_buf);
+		       f, name, x_buf, y_buf, z_buf);
 	H5_API_RETURN(h5b_write_vector3d_data(f, name,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_INT32));
+					      x_buf, y_buf, z_buf, H5T_NATIVE_INT32));
 }
 
 /*!
@@ -398,15 +399,15 @@ h5_err_t
 H5Block3dReadVector3dFieldInt32 (
 	h5_file_t *const f,		/*!< IN: file handle */
 	const char *name,		/*!< IN: name of dataset to write */
-	const h5_int32_t *x_buf,	/*!< OUT: pointer to X axis buffer */
-	const h5_int32_t *y_buf,	/*!< OUT: pointer to Y axis buffer */
-	const h5_int32_t *z_buf	/*!< OUT: pointer to Z axis buffer */
+	h5_int32_t *const x_buf,	/*!< OUT: pointer to X axis buffer */
+	h5_int32_t *const y_buf,	/*!< OUT: pointer to Y axis buffer */
+	h5_int32_t *const z_buf		/*!< OUT: pointer to Z axis buffer */
 	) {
 
 	H5_API_ENTER5 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p",
-					f, name, x_buf, y_buf, z_buf);
+		       f, name, x_buf, y_buf, z_buf);
 	H5_API_RETURN(h5b_read_vector3d_data(f, name,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_INT32));
+					     x_buf, y_buf, z_buf, H5T_NATIVE_INT32));
 }
 
 /*!
@@ -429,13 +430,13 @@ H5BlockWriteFieldAttribFloat64 (
 	H5_API_ENTER5 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
 				 "buffer=0x%p, nelems=%lld",
 				 f, field_name, attrib_name, buffer, (long long)nelems);
-	H5_API_RETURN(h5_write_field_attrib (
-		f,
-		field_name,
-		attrib_name,
-                H5T_NATIVE_DOUBLE,
-                buffer,
-		nelems ));
+	H5_API_RETURN (h5_write_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_DOUBLE,
+			       buffer,
+			       nelems ));
 }
 
 /*!
@@ -456,12 +457,12 @@ H5BlockReadFieldAttribFloat64 (
 
         H5_API_ENTER4 (h5_err_t, "f=%p, field_name=\"%s\", attrib_name=\"%s\", buffer=0x%p",
 				 f, field_name, attrib_name, buffer);
-	H5_API_RETURN(h5_read_field_attrib (
-		f,
-		field_name,
-		attrib_name,
-                H5T_NATIVE_DOUBLE,
-                (void*)buffer ));
+	H5_API_RETURN (h5_read_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_DOUBLE,
+			       (void*)buffer ));
 }
 
 /*!
@@ -484,13 +485,13 @@ H5BlockWriteFieldAttribFloat32 (
 	H5_API_ENTER5 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
 				 "buffer=0x%p, nelems=%lld",
 				 f, field_name, attrib_name, buffer, (long long)nelems);
-	H5_API_RETURN(h5_write_field_attrib (
-		f,
-		field_name,
-		attrib_name,
-                H5T_NATIVE_FLOAT,
-                buffer,
-		nelems ));
+	H5_API_RETURN (h5_write_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_FLOAT,
+			       buffer,
+			       nelems ));
 }
 
 /*!
@@ -506,17 +507,17 @@ H5BlockReadFieldAttribFloat32 (
 	h5_file_t *const f,			/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
-	h5_float32_t *buffer		        /*!< OUT: attribute values */
+	h5_float32_t *const buffer		/*!< OUT: attribute values */
 	) {
 
         H5_API_ENTER4 (h5_err_t, "f=%p, field_name=\"%s\", attrib_name=\"%s\", buffer=0x%p",
 				 f, field_name, attrib_name, buffer);
-	H5_API_RETURN(h5_read_field_attrib (
-		f,
-		field_name,
-		attrib_name,
-                H5T_NATIVE_FLOAT,
-                (void*)buffer ));
+	H5_API_RETURN (h5_read_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_FLOAT,
+			       buffer ));
 }
 
 /*!
@@ -561,17 +562,17 @@ H5BlockReadFieldAttribInt64 (
 	h5_file_t *const f,			/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
-	h5_int64_t *buffer		        /*!< OUT: attribute values */
+	h5_int64_t *const buffer	        /*!< OUT: attribute values */
 	) {
 
         H5_API_ENTER4 (h5_err_t, "f=%p, field_name=\"%s\", attrib_name=\"%s\", buffer=0x%p",
-				 f, field_name, attrib_name, buffer);
-	H5_API_RETURN(h5_read_field_attrib (
-		f,
-		field_name,
-		attrib_name,
-                H5T_NATIVE_INT64,
-                (void*)buffer ));
+		       f, field_name, attrib_name, buffer);
+	H5_API_RETURN (h5_read_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_INT64,
+			       buffer ));
 }
 
 /*!
@@ -594,13 +595,13 @@ H5BlockWriteFieldAttribInt32 (
 	H5_API_ENTER5 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
 				 "buffer=0x%p, nelems=%lld",
 				 f, field_name, attrib_name, buffer, (long long)nelems);
-	H5_API_RETURN(h5_write_field_attrib (
-		f,
-		field_name,
-		attrib_name,
-                H5T_NATIVE_INT32,
-                buffer,
-		nelems ));
+	H5_API_RETURN (h5_write_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_INT32,
+			       buffer,
+			       nelems ));
 }
 
 /*!
@@ -620,11 +621,11 @@ H5BlockReadFieldAttribInt32 (
 	) {
 
         H5_API_ENTER4 (h5_err_t, "f=%p, field_name=\"%s\", attrib_name=\"%s\", buffer=0x%p",
-				 f, field_name, attrib_name, buffer);
-	H5_API_RETURN(h5_read_field_attrib (
-		f,
-		field_name,
-		attrib_name,
-                H5T_NATIVE_INT32,
-                (void*)buffer ));
+		       f, field_name, attrib_name, buffer);
+	H5_API_RETURN (h5_read_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_INT32,
+			       (void*)buffer ));
 }
