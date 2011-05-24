@@ -1,6 +1,10 @@
 #ifndef __H5T_MAP_H
 #define __H5T_MAP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_loc_idx_t
 h5t_map_global_vertex_idx2local (
 	h5_file_t* const f,
@@ -96,5 +100,9 @@ h5t_get_vertex_indices_of_entity2 (
 	const h5_loc_idx_t elem_idx,
 	h5_loc_idx_t* vertex_indices
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

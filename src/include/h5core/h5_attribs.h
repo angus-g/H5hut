@@ -1,6 +1,10 @@
 #ifndef __H5CORE_ATTRIBS_H
 #define __H5CORE_ATTRIBS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define H5_ATTRIB_FILE 0
 #define H5_ATTRIB_STEP 1
 #define H5_ATTRIB_FIELD 2
@@ -40,5 +44,9 @@ h5_get_num_attribs (
 	h5_file_t *const f,
 	const char mode
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

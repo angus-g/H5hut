@@ -1,6 +1,10 @@
 #ifndef __H5_OPENCLOSE_H
 #define __H5_OPENCLOSE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_file_t *
 h5_open_file (
 	const char *filename,
@@ -90,5 +94,9 @@ h5_file_t *
 h5_filehandlefor2c (
 	const h5_int64_t *ptr
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

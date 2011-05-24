@@ -1,6 +1,10 @@
 #ifndef __H5B_MODEL_H
 #define __H5B_MODEL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_err_t
 h5bpriv_release_hyperslab (
 	h5_file_t *const f			/*!< IN: file handle */
@@ -146,5 +150,8 @@ h5b_get_field_info (
 	h5_int64_t *const type			/*!< OUT: datatype */
 	);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

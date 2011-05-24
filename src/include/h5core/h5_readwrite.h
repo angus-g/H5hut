@@ -1,6 +1,10 @@
 #ifndef __H5_READWRITE_H
 #define __H5_READWRITE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_int64_t
 h5_set_step (
 	h5_file_t * const f,
@@ -45,5 +49,9 @@ h5_err_t
 h5_end_throttle (
 	h5_file_t *f
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

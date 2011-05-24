@@ -1,6 +1,10 @@
 #ifndef __H5T_INQUIRY_H
 #define __H5T_INQUIRY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_ssize_t
 h5t_get_num_tetmeshes (
 	h5_file_t * const f
@@ -32,4 +36,9 @@ h5t_lvl_idx_t
 h5t_get_level (
 	h5_file_t * const f
 	);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

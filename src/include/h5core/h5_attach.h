@@ -1,6 +1,10 @@
 #ifndef __H5_ATTACH_H
 #define __H5_ATTACH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_err_t
 h5_add_attachment (
 	h5_file_t* const f,
@@ -39,5 +43,8 @@ h5_delete_attachment (
 	h5_file_t* const f,
 	const char* const name
 	);
+#ifdef __cplusplus
+}
+#endif
 
 #endif

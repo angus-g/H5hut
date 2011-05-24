@@ -1,6 +1,10 @@
 #ifndef __H5T_TAGS_H 
 #define __H5T_TAGS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct h5t_tagset h5t_tagset_t;
 typedef struct h5t_tagcontainer h5t_tagcontainer_t;
 
@@ -96,5 +100,9 @@ h5t_get_mtagset_names_of_entity (
 	char *names[],
 	const h5_size_t dim
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

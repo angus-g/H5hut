@@ -1,6 +1,10 @@
 #ifndef __H5T_STOREMESH_H
 #define __H5T_STOREMESH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5t_lvl_idx_t
 h5t_add_level (
 	h5_file_t * const f
@@ -77,4 +81,9 @@ h5_err_t
 h5t_post_refine (
 	h5_file_t* const f
 	);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

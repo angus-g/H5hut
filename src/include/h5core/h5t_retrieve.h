@@ -1,6 +1,10 @@
 #ifndef __H5T_RETRIEVE_H
 #define __H5T_RETRIEVE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct h5t_tagset;
 union h5t_iterator;
 
@@ -100,4 +104,9 @@ h5t_get_vertex_coords_by_id (
 	h5_loc_id_t vertex_id,
 	h5_float64_t P[3]
 	);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

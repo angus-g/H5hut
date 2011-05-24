@@ -1,6 +1,10 @@
 #ifndef __H5_CORE_H
 #define __H5_CORE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define UNUSED_ARGUMENT(x) (void)x
 
 #define H5_DEBUG_USER		(1<<2)
@@ -182,6 +186,11 @@ done:								\
 		goto done;						\
 	}
 #define ON_ERROR
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #include "h5_types.h"
 #include "h5_errno.h"

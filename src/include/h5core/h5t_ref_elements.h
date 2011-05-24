@@ -1,6 +1,10 @@
 #ifndef __H5T_REFERENCE_ELEMENTS_H
 #define __H5T_REFERENCE_ELEMENTS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define H5T_MAX_DIM 3
 #define H5T_MAX_FACES 6		// edges in tetrahedron
 #define H5T_MAX_VERTICES 4	// tetrahedron
@@ -17,5 +21,9 @@ typedef struct {
 
 extern const h5t_ref_elem_t h5t_tet_ref_elem;
 extern const h5t_ref_elem_t h5t_tri_ref_elem;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

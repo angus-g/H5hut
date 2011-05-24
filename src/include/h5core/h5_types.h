@@ -4,6 +4,10 @@
 #include <hdf5.h>
 #include <stdarg.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
   file modes:
   H5_O_RDONLY: only reading allowed
@@ -98,5 +102,9 @@ typedef enum h5_oid h5_oid_t;
 
 #define H5_TRIANGLE_MESH	 (H5_OID_TRIANGLE)
 #define H5_TETRAHEDRAL_MESH	 (H5_OID_TETRAHEDRON)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

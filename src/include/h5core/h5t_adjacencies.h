@@ -1,6 +1,10 @@
 #ifndef __H5T_ADJACENCIES_H
 #define __H5T_ADJACENCIES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_err_t
 h5t_get_adjacencies (
 	h5_file_t * const f,
@@ -22,5 +26,9 @@ h5t_find_te2 (
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t** retval
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

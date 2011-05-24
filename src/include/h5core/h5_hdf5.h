@@ -1,6 +1,10 @@
 #ifndef __H5_HDF5_H
 #define __H5_HDF5_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 ssize_t
 hdf5_get_num_groups (
 	const hid_t loc_id
@@ -37,5 +41,9 @@ const char *
 hdf5_get_objname (
 	hid_t id
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

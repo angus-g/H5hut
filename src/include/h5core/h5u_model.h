@@ -1,6 +1,10 @@
 #ifndef __H5U_MODEL_H
 #define __H5U_MODEL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_ssize_t
 h5u_get_num_particles (
 	h5_file_t *const f
@@ -76,6 +80,10 @@ h5u_get_chunk (
 	const char *name,
 	h5_size_t *size
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

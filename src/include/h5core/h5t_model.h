@@ -1,6 +1,10 @@
 #ifndef __H5T_MODEL_H
 #define __H5T_MODEL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 h5_err_t h5t_open_tetrahedral_mesh (
 	h5_file_t * const f,
 	const h5_id_t id
@@ -28,5 +32,9 @@ h5_err_t h5t_set_level (
 h5_err_t h5t_close_mesh (
 	h5_file_t * const f
 	);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

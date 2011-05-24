@@ -3,6 +3,10 @@
 
 #include <stdarg.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum h5_rtypes {
 	e_int = 0,
 	e_ssize_t,
@@ -298,5 +302,8 @@ h5_debug (
 	}
 }
 
+#ifdef __cplusplus
+}
+#endif
 	
 #endif
