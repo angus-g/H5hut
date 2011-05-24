@@ -296,6 +296,14 @@ h5t_mark_entity (
 	H5_CORE_API_RETURN (h5priv_insert_idlist (&t->marked_entities, entity_id, -1));
 }
 
+h5_err_t
+h5t_pre_refine (
+	h5_file_t* const f
+	) {
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_CORE_API_RETURN (f->t->methods.store->pre_refine (f));
+}
+
 /*
   Refine previously marked elements.
 */

@@ -34,13 +34,6 @@ h5tpriv_alloc_elems (
 	return (*f->t->methods.store->alloc_elems) (f, cur, new);
 }
 
-static inline h5_err_t
-h5tpriv_pre_refine (
-	h5_file_t* const f
-	) {
-	return f->t->methods.store->pre_refine (f);
-}
-
 static inline h5_loc_idx_t
 h5tpriv_refine_elem (
 	h5_file_t * const f,
