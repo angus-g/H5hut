@@ -135,7 +135,7 @@ H5GetStepNameFormat (
 	) {
 	H5_API_ENTER4 (h5_err_t,
 		       "f=0x%p, name=0x%p, l_name=%llu, width=0x%p",
-		       f, name, l_name, width);
+		       f, name, (unsigned long long)l_name, width);
 	H5_API_RETURN (h5_get_stepname_fmt (f, name, l_name, width));
 }
 
@@ -151,7 +151,7 @@ H5SetStep (
 	h5_file_t* const f,		/*!< [in]  Handle to open file */
 	const h5_id_t step		/*!< [in]  Step to set. */
 	) {
-	H5_API_ENTER2 (h5_err_t, "f=0x%p, step=%lld", f, step);
+	H5_API_ENTER2 (h5_err_t, "f=0x%p, step=%lld", f, (long long)step);
 	H5_API_RETURN (h5_set_step (f, step));
 }
 

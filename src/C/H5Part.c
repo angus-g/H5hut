@@ -391,8 +391,8 @@ H5PartGetDatasetName (
 		       "idx=%lld, "
 		       "name=\"%s\", len=%llu, ",
 		       f,
-		       idx,
-		       name, len);
+		       (long long)idx,
+		       name, (unsigned long long)len);
 	H5_API_RETURN (h5u_get_dataset_info(f, idx, name, len, NULL, NULL));
 }
 

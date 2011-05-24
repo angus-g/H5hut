@@ -322,7 +322,7 @@ h5u_set_view_indices (
 	TRY (hdf5_select_elements_of_dataspace ( 
 		u->diskshape,
 		H5S_SELECT_SET,
-		nelems, indices ) );
+		(hsize_t)nelems, (hsize_t*)indices ) );
 
 	u->viewindexed = 1;
 
