@@ -55,7 +55,7 @@ AC_ARG_WITH(
 	[mpi],
 	[AC_HELP_STRING([--with-mpi],
 	[path to MPI installation [default=""]])],
-	[MPIPATH=$withval; PATH="$MPIPATH:$PATH"], [MPIPATH=""])
+	[MPIPATH=$withval], [MPIPATH=""])
 
 AC_ARG_WITH(
 	[hdf5],
@@ -134,29 +134,17 @@ fi
 #   	PATH="$MPIPATH/bin:$PATH"
 #fi
 
-# Determine a C compiler to use. 
+# Determine a C/C++ compiler to use. 
 # If CC is not already set in the environment, check for gcc and cc, then
 # for other C compilers. 
 # Set output variable CC to the name of the compiler found.
 if test "x$USE_PARALLEL" = "xyes"; then
    	AC_PROG_CC(mpicc)
-	CC=`which $CC`
-else
-	AC_PROG_CC(pgcc pathcc icc cc_r gcc cc)
-fi
-
-
-# Determine a C++ compiler to use. 
-# Check if the environment variable CXX or CCC (in that order) is set; 
-# if so, then set output variable CXX to its value.
-# Otherwise, if the macro is invoked without an argument, 
-# then search for a C++ compiler under the likely names (first g++ and c++
-# then other names). 
-# If none of those checks succeed, then as a last resort set CXX to g++.
-if test "x$USE_PARALLEL" = "xyes"; then
    	AC_PROG_CXX(mpicxx)
+	CC=`which $CC`
 	CXX=`which $CXX`
 else
+	AC_PROG_CC(pgcc pathcc icc cc_r gcc cc)
 	AC_PROG_CXX(pgCC pathCC icc cc_r g++ gcc cc)
 fi
 
