@@ -183,7 +183,7 @@ main (
 	H5SetErrorHandler ( H5AbortErrorhandler );
 
 	h5_file_t *f = H5OpenFile ( "simple_tet.h5", H5_O_RDONLY, 0 );
-	h5_size_t num_meshes = H5FedGetNumMeshes ( f, H5_TETRAHEDRAL_MESH );
+	h5_size_t num_meshes = H5FedGetNumTetrahedralMeshes (f);
 	printf ( "    Number of meshes: %lld\n", (long long)num_meshes );
 
 	h5_id_t mesh_id;
@@ -192,7 +192,7 @@ main (
 			stderr,
 			"Time used: %f\n",
 			(float)clock()/(float)CLOCKS_PER_SEC );
-		H5FedOpenMesh ( f, mesh_id, H5_TETRAHEDRAL_MESH );
+		H5FedOpenTetrahedralMesh (f, mesh_id);
 		fprintf (
 			stderr,
 			"Time used: %f\n",

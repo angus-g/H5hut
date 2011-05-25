@@ -3,7 +3,6 @@
 
 #include "H5hut.h"
 
-const h5_oid_t MESH_TYPE = H5_TRIANGLE_MESH;
 const char* FNAME = "simple_triangle.h5";
 
 typedef struct vertex {
@@ -40,7 +39,7 @@ main (
 
 	/* open file and add mesh */
 	h5_file_t* const f = H5OpenFile (FNAME, H5_O_WRONLY, 0);
-	H5FedAddMesh (f, MESH_TYPE);
+	H5FedAddTriangleMesh (f);
 
 	/* store vertices */
 	H5FedBeginStoreVertices (f, num_vertices);

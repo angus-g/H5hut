@@ -114,7 +114,7 @@ main (
 
 	/* open file and get number of meshes */
 	h5_file_t* f = H5OpenFile (FNAME, H5_O_RDWR, 0);
-	H5FedOpenMesh (f, 0, MESH_TYPE);
+	H5FedOpenTetrahedralMesh (f, 0);
 
 	/* open last level */
 	h5_size_t num_levels = H5FedGetNumLevels (f);

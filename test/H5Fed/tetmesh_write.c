@@ -10,7 +10,6 @@
 #endif
 #endif
 
-const h5_oid_t MESH_TYPE = H5_TETRAHEDRAL_MESH;
 const char* FNAME = "simple_tet.h5";
 
 typedef struct vertex {
@@ -48,7 +47,7 @@ main (
 
 	/* open file and add mesh */
 	h5_file_t* const f = H5OpenFile (FNAME, H5_O_WRONLY, 0);
-	H5FedAddMesh (f, MESH_TYPE);
+	H5FedAddTetrahedralMesh (f);
 
 	/* store vertices */
 	H5FedBeginStoreVertices (f, num_vertices);

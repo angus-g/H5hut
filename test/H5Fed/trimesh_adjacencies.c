@@ -285,7 +285,7 @@ traverse_mesh (
 	) {
 	/* open mesh and get number of levels */
 	printf ("    Opening mesh with id %lld\n", mesh_id);
-	H5FedOpenMesh (f, mesh_id, mesh_type);
+	H5FedOpenTriangleMesh (f, mesh_id);
 	h5_size_t num_levels = H5FedGetNumLevels (f);
 	printf ("    Number of levels in mesh: %lld\n", (long long)num_levels);
 
@@ -311,7 +311,7 @@ main (
 
 	/* open file and get number of meshes */
 	h5_file_t *f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
-	h5_size_t num_meshes = H5FedGetNumMeshes (f, MESH_TYPE);
+	h5_size_t num_meshes = H5FedGetNumTriangleMeshes (f);
 	printf ("    Number of meshes: %lld\n", (long long)num_meshes);
 
 	/* loop over all meshes */
