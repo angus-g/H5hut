@@ -191,6 +191,9 @@ done:								\
 }
 #endif
 
+#if defined(PARALLEL_IO)
+#include <mpi.h>
+#endif
 
 #include "h5_types.h"
 #include "h5_errno.h"
