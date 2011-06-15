@@ -100,7 +100,6 @@ ___lib_libH5hut_a_SOURCES =			\
 	h5t_adjacencies.c			\
 	h5t_adjacencies_tetm.c			\
 	h5t_adjacencies_trim.c			\
-	h5t_errorhandling.c			\
 	h5t_hsearch.c				\
 	h5t_inquiry.c				\
 	h5t_map.c				\
