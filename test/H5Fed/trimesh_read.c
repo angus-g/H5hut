@@ -150,6 +150,50 @@ traverse_elems (
 	return H5_SUCCESS;
 }
 
+/*
+  Traverse elements and output coordinates
+ */
+static h5_err_t
+traverse_elems2 (
+	h5_file_t* const f
+	) {
+	/* get number of elements we have to expect */
+	h5_size_t num_elems_expect = H5FedGetNumElementsTotal (f);
+
+	/* get iterator for co-dim 0 */
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
+
+	/* iterate over all co-dim 0 entities, i.e. elements */
+	h5_loc_id_t local_id;
+	h5_size_t num_elems = 0;
+	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
+		printf ("%05llu", (unsigned long long)num_elems);
+		h5_loc_id_t local_vids[4];
+		H5FedGetVertexIndicesOfEntity (f, local_id, local_vids);
+		int i;
+		for (i = 0; i < 3; i++) {
+			h5_float64_t P[3];
+			H5FedGetVertexCoordsByIndex (f, local_vids[i], P);
+			printf (" %8.6f %8.6f %8.6f", P[0], P[1], P[2]);
+		}
+		printf ("\n");
+		num_elems++;
+	}
+
+	/* done */
+	H5FedEndTraverseEntities (f, iter);
+
+	/* report error if we got a different number then expected */
+	if (num_elems != num_elems_expect) {
+		fprintf (stderr, "!!! Got %lld elements, but expected %lld.\n",
+			 (long long)num_elems, (long long)num_elems_expect);
+		exit(1);
+
+
+	}
+	return H5_SUCCESS;
+}
+
 static h5_err_t
 traverse_level (
 	h5_file_t* const f,
@@ -161,6 +205,7 @@ traverse_level (
 	traverse_edges (f);
 	traverse_boundary_edges (f);
 	traverse_elems (f);
+	traverse_elems2 (f);
 	return H5_SUCCESS;
 }
 
@@ -201,7 +246,7 @@ main (
 
 	/* abort program on error, so we don't have to handle them */
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (255);
+	H5SetVerbosityLevel (0);
 
 	/* open file and get number of meshes */
 	h5_file_t* f = H5OpenFile (FNAME, H5_O_RDONLY, comm);
