@@ -146,6 +146,8 @@ if test "x$USE_PARALLEL" = "xyes"; then
 else
 	AC_PROG_CC(pgcc pathcc icc cc_r gcc cc)
 	AC_PROG_CXX(pgCC pathCC icc cc_r g++ gcc cc)
+	CC=`which $CC`
+	CXX=`which $CXX`
 fi
 
 # Set output variable INSTALL to the path of a BSD-compatible install program,
