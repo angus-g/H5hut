@@ -72,15 +72,19 @@ h5t_open_tetrahedral_mesh (
 	t->dsinfo_elems.type_id = t->dtypes.h5_tet_t;
 	t->methods = tet_funcs;
 	t->ref_elem = &h5t_tet_ref_elem;
-	TRY (open_tetmesh_group (f, id));
 
-	if (id == -1) {			// append new
-		id = t->num_meshes;
-		t->num_meshes++;
-		t->mesh_changed = id;
+	if (id == -1) {			// add new
+		id = 0;
+		t->num_meshes = 1;
+		t->cur_mesh = 0;
+		t->mesh_changed = 0;
+		t->leaf_level = 0;
 		t->num_leaf_levels = 0;
+		TRY (open_tetmesh_group (f, id));
 	} else {			// read existing
+		TRY (open_tetmesh_group (f, id));
 		TRY (h5tpriv_read_mesh (f));
+		t->leaf_level = 0;
 	} 
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }

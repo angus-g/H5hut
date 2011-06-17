@@ -9,7 +9,9 @@ static struct h5t_methods tri_funcs = {
 	&h5tpriv_trim_adjacency_methods
 };
 
-
+/*
+  Open container of triangle meshes
+ */
 static inline h5_err_t
 open_trimeshes_group (
 	h5_file_t* const f
@@ -30,7 +32,7 @@ open_trimeshes_group (
 }
 
 /*
-  open HDF5 group with data of specific mesh.
+  Open container of specific triangle mesh
  */
 static inline h5_err_t
 open_trimesh_group (
@@ -73,16 +75,20 @@ h5t_open_triangle_mesh (
 	t->dsinfo_elems.type_id = t->dtypes.h5_triangle_t;
 	t->methods = tri_funcs;
 	t->ref_elem = &h5t_tri_ref_elem;
-	TRY (open_trimesh_group (f, id));
 
 	if (id == -1) {			// add new
-		id = t->num_meshes;
-		t->num_meshes++;
-		t->mesh_changed = id;
+		id = 0;
+		t->num_meshes = 1;
+		t->cur_mesh = 0;
+		t->mesh_changed = 0;
+		t->leaf_level = 0;
 		t->num_leaf_levels = 0;
+		TRY (open_trimesh_group (f, 0));
 	} else {			// read existing
+		TRY (open_trimesh_group (f, 0));
 		TRY (h5tpriv_read_mesh (f));
-	} 
+		t->leaf_level = 0;
+	}
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
