@@ -32,7 +32,7 @@ open_trimeshes_group (
 }
 
 /*
-  Open container of specific triangle mesh
+  Open container of triangle mesh with \c id 
  */
 static inline h5_err_t
 open_trimesh_group (
@@ -129,8 +129,6 @@ h5t_open_triangle_mesh_by_name (
 	h5t_fdata_t* t = f->t;
 
 	TRY (h5t_close_mesh (f));
-
-
 
 	t->dsinfo_elems.type_id = t->dtypes.h5_triangle_t;
 	t->methods = tri_funcs;
