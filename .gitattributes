@@ -368,7 +368,6 @@ src/C++/Makefile.am -text
 src/C/H5.c -text
 src/C/H5Block.c -text
 src/C/H5Block_readwrite.c -text
-src/C/H5Fed.c -text
 src/C/H5Fed_adjacency.c -text
 src/C/H5Fed_inquiry.c -text
 src/C/H5Fed_retrieve.c -text

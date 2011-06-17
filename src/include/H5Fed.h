@@ -49,22 +49,31 @@ H5FedOpenTriangleMesh (
 	H5_API_RETURN (h5t_open_triangle_mesh (f, mesh_id));
 }
 
-h5_err_t
+static inline h5_err_t
 H5FedCloseMesh (
-	h5_file_t * const f
-	);
+	h5_file_t* const f
+	) {
+	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_RETURN (h5t_close_mesh (f));
+}
 
-h5_err_t
+static inline h5_err_t
 H5FedSetLevel (
-	h5_file_t * f,
+	h5_file_t* const f,
 	const h5t_lvl_idx_t level_id
-	);
+	) {
+	H5_API_ENTER2 (h5_err_t, "f=0x%p, level_id=%d", f, level_id);
+	H5_API_RETURN (h5t_set_level (f, level_id));
+}
 
-h5_err_t
+static inline h5_err_t
 H5FedLinkMeshToStep (
-	h5_file_t * f,
+	h5_file_t* const f,
 	const h5_id_t mesh_id
-	);
+	) {
+	H5_API_ENTER2 (h5_err_t, "f=0x%p, mesh_id=%lld", f, (long long)mesh_id);
+	H5_API_RETURN (h5_error_not_implemented ());
+}
 
 #ifdef __cplusplus
 }

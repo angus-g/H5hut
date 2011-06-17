@@ -38,7 +38,6 @@ ___lib_libH5hutC_a_SOURCES =			\
 	H5Part.c                                \
 	H5Block.c				\
 	H5Block_readwrite.c			\
-	H5Fed.c					\
 	H5Fed_adjacency.c			\
 	H5Fed_inquiry.c				\
 	H5Fed_retrieve.c			\
