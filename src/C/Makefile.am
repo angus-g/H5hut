@@ -37,12 +37,7 @@ ___lib_libH5hutC_a_SOURCES =			\
 	H5_attachments.c			\
 	H5Part.c                                \
 	H5Block.c				\
-	H5Block_readwrite.c			\
-	H5Fed_adjacency.c			\
-	H5Fed_inquiry.c				\
-	H5Fed_retrieve.c			\
-	H5Fed_store.c				\
-	H5Fed_tags.c
+	H5Block_readwrite.c
 
 all: all-am
 

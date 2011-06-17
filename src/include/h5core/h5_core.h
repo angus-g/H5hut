@@ -180,13 +180,6 @@ done:								\
 		goto done;						\
 	}
 
-#define TRY3( expr, ret_val )						\
-	if ((int64_t)(ptrdiff_t)(expr) <= (int64_t)H5_ERR) {		\
-		ret_value = ret_val;					\
-		goto done;						\
-	}
-#define ON_ERROR
-
 #ifdef __cplusplus
 }
 #endif
