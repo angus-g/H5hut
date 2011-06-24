@@ -180,6 +180,12 @@ done:								\
 		goto done;						\
 	}
 
+#define TRY3( type, expr )						\
+	if ((int64_t)(ptrdiff_t)(expr) <= (int64_t)H5_ERR) {		\
+		ret_value = (type) H5_ERR;				\
+		goto done;						\
+	}
+
 #ifdef __cplusplus
 }
 #endif

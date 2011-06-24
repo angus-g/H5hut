@@ -41,8 +41,8 @@ H5FedBeginTraverseEntities (
 	) {
 	H5_API_ENTER2 (h5t_iterator_p, "f=0x%p, codim=%d", f, codim);
 	h5t_iterator_p iter;
-	TRY2 (iter = h5_calloc (1, sizeof (*iter)));
-	TRY2 (h5t_init_leaf_iterator (f, iter, codim));
+	TRY3 (h5t_iterator_p, iter = (h5t_iterator_p)h5_calloc (1, sizeof (*iter)));
+	TRY3 (h5t_iterator_p, h5t_init_leaf_iterator (f, iter, codim));
 	H5_API_RETURN (iter);
 }
 
@@ -53,8 +53,8 @@ H5FedBeginTraverseBoundaryFaces (
 	) {
 	H5_API_ENTER2 (h5t_iterator_p, "f=0x%p, codim=%d", f, codim);
 	h5t_iterator_p iter;
-	TRY2 (iter = h5_calloc (1, sizeof (*iter)));
-	TRY2 (h5t_init_boundary_face_iterator (f, iter, codim));
+	TRY3 (h5t_iterator_p, iter = (h5t_iterator_p)h5_calloc (1, sizeof (*iter)));
+	TRY3 (h5t_iterator_p, h5t_init_boundary_face_iterator (f, iter, codim));
 	H5_API_RETURN (iter);
 }
 
