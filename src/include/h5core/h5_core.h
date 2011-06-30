@@ -18,10 +18,26 @@ extern "C" {
 #define H5_DEBUG_ALL		(-1)
 
 extern char* h5_rfmts[];
+
 #define __FUNC_ENTER(type)			\
 	h5_call_stack_push (__func__,e_##type); \
 	type ret_value = (type)H5_ERR;
 
+#if defined(NDEBUG)
+
+#define __FUNC_ARGS0(mask)
+#define __FUNC_ARGS1(fmt, a1, mask)
+#define __FUNC_ARGS2(fmt, a1, a2, mask)
+#define __FUNC_ARGS3(fmt, a1, a2, a3, mask)
+#define __FUNC_ARGS4(fmt, a1, a2, a3, a4, mask)
+#define __FUNC_ARGS5(fmt, a1, a2, a3, a4, a5, mask)
+#define __FUNC_ARGS6(fmt, a1, a2, a3, a4, a5, a6, mask)
+#define __FUNC_ARGS7(fmt, a1, a2, a3, a4, a5, a6, a7, mask)
+#define __FUNC_ARGS8(fmt, a1, a2, a3, a4, a5, a6, a7, a8, mask)
+
+#else
+
+fsdf dsfdsf dsfsdsd
 #define __FUNC_ARGS0(mask)			\
 	if (h5_debug_level & mask ) {		\
 		h5_debug ("(void)");		\
@@ -66,6 +82,7 @@ extern char* h5_rfmts[];
 	if (h5_debug_level & mask ) {			\
 		h5_debug ("(" fmt ")", a1, a2, a3, a4, a5, a6, a7, a8);	\
 	}
+#endif
 
 #define __FUNC_ENTER0(type, mask)		\
 	__FUNC_ENTER(type);			\
@@ -108,6 +125,17 @@ extern char* h5_rfmts[];
 	goto done;				\
 }
 
+#if defined(NDEBUG)
+
+#define __FUNC_RETURN(expr, mask)		\
+	ret_value = expr;			\
+	goto done;						\
+done:								\
+	h5_call_stack_pop();					\
+	return ret_value;
+
+#else
+
 #define __FUNC_RETURN(expr, mask)		\
 	ret_value = expr;			\
 	goto done;				\
@@ -121,6 +149,7 @@ done:								\
 	h5_call_stack_pop();					\
 	return ret_value;
 
+#endif
 
 #define H5_API_ENTER_(type)					\
 	if (!h5_initialized) {					\
