@@ -6,11 +6,10 @@ h5u_get_num_particles (
 	h5_file_t *const f      /*!< [in]  Handle to open file */
 	) {
 	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
-	h5_int64_t nparticles;
+	h5_ssize_t nparticles;
 
 	/* if a view exists, use its size as the number of particles */
-	if ( h5u_has_view ( f ) )
-	{
+	if (h5u_has_view (f)) {
 		TRY (nparticles = hdf5_get_selected_npoints_of_dataspace(
 			    f->u->diskshape));
 		h5_debug(
@@ -22,8 +21,7 @@ h5u_get_num_particles (
 		h5_debug(
 			"Found %lld particles from previous H5PartSetNumParticles call.",
 			(long long)nparticles );
-	}
-	else {
+	} else {
 		/* otherwise, report all particles on disk in the first dataset
 		 * for this timestep */
 		char dataset_name[H5_DATANAME_LEN];
@@ -33,20 +31,20 @@ h5u_get_num_particles (
 				0,
 				dataset_name,
 				H5_DATANAME_LEN);
-		if ( exists < 0 )
+		if (exists < 0)
 			H5_CORE_API_LEAVE (
-				h5_error(
+				h5_error (
 					H5_ERR_INVAL,
 					"Cannot determine the number of particles: "
 					"H5PartSetNumParticles has not been called, "
 					"no view has been set, and there are no "
 					"data sets for this time step!"));
-		TRY( nparticles = hdf5_get_npoints_of_dataset_by_name(
-			f->step_gid,
-			dataset_name) );
-		h5_debug(
+		TRY (nparticles = hdf5_get_npoints_of_dataset_by_name(
+			     f->step_gid,
+			     dataset_name) );
+		h5_debug (
 			"Found %lld particles in the first data set of this time step.",
-			(long long)nparticles );
+			(long long)nparticles);
 	}
 
 	H5_CORE_API_RETURN (nparticles);
@@ -63,21 +61,19 @@ h5u_set_num_particles (
 			    f, (long long unsigned)nparticles,
 			    (long long unsigned)stride);
 	struct h5u_fdata *u = f->u;
-	hsize_t hstride;
-	hsize_t count;
 	hsize_t start;
 	hsize_t total;
 	hsize_t dmax = H5S_UNLIMITED;
 
-	if ( nparticles <= 0 )
+	if (nparticles <= 0)
 		H5_CORE_API_LEAVE (
 			h5_error(
 				H5_ERR_INVAL,
 				"Invalid number particles: %lld!\n",
 				(long long)nparticles));
 
-	hstride = (hsize_t)stride;
-	if ( hstride > 1 )
+	hsize_t hstride = (hsize_t)stride;
+	if (hstride > 1)
 		h5_debug ("Striding by %lld elements.", (long long)hstride);
 
 #ifndef PARALLEL_IO
@@ -100,14 +96,13 @@ h5u_set_num_particles (
 	u->nparticles = (hsize_t)nparticles;
 
 	/* declare local memory datasize with striding */
-	count = u->nparticles * stride;
+	hsize_t count = u->nparticles * stride;
 	TRY (u->memshape = hdf5_create_dataspace (1, &count, &dmax));
 
 	/* we need a hyperslab selection if there is striding
 	 * (otherwise, the default H5S_ALL selection is ok)
 	 */
-	if ( hstride > 1 )
-	{
+	if (hstride > 1) {
 		start = 0;
 		count = u->nparticles;
 		TRY (hdf5_select_hyperslab_of_dataspace(
@@ -205,7 +200,6 @@ h5u_set_view (
 			    f, (long long)start, (long long)end);
 	hsize_t total;
 	hsize_t stride = 1;
-	hsize_t hstart;
 	hsize_t dmax = H5S_UNLIMITED;
 	struct h5u_fdata *u = f->u;
 
@@ -260,7 +254,7 @@ h5u_set_view (
 	TRY (u->diskshape = hdf5_create_dataspace ( 1, &total, NULL ));
 
 	total = (hsize_t)u->nparticles;
-	hstart = (size_t)start;
+	hsize_t hstart = (hsize_t)start;
 
 	TRY (hdf5_select_hyperslab_of_dataspace ( 
 		     u->diskshape,
