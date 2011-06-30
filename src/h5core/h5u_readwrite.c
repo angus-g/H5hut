@@ -36,7 +36,7 @@ h5u_read_data (
 	TRY (ndisk = hdf5_get_npoints_of_dataspace (space_id));
 
 	if (u->diskshape != H5S_ALL) {
-		TRY (nread = hdf5_get_npoints_of_dataspace(u->diskshape));
+		TRY (nread = hdf5_get_selected_npoints_of_dataspace (u->diskshape));
 
 		/* make sure the disk space selected by the view doesn't
 		 * exceed the size of the dataset */
