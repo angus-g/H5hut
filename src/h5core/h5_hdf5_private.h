@@ -704,7 +704,7 @@ hdf5_get_type_name (
 	return "[unknown]";
 }
 
-static inline static const char*
+static inline const char*
 get_class_type_name (
 	const hid_t class_id
 	) {

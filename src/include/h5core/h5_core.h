@@ -37,7 +37,6 @@ extern char* h5_rfmts[];
 
 #else
 
-fsdf dsfdsf dsfsdsd
 #define __FUNC_ARGS0(mask)			\
 	if (h5_debug_level & mask ) {		\
 		h5_debug ("(void)");		\
