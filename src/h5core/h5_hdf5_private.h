@@ -685,7 +685,7 @@ hdf5_get_npoints_of_dataset_by_name (
   \param[in]	rank		rank of array
   \param[in]	dims		dimensions
 */
-char_p
+static inline char_p
 hdf5_get_type_name (
 	hid_t type_id
 	) {
@@ -704,7 +704,7 @@ hdf5_get_type_name (
 	return "[unknown]";
 }
 
-static const char*
+static inline static const char*
 get_class_type_name (
 	const hid_t class_id
 	) {
