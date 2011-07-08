@@ -81,7 +81,7 @@ h5_read_attrib (
 
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 
-	hid_t id;
+	hid_t id = 0;
 	TRY (get_hdf5_obj_id(f, mode, &id));
 	TRY (h5priv_read_attrib (id, attrib_name, attrib_type, attrib_value));
 	H5_CORE_API_RETURN (H5_SUCCESS);
@@ -161,7 +161,7 @@ h5_write_attrib (
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
 
-	hid_t id;
+	hid_t id = 0;
 	TRY (get_hdf5_obj_id(f, mode, &id));
 	TRY (h5priv_write_attrib (id, attrib_name, attrib_type,
 				  attrib_value, attrib_nelem));
@@ -245,7 +245,7 @@ h5_get_attrib_info (
 
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 
-	hid_t id;
+	hid_t id = 0;
 	TRY (get_hdf5_obj_id(f, mode, &id));
 	TRY (h5priv_get_attrib_info (id, attrib_idx, attrib_name, len_attrib_name,
 				     attrib_type, attrib_nelem));
@@ -267,7 +267,7 @@ h5_get_num_attribs (
 	H5_CORE_API_ENTER2 (h5_ssize_t,
 			    "f=%p, mode=%d", f, mode);
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
-	hid_t id;
+	hid_t id = 0;
 	TRY (get_hdf5_obj_id(f, mode, &id));
 	H5_CORE_API_RETURN (hdf5_get_num_attribute (id));
 }

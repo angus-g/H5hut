@@ -81,6 +81,22 @@
 #define MALLOC_WRAPPER_LEAVE(value)	__FUNC_LEAVE(value)
 #define MALLOC_WRAPPER_RETURN(value)	__FUNC_RETURN(value, H5_DEBUG_MALLOC)
 
+#define MPI_WRAPPER_ENTER(type)	__FUNC_ENTER(type)
+#define MPI_WRAPPER_ENTER0(type)		\
+	__FUNC_ENTER0(type, H5_DEBUG_MPI)
+#define MPI_WRAPPER_ENTER1(type, fmt, a1)		\
+	__FUNC_ENTER1(type, fmt, a1, H5_DEBUG_MPI)
+#define MPI_WRAPPER_ENTER2(type, fmt, a1, a2)		\
+	__FUNC_ENTER2(type, fmt, a1, a2, H5_DEBUG_MPI)
+#define MPI_WRAPPER_ENTER3(type, fmt, a1, a2, a3)		\
+	__FUNC_ENTER3(type, fmt, a1, a2, a3, H5_DEBUG_MPI)
+#define MPI_WRAPPER_ENTER4(type, fmt, a1, a2, a3, a4)		\
+	__FUNC_ENTER4(type, fmt, a1, a2, a3, a4, H5_DEBUG_MPI)
+#define MPI_WRAPPER_ENTER5(type, fmt, a1, a2, a3, a4, a5)	\
+	__FUNC_ENTER5(type, fmt, a1, a2, a3, a4, a5, H5_DEBUG_MPI)
+#define MPI_WRAPPER_LEAVE(value)	__FUNC_LEAVE(value)
+#define MPI_WRAPPER_RETURN(value)	__FUNC_RETURN(value, H5_DEBUG_MPI)
+
 /* WARNING! Changing these values will alter the data model and introduce
  * file incompatibilities with previous versions. */
 #define H5_DATANAME_LEN		64

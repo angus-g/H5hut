@@ -13,8 +13,10 @@ extern "C" {
 #define H5_DEBUG_PRIV_API	(1<<5)
 #define H5_DEBUG_PRIV_FUNC	(1<<6)
 #define H5_DEBUG_HDF5		(1<<7)
-#define H5_DEBUG_MALLOC		(1<<8)
-#define H5_DEBUG_CLIB		(1<<9)
+#define H5_DEBUG_MPI		(1<<8)
+#define H5_DEBUG_MALLOC		(1<<9)
+#define H5_DEBUG_CLIB		(1<<10)
+
 #define H5_DEBUG_ALL		(-1)
 
 extern char* h5_rfmts[];
