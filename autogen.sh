@@ -15,11 +15,19 @@ aclocal $ACLOCAL_FLAGS || {
 echo
 echo
 echo
-echo
 echo "+ running autoheader ... "
 autoheader || {
   echo
   echo "autoheader failed"
+  exit 1
+}
+echo
+echo
+echo
+echo "+ running libtoolize ... "
+libtoolize --force || {
+  echo
+  echo "libtoolize failed"
   exit 1
 }
 echo

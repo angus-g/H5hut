@@ -8,13 +8,15 @@ AC_INIT([H5hut], [1.99.1], [h5part@lists.psi.ch], H5hut)
 # print an error message to the standard error output and do not create configure.
 AC_PREREQ(2.59)
 
-
 # should be called right after AC_INIT.
 # configure scripts can create a C header file containing `#define' directives. 
 # The AC_CONFIG_HEADERS macro selects this kind of output.
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 
-BUILD_LIBS='libH5hut.a'
+# AM_INIT_AUTOMAKE is required to use autoconf with automake
+AM_INIT_AUTOMAKE
+
+BUILD_LIBS='libH5hut'
 USE_C='yes'
 
 ###############################################################################
@@ -26,12 +28,6 @@ AC_ARG_ENABLE(
 	[AC_HELP_STRING([--enable-debug],
 	[Compile with debug flags [default=no]])],
 	[USE_DEBUG=$enableval])
-
-AC_ARG_ENABLE(
-	[64],
-	[AC_HELP_STRING([--enable-64],
-	[Compile using 64-bit flags [default=no]])],
-	[USE_64=$enableval])
 
 AC_ARG_ENABLE(
 	[c],
@@ -52,12 +48,6 @@ AC_ARG_ENABLE(
 	[USE_PARALLEL=$enableval])
 
 AC_ARG_WITH(
-	[mpi],
-	[AC_HELP_STRING([--with-mpi],
-	[path to MPI installation [default=""]])],
-	[MPIPATH=$withval], [MPIPATH=""])
-
-AC_ARG_WITH(
 	[hdf5],
 	[AC_HELP_STRING([--with-hdf5],
 	[path to HDF5 installation [default=""]])],
@@ -74,11 +64,12 @@ AC_ARG_WITH(
 ###############################################################################
 
 SAVE_CC=$CC
-SAVE_CXX=$CXX
-SAVE_MPICC=$MPICC
-SAVE_MPICXX=$MPICXX
-SAVE_MPIROOT=$MPIROOT
-SAVE_HDF5ROOT=$HDF5ROOT
+SAVE_FC=$FC
+SAVE_CFLAGS=$CFLAGS
+SAVE_FFLAGS=$FFLAGS
+SAVE_INCLUDES=$INCLUDES
+SAVE_LDFLAGS=$LDFLAGS
+SAVE_LIBS=$LIBS
 
 ###############################################################################
 ############### PATH SERACH FUNCTION - to be used later... ####################
@@ -119,35 +110,30 @@ PATH_Search() {
 # individual parts host_cpu, host_vendor, and host_os.
 AC_CANONICAL_HOST
 
-
-uname=`uname -s`
-if test "x$uname" = "xAIX"; then
-	AC_MSG_CHECKING([if system is AIX])
-	AC_MSG_RESULT([OK])
-
-	# If on AIX, define _ALL_SOURCE. Allows the use of some BSD functions. 
-	# Should be called before any macros that run the C compiler.
-	AC_AIX
-fi
-
-#if test -n "$MPIPATH"; then
-#   	PATH="$MPIPATH/bin:$PATH"
-#fi
+AC_PROG_MAKE_SET
 
 # Determine a C/C++ compiler to use. 
 # If CC is not already set in the environment, check for gcc and cc, then
 # for other C compilers. 
 # Set output variable CC to the name of the compiler found.
 if test "x$USE_PARALLEL" = "xyes"; then
-   	AC_PROG_CC(mpicc)
-   	AC_PROG_CXX(mpicxx)
-	CC=`which $CC`
-	CXX=`which $CXX`
+   	CCOMPILERS="mpicc cc"
 else
-	AC_PROG_CC(pgcc pathcc icc cc_r gcc cc)
-	AC_PROG_CXX(pgCC pathCC icc cc_r g++ gcc cc)
-	CC=`which $CC`
-	CXX=`which $CXX`
+	CCOMPILERS="pgcc pathcc icc gcc cc_r cc"
+fi
+
+AC_PROG_CC($CCOMPILERS)
+
+# Use macro to set C99 mode instead of checking for gcc, which breaks with
+# parallel builds.
+AC_PROG_CC_C99
+#if test "x$CC" = "xgcc"; then
+#	CFLAGS="$CFLAGS -std=c99"
+#fi
+
+if test "x$ac_cv_prog_cc_c99" = "xno"; then
+	AC_MSG_ERROR([Cannot set C compiler to use C99 standard!])
+	exit 1
 fi
 
 # Set output variable INSTALL to the path of a BSD-compatible install program,
@@ -155,18 +141,35 @@ fi
 # Otherwise, set INSTALL to `dir/install-sh -c`
 AC_PROG_INSTALL
 
-if test "x$CC" = "xgcc"; then
-	CFLAGS="$CFLAGS -std=c99"
-fi
+AC_PROG_AWK
 
-# AM_INIT_AUTOMAKE is required to use autoconf with automake
-AM_INIT_AUTOMAKE()
-
-AC_PROG_RANLIB
+# Disable shared libraries by default: can be enabled with --enable-shared
+LT_INIT([disable-shared])
+AC_PROG_LIBTOOL
 
 # Default prefix for bindir, etc... (eg >> ./build/bin)
 AC_PREFIX_DEFAULT(`pwd`/build)
 
+# Checks for header files.
+AC_CHECK_HEADERS([fcntl.h limits.h stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_INT16_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_CHECK_TYPES([ptrdiff_t])
+
+# Checks for library functions.
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([memmove memset pow strchr strdup strerror strstr])
 
 # AC_DEFINE_UNQUOTED (variable, value, [description])
 # Define the C preprocessor variable variable to value
@@ -187,6 +190,7 @@ AC_MSG_CHECKING([if debug is enabled])
 if test "X$USE_DEBUG" = "Xyes"; then
     AC_MSG_RESULT([yes])
     CFLAGS="$CFLAGS -g"
+    FFLAGS="$FFLAGS -g"
 else
     AC_MSG_RESULT([no])
 fi
@@ -196,8 +200,8 @@ AC_MSG_CHECKING([if C interface enabled])
 if test "X$USE_C" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 	BINDINGS="$BINDINGS C"
-	LIB_C="../lib/libH5hutC.a"
-	BUILD_LIBS="$BUILD_LIBS libH5hutC.a"
+	LIB_C="libH5hutC.la"
+	BUILD_LIBS="$BUILD_LIBS libH5hutC"
 	BUILD_TESTS="$BUILD_TESTS h5u_test h5b_test"
 	BUILD_TOOLS="$BUILD_TOOLS h5hutcc"
 fi
@@ -207,19 +211,20 @@ AC_MSG_CHECKING([if fortran interface enabled])
 if test "X$USE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 	BINDINGS="$BINDINGS Fortran"
-	LIB_FORTRAN="../lib/libH5hutF.a"
-        BUILD_LIBS="$BUILD_LIBS libH5hutF.a"
+	LIB_FORTRAN="libH5hutF.la"
+        BUILD_LIBS="$BUILD_LIBS libH5hutF"
 
-	AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
+	if test "X$USE_PARALLEL" = "Xyes"; then
+		AC_PROG_FC(mpif90 mpif77)
+	else
+		AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
+	fi
+
 	if test -z "$FC" ; then
-		AC_MSG_ERROR([Cannot find a fortran compiler!!!])
+		AC_MSG_ERROR([Cannot find a Fortran compiler!])
 		exit 1
 	fi
 
- 	if test ! $uname = "AIX"; then
-		FFLAGS="${FFLAGS} -fPIC"
-	fi
- 
 	if test $FC = "g90"; then
 		FFLAGS="${FFLAGS} -fno-second-underscore"
 	fi
@@ -240,7 +245,7 @@ if test "X$USE_FORTRAN" = "Xyes"; then
 		AC_MSG_RESULT([ok])
 	else
 		AC_MSG_RESULT([nok])
-		AC_MSG_ERROR([Cannot build fortran executables!!!])
+		AC_MSG_ERROR([Cannot determine the symbon convention for Fortran object files!])
 		exit 1
 	fi
 
@@ -264,67 +269,8 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 		[AC_MSG_RESULT([yes]); r='yes'], [AC_MSG_RESULT([no]); r='no'] )
 
 	if test "X$r" = "Xno"; then
-		AC_PATH_PROGS([MPICC], [mpicc mpcc_r], [], [$PATH])
-		AC_PATH_PROGS([MPICXX], [mpicxx mpcc_r], [], [$PATH])
-		if test -z "$MPICC" -o -z "$MPICXX"; then 
-			AC_MSG_CHECKING([for MPI root ])
-			AC_MSG_RESULT([])
-			if test -n "$MPIROOT"; then
-				P=${MPIROOT}
-			elif test -n "$MPIHOME"; then
-				P=${MPIHOME}
-			elif test -n "$MPIPATH"; then
-				P=${MPIPATH}
-			else
-				P=''
-				P="$P /usr"
-				P="$P /usr/local"
-				P="$P /usr/local/mpi"
-				P="$P /usr/local/packages/mpi"
-				P="$P /usr/local/mpich2"
-				P="$P /usr/local/mpich"
-				P="$P /opt/xt-mpt/default/mpich2-64/P2"
-			fi
-			PATH_Search MPIROOT "$P" include/mpi.h
-			if test ! -n "$MPIROOT"; then
-				AC_MSG_ERROR([Cannot determine MPI root!!!])
-				exit 1
-			fi
-
-			if test -e "${MPIROOT}/bin/mpicc"; then
-				MPICC=${MPIROOT}/bin/mpicc
-			fi
-
-			if test -e "${MPIROOT}/bin/mpicxx"; then
-				MPICXX=${MPIROOT}/bin/mpicxx
-			fi
-		fi
-
-		if test -z "$MPICC" -o -z "$MPICXX"; then 
-			INCLUDES="${INCLUDES} -I${MPIROOT}/include"
-			AC_MSG_CHECKING([for name of MPI lib ])
-			if test -e ${MPIROOT}/lib/libmpi.a; then
-				MPILIB="-L${MPIROOT}/lib -lmpi"
-			elif test -e ${MPIROOT}/lib/libmpi.so; then
-				MPILIB="-L${MPIROOT}/lib -lmpi"
-			elif test -e ${MPIROOT}/lib/libmpich.a; then
-				MPILIB="-L${MPIROOT}/lib -lmpich"
-			elif test -e ${MPIROOT}/lib/libmpich.so; then
-				MPILIB="-L${MPIROOT}/lib -lmpich"
-			else
-				AC_MSG_RESULT([not found])
-				exit 1
-			fi
-			AC_MSG_RESULT([${MPILIB}])
-		fi
-
-		if test -n "$MPICC"; then
-			CC=${MPICC}
-		fi
-  
-		if test -n "$MPICXX"; then
-			CXX=${MPICXX}
-		fi
+		AC_MSG_ERROR([MPI wrapper can't compile or link MPI program! Please set the INCLUDE and LIBS variables manually.])
+		exit 1
 	fi
 
 	TPTARGET="${TPTARGET} H5PartTestP H5PartAndreasTest Bench"
@@ -333,25 +279,6 @@ if test "X$USE_PARALLEL" = "Xyes"; then
 
 	# parallel + fortran
 	if test "X$USE_FORTRAN" = "Xyes"; then
-		AC_PATH_PROGS([MPIFC], [mpxlf_r mpif90], [], [$PATH])
-
-		if test -z "${MPIFC}" ; then
-			if test -e "${MPIROOT}/bin/mpif90"; then
-				MPIFC=${MPIROOT}/bin/mpif90
-			fi
-		fi
- 
-		# if MPIFC empty
-		if test ! -n "$MPIFC"; then
-			AC_MSG_CHECKING([ No MPIFC detected. Setting MPIFC to FC.])
-			MPIFC=$FC
-			AC_MSG_RESULT([MPIFC =  $MPIFC])
-		fi 
-
-		if test -n "$MPIFC"; then
-			FC=${MPIFC}
-		fi
-
 		TPTARGET="${TPTARGET} H5testFpar"
 		TBTARGET="${TBTARGET} H5BlockParTestScalarFieldF"
 	fi
@@ -374,12 +301,14 @@ fi
 
 AC_MSG_CHECKING([for HDF5 root ])
 AC_MSG_RESULT([])
-if test -n "${HDF5ROOT}"; then
+if test -n "${HDF5PATH}" ; then
+	P=${HDF5PATH}
+elif test -n "${HDF5ROOT}"; then
 	P=${HDF5ROOT}
 elif test -n "${HDF5HOME}" ; then
 	P=${HDF5HOME}
-elif test -n "${HDF5PATH}" ; then
-	P=${HDF5PATH}
+elif test -n "${HDF5_DIR}" ; then
+	P=${HDF5_DIR}
 else
 	P=''
 	P="$P /usr"
@@ -391,7 +320,7 @@ else
 fi
 PATH_Search HDF5ROOT "$P" include/hdf5.h
 if test -z "$HDF5ROOT"; then
-	AC_MSG_ERROR([Cannot determine HDF5 root!!!])
+	AC_MSG_ERROR([Cannot find an HDF5 library!])
 	exit 1
 fi
 
@@ -414,6 +343,10 @@ AC_MSG_CHECKING([for lustre API ])
 AC_MSG_RESULT([])
 if test -n "${LUSTREPATH}"; then
 	P=${LUSTREPATH}
+elif test -n "${LUSTREROOT}" ; then
+	P=${LUSTREROOT}
+elif test -n "${LUSTREHOME}" ; then
+	P=${LUSTREHOME}
 elif test -n "${LUSTRE_DIR}" ; then
 	P=${LUSTRE_DIR}
 else
@@ -445,28 +378,28 @@ if test -n "$SAVE_CC"; then
 	CC="$SAVE_CC"
 fi
 
-if test -n "$SAVE_CXX"; then
-	CXX="$SAVE_CXX"
+if test -n "$SAVE_FC"; then
+	FC="$SAVE_FC"
 fi
 
-if test -n "$SAVE_MPICC"; then
-	MPICC="$SAVE_MPICC"
+if test -n "$SAVE_CFLAGS"; then
+	CFLAGS="$SAVE_CFLAGS"
 fi
 
-if test -n "$SAVE_MPICXX"; then
-	MPICXX="$SAVE_MPICXX"
+if test -n "$SAVE_FFLAGS"; then
+	FFLAGS="$SAVE_FFLAGS"
 fi
 
-if test -n "$SAVE_MPIFC"; then
-	MPIFC="$SAVE_MPIFC"
+if test -n "$SAVE_INCLUDES"; then
+	INCLUDES="$SAVE_INCLUDES"
 fi
 
-if test -n "$SAVE_MPIROOT"; then
-	MPIROOT="$SAVE_MPIROOT"
+if test -n "$SAVE_LDFLAGS"; then
+	LDFLAGS="$SAVE_LDFLAGS"
 fi
 
-if test -n "$SAVE_HDF5ROOT"; then
-	HDF5ROOT="$SAVE_HDF5ROOT"
+if test -n "$SAVE_LIBS"; then
+	LIBS="$SAVE_LIBS"
 fi
 
 ###############################################################################
@@ -479,15 +412,8 @@ fi
 # files with the value that the shell variable variable has when AC_OUTPUT is
 # called.  This value of variable should not contain literal newlines.  If
 # value is given, in addition assign it to variable. 
-AC_SUBST(MPIROOT)
 AC_SUBST(HDF5ROOT)
 AC_SUBST(LUSTREROOT)
-AC_SUBST(MPICC)
-AC_SUBST(MPICXX)
-AC_SUBST(MPIFC)
-AC_SUBST(TPTARGET)
-AC_SUBST(TBTARGET)
-AC_SUBST(TFTARGET)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
 AC_SUBST(INCLUDES)
@@ -526,20 +452,15 @@ AC_MSG_RESULT([Host OS:             $host_os])
 AC_MSG_RESULT([Host CPU:            $host_cpu])
 AC_MSG_RESULT([Host vendor:         $host_vendor])
 AC_MSG_RESULT([Build libraries:     $BUILD_LIBS])
-AC_MSG_RESULT([Build test programs: $TTARGET])
+AC_MSG_RESULT([Build test programs: $BUILD_TESTS])
 AC_MSG_RESULT([Build tools:         $BUILD_TOOLS])
 AC_MSG_RESULT([CC =                 $CC])
-AC_MSG_RESULT([CXX =                $CXX])
 AC_MSG_RESULT([FC =                 $FC])
-AC_MSG_RESULT([MPICC =              $MPICC])
-AC_MSG_RESULT([MPICXX =             $MPICXX])
-AC_MSG_RESULT([MPIFC =              $MPIFC])
 AC_MSG_RESULT([CFLAGS =             $CFLAGS])
 AC_MSG_RESULT([FFLAGS =             $FFLAGS])
 AC_MSG_RESULT([INCLUDES =           $INCLUDES])
 AC_MSG_RESULT([LDFLAGS =            $LDFLAGS])
 AC_MSG_RESULT([LIBS =               $LIBS])
-AC_MSG_RESULT([MPIROOT =            $MPIROOT])
 AC_MSG_RESULT([HDF5ROOT =           $HDF5ROOT])
 AC_MSG_RESULT([LUSTREROOT =         $LUSTREROOT])
 AC_MSG_RESULT([ ])

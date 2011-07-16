@@ -2,14 +2,13 @@
 
 OBJEXT=o
 
-LIBS = @LIBS@
 INCLUDES = -I../include @INCLUDES@
 
 # What to build... Will be determined by configure script.
-lib_LIBRARIES = @LIB_C@
+lib_LTLIBRARIES = @LIB_C@
 
 # Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = ../lib/libH5hutC.a
+EXTRA_LTLIBRARIES = libH5hutC.la
 
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS =				\
@@ -31,13 +30,15 @@ include_HEADERS =				\
 EXTRA_HEADERS =
 
 # Listing of sources
-___lib_libH5hutC_a_SOURCES =			\
+libH5hutC_la_SOURCES =			\
 	H5.c					\
 	H5_attribs.c				\
 	H5_attachments.c			\
 	H5Part.c                                \
 	H5Block.c				\
 	H5Block_readwrite.c
+
+libH5hutC_la_LDFLAGS = -version-info 2:0:0 -rpath '$(libdir)'
 
 all: all-am
 

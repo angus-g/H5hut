@@ -2,7 +2,6 @@
 
 OBJEXT=o
 
-LIBS = @LIBS@
 INCLUDES = -I../include @INCLUDES@
 
 F90_FILES =     	H5.f90 \
@@ -23,19 +22,21 @@ EXTRA_DIST =		TestUnderscoreC.c \
 nodist_include_HEADERS = ../include/H5hutF.h
 
 # What to build... Will be determined by configure script.
-lib_LIBRARIES = @LIB_FORTRAN@
+lib_LTLIBRARIES = @LIB_FORTRAN@
 
 # Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = ../lib/libH5hutF.a
+EXTRA_LTLIBRARIES = libH5hutF.la
 
-___lib_libH5hutF_a_SOURCES = 	\
+libH5hutF_la_SOURCES = 	\
 	H5_F.c			\
 	H5_attribs_F.c		\
 	H5Part_F.c		\
 	H5Block_F.c		\
 	H5Block_readwrite_F.c
 
-___lib_libH5hutF_a_DEPENDENCIES = ../include/H5hutF.h
+libH5hutF_la_DEPENDENCIES = ../include/H5hutF.h
+
+libH5hutF_la_LDFLAGS = -version-info 2:0:0 -rpath '$(libdir)'
 
 ../include/H5hutF.h: $(F90_FILES)
 	awk '/INTEGER\*8 FUNCTION/{print "\t" $$1 " " $$3}' $^ >$@

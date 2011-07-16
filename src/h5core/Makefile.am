@@ -2,7 +2,6 @@
 
 OBJEXT=o
 
-LIBS = @LIBS@
 INCLUDES = -I../include @INCLUDES@
 
 EXTRA_HEADERS =					\
@@ -69,13 +68,10 @@ EXTRA_HEADERS =					\
 EXTRA_DIST = $(EXTRA_HEADERS)
 
 # What to build... Will be determined by configure script.
-lib_LIBRARIES = ../lib/libH5hut.a
-
-# Listing of all possible targets that I may build.
-EXTRA_LIBRARIES = ../lib/libH5hut.a
+lib_LTLIBRARIES = libH5hut.la
 
 # Listing of sources
-___lib_libH5hut_a_SOURCES =			\
+libH5hut_la_SOURCES =			\
 	h5_attach.c				\
 	h5_attribs.c				\
 	h5_errorhandling.c			\
@@ -118,7 +114,9 @@ ___lib_libH5hut_a_SOURCES =			\
 	h5t_store_trim.c			\
 	h5t_tags.c
 
-___lib_libH5hut_a_DEPENDENCIES = $(EXTRA_HEADERS)
+libH5hut_la_DEPENDENCIES = $(EXTRA_HEADERS)
+
+libH5hut_la_LDFLAGS = -version-info 2:0:0
 
 all: all-am
 
