@@ -2,10 +2,8 @@
 
 OBJEXT=o
 
-HDFLIB = -L@HDF5ROOT@/lib -lhdf5 -lz @SZLIB@
-LIBS = -L@H5P_LIB_LOC@ @H5P_LIB_NAME@ $(HDFLIB) -lm @STDCXX@
-
-INCLUDES = -I@H5P_LIB_LOC@ -I@HDF5ROOT@/include @MPIINC@
+INCLUDES = -I../src
+LIBS =@LIBS@ -lm @STDCXX@
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
 bin_PROGRAMS = @BUILD_TOOLS@
@@ -19,8 +17,17 @@ EXTRA_PROGRAMS =	h5pAttrib \
 
 # Listing of sources
 h5pAttrib_SOURCES =	h5pAttrib.cc
+h5pAttrib_LDADD   =  ../src/libH5Part.la
+
 h5pToGNUplot_SOURCES =	h5pToGNUplot.cc
+h5pToGNUplot_LDADD   =  ../src/libH5Part.la
+
 homdynToH5p_SOURCES =	homdynToH5p.cc
+homdynToH5p_LDADD   =  ../src/libH5Part.la
+
 H5PartBench_SOURCES =	H5PartBench.c
+H5PartBench_LDADD   =  ../src/libH5Part.la
+
 H5BlockBench_SOURCES =	H5BlockBench.c
+H5BlockBench_LDADD   =  ../src/libH5Part.la
 

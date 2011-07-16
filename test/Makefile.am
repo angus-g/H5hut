@@ -2,15 +2,12 @@
 
 OBJEXT=o
 
-HDFLIB = -L@HDF5ROOT@/lib -lhdf5 -lz @SZLIB@
-LIBS = -L@H5P_LIB_LOC@ @H5P_LIB_NAME@ $(HDFLIB) -lm
+INCLUDES = -I../src
 
-INCLUDES = -I@H5P_LIB_LOC@ -I@HDF5ROOT@/include @MPIINC@
-
-noinst_PROGRAMS = @TTARGET@
+noinst_PROGRAMS = @BUILD_TESTS@
 
 TESTS_ENVIRONMENT = env LD_LIBRARY_PATH=@HDF5ROOT@/lib:$(LD_LIBRARY_PATH)
-TESTS = @TTARGET@
+TESTS = @BUILD_TESTS@
 
 EXTRA_PROGRAMS = test testf
 
@@ -20,8 +17,10 @@ test_SOURCES =	test.c \
 		read.c \
 		testframe.h \
 		params.h
+test_LDADD   =  ../src/libH5Part.la
 
 testf_SOURCES = testf.F90
+testf_LDADD   =  ../src/libH5PartF.la
 
 clean: clean-am
 	rm -f *.h5

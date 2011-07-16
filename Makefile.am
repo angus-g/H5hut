@@ -1,13 +1,12 @@
 # Trial by Antino Kim
 # Top level Makefile.am
+ACLOCAL_AMFLAGS=-I m4
 
 SUBDIRS = \
 	doc \
 	src \
 	test \
 	tools
-
-EXTRA_DIST = configure-crayxt
 
 MAINTAINERCLEANFILES = \
 	config.h \
