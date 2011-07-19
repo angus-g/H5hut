@@ -2,7 +2,7 @@
 
 OBJEXT=o
 
-INCLUDES = -I../src
+INCLUDES = -I../src @INCLUDES@
 
 noinst_PROGRAMS = @BUILD_TESTS@
 

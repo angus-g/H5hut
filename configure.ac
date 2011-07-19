@@ -12,6 +12,8 @@ AC_PREREQ(2.59)
 # The AC_CONFIG_HEADERS macro selects this kind of output.
 AC_CONFIG_HEADERS(config.h)
 
+AC_CONFIG_MACRO_DIR([m4])
+
 # AM_INIT_AUTOMAKE is required to use autoconf with automake
 AM_INIT_AUTOMAKE
 
@@ -133,25 +135,8 @@ AC_PROG_INSTALL
 
 AC_PROG_AWK
 
-# Disable shared libraries by default: can be enabled with --enable-shared
-LT_INIT([disable-shared])
-AC_PROG_LIBTOOL
-
 # Default prefix for bindir, etc... (eg >> ./build/bin)
 AC_PREFIX_DEFAULT(`pwd`/build)
-
-# Checks for header files.
-AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h])
-
-# Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
-AC_TYPE_INT64_T
-AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
-
-# Checks for library functions.
-AC_FUNC_MALLOC
-AC_CHECK_FUNCS([memset pow strchr strdup])
 
 # AC_DEFINE_UNQUOTED (variable, value, [description])
 # Define the C preprocessor variable variable to value
@@ -182,14 +167,14 @@ fi
 AC_MSG_CHECKING([if fortran interface enabled])
 if test "X$USE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
-	LIB_FORTRAN="libH5hutF.la"
+	LIB_FORTRAN="libH5PartF.la"
         BUILD_LIBS="$BUILD_LIBS libH5PartF"
-	BUILD_TESTS="$BUILD_TESTS testF"
+	BUILD_TESTS="$BUILD_TESTS testf"
 
 	if test "X$USE_PARALLEL" = "Xyes"; then
-		AC_PROG_FC(mpif90 mpif77)
+		AC_PROG_FC(mpif90 mpif77 ftn)
 	else
-		AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
+		AC_PROG_FC(pgf90 pathf90 ifort ftn xlf_r g95 g90 gfortran)
 	fi
 
 	if test -z "$FC" ; then
@@ -226,12 +211,19 @@ else
 fi
 
 
+# Disable shared libraries by default: can be enabled with --enable-shared
+LT_INIT([disable-shared])
+AC_PROG_LIBTOOL
+
+
 ######################## parallel interface enabled ###########################
 AC_MSG_CHECKING([if parallel interface enabled])
 if test "X$USE_PARALLEL" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 
 	CFLAGS="${CFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
+	CXXFLAGS="${CXXFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
+	FFLAGS="${FFLAGS} -DPARALLEL_IO"
 
 	AC_MSG_CHECKING([if we can compile MPI code without setting flags])
 	AC_TRY_LINK([#include "mpi.h"], [
@@ -309,6 +301,20 @@ if test -n "$HDF5ROOT"; then
 fi
 
 LIBS="$LIBS -lz -lm"
+
+
+# Checks for header files.
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_TYPE_INT64_T
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+
+# Checks for library functions.
+AC_FUNC_MALLOC
+AC_CHECK_FUNCS([memset pow strchr strdup])
 
 
 ###############################################################################

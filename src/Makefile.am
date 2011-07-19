@@ -54,7 +54,12 @@ libH5Part_la_SOURCES =	H5Part.c \
 
 libH5Part_la_LDFLAGS = -version-info 0:0:0
 
-libH5PartF_la_SOURCES =	$(libH5Part_la_SOURCES) \
+libH5PartF_la_SOURCES =	H5Part.c \
+			H5PartAttrib.c \
+			H5Block.c \
+			H5BlockReadWrite.c \
+			H5MultiBlock.c \
+			H5MultiBlockReadWrite.c \
 			H5PartF.c \
 			H5PartAttribF.c \
 			H5BlockF.c \

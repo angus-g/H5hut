@@ -2,8 +2,7 @@
 
 OBJEXT=o
 
-INCLUDES = -I../src
-LIBS =@LIBS@ -lm @STDCXX@
+INCLUDES = -I../src @INCLUDES@
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
 bin_PROGRAMS = @BUILD_TOOLS@
