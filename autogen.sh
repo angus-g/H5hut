@@ -1,10 +1,17 @@
 #!/bin/sh
 # Run this to generate all the initial makefiles, etc.
 
+LIBTOOLIZE=`which libtoolize`
+if [ "$LIBTOOLIZE" = "" ]; then
+	LIBTOOLIZE=`which glibtoolize`
+fi
+if [ "$LIBTOOLIZE" = "" ]; then
+	echo "libtoolize not found" 1>&2
+	exit 1
+fi
+
 echo "+ making misc files ..."
 touch NEWS README AUTHORS ChangeLog
-echo
-echo
 echo
 echo "+ running aclocal ..."
 aclocal $ACLOCAL_FLAGS || {
@@ -13,8 +20,6 @@ aclocal $ACLOCAL_FLAGS || {
   exit 1
 }
 echo
-echo
-echo
 echo "+ running autoheader ... "
 autoheader || {
   echo
@@ -22,16 +27,12 @@ autoheader || {
   exit 1
 }
 echo
-echo
-echo
 echo "+ running libtoolize ... "
-libtoolize --force || {
+$LIBTOOLIZE --force || {
   echo
   echo "libtoolize failed"
   exit 1
 }
-echo
-echo
 echo
 echo "+ running autoconf ... "
 autoconf || {
@@ -40,15 +41,9 @@ autoconf || {
   exit 1
 }
 echo
-echo
-echo
 echo "+ running automake ... "
 automake -a -c --foreign || {
   echo
   echo "automake failed"
   exit 1
 }
-echo
-echo
-echo
-
