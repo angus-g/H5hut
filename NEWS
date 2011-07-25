@@ -1,3 +1,16 @@
+#### H5PART 1.6.3 ############################################################
+
+New build system uses libtool and can build shared libraries.
+
+Fixed a bug that incorrectly identifies the number of selected points in a view
+when using H5PartSetViewIndices.
+
+Fixed bug in Fortran test reported by several people, as well as several
+incorrect views set in the C test that were causing segfaults.
+
+Fixed name mismatches in the Fortran interface, and an off-by-one indexing
+problem.
+
 #### H5PART 1.6.2 ############################################################
 
 Removed H5PartSetViewEmpty

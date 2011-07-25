@@ -2585,7 +2585,30 @@ _H5Part_get_num_particles (
 		0,
 		dataset_name, H5PART_DATANAME_LEN );
 	if ( herr < 0 ) return herr;
-	/* returns 0 if there are no datasets on disk */
+
+	/* if a view exists, use its size as the number of particles */
+	if ( _H5Part_has_view ( f ) )
+	{
+		nparticles = H5Sget_select_npoints ( f->diskshape );
+		if ( nparticles < 0 ) return HANDLE_H5S_GET_SELECT_NPOINTS_ERR;
+
+		_H5Part_print_debug (
+			"Found %lld points with H5Sget_select_npoints",
+			(long long)nparticles );
+
+#if 0 // this does not work for indices
+		/* double check that the size of the diskshape agrees with
+		 * the size of the view */
+		if ( nparticles != f->viewend - f->viewstart + 1 ) {
+			_H5Part_print_warn (
+				"Number of particles (%lld) does not agree "
+				"with view range.", (long long)nparticles );
+			return HANDLE_H5PART_BAD_VIEW_ERR (
+					f->viewstart, f->viewend);
+		}
+#endif
+	}
+	/* herr is 0 if there are no datasets on disk */
 	else if ( herr == 0 )
 	{
 		/* try to recover number of particles from a previous
@@ -2613,29 +2636,6 @@ _H5Part_get_num_particles (
 				"reporting 0 particles.", stepname );
 			return 0;
 		}
-	}
-
-	/* if a view exists, use its size as the number of particles */
-	if ( _H5Part_has_view ( f ) )
-	{
-		nparticles = H5Sget_select_npoints ( f->diskshape );
-		if ( nparticles < 0 ) return HANDLE_H5S_GET_SELECT_NPOINTS_ERR;
-
-		_H5Part_print_debug (
-			"Found %lld points with H5Sget_select_npoints",
-			(long long)nparticles );
-
-#if 0 // this does not work for indices
-		/* double check that the size of the diskshape agrees with
-		 * the size of the view */
-		if ( nparticles != f->viewend - f->viewstart + 1 ) {
-			_H5Part_print_warn (
-				"Number of particles (%lld) does not agree "
-				"with view range.", (long long)nparticles );
-			return HANDLE_H5PART_BAD_VIEW_ERR (
-					f->viewstart, f->viewend);
-		}
-#endif
 	}
 	/* otherwise, report all particles on disk in the first dataset
 	 * for this timestep */
@@ -2855,9 +2855,9 @@ _set_view_indices (
 	herr = _reset_view ( f );
 	if ( herr < 0 ) return herr;
 
-	if ( indices == NULL ) {
+	if ( indices == NULL || nelems <= 0 ) {
 		_H5Part_print_warn (
-			"View indices array is null: reseting view." );
+			"View indices array is null or size is <= 0: reseting view." );
 		return H5PART_SUCCESS;
 	}
 
@@ -2880,15 +2880,7 @@ _set_view_indices (
 
 	if ( total == 0 ) return H5PART_SUCCESS;
 
-	/* check length of list */
-	if ( nelems < 0 ) {
-		_H5Part_print_warn (
-			"Array of view indices has length < 0: "
-			"resetting view.");
-		f->nparticles = 0;
-	} else {
-		f->nparticles = (hsize_t) nelems;
-	}
+	f->nparticles = (hsize_t) nelems;
 
 	/* declare overall data size  but then will select a subset */
 	f->diskshape = H5Screate_simple ( 1, &total, NULL );
@@ -3203,7 +3195,7 @@ _read_data (
 
 	if ( f->memshape != H5S_ALL )
 	{
-		nmem = H5Sget_select_npoints ( f->memshape );
+		nmem = H5Sget_simple_extent_npoints ( f->memshape );
 		if ( nmem <  0 ) return HANDLE_H5S_GET_SELECT_NPOINTS_ERR;
 
 		/* make sure the memory space selected by the view has
