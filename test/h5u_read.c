@@ -175,10 +175,6 @@ test_read_data64(h5_file_t *file, int nparticles, int step)
 		status = H5PartSetView(file, start, end);
 		RETURN(status, H5_SUCCESS, "H5PartSetView");
 
-		status = H5PartReadDataFloat64(file, "x", x);
-		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat64");
-		FVALUE(x[rank], (double)(start+rank+nparticles*t), "x data");
-
 		val = H5PartGetView(file, &start, &end);
 		IVALUE(val, nprocs*nparticles-start, "particle count");
 		IVALUE(start, rank, "view start");
@@ -212,16 +208,13 @@ test_read_data64(h5_file_t *file, int nparticles, int step)
 		val = H5PartGetNumParticles(file);
 		IVALUE(val, 4, "particle count");
 
-                x[0] = 0;
-                x[1] = 0;
-                x[2] = 0;
-                x[3] = 0;
-		status = H5PartReadDataFloat64(file, "x", x);
+		double x2[4];
+		status = H5PartReadDataFloat64(file, "x", x2);
 		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat64");
-		FVALUE(x[0], (double)(2*rank+0+nparticles*t), "x data");
-		FVALUE(x[1], (double)(2*rank+3+nparticles*t), "x data");
-		FVALUE(x[2], (double)(2*rank+9+nparticles*t), "x data");
-		FVALUE(x[3], (double)(2*rank+7+nparticles*t), "x data");
+		FVALUE(x2[0], (double)(2*rank+0+nparticles*t), "x data");
+		FVALUE(x2[1], (double)(2*rank+3+nparticles*t), "x data");
+		FVALUE(x2[2], (double)(2*rank+9+nparticles*t), "x data");
+		FVALUE(x2[3], (double)(2*rank+7+nparticles*t), "x data");
 
 		val = H5PartGetNumParticles(file);
 		IVALUE(val, 4, "particle count");
