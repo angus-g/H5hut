@@ -322,6 +322,23 @@ hdf5_select_elements_of_dataspace (
 	HDF5_WRAPPER_RETURN (H5_SUCCESS);
 }
 
+static inline h5_err_t
+hdf5_select_none (
+	hid_t space_id
+	) {
+	HDF5_WRAPPER_ENTER1 (h5_err_t,
+			    "%d",
+			     space_id);
+	herr_t herr = H5Sselect_none (space_id);
+	if (herr < 0) {
+		HDF5_WRAPPER_LEAVE (
+			h5_error (
+				H5_ERR_HDF5,
+				"Selection for writing zero-length data failed"));
+	}
+	HDF5_WRAPPER_RETURN (H5_SUCCESS);
+}
+
 static inline h5_ssize_t
 hdf5_get_selected_npoints_of_dataspace (
 	hid_t space_id

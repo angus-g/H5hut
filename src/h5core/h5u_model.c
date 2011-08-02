@@ -65,7 +65,7 @@ h5u_set_num_particles (
 	hsize_t total;
 	hsize_t dmax = H5S_UNLIMITED;
 
-	if (nparticles <= 0)
+	if (nparticles < 0)
 		H5_CORE_API_LEAVE (
 			h5_error(
 				H5_ERR_INVAL,
@@ -154,11 +154,15 @@ h5u_set_num_particles (
 
 	count = nparticles;
 	hstride = 1;
-	TRY( hdf5_select_hyperslab_of_dataspace(
-			u->diskshape,
-			H5S_SELECT_SET,
-			&start, &hstride, &count,
-			NULL) );
+	if (count > 0) {
+		TRY( hdf5_select_hyperslab_of_dataspace(
+			     u->diskshape,
+			     H5S_SELECT_SET,
+			     &start, &hstride, &count,
+			     NULL) );
+	} else {
+		hdf5_select_none (u->diskshape);
+	}
 #endif
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
@@ -313,11 +317,14 @@ h5u_set_view_indices (
 	/* declare local memory datasize */
 	total = u->nparticles;
 	TRY (u->memshape = hdf5_create_dataspace (1, &total, &dmax));
-	TRY (hdf5_select_elements_of_dataspace ( 
-		u->diskshape,
-		H5S_SELECT_SET,
-		(hsize_t)nelems, (hsize_t*)indices ) );
-
+	if (nelems > 0) {
+		TRY (hdf5_select_elements_of_dataspace ( 
+			     u->diskshape,
+			     H5S_SELECT_SET,
+			     (hsize_t)nelems, (hsize_t*)indices ) );
+	} else {
+		TRY (hdf5_select_none (u->diskshape));
+	}
 	u->viewindexed = 1;
 
 	H5_CORE_API_RETURN (H5_SUCCESS);
