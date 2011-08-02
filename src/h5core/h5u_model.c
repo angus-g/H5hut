@@ -161,7 +161,7 @@ h5u_set_num_particles (
 			     &start, &hstride, &count,
 			     NULL) );
 	} else {
-		hdf5_select_none (u->diskshape);
+		TRY (hdf5_select_none (u->diskshape));
 	}
 #endif
 	H5_CORE_API_RETURN (H5_SUCCESS);
