@@ -17,7 +17,7 @@ fi
 echo "+ making misc files ..."
 touch NEWS README AUTHORS ChangeLog
 echo
-libtoolize $LIBTOOLIZE_FLAGS || {
+$LIBTOOLIZE $LIBTOOLIZE_FLAGS || {
 	echo "libtoolize failed"
 	exit 1
 }
