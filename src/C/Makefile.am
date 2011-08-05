@@ -30,7 +30,7 @@ include_HEADERS =				\
 EXTRA_HEADERS =
 
 # Listing of sources
-libH5hutC_la_SOURCES =			\
+libH5hutC_la_SOURCES =				\
 	H5.c					\
 	H5_attribs.c				\
 	H5_attachments.c			\
@@ -40,7 +40,6 @@ libH5hutC_la_SOURCES =			\
 
 libH5hutC_la_LDFLAGS = -version-info 2:0:0 -rpath '$(libdir)'
 
-all: all-am
-
-clean: clean-am
+all-local:
+	$(INSTALL) -m644 .libs/libH5hutC.a ../lib
 
