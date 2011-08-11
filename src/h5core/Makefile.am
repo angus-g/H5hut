@@ -125,5 +125,6 @@ install-exec-local:
 	@$(INSTALL) -d $(DESTDIR)$(includedir)/h5core
 	@$(INSTALL) -m644 ../include/h5core/*.h $(DESTDIR)$(includedir)/h5core/
 
-clean: clean-am
+clean-local:
+	$(RM) -f ../lib/libH5hut.*
 
