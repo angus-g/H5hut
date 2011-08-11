@@ -113,6 +113,7 @@ else
 fi
 
 AC_PROG_CC($CCOMPILERS)
+AC_PROG_CXX
 
 # Use macro to set C99 mode instead of checking for gcc, which breaks with
 # parallel builds.
@@ -193,7 +194,7 @@ if test "X$USE_C" = "Xyes"; then
 	LIB_C="libH5hutC.la"
 	BUILD_LIBS="$BUILD_LIBS libH5hutC"
 	BUILD_TESTS="$BUILD_TESTS h5u_test h5b_test"
-	BUILD_TOOLS="$BUILD_TOOLS h5hutcc"
+	BUILD_TOOLS="$BUILD_TOOLS h5hutcc h5PartDcToVtk h5PartSurfaceToVtk"
 fi
 
 ############################ fortran enabled ##################################
