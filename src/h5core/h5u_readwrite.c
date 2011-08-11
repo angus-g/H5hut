@@ -158,6 +158,7 @@ h5u_write_data (
 	TRY (hdf5_close_dataset (dset_id));
 
 	f->empty = 0;
+	TRY (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
 
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }

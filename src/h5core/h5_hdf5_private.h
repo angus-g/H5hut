@@ -1087,6 +1087,24 @@ hdf5_close_file (
 	HDF5_WRAPPER_RETURN (H5_SUCCESS);
 }
 
+static inline h5_err_t
+hdf5_flush (
+	hid_t obj_id,
+	H5F_scope_t scope
+	) {
+	HDF5_WRAPPER_ENTER2 (h5_err_t,
+			     "obj_id=%d (%s)", 
+			     obj_id,
+			     hdf5_get_objname (obj_id));
+	if (H5Fflush (obj_id, scope) < 0)
+		HDF5_WRAPPER_LEAVE (
+			h5_error (
+				H5_ERR_HDF5,
+				"Cannot flush data \"%s\".",
+				hdf5_get_objname (obj_id)));
+	HDF5_WRAPPER_RETURN (H5_SUCCESS);
+}
+
 /****** E r r o r h a n d l i n g ********************************************/
 
 static inline h5_err_t
