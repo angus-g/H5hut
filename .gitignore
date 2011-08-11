@@ -1,8 +1,10 @@
+/H5hut
 /INSTALL
 /Makefile
 /Makefile.in
 /aclocal.m4
 /autom4te.cache
+/build
 /config.guess
 /config.h
 /config.h.in
@@ -14,6 +16,9 @@
 doc/Makefile
 doc/Makefile.in
 /install-sh
+/libtool
+/ltmain.sh
+/m4
 /missing
 src/.deps
 src/C++/Makefile
