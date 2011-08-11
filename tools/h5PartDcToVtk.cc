@@ -312,7 +312,7 @@ int main(int argc, const char *argv[])
    
   string ifn = string(input_name) + string(".h5");
 
-  h5file = H5OpenFile(ifn.c_str(), H5_O_WRONLY);
+  h5file = H5OpenFile(ifn.c_str(), H5_O_WRONLY, NULL);
    
   if( h5file == NULL ) {
     fprintf(stdout, "unable to open file %s\n", input_name);
@@ -339,8 +339,8 @@ int main(int argc, const char *argv[])
       
 
     H5SetStep(h5file, ntime_step-1);
-    num_dataset = H5GetNumDatasets(h5file);
-    h5_int64_t nparticles = H5GetNumParticles(h5file);
+    num_dataset = H5PartGetNumDatasets(h5file);
+    h5_int64_t nparticles = H5PartGetNumParticles(h5file);
      
     h5_int64_t* larray = (h5_int64_t*)malloc(sizeof(h5_int64_t)*nparticles);
     H5PartReadDataInt64(h5file, "id", larray);
@@ -483,8 +483,8 @@ int main(int argc, const char *argv[])
       //h5_float64_t Etmp=0.0;//new
       //int var_readE=H5PartReadStepAttrib(h5file,s_name,&Etmp);//new 	
       //num_dataset = H5PartGetNumDatasets(h5file);//new 
-      num_dataset = H5GetNumDatasets(h5file);
-      h5_int64_t nparticles = H5GetNumParticles(h5file);
+      num_dataset = H5PartGetNumDatasets(h5file);
+      h5_int64_t nparticles = H5PartGetNumParticles(h5file);
       //Etmp = (Etmp -  0.51099906)*1000000.0;//new eV
       //ofenergy<<Etmp<<" "<<nparticles<<endl;//new          
       //cout<<"Read mean energy in step: "<<j<<" Energy: "<<Etmp<<endl;//new
@@ -573,9 +573,9 @@ int main(int argc, const char *argv[])
       h5_float64_t* larrayPz = (h5_float64_t*)malloc(sizeof(h5_float64_t)*nparticles);
       H5PartReadDataFloat64(h5file, "pz", larrayPz);
       if(j!=(ntime_step-1)) {
-	H5PartSetStep(h5file,j+1);
-	int num_dataset_temp = H5GetNumDatasets(h5file);
-	h5_int64_t nparticles_temp = H5GetNumParticles(h5file);
+	H5SetStep(h5file,j+1);
+	int num_dataset_temp = H5PartGetNumDatasets(h5file);
+	h5_int64_t nparticles_temp = H5PartGetNumParticles(h5file);
 
 	h5_int64_t* larray_temp = (h5_int64_t*)malloc(sizeof(h5_int64_t)*nparticles_temp);
 	H5PartReadDataInt64(h5file, "id", larray_temp);

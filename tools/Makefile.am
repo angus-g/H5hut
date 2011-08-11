@@ -2,7 +2,7 @@
 
 OBJEXT=o
 
-AM_LDFLAGS = -L../src/lib @LFLAGS@
+AM_LDFLAGS = -L../src/lib @LDFLAGS@
 LIBS = -lH5hutC -lH5hut @LIBS@
 
 INCLUDES = -I../src/include @INCLUDES@
