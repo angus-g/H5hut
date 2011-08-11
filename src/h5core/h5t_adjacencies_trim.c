@@ -582,13 +582,13 @@ update_internal_structs (
 	clock_t t1 = clock();
 	TRY( compute_elems_of_vertices (f, from_lvl) );
 	clock_t t2 = clock();
-	fprintf (stderr, "compute_elems_of_vertices(): %f\n",
-		 (float)(t2-t1)/CLOCKS_PER_SEC);
+	//	fprintf (stderr, "compute_elems_of_vertices(): %f\n",
+	//	 (float)(t2-t1)/CLOCKS_PER_SEC);
 	t1 = clock();
 	TRY( compute_elems_of_edges (f, from_lvl ) );
 	t2 = clock();
-	fprintf (stderr, "compute_elems_of_edge(): %f\n",
-		 (float)(t2-t1)/CLOCKS_PER_SEC);
+	//	fprintf (stderr, "compute_elems_of_edge(): %f\n",
+	//	 (float)(t2-t1)/CLOCKS_PER_SEC);
 	h5_debug ("%s (%lld): done", __func__, (long long)from_lvl);
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
