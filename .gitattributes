@@ -552,7 +552,6 @@ tools/H5PartMerge/INSTALL -text
 tools/H5PartMerge/NEWS -text
 tools/H5PartMerge/README -text
 tools/H5PartMerge/autogen.sh -text
-tools/H5PartMerge/configure -text
 tools/H5PartMerge/configure.ac -text
 tools/H5PartMerge/makefile.am -text
 tools/H5PartMerge/src/H5merge.cpp -text
