@@ -95,6 +95,14 @@ AC_LANG_PUSH(C)
     [],
     [AC_MSG_ERROR(H5hut library not found!)]
   )
+  AC_CHECK_LIB(
+    [H5hutC],
+    [main],
+    [],
+    [AC_MSG_ERROR(H5hut library not found!)]
+  )
+
+
 AC_LANG_POP
 AC_LANG(C++)
 
@@ -139,7 +147,7 @@ AC_C_CONST
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-AC_FUNC_MALLOC
+#AC_FUNC_MALLOC
 
 CPPFLAGS=$CPPFLAGS" -m64 -mtune=k8"
 LDFLAGS=$LDFLAGS" -lm"

@@ -20,6 +20,7 @@
  * 
  *  \todo H5hut port
  */
+
 #include <hdf5.h>
 #include "H5hut.h"
 
@@ -31,6 +32,8 @@
 #include <cstdlib>
 
 #include "optparse.hh"
+
+#include <stdlib.h>
 
 #ifdef USE_BOOST
 #include <boost/any.hpp>
@@ -61,17 +64,17 @@ typedef map<string, boost::any, StringCmp> StringAnyValueMap;
 typedef map<string, int, StringCmp> StringIntMap;
 typedef map<string, h5_int64_t, StringCmp> StringInt64Map;
 
-h5_int64_t copyFileAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_int64_t Num);
-h5_int64_t copyFileToStepAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_int64_t Num);
+h5_int64_t copyFileAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_size_t Num);
+h5_int64_t copyFileToStepAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_size_t Num);
 
 #ifdef USE_BOOST
 h5_int64_t copyFileAttribute(h5_file_t* In, h5_file_t* Out, StringAnyValueMap &FileAttributes, string AttrName,  
-			     h5_int64_t Type, h5_int64_t Num);
+			     h5_int64_t Type, h5_size_t Num);
 h5_int64_t copyFileToStepAttribute(h5_file_t* In, h5_file_t* Out, StringAnyValueMap &FileAttributes, string AttrName,  
-				   h5_int64_t Type, h5_int64_t Num);
+				   h5_int64_t Type, h5_size_t Num);
 #endif
 
-h5_int64_t copyStepAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_int64_t Num);
+h5_int64_t copyStepAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_size_t Num);
 h5_int64_t copyDataset(h5_file_t* In, h5_file_t* Out, string SetName, 
 		       h5_int64_t Type,  h5_float64_t* FloatArray, h5_int64_t* IntArray);
 
@@ -127,6 +130,7 @@ int main(int argc, char **argv){
   StringIntMap::iterator itName;
   StringInt64Map::iterator itType;
   StringInt64Map::iterator itNumType;
+
   
   h5_int64_t NumParticles = 0;
   h5_int64_t maxNumParticles = 0;
@@ -140,8 +144,9 @@ int main(int argc, char **argv){
 
   h5_int64_t Type;
   h5_int64_t SetType;
-  h5_int64_t NumType;
-  h5_int64_t SetNum;
+  h5_size_t NumType;
+  
+  h5_size_t SetNum;
 
   int verbosity = 0;
   h5_int64_t rc;
@@ -308,7 +313,7 @@ int main(int argc, char **argv){
 
   for (int i = 0; i < effNumInput; ++i)
     {
-      H5InFile = H5OpenFile(InputFilenames[i].c_str(), H5_O_RDONLY, NULL);
+      H5InFile = H5OpenFile(InputFilenames[i].c_str(), H5_O_RDONLY, 0);
 
       /**************************************************************\
        * fix range if values are negative
@@ -409,7 +414,7 @@ int main(int argc, char **argv){
             
           for (int k = from[i]; k <= to[i]; ++k)
             { 
-              H5PartSetStep(H5InFile,k);         
+              H5SetStep(H5InFile,k);         
          
               if (parser.get<bool>("intersect-datasets"))
                 {
@@ -647,7 +652,7 @@ int main(int argc, char **argv){
     }
    
     
-  H5OutFile = H5OpenFile(OutputFilename.c_str(), H5_O_WRONLY, NULL);
+  H5OutFile = H5OpenFile(OutputFilename.c_str(), H5_O_WRONLY, 0);
   if (H5OutFile == NULL)
     {
       cerr << "ABORT: could not open '" << OutputFilename << "' for writing!" << endl;
@@ -659,7 +664,7 @@ int main(int argc, char **argv){
 
   for (int i = 0; i < effNumInput; ++i)
     {
-      H5InFile = H5OpenFile(InputFilenames[i].c_str(), H5_O_RDONLY, NULL );
+      H5InFile = H5OpenFile(InputFilenames[i].c_str(), H5_O_RDONLY, 0);
 
       H5SetStep(H5InFile,from[i]);
       H5SetStep(H5OutFile,effStep);
@@ -695,7 +700,7 @@ int main(int argc, char **argv){
           h5_int64_t NumFileAttr = H5GetNumFileAttribs(H5InFile);
           for (h5_int64_t l = 0; l < NumFileAttr; ++l)
             {
-	      H5PartGetFileAttribInfo(H5InFile, l, AttrName, MAX_LEN, &Type, &NumType);
+	      H5GetFileAttribInfo(H5InFile, l, AttrName, MAX_LEN, &Type, &NumType);
               if (i == 0)
                 {
 #ifdef USE_BOOST
@@ -770,7 +775,7 @@ int main(int argc, char **argv){
               h5_int64_t NumStepAttr = H5GetNumStepAttribs(H5InFile);
               for (h5_int64_t m = 0; m < NumStepAttr; ++m)
                 {
-                  H5PartGetStepAttribInfo(H5InFile, m, StepAttrName, MAX_LEN, &Type, &NumType);
+                  H5GetStepAttribInfo(H5InFile, m, StepAttrName, MAX_LEN, &Type, &NumType);
                   rc = copyStepAttribute(H5InFile, H5OutFile, string(StepAttrName), Type, NumType);
                   if (rc != H5_SUCCESS)
                     cerr << "WARNING: could not write step attribute '" << StepAttrName << "'" << endl;
@@ -816,33 +821,33 @@ int main(int argc, char **argv){
   delete[] to;
 }
 
-h5_int64_t copyFileAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_int64_t Num)
+h5_int64_t copyFileAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_size_t Num)
 {
   h5_int64_t rc;
   if (Type == H5T_NATIVE_DOUBLE)
     {
       void *Attrib = (double*)malloc(sizeof(double)*Num);
-      rc = H5PartReadFileAttrib(In, AttrName.c_str(), (double*)Attrib);
+      rc = H5ReadFileAttribFloat64(In, AttrName.c_str(), (double*)Attrib);
       if (rc == H5_SUCCESS)
-        rc = H5PartWriteFileAttrib(Out, AttrName.c_str(), Type, (double*)Attrib, Num);
+        rc = H5WriteFileAttribFloat64(Out, AttrName.c_str(), (double*)Attrib, Num);
       free(Attrib);
       return rc;
     }
   else if (Type == H5T_NATIVE_CHAR)
     {
       void *Attrib = (char*)malloc(sizeof(char)*Num);
-      rc = H5ReadFileAttrib(In, AttrName.c_str(), (char*)Attrib);
+      rc = H5ReadFileAttribString(In, AttrName.c_str(), (char*)Attrib);
       if (rc == H5_SUCCESS)
-        rc = H5WriteFileAttrib(Out, AttrName.c_str(), Type, (char*)Attrib, Num);
+        rc = H5WriteFileAttribString(Out, AttrName.c_str(), (char*)Attrib);
       free(Attrib);
       return rc;
     }
   else if (Type == H5T_NATIVE_INT64)
     {
       void *Attrib = (h5_int64_t*)malloc(sizeof(h5_int64_t)*Num);
-      rc = H5PartReadFileAttrib(In, AttrName.c_str(), (h5_int64_t*)Attrib);
+      rc = H5ReadFileAttribInt64(In, AttrName.c_str(), (h5_int64_t*)Attrib);
       if (rc == H5_SUCCESS)
-        rc = H5PartWriteFileAttrib(Out, AttrName.c_str(), Type, (h5_int64_t*)Attrib, Num);
+        rc = H5WriteFileAttribInt64(Out, AttrName.c_str(), (h5_int64_t*)Attrib, Num);
       free(Attrib);
       return rc;
     }
@@ -854,33 +859,33 @@ h5_int64_t copyFileAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5
 }
 
 
-h5_int64_t copyFileToStepAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_int64_t Num)
+h5_int64_t copyFileToStepAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_size_t Num)
 {
   h5_int64_t rc;
   if (Type == H5T_NATIVE_DOUBLE)
     {
       void *Attrib = (double*)malloc(sizeof(double)*Num);
-      rc = H5PartReadFileAttrib(In, AttrName.c_str(), (double*)Attrib);
+      rc = H5ReadFileAttribFloat64(In, AttrName.c_str(), (double*)Attrib);
       if (rc == H5_SUCCESS)
-        rc = H5PartWriteStepAttrib(Out, AttrName.c_str(), Type, (double*)Attrib, Num);
+        rc = H5WriteStepAttribFloat64(Out, AttrName.c_str(), (double*)Attrib, Num);
       free(Attrib);
       return rc;
     }
   else if (Type == H5T_NATIVE_CHAR)
     {
       void *Attrib = (char*)malloc(sizeof(char)*Num);
-      rc = H5PartReadFileAttrib(In, AttrName.c_str(), (char*)Attrib);
+      rc = H5ReadFileAttribString(In, AttrName.c_str(), (char*)Attrib);
       if (rc == H5_SUCCESS)
-        rc = H5PartWriteStepAttrib(Out, AttrName.c_str(), Type, (char*)Attrib, Num);
+        rc = H5WriteStepAttribString(Out, AttrName.c_str(), (char*)Attrib);
       free(Attrib);
       return rc;
     }
   else if (Type == H5T_NATIVE_INT64)
     {
       void *Attrib = (h5_int64_t*)malloc(sizeof(h5_int64_t)*Num);
-      rc = H5PartReadFileAttrib(In, AttrName.c_str(), (h5_int64_t*)Attrib);
+      rc = H5ReadFileAttribInt64(In, AttrName.c_str(), (h5_int64_t*)Attrib);
       if (rc == H5_SUCCESS)
-        rc = H5PartWriteStepAttrib(Out, AttrName.c_str(), Type, (h5_int64_t*)Attrib, Num);
+        rc = H5WriteStepAttribInt64(Out, AttrName.c_str(), (h5_int64_t*)Attrib, Num);
       free(Attrib);
       return rc;
     }
@@ -891,33 +896,33 @@ h5_int64_t copyFileToStepAttribute(h5_file_t* In, h5_file_t* Out, string AttrNam
     }
 }
 
-h5_int64_t copyStepAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_int64_t Num)
+h5_int64_t copyStepAttribute(h5_file_t* In, h5_file_t* Out, string AttrName,  h5_int64_t Type, h5_size_t Num)
 {
   h5_int64_t rc;
   if (Type == H5T_NATIVE_DOUBLE)
     {
       void* Attrib = (double*)malloc(sizeof(double)*Num);;
-      rc = H5PartReadStepAttrib(In, AttrName.c_str(), (double*)Attrib);
+      rc = H5ReadStepAttribFloat64(In, AttrName.c_str(), (double*)Attrib);
       if (rc == H5_SUCCESS)
-        rc = H5PartWriteStepAttrib(Out, AttrName.c_str(), Type, (double*)Attrib, Num);
+        rc = H5WriteStepAttribFloat64(Out, AttrName.c_str(), (double*)Attrib, Num);
       free(Attrib);
       return rc;
     }
   else if (Type == H5T_NATIVE_CHAR)
     {
       void* Attrib = (char*)malloc(sizeof(char)*Num);;
-      rc = H5PartReadStepAttrib(In, AttrName.c_str(), (char*)Attrib);
+      rc = H5ReadStepAttribString(In, AttrName.c_str(), (char*)Attrib);
       if (rc == H5_SUCCESS)
-        rc = H5PartWriteStepAttrib(Out, AttrName.c_str(), Type, (char*)Attrib, Num);
+        rc = H5WriteStepAttribString(Out, AttrName.c_str(), (char*)Attrib);
       free(Attrib);
       return rc;
     }
   else if (Type == H5T_NATIVE_INT64)
     {
       void* Attrib = (h5_int64_t*)malloc(sizeof(h5_int64_t)*Num);
-      rc = H5PartReadStepAttrib(In, AttrName.c_str(), (h5_int64_t*)Attrib);
+      rc = H5ReadStepAttribInt64(In, AttrName.c_str(), (h5_int64_t*)Attrib);
       if (rc == H5_SUCCESS)
-        rc = H5PartWriteStepAttrib(Out, AttrName.c_str(), Type, (h5_int64_t*)Attrib, Num);
+        rc = H5WriteStepAttribInt64(Out, AttrName.c_str(), (h5_int64_t*)Attrib, Num);
       free(Attrib);
       return rc;
     }
