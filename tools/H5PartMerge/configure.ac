@@ -69,31 +69,31 @@ AC_LANG_PUSH(C)
     [AC_MSG_ERROR(hdf5 library not found!)]
   )
 
-  H5PART_PREFIX=""
-  H5PART_INCL_PATH=""
-  H5PART_LIB_PATH=""
+  H5HUT_PREFIX=""
+  H5HUT_INCL_PATH=""
+  H5HUT_LIB_PATH=""
   AC_ARG_WITH(
-    [h5part],
-    AC_HELP_STRING([--with-h5part=PREFIX],
-      [prefix, parent directory, where the serial(!) h5part library and header files can be found]),
-    [H5PART_PREFIX=$withval
-     H5PART_INCL_PATH=${H5PART_PREFIX}"/include "
-     H5PART_LIB_PATH=${H5PART_PREFIX}"/lib "]
+    [h5hut],
+    AC_HELP_STRING([--with-h5hut=PREFIX],
+      [prefix, parent directory, where the serial(!) h5hut library and header files can be found]),
+    [H5HUT_PREFIX=$withval
+     H5HUT_INCL_PATH=${H5HUT_PREFIX}"/include "
+     H5HUT_LIB_PATH=${H5HUT_PREFIX}"/lib "]
   )
-  if test "${H5PART_PREFIX}" != ""; then
-    CPPFLAGS=${CPPFLAGS}" -I"${H5PART_INCL_PATH};
-    LDFLAGS=${LDFLAGS}" -L"${H5PART_LIB_PATH};
+  if test "${H5HUT_PREFIX}" != ""; then
+    CPPFLAGS=${CPPFLAGS}" -I"${H5HUT_INCL_PATH};
+    LDFLAGS=${LDFLAGS}" -L"${H5HUT_LIB_PATH};
   fi
   AC_CHECK_HEADERS(
-    [H5Part.h],
+    [H5hut.h],
     [],
-    [AC_MSG_ERROR(H5Part.h not found!)]
+    [AC_MSG_ERROR(H5hut.h not found!)]
   )
   AC_CHECK_LIB(
-    [H5Part],
+    [H5hut],
     [main],
     [],
-    [AC_MSG_ERROR(H5Part library not found!)]
+    [AC_MSG_ERROR(H5hut library not found!)]
   )
 AC_LANG_POP
 AC_LANG(C++)
