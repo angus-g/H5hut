@@ -77,7 +77,7 @@ h5_err_t
 H5CloseFile (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER1 (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5_close_file (f));
 }
 
@@ -92,8 +92,25 @@ h5_err_t
 H5CheckFile (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER1 (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5_check_filehandle (f));
+}
+
+
+h5_err_t
+H5FlushStep (
+	h5_file_t* const f		/*!< file handle		*/
+	) {
+	H5_API_ENTER1 (h5_err_t, "f=%p", f);
+	H5_API_RETURN (h5_flush_step (f));
+}
+
+h5_err_t
+H5FlushFile (
+	h5_file_t* const f		/*!< file handle		*/
+	) {
+	H5_API_ENTER1 (h5_err_t, "f=%p", f);
+	H5_API_RETURN (h5_flush_file (f));
 }
 
 /*!
@@ -113,7 +130,7 @@ H5SetStepNameFormat (
 	const h5_int64_t width		/*!< Width of the number	*/
 	) {
 	H5_API_ENTER3 (h5_err_t,
-		       "f=0x%p, name=\"%s\", width=%lld",
+		       "f=%p, name=\"%s\", width=%lld",
 		       f, name, (long long) width);
 	H5_API_RETURN (h5_set_stepname_fmt (f, name, width));
 }
@@ -134,7 +151,7 @@ H5GetStepNameFormat (
 	int* width			/*!< OUT: Width of the number	*/
 	) {
 	H5_API_ENTER4 (h5_err_t,
-		       "f=0x%p, name=0x%p, l_name=%llu, width=0x%p",
+		       "f=%p, name=%p, l_name=%llu, width=%p",
 		       f, name, (unsigned long long)l_name, width);
 	H5_API_RETURN (h5_get_stepname_fmt (f, name, l_name, width));
 }
@@ -151,7 +168,7 @@ H5SetStep (
 	h5_file_t* const f,		/*!< [in]  Handle to open file */
 	const h5_id_t step		/*!< [in]  Step to set. */
 	) {
-	H5_API_ENTER2 (h5_err_t, "f=0x%p, step=%lld", f, (long long)step);
+	H5_API_ENTER2 (h5_err_t, "f=%p, step=%lld", f, (long long)step);
 	H5_API_RETURN (h5_set_step (f, step));
 }
 
@@ -166,7 +183,7 @@ h5_id_t
 H5GetStep (
 	h5_file_t* const f		/*!< Handle to open file */
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER1 (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5_get_step (f));
 }
 
@@ -184,7 +201,7 @@ int
 H5GetNumProcs (
 	h5_file_t* const f
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER1 (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5_get_num_procs(f));
 }
 
@@ -205,7 +222,7 @@ h5_ssize_t
 H5GetNumSteps (
 	h5_file_t* const f
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER1 (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5_get_num_steps(f));
 }
 
@@ -225,7 +242,7 @@ H5HasStep (
 	h5_id_t stepno
 	) {
 	H5_API_ENTER2 (h5_err_t,
-		       "f=0x%p, stepno=%lld",
+		       "f=%p, stepno=%lld",
 		       f,
 		       (long long)stepno);
 	H5_API_RETURN (h5_has_step (f, stepno));
@@ -242,7 +259,7 @@ h5_err_t
 H5StartTraverseSteps (
 	h5_file_t* const f		/*!< Handle to open file */
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER1 (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5_start_traverse_steps (f));
 }
 
@@ -257,7 +274,7 @@ h5_err_t
 H5TraverseSteps (
 	h5_file_t* const f		/*!< Handle to open file */
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER1 (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5_traverse_steps (f));
 }
 
@@ -283,7 +300,7 @@ H5SetThrottle (
 	h5_file_t* f,
 	int factor
 	) {
-	H5_API_ENTER2 (h5_err_t, "f=0x%p, factor=%d", f, factor);
+	H5_API_ENTER2 (h5_err_t, "f=%p, factor=%d", f, factor);
 	H5_API_RETURN (h5_set_throttle(f, factor));
 }
 #endif // PARALLEL_IO
@@ -314,7 +331,7 @@ h5_err_t
 H5SetErrorHandler (
 	h5_errorhandler_t handler
 	) {
-	H5_API_ENTER1 (h5_err_t, "handler=0x%p", handler);
+	H5_API_ENTER1 (h5_err_t, "handler=%p", handler);
 	H5_API_RETURN (h5_set_errorhandler (handler));
 }
 

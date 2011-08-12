@@ -155,10 +155,12 @@ h5u_write_data (
 #ifdef PARALLEL_IO
 	TRY (h5_end_throttle (f));
 #endif
+	if (f->mode & H5_O_FLUSHSTEP)
+		TRY (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
+
 	TRY (hdf5_close_dataset (dset_id));
 
 	f->empty = 0;
-	TRY (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
 
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }

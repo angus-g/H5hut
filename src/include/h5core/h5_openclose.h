@@ -12,17 +12,27 @@ h5_open_file (
 	MPI_Comm comm
 	);
 
-h5_int64_t
+h5_err_t
 h5_check_filehandle (
 	h5_file_t * const f
 	);
 
-h5_int64_t
+h5_err_t
 h5_close_file (
 	h5_file_t * const f
 	);
 
-h5_int64_t
+h5_err_t
+h5_flush_step (
+	h5_file_t * const f
+	);
+
+h5_err_t
+h5_flush_file (
+	h5_file_t * const f
+	);
+
+h5_err_t
 h5_set_stepname_fmt (
 	h5_file_t * const f,
 	const char *name,

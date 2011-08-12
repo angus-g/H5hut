@@ -325,6 +325,23 @@ h5_close_file (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
+h5_err_t
+h5_flush_step (
+	h5_file_t * const f
+	) {
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_CORE_API_RETURN (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
+}
+
+h5_err_t
+h5_flush_file (
+	h5_file_t * const f
+	) {
+	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_CORE_API_RETURN (hdf5_flush (f->file, H5F_SCOPE_GLOBAL));
+}
+
+
 /*!
   \ingroup h5_core_filehandling
 

@@ -24,6 +24,8 @@ extern "C" {
 #define H5_VFD_MPIPOSIX         0x10
 #define H5_VFD_INDEPENDENT      0x20
 
+#define H5_O_FLUSHSTEP		0x40
+
 #define H5_ID_T			H5T_NATIVE_INT64
 #define H5_FLOAT64_T		H5T_NATIVE_DOUBLE
 #define H5_FLOAT32_T		H5T_NATIVE_FLOAT
