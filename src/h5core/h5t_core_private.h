@@ -57,18 +57,21 @@
 #define H5T_FACE_MASK		(0x0f)
 #define H5T_TYPE_MASK		(0x70)
 
-#define h5tpriv_set_entity_type( type, elem_idx )	\
-	(((type) << (BITS_OF(elem_idx)-4)) | (elem_idx))
-				 
-#define h5tpriv_get_entity_type( entity_id )	\
-	((entity_id >> (BITS_OF(entity_id)-8)) & H5T_TYPE_MASK)
+#if 0
+enum elem_types {
+	vertex = 1,	// 1 vertex
+	edge,		// 2 vertices
+	triangle,	// 3 vertices
+	quadrangle,	// 4 vertices
+	tetrahedron,	// 4 vertices
+	pyramid,	// 5 vertices
+	prism,		// 6 vertices
+	hexahedron	// 8 vertices
+};
+#endif
 
 #define h5tpriv_build_entity_id( type, face_idx, elem_idx )	\
 	(((type) | (face_idx)) << (BITS_OF(elem_idx)-8) | (elem_idx))
-
-#define h5tpriv_build_entity_id2( face_id, elem_idx )		\
-	(((face_id) << (BITS_OF(elem_idx)-8)) |		\
-	 (elem_idx))
 
 #define h5tpriv_build_vertex_id( face_idx, elem_idx )			\
 	(h5tpriv_build_entity_id (H5T_TYPE_VERTEX, face_idx, elem_idx))
@@ -81,6 +84,9 @@
 
 #define h5tpriv_build_tet_id( face_idx, elem_idx )			\
 	(h5tpriv_build_entity_id (H5T_TYPE_TET, face_idx, elem_idx))
+
+#define h5tpriv_get_entity_type( entity_id )	\
+	((entity_id >> (BITS_OF(entity_id)-8)) & H5T_TYPE_MASK)
 
 #define h5tpriv_get_face_idx( entity_id )				\
 	(((entity_id) >> (BITS_OF(entity_id)-8)) & H5T_FACE_MASK)

@@ -105,18 +105,18 @@ h5priv_find_idlist (
 	if (!list) {
 		H5_PRIV_API_LEAVE (-1);
 	}
-	register h5_loc_idx_t low = 0;
-	register h5_loc_idx_t high = list->num_items - 1;
-	register h5_loc_id_t diff;
-	register h5_loc_id_t mid;
-	const h5_loc_id_t face_idx =  h5tpriv_get_face_idx(item);
-	const h5_loc_id_t elem_idx =  h5tpriv_get_elem_idx(item);
+	register size_t low = 0;
+	register size_t mid;
+	register size_t high = list->num_items - 1;
+	register h5_loc_idx_t diff;
+	const h5_loc_id_t face_id =  h5tpriv_get_face_id(item);
+	const h5_loc_idx_t elem_idx =  h5tpriv_get_elem_idx(item);
 	while (low <= high) {
 		mid = (low + high) / 2;
 		diff = h5tpriv_get_elem_idx(list->items[mid]) - elem_idx;
 		// if element indices are equal, we decide on the face indices
 		if (diff == 0) {
-			diff = h5tpriv_get_face_idx(list->items[mid]) - face_idx;
+			diff = h5tpriv_get_face_id (list->items[mid]) - face_id;
 		}
            	if ( diff > 0 )
                		high = mid - 1;
