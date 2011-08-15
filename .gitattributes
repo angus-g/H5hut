@@ -9,8 +9,6 @@
 /NEWS -text
 /README -text
 /autogen.sh -text
-/config.guess -text
-/config.sub -text
 /configure-crayxt -text
 /configure.ac -text
 /depcomp -text
