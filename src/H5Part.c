@@ -2332,7 +2332,11 @@ _H5Part_get_object_name (
 	data.len = (size_t)len_obj_name;
 
 #ifdef H5PART_HAVE_HDF5_18
-	hid_t child_id = H5Gopen ( group_id, group_name, H5P_DEFAULT );
+	hid_t child_id = H5Gopen ( group_id, group_name
+#ifndef H5_USE_16_API
+		, H5P_DEFAULT
+#endif
+		);
 	if ( child_id < 0 ) return child_id;
  	herr = H5Literate ( child_id, H5_INDEX_NAME, H5_ITER_INC, 0,
  			_H5Part_iteration_operator2, &data );
