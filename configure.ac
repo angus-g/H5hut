@@ -55,20 +55,6 @@ AC_ARG_WITH(
 	[HDF5PATH=$withval], [HDF5PATH=""])
 
 ###############################################################################
-################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
-###############################################################################
-
-SAVE_CC=$CC
-SAVE_CXX=$CXX
-SAVE_FC=$FC
-SAVE_CFLAGS=$CFLAGS
-SAVE_CXXFLAGS=$CXXFLAGS
-SAVE_FFLAGS=$FFLAGS
-SAVE_INCLUDES=$INCLUDES
-SAVE_LDFLAGS=$LDFLAGS
-SAVE_LIBS=$LIBS
-
-###############################################################################
 ############### PATH SERACH FUNCTION - to be used later... ####################
 ###############################################################################
 # /*@@
@@ -315,48 +301,6 @@ AC_TYPE_SSIZE_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset pow strchr strdup])
-
-
-###############################################################################
-################# A SIMPLE WORK AROUND TO USE ENV. VARS #######################
-###############################################################################
-
-#if there was an external input for the variable...
-if test -n "$SAVE_CC"; then
-	CC="$SAVE_CC"
-fi
-
-if test -n "$SAVE_CXX"; then
-	CXX="$SAVE_CXX"
-fi
-
-if test -n "$SAVE_FC"; then
-	FC="$SAVE_FC"
-fi
-
-if test -n "$SAVE_CFLAGS"; then
-	CFLAGS="$SAVE_CFLAGS"
-fi
-
-if test -n "$SAVE_CXXFLAGS"; then
-	CFLAGS="$SAVE_CXXFLAGS"
-fi
-
-if test -n "$SAVE_FFLAGS"; then
-	FFLAGS="$SAVE_FFLAGS"
-fi
-
-if test -n "$SAVE_INCLUDES"; then
-	INCLUDES="$SAVE_INCLUDES"
-fi
-
-if test -n "$SAVE_LDFLAGS"; then
-	LDFLAGS="$SAVE_LDFLAGS"
-fi
-
-if test -n "$SAVE_LIBS"; then
-	LIBS="$SAVE_LIBS"
-fi
 
 ###############################################################################
 ############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
