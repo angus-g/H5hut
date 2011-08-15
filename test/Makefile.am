@@ -22,6 +22,6 @@ test_LDADD   =  ../src/libH5Part.la
 testf_SOURCES = testf.F90
 testf_LDADD   =  ../src/libH5PartF.la
 
-clean: clean-am
-	rm -f *.h5
+clean-local:
+	$(RM) -f *.h5
 
