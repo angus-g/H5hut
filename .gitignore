@@ -1,0 +1,13 @@
+/Makefile.in
+/aclocal.m4
+/autom4te.cache
+/build
+/config.h.in
+/configure
+doc/Makefile.in
+/ltmain.sh
+/m4
+src/H5PartF.h
+src/Makefile.in
+test/Makefile.in
+tools/Makefile.in
