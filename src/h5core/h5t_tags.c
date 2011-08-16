@@ -861,8 +861,8 @@ write_tagset (
 		for (ti_idx = 0; eleminfo && ti_idx < eleminfo->num_tags; ti_idx++) {
 			h5t_taginfo_t* ti = eleminfo->ti+ti_idx;
 			h5_glb_idx_t glb_elem_idx = h5tpriv_get_loc_elem_glb_idx (f, elem_idx);
-			entity->eid = h5tpriv_build_entity_id2 (
-				(h5_glb_id_t)ti->face_id, glb_elem_idx);
+			entity->eid = h5tpriv_build_entity_id (
+				0, (h5_glb_id_t)ti->face_id, glb_elem_idx);
 			entity->idx = val_idx;
 
 			// copy values 
