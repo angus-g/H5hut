@@ -14,7 +14,7 @@ get_num_meshes (
 	h5_file_t* const f,
 	const char* grpname
 	) {
-	H5_PRIV_FUNC_ENTER (h5_ssize_t);
+	H5_PRIV_FUNC_ENTER (h5_ssize_t, "f=%p, grpname=%s", f, grpname);
 	hid_t topo_gid = -1;
 	hid_t meshes_gid = -1;
 
@@ -40,7 +40,7 @@ h5_ssize_t
 h5t_get_num_tetmeshes (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	H5_CORE_API_RETURN (get_num_meshes (f, TETRAHEDRAL_MESHES_GRPNAME));
 }
 
@@ -48,7 +48,7 @@ h5_ssize_t
 h5t_get_num_trimeshes (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	H5_CORE_API_RETURN (get_num_meshes (f, TRIANGLE_MESHES_GRPNAME));
 }
 
@@ -61,13 +61,10 @@ h5t_get_num_trimeshes (
  */
 h5_ssize_t
 h5t_get_num_leaf_levels (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
-	if (f->t->cur_mesh < 0) {
-		H5_CORE_API_LEAVE (h5tpriv_error_undef_mesh ());
-	}
-	H5_CORE_API_RETURN (f->t->num_leaf_levels);
+	H5_CORE_API_ENTER (h5_ssize_t, "m=%p", m);
+	H5_CORE_API_RETURN (m->num_leaf_levels);
 }
 
 /*!
@@ -79,10 +76,10 @@ h5t_get_num_leaf_levels (
 */
 h5t_lvl_idx_t
 h5t_get_level (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_CORE_API_ENTER1 (h5t_lvl_idx_t, "f=0x%p", f);
-	H5_CORE_API_RETURN (f->t->leaf_level);
+	H5_CORE_API_ENTER (h5t_lvl_idx_t, "m=%p", m);
+	H5_CORE_API_RETURN (m->leaf_level);
 }
 
 /*!
@@ -100,21 +97,17 @@ h5t_get_level (
  */
 h5_ssize_t
 h5t_get_num_elems (
-	h5_file_t* const f,
+	h5t_mesh_t* const m,
 	const h5_id_t cnode
 	) {
-	H5_CORE_API_ENTER2 (h5_ssize_t,
-			    "f=0x%p, cnode=%llu",
-			    f, (long long unsigned)cnode);
+	H5_CORE_API_ENTER (h5_ssize_t, "m=%p, cnode=%llu",
+			   m, (long long unsigned)cnode);
 	UNUSED_ARGUMENT (cnode);
 
-	if (f->t->cur_mesh < 0) {
-		H5_CORE_API_LEAVE (h5tpriv_error_undef_mesh ());
-	}
-	if (f->t->leaf_level < 0) {
+	if (m->leaf_level < 0) {
 		H5_CORE_API_LEAVE (h5tpriv_error_undef_level ());
 	}
-	H5_CORE_API_RETURN (f->t->num_elems_on_leaf_level[f->t->leaf_level]);
+	H5_CORE_API_RETURN (m->num_leaf_elems[m->leaf_level]);
 }
 
 /*!
@@ -132,20 +125,17 @@ h5t_get_num_elems (
  */
 h5_ssize_t
 h5t_get_num_vertices (
-	h5_file_t* const f,
+	h5t_mesh_t* const m,
 	h5_id_t cnode
 	) {
-	H5_CORE_API_ENTER2 (h5_ssize_t,
-			    "f=0x%p, cnode=%llu",
-			    f, (long long unsigned)cnode);
+	H5_CORE_API_ENTER (h5_ssize_t,
+			   "m=%p, cnode=%llu",
+			   m, (long long unsigned)cnode);
 	UNUSED_ARGUMENT (cnode);
 
-	if (f->t->cur_mesh < 0) {
-		H5_CORE_API_LEAVE (h5tpriv_error_undef_mesh ());
-	}
-	if (f->t->leaf_level < 0) {
+	if (m->leaf_level < 0) {
 		H5_CORE_API_LEAVE (h5tpriv_error_undef_level ());
 	}
-	H5_CORE_API_RETURN (f->t->num_vertices[f->t->leaf_level]);
+	H5_CORE_API_RETURN (m->num_vertices[m->leaf_level]);
 }
 

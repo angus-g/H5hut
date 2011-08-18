@@ -34,7 +34,7 @@ static inline h5_ssize_t
 H5FedGetNumTetrahedralMeshes ( 
 	h5_file_t* const f
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5t_get_num_tetmeshes (f));
 }
 
@@ -42,7 +42,7 @@ static inline h5_ssize_t
 H5FedGetNumTriangleMeshes ( 
 	h5_file_t* const f
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5t_get_num_trimeshes (f));
 }
 
@@ -55,10 +55,10 @@ H5FedGetNumTriangleMeshes (
  */
 static inline h5_ssize_t
 H5FedGetNumLevels (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_get_num_leaf_levels (f));
+	H5_API_ENTER (h5_ssize_t, "m=%p", m);
+	H5_API_RETURN (h5t_get_num_leaf_levels (m));
 }
 
 /*!
@@ -70,10 +70,10 @@ H5FedGetNumLevels (
  */
 static inline h5t_lvl_idx_t
 H5FedGetLevel (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5t_lvl_idx_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_get_level (f));
+	H5_API_ENTER (h5t_lvl_idx_t, "m=%p", m);
+	H5_API_RETURN (h5t_get_level (m));
 }
 
 /*!
@@ -86,10 +86,10 @@ H5FedGetLevel (
 */
 static inline h5_ssize_t
 H5FedGetNumVertices (
-	h5_file_t* const f		/*!< file handle		*/
+	h5t_mesh_t* const m		/*!< file handle		*/
 	) {
-	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_get_num_vertices (f, -1));
+	H5_API_ENTER (h5_ssize_t, "m=%p", m);
+	H5_API_RETURN (h5t_get_num_vertices (m, -1));
 }
 
 /*!
@@ -103,11 +103,11 @@ H5FedGetNumVertices (
 */
 static inline h5_ssize_t
 H5FedGetNumVerticesCnode (
-	h5_file_t* const f,
+	h5t_mesh_t* const m,
 	const int cnode
 	) {
-	H5_API_ENTER2 (h5_ssize_t, "f=0x%p, cnode=%d", f, cnode);
-	H5_API_RETURN (h5t_get_num_vertices (f, cnode));
+	H5_API_ENTER (h5_ssize_t, "m=%p, cnode=%d", m, cnode);
+	H5_API_RETURN (h5t_get_num_vertices (m, cnode));
 }
 
 /*!
@@ -120,10 +120,10 @@ H5FedGetNumVerticesCnode (
 */
 static inline h5_ssize_t
 H5FedGetNumVerticesTotal (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_get_num_vertices (f, -1));
+	H5_API_ENTER (h5_ssize_t, "m=%p", m);
+	H5_API_RETURN (h5t_get_num_vertices (m, -1));
 }
 
 /*!
@@ -136,12 +136,12 @@ H5FedGetNumVerticesTotal (
 */
 static inline h5_ssize_t
 H5FedGetNumElements (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_API_ENTER (h5_ssize_t, "m=%p", m);
 	// MLH: can't use field from opaque h5_file_t!
 	//h5_ssize_t num = h5t_get_num_elems (f, f->myproc);
-	H5_API_RETURN (h5t_get_num_elems (f, -1));
+	H5_API_RETURN (h5t_get_num_elems (m, -1));
 }
 
 /*!
@@ -155,11 +155,11 @@ H5FedGetNumElements (
 */
 static inline h5_ssize_t
 H5FedGetNumElementsCnode (
-	h5_file_t* const f,
+	h5t_mesh_t* const m,
 	const int cnode
 	) {
-	H5_API_ENTER2 (h5_ssize_t, "f=0x%p, cnode=%d", f, cnode);
-	H5_API_RETURN (h5t_get_num_elems (f, cnode));
+	H5_API_ENTER (h5_ssize_t, "m=%p, cnode=%d", m, cnode);
+	H5_API_RETURN (h5t_get_num_elems (m, cnode));
 }
 
 /*!
@@ -172,10 +172,10 @@ H5FedGetNumElementsCnode (
 */
 static inline h5_ssize_t
 H5FedGetNumElementsTotal (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_get_num_elems (f, -1));
+	H5_API_ENTER (h5_ssize_t, "m=%p", m);
+	H5_API_RETURN (h5t_get_num_elems (m, -1));
 }
 
 #ifdef __cplusplus

@@ -56,6 +56,9 @@ typedef struct {
 
 struct h5t_tagset {
 	char* name;		// name of tagset
+	hid_t parent_gid;
+	h5t_mesh_t* m;
+
 	unsigned int changed;	// flag tagset changed, ...
 	struct {
 		h5t_lvl_idx_t min_level;
@@ -69,18 +72,6 @@ struct h5t_tagset {
 	h5t_tageleminfo_t* elems[1]; // per element structure
 };
 
-/*
-  Structure for hash table of tagsets
- */
-struct h5t_tagcontainer {
-	unsigned int changed;	// flag container changed
-	hid_t group_id;
-	hsize_t num_sets;	// number of tagsets
-	char** names;		// fast access via index
-	h5_hashtable_t	sets;	// hash table
-};
-
-
 typedef struct {
 	h5_glb_id_t eid ;	// global entity id
 	h5_glb_idx_t idx;	// global index
@@ -91,8 +82,7 @@ typedef struct {
 	h5_loc_idx_t idx;	// local index
 } h5t_loc_tag_idx_t;
 
-h5_err_t h5tpriv_write_mtags ( h5_file_t *const f );
-h5_err_t h5tpriv_release_tags ( h5_file_t * const f );
-h5_err_t h5tpriv_read_tag_container ( h5_file_t * const f,
-				   h5t_tagcontainer_t *container );
+
+h5_err_t h5tpriv_write_mtags (h5t_mesh_t* const);
+h5_err_t h5tpriv_read_tag_container ( h5t_mesh_t* const, h5t_tagcontainer_t*);
 #endif

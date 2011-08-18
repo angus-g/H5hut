@@ -21,12 +21,12 @@ h5priv_read_attrib (
 	const hid_t attrib_type,	/*!< HDF5 type of attribute */
 	void* const attrib_value	/*!< OUT: attribute value */
 	) {
-	H5_PRIV_API_ENTER4 (h5_err_t,
-			    "id=%d, attrib_name=\"%s\", attrib_type=%d, attrib_value=%p",
-			    id,
-			    attrib_name,
-			    attrib_type,
-			    attrib_value);
+	H5_PRIV_API_ENTER (h5_err_t,
+			   "id=%d, attrib_name='%s', attrib_type=%d, attrib_value=%p",
+			   id,
+			   attrib_name,
+			   attrib_type,
+			   attrib_value);
 	hid_t attrib_id;
 	hid_t type_id;
 	hid_t space_id;
@@ -69,15 +69,15 @@ h5_read_attrib (
 	const hid_t attrib_type,	/*!< HDF5 type of attribute */
 	void* const attrib_value	/*!< OUT: attribute value */
 	) {
-	H5_CORE_API_ENTER5 (h5_err_t,
-			    "f=%p mode=%d, "
-			    "attrib_name=\"%s\", attrib_type=%d, "
-			    "attrib_value=%p",
-			    f,
-			    mode,
-			    attrib_name,
-			    attrib_type,
-			    attrib_value);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p mode=%d, "
+			   "attrib_name='%s', attrib_type=%d, "
+			   "attrib_value=%p",
+			   f,
+			   mode,
+			   attrib_name,
+			   attrib_type,
+			   attrib_value);
 
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 
@@ -95,14 +95,14 @@ h5priv_write_attrib (
 	const void* attrib_value,	/*!< value of attribute */
 	const hsize_t attrib_nelem	/*!< number of elements (dimension) */
 	) {
-	H5_PRIV_API_ENTER5 (h5_err_t,
-			    "id=%d, attrib_name=\"%s\", attrib_type=%d, "
-			    "attrib_value=%p, attrib_nelem=%llu",
-			    id,
-			    attrib_name,
-			    attrib_type,
-			    attrib_value,
-			    attrib_nelem);
+	H5_PRIV_API_ENTER (h5_err_t,
+			   "id=%d, attrib_name='%s', attrib_type=%d, "
+			   "attrib_value=%p, attrib_nelem=%llu",
+			   id,
+			   attrib_name,
+			   attrib_type,
+			   attrib_value,
+			   attrib_nelem);
 	hid_t space_id;
 	hid_t attrib_id;
         hid_t type_id;
@@ -147,16 +147,16 @@ h5_write_attrib (
 	const void* attrib_value,	/*!< value of attribute */
 	const hsize_t attrib_nelem	/*!< number of elements (dimension) */
 	) {
-	H5_CORE_API_ENTER6 (h5_err_t,
-			    "f=%p mode=%d, "
-			    "attrib_name=\"%s\", attrib_type=%d, "
-			    "attrib_value=%p, attrib_nelem=%llu",
-			    f,
-			    mode,
-			    attrib_name,
-			    attrib_type,
-			    attrib_value,
-			    attrib_nelem);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p mode=%d, "
+			   "attrib_name='%s', attrib_type=%d, "
+			   "attrib_value=%p, attrib_nelem=%llu",
+			   f,
+			   mode,
+			   attrib_name,
+			   attrib_type,
+			   attrib_value,
+			   attrib_nelem);
 
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
@@ -177,17 +177,17 @@ h5priv_get_attrib_info (
 	h5_int64_t* attrib_type,	/*!< OUT: H5 type of attribute */
 	h5_size_t* attrib_nelem		/*!< OUT: number of elements */
 	) {
-	H5_PRIV_API_ENTER6 (h5_err_t,
-			    "id=%d, "
-			    "attrib_idx=%llu, "
-			    "attrib_name=%p, len_attrib_name=%llu, "
-			    "attrib_type=%p, attrib_nelem=%p",
-			    id,
-			    (long long unsigned)attrib_idx,
-			    attrib_name,
-			    (long long unsigned)len_attrib_name,
-			    attrib_type,
-			    attrib_nelem);
+	H5_PRIV_API_ENTER (h5_err_t,
+			   "id=%d, "
+			   "attrib_idx=%llu, "
+			   "attrib_name=%p, len_attrib_name=%llu, "
+			   "attrib_type=%p, attrib_nelem=%p",
+			   id,
+			   (long long unsigned)attrib_idx,
+			   attrib_name,
+			   (long long unsigned)len_attrib_name,
+			   attrib_type,
+			   attrib_nelem);
 	hid_t attrib_id;
 	hid_t mytype;
 	hid_t space_id;
@@ -232,17 +232,17 @@ h5_get_attrib_info (
 	h5_int64_t* attrib_type,		/*!< OUT: H5 type of attribute */
 	h5_size_t* attrib_nelem			/*!< OUT: number of elements */
 	) {
-	H5_PRIV_API_ENTER7 (h5_err_t,
-			    "f=0x%p, mode=%d, "
-			    "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
-			    "attrib_type=%p, attrib_nelem=%p",
-			    f, mode,
-			    (long long unsigned)attrib_idx,
-			    attrib_name,
-			    (long long unsigned)len_attrib_name,
-			    attrib_type,
-			    attrib_nelem);
-
+	H5_PRIV_API_ENTER (h5_err_t,
+			   "f=0x%p, mode=%d, "
+			   "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
+			   "attrib_type=%p, attrib_nelem=%p",
+			   f, mode,
+			   (long long unsigned)attrib_idx,
+			   attrib_name,
+			   (long long unsigned)len_attrib_name,
+			   attrib_type,
+			   attrib_nelem);
+	
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 
 	hid_t id = 0;
@@ -264,8 +264,7 @@ h5_get_num_attribs (
 	h5_file_t *const f,	/*!< handle to open file */
 	const char mode		/*!< FILE or STEP flag */
 	) {
-	H5_CORE_API_ENTER2 (h5_ssize_t,
-			    "f=%p, mode=%d", f, mode);
+	H5_CORE_API_ENTER (h5_ssize_t, "f=%p, mode=%d", f, mode);
 	if (mode != H5_ATTRIB_FILE) CHECK_TIMEGROUP( f );
 	hid_t id = 0;
 	TRY (get_hdf5_obj_id(f, mode, &id));

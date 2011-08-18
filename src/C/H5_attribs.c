@@ -20,13 +20,7 @@ H5WriteFileAttribString (
 	const char *name,	/*!< [in] Name of attribute to create */
 	const char *value	/*!< [in] Value of attribute */ 
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "value=\"%s\"",
-		       f,
-		       name,
-		       value);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', value='%s'", f, name, value);
 	H5_API_RETURN (h5_write_attrib (
 			       f,
 			       H5_ATTRIB_FILE,
@@ -50,13 +44,7 @@ H5WriteStepAttribString (
 	const char *name,	/*!< [in] Name of attribute to create */
 	const char *value	/*!< [in] Value of attribute */ 
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "value=\"%s\"",
-		       f,
-		       name,
-		       value);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', value='%s'", f, name, value);
 	H5_API_RETURN (h5_write_attrib (
 			       f, 
 			       H5_ATTRIB_STEP,
@@ -81,15 +69,8 @@ H5WriteFileAttribFloat32 (
 	const h5_float32_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "values=0x%p, "
-		       "nelems=%llu",
-		       f,
-		       name,
-		       values,
-		       (long long unsigned)nelems);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', values=%p, nelems=%llu",
+		      f, name, values, (long long unsigned)nelems);
 	H5_API_RETURN (h5_write_attrib (
 			       f,
 			       H5_ATTRIB_FILE,
@@ -114,15 +95,8 @@ H5WriteStepAttribFloat32 (
 	const h5_float32_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "values=0x%p, "
-		       "nelems=%llu",
-		       f,
-		       name,
-		       values,
-		       (long long unsigned)nelems);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', values=%p, nelems=%llu",
+		      f, name, values, (long long unsigned)nelems);
 	H5_API_RETURN (h5_write_attrib (
 			       f,
 			       H5_ATTRIB_STEP,
@@ -147,15 +121,8 @@ H5WriteFileAttribFloat64 (
 	const h5_float64_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "values=0x%p, "
-		       "nelems=%llu",
-		       f,
-		       name,
-		       values,
-		       (long long unsigned)nelems);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', values=%p, nelems=%llu",
+		      f, name, values, (long long unsigned)nelems);
 	H5_API_RETURN (h5_write_attrib (
 			       f,
 			       H5_ATTRIB_FILE,
@@ -180,15 +147,8 @@ H5WriteStepAttribFloat64 (
 	const h5_float64_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "values=0x%p, "
-		       "nelems=%llu",
-		       f,
-		       name,
-		       values,
-		       (long long unsigned)nelems);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', values=%p, nelems=%llu",
+		      f, name, values, (long long unsigned)nelems);
 	H5_API_RETURN (h5_write_attrib (
 			       f,
 			       H5_ATTRIB_STEP,
@@ -213,15 +173,8 @@ H5WriteFileAttribInt32 (
 	const h5_int32_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "values=0x%p, "
-		       "nelems=%llu",
-		       f,
-		       name,
-		       values,
-		       (long long unsigned)nelems);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', values=%p, nelems=%llu",
+		      f, name, values, (long long unsigned)nelems);
 	H5_API_RETURN (h5_write_attrib (
 			       f,
 			       H5_ATTRIB_FILE,
@@ -246,15 +199,8 @@ H5WriteStepAttribInt32 (
 	const h5_int32_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "values=0x%p, "
-		       "nelems=%llu",
-		       f,
-		       name,
-		       values,
-		       (long long unsigned)nelems);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', values=%p, nelems=%llu",
+		      f, name, values, (long long unsigned)nelems);
 	H5_API_RETURN (h5_write_attrib (
 			       f,
 			       H5_ATTRIB_STEP,
@@ -279,15 +225,8 @@ H5WriteFileAttribInt64 (
 	const h5_int64_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "values=0x%p, "
-		       "nelems=%llu",
-		       f,
-		       name,
-		       values,
-		       (long long unsigned)nelems);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', values=%p, nelems=%llu",
+		      f, name, values, (long long unsigned)nelems);
 	H5_API_RETURN (h5_write_attrib (
 			       f,
 			       H5_ATTRIB_FILE,
@@ -312,15 +251,8 @@ H5WriteStepAttribInt64 (
 	const h5_int64_t *values,	/*!< [in] Values of attribute */
 	const h5_size_t nelems		/*!< [in] Number of values */
 	) {
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "values=0x%p, "
-		       "nelems=%llu",
-		       f,
-		       name,
-		       values,
-		       (long long unsigned)nelems);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', values=%p, nelems=%llu",
+		      f, name, values, (long long unsigned)nelems);
 	H5_API_RETURN (h5_write_attrib (
 			       f,
 			       H5_ATTRIB_STEP,
@@ -346,13 +278,7 @@ H5ReadFileAttribString (
 	const char *name,	/*!< [in] Name of attribute to create */
 	char *buffer		/*!< [out] Value of attribute */ 
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "value=\"%s\"",
-		       f,
-		       name,
-		       buffer);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', value='%s'", f, name, buffer);
 	H5_API_RETURN (h5_read_attrib (
 			       f,
 			       H5_ATTRIB_FILE,
@@ -375,13 +301,8 @@ H5ReadStepAttribString (
 	const char *name,	/*!< [in] Name of attribute to create */
 	char *buffer		/*!< [out] Value of attribute */ 
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "value=\"%s\"",
-		       f,
-		       name,
-		       buffer);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', value='%s'",
+		      f, name, buffer);
 	H5_API_RETURN (h5_read_attrib (
 			       f, 
 			       H5_ATTRIB_STEP,
@@ -404,13 +325,8 @@ H5ReadFileAttribInt32 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_int32_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "buffer=0x%p",
-		       f,
-		       name,
-		       buffer);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', buffer=%p",
+		       f, name, buffer);
 	H5_API_RETURN (h5_read_attrib (
 			       f,
 			       H5_ATTRIB_FILE,
@@ -433,13 +349,8 @@ H5ReadStepAttribInt32 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_int32_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "buffer=0x%p",
-		       f,
-		       name,
-		       buffer);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', buffer=%p",
+		      f, name, buffer);
 	H5_API_RETURN (h5_read_attrib (
 			       f,
 			       H5_ATTRIB_STEP,
@@ -462,13 +373,8 @@ H5ReadFileAttribInt64 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_int64_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "buffer=0x%p",
-		       f,
-		       name,
-		       buffer);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', buffer=%p",
+		      f, name, buffer);
 	H5_API_RETURN (h5_read_attrib (
 			       f,
 			       H5_ATTRIB_FILE,
@@ -491,13 +397,8 @@ H5ReadStepAttribInt64 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_int64_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "buffer=0x%p",
-		       f,
-		       name,
-		       buffer);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', buffer=%p",
+		      f, name, buffer);
 	h5_err_t h5err = h5_read_attrib (
 		f,
 		H5_ATTRIB_STEP,
@@ -521,13 +422,8 @@ H5ReadFileAttribFloat32 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_float32_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "buffer=0x%p",
-		       f,
-		       name,
-		       buffer);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', buffer=%p",
+		      f, name, buffer);
 	H5_API_RETURN (h5_read_attrib (
 			       f,
 			       H5_ATTRIB_FILE,
@@ -550,13 +446,8 @@ H5ReadStepAttribFloat32 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_float32_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "buffer=0x%p",
-		       f,
-		       name,
-		       buffer);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', buffer=%p",
+		      f, name, buffer);
 	H5_API_RETURN (h5_read_attrib (
 			       f,
 			       H5_ATTRIB_STEP,
@@ -579,13 +470,9 @@ H5ReadFileAttribFloat64 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_float64_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "buffer=0x%p",
-		       f,
-		       name,
-		       buffer);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p",
+		      f, name, buffer);
 	H5_API_RETURN (h5_read_attrib (
 			       f,
 			       H5_ATTRIB_FILE,
@@ -608,13 +495,8 @@ H5ReadStepAttribFloat64 (
 	const char *name,		/*!< [in] Name of attribute to create */
 	h5_float64_t *buffer		/*!< [out] Values of attribute */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=%p, "
-		       "name=\"%s\""
-		       "buffer=0x%p",
-		       f,
-		       name,
-		       buffer);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', buffer=%p",
+		      f, name, buffer);
 	H5_API_RETURN (h5_read_attrib (
 			       f,
 			       H5_ATTRIB_STEP,
@@ -636,7 +518,7 @@ h5_int64_t
 H5GetNumFileAttribs (
 	h5_file_t *const f	/*!< [in] Handle to open file */
 	) {
-	H5_API_ENTER1 (h5_int64_t, "f=0x%p", f);
+	H5_API_ENTER (h5_int64_t, "f=%p", f);
 	H5_API_RETURN (h5_get_num_attribs (f, H5_ATTRIB_FILE));
 }
 
@@ -651,7 +533,7 @@ h5_int64_t
 H5GetNumStepAttribs (
 	h5_file_t *const f 	/*!< [in] Handle to open file */
 	) {
-	H5_API_ENTER1 (h5_int64_t, "f=0x%p", f);
+	H5_API_ENTER (h5_int64_t, "f=%p", f);
 	H5_API_RETURN (h5_get_num_attribs (f, H5_ATTRIB_STEP));
 }
 
@@ -681,10 +563,10 @@ H5GetFileAttribInfo (
 	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
 	h5_size_t *attrib_nelem         /*!< [out] Number of elements */
 	) {
-	H5_API_ENTER6 (h5_err_t,
-		       "f=%p, "
-		       "attrib_idx=%llu, attrib_name=0x%p, len_attrib_name=%llu, "
-		       "attrib_type=%p, attrib_nelem=%p",
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
+		      "attrib_type=%p, attrib_nelem=%p",
 		       f,
 		       (long long unsigned)attrib_idx,
 		       attrib_name,
@@ -725,16 +607,16 @@ H5GetStepAttribInfo (
 	h5_int64_t *attrib_type,	/*!< [out] Type of value. */
 	h5_size_t *attrib_nelem         /*!< [out] Number of elements */
 	) {
-	H5_API_ENTER6 (h5_err_t,
-		       "f=%p, "
-		       "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
-		       "attrib_type=%p, attrib_nelem=%p",
-		       f,
-		       (unsigned long long)attrib_idx,
-		       attrib_name,
-		       (unsigned long long)len_of_attrib_name,
-		       attrib_type,
-		       attrib_nelem);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
+		      "attrib_type=%p, attrib_nelem=%p",
+		      f,
+		      (unsigned long long)attrib_idx,
+		      attrib_name,
+		      (unsigned long long)len_of_attrib_name,
+		      attrib_type,
+		      attrib_nelem);
 	H5_API_RETURN (h5_get_attrib_info (
 			       f,
 			       H5_ATTRIB_STEP,

@@ -25,13 +25,13 @@ typedef struct h5_td_entry {
 
 h5_err_t
 h5tpriv_resize_te_htab (
-	h5_file_t * const f,
+	h5t_mesh_t* const m,
 	size_t nel
 	);
 
 h5_err_t
 h5tpriv_search_tv2 (
-	h5_file_t * const f,
+	h5t_mesh_t* const m,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t **entry
@@ -39,7 +39,7 @@ h5tpriv_search_tv2 (
 
 h5_err_t
 h5tpriv_search_te2 (
-	h5_file_t * const f,
+	h5t_mesh_t* const m,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t **entry
@@ -47,28 +47,28 @@ h5tpriv_search_te2 (
 
 h5_err_t
 h5tpriv_find_te (
-	h5_file_t * const f,
+	h5t_mesh_t* const m,
 	h5_loc_idx_t edge_id,
-	h5_loc_idlist_t **retval
+	h5_loc_idlist_t** idlist
 	);
 
 h5_err_t
 h5tpriv_find_te2 (
-	h5_file_t * const f,
+	h5t_mesh_t* const m,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
-	h5_loc_idlist_t **retval
+	h5_loc_idlist_t** idlist
 	);
 
 h5_err_t
 h5tpriv_resize_td_htab (
-	h5_file_t * const f,
+	h5t_mesh_t* const m,
 	size_t nel
 	);
 
 h5_err_t
 h5tpriv_search_td2 (
-	h5_file_t * const f,
+	h5t_mesh_t* const m,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t **entry
@@ -76,14 +76,14 @@ h5tpriv_search_td2 (
 
 h5_err_t
 h5tpriv_find_td (
-	h5_file_t * const f,
+	h5t_mesh_t* const m,
 	h5_loc_idx_t triangle_id,
 	h5_loc_idlist_t **retval
 	);
 
 h5_err_t
 h5tpriv_find_td2 (
-	h5_file_t * const f,
+	h5t_mesh_t* const m,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t **rentry
@@ -91,7 +91,7 @@ h5tpriv_find_td2 (
 
 h5_err_t
 h5tpriv_find_tv2 (
-	h5_file_t * const f,
+	h5t_mesh_t* const m,
 	h5_loc_idx_t face_idx,
 	h5_loc_idx_t elem_idx,
 	h5_loc_idlist_t **retval

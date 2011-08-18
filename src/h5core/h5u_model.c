@@ -5,7 +5,7 @@ h5_ssize_t
 h5u_get_num_particles (
 	h5_file_t *const f      /*!< [in]  Handle to open file */
 	) {
-	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	h5_ssize_t nparticles;
 
 	/* if a view exists, use its size as the number of particles */
@@ -56,10 +56,10 @@ h5u_set_num_particles (
 	const h5_size_t nparticles,	/*!< [in] Number of particles */
 	const h5_size_t stride		/*!< [in] Stride of particles in memory */
 	) {
-	H5_CORE_API_ENTER3 (h5_ssize_t,
-			    "f=0x%p, nparticles=%llu, stride=%llu",
-			    f, (long long unsigned)nparticles,
-			    (long long unsigned)stride);
+	H5_CORE_API_ENTER (h5_ssize_t,
+			   "f=%p, nparticles=%llu, stride=%llu",
+			   f, (long long unsigned)nparticles,
+			   (long long unsigned)stride);
 	struct h5u_fdata *u = f->u;
 	hsize_t start;
 	hsize_t total;
@@ -171,7 +171,7 @@ h5_err_t
 h5u_has_view (
 	const h5_file_t *const f
 	) {
-	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	H5_CORE_API_RETURN (f->u->viewindexed || (f->u->viewstart >= 0 && f->u->viewend >= 0));
 }
 
@@ -179,7 +179,7 @@ h5_err_t
 h5u_reset_view (
 	h5_file_t *const f
 	) {
-	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	struct h5u_fdata *u = f->u;
 
 	u->viewstart = -1;
@@ -199,9 +199,9 @@ h5u_set_view (
 	h5_int64_t start,		/*!< [in]  Start particle */
 	h5_int64_t end	        	/*!< [in]  End particle */
 	) {
-	H5_CORE_API_ENTER3 (h5_ssize_t,
-			    "f=0x%p, start=%lld, end=%lld",
-			    f, (long long)start, (long long)end);
+	H5_CORE_API_ENTER (h5_ssize_t,
+			   "f=%p, start=%lld, end=%lld",
+			   f, (long long)start, (long long)end);
 	hsize_t total;
 	hsize_t stride = 1;
 	hsize_t dmax = H5S_UNLIMITED;
@@ -277,9 +277,9 @@ h5u_set_view_indices (
 	const h5_size_t *const indices,		/*!< [in]  List of indices */
 	h5_size_t nelems		        /*!< [in]  Size of list */
 	) {
-	H5_CORE_API_ENTER3 (h5_err_t,
-			    "f=0x%p, indices=0x%p, nelems=%llu",
-			    f, indices, (long long unsigned)nelems);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, indices=%p, nelems=%llu",
+			   f, indices, (long long unsigned)nelems);
 	hsize_t total;
 	hsize_t dmax = H5S_UNLIMITED;
 	struct h5u_fdata *u = f->u;
@@ -306,7 +306,7 @@ h5u_set_view_indices (
 		H5_CORE_API_LEAVE (H5_SUCCESS);
 	}
 
-	if ( total == 0 ) return H5_SUCCESS;
+	if ( total == 0 ) H5_CORE_API_LEAVE (H5_SUCCESS);
 
 	u->nparticles = nelems;
 	h5_debug ("This view selected %lld particles.", (long long)u->nparticles );
@@ -336,9 +336,9 @@ h5u_get_view (
 	h5_int64_t *start,
 	h5_int64_t *end
 	) {
-	H5_CORE_API_ENTER3 (h5_err_t,
-			    "f=0x%p, start=0x%p, end=0x%p",
-			    f, start, end);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, start=%p, end=%p",
+			   f, start, end);
 	struct h5u_fdata *u = f->u;
 
 	if ( u->viewindexed ) {
@@ -372,7 +372,7 @@ h5_int64_t
 h5u_set_canonical_view (
 	h5_file_t *const f
 	) {
-	H5_CORE_API_ENTER1 (h5_int64_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_int64_t, "f=%p", f);
 	TRY( h5u_reset_view ( f ) );
 
 	h5_int64_t start = 0;
@@ -411,7 +411,7 @@ h5_ssize_t
 h5u_get_num_datasets (
 	h5_file_t *const f		/*!< [in]  Handle to open file */
 	) {
-	H5_CORE_API_ENTER1 (h5_int64_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_int64_t, "f=%p", f);
 	H5_CORE_API_RETURN (hdf5_get_num_datasets (f->step_gid));
 }
 
@@ -428,16 +428,16 @@ h5u_get_dataset_info (
  	h5_int64_t *type,	/*!< [out] Type of data in dataset */
 	h5_size_t *nelem	/*!< [out] Number of elements. */
 	) {
-	H5_CORE_API_ENTER6 (h5_err_t, 
-			    "f=0x%p, "
-			    "idx=%lld, "
-			    "dataset_name=\"%s\", len_dataset_name=%llu, "
-			    "type=0x%p, nelem=0x%p",
-			    f,
-			    (long long)idx,
-			    dataset_name,
-			    (long long unsigned)len_dataset_name,
-			    type, nelem);
+	H5_CORE_API_ENTER (h5_err_t, 
+			   "f=%p, "
+			   "idx=%lld, "
+			   "dataset_name='%s', len_dataset_name=%llu, "
+			   "type=%p, nelem=%p",
+			   f,
+			   (long long)idx,
+			   dataset_name,
+			   (long long unsigned)len_dataset_name,
+			   type, nelem);
 	TRY (hdf5_get_name_of_dataset_by_idx (
 		     f->step_gid,
 		     idx,
@@ -448,13 +448,13 @@ h5u_get_dataset_info (
 		TRY (nelem_ = hdf5_get_npoints_of_dataset_by_name (
 			     f->step_gid,
 			     dataset_name) );
-		if ( nelem_ < 0 ) return nelem_;
+		if ( nelem_ < 0 ) H5_CORE_API_LEAVE (nelem_);
 		*nelem = nelem_;
 	}
 
-	if ( type ) {
+	if (type) {
 		*type = h5_get_dataset_type (f->step_gid, dataset_name);
-		if ( *type < 0 ) return *type;
+		if (*type < 0) H5_CORE_API_LEAVE (*type);
 	}
 
 	H5_CORE_API_RETURN (H5_SUCCESS);
@@ -465,7 +465,7 @@ h5u_set_chunk (
         h5_file_t *const f,
         const h5_size_t size
         ) {
-	H5_CORE_API_ENTER2 (h5_int64_t, "f=0x%p, size=%llu", f, (long long unsigned)size);
+	H5_CORE_API_ENTER (h5_int64_t, "f=%p, size=%llu", f, (long long unsigned)size);
 	if ( size == 0 )
 	{
 		h5_info ("Disabling chunking" );
@@ -486,9 +486,7 @@ h5u_get_chunk (
 	const char *name, 		/*!< IN: name of dataset */
 	h5_size_t *size			/*!< OUT: chunk size in particles */
 	) {
-	H5_CORE_API_ENTER3 (h5_int64_t,
-			    "f=0x%p, name=\"%s\", size=0x%p",
-			    f, name, size);
+	H5_CORE_API_ENTER (h5_int64_t, "f=%p, name='%s', size=%p", f,name,size);
 	hid_t dataset_id;
 	hid_t plist_id;
 	hsize_t hsize;

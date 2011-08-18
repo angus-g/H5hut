@@ -23,20 +23,24 @@
 extern "C" {
 #endif
 
-static inline h5_id_t
+static inline h5_err_t
 H5FedAddTetrahedralMesh (
-	h5_file_t* const f
+	h5_file_t* const f,
+	const char* name,
+	h5t_mesh_t** mesh
 	) {
-	H5_API_ENTER1 (h5_id_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_add_tetrahedral_mesh (f));
+	H5_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", f, name, mesh);
+	H5_API_RETURN (h5t_add_tetrahedral_mesh (f, name, mesh));
 }
 
-static inline h5_id_t
+static inline h5_err_t
 H5FedAddTriangleMesh (
-	h5_file_t* const f
+	h5_file_t* const f,
+	const char* name,
+	h5t_mesh_t** mesh
 	) {
-	H5_API_ENTER1 (h5_id_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_add_triangle_mesh (f));
+	H5_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", f, name, mesh);
+	H5_API_RETURN (h5t_add_triangle_mesh (f, name, mesh));
 }
 
 /*!
@@ -61,21 +65,21 @@ H5FedAddTriangleMesh (
 */
 static inline h5t_lvl_idx_t
 H5FedAddLevel (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5t_lvl_idx_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_add_level (f));
+	H5_API_ENTER (h5t_lvl_idx_t, "m=%p", m);
+	H5_API_RETURN (h5t_add_level (m));
 }
 
 static inline h5_err_t
 H5FedBeginStoreVertices (
-	h5_file_t* const f,
+	h5t_mesh_t* const m,
 	const h5_size_t num
 	) {
-	H5_API_ENTER2 (h5_err_t,
-		       "f=0x%p, num=%llu",
-		       f, (long long unsigned)num);
-	H5_API_RETURN (h5t_begin_store_vertices (f, num));
+	H5_API_ENTER (h5_err_t,
+		      "m=%p, num=%llu",
+		      m, (long long unsigned)num);
+	H5_API_RETURN (h5t_begin_store_vertices (m, num));
 }
 
 /*!
@@ -89,39 +93,39 @@ H5FedBeginStoreVertices (
 */
 static inline h5_loc_idx_t
 H5FedStoreVertex (
-	h5_file_t* const f,		/*!< file handle		*/
+	h5t_mesh_t* const m,		/*!< file handle		*/
 	const h5_glb_id_t vertex_id,	/*!< id from mesher or -1	*/
 	const h5_float64_t P[3]		/*!< coordinates		*/
 	) {
-	H5_API_ENTER3 (h5_loc_idx_t,
-		       "f=0x%p, vertex_id=%lld, P=0x%p",
-		       f, (long long)vertex_id, P);
-	if (h5t_get_level (f) != 0) {
+	H5_API_ENTER (h5_loc_idx_t,
+		      "m=%p, vertex_id=%lld, P=%p",
+		      m, (long long)vertex_id, P);
+	if (h5t_get_level (m) != 0) {
 		H5_API_LEAVE (
 			h5_error (
 				H5_ERR_INVAL,
 				"Vertices can be added to level 0 only!"));
 	}
-	H5_API_RETURN (h5t_store_vertex (f, vertex_id, P));
+	H5_API_RETURN (h5t_store_vertex (m, vertex_id, P));
 }
 
 static inline h5_err_t
 H5FedEndStoreVertices (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_end_store_vertices (f));
+	H5_API_ENTER (h5_err_t, "m=%p", m);
+	H5_API_RETURN (h5t_end_store_vertices (m));
 }
 
 static inline h5_err_t
 H5FedBeginStoreElements (
-	h5_file_t* const f,
+	h5t_mesh_t* const m,
 	const h5_size_t num
 	) {
-	H5_API_ENTER2 (h5_err_t,
-		       "f=0x%p, num=%llu",
-		       f, (long long unsigned)num);
-	H5_API_RETURN (h5t_begin_store_elems (f, num));
+	H5_API_ENTER (h5_err_t,
+		      "m=%p, num=%llu",
+		      m, (long long unsigned)num);
+	H5_API_RETURN (h5t_begin_store_elems (m, num));
 }
 
 /*!
@@ -140,52 +144,52 @@ H5FedBeginStoreElements (
 */
 static inline h5_loc_idx_t
 H5FedStoreElement (
-	h5_file_t* const f,		/*!< file handle		*/
+	h5t_mesh_t* const m,		/*!< file handle		*/
 	const h5_loc_idx_t local_vids[]	/*!< tuple with vertex id's	*/
 	) {
-	H5_API_ENTER2 (h5_loc_idx_t, "f=0x%p, local_vids=0x%p", f, local_vids);
-	if (h5t_get_level (f) != 0) {
+	H5_API_ENTER (h5_loc_idx_t, "m=%p, local_vids=%p", m, local_vids);
+	if (h5t_get_level (m) != 0) {
 		H5_API_LEAVE (
 			h5_error (
 				H5_ERR_INVAL,
 				"Elements can be added to level 0 only!"));
 	}
-	H5_API_RETURN (h5t_store_elem (f, -1, local_vids));
+	H5_API_RETURN (h5t_store_elem (m, -1, local_vids));
 }
 
 static inline h5_err_t
 H5FedEndStoreElements (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_end_store_elems (f));
+	H5_API_ENTER (h5_err_t, "m=%p", m);
+	H5_API_RETURN (h5t_end_store_elems (m));
 }
 
 static inline h5_err_t
 H5FedBeginRefineElements (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_begin_refine_elems (f));
+	H5_API_ENTER (h5_err_t, "m=%p", m);
+	H5_API_RETURN (h5t_begin_refine_elems (m));
 }
 
 static inline h5_loc_idx_t
 H5FedRefineElement (
-	h5_file_t* const f,		/*!< file handle		*/
+	h5t_mesh_t* const m,		/*!< file handle		*/
 	const h5_loc_id_t local_eid	/*!< local element id		*/
 	) {
-	H5_API_ENTER2 (h5_loc_idx_t,
-		       "f=0x%p, local_eid=%lld",
-		       f, (long long)local_eid);
-	H5_API_RETURN (h5t_mark_entity (f, local_eid));
+	H5_API_ENTER (h5_loc_idx_t,
+		      "m=%p, local_eid=%lld",
+		      m, (long long)local_eid);
+	H5_API_RETURN (h5t_mark_entity (m, local_eid));
 }
 
 static inline h5_err_t
 H5FedEndRefineElements (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_end_refine_elems (f));
+	H5_API_ENTER (h5_err_t, "m=%p", m);
+	H5_API_RETURN (h5t_end_refine_elems (m));
 }
 
 #ifdef __cplusplus

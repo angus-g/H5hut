@@ -62,15 +62,15 @@ h5bl_3d_setview (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER7 (h5_err_t,
-		       "f=0X%p, "
-		       "i_start=%lld, i_end=%lld, "
-		       "j_start=%lld, j_end=%lld, "
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "i_start=%lld, i_end=%lld, "
+		      "j_start=%lld, j_end=%lld, "
 		       "k_start=%lld, k_end=%lld",
-		       fh,
-		       (long long)i_start, (long long)i_end,
-		       (long long)j_start, (long long)j_end,
-		       (long long)k_start, (long long)k_end);
+		      fh,
+		      (long long)i_start, (long long)i_end,
+		      (long long)j_start, (long long)j_end,
+		      (long long)k_start, (long long)k_end);
 	H5_API_RETURN(h5b_3d_set_view (
 		fh,
 		*i_start-1, *i_end-1,
@@ -87,8 +87,8 @@ h5bl_3d_setchunk (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4 (h5_err_t,
-		      "f=0x%p, i=%lld, j=%lld, k=%lld",
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, i=%lld, j=%lld, k=%lld",
 		      fh, (long long)i, (long long)j, (long long)k);
 	H5_API_RETURN(h5b_3d_set_chunk ( fh, *i, *j, *k ));
 }
@@ -105,18 +105,18 @@ h5bl_3d_getview (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER7 (h5_err_t,
-		       "f=0X%p, "
-		       "i_start=0x%p, i_end=0x%p, "
-		       "j_start=0x%p, j_end=0x%p, "
-		       "k_start=0x%p, k_end=0x%p",
-		       fh,
-		       i_start, i_end,
-		       j_start, j_end,
-		       k_start, k_end);
-	H5_API_RETURN(h5b_3d_get_view (
-		fh,
-		i_start, i_end, j_start, j_end, k_start, k_end ));
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "i_start=%p, i_end=%p, "
+		      "j_start=%p, j_end=%p, "
+		      "k_start=%p, k_end=%p",
+		      fh,
+		      i_start, i_end,
+		      j_start, j_end,
+		      k_start, k_end);
+	H5_API_RETURN (h5b_3d_get_view (
+			       fh,
+			       i_start, i_end, j_start, j_end, k_start, k_end ));
 }
 
 h5_err_t
@@ -131,15 +131,15 @@ h5bl_3d_getreducedview (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER7 (h5_err_t,
-		       "f=0X%p, "
-		       "i_start=0x%p, i_end=0x%p, "
-		       "j_start=0x%p, j_end=0x%p, "
-		       "k_start=0x%p, k_end=0x%p",
-		       fh,
-		       i_start, i_end,
-		       j_start, j_end,
-		       k_start, k_end);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "i_start=%p, i_end=%p, "
+		      "j_start=%p, j_end=%p, "
+		      "k_start=%p, k_end=%p",
+		      fh,
+		      i_start, i_end,
+		      j_start, j_end,
+		      k_start, k_end);
 	H5_API_RETURN(h5b_3d_get_reduced_view (
 		fh,
 		i_start, i_end, j_start, j_end, k_start, k_end ));
@@ -151,8 +151,8 @@ h5bl_3d_hasview (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER1 (h5_int64_t, "f=0x%p", fh);
-	H5_API_RETURN(h5b_3d_has_view ( fh ));
+	H5_API_ENTER (h5_int64_t, "f=%p", fh);
+	H5_API_RETURN (h5b_3d_has_view ( fh ));
 }
 
 h5_err_t
@@ -161,8 +161,8 @@ h5bl_getnumfields (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER1 (h5_int64_t, "f=0x%p", fh);
-	H5_API_RETURN(h5b_get_num_fields ( fh ));
+	H5_API_ENTER (h5_int64_t, "f=%p", fh);
+	H5_API_RETURN (h5b_get_num_fields ( fh ));
 }
 
 h5_err_t
@@ -178,12 +178,12 @@ h5bl_getfieldinfo (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER8 (h5_err_t,
-		       "f=0x%p, idx=%lld, "
-		       "name=0x%p,"
-		       "field_rank=0x%p, field_dims=0x%p, elem_rank=0x%p, type=0x%p, l_name=%d",
-		       fh, (long long)*idx, name,
-		       field_rank, field_dims, elem_rank, type, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, idx=%lld, "
+		      "name=%p,"
+		      "field_rank=%p, field_dims=%p, elem_rank=%p, type=%p, l_name=%d",
+		      fh, (long long)*idx, name,
+		      field_rank, field_dims, elem_rank, type, l_name);
 	h5_err_t herr = h5b_get_field_info (
 		fh, *idx, name, (h5_size_t)l_name,
 		field_rank, field_dims, elem_rank, type );
@@ -206,18 +206,18 @@ h5bl_writefieldattrib_string (
 	char *field_name2 = h5_strdupfor2c ( field_name, l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	char *buffer2 = h5_strdupfor2c ( buffer, l_buffer );
-	H5_API_ENTER7 (h5_err_t,
-		       "f=%p, "
-		       "field_name=\"%s\", "
-		       "attrib_name=\"%s\", "
-		       "buffer=\"%s\", "
-		       "l_field_name=%d, "
-		       "l_attrib_name=%d, "
-		       "l_buffer=%d",
-		       fh,
-		       field_name2,
-		       attrib_name2,
-		       buffer2, l_field_name, l_attrib_name, l_buffer);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "field_name='%s', "
+		      "attrib_name='%s', "
+		      "buffer='%s', "
+		      "l_field_name=%d, "
+		      "l_attrib_name=%d, "
+		      "l_buffer=%d",
+		      fh,
+		      field_name2,
+		      attrib_name2,
+		      buffer2, l_field_name, l_attrib_name, l_buffer);
 	h5_err_t herr = h5_write_field_attrib (
 		fh, field_name2, attrib_name2,
 		H5_STRING_T, buffer2, strlen(buffer2)+1 );
@@ -238,8 +238,8 @@ h5bl_getnfieldattribs (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER3 (h5_err_t,
-		       "f=0x%p, name=\"%s\", l_name=%d", fh, name2, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', l_name=%d", fh, name2, l_name);
 	h5_err_t herr = h5b_get_num_field_attribs ( fh, name2 );
 	free ( name2 );
 	H5_API_RETURN(herr);
@@ -258,15 +258,15 @@ h5bl_getfieldattribinfo (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *field_name2 = h5_strdupfor2c ( field_name, l_field_name );
-	H5_API_ENTER7 (h5_err_t,
-		       "f=%p field_name=\"%s\", "
-		       "attrib_idx=%lld, "
-		       "attrib_name=0x%p, "
-		       "attrib_nelem=0x%p, l_field_name=%d, l_attrib_name=%d",
-		       fh,
-		       field_name2,
-		       (long long)*attrib_idx,
-		       attrib_name, attrib_nelem, l_field_name, l_attrib_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p field_name='%s', "
+		      "attrib_idx=%lld, "
+		      "attrib_name=%p, "
+		      "attrib_nelem=%p, l_field_name=%d, l_attrib_name=%d",
+		      fh,
+		      field_name2,
+		      (long long)*attrib_idx,
+		      attrib_name, attrib_nelem, l_field_name, l_attrib_name);
 
 	h5_int64_t attrib_type;
 	h5_err_t herr = h5b_get_field_attrib_info (
@@ -296,15 +296,15 @@ h5bl_readfieldattrib_string (
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *field_name2 = h5_strdupfor2c ( field_name, l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
-	H5_API_ENTER7 (h5_err_t,
-		       "f=%p, "
-		       "field_name=\"%s\", "
-		       "attrib_name=\"%s\", "
-		       "buffer=0x%p, l_field_name=%d, l_attrib_name=%d, l_buffer=%d",
-		       fh,
-		       field_name,
-		       attrib_name,
-		       buffer, l_field_name, l_attrib_name, l_buffer);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "field_name='%s', "
+		      "attrib_name='%s', "
+		      "buffer=%p, l_field_name=%d, l_attrib_name=%d, l_buffer=%d",
+		      fh,
+		      field_name,
+		      attrib_name,
+		      buffer, l_field_name, l_attrib_name, l_buffer);
 
 	h5_err_t herr = h5_read_field_attrib (
 		fh, field_name2, attrib_name2,

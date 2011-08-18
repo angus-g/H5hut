@@ -77,7 +77,7 @@ h5_openr (
 	const int l_name
 	) {
 
-	H5_API_ENTER2(h5_err_t, "name=\"%s\", l_name=%d", name, l_name);
+	H5_API_ENTER (h5_err_t, "name='%s', l_name=%d", name, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_file_t* f = h5_open_file ( name2, H5_O_RDONLY, 0 );
 	free ( name2 );
@@ -90,7 +90,7 @@ h5_openw (
 	const int l_name
 	) {
 
-	H5_API_ENTER2(h5_err_t, "name=\"%s\", l_name=%d", name, l_name);
+	H5_API_ENTER (h5_err_t, "name='%s', l_name=%d", name, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_file_t* f = h5_open_file ( name2, H5_O_WRONLY, 0 );
 	free ( name2 );
@@ -103,7 +103,7 @@ h5pt_opena (
 	const int l_name
 	) {
 
-	H5_API_ENTER2(h5_err_t, "name=\"%s\", l_name=%d", name, l_name);
+	H5_API_ENTER (h5_err_t, "name='%s', l_name=%d", name, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_file_t* f = h5_open_file ( name2, H5_O_APPEND, 0 );
 	free ( name2 );
@@ -120,7 +120,7 @@ h5_openr_par (
 	const int l_flags
 	) {
 
-	H5_API_ENTER5(h5_err_t, "name=\"%s\", fcomm=%d, flags=%s, "
+	H5_API_ENTER (h5_err_t, "name='%s', fcomm=%d, flags=%s, "
 				"l_name=%d, l_flags=%d",
 				name, *fcomm, flags, l_name, l_flags);
 	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
@@ -142,7 +142,7 @@ h5_openw_par (
 	const int l_flags
 	) {
 
-	H5_API_ENTER5(h5_err_t, "name=\"%s\", fcomm=%d, flags=%s, "
+	H5_API_ENTER (h5_err_t, "name='%s', fcomm=%d, flags=%s, "
 				"l_name=%d, l_flags=%d",
 				name, *fcomm, flags, l_name, l_flags);
 	MPI_Comm ccomm = MPI_Comm_f2c (*fcomm);
@@ -165,7 +165,7 @@ h5pt_opena_par_align (
 	const int l_flags
 	) {
 
-	H5_API_ENTER6(h5_err_t, "name=\"%s\", fcomm=%d, align=%lld, flags=%s, "
+	H5_API_ENTER (h5_err_t, "name='%s', fcomm=%d, align=%lld, flags=%s, "
 				"l_name=%d, l_flags=%d",
 				name, *fcomm, (long long)*align,
 				flags, l_name, l_flags);
@@ -186,7 +186,7 @@ h5_close (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER1(h5_err_t, "f=0x%p", fh);
+	H5_API_ENTER (h5_err_t, "f=%p", fh);
 	H5_API_RETURN(h5_close_file ( fh ));
 }
 
@@ -196,7 +196,7 @@ h5_check (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER1(h5_err_t, "f=0x%p", fh);
+	H5_API_ENTER (h5_err_t, "f=%p", fh);
 	H5_API_RETURN(h5_check_filehandle ( fh ));
 }
 
@@ -206,7 +206,7 @@ h5_setstep (
 	h5_int64_t *step ) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER2(h5_err_t, "f=0x%p, step=%lld", fh, (long long)*step);
+	H5_API_ENTER (h5_err_t, "f=%p, step=%lld", fh, (long long)*step);
 	H5_API_RETURN(h5_set_step ( fh, (*step)-1 ));
 }
 
@@ -216,7 +216,7 @@ h5_getnsteps (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER1(h5_ssize_t, "f=0x%p", fh);
+	H5_API_ENTER (h5_ssize_t, "f=%p", fh);
 	H5_API_RETURN(h5_get_num_steps ( fh ));
 }
 
@@ -225,7 +225,7 @@ h5_set_verbosity_level (
 	const h5_int64_t *level
 	) {
 
-	H5_API_ENTER1(h5_err_t, "level=%lld", (long long)*level);
+	H5_API_ENTER (h5_err_t, "level=%lld", (long long)*level);
 	H5_API_RETURN(h5_set_debuglevel ( *level ));
 }
 

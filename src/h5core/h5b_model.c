@@ -321,7 +321,9 @@ _dissolve_ghostzones (
 	const h5b_partition_t *const user_layout,
 	h5b_partition_t *const write_layout
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "f=%p, user_layout=%p, write_layout=%p",
+			    f, user_layout, write_layout);
 	h5b_partition_t *p;
 	h5b_partition_t *q;
 	int proc_p, proc_q;
@@ -400,7 +402,7 @@ h5_err_t
 h5bpriv_release_hyperslab (
 	h5_file_t *const f			/*!< IN: file handle */
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_PRIV_API_ENTER (h5_err_t, "f=%p", f);
 	if (f->b->shape > 0) {
 		TRY (hdf5_close_dataspace (f->b->shape));
 		f->b->shape = -1;
@@ -420,7 +422,7 @@ h5_err_t
 h5bpriv_open_block_group (
 	h5_file_t *const f		/*!< IN: file handle */
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_PRIV_API_ENTER (h5_err_t, "f=%p", f);
 	h5b_fdata_t *b = f->b;
 
 	TRY (hdf5_close_group (b->block_gid));
@@ -437,7 +439,7 @@ static h5_err_t
 _create_block_group (
 	h5_file_t *const f		/*!< IN: file handle */
 	) {
-	H5_PRIV_FUNC_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_PRIV_FUNC_ENTER (h5_err_t, "f=%p", f);
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (f->step_gid, H5_BLOCKNAME));
 
@@ -456,7 +458,7 @@ h5bpriv_have_field_group (
 	h5_file_t *const f,			/*!< IN: file handle */
 	const char *name
 	) {
-	H5_PRIV_API_ENTER2 (h5_err_t, "f=0x%p, name=\"%s\"", f, name);
+	H5_PRIV_API_ENTER (h5_err_t, "f=%p, name='%s'", f, name);
 	char name2[H5_DATANAME_LEN];
 	h5_normalize_dataset_name (name, name2);
 
@@ -469,7 +471,7 @@ h5bpriv_open_field_group (
 	h5_file_t *const f,			/*!< IN: file handle */
 	const char *name
 	) {
-	H5_PRIV_API_ENTER2 (h5_err_t, "f=0x%p, name=\"%s\"", f, name);
+	H5_PRIV_API_ENTER (h5_err_t, "f=%p, name='%s'", f, name);
 	char name2[H5_DATANAME_LEN];
 	h5_normalize_dataset_name (name, name2);
 	
@@ -489,7 +491,7 @@ h5bpriv_create_field_group (
 	h5_file_t *const f,		/*!< IN: file handle */
 	const char *name		/*!< IN: name of field group to create */
 	) {
-	H5_PRIV_API_ENTER2 (h5_err_t, "f=0x%p, name=\"%s\"", f, name);
+	H5_PRIV_API_ENTER (h5_err_t, "f=%p, name='%s'", f, name);
 	h5b_fdata_t *b = f->b;
 
 	TRY( _create_block_group(f) );
@@ -527,15 +529,15 @@ h5b_3d_set_view (
 	const h5_size_t k_start,	/*!< IN: start index of \c k	*/ 
 	const h5_size_t k_end		/*!< IN: end index of \c k	*/
 	) {
-	H5_CORE_API_ENTER7 (h5_err_t,
-			    "f=0X%p, "
-			    "i_start=%llu, i_end=%llu, "
-			    "j_start=%llu, j_end=%llu, "
-			    "k_start=%llu, k_end=%llu",
-			    f,
-			    (long long unsigned)i_start, (long long unsigned)i_end,
-			    (long long unsigned)j_start, (long long unsigned)j_end,
-			    (long long unsigned)k_start, (long long unsigned)k_end);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, "
+			   "i_start=%llu, i_end=%llu, "
+			   "j_start=%llu, j_end=%llu, "
+			   "k_start=%llu, k_end=%llu",
+			   f,
+			   (long long unsigned)i_start, (long long unsigned)i_end,
+			   (long long unsigned)j_start, (long long unsigned)j_end,
+			   (long long unsigned)k_start, (long long unsigned)k_end);
 	h5b_partition_t *p = f->b->user_layout;
 	p->i_start = i_start;
 	p->i_end =   i_end;
@@ -602,15 +604,15 @@ h5b_3d_get_view (
 	h5_size_t *const k_start,	/*!< OUT: start index of \c k	*/ 
 	h5_size_t *const k_end		/*!< OUT: end index of \c k	*/ 
 	) {
-	H5_CORE_API_ENTER7 (h5_err_t,
-			    "f=0X%p, "
-			    "i_start=0x%p, i_end=0x%p, "
-			    "j_start=0x%p, j_end=0x%p, "
-			    "k_start=0x%p, k_end=0x%p",
-			    f,
-			    i_start, i_end,
-			    j_start, j_end,
-			    k_start, k_end);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, "
+			   "i_start=%p, i_end=%p, "
+			   "j_start=%p, j_end=%p, "
+			   "k_start=%p, k_end=%p",
+			   f,
+			   i_start, i_end,
+			   j_start, j_end,
+			   k_start, k_end);
 	h5b_partition_t *p = f->b->user_layout;
 
 	*i_start = p->i_start;
@@ -633,15 +635,15 @@ h5b_3d_get_reduced_view (
 	h5_size_t *const k_start,	/*!< OUT: start index of \c k	*/ 
 	h5_size_t *const k_end		/*!< OUT: end index of \c k	*/ 
 	) {
-	H5_CORE_API_ENTER7 (h5_err_t,
-			    "f=0X%p, "
-			    "i_start=0x%p, i_end=0x%p, "
-			    "j_start=0x%p, j_end=0x%p, "
-			    "k_start=0x%p, k_end=0x%p",
-			    f,
-			    i_start, i_end,
-			    j_start, j_end,
-			    k_start, k_end);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, "
+			   "i_start=%p, i_end=%p, "
+			   "j_start=%p, j_end=%p, "
+			   "k_start=%p, k_end=%p",
+			   f,
+			   i_start, i_end,
+			   j_start, j_end,
+			   k_start, k_end);
 	h5b_partition_t *p = f->b->write_layout;
 
 	*i_start = p->i_start;
@@ -661,12 +663,12 @@ h5b_3d_set_chunk (
 	const h5_size_t j,		/*!< IN: size of \c j */  
 	const h5_size_t k		/*!< IN: size of \c k */ 
 	) {
-	H5_CORE_API_ENTER4 (h5_err_t,
-			    "f=0x%p, i=%llu, j=%llu, k=%llu",
-			    f,
-			    (long long unsigned)i,
-			    (long long unsigned)j,
-			    (long long unsigned)k);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, i=%llu, j=%llu, k=%llu",
+			   f,
+			   (long long unsigned)i,
+			   (long long unsigned)j,
+			   (long long unsigned)k);
 	if ( i == 0 || j == 0 || k == 0 )
 	{
 		h5_info ("Disabling chunking" );
@@ -690,9 +692,9 @@ h5b_3d_get_chunk (
 	h5_size_t *const j,		/*!< OUT: size of \c j */  
 	h5_size_t *const k		/*!< OUT: size of \c k */ 
 	) {
-	H5_CORE_API_ENTER4 (h5_err_t,
-			    "f=0x%p, i=0x%p, j=0x%p, k=0x%p",
-			    f, i, j, k);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, i=%p, j=%p, k=%p",
+			   f, i, j, k);
 	CHECK_TIMEGROUP ( f );
 
 	h5b_fdata_t *b = f->b;
@@ -729,12 +731,12 @@ h5b_3d_set_grid (
 	const h5_size_t j,		/*!< IN: dimension in \c j */  
 	const h5_size_t k		/*!< IN: dimension in \c k */ 
 	) {
-	H5_CORE_API_ENTER4 (h5_err_t,
-			    "f=0x%p, i=%llu, j=%llu, k=%llu",
-			    f,
-			    (long long unsigned)i,
-			    (long long unsigned)j,
-			    (long long unsigned)k);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, i=%llu, j=%llu, k=%llu",
+			   f,
+			   (long long unsigned)i,
+			   (long long unsigned)j,
+			   (long long unsigned)k);
 	if (i*j*k != f->nprocs) {
 		H5_CORE_API_LEAVE (
 			h5_error(H5_ERR_INVAL,
@@ -768,9 +770,9 @@ h5b_3d_get_grid_coords (
 	h5_int64_t *j,			/*!< OUT: index in \c j */  
 	h5_int64_t *k			/*!< OUT: index in \c k */ 
 	) {
-	H5_CORE_API_ENTER5 (h5_err_t,
-			    "f=0x%p, proc=%d, i=0x%p, j=0x%p, k=0x%p",
-			    f, proc, i, j, k);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, proc=%d, i=%p, j=%p, k=%p",
+			   f, proc, i, j, k);
 	if ( ! f->b->have_grid )
 		H5_CORE_API_LEAVE (
 			h5_error(H5_ERR_INVAL,
@@ -791,12 +793,12 @@ h5b_3d_set_dims (
 	const h5_size_t j,		/*!< IN: dimension in \c j */  
 	const h5_size_t k		/*!< IN: dimension in \c k */ 
 	) {
-	H5_CORE_API_ENTER4 (h5_err_t,
-			    "f=0x%p, i=%llu, j=%llu, k=%llu",
-			    f,
-			    (long long unsigned)i,
-			    (long long unsigned)j,
-			    (long long unsigned)k);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, i=%llu, j=%llu, k=%llu",
+			   f,
+			   (long long unsigned)i,
+			   (long long unsigned)j,
+			   (long long unsigned)k);
 	if ( ! f->b->have_grid )
 		H5_CORE_API_LEAVE (
 			h5_error(H5_ERR_INVAL,
@@ -856,12 +858,12 @@ h5b_3d_set_halo (
 	const h5_size_t j,		/*!< IN: radius in \c j */  
 	const h5_size_t k		/*!< IN: radius in \c k */ 
 	) {
-	H5_CORE_API_ENTER4 (h5_err_t,
-			    "f=0x%p, i=%llu, j=%llu, k=%llu",
-			    f,
-			    (long long unsigned)i,
-			    (long long unsigned)j,
-			    (long long unsigned)k);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, i=%llu, j=%llu, k=%llu",
+			   f,
+			   (long long unsigned)i,
+			   (long long unsigned)j,
+			   (long long unsigned)k);
 
 	if ( ! f->b->have_grid ) {
 		H5_CORE_API_LEAVE (
@@ -888,7 +890,7 @@ h5_ssize_t
 h5b_get_num_fields (
 	h5_file_t *const f		/*!< IN: File handle */
 	) {
-	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	CHECK_TIMEGROUP( f );
 
 	TRY (h5bpriv_open_block_group(f));
@@ -904,10 +906,10 @@ h5b_get_field_info_by_name (
 	h5_size_t *elem_rank,			/*!< OUT: element rank */
 	h5_int64_t *type			/*!< OUT: datatype */
 	) {
-	H5_CORE_API_ENTER6 (h5_err_t,
-			    "f=0x%p, name=\"%s\", "
-			    "field_rank=0x%p, field_dims=0x%p, elem_rank=0x%p, type=0x%p",
-			    f, name, field_rank, field_dims, elem_rank, type);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, name='%s', "
+			   "field_rank=%p, field_dims=%p, elem_rank=%p, type=%p",
+			   f, name, field_rank, field_dims, elem_rank, type);
 	CHECK_TIMEGROUP( f );
 
 	hsize_t dims[16]; /* give it plenty of space even though we don't expect rank > 3 */
@@ -956,14 +958,14 @@ h5b_get_field_info (
 	h5_size_t *elem_rank,			/*!< OUT: element rank */
 	h5_int64_t *type			/*!< OUT: datatype */
 	) {
-	H5_CORE_API_ENTER8 (h5_err_t,
-			    "f=0x%p, idx=%llu, "
-			    "name=0x%p, len_name=%llu, "
-			    "field_rank=0x%p, field_dims=0x%p, elem_rank=0x%p, type=0x%p",
-			    f,
-			    (long long unsigned)idx,
-			    name, (long long unsigned)len_name, 
-			    field_rank, field_dims, elem_rank, type);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, idx=%llu, "
+			   "name=%p, len_name=%llu, "
+			   "field_rank=%p, field_dims=%p, elem_rank=%p, type=%p",
+			   f,
+			   (long long unsigned)idx,
+			   name, (long long unsigned)len_name, 
+			   field_rank, field_dims, elem_rank, type);
 	CHECK_TIMEGROUP( f );
 
 	TRY (h5bpriv_open_block_group(f));

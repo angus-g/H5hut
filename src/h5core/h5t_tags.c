@@ -1,147 +1,149 @@
-
 #include <string.h>
 
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
-/*
-  TODO:
-  - read tagsets on demand
- */
-
-/*
-  Release a tag-set
- */
-static inline h5_err_t
-release_tagset (
-	h5t_tagset_t* tagset
-	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	unsigned int i;
-	// release per element structures
-	for (i = 0; i < tagset->num_elems; i++) {
-		if (tagset->elems[i] != NULL) {
-			TRY (h5_free (tagset->elems[i]));
-		}
-	}
-	// release other memory
-	TRY (h5_free (tagset->name));
-	TRY (h5_free (tagset->values));
-	TRY (h5_free (tagset));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
-}
-
-/*
-  Release a tagset. Special version for releasing a container.
- */
-static h5_err_t
-release_tagset2 (
-	const void* __tagset
-	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	h5t_tagset_t* tagset = *(h5t_tagset_t**)__tagset;
-	H5_PRIV_FUNC_RETURN (release_tagset (tagset));
-}
-
-
-/*
-  Initialize a tag container
- */
-static inline h5_err_t
-init_container (
-	const size_t ntags,
-	h5t_tagcontainer_t* ctn
-	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	TRY (ctn->names = h5_calloc (ntags, sizeof(char*)));
-	TRY (h5priv_hcreate_string_keyed (ntags, &ctn->sets,
-					  release_tagset2));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
-}
-
-/*
-  Release all sets in given container
- */
-static inline h5_err_t
-release_container (
-	h5t_tagcontainer_t* ctn
-	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);	
-	if (ctn->num_sets == 0)
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
-	TRY (h5priv_hdestroy (&ctn->sets)); 
-	TRY (h5_free (ctn->names));
-	memset (ctn, 0, sizeof (*ctn));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
-}
-
-/*
-  Release all tagsets
-*/
-h5_err_t
-h5tpriv_release_tags (
-	h5_file_t* const f
-	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
-	h5t_fdata_t* t = f->t;
-	TRY (release_container (&t->mtags));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
-}
-
-static inline h5_err_t
-tagset_exists (
-	h5t_tagcontainer_t* ctn,
-	char* name
-	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	h5t_tagset_t tagset;
-	tagset.name = name;
-	H5_PRIV_FUNC_RETURN (h5priv_hsearch (&tagset,H5_FIND,NULL,&ctn->sets));
-}
-
-h5_err_t
-h5t_mtagset_exists (
+static hid_t
+open_space_all (
 	h5_file_t* const f,
-	h5t_tagcontainer_t* ctn,
-	char* name
+	const hid_t dataset_id
 	) {
-	H5_CORE_API_ENTER3 (h5_err_t,
-			   "f=0x%p, ctn=0x%p, name=\"%s\"",
-			   f, ctn, name);
-	H5_CORE_API_RETURN (tagset_exists (&f->t->mtags, name));
+	UNUSED_ARGUMENT (f);
+	UNUSED_ARGUMENT (dataset_id);
+	return H5S_ALL;
 }
 
 /*!
-  Add tag to current mesh.
+  Get number of tagsets 
+ */
+h5_ssize_t
+h5t_get_num_mtagsets (
+	h5t_mesh_t* const m
+	) {
+	H5_CORE_API_ENTER (h5_ssize_t, "m=%p", m);
+	h5_ssize_t num_mtagsets = 0;
+	h5_err_t exists = 0;
+	TRY (exists = h5priv_link_exists (m->mesh_gid, "Tags"));
+	if (!exists) H5_CORE_API_LEAVE (0);
 
-  \param[in]	f	File handle
-  \param[in]	name	name of tag
-  \param[in]	type	type
-  \param[out]	tag	pointer to tag object if != 0
+	hid_t loc_id;
+	TRY (loc_id = h5priv_open_group (0, m->mesh_gid, "Tags"));
+	TRY (num_mtagsets = hdf5_get_num_groups (loc_id));
+	TRY (hdf5_close_group (loc_id));
 
-  \return	H5_SUCCESS or error code
-*/
+	H5_CORE_API_RETURN (num_mtagsets);
+
+}
+
 static h5_err_t
-add_tagset (
-	h5_file_t* const f,
-	h5t_tagcontainer_t* ctn,
-	char* name,
+get_tagset_info (
+	const hid_t loc_id,
+	const h5_size_t idx,
+	char name[],
+	const h5_size_t len_name,
+	h5_int64_t* const type
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "loc_id=%d, idx=%llu, name=%p, len_name=%llu, type=%p",
+			    loc_id, (long long unsigned)idx, name,
+			    (long long unsigned)len_name, type);
+
+	hid_t tags_id, tag_id, dset_id;
+	// open ctn with all tags
+	TRY (tags_id = hdf5_open_group (loc_id, "Tags"));
+	// get name of tag given by idx
+	TRY (hdf5_get_name_of_group_by_idx (tags_id, idx, name, len_name));
+	// open this tag
+	TRY (tag_id = hdf5_open_group (tags_id, name));
+	// determine type of dataset with values
+	TRY (dset_id = hdf5_open_dataset (tag_id, "values"));
+	hid_t type_;
+	TRY (type_ = hdf5_get_dataset_type (dset_id));
+	TRY (*type = h5_normalize_h5_type (type_));
+
+	TRY (hdf5_close_dataset (dset_id));
+	TRY (hdf5_close_group (tag_id));
+	TRY (hdf5_close_group (tags_id));
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+}
+
+/*!
+  Get information about tagset given by index:
+  name
+  type
+ */
+h5_err_t
+h5t_get_mtagset_info (
+	h5t_mesh_t* const m,
+	const h5_size_t idx,
+	char name[],
+	const h5_size_t len_name,
+	h5_int64_t* const type
+	) {
+	H5_CORE_API_ENTER (h5_err_t,
+			   "m=%p, idx=%llu, name=%p, len_name=%llu, type=%p",
+			   m, (long long unsigned)idx, name,
+			   (long long unsigned)len_name, type);
+
+
+	H5_CORE_API_RETURN (get_tagset_info(m->mesh_gid, idx, name, len_name, type));
+}
+
+/*!
+  Check whether taget exists.
+ */
+h5_err_t
+h5t_mtagset_exists (
+	h5t_mesh_t* const m,
+	const char name[]
+	) {
+	H5_CORE_API_ENTER (h5_err_t, "m=%p, name=%s", m, name);
+	H5_CORE_API_RETURN (h5priv_link_exists (m->mesh_gid, "Tags", name));
+}
+
+static h5_err_t
+new_tagset (
+	h5t_mesh_t* const m,
+	hid_t parent_gid,
+	const char  name[],
 	h5_id_t type,
 	h5t_tagset_t** rtagset
 	) {
-	H5_PRIV_FUNC_ENTER5 (h5_err_t,
-			     "f=0x%p, ctn=0x%p, name=\"%s\", type=%llu, rtagset=0x%p",
-			     f, ctn, name,
-			     (long long unsigned)type,
-			     rtagset);
-	h5t_fdata_t* t = f->t;
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			     "m=%p, name='%s', type=%llu, rtagset=%p",
+			     m, name, (long long unsigned)type, rtagset);
 
-	// Initialize data structure for m-tagsets, if not already done.
-	if (ctn->names == NULL) {
-		TRY (init_container (521, ctn));
-	}
-	// TODO: Resize if we have more then 80% of 521 filled!
+	h5t_tagset_t* tagset = NULL;
+	size_t size = (m->num_elems[m->num_leaf_levels-1] - 1) * sizeof(*tagset->elems)
+		+ sizeof(*tagset);
+	TRY (tagset = h5_calloc (1, size));
 
+	TRY (tagset->name = h5_strdup (name));
+	tagset->m = m;
+	tagset->parent_gid = parent_gid;
+	tagset->type = type;
+	tagset->num_elems = m->num_elems[m->num_leaf_levels-1];
+	tagset->scope.min_level = 32767;
+	tagset->scope.max_level = -1;
+	TRY (h5priv_search_strlist (&m->mtagsets, name));
+
+	*rtagset = tagset;
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+}
+
+/*!
+  Create a new tagset
+ */
+h5_err_t
+h5t_create_mtagset (
+	h5t_mesh_t* const m,
+	const char name[],
+	const h5_id_t type,
+	h5t_tagset_t** set
+	) {
+	H5_CORE_API_ENTER (h5_err_t,
+			   "m=%p, name='%s', type=%llu, set=%p",
+			   m, name, (long long unsigned)type, set);
 	// validate name
 	if (name == NULL || name[0] == '\0') {
 		H5_PRIV_FUNC_LEAVE (
@@ -155,203 +157,16 @@ add_tagset (
 	}
 
 	// check if a tagset with given name already exists
-	h5_err_t h5err;
-	TRY (h5err = tagset_exists (ctn, name) );
-	if (h5err == H5_SUCCESS) {
-		H5_PRIV_FUNC_LEAVE (
-			h5_error (H5_ERR_INVAL,
-				  "Tagset with name %s already exists!",
-				  name));
-	}
+	h5_err_t exists;
+	TRY (exists = h5priv_link_exists (m->mesh_gid, "Tags", name));
+	if (exists || h5priv_find_strlist (m->mtagsets, name) >= 0) 
+		H5_CORE_API_LEAVE (
+			h5_error (
+				H5_ERR_H5FED,
+				"Cannot create tagset '%s': Tagset exists", name));
+	
 
-	// create new tagset
-	h5t_tagset_t* tagset = NULL;
-	size_t size = (t->num_elems[t->num_leaf_levels-1] - 1) * sizeof(*tagset->elems)
-		+ sizeof(*tagset);
-	TRY (tagset = h5_calloc (1, size));
-
-	TRY (tagset->name = h5priv_strdup (name));
-	tagset->type = type;
-	tagset->num_elems = t->num_elems[t->num_leaf_levels-1];
-	tagset->scope.min_level = 32767;
-	tagset->scope.max_level = -1;
-
-	// add tagset to hash of tagsets
-	TRY (h5priv_hsearch (tagset, H5_ENTER, NULL, &ctn->sets));
-
-	t->mtags.changed = 1;
-	t->mtags.names[t->mtags.num_sets] = tagset->name;
-	t->mtags.num_sets++;
-
-	if (rtagset != NULL) *rtagset = tagset;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
-}
-
-h5_err_t
-h5t_add_mtagset (
-	h5_file_t* const f,
-	char* name,
-	h5_id_t type
-	) {
-	H5_CORE_API_ENTER3 (h5_err_t,
-			     "f=0x%p, name=\"%s\", type=%llu",
-			     f, name,
-			    (long long unsigned)type);
-	h5t_fdata_t* t = f->t;
-	H5_CORE_API_RETURN (add_tagset (f, &t->mtags, name, type, NULL));
-}
-
-
-/*!
-  Remove a tagset from the current mesh.
-
-  \param[in]	f	file handle
-  \param[in]	name	name of tagset to remove
-
-  \return	H5_SUCCESS or error code
- */
-static h5_err_t
-remove_tagset (
-	h5_file_t* const f,
-	h5t_tagcontainer_t* ctn,
-	const char name[]
-	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	// remove tagset with NAME from m-tagsets dictionary
-	void* __retval = NULL;
-	TRY (h5priv_hsearch (&name, H5_REMOVE, &__retval, &ctn->sets));
-	h5t_tagset_t* tagset = (h5t_tagset_t*)__retval;
-	if (tagset == NULL) {
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
-	}
-	TRY (release_tagset (tagset));
-
-	// remove HDF5 datasets and group for this tagset
-	hid_t loc_id;
-	TRY (loc_id = h5priv_open_group (f, ctn->group_id, name));
-	TRY (hdf5_delete_link (loc_id, "elems", H5P_DEFAULT));
-	TRY (hdf5_delete_link (loc_id, "entities", H5P_DEFAULT));
-	TRY (hdf5_delete_link (loc_id, "values", H5P_DEFAULT));
-	TRY (hdf5_close_group (loc_id));
-	TRY (hdf5_delete_link (ctn->group_id, name, H5P_DEFAULT));
-
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
-}
-
-/*!
-  Remove a tagset from the current mesh.
-
-  \param[in]	f	file handle
-  \param[in]	name	name of tagset to remove
-
-  \return	H5_SUCCESS or error code
- */
-h5_err_t
-h5t_remove_mtagset (
-	h5_file_t* const f,
-	const char name[]
-	) {
-	H5_CORE_API_ENTER2 (h5_err_t,
-			    "f=0x%p, name=\"%s\"",
-			    f, name);
-	h5t_fdata_t* t = f->t;
-	TRY (t->mtags.group_id = h5priv_open_group (f, t->mesh_gid, "Tags"));
-	TRY (remove_tagset (f, &t->mtags, name));
-	TRY (hdf5_close_group (t->mtags.group_id));
-	H5_CORE_API_RETURN (H5_SUCCESS);
-}
-
-h5_ssize_t
-h5t_get_num_mtagsets (
-	h5_file_t* const f
-	) {
-	H5_CORE_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
-	h5t_fdata_t* t = f->t;
-	H5_CORE_API_RETURN (t->mtags.num_sets);
-}
-
-/*!
-  Get available tagset in current mesh.
-
-  \param[in]	f	file handle
-  \param[out]	names	names of available tagsets
-
-  \return	Number of mesh tag-sets
- */
-h5_ssize_t
-h5t_get_mtagsets (
-	h5_file_t* const f,
-	char** names[]
-	) {
-	H5_CORE_API_ENTER2 (h5_ssize_t, "f=0x%p, names=0x%p", f, names);
-	h5t_fdata_t* t = f->t;
-	*names = t->mtags.names; 
-	H5_CORE_API_RETURN (t->mtags.num_sets);
-}
-
-h5_err_t
-h5t_open_mtagset (
-	h5_file_t* const f,
-	const char* name,
-	h5t_tagset_t** retval
-	) {
-	H5_CORE_API_ENTER3 (h5_ssize_t,
-			    "f=0x%p, name=\"%s\", retval=0x%p",
-			    f, name, retval);
-	h5t_fdata_t* t = f->t;
-	void* __retval = NULL;
-	TRY (h5priv_hsearch (&name, H5_FIND, &__retval, &t->mtags.sets));
-	*retval = (h5t_tagset_t*)__retval;
-	H5_CORE_API_RETURN (H5_SUCCESS);
-}
-
-/*!
-  Get type of tagset in current mesh.
-
-  \param[in]	f	file handle
-  \param[in]	name	name of tagset
-
-  \return	type or error code
- */
-h5_id_t
-h5t_get_mtagset_type_by_name (
-	h5_file_t* const f,
-	char* name
-	) {
-	H5_CORE_API_ENTER2 (h5_ssize_t,
-			    "f=0x%p, name=\"%s\"",
-			    f, name);
-	h5t_tagset_t* tagset;
-	TRY (h5t_open_mtagset (f, name, &tagset));
-	H5_CORE_API_RETURN (tagset->type);
-}
-
-/*!
-  Get information about a tagset 
-
-  \param[in]	f	file handle
-  \param[in]	idx	index of tagset we want information about
-  \param[out]	name	name of tag-set
-  \param[out]	type	type of tag-set
- */
-h5_ssize_t
-h5t_get_mtagset_info (
-	h5_file_t* const f,
-	const h5_id_t idx,
-	char** name,
-	h5_id_t* type
-	) {
-	H5_CORE_API_ENTER4 (h5_ssize_t,
-			    "f=0x%p, idx=%lld, name=0x%p, type=0x%p",
-			    f, (long long)idx, name, type);
-	h5t_fdata_t* t = f->t;
-	*name = t->mtags.names[idx];
-	void* __retval = NULL;
-	TRY (h5priv_hsearch (t->mtags.names[idx], H5_FIND, &__retval,
-			      &t->mtags.sets));
-	h5t_tagset_t* retval = (h5t_tagset_t*)__retval;
-	*type = retval->type;
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_CORE_API_RETURN (new_tagset (m, m->mesh_gid, name, type, set));
 }
 
 static int
@@ -376,18 +191,6 @@ find_face_id (
 	return -(low+1);
 }
 
-static inline h5_err_t
-tag_nexists_warn (
-	const char* name,
-	const h5_loc_idx_t face_id,
-	const h5_loc_idx_t elem_idx
-	) {
-	return h5_warn (
-		"Tag %s not set for face %llx of element %lld",
-		name,
-		(long long)face_id,
-		(long long)elem_idx);
-}
 
 static h5_err_t
 remove_tag (
@@ -395,10 +198,15 @@ remove_tag (
 	const h5_loc_idx_t face_id,
 	const h5_loc_idx_t elem_idx
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER (h5_err_t, "tagset=%p, face_id=%d, elem_idx=%d",
+			     tagset, face_id, elem_idx);
 	if (tagset->elems[elem_idx] == NULL) {
 		H5_PRIV_FUNC_LEAVE (
-			tag_nexists_warn (tagset->name, face_id, elem_idx));
+			h5_warn (
+				"Tag %s not set for face %llx of element %lld",
+				tagset->name,
+				(long long)face_id,
+				(long long)elem_idx));
 	}
 	h5t_tageleminfo_t* eleminfo = tagset->elems[elem_idx];
 
@@ -406,7 +214,11 @@ remove_tag (
 	int idx = find_face_id (eleminfo, face_id);
 	if (idx < 0) {
 		H5_PRIV_FUNC_LEAVE (
-			tag_nexists_warn (tagset->name, face_id, elem_idx));
+			h5_warn (
+				"Tag %s not set for face %llx of element %lld",
+				tagset->name,
+				(long long)face_id,
+				(long long)elem_idx));
 	}
 	h5t_taginfo_t* ti = &eleminfo->ti[idx];
 
@@ -433,7 +245,9 @@ add_tag (
 	const size_t dim,
 	void* val
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "tagset=%p, idx=%d, face_id=%d, elem_idx=%d, dim=%zu, val=%p",
+			    tagset, idx, face_id, elem_idx, dim, val);
 	// insert new taginfo
 	h5t_tageleminfo_t* eleminfo = tagset->elems[elem_idx];
 	TRY (eleminfo = tagset->elems[elem_idx] = h5_alloc (
@@ -462,13 +276,11 @@ add_tag (
 
 static inline h5_err_t
 overwrite_tag (
-	h5_file_t* const f,
 	h5t_tagset_t* tagset,
 	const int idx,
 	const h5_loc_idx_t elem_idx,
 	void* val
 	) {
-	UNUSED_ARGUMENT (f);
 	h5t_tageleminfo_t* eleminfo = tagset->elems[elem_idx];
 	h5t_taginfo_t* ti = &eleminfo->ti[idx];
 
@@ -483,14 +295,15 @@ overwrite_tag (
  */
 static h5_err_t
 set_tag (
-	h5_file_t* const f,
 	h5t_tagset_t* tagset,
 	const h5_loc_idx_t face_id,
 	const h5_loc_idx_t elem_idx,
 	const size_t dim,
 	void* val
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "tagset=%p, face_id=%d, elem_idx=%d, dim=%zu, val=%p",
+			    tagset, face_id, elem_idx, dim, val);
 	if (tagset->elems[elem_idx] == NULL) {
 		TRY (tagset->elems[elem_idx] = h5_calloc (
 			      1, sizeof (*tagset->elems)));
@@ -500,312 +313,160 @@ set_tag (
 	h5t_taginfo_t* ti = eleminfo->ti + i;
 	if (i >= 0 && dim != ti->val_dim) {
 		/*
-		  This is a very unusual case! So the processing can be
-		  a bit more expensive ...
+		  Overwrite existing value with new dimension.
+		  This is a very unusual case.
 		 */
 		TRY (remove_tag (tagset, face_id, elem_idx));
 		TRY (add_tag (tagset, i, face_id, elem_idx, dim, val));
 	} else if (i >= 0 && dim == ti->val_dim) {
-		TRY (overwrite_tag (f, tagset, i, elem_idx, val));
+		TRY (overwrite_tag (tagset, i, elem_idx, val));
 	} else { // i < 0
 		TRY (add_tag (tagset, -i-1, face_id, elem_idx, dim, val));
 		tagset->num_entities++;
 	}
-	if (f->t->leaf_level < tagset->scope.min_level) {
-		tagset->scope.min_level = f->t->leaf_level;
+	if (tagset->m->leaf_level < tagset->scope.min_level) {
+		tagset->scope.min_level = tagset->m->leaf_level;
 	}
-	if (f->t->leaf_level > tagset->scope.max_level) {
-		tagset->scope.max_level = f->t->leaf_level;
+	if (tagset->m->leaf_level > tagset->scope.max_level) {
+		tagset->scope.max_level = tagset->m->leaf_level;
 	}
-	tagset->changed = 1;
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
-/*
-  Inheritance:
-  - to coarser level only
-  - if entity has tagged parrent, tag of parent
-  - else: not tagged
 
-  Parent of entity in tetrahedral grid:
-  - tetrahedron: parent ID
-  - triangles:
-	face	child	parent face
-	0	0	0
-	1	0	1
-	2	0	2
-	3	0	-1
-	0	1	0
-	1	1	1
-	2	1	-1
-	3	1	3
-	0	2	0
-	1	2	-1
-	2	2	2
-	3	2	3
-	0	3	-1	
-	1	3	1
-	2	3	2
-	3	3	3
-	0	4	-1
-	1	4	1
-	2	4	-1
-	3	4	-1
-	0	5	0
-	1	5	-1
-	2	5	-1
-	3	5	-1
-	0	6	-1
-	1	6	-1
-	2	6	-1
-	3	6	3
-	0	7	-1
-	1	7	-1
-	2	7	2
-	3	7	-1
-*/
-int map_tri_to_parent_face[8][4] = {
-	{0,1,2,-1},
-	{0,1,-1,3},
-	{0,-1,2,3},
-	{-1,1,2,3},
-	{-1,1,-1,-1},
-	{0,-1,-1,-1},
-	{-1,-1,-1,3},
-	{-1,-1,2,-1}};
-/*
-  - edges:
-	0	0-3	0
-	1	0-3	1
-	2	0-3	2
-	3	0-3	3
-	4	0-3	4
-	5	0-3	5
-	0-5	4-7	-1
-*/
-int map_edge_to_parent_face[8][6] = {
-	
-};
-/*
-  - vertex:
-	0	0	0
-	1-3	0	-1
-	0	1	-1
-	1	1	1
-	2,3	1	-1
-	0,1	2	-1
-	2	2	2
-	3	2	-1
-	0-2	3	-1
-	3	3	3
-	0-3	4	-1
-	0-3	5	-1
-	0-3	6	-1
-*/
-
-static inline h5_err_t
-get_idx_of_tagval (
-	const h5t_tagset_t* tagset,
-	const h5_loc_idx_t face_id,
-	const h5_loc_idx_t elem_idx,
-	int* taginfo_idx,
-	h5_loc_idx_t* val_idx
+static h5_err_t
+read_tagset (
+	h5t_tagset_t* const tagset
 	) {
-	h5t_tageleminfo_t* eleminfo = tagset->elems[elem_idx];
-	if (eleminfo == NULL) {
-		return H5_NOK;
-	}
-	*taginfo_idx = find_face_id (eleminfo, face_id);
-	if (*taginfo_idx < 0) {
-		return H5_NOK; // not tagged
-	}
-	*val_idx = eleminfo->ti[*taginfo_idx].val_idx;
-	return H5_SUCCESS;
-}
+	H5_PRIV_FUNC_ENTER (h5_err_t, "tagset=%p", tagset);
+	hid_t loc_id = 0;
 
-static inline h5_ssize_t
-get_tag (
-	h5_file_t* const f,
-	const h5t_tagset_t *tagset,
-	const h5_loc_idx_t face_id,
-	const h5_loc_idx_t elem_idx,
-	size_t* const dim,
-	void* const values
-	) {
-	if (f->t->leaf_level < tagset->scope.min_level) {
-		return H5_NOK; // entity not tagged
+	// open HDF5 group
+
+	TRY (loc_id = h5priv_open_group (0, tagset->parent_gid, "Tags", tagset->name));
+
+	// read datasets:
+
+	// "elems"
+	h5t_glb_tag_idx_t* elems;
+	size_t num_elems = 0;
+
+	hid_t dset_id;
+	TRY (dset_id = hdf5_open_dataset (loc_id, "elems"));
+	TRY (num_elems = hdf5_get_npoints_of_dataset (dset_id));
+	TRY (elems = h5_calloc (num_elems, sizeof(*elems)));
+	h5_dsinfo_t dsinfo;
+	memset (&dsinfo, 0, sizeof (dsinfo));
+	dsinfo.type_id = tagset->m->dtypes.h5t_glb_tag_idx_t;
+	TRY (h5priv_read_dataset (
+		     tagset->m->f,
+		     dset_id,
+		     &dsinfo,
+		     open_space_all, open_space_all,
+		     elems));
+	TRY (hdf5_close_dataset (dset_id));
+	num_elems--;
+
+	// "entities"
+	h5t_glb_tag_idx_t* entities;
+	size_t ent_idx = 0;
+	size_t num_entities = 0;
+	TRY (dset_id = hdf5_open_dataset (loc_id, "entities"));
+	TRY (num_entities = hdf5_get_npoints_of_dataset (dset_id));
+	TRY (entities = h5_calloc (num_entities, sizeof(*entities)));
+	TRY (h5priv_read_dataset (
+		     tagset->m->f,
+		     dset_id,
+		     &dsinfo,
+		     open_space_all, open_space_all,
+		     entities));
+	TRY (hdf5_close_dataset (dset_id));
+	num_entities--;
+
+	//  "values"
+	 h5_int64_t* vals;
+	size_t num_vals = 0;
+	TRY (dset_id = hdf5_open_dataset (loc_id, "values"));
+	TRY (num_vals = hdf5_get_npoints_of_dataset (dset_id));
+	TRY (vals = h5_calloc (num_vals, sizeof (*vals)));
+	TRY (dsinfo.type_id = hdf5_get_dataset_type (dset_id));
+	TRY (h5priv_read_dataset (
+		      tagset->m->f,
+		      dset_id,
+		      &dsinfo,
+		      open_space_all, open_space_all,
+		      vals));
+	TRY (hdf5_close_dataset (dset_id ));
+	tagset->type = h5_normalize_h5_type (dsinfo.type_id);
+
+	/*
+	  add tagset and set values
+	*/
+
+	h5_int64_t scope;
+	TRY (h5priv_read_attrib (loc_id, "__scope_min__", H5_INT64_T, &scope));
+	tagset->scope.min_level = scope;
+	TRY (h5priv_read_attrib (loc_id, "__scope_max__", H5_INT64_T, &scope));
+	tagset->scope.max_level = scope;
+
+	for (ent_idx = 0; ent_idx < num_entities; ent_idx++) {
+		h5t_glb_tag_idx_t *entity = &entities[ent_idx];
+		size_t dim = (entity+1)->idx - entity->idx;
+		// map global face id and global element idx to local
+		h5_loc_idx_t face_id;
+		h5_loc_idx_t elem_idx;
+		h5_glb_idx_t glb_elem_idx = h5tpriv_get_elem_idx (entity->eid);
+		TRY (elem_idx = h5t_map_glb_elem_idx2loc (tagset->m, glb_elem_idx));
+		face_id = h5tpriv_get_face_id (entity->eid);
+		TRY (set_tag (
+			     tagset,
+			     face_id,
+			     elem_idx,
+			     dim,
+			     &vals[entity->idx]));
 	}
-	h5_loc_idx_t val_idx = 0;
-	int ti_idx = 0;
-	h5_err_t h5err = get_idx_of_tagval (tagset, face_id, elem_idx,
-					    &ti_idx, &val_idx);
-	if (h5err < 0) {
-		return h5err;
-	}
-	h5t_taginfo_t* ti = &tagset->elems[elem_idx]->ti[ti_idx];
-	h5t_tagval_t* v = tagset->values;
-	if (*dim > ti->val_dim || values == NULL) {
-		*dim = ti->val_dim;
-	}
-	if (values != NULL) {
-		memcpy (values, v + val_idx, *dim*sizeof(*v) );
-	}
-	return H5_SUCCESS;
+	TRY (h5_free (elems));
+	TRY (h5_free (entities));
+	TRY (h5_free (vals));
+	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 /*!
-  Set tag for entity in current mesh.
-
-  \param[in]	f	file handle
-  \param[in]	name	names of tagset
-  \param[in]	id	local id of entity
-  \param[in]	val	tag value
-  \param[in]	size	size of value
-
-  \return	H5_SUCCESS or error code
+  Open existing tagset given by \c name.
  */
 h5_err_t
-h5t_set_mtag_by_name (
-	h5_file_t* const f,
-	char name[],
-	const h5_loc_id_t entity_id,
-	const size_t dim,
-	void* val
-	) {
-	H5_CORE_API_ENTER5 (h5_err_t,
-			    "f=0x%p, name=\"%s\", entity_id=%lld, dim=%llu, val=0x%p",
-			    f,
-			    name,
-			    (long long)entity_id,
-			    (long long unsigned)dim,
-			    val);
-	h5t_tagset_t* tagset;
-	TRY (h5t_open_mtagset (f, name, &tagset));
-	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
-	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	H5_CORE_API_RETURN (set_tag (f, tagset, face_id, elem_idx, dim, val));
-}
-/*!
-  Get tag for entity in given tagset.
-
-  \param[in]	f	file handle
-  \param[in]	name	names of tagset
-  \param[in]	id	id of entity
-  \param[out]	size	dimension of value
-  \param[out]	val	tag value
-
-  \return	H5_SUCCESS or error code
- */
-h5_ssize_t
-h5t_get_tag (
-	h5_file_t* const f,
-	const h5t_tagset_t* tagset,
-	const h5_loc_id_t entity_id,
-	size_t* const dim,
-	void* const vals
-	) {
-	H5_CORE_API_ENTER5 (h5_err_t,
-			    "f=0x%p, tagset=0x%p, entity_id=%lld, dim=0x%p, val=0x%p",
-			    f,
-			    tagset,
-			    (long long)entity_id,
-			    dim,
-			    vals);
-	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
-	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	H5_CORE_API_RETURN (get_tag (f, tagset, face_id, elem_idx, dim, vals));
-}
-
-/*!
-  Get tag for entity in current mesh.
-
-  \param[in]	f	file handle
-  \param[in]	name	names of tagset
-  \param[in]	id	id of entity
-  \param[out]	size	dimension of value
-  \param[out]	val	tag value
-
-  \return	H5_SUCCESS or error code
- */
-h5_ssize_t
-h5t_get_mtag_by_name (
-	h5_file_t* const f,
+h5t_open_mtagset (
+	h5t_mesh_t* const m,
 	const char name[],
-	const h5_loc_id_t entity_id,
-	size_t* dim,
-	void* vals
+	h5t_tagset_t** set
 	) {
-	H5_CORE_API_ENTER5 (h5_err_t,
-			    "f=0x%p, name=\"%s\", entity_id=%lld, dim=0x%p, val=0x%p",
-			    f,
-			    name,
-			    (long long)entity_id,
-			    dim,
-			    vals);
-	h5t_tagset_t* tagset;
-	TRY (h5t_open_mtagset (f, name, &tagset));
-	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
-	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	H5_CORE_API_RETURN (get_tag (f, tagset, face_id, elem_idx, dim, vals));
-}
+	H5_CORE_API_ENTER (h5_err_t,
+			   "m=%p, name='%s', set=%p",
+			   m, name, set);
+	// validate name
+	if (name == NULL || name[0] == '\0') {
+		H5_PRIV_FUNC_LEAVE (
+			h5_error (H5_ERR_INVAL, "Invalid name" ));
+	}
 
-/*!
-  Remove tag for entity in current mesh.
+	// check if a tagset with given name exists
+	h5_err_t exists;
+	TRY (exists = h5priv_link_exists (m->mesh_gid, "Tags", name));
+	if (!exists) H5_CORE_API_LEAVE (
+		h5_error (
+			H5_ERR_INVAL,
+			"Cannot open tagset '%s': No such tagset ", name));
 
-  \param[in]	f	file handle
-  \param[in]	tagset	pointer to tagset
-  \param[in]	id	id of entity
-*/
-h5_err_t
-h5t_remove_mtag (
-	h5_file_t* const f,
-	h5t_tagset_t* tagset,
-	const h5_loc_id_t entity_id
-	) {
-	UNUSED_ARGUMENT (f);
-	H5_CORE_API_ENTER3 (h5_err_t,
-			    "f=0x%p, tagset=0x%p, entity_id=%lld",
-			    f,
-			    tagset,
-			    (long long)entity_id);
-	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
-	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	H5_CORE_API_RETURN (remove_tag (tagset, face_id, elem_idx));
-}
+	// check if tagset has already been opened
+	if (h5priv_find_strlist (m->mtagsets, name) >= 0) H5_CORE_API_LEAVE (
+		h5_error (
+			H5_ERR_INVAL,
+			"Cannot open tagset '%s': Already open ", name));
 
-/*!
-  Remove tag for entity in current mesh.
 
-  \param[in]	f	file handle
-  \param[in]	name	names of tagset
-  \param[in]	id	id of entity
-*/
-h5_err_t
-h5t_remove_mtag_by_name (
-	h5_file_t* const f,
-	const char name[],
-	const h5_loc_id_t entity_id
-	) {
-	H5_CORE_API_ENTER3 (h5_err_t,
-			    "f=0x%p, name=\"%s\", entity_id=%lld",
-			    f,
-			    name,
-			    (long long)entity_id);
-	h5t_tagset_t* tagset;
-	TRY (h5t_open_mtagset (f, name, &tagset));
-	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
-	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	H5_CORE_API_RETURN (remove_tag (tagset, face_id, elem_idx));
-}
-
-static hid_t
-open_space_all (
-	h5_file_t* const f,
-	const hid_t dataset_id
-	) {
-	UNUSED_ARGUMENT (f);
-	UNUSED_ARGUMENT (dataset_id);
-	return H5S_ALL;
+	TRY (new_tagset (m, m->mesh_gid, name, -1, set));
+	TRY (read_tagset (*set));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -813,12 +474,9 @@ open_space_all (
  */
 static h5_err_t
 write_tagset (
- 	h5_file_t* const f,
-	const hid_t loc_id,
 	h5t_tagset_t* tagset
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	h5t_fdata_t* t = f->t;
+	H5_PRIV_FUNC_ENTER (h5_err_t, "tagset=%p", tagset);
 	h5t_tageleminfo_t** eleminfos = tagset->elems;
 	hid_t group_id;
 	h5t_glb_tag_idx_t* elems = NULL;   // in memory dataset
@@ -832,10 +490,11 @@ write_tagset (
 	h5_loc_idx_t entity_idx = 0;
 	h5_loc_idx_t val_idx = 0;
 
-	if (t->num_leaf_levels <= 0) {
+	h5t_mesh_t* m = tagset->m;
+	if (m->num_leaf_levels <= 0) {
 		H5_PRIV_FUNC_LEAVE (H5_SUCCESS); // nothing to do
 	}
-	num_elems = t->num_elems[t->num_leaf_levels-1];
+	num_elems = m->num_elems[m->num_leaf_levels-1];
 	if (num_elems == 0 || tagset->num_entities == 0) {
 		H5_PRIV_FUNC_LEAVE (H5_SUCCESS); // nothing to do
 	}
@@ -856,11 +515,12 @@ write_tagset (
 		elem->idx = entity_idx;
 		h5t_tageleminfo_t* eleminfo = *eleminfos;
 
-		// loop over tagged faces of this element
+		// loop over all tagged faces of this element
 		int ti_idx;
 		for (ti_idx = 0; eleminfo && ti_idx < eleminfo->num_tags; ti_idx++) {
 			h5t_taginfo_t* ti = eleminfo->ti+ti_idx;
-			h5_glb_idx_t glb_elem_idx = h5tpriv_get_loc_elem_glb_idx (f, elem_idx);
+			h5_glb_idx_t glb_elem_idx = h5tpriv_get_loc_elem_glb_idx (
+				m, elem_idx);
 			entity->eid = h5tpriv_build_entity_id (
 				0, (h5_glb_id_t)ti->face_id, glb_elem_idx);
 			entity->idx = val_idx;
@@ -883,7 +543,11 @@ write_tagset (
 	tagset->num_values = entity->idx = val_idx;
 
 	// write data
-	TRY (group_id = h5priv_open_group (f, loc_id, tagset->name));
+	TRY (group_id = h5priv_open_group (
+		     1,
+		     tagset->parent_gid,
+		     "Tags",
+		     tagset->name));
 	h5_dsinfo_t dsinfo;
 	memset (&dsinfo, 0, sizeof(dsinfo));
 	dsinfo.rank = 1;
@@ -893,13 +557,13 @@ write_tagset (
 
 	strcpy (dsinfo.name, "elems");
 	dsinfo.dims[0] = num_elems + 1;
-	dsinfo.type_id = t->dtypes.h5t_glb_tag_idx_t;
+	dsinfo.type_id = m->dtypes.h5t_glb_tag_idx_t;
 	TRY (dsinfo.create_prop = hdf5_create_property (H5P_DATASET_CREATE));
 	TRY (hdf5_set_chunk_property (dsinfo.create_prop, dsinfo.rank,
 					      dsinfo.chunk_dims));
 	
 	TRY (h5priv_write_dataset_by_name (
-		      f,
+		      m->f,
 		      group_id,
 		      &dsinfo,
 		      open_space_all, open_space_all,
@@ -909,7 +573,7 @@ write_tagset (
 	dsinfo.dims[0] = tagset->num_entities + 1;
 	
 	TRY (h5priv_write_dataset_by_name (
-		     f,
+		     m->f,
 		     group_id,
 		     &dsinfo,
 		     open_space_all, open_space_all,
@@ -917,10 +581,10 @@ write_tagset (
 
 	strcpy (dsinfo.name, "values");
 	dsinfo.dims[0] = tagset->num_values;
-	dsinfo.type_id = t->dtypes.h5_int64_t;
+	dsinfo.type_id = m->dtypes.h5_int64_t;
 	
 	TRY (h5priv_write_dataset_by_name (
-		     f,
+		     m->f,
 		     group_id,
 		     &dsinfo,
 		     open_space_all, open_space_all,
@@ -937,236 +601,223 @@ write_tagset (
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
+
 /*
-  Store given tag container. Write only changed tag-sets.
+  Release a tag-set
  */
-static h5_err_t
-write_container (
-	h5_file_t* const f,
-	h5t_tagcontainer_t* ctn
+static inline h5_err_t
+release_mtagset (
+	h5t_tagset_t* tagset
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	size_t idx;
-	for (idx = 0; idx < ctn->num_sets; idx++) {
-		void *__retval;
-		TRY (h5priv_hsearch (
-			     &ctn->names[idx],
-			     H5_FIND,
-			     &__retval,
-			     &ctn->sets));
-		h5t_tagset_t *tagset = (h5t_tagset_t*)__retval;
-		if (tagset->changed) {
-			TRY(write_tagset (
-				     f,
-				     ctn->group_id,
-				     tagset));
+	H5_PRIV_FUNC_ENTER (h5_err_t, "tagset=%p", tagset);
+	unsigned int i;
+	// release per element structures
+	for (i = 0; i < tagset->num_elems; i++) {
+		if (tagset->elems[i] != NULL) {
+			TRY (h5_free (tagset->elems[i]));
 		}
 	}
+	// remove from book-keeping list in mesh
+	TRY (h5priv_remove_strlist(tagset->m->mtagsets, tagset->name));
+
+	// release other memory
+	TRY (h5_free (tagset->name));
+	TRY (h5_free (tagset->values));
+	TRY (h5_free (tagset));
+
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
+/*!
+  Close tagset.
 
-/*
-  Store mesh tags container
- */
+  Write data to disk, if something as been changed, and release memory.
+*/
 h5_err_t
-h5tpriv_write_mtags (
-	h5_file_t* const f
+h5t_close_mtagset (
+	h5t_tagset_t* tagset
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
-	h5t_fdata_t* t = f->t;
-	TRY (t->mtags.group_id = h5priv_open_group (f, t->mesh_gid, "Tags"));
-	TRY (write_container (f, &f->t->mtags));
-	TRY (hdf5_close_group (t->mtags.group_id));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_CORE_API_ENTER (h5_err_t, "tagset=%p", tagset);
+	if (tagset->changed) {
+		TRY (write_tagset (tagset));
+	}
+	TRY (release_mtagset (tagset));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
+/*!
+  Delete tagset on disk.
+
+  Note:
+  There may be a copy in memory! This copy is still accessable, even
+  changes are possible. Since data are written on close, the tagset will
+  be created again.
+  We should implement something to avoid this! We have a similiar problem,
+  if the user opens the dataset more than once.
+ */
+
+/*!
+  Remove a tagset from the current mesh.
+
+  \param[in]	f	file handle
+  \param[in]	name	name of tagset to remove
+
+  \return	H5_SUCCESS or error code
+ */
 static h5_err_t
-read_tagset (
-	h5_file_t* const f,
-	h5t_tagcontainer_t* ctn,
-	hsize_t idx
+remove_tagset (
+	const hid_t tagsets_id,
+	const char name[]
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	h5t_fdata_t* t = f->t;
-	hid_t loc_id = ctn->group_id;
-	char* name;
-	h5_id_t type;
-	hid_t group_id;
-	hid_t dset_id;
-	ssize_t ssize;
-	TRY ((ssize = hdf5_get_objname_by_idx (loc_id, idx, NULL, 0)));
-	TRY ((name = h5_calloc (1, ++ssize)));
-	TRY (hdf5_get_objname_by_idx (loc_id, idx, name, ssize));
-	TRY (group_id = hdf5_open_group (loc_id, name));
-
-	// read datasets: "elems", "entities" and "values"
-	h5t_glb_tag_idx_t* elems;
-	size_t num_elems = 0;
-
-	TRY (dset_id = hdf5_open_dataset (group_id, "elems"));
-	TRY (num_elems = hdf5_get_npoints_of_dataset (dset_id));
-	TRY (elems = h5_calloc (num_elems, sizeof(*elems)));
-	h5_dsinfo_t dsinfo;
-	memset (&dsinfo, 0, sizeof (dsinfo));
-	dsinfo.type_id = t->dtypes.h5t_glb_tag_idx_t;
-	TRY (h5priv_read_dataset (
-		     f,
-		     dset_id,
-		     &dsinfo,
-		     open_space_all, open_space_all,
-		      elems));
-	TRY (hdf5_close_dataset (dset_id));
-	num_elems--;
-
-	h5t_glb_tag_idx_t* entities;
-	size_t ent_idx = 0;
-	size_t num_entities = 0;
-	TRY (dset_id = hdf5_open_dataset (group_id, "entities"));
-	TRY (num_entities = hdf5_get_npoints_of_dataset (dset_id));
-	TRY (entities = h5_calloc (num_entities, sizeof(*entities)));
-	TRY (h5priv_read_dataset (
-		     f,
-		     dset_id,
-		     &dsinfo,
-		     open_space_all, open_space_all,
-		     entities));
-	TRY (hdf5_close_dataset (dset_id));
-	num_entities--;
-
-	h5_int64_t* vals;
-	size_t num_vals = 0;
-	TRY (dset_id = hdf5_open_dataset (group_id, "values"));
-	TRY (num_vals = hdf5_get_npoints_of_dataset (dset_id));
-	TRY (vals = h5_calloc (num_vals, sizeof (*vals)));
-	TRY (dsinfo.type_id = hdf5_get_dataset_type (dset_id));
-	TRY (h5priv_read_dataset (
-		      f,
-		      dset_id,
-		      &dsinfo,
-		      open_space_all, open_space_all,
-		      vals));
-	TRY (hdf5_close_dataset (dset_id ));
-	type = h5_normalize_h5_type (dsinfo.type_id);
-	/*
-	  add tagset and set values
-	*/
-	h5t_tagset_t* tagset;
-	TRY (add_tagset (f, ctn, name, type, &tagset) );
-
-	h5_int64_t scope;
-	TRY (h5priv_read_attrib (group_id, "__scope_min__", H5_INT64_T, &scope));
-	tagset->scope.min_level = scope;
-	TRY (h5priv_read_attrib (group_id, "__scope_max__", H5_INT64_T, &scope));
-	tagset->scope.max_level = scope;
-
-	for (ent_idx = 0; ent_idx < num_entities; ent_idx++) {
-		h5t_glb_tag_idx_t *entity = &entities[ent_idx];
-		size_t dim = (entity+1)->idx - entity->idx;
-		// map global face id and global element idx to local
-		h5_loc_idx_t face_id;
-		h5_loc_idx_t elem_idx;
-		h5_glb_idx_t glb_elem_idx = h5tpriv_get_elem_idx (entity->eid);
-		TRY (elem_idx = h5t_map_glb_elem_idx2loc (f, glb_elem_idx));
-		face_id = h5tpriv_get_face_id (entity->eid);
-		TRY (set_tag (
-			     f,
-			     tagset,
-			     face_id,
-			     elem_idx,
-			     dim,
-			     &vals[entity->idx]));
-	}
-	TRY (h5_free (name));
+	H5_PRIV_FUNC_ENTER (h5_err_t, "tagsets_id=%d, name=%s", tagsets_id, name);
+	hid_t loc_id;
+	TRY (loc_id = hdf5_open_group (tagsets_id, name));
+	TRY (hdf5_delete_link (loc_id, "elems", H5P_DEFAULT));
+	TRY (hdf5_delete_link (loc_id, "entities", H5P_DEFAULT));
+	TRY (hdf5_delete_link (loc_id, "values", H5P_DEFAULT));
+	TRY (hdf5_close_group (loc_id));
+	TRY (hdf5_delete_link (tagsets_id, name, H5P_DEFAULT));
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
-h5_err_t
-h5tpriv_read_tag_container (
-	h5_file_t* const f,
-	h5t_tagcontainer_t* ctn
-	) {
-	H5_PRIV_API_ENTER2 (h5_err_t, "f=0x%p, ctn=0x%p", f, ctn);
-	size_t num_sets;
-	TRY (num_sets = hdf5_get_num_objs_in_group (ctn->group_id));
-	hsize_t idx;
-	
-	for (idx = 0; idx < num_sets; idx++) {
-		TRY (read_tagset (f, ctn, idx));
-	}
+/*!
+  Remove a tagset from the current mesh.
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+  \param[in]	f	file handle
+  \param[in]	name	name of tagset to remove
+
+  \return	H5_SUCCESS or error code
+ */
+h5_err_t
+h5t_remove_mtagset (
+	h5t_mesh_t* const m,
+	const char name[]
+	) {
+	H5_CORE_API_ENTER (h5_err_t, "m=%p, name='%s'", m, name);
+
+	// check if tagset has a copy in memory
+	if (h5priv_find_strlist (m->mtagsets, name) >= 0) H5_CORE_API_LEAVE (
+		h5_error (
+			H5_ERR_INVAL,
+			"Cannot remove tagset '%s': Still open ", name));
+
+	hid_t loc_id;
+	TRY (loc_id = hdf5_open_group (m->mesh_gid, "Tags"));
+	TRY (remove_tagset (loc_id, name));
+	TRY (hdf5_close_group (loc_id));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
-/*
-  Get m-tagset of given entity. Return the number of tagsets as result
-  of the function and the names in the pointer array \c name. To query the
-  number of tagsets, use \c NULL as value of \c name. If the actual number
-  of tagset is greater than \c dim, the first \c dim names found will be
-  returned.
-
-  \remark
-  This functions performs with O(n) where n is the number of tagsets.
-  
-  \param[in]	f		file handle
-  \param[in]	entity_id	ID of entity we want to know the set tags
-  \param[out]	names		Array of ptr to tagset names
-  \param[in]	dim		dimension of array
-
-  \return	number of tagsets
+/*!
+  Set tag.
  */
-static h5_ssize_t
-get_tagset_names_of_entity (
-	h5t_tagcontainer_t* ctn,
-	h5_loc_id_t entity_id,
-	char* names[],
-	h5_size_t dim
+h5_err_t
+h5t_set_tag (
+	h5t_tagset_t* const tagset,
+	const h5_loc_id_t entity_id,
+	const h5_size_t size,
+	void* val
 	) {
-	H5_PRIV_FUNC_ENTER (h5_ssize_t);
-	size_t idx;
-	size_t _dim = 0;
+	H5_CORE_API_ENTER (h5_err_t,
+			   "tagset=%p, entity_id=%lld, size=%llu, val=%p",
+			   tagset,
+			   (long long)entity_id,
+			   (long long unsigned)size,
+			   val);
 	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-
-	for (idx = 0; idx < ctn->num_sets; idx++) {
-		void* __retval;
-		TRY (h5priv_hsearch (
-			     &ctn->names[idx],
-			     H5_FIND,
-			     &__retval,
-			     &ctn->sets));
-		h5t_tagset_t* tagset = (h5t_tagset_t*)__retval;
-		int tagset_idx = 0;
-		h5_loc_idx_t val_idx;
-		if (0 < get_idx_of_tagval (tagset,
-					   face_id, elem_idx,
-					   &tagset_idx, &val_idx) ) {
-			continue; // not tagged
-		}
-		if (names != NULL && _dim <= dim) {
-			names[_dim] = ctn->names[idx];
-		}
-		_dim++;
-	}
-	H5_PRIV_FUNC_RETURN (_dim);
+	TRY (set_tag (tagset, face_id, elem_idx, size, val));
+	tagset->changed = 1;
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
-/*
-  Return tag names for given entity.
- */
-h5_ssize_t
-h5t_get_mtagset_names_of_entity (
-	h5_file_t* const f,
+static inline h5_err_t
+get_idx_of_tagval (
+	const h5t_tagset_t* tagset,
 	const h5_loc_id_t entity_id,
-	char* names[],
-	const h5_size_t dim
+	int* taginfo_idx,
+	h5_loc_idx_t* val_idx
 	) {
-	H5_CORE_API_ENTER4 (h5_err_t,
-			    "f=0x%p, entity_id=%lld, names=0x%p, dim=%llu",
-			    f,
-			    (long long)entity_id,
-			    names,
-			    (long long unsigned)dim);
-	H5_CORE_API_RETURN (
-		get_tagset_names_of_entity (&f->t->mtags, entity_id, names, dim));
+	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
+	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
+	h5t_tageleminfo_t* eleminfo = tagset->elems[elem_idx];
+	if (eleminfo == NULL) {
+		return H5_NOK; // not tagged
+	}
+	*taginfo_idx = find_face_id (eleminfo, face_id);
+	if (*taginfo_idx < 0) {
+		return H5_NOK; // not tagged
+	}
+	*val_idx = eleminfo->ti[*taginfo_idx].val_idx;
+	return H5_SUCCESS;
 }
+
+/*!
+  Get tag for entity in given tagset. Untagged entities inherit tags from
+  their closest parent.
+
+  \param[in]	tagset		tagset
+  \param[in]	entity_id	id of entity
+  \param[out]	size		size of value
+  \param[out]	vals		tag value
+
+  \return	H5_SUCCESS or error code
+ */
+h5_loc_id_t
+h5t_get_tag (
+	const h5t_tagset_t* tagset,
+	const h5_loc_id_t entity_id,
+	h5_size_t* const dim,
+	void* const values
+	) {
+	H5_CORE_API_ENTER (h5_err_t,
+			   "tagset=%p, entity_id=%lld, dim=%p, values=%p",
+			   tagset,
+			   (long long)entity_id,
+			   dim,
+			   values);
+	if (tagset->m->leaf_level < tagset->scope.min_level) {
+		H5_CORE_API_LEAVE (H5_NOK); // entity not tagged
+	}
+	h5_loc_id_t id = entity_id;
+	h5_err_t h5err;
+	int ti_idx = 0;
+	h5_loc_idx_t val_idx = 0;
+	// query entity while not tagged and parent exists
+	while ((h5err = get_idx_of_tagval (tagset, id, &ti_idx, &val_idx)) < 0 &&
+	       (id = h5tpriv_get_loc_entity_parent (tagset->m, id)) >= 0);
+
+	if (h5err < 0) 
+		H5_CORE_API_LEAVE (H5_NOK); // entity not tagged
+
+	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (id);
+	h5t_taginfo_t* ti = &tagset->elems[elem_idx]->ti[ti_idx];
+	h5t_tagval_t* v = tagset->values;
+	if (*dim > ti->val_dim || values == NULL) {
+		*dim = ti->val_dim;
+	}
+	if (values != NULL) {
+		memcpy (values, v + val_idx, *dim*sizeof(*v) );
+	}
+	H5_CORE_API_RETURN (id);
+}
+
+/*!
+  Remove tag from entity 
+
+  \param[in]	tagset		pointer to tagset
+  \param[in]	entity_id	local entity id
+*/
+h5_err_t
+h5t_remove_tag (
+	h5t_tagset_t* tagset,
+	const h5_loc_id_t entity_id
+	) {
+	H5_CORE_API_ENTER (h5_err_t,
+			   "tagset=%p, entity_id=%lld",
+			   tagset, (long long)entity_id);
+	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
+	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
+	H5_CORE_API_RETURN (remove_tag (tagset, face_id, elem_idx));
+}
+

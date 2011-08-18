@@ -12,8 +12,8 @@ h5priv_mpi_recv(
 	const int tag,
 	const MPI_Comm comm
 	) {
-	MPI_WRAPPER_ENTER4 (h5_err_t,
-			   "buf=0x%p, count=%d, type=?, from=%d, tag=%d, comm=?",
+	MPI_WRAPPER_ENTER (h5_err_t,
+			   "buf=%p, count=%d, type=?, from=%d, tag=%d, comm=?",
 			   buf, count, from, tag);
 	int err = MPI_Recv(
 		buf,
@@ -38,8 +38,8 @@ h5priv_mpi_send(
 	const int tag,
 	const MPI_Comm comm
 	) {
-	MPI_WRAPPER_ENTER4 (h5_err_t,
-			   "buf=0x%p, count=%d, type=?, to=%d, tag=%d, comm=?",
+	MPI_WRAPPER_ENTER (h5_err_t,
+			   "buf=%p, count=%d, type=?, to=%d, tag=%d, comm=?",
 			   buf, count, to, tag);
 	int err = MPI_Send(
 		buf,
@@ -62,8 +62,8 @@ h5priv_mpi_bcast (
 	const int root,
 	const MPI_Comm comm
 	) {
-	MPI_WRAPPER_ENTER3 (h5_err_t,
-			   "buf=0x%p, count=%d, type=?, root=%d, comm=?",
+	MPI_WRAPPER_ENTER (h5_err_t,
+			   "buf=%p, count=%d, type=?, root=%d, comm=?",
 			   buf, count, root);
 	int err = MPI_Bcast(
 		buf,
@@ -87,9 +87,9 @@ h5priv_mpi_sum (
 	const MPI_Datatype type,
 	const MPI_Comm comm
 	) {
-	MPI_WRAPPER_ENTER3 (h5_err_t,
-			   "sendbuf=0x%p, recvbuf=0x%p, count=%d, type=?, comm=?",
-			    sendbuf, recvbuf, count);
+	MPI_WRAPPER_ENTER (h5_err_t,
+			   "sendbuf=%p, recvbuf=%p, count=%d, type=?, comm=?",
+			   sendbuf, recvbuf, count);
 	int err = MPI_Allreduce(
 		sendbuf,
 		recvbuf,
@@ -111,8 +111,8 @@ h5priv_mpi_prefix_sum (
 	const MPI_Datatype type,
 	const MPI_Comm comm
 	) {
-	MPI_WRAPPER_ENTER3 (h5_err_t,
-			   "sendbuf=0x%p, recvbuf=0x%p, count=%d, type=?, comm=?",
+	MPI_WRAPPER_ENTER (h5_err_t,
+			   "sendbuf=%p, recvbuf=%p, count=%d, type=?, comm=?",
 			    sendbuf, recvbuf, count);
 	int err = MPI_Scan(
 		sendbuf,
@@ -137,8 +137,9 @@ h5priv_mpi_allgather (
 	const MPI_Datatype recvtype,
 	const MPI_Comm comm
 	) {
-	MPI_WRAPPER_ENTER4 (h5_err_t,
-			   "sendbuf=0x%p, sendcount=%d, sendtype=?, recvbuf=0x%p, recvcount=%d, recvtype=?, comm=?",
+	MPI_WRAPPER_ENTER (h5_err_t,
+			   "sendbuf=%p, sendcount=%d, sendtype=?, recvbuf=%p, "
+			   "recvcount=%d, recvtype=?, comm=?",
 			    sendbuf, sendcount, recvbuf, recvcount);
 	int err = MPI_Allgather (
 		sendbuf,
@@ -158,8 +159,7 @@ h5priv_mpi_comm_size (
 	MPI_Comm comm,
 	int* size
 	) {
-	MPI_WRAPPER_ENTER1 (h5_err_t,
-			    "comm=?, size=0x%p", size);
+	MPI_WRAPPER_ENTER (h5_err_t, "comm=?, size=%p", size);
 	int err = MPI_Comm_size (comm, size);
 	if (err != MPI_SUCCESS)
 		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot get communicator size"));
@@ -172,8 +172,7 @@ h5priv_mpi_comm_rank (
 	MPI_Comm comm,
 	int* rank
 	) {
-	MPI_WRAPPER_ENTER1 (h5_err_t,
-			    "comm=?, rank=0x%p", rank);
+	MPI_WRAPPER_ENTER (h5_err_t, "comm=?, rank=%p", rank);
 	int err = MPI_Comm_rank (comm, rank);
 	if (err != MPI_SUCCESS)
 		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot get this task's rank"));
@@ -186,7 +185,7 @@ h5priv_mpi_type_contiguous (
 	const MPI_Datatype oldtype,
 	MPI_Datatype *const newtype
 	) {
-	MPI_WRAPPER_ENTER1 (h5_err_t, "nelems=%lu, oldtype=?, newtype=?", (long unsigned)nelems);
+	MPI_WRAPPER_ENTER (h5_err_t, "nelems=%lu, oldtype=?, newtype=?", (long unsigned)nelems);
 	int err;
 	err = MPI_Type_contiguous ( nelems, oldtype, newtype );
 	if (err != MPI_SUCCESS)
@@ -201,7 +200,7 @@ h5_err_t
 h5priv_mpi_type_free (
 	MPI_Datatype *type
 	) {
-	MPI_WRAPPER_ENTER1 (h5_err_t, "type=0x%p", type);
+	MPI_WRAPPER_ENTER (h5_err_t, "type=%p", type);
 	int err = MPI_Type_free( type );
 	if (err != MPI_SUCCESS)
 		MPI_WRAPPER_LEAVE (h5_error(H5_ERR_MPI, "Cannot free MPI type"));
@@ -217,8 +216,9 @@ h5priv_mpi_cart_create (
 	int reorder,
 	MPI_Comm *new_comm
 	) {
-	MPI_WRAPPER_ENTER5 (h5_err_t, "old_comm=?, ndims=%d, dims=0x%p, period=0x%p, reorder=%d, new_comm=0x%p",
-			    ndims, dims, period, reorder, new_comm);
+	MPI_WRAPPER_ENTER (h5_err_t, "old_comm=?, ndims=%d, dims=%p, period=%p, "
+			   "reorder=%d, new_comm=%p",
+			   ndims, dims, period, reorder, new_comm);
 	int err = MPI_Cart_create(
 		old_comm, ndims, dims, period, reorder, new_comm);
 	if (err != MPI_SUCCESS)
@@ -233,8 +233,8 @@ h5priv_mpi_cart_coords (
 	int maxdim,
 	int *coords
 	) {
-	MPI_WRAPPER_ENTER3 (h5_err_t, "comm=?, rank=%d, maxdim=%d, coords=0x%p",
-			    rank, maxdim, coords);
+	MPI_WRAPPER_ENTER (h5_err_t, "comm=?, rank=%d, maxdim=%d, coords=%p",
+			   rank, maxdim, coords);
 	int err = MPI_Cart_coords( comm, rank, maxdim, coords );
 	if (err != MPI_SUCCESS)
 		MPI_WRAPPER_LEAVE (h5_error(H5_ERR_MPI, "Cannot create cartesian grid"));

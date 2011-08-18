@@ -8,9 +8,8 @@ h5u_read_data (
 	void *data,		/*!< [out] Array of data */
 	const hid_t type
 	) {
-	H5_CORE_API_ENTER4 (h5_err_t,
-			    "f=0x%p, name=\"%s\", data=0x%p, type=%d",
-			    f, name, data, type);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p, name='%s', data=%p, type=%d",
+			   f, name, data, type);
 	CHECK_TIMEGROUP (f);
 
 	struct h5u_fdata *u = f->u;
@@ -108,9 +107,8 @@ h5u_write_data (
 	const void *data,	/*!< IN: Array to commit to disk */
 	const hid_t type	/*!< IN: Type of data */
 	) {
-	H5_CORE_API_ENTER4 (h5_err_t,
-			    "f=0x%p, name=\"%s\", data=0x%p, type=%d",
-			    f, name, data, type);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p, name='%s', data=%p, type=%d",
+			   f, name, data, type);
 	CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
 
@@ -155,12 +153,13 @@ h5u_write_data (
 #ifdef PARALLEL_IO
 	TRY (h5_end_throttle (f));
 #endif
-	if (f->mode & H5_O_FLUSHSTEP)
+	if (f->mode & H5_FLUSH_STEP)
 		TRY (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
 
 	TRY (hdf5_close_dataset (dset_id));
 
 	f->empty = 0;
+	TRY (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
 
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }

@@ -35,9 +35,9 @@ h5_writefileattrib_string (
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	char *buffer2 = h5_strdupfor2c ( buffer, l_buffer );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=\"%s\", l_name=%d, l_buffer=%d",
-		       fh, name2, buffer2, l_name, l_buffer);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer='%s', l_name=%d, l_buffer=%d",
+		      fh, name2, buffer2, l_name, l_buffer);
 
 	h5_err_t herr = h5_write_attrib (
 		fh, H5_ATTRIB_FILE, name2,
@@ -60,9 +60,9 @@ h5_writestepattrib_string (
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	char *buffer2 = h5_strdupfor2c ( buffer, l_buffer );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=\"%s\", l_name=%d, l_buffer=%d",
-		       fh, name2, buffer2, l_name, l_buffer);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer='%s', l_name=%d, l_buffer=%d",
+		      fh, name2, buffer2, l_name, l_buffer);
 
 	h5_err_t herr = h5_write_attrib (
 		fh, H5_ATTRIB_STEP, name2,
@@ -84,9 +84,9 @@ h5_readfileattrib_string (
 		
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char * name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, l_name=%d, l_buffer=%d",
-		       fh, name2, buffer, l_name, l_buffer);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d, l_buffer=%d",
+		      fh, name2, buffer, l_name, l_buffer);
 
 	h5_err_t herr = h5_read_attrib (
 		fh, H5_ATTRIB_FILE, name2, H5_STRING_T, buffer );
@@ -108,9 +108,9 @@ h5_readstepeattrib_string (
 		
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char * name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, l_name=%d, l_buffer=%d",
-		       fh, name2, buffer, l_name, l_buffer);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d, l_buffer=%d",
+		      fh, name2, buffer, l_name, l_buffer);
 
 	h5_err_t herr = h5_read_attrib (
 		fh, H5_ATTRIB_STEP, name2, H5_STRING_T, buffer );
@@ -138,9 +138,9 @@ h5_writefileattrib_r8 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, nelem=%lld, l_name=%d",
-		       fh, name2, buffer, (long long)*nelem, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, nelem=%lld, l_name=%d",
+		      fh, name2, buffer, (long long)*nelem, l_name);
 
 	h5_err_t herr = h5_write_attrib(
 		fh, H5_ATTRIB_FILE, name2,
@@ -166,9 +166,9 @@ h5bl_readfileattrib_r8 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, l_name=%d",
-		       fh, name2, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name2, buffer, l_name);
 
 	h5_err_t herr = h5_read_attrib(
 		fh, H5_ATTRIB_FILE, name2, H5_FLOAT64_T, buffer);
@@ -194,9 +194,9 @@ h5_writefileattrib_r4 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, nelem=%lld, l_name=%d",
-		       fh, name2, buffer, (long long)*nelem, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, nelem=%lld, l_name=%d",
+		      fh, name2, buffer, (long long)*nelem, l_name);
 
 	h5_err_t herr = h5_write_attrib(
 		fh, H5_ATTRIB_FILE, name2,
@@ -222,9 +222,9 @@ h5bl_readfileattrib_r4 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, l_name=%d",
-		       fh, name2, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name2, buffer, l_name);
 
 	h5_err_t herr = h5_read_attrib(
 		fh, H5_ATTRIB_FILE, name2, H5_FLOAT32_T, buffer);
@@ -250,9 +250,9 @@ h5_writefileattrib_i8 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, nelem=%lld, l_name=%d",
-		       fh, name2, buffer, (long long)*nelem, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, nelem=%lld, l_name=%d",
+		      fh, name2, buffer, (long long)*nelem, l_name);
 
 	h5_err_t herr = h5_write_attrib(
 		fh, H5_ATTRIB_FILE, name2,
@@ -278,9 +278,9 @@ h5bl_readfileattrib_i8 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, l_name=%d",
-		       fh, name2, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name2, buffer, l_name);
 
 	h5_err_t herr = h5_read_attrib(
 		fh, H5_ATTRIB_FILE, name2, H5_INT64_T, buffer);
@@ -306,9 +306,9 @@ h5_writefileattrib_i4 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, nelem=%lld, l_name=%d",
-		       fh, name2, buffer, (long long)*nelem, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, nelem=%lld, l_name=%d",
+		      fh, name2, buffer, (long long)*nelem, l_name);
 
 	h5_err_t herr = h5_write_attrib(
 		fh, H5_ATTRIB_FILE, name2,
@@ -334,9 +334,9 @@ h5bl_readfileattrib_i4 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, l_name=%d",
-		       fh, name2, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name2, buffer, l_name);
 
 	h5_err_t herr = h5_read_attrib(
 		fh, H5_ATTRIB_FILE, name2, H5_INT32_T, buffer);
@@ -362,9 +362,9 @@ h5_writestepattrib_r8 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, nelem=%lld, l_name=%d",
-		       fh, name2, buffer, (long long)*nelem, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, nelem=%lld, l_name=%d",
+		      fh, name2, buffer, (long long)*nelem, l_name);
 
 	h5_err_t herr = h5_write_attrib(
 		fh, H5_ATTRIB_STEP, name2,
@@ -390,9 +390,9 @@ h5bl_readstepattrib_r8 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, l_name=%d",
-		       fh, name2, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name2, buffer, l_name);
 
 	h5_err_t herr = h5_read_attrib(
 		fh, H5_ATTRIB_STEP, name2, H5_FLOAT64_T, buffer);
@@ -418,9 +418,9 @@ h5_writestepattrib_r4 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, nelem=%lld, l_name=%d",
-		       fh, name2, buffer, (long long)*nelem, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, nelem=%lld, l_name=%d",
+		      fh, name2, buffer, (long long)*nelem, l_name);
 
 	h5_err_t herr = h5_write_attrib(
 		fh, H5_ATTRIB_STEP, name2,
@@ -446,9 +446,9 @@ h5bl_readstepattrib_r4 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, l_name=%d",
-		       fh, name2, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name2, buffer, l_name);
 
 	h5_err_t herr = h5_read_attrib(
 		fh, H5_ATTRIB_STEP, name2, H5_FLOAT32_T, buffer);
@@ -474,9 +474,9 @@ h5_writestepattrib_i8 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, nelem=%lld, l_name=%d",
-		       fh, name2, buffer, (long long)*nelem, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, nelem=%lld, l_name=%d",
+		      fh, name2, buffer, (long long)*nelem, l_name);
 
 	h5_err_t herr = h5_write_attrib(
 		fh, H5_ATTRIB_STEP, name2,
@@ -502,9 +502,9 @@ h5bl_readstepattrib_i8 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, l_name=%d",
-		       fh, name2, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name2, buffer, l_name);
 
 	h5_err_t herr = h5_read_attrib(
 		fh, H5_ATTRIB_STEP, name2, H5_INT64_T, buffer);
@@ -530,9 +530,9 @@ h5_writestepattrib_i4 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER5 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, nelem=%lld, l_name=%d",
-		       fh, name2, buffer, (long long)*nelem, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, nelem=%lld, l_name=%d",
+		      fh, name2, buffer, (long long)*nelem, l_name);
 
 	h5_err_t herr = h5_write_attrib(
 		fh, H5_ATTRIB_STEP, name2,
@@ -558,9 +558,9 @@ h5bl_readstepattrib_i4 (
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	H5_API_ENTER4 (h5_err_t,
-		       "f=%p, name=\"%s\", buffer=0x%p, l_name=%d",
-		       fh, name2, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name2, buffer, l_name);
 
 	h5_err_t herr = h5_read_attrib(
 		fh, H5_ATTRIB_STEP, name2, H5_INT32_T, buffer);

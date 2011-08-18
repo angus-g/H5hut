@@ -28,8 +28,9 @@ h5bl_3d_write_scalar_field_r8 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p, l_name=%d",
-				fh, name, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5b_write_scalar_data (
 		fh, name2, (void*)buffer, H5T_NATIVE_DOUBLE );
@@ -52,8 +53,9 @@ h5bl_3d_read_scalar_field_r8 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p, l_name=%d",
-				fh, name, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_scalar_data (
 		fh, name2, buffer, H5T_NATIVE_DOUBLE );
@@ -78,8 +80,9 @@ h5bl_3d_write_vector3d_field_r8 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p, l_name=%d",
-					fh, name, x_buf, y_buf, z_buf, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', x_buf=%p, y_buf=%p, z_buf=%p, l_name=%d",
+		      fh, name, x_buf, y_buf, z_buf, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_write_vector3d_data (
 		fh, name2,
@@ -103,10 +106,10 @@ h5bl_3d_read_vector3d_field_r8 (
 	h5_float64_t *z_buf,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p, l_name=%d",
-					fh, name, x_buf, y_buf, z_buf, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', x_buf=%p, y_buf=%p, z_buf=%p, l_name=%d",
+		      fh, name, x_buf, y_buf, z_buf, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_vector3d_data (
 		fh, name2,
@@ -128,10 +131,10 @@ h5bl_3d_write_scalar_field_r4 (
 	const h5_float32_t *buffer,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p, l_name=%d",
-				fh, name, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5b_write_scalar_data (
 		fh, name2, (void*)buffer, H5T_NATIVE_FLOAT );
@@ -152,10 +155,10 @@ h5bl_3d_read_scalar_field_r4 (
 	h5_float32_t *buffer,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p, l_name=%d",
-				fh, name, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_scalar_data (
 		fh, name2, buffer, H5T_NATIVE_FLOAT );
@@ -178,10 +181,10 @@ h5bl_3d_write_vector3d_field_r4 (
 	const h5_float32_t *z_buf,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p, l_name=%d",
-					fh, name, x_buf, y_buf, z_buf, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', x_buf=%p, y_buf=%p, z_buf=%p, l_name=%d",
+		      fh, name, x_buf, y_buf, z_buf, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_write_vector3d_data (
 		fh, name2,
@@ -205,10 +208,10 @@ h5bl_3d_read_vector3d_field_r4 (
 	h5_float32_t *z_buf,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p, l_name=%d",
-					fh, name, x_buf, y_buf, z_buf, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', x_buf=%p, y_buf=%p, z_buf=%p, l_name=%d",
+		      fh, name, x_buf, y_buf, z_buf, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_vector3d_data (
 		fh, name2,
@@ -230,10 +233,10 @@ h5bl_3d_write_scalar_field_i8 (
 	const h5_int64_t *buffer,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p, l_name=%d",
-				fh, name, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5b_write_scalar_data (
 		fh, name2, (void*)buffer, H5T_NATIVE_INT64 );
@@ -254,10 +257,10 @@ h5bl_3d_read_scalar_field_i8 (
 	h5_int64_t *buffer,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p, l_name=%d",
-				fh, name, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_scalar_data (
 		fh, name2, buffer, H5T_NATIVE_INT64 );
@@ -280,10 +283,10 @@ h5bl_3d_write_vector3d_field_i8 (
 	const h5_int64_t *z_buf,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p, l_name=%d",
-					fh, name, x_buf, y_buf, z_buf, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', x_buf=%p, y_buf=%p, z_buf=%p, l_name=%d",
+		      fh, name, x_buf, y_buf, z_buf, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_write_vector3d_data (
 		fh, name2,
@@ -307,10 +310,10 @@ h5bl_3d_read_vector3d_field_i8 (
 	h5_int64_t *z_buf,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p, l_name=%d",
-					fh, name, x_buf, y_buf, z_buf, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', x_buf=%p, y_buf=%p, z_buf=%p, l_name=%d",
+		      fh, name, x_buf, y_buf, z_buf, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_vector3d_data (
 		fh, name2,
@@ -332,10 +335,10 @@ h5bl_3d_write_scalar_field_i4 (
 	const h5_int32_t *buffer,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p, l_name=%d",
-				fh, name, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5b_write_scalar_data (
 		fh, name2, (void*)buffer, H5T_NATIVE_INT32 );
@@ -356,10 +359,10 @@ h5bl_3d_read_scalar_field_i4 (
 	h5_int32_t *buffer,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4 (h5_err_t, "f=0x%p, name=\"%s\", buffer=0x%p, l_name=%d",
-				fh, name, buffer, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', buffer=%p, l_name=%d",
+		      fh, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_scalar_data (
 		fh, name2, buffer, H5T_NATIVE_INT32 );
@@ -382,10 +385,10 @@ h5bl_3d_write_vector3d_field_i4 (
 	const h5_int32_t *z_buf,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p, l_name=%d",
-					fh, name, x_buf, y_buf, z_buf, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', x_buf=%p, y_buf=%p, z_buf=%p, l_name=%d",
+		      fh, name, x_buf, y_buf, z_buf, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_write_vector3d_data (
 		fh, name2,
@@ -409,10 +412,10 @@ h5bl_3d_read_vector3d_field_i4 (
 	h5_int32_t *z_buf,
 	const int l_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, name=\"%s\", x_buf=0x%p, y_buf=0x%p, z_buf=0x%p, l_name=%d",
-					fh, name, x_buf, y_buf, z_buf, l_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', x_buf=%p, y_buf=%p, z_buf=%p, l_name=%d",
+		      fh, name, x_buf, y_buf, z_buf, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_vector3d_data (
 		fh, name2,
@@ -437,12 +440,12 @@ h5bl_writefieldattrib_r8 (
 	const int l_field_name,
 	const int l_attrib_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER7 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
-				 "buffer=0x%p, nelems=%lld, l_field_name=%d, l_attrib_name=%d",
-				 fh, field_name, attrib_name, buffer, (long long)*nelems,
-				 l_field_name, l_attrib_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "buffer=%p, nelems=%lld, l_field_name=%d, l_attrib_name=%d",
+		      fh, field_name, attrib_name, buffer, (long long)*nelems,
+		      l_field_name, l_attrib_name);
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	h5_err_t herr = h5_write_field_attrib (
@@ -470,10 +473,11 @@ h5bl_readfieldattrib_r8 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
-				 "values=0x%p, l_field_name=%d, l_attrib_name=%d",
-				 fh, field_name, attrib_name, buffer,
-				 l_field_name, l_attrib_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "values=%p, l_field_name=%d, l_attrib_name=%d",
+		      fh, field_name, attrib_name, buffer,
+		      l_field_name, l_attrib_name);
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	h5_err_t herr = h5_read_field_attrib (
@@ -501,10 +505,11 @@ h5bl_writefieldattrib_r4 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER7 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
-				 "buffer=0x%p, nelems=%lld, l_field_name=%d, l_attrib_name=%d",
-				 fh, field_name, attrib_name, buffer, (long long)*nelems,
-				 l_field_name, l_attrib_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "buffer=%p, nelems=%lld, l_field_name=%d, l_attrib_name=%d",
+		      fh, field_name, attrib_name, buffer, (long long)*nelems,
+		      l_field_name, l_attrib_name);
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	h5_err_t herr = h5_write_field_attrib (
@@ -532,10 +537,11 @@ h5bl_readfieldattrib_r4 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
-				 "values=0x%p, l_field_name=%d, l_attrib_name=%d",
-				 fh, field_name, attrib_name, buffer,
-				 l_field_name, l_attrib_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "values=%p, l_field_name=%d, l_attrib_name=%d",
+		      fh, field_name, attrib_name, buffer,
+		      l_field_name, l_attrib_name);
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	h5_err_t herr = h5_read_field_attrib (
@@ -563,10 +569,11 @@ h5bl_writefieldattrib_i8 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER7 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
-				 "buffer=0x%p, nelems=%lld, l_field_name=%d, l_attrib_name=%d",
-				 fh, field_name, attrib_name, buffer, (long long)*nelems,
-				 l_field_name, l_attrib_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "buffer=%p, nelems=%lld, l_field_name=%d, l_attrib_name=%d",
+		      fh, field_name, attrib_name, buffer, (long long)*nelems,
+		      l_field_name, l_attrib_name);
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	h5_err_t herr = h5_write_field_attrib (
@@ -592,12 +599,12 @@ h5bl_readfieldattrib_i8 (
 	const int l_field_name,
 	const int l_attrib_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
-				 "values=0x%p, l_field_name=%d, l_attrib_name=%d",
-				 fh, field_name, attrib_name, buffer,
-				 l_field_name, l_attrib_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "values=%p, l_field_name=%d, l_attrib_name=%d",
+		      fh, field_name, attrib_name, buffer,
+		      l_field_name, l_attrib_name);
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	h5_err_t herr = h5_read_field_attrib (
@@ -623,12 +630,12 @@ h5bl_writefieldattrib_i4 (
 	const int l_field_name,
 	const int l_attrib_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER7 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
-				 "buffer=0x%p, nelems=%lld, l_field_name=%d, l_attrib_name=%d",
-				 fh, field_name, attrib_name, buffer, (long long)*nelems,
-				 l_field_name, l_attrib_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "buffer=%p, nelems=%lld, l_field_name=%d, l_attrib_name=%d",
+		      fh, field_name, attrib_name, buffer, (long long)*nelems,
+		      l_field_name, l_attrib_name);
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	h5_err_t herr = h5_write_field_attrib (
@@ -654,12 +661,12 @@ h5bl_readfieldattrib_i4 (
 	const int l_field_name,
 	const int l_attrib_name
 	) {
-
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER6 (h5_err_t, "f=0x%p, field_name=\"%s\", attrib_name=\"%s\", "
-				 "values=0x%p, l_field_name=%d, l_attrib_name=%d",
-				 fh, field_name, attrib_name, buffer,
-				 l_field_name, l_attrib_name);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "values=%p, l_field_name=%d, l_attrib_name=%d",
+		      fh, field_name, attrib_name, buffer,
+		      l_field_name, l_attrib_name);
 	char *field_name2 = h5_strdupfor2c ( field_name,  l_field_name );
 	char *attrib_name2 = h5_strdupfor2c ( attrib_name, l_attrib_name );
 	h5_err_t herr = h5_read_field_attrib (

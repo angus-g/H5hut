@@ -1,3 +1,6 @@
+#include "h5core/h5_core.h"
+#include "h5_core_private.h"
+
 #ifdef H5_USE_LUSTRE
 
 #include <stdio.h>
@@ -11,8 +14,6 @@
 #include <unistd.h>
 #include <lustre/liblustreapi.h>
 
-#include "h5core/h5_core.h"
-#include "h5_core_private.h"
 
 #define MSG_HEADER "optimize for lustre: "
 
@@ -100,7 +101,7 @@ h5_optimize_for_lustre (
 	const char *filename
 	) {
 
-	H5_CORE_API_ENTER2 (h5_err_t, "f=0x%p, filename=\"%s\"", f, filename);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p, filename='%s'", f, filename);
 	ssize_t stripe_size;
 	if ( f->myproc == 0 )
 	{

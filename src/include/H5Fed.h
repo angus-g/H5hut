@@ -34,44 +34,66 @@ extern "C" {
 static inline h5_err_t
 H5FedOpenTetrahedralMesh (
 	h5_file_t* const f,
-	const h5_id_t mesh_id
+	const char* name,
+	h5t_mesh_t** mesh
 	) {
-	H5_API_ENTER2 (h5_err_t, "f=0x%p, mesh_id=%lld", f, (long long)mesh_id);
-	H5_API_RETURN (h5t_open_tetrahedral_mesh (f, mesh_id));
+	H5_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", f, name, mesh);
+	H5_API_RETURN (h5t_open_tetrahedral_mesh (f, name, mesh));
+}
+
+static inline h5_err_t
+H5FedOpenTetrahedralMeshByIndex (
+	h5_file_t* const f,
+	const h5_id_t idx,
+	h5t_mesh_t** mesh
+	) {
+	H5_API_ENTER (h5_err_t, "f=%p, idx=%lld, mesh=%p", f, (long long)idx, mesh);
+	H5_API_RETURN (h5t_open_tetrahedral_mesh_by_idx (f, idx, mesh));
 }
 
 static inline h5_err_t
 H5FedOpenTriangleMesh (
 	h5_file_t* const f,
-	const h5_id_t mesh_id
+	const char* name,
+	h5t_mesh_t** mesh
 	) {
-	H5_API_ENTER2 (h5_err_t, "f=0x%p, mesh_id=%lld", f, (long long)mesh_id);
-	H5_API_RETURN (h5t_open_triangle_mesh (f, mesh_id));
+	H5_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", f, name, mesh);
+	H5_API_RETURN (h5t_open_triangle_mesh (f, name, mesh));
+}
+
+static inline h5_err_t
+H5FedOpenTriangleMeshByIndex (
+	h5_file_t* const f,
+	const h5_id_t idx,
+	h5t_mesh_t** mesh
+	) {
+	H5_API_ENTER (h5_err_t, "f=%p, idx=%lld, mesh=%p", f, (long long)idx, mesh);
+	H5_API_RETURN (h5t_open_triangle_mesh_by_idx (f, idx, mesh));
 }
 
 static inline h5_err_t
 H5FedCloseMesh (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
-	H5_API_RETURN (h5t_close_mesh (f));
+	H5_API_ENTER (h5_err_t, "m=%p", m);
+	H5_API_RETURN (h5t_close_mesh (m));
 }
 
 static inline h5_err_t
 H5FedSetLevel (
-	h5_file_t* const f,
+	h5t_mesh_t* const m,
 	const h5t_lvl_idx_t level_id
 	) {
-	H5_API_ENTER2 (h5_err_t, "f=0x%p, level_id=%d", f, level_id);
-	H5_API_RETURN (h5t_set_level (f, level_id));
+	H5_API_ENTER (h5_err_t, "m=%p, level_id=%d", m, level_id);
+	H5_API_RETURN (h5t_set_level (m, level_id));
 }
 
 static inline h5_err_t
 H5FedLinkMeshToStep (
-	h5_file_t* const f,
+	h5_file_t* const m,
 	const h5_id_t mesh_id
 	) {
-	H5_API_ENTER2 (h5_err_t, "f=0x%p, mesh_id=%lld", f, (long long)mesh_id);
+	H5_API_ENTER (h5_err_t, "m=%p, mesh_id=%lld", m, (long long)mesh_id);
 	H5_API_RETURN (h5_error_not_implemented ());
 }
 

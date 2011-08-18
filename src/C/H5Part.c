@@ -49,8 +49,8 @@ H5PartSetNumParticles (
 	h5_file_t *f,		/*!< [in] Handle to open file */
 	h5_size_t nparticles	/*!< [in] Number of particles */
 	) {
-	H5_API_ENTER2 (h5_err_t,
-		      "f=0x%p, nparticles=%llu",
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, nparticles=%llu",
 		      f, (long long unsigned)nparticles);
 	h5_size_t stride = 1;
 	H5_API_RETURN (h5u_set_num_particles(f, nparticles, stride));
@@ -89,10 +89,10 @@ H5PartSetNumParticlesStrided (
 	h5_size_t nparticles,	/*!< [in] Number of particles */
 	h5_size_t stride	/*!< [in] Stride value (e.g. number of fields in the particle array) */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=0x%p, nparticles=%llu, stride=%llu",
-		       f, (long long unsigned)nparticles,
-		       (long long unsigned)stride);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, nparticles=%llu, stride=%llu",
+		      f, (long long unsigned)nparticles,
+		      (long long unsigned)stride);
 	H5_API_RETURN (h5u_set_num_particles (f, nparticles, stride));
 }
 
@@ -114,9 +114,7 @@ H5PartSetChunk (
 	h5_file_t *f,
 	h5_size_t size
 	) {
-	H5_API_ENTER2 (h5_err_t,
-		      "f=0x%p, size=%llu",
-		      f, (long long unsigned)size);
+	H5_API_ENTER (h5_err_t, "f=%p, size=%llu", f, (long long unsigned)size);
 	H5_API_RETURN (h5u_set_chunk (f, size));
 }
 
@@ -152,7 +150,7 @@ H5PartWriteDataFloat64 (
 	const char *name,	/*!< [in] Name to associate array with */
 	const h5_float64_t *data	/*!< [in] Array to commit to disk */
 	) {
-	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", date=0x%p", f,name,data);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', date=%p", f,name,data);
 	H5_API_RETURN (h5u_write_data (f, name, (void*)data, H5T_NATIVE_DOUBLE));
 }
 
@@ -188,7 +186,7 @@ H5PartWriteDataFloat32 (
 	const char *name,	/*!< [in] Name to associate array with */
 	const h5_float32_t *data	/*!< [in] Array to commit to disk */
 	) {
-	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", date=0x%p", f,name,data);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', date=%p", f,name,data);
 	h5_err_t h5err = h5u_write_data( f, name, (void*)data, H5T_NATIVE_FLOAT );
 	H5_API_RETURN (h5err);
 }
@@ -225,7 +223,7 @@ H5PartWriteDataInt64 (
 	const char *name,	/*!< [in] Name to associate array with */
 	const h5_int64_t *data	/*!< [in] Array to commit to disk */
 	) {
-	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", date=0x%p", f,name,data);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', date=%p", f,name,data);
 	H5_API_RETURN (h5u_write_data (f, name, (void*)data, H5T_NATIVE_INT64));
 }
 
@@ -261,7 +259,7 @@ H5PartWriteDataInt32 (
 	const char *name,	/*!< [in] Name to associate array with */
 	const h5_int32_t *data	/*!< [in] Array to commit to disk */
 	) {
-	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", date=0x%p", f,name,data);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', date=%p", f,name,data);
 	H5_API_RETURN (h5u_write_data (f, name, (void*)data, H5T_NATIVE_INT32));
 }
 
@@ -283,7 +281,7 @@ H5PartReadDataFloat64 (
 	const char *name,	/*!< [in] Name to associate dataset with */
 	h5_float64_t *data	/*!< [out] Array of data */
 	) {
-	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", date=0x%p", f,name,data);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', date=%p", f,name,data);
 	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_DOUBLE));
 }
 
@@ -305,7 +303,7 @@ H5PartReadDataFloat32 (
 	const char *name,	/*!< [in] Name to associate dataset with */
 	h5_float32_t *data	/*!< [out] Array of data */
 	) {
-	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", date=0x%p", f,name,data);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', date=%p", f,name,data);
 	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_FLOAT));
 }
 
@@ -327,7 +325,7 @@ H5PartReadDataInt64 (
 	const char *name,	/*!< [in] Name to associate dataset with */
 	h5_int64_t *data	/*!< [out] Array of data */
 	) {
-	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", date=0x%p", f,name,data);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', date=%p", f,name,data);
 	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_INT64));
 }
 
@@ -349,7 +347,7 @@ H5PartReadDataInt32 (
 	const char *name,	/*!< [in] Name to associate dataset with */
 	h5_int32_t *data	/*!< [out] Array of data */
 	) {
-	H5_API_ENTER3 (h5_err_t, "f=0x%p, name=\"%s\", date=0x%p", f,name,data);
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', date=%p", f,name,data);
 	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_INT32));
 }
 
@@ -365,7 +363,7 @@ h5_ssize_t
 H5PartGetNumDatasets (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5u_get_num_datasets(f));
 }
 
@@ -386,10 +384,10 @@ H5PartGetDatasetName (
 	char *name,		/*!< [out] Name of dataset */
 	const h5_size_t len	/*!< [in]  Size of buffer \c name */
 	) {
-	H5_API_ENTER4 (h5_err_t, 
-		       "f=0x%p, "
+	H5_API_ENTER (h5_err_t, 
+		       "f=%p, "
 		       "idx=%lld, "
-		       "name=\"%s\", len=%llu, ",
+		       "name='%p', len=%llu, ",
 		       f,
 		       (long long)idx,
 		       name, (unsigned long long)len);
@@ -421,15 +419,15 @@ H5PartGetDatasetInfo (
 	h5_int64_t *type,	/*!< [out] Type of data in dataset */
 	h5_size_t *nelem	/*!< [out] Number of elements. */
 	) {
-	H5_API_ENTER6 (h5_int64_t, 
-		       "f=0x%p, "
-		       "idx=%lld, "
-		       "dataset_name=\"%s\", len_dataset_name=%llu, "
-		       "type=0x%p, nelem=0x%p",
-		       f,
-		       (long long)idx,
-		       dataset_name, (long long unsigned)len_dataset_name,
-		       type, nelem);
+	H5_API_ENTER (h5_int64_t, 
+		      "f=%p, "
+		      "idx=%lld, "
+		      "dataset_name='%p', len_dataset_name=%llu, "
+		      "type=%p, nelem=%p",
+		      f,
+		      (long long)idx,
+		      dataset_name, (long long unsigned)len_dataset_name,
+		      type, nelem);
 	H5_API_RETURN (h5u_get_dataset_info (
 			       f, idx, dataset_name, len_dataset_name, type, nelem));
 }
@@ -459,7 +457,7 @@ h5_ssize_t
 H5PartGetNumParticles (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
-	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_API_ENTER (h5_ssize_t, "f=%p", f);
 	CHECK_FILEHANDLE( f );
 	H5_API_RETURN (h5u_get_num_particles (f));
 }
@@ -475,7 +473,7 @@ h5_err_t
 H5PartResetView (
  	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
-	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_API_ENTER (h5_ssize_t, "f=%p", f);
 	H5_API_RETURN (h5u_reset_view (f));
 }
 
@@ -492,7 +490,7 @@ h5_err_t
 H5PartHasView (
  	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
-	H5_API_ENTER1 (h5_ssize_t, "f=0x%p", f);
+	H5_API_ENTER (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5u_has_view (f));
 }
 
@@ -523,9 +521,9 @@ H5PartSetView (
 	h5_int64_t start,	/*!< [in]  Start particle */
 	h5_int64_t end	/*!< [in]  End particle */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=0x%p, start=%lld, end=%lld",
-		       f, (long long)start, (long long)end);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, start=%lld, end=%lld",
+		      f, (long long)start, (long long)end);
 	H5_API_RETURN (h5u_set_view (f, start, end));
 }
 
@@ -558,9 +556,9 @@ H5PartSetViewIndices (
 	const h5_size_t *indices,	/*!< [in]  List of indices */
 	h5_size_t nelems		/*!< [in]  Size of list */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=0x%p, indices=0x%p, nelems=%llu",
-		       f, indices, (long long unsigned)nelems);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, indices=%p, nelems=%llu",
+		      f, indices, (long long unsigned)nelems);
 	H5_API_RETURN (h5u_set_view_indices (f, indices, nelems));
 }
 
@@ -580,9 +578,9 @@ H5PartGetView (
 	h5_int64_t *start,		/*!< [out]  Start particle */
 	h5_int64_t *end			/*!< [out]  End particle */
 	) {
-	H5_API_ENTER3 (h5_err_t,
-		       "f=0x%p, start=0x%p, end=0x%p",
-		       f, start, end);
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, start=%p, end=%p",
+		      f, start, end);
 	H5_API_RETURN (h5u_get_view (f, start, end));
 }
 
@@ -600,7 +598,7 @@ h5_err_t
 H5PartSetCanonicalView (
 	h5_file_t *f			/*!< [in]  Handle to open file */
 	) {
-	H5_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_API_ENTER (h5_err_t, "f=%p", f);
 	H5_API_RETURN (h5u_set_canonical_view (f));
 }
 

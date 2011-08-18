@@ -9,7 +9,8 @@ h5_file_t *
 h5_open_file (
 	const char *filename,
 	h5_int32_t flags,
-	MPI_Comm comm
+	MPI_Comm comm,
+	h5_size_t alignment
 	);
 
 h5_err_t

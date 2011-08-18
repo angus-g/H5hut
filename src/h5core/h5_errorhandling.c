@@ -16,15 +16,15 @@ char *h5_rfmts[] = {
 	[e_int]			"%d",
 	[e_ssize_t]		"%ld",
 	[e_char_p]		"%s",
-	[e_void_p]		"0x%p",
+	[e_void_p]		"%p",
 	[e_h5_err_t]		"%lld",
 	[e_h5_int64_t]		"%lld",
 	[e_h5_id_t]		"%lld",
 	[e_h5_ssize_t]		"%lld",
-	[e_h5_errorhandler_t]	"0x%p",
-	[e_h5_file_p]		"0x%p",
+	[e_h5_errorhandler_t]	"%p",
+	[e_h5_file_p]		"%p",
 	[e_h5t_lvl_idx_t]	"%d",
-	[e_h5t_iterator_p]	"0x%p",
+	[e_h5t_iterator_p]	"%p",
 	[e_h5_loc_id_t]		"%ld",
 	[e_h5_loc_idx_t]	"%ld",
 	[e_hid_t]		"%ld",
@@ -76,7 +76,7 @@ h5_set_debuglevel (
 	const h5_id_t level	/*!< debug level */
 	) {
 	if (level < 0) 
-		h5_debug_level = 0;
+		h5_debug_level = (1 << 20) - 1;
 	else
 		h5_debug_level = level;
 	return H5_SUCCESS;

@@ -16,21 +16,26 @@ extern "C" {
   H5_O_RDWR:   dataset may exist
 */
 
-#define H5_O_RDWR		0x01
-#define H5_O_RDONLY		0x02
-#define H5_O_WRONLY		0x04
-#define H5_O_APPEND		0x08
+#define H5_O_RDWR		0x001
+#define H5_O_RDONLY		0x002
+#define H5_O_WRONLY		0x004
+#define H5_O_APPEND		0x008
 
-#define H5_VFD_MPIPOSIX         0x10
-#define H5_VFD_INDEPENDENT      0x20
+#define H5_VFD_MPIPOSIX         0x010
+#define H5_VFD_INDEPENDENT      0x020
 
-#define H5_O_FLUSHSTEP		0x40
+#define H5_FLUSH_FILE		0x040
+#define H5_FLUSH_STEP		0x080
+#define H5_FLUSH_DATASET	0x100
+
+#define H5_FS_LUSTRE		0x200
 
 #define H5_ID_T			H5T_NATIVE_INT64
 #define H5_FLOAT64_T		H5T_NATIVE_DOUBLE
 #define H5_FLOAT32_T		H5T_NATIVE_FLOAT
 #define H5_INT64_T		H5T_NATIVE_INT64
 #define H5_INT32_T		H5T_NATIVE_INT32
+#define H5_INT16_T		H5T_NATIVE_INT16
 #define H5_STRING_T		H5T_NATIVE_CHAR
 #define H5_COMPOUND_T		H5T_COMPOUND
 
@@ -71,6 +76,10 @@ typedef h5_float64_t h5_coord3d_t[3];
 struct h5_file;
 typedef struct h5_file h5_file_t;
 typedef h5_file_t* h5_file_p;
+
+struct h5t_mesh;
+typedef struct h5t_mesh h5t_mesh_t;
+typedef h5t_mesh_t* h5t_mesh_p;
 
 typedef h5_err_t (*h5_errorhandler_t)(
 	const char*,

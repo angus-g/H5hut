@@ -10,20 +10,20 @@ const char* FNAME = "simple_triangle.h5";
 
 static h5_err_t
 traverse_vertices (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
 	/* get number of vertices we have to expect */
-	h5_size_t num_vertices_expect = H5FedGetNumVerticesTotal (f);
+	h5_size_t num_vertices_expect = H5FedGetNumVerticesTotal (m);
 
 	/* get iterator for co-dim 2 entities, i.e. vertices */
-	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 2);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (m, 2);
 
 	/* iterate */
 	h5_loc_id_t local_id;
 	h5_size_t num_vertices = 0;
-	while ((local_id = H5FedTraverseEntities ( f, iter )) >= 0) {
+	while ((local_id = H5FedTraverseEntities (iter)) >= 0) {
 		h5_float64_t P[3];
-		H5FedGetVertexCoordsByID (f, local_id, P);
+		H5FedGetVertexCoordsByID (m, local_id, P);
 		char v[256];
 		snprintf (v, sizeof(v), "=%llx=", (long long)local_id);
 		printf ("| %-18s | (%f, %f, %f) |\n",
@@ -32,7 +32,7 @@ traverse_vertices (
 	}
 
 	/* done */
-	H5FedEndTraverseEntities (f, iter);
+	H5FedEndTraverseEntities (iter);
 
 	/* report error if we got a different number then expected */
 	if (num_vertices != num_vertices_expect) {
@@ -47,22 +47,22 @@ traverse_vertices (
 
 static h5_err_t
 traverse_edges (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	printf ( "Travering edges on level %lld:\n", (long long)H5FedGetLevel(f) );
+	printf ( "Travering edges on level %lld:\n", (long long)H5FedGetLevel(m) );
 
 	/* get iterator for co-dim 1 entities, i.e. edges */
-	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 1);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (m, 1);
 
 	/* iterate */
 	h5_loc_id_t local_id;
 	h5_size_t num_edges = 0;
-	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
+	while ((local_id = H5FedTraverseEntities (iter)) >= 0) {
 		char v[256];
 		char k[256];
 		h5_loc_id_t local_vids[4];
 		snprintf ( k, sizeof(k), "=%llx=", (long long)local_id );
-		H5FedGetVertexIndicesOfEntity ( f, local_id, local_vids );
+		H5FedGetVertexIndicesOfEntity ( m, local_id, local_vids );
 		snprintf ( v, sizeof(v), "=[%lld,%lld]=",
 			   (long long)local_vids[0], (long long)local_vids[1] );
 		printf ( "| %-18s | %-18s |\n", k, v );
@@ -70,7 +70,7 @@ traverse_edges (
 	}
 
 	/* done */
-	H5FedEndTraverseEntities ( f, iter );
+	H5FedEndTraverseEntities (iter);
 
 	printf ("    Number of edges: %lld\n", (long long)num_edges);
 	return H5_SUCCESS;
@@ -78,22 +78,22 @@ traverse_edges (
 
 static h5_err_t
 traverse_boundary_edges (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	printf ( "Travering boundary edges on level %lld:\n", (long long)H5FedGetLevel(f) );
+	printf ("Travering boundary edges on level %lld:\n", (long long)H5FedGetLevel(m));
 
 	/* get iterator for co-dim 1 entities, i.e. edges */
-	h5t_iterator_t* iter = H5FedBeginTraverseBoundaryFaces (f, 1);
+	h5t_iterator_t* iter = H5FedBeginTraverseBoundaryFaces (m, 1);
 
 	/* iterate */
 	h5_loc_id_t local_id;
 	h5_size_t num_edges = 0;
-	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
+	while ((local_id = H5FedTraverseEntities (iter)) >= 0) {
 		char v[256];
 		char k[256];
 		h5_loc_id_t local_vids[4];
-		snprintf ( k, sizeof(k), "=%llx=", (long long)local_id );
-		H5FedGetVertexIndicesOfEntity ( f, local_id, local_vids );
+		snprintf ( k, sizeof(k), "=%llx=", (long long)local_id);
+		H5FedGetVertexIndicesOfEntity (m, local_id, local_vids);
 		snprintf ( v, sizeof(v), "=[%lld,%lld]=",
 			   (long long)local_vids[0], (long long)local_vids[1] );
 		printf ( "| %-18s | %-18s |\n", k, v );
@@ -101,7 +101,7 @@ traverse_boundary_edges (
 	}
 
 	/* done */
-	H5FedEndTraverseEntities ( f, iter );
+	H5FedEndTraverseEntities (iter);
 
 	printf ("    Number of edges: %lld\n", (long long)num_edges);
 	return H5_SUCCESS;
@@ -109,23 +109,23 @@ traverse_boundary_edges (
 
 static h5_err_t
 traverse_elems (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
 	/* get number of elements we have to expect */
-	h5_size_t num_elems_expect = H5FedGetNumElementsTotal (f);
+	h5_size_t num_elems_expect = H5FedGetNumElementsTotal (m);
 
 	/* get iterator for co-dim 0 */
-	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (m, 0);
 
 	/* iterate over all co-dim 0 entities, i.e. elements */
 	h5_loc_id_t local_id;
 	h5_size_t num_elems = 0;
-	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
+	while ((local_id = H5FedTraverseEntities (iter)) >= 0) {
 		char v[256];
 		char t[256];
 		h5_loc_id_t local_vids[4];
 		snprintf (t, sizeof(t), "=%llx=", (long long)local_id);
-		H5FedGetVertexIndicesOfEntity (f, local_id, local_vids);
+		H5FedGetVertexIndicesOfEntity (m, local_id, local_vids);
 		snprintf (v, sizeof(v), "=[%lld,%lld,%lld]=",
 			  (long long)local_vids[0],
 			  (long long)local_vids[1],
@@ -135,7 +135,7 @@ traverse_elems (
 	}
 
 	/* done */
-	H5FedEndTraverseEntities (f, iter);
+	H5FedEndTraverseEntities (iter);
 
 	/* report error if we got a different number then expected */
 	if (num_elems != num_elems_expect) {
@@ -155,25 +155,25 @@ traverse_elems (
  */
 static h5_err_t
 traverse_elems2 (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
 	/* get number of elements we have to expect */
-	h5_size_t num_elems_expect = H5FedGetNumElementsTotal (f);
+	h5_size_t num_elems_expect = H5FedGetNumElementsTotal (m);
 
 	/* get iterator for co-dim 0 */
-	h5t_iterator_t* iter = H5FedBeginTraverseEntities (f, 0);
+	h5t_iterator_t* iter = H5FedBeginTraverseEntities (m, 0);
 
 	/* iterate over all co-dim 0 entities, i.e. elements */
 	h5_loc_id_t local_id;
 	h5_size_t num_elems = 0;
-	while ((local_id = H5FedTraverseEntities (f, iter)) >= 0) {
+	while ((local_id = H5FedTraverseEntities (iter)) >= 0) {
 		printf ("%05llu", (unsigned long long)num_elems);
 		h5_loc_id_t local_vids[4];
-		H5FedGetVertexIndicesOfEntity (f, local_id, local_vids);
+		H5FedGetVertexIndicesOfEntity (m, local_id, local_vids);
 		int i;
 		for (i = 0; i < 3; i++) {
 			h5_float64_t P[3];
-			H5FedGetVertexCoordsByIndex (f, local_vids[i], P);
+			H5FedGetVertexCoordsByIndex (m, local_vids[i], P);
 			printf (" %8.6f %8.6f %8.6f", P[0], P[1], P[2]);
 		}
 		printf ("\n");
@@ -181,31 +181,29 @@ traverse_elems2 (
 	}
 
 	/* done */
-	H5FedEndTraverseEntities (f, iter);
+	H5FedEndTraverseEntities (iter);
 
 	/* report error if we got a different number then expected */
 	if (num_elems != num_elems_expect) {
 		fprintf (stderr, "!!! Got %lld elements, but expected %lld.\n",
 			 (long long)num_elems, (long long)num_elems_expect);
 		exit(1);
-
-
 	}
 	return H5_SUCCESS;
 }
 
 static h5_err_t
 traverse_level (
-	h5_file_t* const f,
+	h5t_mesh_t* const m,
 	const h5_loc_id_t level_id
 	) {
 	printf ("    Setting level to %d\n", level_id);
-	H5FedSetLevel (f, level_id);
-	traverse_vertices (f);
-	traverse_edges (f);
-	traverse_boundary_edges (f);
-	traverse_elems (f);
-	traverse_elems2 (f);
+	H5FedSetLevel (m, level_id);
+	traverse_vertices (m);
+	traverse_edges (m);
+	traverse_boundary_edges (m);
+	traverse_elems (m);
+	traverse_elems2 (m);
 	return H5_SUCCESS;
 }
 
@@ -214,19 +212,20 @@ traverse_mesh (
 	h5_file_t* const f,
 	const h5_id_t mesh_id
 	) {
+	h5t_mesh_t* m;
 	/* open mesh and get number of levels */
 	printf ("    Opening mesh with id %lld\n", mesh_id);
-	H5FedOpenTriangleMesh (f, mesh_id);
-	h5_size_t num_levels = H5FedGetNumLevels (f);
+	H5FedOpenTriangleMeshByIndex (f, mesh_id, &m);
+	h5_size_t num_levels = H5FedGetNumLevels (m);
 	printf ("    Number of levels in mesh: %lld\n", (long long)num_levels);
 
 	/* loop over all levels */
 	h5t_lvl_idx_t level_id;
 	for (level_id = 0; level_id < num_levels; level_id++) {
-		traverse_level (f, level_id);
+		traverse_level (m, level_id);
 	}
 	/* done */
-	H5FedCloseMesh (f);
+	H5FedCloseMesh (m);
 	return H5_SUCCESS;
 }
 

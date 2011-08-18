@@ -21,115 +21,90 @@ open_space_all (
  */
 static h5_err_t
 write_vertices (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	h5t_fdata_t *t = f->t;
-	assert (t->num_leaf_levels > 0);
-	
-	t->dsinfo_vertices.dims[0] = t->num_vertices[t->num_leaf_levels-1];
+	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
+	assert (m->num_leaf_levels > 0);
+
+	m->dsinfo_vertices.dims[0] = m->num_vertices[m->num_leaf_levels-1];
 	TRY( h5priv_write_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_vertices,
+		     m->f,
+		     m->mesh_gid,
+		     &m->dsinfo_vertices,
 		     open_space_all,
 		     open_space_all,
-		     t->vertices) );
-	TRY( h5priv_write_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_num_vertices,
-		     open_space_all,
-		     open_space_all,
-		     t->num_vertices) );
+		     m->vertices) );
+
+	TRY (h5priv_write_attrib (
+		     m->mesh_gid,
+		     "__num_vertices__",
+		     H5T_NATIVE_INT64,
+		     m->num_vertices,
+		     m->num_leaf_levels));
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
 write_elems (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	h5t_fdata_t* t = f->t;
-	assert (t->num_leaf_levels > 0);
+	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
+	assert (m->num_leaf_levels > 0);
 
-	h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
+	h5_loc_idx_t num_elems = m->num_elems[m->num_leaf_levels-1];
 	// alloc and inititalize data in memory
-	TRY( h5tpriv_alloc_glb_elems_struct (f, num_elems) );
-	TRY( h5tpriv_init_glb_elems_struct (f) );
+	TRY (h5tpriv_alloc_glb_elems_struct (m, num_elems));
+	TRY (h5tpriv_init_glb_elems_struct (m));
 
-	t->dsinfo_elems.dims[0] = num_elems;
+	m->dsinfo_elems.dims[0] = num_elems;
 	TRY( h5priv_write_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_elems,
+		     m->f,
+		     m->mesh_gid,
+		     &m->dsinfo_elems,
 		     open_space_all,
 		     open_space_all,
-		     t->glb_elems.data) );
+		     m->glb_elems.data) );
 
-	TRY( h5priv_write_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_num_elems,
-		     open_space_all,
-		     open_space_all,
-		     t->num_elems) );
+	TRY (h5priv_write_attrib (
+		     m->mesh_gid,
+		     "__num_elems__",
+		     H5T_NATIVE_INT64,
+		     m->num_elems,
+		     m->num_leaf_levels));
 
-	TRY( h5priv_write_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_num_elems_on_leaf_level,
-		     open_space_all,
-		     open_space_all,
-		     t->num_elems_on_leaf_level) );
+	TRY (h5priv_write_attrib (
+		     m->mesh_gid,
+		     "__num_leaf_elems__",
+		     H5T_NATIVE_INT64,
+		     m->num_leaf_elems,
+		     m->num_leaf_levels));
+
+	TRY (h5priv_write_attrib (
+		     m->mesh_gid,
+		     "__num_leaf_levels__",
+		     H5T_NATIVE_INT16,
+		     &m->num_leaf_levels,
+		     1));
+
 	// release mem
-	TRY( h5_free (t->glb_elems.data) );
-	t->glb_elems.tets = NULL;
+	TRY( h5_free (m->glb_elems.data) );
+	m->glb_elems.tets = NULL;
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
 h5tpriv_write_mesh (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
-	h5t_fdata_t* t = f->t;
-	if (t->mesh_changed) {
-		TRY (write_vertices (f));
-		TRY (write_elems (f));
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p", m);
+	if (m->mesh_changed) {
+		TRY (write_vertices (m));
+		TRY (write_elems (m));
 	}
-	if (t->mtags.changed) { 
-		TRY (h5tpriv_write_mtags (f));
-	}
-
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
-
-static h5_ssize_t
-get_num_leaf_levels (
-	h5_file_t* const f
-	) {
-	h5t_fdata_t* t = f->t;
-	hid_t dataset_id;
-	hid_t diskspace_id;
-	hssize_t size;
-
-	H5_PRIV_FUNC_ENTER1 (h5_ssize_t, "f=0x%p", f);
-	if (t->cur_mesh < 0) {
-		H5_PRIV_FUNC_LEAVE (h5tpriv_error_undef_mesh ());
-	}
-	TRY (dataset_id = hdf5_open_dataset (t->mesh_gid, "NumVertices") );
-	TRY (diskspace_id = hdf5_get_dataset_space (dataset_id) );
-	TRY (size = hdf5_get_npoints_of_dataspace (diskspace_id) );
-	TRY (hdf5_close_dataspace (diskspace_id) );
-	TRY (hdf5_close_dataset (dataset_id));
-
-	t->num_leaf_levels = size;
-	H5_PRIV_FUNC_RETURN (size);
-}
-
 
 static hid_t
 open_mem_space_vertices (
@@ -153,43 +128,35 @@ open_file_space_vertices (
 
 static inline h5_err_t
 read_num_vertices (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	h5t_fdata_t* t = f->t;
+	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 
- 	if (t->mesh_gid < 0) {
-		H5_PRIV_FUNC_LEAVE (
-			h5_error_internal ());
-	}
-	ssize_t num_bytes = t->num_leaf_levels*sizeof (t->num_vertices[0]);
-	TRY( t->num_vertices = h5_alloc (t->num_vertices, num_bytes) );
-	TRY( h5priv_read_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_num_vertices,
-		     open_space_all,
-		     open_space_all,
-		     t->num_vertices) );
+	ssize_t num_bytes = m->num_leaf_levels*sizeof (m->num_vertices[0]);
+	TRY (m->num_vertices = h5_alloc (m->num_vertices, num_bytes));
+	TRY (h5priv_read_attrib (
+		     m->mesh_gid,
+		     "__num_vertices__",
+		     H5T_NATIVE_INT64,
+		     m->num_vertices));
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
 read_vertices (
-	h5_file_t * f
+	h5t_mesh_t* m
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	h5t_fdata_t* t = f->t;
+	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 
-	TRY( h5tpriv_alloc_num_vertices (f, t->num_vertices[t->num_leaf_levels-1]) );
+	TRY( h5tpriv_alloc_num_vertices (m, m->num_vertices[m->num_leaf_levels-1]) );
 	TRY( h5priv_read_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_vertices,
+		     m->f,
+		     m->mesh_gid,
+		     &m->dsinfo_vertices,
 		     open_mem_space_vertices,
 		     open_file_space_vertices,
-		     t->vertices) );
+		     m->vertices) );
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
@@ -216,83 +183,64 @@ open_file_space_elems (
 
 static h5_err_t
 read_elems (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	h5t_fdata_t* t = f->t;
+	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 
-	size_t size = t->num_leaf_levels * sizeof (t->num_elems[0]);
-	TRY( t->num_elems = h5_calloc (1, size) );
-	TRY( t->num_elems_on_leaf_level = h5_calloc (1, size) );
-	TRY( h5priv_read_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_num_elems,
-		     open_space_all,
-		     open_space_all,
-		     t->num_elems) );
+	TRY (m->num_elems = h5_calloc (m->num_leaf_levels, sizeof(m->num_elems[0])));
+	TRY( m->num_leaf_elems = h5_calloc (m->num_leaf_levels, sizeof(m->num_elems[0])));
 
-	TRY( h5priv_read_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_num_elems_on_leaf_level,
-		     open_space_all,
-		     open_space_all,
-		     t->num_elems_on_leaf_level) );
+	TRY (h5priv_read_attrib (
+		     m->mesh_gid,
+		     "__num_elems__",
+		     H5T_NATIVE_INT64,
+		     m->num_elems));
 
-	h5_loc_idx_t num_elems = t->num_elems[t->num_leaf_levels-1];
-	TRY( h5tpriv_alloc_elems (f, 0, num_elems) );
-	TRY( h5tpriv_alloc_glb_elems_struct (f, num_elems) );
+	TRY (h5priv_read_attrib (
+		     m->mesh_gid,
+		     "__num_leaf_elems__",
+		     H5T_NATIVE_INT64,
+		     m->num_leaf_elems));
+
+	h5_loc_idx_t num_elems = m->num_elems[m->num_leaf_levels-1];
+	TRY( h5tpriv_alloc_elems (m, 0, num_elems) );
+	TRY( h5tpriv_alloc_glb_elems_struct (m, num_elems) );
 	TRY( h5priv_read_dataset_by_name (
-		     f,
-		     t->mesh_gid,
-		     &t->dsinfo_elems,
+		     m->f,
+		     m->mesh_gid,
+		     &m->dsinfo_elems,
 		     open_mem_space_elems,
 		     open_file_space_elems,
-		     t->glb_elems.data) );
+		     m->glb_elems.data) );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
-}
-
-static inline h5_err_t
-read_mtags (
-	h5_file_t* const f
-	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
-	h5t_fdata_t* t = f->t;
-	h5_err_t exists;
-	TRY (exists = hdf5_link_exists (t->mesh_gid, "Tags"));
-	if (exists) {
-		TRY (t->mtags.group_id = h5priv_open_group (f, t->mesh_gid, "Tags") );
-		TRY (h5tpriv_read_tag_container (f, &f->t->mtags) );
-	}
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
 h5tpriv_read_mesh (
-	h5_file_t* const f
+	h5t_mesh_t* const m
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
-	h5t_fdata_t* t = f->t;
- 	if (t->mesh_gid < 0) {
-		H5_PRIV_API_LEAVE (h5_error_internal ());
-	}
-	TRY (get_num_leaf_levels (f));
-	TRY (read_num_vertices (f));
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p", m);
 
-	TRY (read_vertices (f));
-	TRY (h5tpriv_rebuild_vertex_indices_mapping (f));
+	TRY (h5priv_read_attrib (
+		     m->mesh_gid,
+		     "__num_leaf_levels__",
+		     H5T_NATIVE_INT16,
+		     &m->num_leaf_levels));
 
-	TRY (read_elems (f));
+	TRY (read_num_vertices (m));
 
-	TRY (h5tpriv_init_glb2loc_elem_map (f));
-	TRY (h5tpriv_init_loc_elems_struct (f, 0));
-	TRY (h5_free (t->glb_elems.data));
-	TRY (h5tpriv_update_adjacency_structs (f, 0));
-	TRY (h5tpriv_init_geom_boundary_info (f, 0));
+	TRY (read_vertices (m));
+	TRY (h5tpriv_rebuild_vertex_indices_mapping (m));
 
-	TRY (read_mtags (f));
-	t->num_loaded_levels = t->num_leaf_levels;
+	TRY (read_elems (m));
+
+	TRY (h5tpriv_init_glb2loc_elem_map (m));
+	TRY (h5tpriv_init_loc_elems_struct (m, 0));
+	TRY (h5_free (m->glb_elems.data));
+	TRY (h5tpriv_update_adjacency_structs (m, 0));
+	TRY (h5tpriv_init_geom_boundary_info (m, 0));
+
+	m->num_loaded_levels = m->num_leaf_levels;
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }

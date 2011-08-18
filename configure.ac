@@ -131,7 +131,6 @@ fi
 # if one is found in the current PATH. 
 # Otherwise, set INSTALL to `dir/install-sh -c`
 AC_PROG_INSTALL
-
 AC_PROG_AWK
 
 # Disable shared libraries by default: can be enabled with --enable-shared

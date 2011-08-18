@@ -43,6 +43,7 @@ EXTRA_HEADERS =					\
 	h5_qsort_private.h			\
 	h5_readwrite_private.h			\
 	h5_syscall_private.h			\
+	h5_va_macros.h				\
 	h5_types_private.h			\
 	h5b_errorhandling_private.h		\
 	h5b_model_private.h			\

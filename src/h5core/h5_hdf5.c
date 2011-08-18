@@ -1,10 +1,81 @@
 #include <stdlib.h>
 #include <string.h>
 #include <hdf5.h>
+#include <stdarg.h>
 
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
 
+/*
+  Test whether given path exists. 
+ */
+h5_err_t
+h5priv_link_exists_ (
+	const hid_t loc_id,
+	const char const* path[],
+	size_t size
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "loc_id=%d, (%s), path=%s, ...",
+			    loc_id, hdf5_get_objname (loc_id), path[0]);
+	// for the time being we limit the concatenated path to 1024 bytes
+	char name[1024];
+	char* s = name;
+	char* end = name+sizeof (name);
+	name[0] = '\0';
+
+	for (size_t i = 0; i < size; i++) {
+		if (i) {	// do not *prepend* a slash!
+			*s++ = '/';
+			*s = '\0';
+		}
+		if (s+strlen(path[i])+1 >= end) H5_PRIV_API_LEAVE (
+			h5_error (
+				H5_ERR_HDF5,
+				"path %s... to long", name));
+		s = stpcpy (s, path[i]);
+		h5_err_t exists;
+		TRY (exists = hdf5_link_exists (loc_id, name));
+		if (!exists) H5_PRIV_FUNC_LEAVE (0);
+	}
+	H5_PRIV_FUNC_RETURN (1);
+}
+
+h5_err_t
+h5priv_open_group_ (
+	int create_intermediate,
+	const hid_t loc_id,
+	const char const* path[],
+	size_t size	
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "create_intermediate=%d, loc_id=%d, (%s), path=%s, ...",
+			    create_intermediate, loc_id, hdf5_get_objname (loc_id),
+			    path[0]);
+	hid_t hid = loc_id;
+	hid_t hid2 = 0;
+	h5_err_t exists;
+	for (size_t i=0; i < size; i++) {
+		TRY (exists = hdf5_link_exists (hid, path[i]));
+		if (exists) {
+			TRY (hid2 = hdf5_open_group (hid, path[i]));
+		} else if (create_intermediate) {
+			TRY (hid2 = hdf5_create_group (hid, path[i]));
+		} else {
+			H5_PRIV_FUNC_LEAVE (
+				h5_error (
+					H5_ERR_HDF5,
+					"No such group '%s/%s'.",
+					hdf5_get_objname (hid),
+					path[i]));
+
+		}
+		if (hid != loc_id) {
+			TRY (hdf5_close_group (hid));
+		}
+		hid = hid2;
+	}
+	H5_PRIV_FUNC_RETURN (hid);
+}
 
 typedef struct op_data {
 	int queried_idx;
@@ -124,9 +195,9 @@ iter_op_count_match (
 	const H5L_info_t* info,
 	void* _op_data
 	) {
-	H5_PRIV_FUNC_ENTER4 (herr_t,
-			     "g_id=%d, name=\"%s\", info=0x%p, _op_data=0x%p",
-			     g_id, name, info, _op_data);
+	H5_PRIV_FUNC_ENTER (herr_t,
+			    "g_id=%d, name='%s', info=%p, _op_data=%p",
+			    g_id, name, info, _op_data);
 	op_data_t* op_data = (op_data_t*)_op_data;
 	H5O_type_t type;
 	TRY (type = iter_op_get_obj_type (g_id, name, info));
@@ -143,8 +214,7 @@ ssize_t
 hdf5_get_num_groups (
 	const hid_t loc_id
 	) {
-	HDF5_WRAPPER_ENTER2 (ssize_t,
-			     "loc_id=%d (%s)", loc_id, hdf5_get_objname (loc_id));
+	HDF5_WRAPPER_ENTER (ssize_t, "loc_id=%d (%s)", loc_id, hdf5_get_objname (loc_id));
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
 	op_data.type = H5O_TYPE_GROUP;
@@ -156,7 +226,7 @@ hdf5_get_num_groups (
 		HDF5_WRAPPER_LEAVE (
 			h5_error (
 				H5_ERR_HDF5,
-				"Cannot get number of groups in \"%s\".",
+				"Cannot get number of groups in '%s'.",
 				hdf5_get_objname (loc_id)));
 	}
 	HDF5_WRAPPER_RETURN (op_data.cnt);
@@ -167,9 +237,9 @@ hdf5_get_num_groups_matching_prefix (
 	const hid_t loc_id,
 	char* prefix
 	) {
-	HDF5_WRAPPER_ENTER3 (ssize_t,
-			     "loc_id=%d (%s), prefix=\"%s\"",
-			     loc_id, hdf5_get_objname (loc_id), prefix);
+	HDF5_WRAPPER_ENTER (ssize_t,
+			    "loc_id=%d (%s), prefix='%s'",
+			    loc_id, hdf5_get_objname (loc_id), prefix);
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
 	op_data.type = H5O_TYPE_GROUP;
@@ -183,7 +253,7 @@ hdf5_get_num_groups_matching_prefix (
 			h5_error (
 				H5_ERR_HDF5,
 				"Cannot get number of groups with prefix"
-				" \"%s\" in \"%s\".",
+				" '%s' in '%s'.",
 				prefix, hdf5_get_objname (loc_id)));
 	}
 	HDF5_WRAPPER_RETURN (op_data.cnt);
@@ -196,10 +266,10 @@ hdf5_get_name_of_group_by_idx (
 	char *name,
 	size_t len
 	) {
-	HDF5_WRAPPER_ENTER5 (h5_err_t,
-			     "loc_id=%d (%s), idx=%llu, name=0x%p, len=%llu",
-			     loc_id, hdf5_get_objname (loc_id),
-			     idx, name, (unsigned long long)len);
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "loc_id=%d (%s), idx=%llu, name=%p, len=%llu",
+			    loc_id, hdf5_get_objname (loc_id),
+			    idx, name, (unsigned long long)len);
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
 	op_data.type = H5O_TYPE_GROUP;
@@ -216,7 +286,7 @@ hdf5_get_name_of_group_by_idx (
 			h5_error (
 				H5_ERR_HDF5,
 				"Cannot get name of group with index"
-				" \"%lu\" in \"%s\".",
+				" '%lu' in '%s'.",
 				(long unsigned int)idx,
 				hdf5_get_objname (loc_id)));
 	}
@@ -227,8 +297,8 @@ ssize_t
 hdf5_get_num_datasets (
 	const hid_t loc_id
 	) {
-	HDF5_WRAPPER_ENTER2 (ssize_t,
-			     "loc_id=%d (%s)", loc_id, hdf5_get_objname (loc_id));
+	HDF5_WRAPPER_ENTER (ssize_t,
+			    "loc_id=%d (%s)", loc_id, hdf5_get_objname (loc_id));
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
 	op_data.type = H5O_TYPE_DATASET;
@@ -240,7 +310,7 @@ hdf5_get_num_datasets (
 		HDF5_WRAPPER_LEAVE (
 			h5_error (
 				H5_ERR_HDF5,
-				"Cannot get number of datasets in \"%s\".",
+				"Cannot get number of datasets in '%s'.",
 				hdf5_get_objname (loc_id)));
 	}
 	HDF5_WRAPPER_RETURN (op_data.cnt);
@@ -256,10 +326,10 @@ hdf5_get_name_of_dataset_by_idx (
 	char *name,
 	size_t len
 	) {
-	HDF5_WRAPPER_ENTER5 (h5_err_t,
-			     "loc_id=%d (%s), idx=%llu, name=0x%p, len=%llu",
-			     loc_id, hdf5_get_objname (loc_id),
-			     idx, name, (unsigned long long)len);
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "loc_id=%d (%s), idx=%llu, name=%p, len=%llu",
+			    loc_id, hdf5_get_objname (loc_id),
+			    idx, name, (unsigned long long)len);
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
 	op_data.type = H5O_TYPE_DATASET;
@@ -276,7 +346,7 @@ hdf5_get_name_of_dataset_by_idx (
 			h5_error (
 				H5_ERR_HDF5,
 				"Cannot get name of dataset with index"
-				" \"%lu\" in \"%s\".",
+				" '%lu' in '%s'.",
 				(long unsigned int)idx,
 				hdf5_get_objname (loc_id)));
 	}

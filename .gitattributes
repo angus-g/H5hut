@@ -360,7 +360,6 @@ doc/tetrahedron_refinements/6-edges/edge_01-12-20-23-30-31_refined/output_file.j
 doc/tetrahedron_refinements/README -text
 doc/tetrahedron_refinements/text2vtk.py -text
 /license.txt -text
-/rules.make -text
 src/C++/H5Fed.cc -text
 src/C++/H5Fed.hh -text
 src/C++/Makefile.am -text
@@ -416,6 +415,7 @@ src/h5core/h5_readwrite_private.h -text
 src/h5core/h5_syscall.c -text
 src/h5core/h5_syscall_private.h -text
 src/h5core/h5_types_private.h -text
+src/h5core/h5_va_macros.h -text
 src/h5core/h5b_attribs.c -text
 src/h5core/h5b_errorhandling_private.h -text
 src/h5core/h5b_model.c -text
@@ -517,6 +517,7 @@ test/H5Fed/tetmesh_adjacencies.c -text
 test/H5Fed/tetmesh_read.c -text
 test/H5Fed/tetmesh_read_tags.c -text
 test/H5Fed/tetmesh_write.c -text
+test/H5Fed/tetmesh_write1.c -text
 test/H5Fed/tetmesh_write2.c -text
 test/H5Fed/tetmesh_write_tags.c -text
 test/H5Fed/trimesh_adjacencies.c -text

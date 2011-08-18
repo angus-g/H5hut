@@ -46,24 +46,25 @@ main (
 
 	/* open file and add mesh */
 	h5_file_t* const f = H5OpenFile (FNAME, H5_O_WRONLY, 0);
-	H5FedAddTriangleMesh (f);
+	h5t_mesh_t* m;
+	H5FedAddTriangleMesh (f, "0", &m);
 
 	/* store vertices */
-	H5FedBeginStoreVertices (f, num_vertices);
+	H5FedBeginStoreVertices (m, num_vertices);
 	int i;
 	for (i = 0; i < num_vertices; i++) {
-		H5FedStoreVertex (f, -1, Vertices[i].P);
+		H5FedStoreVertex (m, -1, Vertices[i].P);
 	}
-	H5FedEndStoreVertices (f);
+	H5FedEndStoreVertices (m);
 
 	/* store elements */
-	H5FedBeginStoreElements (f, num_elems);
+	H5FedBeginStoreElements (m, num_elems);
 	for (i = 0; i < num_elems; i++) {
-		H5FedStoreElement (f, Elems[i].vids);
+		H5FedStoreElement (m, Elems[i].vids);
 	}
-	H5FedEndStoreElements (f);
+	H5FedEndStoreElements (m);
 
-	H5FedCloseMesh (f);
+	H5FedCloseMesh (m);
 	H5CloseFile (f);
 	return 0;
 }

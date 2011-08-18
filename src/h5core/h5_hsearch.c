@@ -67,12 +67,12 @@ h5priv_hcreate (
 	unsigned int (*compute_hash)(const void*),
 	h5_err_t (*free_entry)(const void*)
 	) {
-	H5_PRIV_API_ENTER5 (h5_err_t,
-			    "nel=%llu, htab=0x%p, compare=0x%p, "
-			    "compute_hash=0x%p, free_entry=0x%p",
-			    (long long unsigned)nel,
-			    htab, compare, compute_hash, free_entry);
-
+	H5_PRIV_API_ENTER (h5_err_t,
+			   "nel=%llu, htab=%p, compare=%p, "
+			   "compute_hash=%p, free_entry=%p",
+			   (long long unsigned)nel,
+			   htab, compare, compute_hash, free_entry);
+	
 	/* Test for correct arguments.  */
 	if (htab == NULL || htab->table != NULL) {
 		H5_PRIV_API_LEAVE (h5_error_internal ());
@@ -104,9 +104,9 @@ h5priv_hresize (
 	size_t nel,		// number of entries to grow
 	h5_hashtable_t* htab	// hash table to resize
 	) {
-	H5_PRIV_API_ENTER2 (h5_err_t,
-			    "nel=%llu, htab=0x%p",
-			    (long long unsigned)nel, htab);
+	H5_PRIV_API_ENTER (h5_err_t,
+			   "nel=%llu, htab=%p",
+			   (long long unsigned)nel, htab);
 	if (htab == NULL || htab->table == NULL) {
 		H5_PRIV_API_LEAVE (h5_error_internal ());
 	}
@@ -144,7 +144,7 @@ hwalk (
 	struct hsearch_data* htab,
 	h5_err_t (*visit)(const void *item)
 	) {
-	H5_PRIV_FUNC_ENTER2 (h5_err_t, "htab=0x%p, visit=0x%p", htab, visit);
+	H5_PRIV_FUNC_ENTER (h5_err_t, "htab=%p, visit=%p", htab, visit);
 	unsigned int idx = 1;
 	for (idx = 1; idx < htab->size; idx++) {
 		if (htab->table[idx].used) {
@@ -161,7 +161,7 @@ h5_err_t
 h5priv_hdestroy (
 	struct hsearch_data* htab
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "htab=0x%p", htab);
+	H5_PRIV_API_ENTER (h5_err_t, "htab=%p", htab);
 	/* Test for correct arguments.  */
 	if (htab == NULL) {
 		H5_PRIV_API_LEAVE (h5_error_internal ());
@@ -199,14 +199,14 @@ h5priv_hsearch (
 	void** retval,
 	struct hsearch_data* htab
 	) {
-	H5_PRIV_API_ENTER4 (h5_err_t,
-			    "item=0x%p, action=%d, retval=0x%p, htab=0x%p",
-			    item, (int)action, retval, htab);
+	H5_PRIV_API_ENTER (h5_err_t,
+			   "item=%p, action=%d, retval=%p, htab=%p",
+			   item, (int)action, retval, htab);
 	unsigned int hval;
 	unsigned int idx;
 
 	/* Compute an value for the given key. Perhaps use a better method. */
-	hval = (*htab->compute_hash)(item);
+	hval = htab->compute_hash(item);
 
 	/* First hash function: simply take the modul but prevent zero. */
 	idx = hval % htab->size + 1;
@@ -215,7 +215,7 @@ h5priv_hsearch (
 		/* Further action might be required according to the action
 		   value. */
 		if (htab->table[idx].used == hval
-		    && ((*htab->compare) (item, htab->table[idx].entry) == 0) ) {
+		    && (htab->compare (item, htab->table[idx].entry) == 0) ) {
 			if (retval) {
 				*retval = htab->table[idx].entry;
 			}
@@ -241,7 +241,7 @@ h5priv_hsearch (
 
 			/* If entry is found use it. */
 			if (htab->table[idx].used == hval
-			    && ((*htab->compare) (
+			    && (htab->compare (
 					item, htab->table[idx].entry) == 0) ) {
 				if (retval) {
 					*retval = htab->table[idx].entry;
@@ -314,7 +314,7 @@ static h5_err_t
 free_string_keyed (
 	const void* __entry
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER (h5_err_t, "__entry=%p", __entry);
 	h5_hitem_string_keyed_t* entry = (h5_hitem_string_keyed_t*) __entry;
 	TRY (h5_free (entry->key));
 	TRY (h5_free (entry));
@@ -327,7 +327,7 @@ h5priv_hcreate_string_keyed (
 	h5_hashtable_t* htab,
 	h5_err_t (*free_entry)(const void*)
 	) {
-	H5_PRIV_API_ENTER2 (h5_err_t, "htab=0x%p, free_entry=0x%p", htab, free_entry);
+	H5_PRIV_API_ENTER (h5_err_t, "htab=%p, free_entry=%p", htab, free_entry);
 	if (free_entry == NULL) {
 		TRY (h5priv_hcreate (nel, htab,
 				     cmp_string_keyed,

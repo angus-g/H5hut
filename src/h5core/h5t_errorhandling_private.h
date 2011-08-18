@@ -5,16 +5,15 @@
 
 static inline h5_err_t
 h5tpriv_error_local_elem_nexist (
-	h5_file_t * const f,
+	h5t_mesh_t * const m,
 	h5_loc_idx_t vertex_indices[]
 	) {
-	h5t_fdata_t* t = f->t;
 	char s[1024];
 
 	int num_chars_printed = snprintf (s, sizeof(s), "%lld,",
 					  (long long)vertex_indices[0]);
 	int i;
-	int num_vertices = h5tpriv_ref_elem_get_num_vertices (t);
+	int num_vertices = h5tpriv_ref_elem_get_num_vertices (m);
 	for (i = 1; i < num_vertices; i++) {
 		num_chars_printed += snprintf (
 			s + num_chars_printed, sizeof (s) - num_chars_printed,

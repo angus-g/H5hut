@@ -47,36 +47,37 @@ main (
 
 	/* open file and add mesh */
 	h5_file_t* const f = H5OpenFile (FNAME, H5_O_WRONLY, 0);
-	H5FedAddTetrahedralMesh (f);
+	h5t_mesh_t* mesh;
+	H5FedAddTetrahedralMesh (f, "0", &mesh);
 
 	/* store vertices */
-	H5FedBeginStoreVertices (f, num_vertices);
+	H5FedBeginStoreVertices (mesh, num_vertices);
 	int i;
 	for (i = 0; i < num_vertices; i++) {
-		H5FedStoreVertex (f, -1, Vertices[i].P);
+		H5FedStoreVertex (mesh, -1, Vertices[i].P);
 	}
-	H5FedEndStoreVertices (f);
+	H5FedEndStoreVertices (mesh);
 
 	/* store elements */
-	H5FedBeginStoreElements (f, num_elems);
+	H5FedBeginStoreElements (mesh, num_elems);
 	for (i = 0; i < num_elems; i++) {
-		H5FedStoreElement (f, Elems[i].vids);
+		H5FedStoreElement (mesh, Elems[i].vids);
 	}
-	H5FedEndStoreElements (f);
+	H5FedEndStoreElements (mesh);
 
 	/* add 1. Level */
-	H5FedAddLevel(f);
-	H5FedBeginRefineElements (f);
-	H5FedRefineElement (f, 0);
-	H5FedEndRefineElements (f);
+	H5FedAddLevel(mesh);
+	H5FedBeginRefineElements (mesh);
+	H5FedRefineElement (mesh, 0);
+	H5FedEndRefineElements (mesh);
 
 	/* add 2. Level */
-	H5FedAddLevel(f);
-	H5FedBeginRefineElements (f);
-	H5FedRefineElement (f, 2);
-	H5FedEndRefineElements (f);
+	H5FedAddLevel(mesh);
+	H5FedBeginRefineElements (mesh);
+	H5FedRefineElement (mesh, 2);
+	H5FedEndRefineElements (mesh);
 
-	H5FedCloseMesh (f);
+	H5FedCloseMesh (mesh);
 	H5CloseFile (f);
 	return 0;
 }

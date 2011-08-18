@@ -45,6 +45,6 @@ h5_attach_test_LDADD = \
 		../src/h5core/libH5hut.la \
 		../src/C/libH5hutC.la
 
-clean: clean-am
-	rm -f *.h5
+clean-local:
+	${RM} -f *.h5
 

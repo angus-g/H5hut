@@ -24,7 +24,7 @@ h5_check_filehandle (
 	h5_file_t* const f	/*!< filehandle  to check validity of */
 	) {
 
-	if (f == NULL || f->file < 0 || f->u == NULL || f->b == NULL || f->t == NULL) {
+	if (f == NULL || f->file < 0 || f->u == NULL || f->b == NULL) {
 		return h5_error (
 			H5_ERR_BADFD,
 			"Called with bad filehandle.");
@@ -36,7 +36,7 @@ h5_check_filehandle (
   Initialize H5Part
 */
 static herr_t
-h5priv_error_handler (
+hdf5_error_handler (
 	hid_t estack_id,
 	void* __f
 	) {
@@ -62,7 +62,7 @@ static h5_err_t
 h5upriv_open_file (
 	h5_file_t* const f		/*!< IN: file handle */
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_PRIV_API_ENTER (h5_err_t, "f=%p", f);
 	TRY (f->u = (h5u_fdata_t*)h5_alloc (NULL, sizeof (*f->u)));
 	h5u_fdata_t *u = f->u;
 
@@ -93,7 +93,7 @@ static h5_err_t
 h5bpriv_open_file (
 	h5_file_t * const f		/*!< IN: file handle */
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_PRIV_API_ENTER (h5_err_t, "f=%p", f);
 	h5b_fdata_t* b; 
 
 	if (f->b)
@@ -123,37 +123,12 @@ h5bpriv_open_file (
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 
-/*!
-  \ingroup h5_core_filehandling
-  
-  Open file with name \c filename. This function is available in the paralell
-  and serial version. In the serial case \c comm may have any value.
-
-  \return File handle.
-  \return NULL on error.
-*/
-h5_file_p
-h5_open_file (
-	const char* filename,	/*!< The name of the data file to open. */
-	h5_int32_t flags,	/*!< The access mode for the file. */
-	MPI_Comm comm		/*!< MPI communicator */
+static inline
+h5_err_t mpi_init (
+	h5_file_t* const f,
+	MPI_Comm comm
 	) {
-	H5_CORE_API_ENTER2 (h5_file_p,
-			    "filename=\"%s\", flags=%d, ...",
-			    filename, flags);
-	h5_info ("Opening file %s.", filename);
-	h5_file_p f = NULL;
-	TRY2 (f = h5_calloc (1, sizeof (h5_file_t)));
-	
-	TRY2 (hdf5_set_errorhandler (H5E_DEFAULT, h5priv_error_handler, NULL));
-	TRY2 (h5_set_stepname_fmt (f, H5_STEPNAME, H5_STEPWIDTH));
-
-	f->xfer_prop = f->create_prop = f->access_prop = H5P_DEFAULT;
-
-	f->comm = comm;		/* init values for serial case */
-	f->nprocs = 1;
-	f->myproc = 0;
-
+	H5_INLINE_FUNC_ENTER (h5_err_t);
 #ifdef PARALLEL_IO
 	TRY2 (h5priv_mpi_comm_size (comm, &f->nprocs));
 	TRY2 (h5priv_mpi_comm_rank (comm, &f->myproc));
@@ -162,38 +137,61 @@ h5_open_file (
 	   rather than the access_prop which is for file creation. */
 	TRY2 (f->xfer_prop = hdf5_create_property(H5P_DATASET_XFER));
 	TRY2 (f->access_prop = hdf5_create_property(H5P_FILE_ACCESS));
-	TRY2 (f->create_prop = hdf5_create_property(H5P_FILE_CREATE));
 
 	/* select the HDF5 VFD */
-	if (flags & H5_VFD_MPIPOSIX) {
+	if (f->flags & H5_VFD_MPIPOSIX) {
 		h5_info("Selecting MPI-POSIX VFD");
 		hbool_t use_gpfs = 0; // TODO autodetect GPFS?
 		TRY2 (hdf5_set_fapl_mpiposix_property(f->access_prop, comm, use_gpfs));
 	} else {
 		h5_info("Selecting MPI-IO VFD");
 		TRY2 (hdf5_set_fapl_mpio_property(f->access_prop, comm, MPI_INFO_NULL));
-		if (flags & H5_VFD_INDEPENDENT) {
+		if (f->flags & H5_VFD_INDEPENDENT) {
 			h5_info("MPI-IO: Using independent mode");
 		} else {
 			h5_info("MPI-IO: Using collective mode");
 			TRY2 (hdf5_set_dxpl_mpio_property(f->xfer_prop, H5FD_MPIO_COLLECTIVE) );
 		}
 	}
-#endif /* PARALLEL_IO */
-
 #ifdef H5_USE_LUSTRE
-        TRY (h5_optimize_for_lustre(f, filename));
+	if (f->flags & H5_FS_LUSTRE) {
+		TRY (h5_optimize_for_lustre(f, filename));
+	}
 #endif
+#endif /* PARALLEL_IO */
+	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
+}
 
-	if (flags & H5_O_RDONLY) {
+static inline
+h5_err_t set_alignment (
+	h5_file_t* const f,
+	h5_size_t align
+	) {
+	H5_INLINE_FUNC_ENTER (h5_err_t);
+	if ( align != 0 ) {
+		h5_info ("Setting HDF5 alignment to %llu bytes", align);
+		TRY (hdf5_set_alignment_property (f->access_prop, 0, align));
+		h5_info ("Setting HDF5 meta block to %llu bytes", align);
+		TRY (H5Pset_meta_block_size (f->access_prop, align));
+	}
+	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
+}
+
+static inline h5_err_t
+open_file (
+	h5_file_t* const f,
+	const char* const filename
+	) {
+	H5_INLINE_FUNC_ENTER (h5_err_t);
+	if (f->mode & H5_O_RDONLY) {
 		f->file = H5Fopen (filename, H5F_ACC_RDONLY, f->access_prop);
 	}
-	else if (flags & H5_O_WRONLY){
+	else if (f->mode & H5_O_WRONLY){
 		f->file = H5Fcreate (filename, H5F_ACC_TRUNC, f->create_prop,
 				     f->access_prop);
 		f->empty = 1;
 	}
-	else if (flags & H5_O_APPEND || flags & H5_O_RDWR) {
+	else if (f->mode & H5_O_APPEND || f->mode & H5_O_RDWR) {
 		int fd = open (filename, O_RDONLY, 0);
 		if ((fd == -1) && (errno == ENOENT)) {
 			f->file = H5Fcreate (filename, H5F_ACC_TRUNC,
@@ -208,30 +206,75 @@ h5_open_file (
 	}
 	else {
 		H5_PRIV_FUNC_LEAVE (
-			(h5_file_p)h5_error (
+			h5_error (
 				H5_ERR_INVAL,
-				"Invalid file access mode \"%d\".", flags));
+				"Invalid file access mode '%d'.", f->mode));
 	}
 	
 	if (f->file < 0)
 		H5_PRIV_FUNC_LEAVE (
-			(h5_file_p)h5_error (
+			h5_error (
 				H5_ERR_HDF5,
-				"Cannot open file \"%s\" with mode \"%d\"",
-				filename, flags));
-	TRY2 (f->root_gid = hdf5_open_group (f->file, "/" ));
+				"Cannot open file '%s' with mode '%d'",
+				filename, f->mode));
+	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
+}
+
+/*!
+  \ingroup h5_core_filehandling
+  
+  Open file with name \c filename. This function is available in the paralell
+  and serial version. In the serial case \c comm may have any value.
+
+  \param[in]	filename	The name of the data file to open.
+  \param[in]	flags		The access mode for the file.
+  \param[in]	comm		MPI communicator
+  \param[in]	align		Number of bytes for setting alignment,
+				metadata block size, etc. Set to 0 to disable.
+
+  \return File handle.
+  \return H5_ERR  on error.
+*/
+h5_file_p
+h5_open_file (
+	const char* filename,
+	h5_int32_t flags,
+	MPI_Comm comm,
+	h5_size_t align
+	) {
+	H5_CORE_API_ENTER (h5_file_p,
+			   "filename='%s', flags=%d, comm=?, align=%llu",
+			   filename, flags, align);
+	h5_info ("Opening file %s.", filename);
+	h5_file_p f = NULL;
+	TRY2 (f = h5_calloc (1, sizeof (h5_file_t)));
+	
+	TRY2 (hdf5_set_errorhandler (H5E_DEFAULT, hdf5_error_handler, NULL));
+	TRY2 (h5_set_stepname_fmt (f, H5_STEPNAME, H5_STEPWIDTH));
+
+	/* init values  */
+	f->comm = comm;
+	f->nprocs = 1;		// queried later
+	f->myproc = 0;		// queried later
 	f->mode = flags;
 	f->step_gid = -1;
 	f->throttle = 0;
-
 	sprintf (
 		f->step_name,
 		"%s#%0*lld",
 		f->prefix_step_name, f->width_step_idx, (long long)f->step_idx);
 
+	f->xfer_prop = f->access_prop = H5P_DEFAULT;
+	TRY2 (f->create_prop = hdf5_create_property(H5P_FILE_CREATE));
+
+	TRY2 (mpi_init (f, comm));
+	TRY2 (set_alignment (f, align));
+	TRY2 (open_file (f, filename));
+
+	TRY2 (f->root_gid = hdf5_open_group (f->file, "/" ));
+
 	TRY2 (h5upriv_open_file (f));
 	TRY2 (h5bpriv_open_file (f));
-	TRY2 (h5tpriv_open_file (f));
 	H5_CORE_API_RETURN (f);
 }
 
@@ -249,7 +292,7 @@ static h5_err_t
 h5upriv_close_file (
 	h5_file_t* const f	/*!< file handle */
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_PRIV_API_ENTER (h5_err_t, "f=%p", f);
 	struct h5u_fdata* u = f->u;
 
 	h5_errno = H5_SUCCESS;
@@ -277,7 +320,7 @@ static h5_err_t
 h5bpriv_close_file (
 	h5_file_t* const f	/*!< IN: file handle */
 	) {
-	H5_PRIV_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_PRIV_API_ENTER (h5_err_t, "f=%p", f);
 	struct h5b_fdata* b = f->b;
 	TRY (hdf5_close_group (b->block_gid));
 	TRY (hdf5_close_group (b->field_gid));
@@ -307,7 +350,7 @@ h5_err_t
 h5_close_file (
 	h5_file_t* const f	/*!< file handle */
 	) {
-	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
 	h5_errno = H5_SUCCESS;
 
 	CHECK_FILEHANDLE (f);
@@ -315,7 +358,6 @@ h5_close_file (
 	TRY (h5priv_close_step (f));
 	TRY (h5upriv_close_file (f));
 	TRY (h5bpriv_close_file (f));
-	TRY (h5tpriv_close_file (f));
 	TRY (hdf5_close_property (f->xfer_prop));
 	TRY (hdf5_close_property (f->access_prop));
 	TRY (hdf5_close_property (f->create_prop));
@@ -327,17 +369,17 @@ h5_close_file (
 
 h5_err_t
 h5_flush_step (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
 	H5_CORE_API_RETURN (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
 }
 
 h5_err_t
 h5_flush_file (
-	h5_file_t * const f
+	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER1 (h5_err_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
 	H5_CORE_API_RETURN (hdf5_flush (f->file, H5F_SCOPE_GLOBAL));
 }
 
@@ -358,8 +400,7 @@ h5_set_stepname_fmt (
 	const char* name,
 	int width
 	) {
-	H5_CORE_API_ENTER3 (h5_err_t,
-			    "f=0x%p, name=\"%s\", width=%d", f, name, width);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p, name='%s', width=%d", f, name, width);
 	if (width < 0) width = 0;
 	else if (width > H5_STEPNAME_LEN - 1) width = H5_STEPNAME_LEN - 1;
 	strncpy (
@@ -419,7 +460,7 @@ int
 h5_get_num_procs (
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	H5_CORE_API_ENTER1 (int, "f=0x%p", f);
+	H5_CORE_API_ENTER (int, "f=%p", f);
 	H5_CORE_API_RETURN (f->nprocs);
 }
 
@@ -434,7 +475,7 @@ hid_t
 h5_get_hdf5_file(
 	h5_file_t* const f		/*!< file handle		*/
 	) {
-	H5_CORE_API_ENTER1 (hid_t, "f=0x%p", f);
+	H5_CORE_API_ENTER (hid_t, "f=%p", f);
 	H5_CORE_API_RETURN (f->file);
 }
 

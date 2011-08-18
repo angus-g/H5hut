@@ -8,6 +8,7 @@ INCLUDES = -I../../src/include @INCLUDES@
 
 noinst_PROGRAMS =				\
 		tetmesh_write			\
+		tetmesh_write1			\
 		tetmesh_write2			\
 		tetmesh_read			\
 		tetmesh_adjacencies		\
@@ -27,6 +28,7 @@ EXTRA_DIST =					\
 		tetmesh_read.c			\
 		tetmesh_read_tags.c		\
 		tetmesh_write.c			\
+		tetmesh_write1.c			\
 		tetmesh_write2.c		\
 		tetmesh_write_tags.c		\
 		trimesh_adjacencies.c		\

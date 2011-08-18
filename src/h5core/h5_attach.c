@@ -1,5 +1,6 @@
 #include "h5core/h5_core.h"
 #include "h5_core_private.h"
+
 #include <string.h>
 
 #include <sys/types.h>
@@ -14,7 +15,7 @@ h5_add_attachment (
 	h5_file_t* const f,
 	const char* const fname
 	) {
-	H5_CORE_API_ENTER1 (h5_err_t, "fname=\"%s\"", fname);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
 	// allowed file modes: O_RDWR, O_WRONLY; O_APPEND
 	if (f->mode == H5_O_RDONLY) {
 		H5_PRIV_FUNC_LEAVE (
@@ -26,21 +27,21 @@ h5_add_attachment (
 		H5_CORE_API_LEAVE (
 			h5_error (
 				H5_ERR_HDF5,
-				"Cannot stat file \"%s\"",
+				"Cannot stat file '%s'",
 				fname));
 	}
 	hsize_t fsize = st.st_size;
 	hsize_t write_length;
 	char* buf = NULL;
 	if (f->myproc == 0) {
-		buf = malloc (fsize);
+		TRY (buf = h5_alloc (NULL, fsize));
 		write_length = fsize;
 		int fd;
 		if ((fd = open (fname, O_RDONLY)) < 0) {
 			H5_CORE_API_LEAVE (
 				h5_error (
 					H5_ERR_HDF5,
-					"Cannot open file \"%s\" for reading",
+					"Cannot open file '%s' for reading",
 					fname));
 		}
 	again:
@@ -51,7 +52,7 @@ h5_add_attachment (
 				H5_CORE_API_LEAVE (
 					h5_error (
 						H5_ERR_HDF5,
-						"Cannot read file \"%s\"",
+						"Cannot read file '%s'",
 						fname));
 			}
 		}
@@ -59,17 +60,17 @@ h5_add_attachment (
 			H5_CORE_API_LEAVE (
 				h5_error (
 					H5_ERR_HDF5,
-					"Cannot close file \"%s\"",
+					"Cannot close file '%s'",
 					fname));
 		}
 
 	} else {
-		buf = malloc (1);
+		TRY (buf = h5_alloc (NULL, 1));
 		write_length = 0;
 	}
 
 	hid_t loc_id;
-	TRY (loc_id = h5priv_open_group (f, f->file, H5_ATTACHMENT));
+	TRY (loc_id = h5priv_open_group (1, f->file, H5_ATTACHMENT));
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (loc_id, fname));
 	if (exists && (f->mode == H5_O_RDWR || f->mode == H5_O_WRONLY)) {
@@ -134,7 +135,7 @@ h5_ssize_t
 h5_get_num_attachments (
 	h5_file_t* const f
 	) {
-	H5_CORE_API_ENTER0 (h5_ssize_t);
+	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	h5_ssize_t num = 0;
 	hid_t group_id;
         TRY (group_id = open_attachments (f));
@@ -154,7 +155,10 @@ h5_get_attachment_info_by_idx (
 	h5_size_t len_fname,		// IN
 	h5_size_t* const fsize		// OUT
 	) {
-	H5_CORE_API_ENTER0 (h5_err_t);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, idx=%llu, fname=%s, len_fname=%llu, fsize=%p",
+			   f, (unsigned long long)idx, fname, (unsigned long long)len_fname,
+			   fsize);
 	hid_t loc_id;
         TRY (loc_id = open_attachments (f));
 	if (loc_id < 0) { // no attachment group in file
@@ -181,7 +185,7 @@ h5_get_attachment_info_by_name (
 	const char* const fname,	// IN
 	h5_size_t* const fsize		// OUT
 	) {
-	H5_CORE_API_ENTER2 (h5_err_t, "fname=\"%s\", fsize=0x%p", fname, fsize);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s', fsize=%p", f, fname, fsize);
 
 	hid_t loc_id;
         TRY (loc_id = open_attachments (f));
@@ -203,7 +207,7 @@ h5_get_attachment (
 	h5_file_t* const f,
 	const char* const fname
 	) {
-	H5_CORE_API_ENTER1 (h5_err_t, "fname=\"%s\"", fname);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
 	// allowed modes: O_RDWR, O_RDONLY; O_APPEND
 	// forbidden modes: O_WRONLY
 	if (f->mode == H5_O_WRONLY) {
@@ -212,7 +216,7 @@ h5_get_attachment (
 	}
 
 	hid_t loc_id;
-	TRY (loc_id = h5priv_open_group (f, f->file, H5_ATTACHMENT));
+	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (loc_id, fname));
 	if (f->mode == H5_O_WRONLY) {
@@ -222,7 +226,7 @@ h5_get_attachment (
 		H5_PRIV_FUNC_LEAVE (
 			h5_error (
 				H5_ERR_H5,
-				"Attachment \"%s\" doesn't exist", fname));
+				"Attachment '%s' doesn't exist", fname));
 	}
 
 	// read dataset
@@ -274,21 +278,21 @@ h5_get_attachment (
 			H5_CORE_API_LEAVE (
 				h5_error (
 					H5_ERR_H5,
-					"Error opening file \"%s\": %s",
+					"Error opening file '%s': %s",
 					fname, strerror(errno)));
 		}
 		if (write (fd, buf, fsize) != fsize) {
 			H5_CORE_API_LEAVE (
 				h5_error (
 					H5_ERR_H5,
-					"Error writing to file \"%s\": %s",
+					"Error writing to file '%s': %s",
 					fname, strerror(errno)));
 		}
 		if (close (fd) < 0) {
 			H5_CORE_API_LEAVE (
 				h5_error (
 					H5_ERR_H5,
-					"Error closing file \"%s\": %s",
+					"Error closing file '%s': %s",
 					fname, strerror(errno)));
 		}
 	}
@@ -302,7 +306,7 @@ h5_delete_attachment (
 	h5_file_t* const f,
 	const char* const fname
 	) {
-	H5_CORE_API_ENTER1 (h5_err_t, "fname=\"%s\"", fname);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
 	hid_t group_id;
         TRY (group_id = open_attachments (f));
 	if (group_id < 0) {

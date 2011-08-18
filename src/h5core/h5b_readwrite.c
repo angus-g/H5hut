@@ -5,7 +5,7 @@ static h5_err_t
 _select_hyperslab_for_writing (
 	h5_file_t *const f		/*!< IN: file handle */
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER (h5_err_t, "f=%p", f);
 	/*
 	  re-use existing hyperslab
 	*/
@@ -107,7 +107,9 @@ _write_data (
 	const void *data,		/*!< IN: data to write */
 	const hid_t type		/*!< IN: data type */
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "f=%p, field_name=%s, data_name=%s, data=%p type=%d",
+			    f, field_name, data_name, data, type);
 	hid_t dataset;
 	h5b_fdata_t *b = f->b;
 
@@ -118,13 +120,13 @@ _write_data (
 		hid_t type_file;
 		TRY( type_file = hdf5_get_dataset_type (dataset) );
 		if ( type != type_file ) {
-			return h5_error(
+			H5_PRIV_FUNC_LEAVE (h5_error(
 				H5_ERR_HDF5,
 				"Field '%s' already has type '%s' "
 				"but was written as '%s'.",
 				field_name,
 				hdf5_get_type_name (type_file),
-				hdf5_get_type_name (type));
+				hdf5_get_type_name (type)));
 		}
 	} else {
 		TRY (dataset = hdf5_create_dataset(
@@ -159,9 +161,9 @@ h5b_write_scalar_data (
 	const void *data,		/*!< IN: data to write */
 	const hid_t type		/*!< IN: data type */
 	) {
-	H5_CORE_API_ENTER4 (h5_err_t,
-			    "f=0x%p, field_name=\"%s\", data=0x%p, type=%d",
-			    f, field_name, data, type);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, field_name='%s', data=%p, type=%d",
+			   f, field_name, data, type);
 	CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_LAYOUT( f );
@@ -180,12 +182,12 @@ h5b_write_vector3d_data (
 	const void *zdata,		/*!< IN: z data to write */
 	const hid_t type		/*!< IN: data type */
 	) {
-	H5_CORE_API_ENTER6 (h5_err_t,
-			    "f=0x%p, field_name=\"%s\", "
-			    "xdata=0x%p, "
-			    "ydata=0x%p, "
-			    "zdata=0x%p, "
-			    "type=%d",
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, field_name='%s', "
+			   "xdata=%p, "
+			   "ydata=%p, "
+			   "zdata=%p, "
+			   "type=%d",
 			    f, field_name, xdata, ydata, zdata, type);
 	CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
@@ -203,7 +205,7 @@ _select_hyperslab_for_reading (
 	h5_file_t *const f,			/*!< IN: file handle */
 	const hid_t dataset
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER (h5_err_t, "f=%p, dataset=%d", f, dataset);
 	h5b_fdata_t *b = f->b;
 	h5b_partition_t *p = b->user_layout;
 	int rank;
@@ -283,7 +285,9 @@ read_data (
 	void *data,			/*!< OUT: ptr to read buffer */
 	const hid_t type      		/*!< IN: data type */
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "f=%p, dataset_name=%s, data=%p, type=%d",
+			    f, dataset_name, data, type);
 	hid_t dataset;
 	h5b_fdata_t *b = f->b;
 
@@ -314,9 +318,9 @@ h5b_read_scalar_data (
 	void *data,			/*!< OUT: read bufer */
 	const hid_t type		/*!< IN: data type */
 	) {
-	H5_CORE_API_ENTER4 (h5_err_t,
-			    "f=0x%p, field_name=\"%s\", data=0x%p, type=%d",
-			    f, field_name, data, type);
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, field_name='%s', data=%p, type=%d",
+			   f, field_name, data, type);
 	CHECK_TIMEGROUP( f );
 	CHECK_LAYOUT( f );
 	TRY( h5bpriv_open_field_group(f, field_name) );
@@ -333,12 +337,12 @@ h5b_read_vector3d_data (
 	void *zdata,			/*!< IN: z data to write */
 	const hid_t type		/*!< IN: data type */
 	) {
-	H5_CORE_API_ENTER6 (h5_err_t,
-			    "f=0x%p, field_name=\"%s\", "
-			    "xdata=0x%p, "
-			    "ydata=0x%p, "
-			    "zdata=0x%p, "
-			    "type=%d",
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, field_name='%s', "
+			   "xdata=%p, "
+			   "ydata=%p, "
+			   "zdata=%p, "
+			   "type=%d",
 			    f, field_name, xdata, ydata, zdata, type);
 	CHECK_TIMEGROUP( f );
 	CHECK_LAYOUT( f );

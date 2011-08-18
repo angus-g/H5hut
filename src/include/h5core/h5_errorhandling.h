@@ -58,6 +58,9 @@ h5_initialize (
 			H5_ERR_INVAL,					\
 			"Attempting to write to read-only file" );
 
+#define is_writable(f)	(f->mode != H5_O_RDONLY)
+
+
 #define CHECK_READONLY_MODE( f )					\
 	if ( ! f->mode==H5_O_RDONLY )					\
 		return h5_error (					\
@@ -73,7 +76,7 @@ h5_initialize (
 #define h5_error_not_implemented()				     \
 	h5_error(						     \
 		H5_ERR_NOT_IMPLEMENTED,				     \
-		"%s: Function \"%s\", line %d not yet implemented!", \
+		"%s: Function '%s', line %d not yet implemented!", \
 		__FILE__, __func__, __LINE__);
 
 #define h5_error_internal()   \

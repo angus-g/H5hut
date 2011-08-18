@@ -38,7 +38,6 @@ struct h5_file {
 
 	struct h5u_fdata *u;
 	struct h5b_fdata *b;
-	struct h5t_fdata *t;
 };
 
 struct h5_idxmap_el {

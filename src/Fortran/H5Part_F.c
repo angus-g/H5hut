@@ -81,7 +81,7 @@ h5pt_setnpoints (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER2(h5_err_t, "f=0x%p, n=%lld", fh, (long long)*n);
+	H5_API_ENTER (h5_err_t, "f=%p, n=%lld", fh, (long long)*n);
 	H5_API_RETURN(h5u_set_num_particles ( fh, *n, 1 ));
 }
 
@@ -93,7 +93,7 @@ h5pt_setnpoints_strided (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER3(h5_err_t, "f=0x%p, n=%lld, stride=%lld",
+	H5_API_ENTER (h5_err_t, "f=%p, n=%lld, stride=%lld",
 				 fh, (long long)*n, (long long)*stride);
 	H5_API_RETURN(h5u_set_num_particles ( fh, *n, *stride ));
 }
@@ -106,7 +106,7 @@ h5pt_getndatasets (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER1(h5_int64_t, "f=0x%p", fh);
+	H5_API_ENTER (h5_int64_t, "f=%p", fh);
 	H5_API_RETURN(h5u_get_num_datasets ( fh ));
 }
 
@@ -116,7 +116,7 @@ h5pt_getnpoints (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER1(h5_int64_t, "f=0x%p", fh);
+	H5_API_ENTER (h5_int64_t, "f=%p", fh);
 	H5_API_RETURN(h5u_get_num_particles ( fh ));
 }
 
@@ -129,7 +129,7 @@ h5pt_getdatasetname (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4(h5_err_t, "f=0x%p, index=%lld, name=\"%s\", l_name=%d",
+	H5_API_ENTER (h5_err_t, "f=%p, index=%lld, name='%s', l_name=%d",
 				fh, (long long)*index, name, l_name);
 	h5_err_t herr =  h5u_get_dataset_info (
 		fh, *index, name, l_name, NULL, NULL );
@@ -147,7 +147,7 @@ h5pt_setview (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER3(h5_err_t, "f=0x%p, start=%lld, end=%lld",
+	H5_API_ENTER (h5_err_t, "f=%p, start=%lld, end=%lld",
 				fh, (long long)*start, (long long)*end);
 	H5_API_RETURN(h5u_set_view ( fh, (*start)-1, (*end)-1 ));
 }
@@ -160,7 +160,7 @@ h5pt_setview_indices (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER3(h5_err_t, "f=0x%p, indices=0x%p, nelem=%lld",
+	H5_API_ENTER (h5_err_t, "f=%p, indices=%p, nelem=%lld",
 				fh, indices, (long long)*nelem);
 	H5_API_RETURN(h5u_set_view_indices ( fh, indices, *nelem ));
 }
@@ -171,7 +171,7 @@ h5pt_resetview (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER1(h5_err_t, "f=0x%p", fh);
+	H5_API_ENTER (h5_err_t, "f=%p", fh);
 	H5_API_RETURN(h5u_reset_view ( fh ));
 }
 
@@ -181,7 +181,7 @@ h5pt_hasview (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER1(h5_err_t, "f=0x%p", fh);
+	H5_API_ENTER (h5_err_t, "f=%p", fh);
 	H5_API_RETURN(h5u_has_view ( fh ));
 }
 
@@ -193,7 +193,7 @@ h5pt_getview (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER3(h5_err_t, "f=0x%p, start=0x%p, end=0x%p",
+	H5_API_ENTER (h5_err_t, "f=%p, start=%p, end=%p",
 				fh, start, end);
 	H5_API_RETURN(h5u_get_view ( fh, start, end));
 }
@@ -208,7 +208,7 @@ h5pt_writedata_r8 (
 	const int l_name ) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4(h5_err_t, "f=0x%p, name=\"%s\", data=0x%p, l_name=%d",
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', data=%p, l_name=%d",
 				fh, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5u_write_data (
@@ -225,7 +225,7 @@ h5pt_writedata_r4 (
 	const int l_name ) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4(h5_err_t, "f=0x%p, name=\"%s\", data=0x%p, l_name=%d",
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', data=%p, l_name=%d",
 				fh, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5u_write_data (
@@ -242,7 +242,7 @@ h5pt_writedata_i8 (
 	const int l_name ) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4(h5_err_t, "f=0x%p, name=\"%s\", data=0x%p, l_name=%d",
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', data=%p, l_name=%d",
 				fh, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5u_write_data (
@@ -259,7 +259,7 @@ h5pt_writedata_i4 (
 	const int l_name ) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4(h5_err_t, "f=0x%p, name=\"%s\", data=0x%p, l_name=%d",
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', data=%p, l_name=%d",
 				fh, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5u_write_data (
@@ -279,7 +279,7 @@ h5pt_readdata_r8 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4(h5_err_t, "f=0x%p, name=\"%s\", data=0x%p, l_name=%d",
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', data=%p, l_name=%d",
 				fh, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5u_read_data (
@@ -297,7 +297,7 @@ h5pt_readdata_r4 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4(h5_err_t, "f=0x%p, name=\"%s\", data=0x%p, l_name=%d",
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', data=%p, l_name=%d",
 				fh, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5u_read_data (
@@ -315,7 +315,7 @@ h5pt_readdata_i8 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4(h5_err_t, "f=0x%p, name=\"%s\", data=0x%p, l_name=%d",
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', data=%p, l_name=%d",
 				fh, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5u_read_data (
@@ -334,7 +334,7 @@ h5pt_readdata_i4 (
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
-	H5_API_ENTER4(h5_err_t, "f=0x%p, name=\"%s\", data=0x%p, l_name=%d",
+	H5_API_ENTER (h5_err_t, "f=%p, name='%s', data=%p, l_name=%d",
 				fh, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5u_read_data (
