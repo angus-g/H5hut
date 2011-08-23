@@ -59,7 +59,7 @@ h5_strdup (
 	) {
 	MALLOC_WRAPPER_ENTER (char_p, "s='%s'", s1);
 	
-	char_p s2 = h5_calloc (1, strlen (s1)+1 );
+	char_p s2 = (char_p)h5_calloc (1, strlen (s1)+1 );
 	if (s2 == NULL) {
 		MALLOC_WRAPPER_LEAVE (
 			(char_p)h5_error (H5_ERR_NOMEM, "Out of memory."));
