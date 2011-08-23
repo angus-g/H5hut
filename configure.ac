@@ -1,12 +1,12 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5hut], [1.99.1], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [1.99.6], [h5part@lists.psi.ch], H5hut)
 
 
 # Ensure that a recent enough version of Autoconf is being used. 
 # If the version of Autoconf being used to create configure is earlier than version, 
 # print an error message to the standard error output and do not create configure.
-AC_PREREQ(2.59)
+AC_PREREQ(2.60)
 
 # should be called right after AC_INIT.
 # configure scripts can create a C header file containing `#define' directives. 
@@ -54,6 +54,12 @@ AC_ARG_WITH(
 	[AC_HELP_STRING([--with-hdf5],
 	[path to HDF5 installation [default=""]])],
 	[HDF5PATH=$withval], [HDF5PATH=""])
+
+AC_ARG_WITH(
+	[mpi],
+	[AC_HELP_STRING([--with-mpi],
+	[path to MPI installation [default=""]])],
+	[MPIPATH=$withval;PATH=$MPIPATH/bin:$PATH], [MPIPATH=""])
 
 AC_ARG_WITH(
 	[lustre],
@@ -108,20 +114,20 @@ AC_PROG_MAKE_SET
 # Set output variable CC to the name of the compiler found.
 if test "x$USE_PARALLEL" = "xyes"; then
    	CCOMPILERS="mpicc cc"
+	CXXCOMPILERS="mpic++ c++"
 else
 	CCOMPILERS="pgcc pathcc icc gcc cc_r cc"
+	CXXCOMPILERS="pgcc pathcc icc g++ cc_r c++"
 fi
 
 AC_PROG_CC($CCOMPILERS)
-AC_PROG_CXX
+CC=`which $CC`
+AC_PROG_CXX($CXXCOMPILERS)
+CXX=`which $CXX`
 
 # Use macro to set C99 mode instead of checking for gcc, which breaks with
 # parallel builds.
 AC_PROG_CC_C99
-#if test "x$CC" = "xgcc"; then
-#	CFLAGS="$CFLAGS -std=c99"
-#fi
-
 if test "x$ac_cv_prog_cc_c99" = "xno"; then
 	AC_MSG_ERROR([Cannot set C compiler to use C99 standard!])
 	exit 1
@@ -411,6 +417,7 @@ AC_MSG_RESULT([Build libraries:     $BUILD_LIBS])
 AC_MSG_RESULT([Build test programs: $BUILD_TESTS])
 AC_MSG_RESULT([Build tools:         $BUILD_TOOLS])
 AC_MSG_RESULT([CC =                 $CC])
+AC_MSG_RESULT([CXX =                $CXX])
 AC_MSG_RESULT([FC =                 $FC])
 AC_MSG_RESULT([CFLAGS =             $CFLAGS])
 AC_MSG_RESULT([FFLAGS =             $FFLAGS])
