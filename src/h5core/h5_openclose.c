@@ -130,27 +130,27 @@ h5_err_t mpi_init (
 	) {
 	H5_INLINE_FUNC_ENTER (h5_err_t);
 #ifdef PARALLEL_IO
-	TRY2 (h5priv_mpi_comm_size (comm, &f->nprocs));
-	TRY2 (h5priv_mpi_comm_rank (comm, &f->myproc));
+	TRY (h5priv_mpi_comm_size (comm, &f->nprocs));
+	TRY (h5priv_mpi_comm_rank (comm, &f->myproc));
 	
 	/* xfer_prop:  also used for parallel I/O, during actual writes
 	   rather than the access_prop which is for file creation. */
-	TRY2 (f->xfer_prop = hdf5_create_property(H5P_DATASET_XFER));
-	TRY2 (f->access_prop = hdf5_create_property(H5P_FILE_ACCESS));
+	TRY (f->xfer_prop = hdf5_create_property(H5P_DATASET_XFER));
+	TRY (f->access_prop = hdf5_create_property(H5P_FILE_ACCESS));
 
 	/* select the HDF5 VFD */
-	if (f->flags & H5_VFD_MPIPOSIX) {
+	if (f->mode & H5_VFD_MPIPOSIX) {
 		h5_info("Selecting MPI-POSIX VFD");
 		hbool_t use_gpfs = 0; // TODO autodetect GPFS?
-		TRY2 (hdf5_set_fapl_mpiposix_property(f->access_prop, comm, use_gpfs));
+		TRY (hdf5_set_fapl_mpiposix_property(f->access_prop, comm, use_gpfs));
 	} else {
 		h5_info("Selecting MPI-IO VFD");
-		TRY2 (hdf5_set_fapl_mpio_property(f->access_prop, comm, MPI_INFO_NULL));
-		if (f->flags & H5_VFD_INDEPENDENT) {
+		TRY (hdf5_set_fapl_mpio_property(f->access_prop, comm, MPI_INFO_NULL));
+		if (f->mode & H5_VFD_INDEPENDENT) {
 			h5_info("MPI-IO: Using independent mode");
 		} else {
 			h5_info("MPI-IO: Using collective mode");
-			TRY2 (hdf5_set_dxpl_mpio_property(f->xfer_prop, H5FD_MPIO_COLLECTIVE) );
+			TRY (hdf5_set_dxpl_mpio_property(f->xfer_prop, H5FD_MPIO_COLLECTIVE) );
 		}
 	}
 #ifdef H5_USE_LUSTRE
