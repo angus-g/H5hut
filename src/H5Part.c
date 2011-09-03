@@ -291,9 +291,9 @@ _H5Part_open_file (
 
 	if ( align != 0 ) {
 		_H5Part_print_info (
-			"Setting HDF5 alignment to %ld bytes",
+			"Setting HDF5 alignment to %ld bytes with threshold at half that many bytes",
 			align );
-		if (H5Pset_alignment ( f->access_prop, 0, align ) < 0) {
+		if (H5Pset_alignment ( f->access_prop, align/2, align ) < 0) {
 			HANDLE_H5P_SET_FAPL_ERR;
 			goto error_cleanup;
 		}
@@ -2859,9 +2859,9 @@ _set_view_indices (
 	herr = _reset_view ( f );
 	if ( herr < 0 ) return herr;
 
-	if ( indices == NULL || nelems <= 0 ) {
+	if ( indices == NULL || nelems < 0 ) {
 		_H5Part_print_warn (
-			"View indices array is null or size is <= 0: reseting view." );
+			"View indices array is null or size is < 0: reseting view." );
 		return H5PART_SUCCESS;
 	}
 

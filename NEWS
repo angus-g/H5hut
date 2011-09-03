@@ -1,3 +1,11 @@
+#### H5PART 1.6.4 ############################################################
+
+Fixed bug where H5PartSetViewIndices was not setting an empty view when the
+number of elements is 0.
+
+Set a threshold on the HDF5 alignment parameter so that small metadata writes
+are not aligned, which causes large gaps in the file.
+
 #### H5PART 1.6.3 ############################################################
 
 New build system uses libtool and can build shared libraries.
