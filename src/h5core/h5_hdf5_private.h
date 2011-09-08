@@ -1,6 +1,7 @@
 #ifndef __H5_HDF5_PRIVATE_H
 #define __H5_HDF5_PRIVATE_H
 
+#include <hdf5.h>
 
 /****** L i n k **************************************************************/
 
@@ -913,8 +914,8 @@ hdf5_set_fapl_mpio_property (
 	MPI_Info info
 	) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-			    "fapl_id=%d, comm=%p, info=%p",
-			    fapl_id, (void*)comm, (void*)info);
+			    "fapl_id=%d, comm=..., info=...",
+			    fapl_id);
 	if (H5Pset_fapl_mpio (fapl_id, comm, info) < 0)
 		HDF5_WRAPPER_LEAVE (
 			h5_error (
@@ -931,8 +932,8 @@ hdf5_set_fapl_mpiposix_property (
 	hbool_t	use_gpfs
 	) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-			    "fapl_id=%d, comm=%p, use_gpfs=%d",
-			    fapl_id, (void*)comm, (int)use_gpfs);
+			    "fapl_id=%d, comm=..., use_gpfs=%d",
+			    fapl_id, (int)use_gpfs);
 	if ( H5Pset_fapl_mpiposix (fapl_id, comm, use_gpfs) < 0)
 		HDF5_WRAPPER_LEAVE (
 			h5_error (
