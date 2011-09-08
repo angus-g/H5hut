@@ -233,7 +233,7 @@ h5_get_attrib_info (
 	h5_size_t* attrib_nelem			/*!< OUT: number of elements */
 	) {
 	H5_PRIV_API_ENTER (h5_err_t,
-			   "f=0x%p, mode=%d, "
+			   "f=%p, mode=%d, "
 			   "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
 			   "attrib_type=%p, attrib_nelem=%p",
 			   f, mode,
