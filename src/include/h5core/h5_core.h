@@ -143,7 +143,7 @@ done:									\
 #endif
 
 #include <hdf5.h>
-#if defined(H5_HAVE_PARALLEL)
+#if defined(H5_HAVE_PARALLEL) && !defined(PARALLEL_IO)
 #define PARALLEL_IO 1
 #endif
 
