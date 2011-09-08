@@ -142,6 +142,12 @@ done:									\
 }
 #endif
 
+#include <hdf5.h>
+#if defined(H5_HAVE_PARALLEL)
+#define PARALLEL_IO 1
+#endif
+
+
 #if defined(PARALLEL_IO)
 #include <mpi.h>
 #endif
