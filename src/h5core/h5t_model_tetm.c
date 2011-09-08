@@ -50,7 +50,7 @@ h5t_open_tetrahedral_mesh (
 		     TETRAHEDRAL_MESHES_GRPNAME,
 		     name));
 
-	TRY (*mesh = h5_alloc (NULL, sizeof(**mesh)));
+	TRY (*mesh = h5_calloc (1, sizeof(**mesh)));
 	h5t_mesh_t* m = *mesh;
 	TRY (h5tpriv_init_mesh (
 		     m,

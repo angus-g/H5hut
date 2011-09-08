@@ -101,7 +101,7 @@ h5t_add_triangle_mesh (
 		     TRIANGLE_MESHES_GRPNAME,
 		     name));
 
-	TRY (*mesh = h5_alloc (NULL, sizeof(**mesh)));
+	TRY (*mesh = h5_calloc (1, sizeof(**mesh)));
 	h5t_mesh_t* m = *mesh;
 	TRY (h5tpriv_init_mesh (
 		     m,
