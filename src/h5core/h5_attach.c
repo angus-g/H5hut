@@ -34,7 +34,7 @@ h5_add_attachment (
 	hsize_t write_length;
 	char* buf = NULL;
 	if (f->myproc == 0) {
-		TRY (buf = h5_alloc (NULL, fsize));
+		TRY (buf = h5_calloc (1, fsize));
 		write_length = fsize;
 		int fd;
 		if ((fd = open (fname, O_RDONLY)) < 0) {
@@ -65,7 +65,7 @@ h5_add_attachment (
 		}
 
 	} else {
-		TRY (buf = h5_alloc (NULL, 1));
+		TRY (buf = h5_calloc (1, 1));
 		write_length = 0;
 	}
 

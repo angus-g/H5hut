@@ -63,7 +63,7 @@ h5upriv_open_file (
 	h5_file_t* const f		/*!< IN: file handle */
 	) {
 	H5_PRIV_API_ENTER (h5_err_t, "f=%p", f);
-	TRY (f->u = (h5u_fdata_t*)h5_alloc (NULL, sizeof (*f->u)));
+	TRY (f->u = (h5u_fdata_t*)h5_calloc (1, sizeof (*f->u)));
 	h5u_fdata_t *u = f->u;
 
         u->shape = -1;
@@ -99,7 +99,7 @@ h5bpriv_open_file (
 	if (f->b)
 		H5_PRIV_API_LEAVE (H5_SUCCESS);
 
-	TRY (f->b = (h5b_fdata_t*)h5_alloc (NULL, sizeof (*f->b)));
+	TRY (f->b = (h5b_fdata_t*)h5_calloc (1, sizeof (*f->b)));
 
 	b = f->b;
 	memset (b, 0, sizeof (*b));

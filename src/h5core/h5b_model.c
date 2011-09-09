@@ -338,7 +338,7 @@ _dissolve_ghostzones (
 
 	memcpy( write_layout, user_layout, f->nprocs*sizeof(h5b_partition_t) );
 
-	TRY( p_begin = (struct list*)h5_alloc (NULL, sizeof(*p_begin)) );
+	TRY( p_begin = (struct list*)h5_calloc (1, sizeof(*p_begin)) );
 	p_max = p_end = p_begin;
 	
 	memset( p_begin, 0, sizeof ( *p_begin ) );
@@ -351,7 +351,7 @@ _dissolve_ghostzones (
 			proc_q++, q++ ) {
 
 			if ( have_ghostzone ( p, q ) ) {
-				TRY( p_el = (struct list*)h5_alloc (NULL, sizeof(*p_el)) );
+				TRY( p_el = (struct list*)h5_calloc (1, sizeof(*p_el)) );
 
 				p_el->p = p;
 				p_el->q = q;
@@ -553,8 +553,8 @@ h5b_3d_set_view (
 	h5b_partition_t *write_layout;
 
 	size_t size = f->nprocs * sizeof (h5b_partition_t);
-	TRY( user_layout = h5_alloc (NULL, size) );
-	TRY( write_layout = h5_alloc (NULL, size) );
+	TRY( user_layout = h5_calloc (1, size) );
+	TRY( write_layout = h5_calloc (1, size) );
 
 	TRY( h5priv_mpi_allgather(
 		p, 1, f->b->partition_mpi_t,
