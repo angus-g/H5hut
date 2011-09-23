@@ -536,7 +536,7 @@ TestPrintf(const char *format, ...)
     int nproc;
     MPI_Comm_rank(MPI_COMM_WORLD, &nproc);
     if ( nproc == 0 || VERBOSE_HI ) {
-	char *format2 = malloc(strlen(format)+8);
+	char *format2 = (char*)malloc(strlen(format)+8);
 	sprintf(format2, "[%d] %s", nproc, format);
 	va_start(arglist, format);
 	ret_value = vprintf(format2, arglist);
@@ -570,7 +570,7 @@ TestErrPrintf(const char *format, ...)
     int nproc;
     MPI_Comm_rank(MPI_COMM_WORLD, &nproc);
     if ( nproc == 0 || VERBOSE_HI ) {
-	char *format2 = malloc(strlen(format)+8);
+	char *format2 = (char*)malloc(strlen(format)+8);
 	sprintf(format2, "[%d] %s", nproc, format);
 	va_start(arglist, format);
 	ret_value = vfprintf(stderr, format2, arglist);

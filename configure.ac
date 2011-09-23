@@ -1,6 +1,6 @@
 # Every configure script must call AC_INIT before doing anything else.
 # AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5Part], [1.6.3], [h5part@lists.psi.ch], H5Part)
+AC_INIT([H5Part], [1.6.5], [h5part@lists.psi.ch], H5Part)
 
 # Ensure that a recent enough version of Autoconf is being used. 
 # If the version of Autoconf being used to create configure is earlier than version, 

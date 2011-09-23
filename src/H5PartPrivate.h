@@ -117,6 +117,24 @@ _H5Part_write_attrib (
 	);
 
 h5part_int64_t
+_H5Part_write_file_attrib (
+	H5PartFile *f,
+	const char *name,
+	const hid_t type,
+	const void *value,
+	const hsize_t nelem
+	);
+
+h5part_int64_t
+_H5Part_write_step_attrib (
+	H5PartFile *f,
+	const char *name,
+	const hid_t type,
+	const void *value,
+	const hsize_t nelem
+	);
+
+h5part_int64_t
 _H5Part_get_attrib_info (
 	hid_t id,
 	const h5part_int64_t attrib_idx,

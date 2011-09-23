@@ -1,3 +1,4 @@
+#include <string.h>
 #include <H5Part.h>
 
 #include "testframe.h"

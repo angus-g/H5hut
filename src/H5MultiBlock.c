@@ -567,10 +567,10 @@ _halo_exchange_buffers (
 	ibufsize = (int)bufsize;
 	if ( (h5part_int64_t)ibufsize != bufsize ) return HANDLE_MPI_INT64_ERR;
 
-	send_buffer = malloc ( bufsize );
+	send_buffer = (char*) malloc ( bufsize );
 	if ( send_buffer == NULL ) return HANDLE_H5PART_NOMEM_ERR;
 
-	recv_buffer = malloc ( bufsize );
+	recv_buffer = (char*) malloc ( bufsize );
 	if ( recv_buffer == NULL ) return HANDLE_H5PART_NOMEM_ERR;
 
 	/* forward */

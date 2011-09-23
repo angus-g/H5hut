@@ -6,6 +6,8 @@
 #ifndef _H5PART_TESTFRAME_H_
 #define _H5PART_TESTFRAME_H_
 
+#include <string.h>
+
 #ifdef PARALLEL_IO
 #define OPEN(file,mode) \
     H5PartOpenFileParallel(file,mode,MPI_COMM_WORLD)
