@@ -23,8 +23,8 @@ h5u_test_SOURCES =	\
 		params.h
 
 h5u_test_LDADD = \
-		../src/h5core/libH5hut.la \
-		../src/C/libH5hutC.la
+		../src/C/libH5hutC.la \
+		../src/h5core/libH5hut.la
 
 h5b_test_SOURCES =	\
 		h5b_test.c \
@@ -35,15 +35,15 @@ h5b_test_SOURCES =	\
 		params.h
 
 h5b_test_LDADD = \
-		../src/h5core/libH5hut.la \
-		../src/C/libH5hutC.la
+		../src/C/libH5hutC.la \
+		../src/h5core/libH5hut.la
 
 h5_attach_test_SOURCES = \
 		h5_attach_test.c
 
 h5_attach_test_LDADD = \
-		../src/h5core/libH5hut.la \
-		../src/C/libH5hutC.la
+		../src/C/libH5hutC.la \
+		../src/h5core/libH5hut.la
 
 clean-local:
 	${RM} -f *.h5
