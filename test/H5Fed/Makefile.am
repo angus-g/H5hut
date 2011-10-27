@@ -16,6 +16,7 @@ noinst_PROGRAMS =				\
 		tetmesh_read_tags		\
 		trimesh_read			\
 		trimesh_write			\
+		trimesh_2gnuplot		\
 		trimesh_adjacencies		\
 		trimesh_write_dunetest
 
@@ -28,12 +29,13 @@ EXTRA_DIST =					\
 		tetmesh_read.c			\
 		tetmesh_read_tags.c		\
 		tetmesh_write.c			\
-		tetmesh_write1.c			\
+		tetmesh_write1.c		\
 		tetmesh_write2.c		\
 		tetmesh_write_tags.c		\
 		trimesh_adjacencies.c		\
 		trimesh_read.c			\
 		trimesh_write.c			\
+		trimesh_2gnuplot.c		\
 		trimesh_write_dunetest.c
 
 #		map_tet2globalid.c \
