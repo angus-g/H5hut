@@ -77,4 +77,6 @@ test/h5u_test
 tools/.deps
 tools/Makefile
 tools/Makefile.in
+tools/h5PartDcToVtk
+tools/h5PartSurfaceToVtk
 tools/h5hutcc
