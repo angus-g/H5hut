@@ -310,3 +310,22 @@ h5t_get_vertex_coords_by_id (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
+h5_err_t
+h5t_get_neighbor_indices (
+	h5t_mesh_t* const m,
+	h5_loc_id_t entity_id,
+	h5_loc_idx_t* neighbor_indices
+	) {
+	H5_CORE_API_ENTER (h5_err_t,
+			   "m=%p, entity_id=%llu, neighbor_indices=%p",
+			   m,
+			   (long long unsigned)entity_id,
+			   neighbor_indices);
+	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
+	h5_loc_idx_t* indices = h5tpriv_get_loc_elem_neighbor_indices (m, elem_idx);
+	int num_facets = h5tpriv_ref_elem_get_num_facets (m);
+	for (int i = 0; i < num_facets; i++) {
+		neighbor_indices[i] = indices[i];
+	}
+	H5_CORE_API_RETURN (H5_SUCCESS);
+}

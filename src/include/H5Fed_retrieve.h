@@ -173,6 +173,19 @@ H5FedGetVertexIndicesOfEntity (
 	H5_API_RETURN (h5t_get_vertex_indices_of_entity (m, entity_id, vertex_indices));
 }
 
+static inline h5_err_t
+H5FedGetNeighborIndicesOfElement (
+	h5t_mesh_t* const m,
+	h5_loc_id_t entity_id,
+	h5_loc_idx_t* neighbor_indices
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "m=%p, entity_id=%lld, neighbor_indices=%p",
+		      m, (long long)entity_id, neighbor_indices);
+	H5_API_RETURN (h5t_get_neighbor_indices (m, entity_id, neighbor_indices));
+}
+
+
 #ifdef __cplusplus
 }
 #endif

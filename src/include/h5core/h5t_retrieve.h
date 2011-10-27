@@ -78,6 +78,8 @@ h5t_get_vertex_coords_by_index (h5t_mesh_t* const, h5_loc_idx_t, h5_float64_t[3]
 h5_err_t
 h5t_get_vertex_coords_by_id (h5t_mesh_t* const, h5_loc_id_t, h5_float64_t[3]);
 
+h5_err_t
+h5t_get_neighbor_indices (h5t_mesh_t* const, h5_loc_id_t, h5_loc_idx_t*);
 #ifdef __cplusplus
 }
 #endif
