@@ -336,7 +336,7 @@ int main(int argc, const char *argv[])
    
   string ifn = string(input_name) + string(".h5");
    
-  h5file = H5OpenFile(ifn.c_str(), H5_O_WRONLY, NULL);
+  h5file = H5OpenFile(ifn.c_str(), H5_O_WRONLY, 0);
      
   if( h5file == NULL ) {
     fprintf(stdout, "unable to open file %s\n", input_name);
