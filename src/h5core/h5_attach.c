@@ -274,7 +274,7 @@ h5_get_attachment (
 	// write file
 	if (f->myproc == 0) {
 		int fd;
-		if ((fd = open (fname, O_WRONLY|O_CREAT|O_TRUNC)) < 0) {
+		if ((fd = open (fname, O_WRONLY|O_CREAT|O_TRUNC, 0600)) < 0) {
 			H5_CORE_API_LEAVE (
 				h5_error (
 					H5_ERR_H5,
