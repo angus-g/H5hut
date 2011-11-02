@@ -116,7 +116,9 @@ h5bl_3d_getview (
 		      k_start, k_end);
 	H5_API_RETURN (h5b_3d_get_view (
 			       fh,
-			       i_start, i_end, j_start, j_end, k_start, k_end ));
+			       (h5_size_t*)i_start, (h5_size_t*)i_end,
+			       (h5_size_t*)j_start, (h5_size_t*)j_end,
+			       (h5_size_t*)k_start, (h5_size_t*)k_end ));
 }
 
 h5_err_t
@@ -142,7 +144,9 @@ h5bl_3d_getreducedview (
 		      k_start, k_end);
 	H5_API_RETURN(h5b_3d_get_reduced_view (
 		fh,
-		i_start, i_end, j_start, j_end, k_start, k_end ));
+		(h5_size_t*)i_start, (h5_size_t*)i_end,
+		(h5_size_t*)j_start, (h5_size_t*)j_end,
+		(h5_size_t*)k_start, (h5_size_t*)k_end ));
 }
 
 h5_int64_t

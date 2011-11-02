@@ -155,14 +155,14 @@ h5pt_setview (
 h5_err_t
 h5pt_setview_indices (
 	const h5_int64_t *f,
-	const h5_int64_t *indices,
+	const h5_int64_t * const indices,
 	const h5_int64_t *nelem
 	) {
 
 	h5_file_t *fh = h5_filehandlefor2c(f);
 	H5_API_ENTER (h5_err_t, "f=%p, indices=%p, nelem=%lld",
 				fh, indices, (long long)*nelem);
-	H5_API_RETURN(h5u_set_view_indices ( fh, indices, *nelem ));
+	H5_API_RETURN(h5u_set_view_indices ( fh, (const h5_size_t*const)indices, *nelem ));
 }
 
 h5_err_t

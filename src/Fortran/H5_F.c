@@ -51,25 +51,6 @@
 
 #endif
 
-static h5_int32_t
-_flagsfor2c (
-	char * flags
-	) {
-
-	h5_int32_t fbits = 0x00;
-
-	flags = strtok ( flags, "," );
-	while ( flags != NULL ) {
-		if ( strcmp ( flags, "vfd_mpiposix" ) == 0 )
-				fbits |= H5_VFD_MPIPOSIX;
-		else if ( strcmp ( flags, "vfd_independent" ) == 0 )
-				fbits |= H5_VFD_INDEPENDENT;
-		flags = strtok ( NULL, "," );
-	}
-
-	return fbits;
-}
-
 /* open/close interface */
 h5_err_t
 h5_openr (
@@ -79,7 +60,7 @@ h5_openr (
 
 	H5_API_ENTER (h5_err_t, "name='%s', l_name=%d", name, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_file_t* f = h5_open_file ( name2, H5_O_RDONLY, 0 );
+	h5_file_t* f = h5_open_file ( name2, H5_O_RDONLY, 0, 0 );
 	free ( name2 );
 	H5_API_RETURN((h5_int64_t)(size_t)f);
 }
@@ -92,7 +73,7 @@ h5_openw (
 
 	H5_API_ENTER (h5_err_t, "name='%s', l_name=%d", name, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_file_t* f = h5_open_file ( name2, H5_O_WRONLY, 0 );
+	h5_file_t* f = h5_open_file ( name2, H5_O_WRONLY, 0, 0 );
 	free ( name2 );
 	H5_API_RETURN((h5_int64_t)(size_t)f);
 }
@@ -105,7 +86,7 @@ h5pt_opena (
 
 	H5_API_ENTER (h5_err_t, "name='%s', l_name=%d", name, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_file_t* f = h5_open_file ( name2, H5_O_APPEND, 0 );
+	h5_file_t* f = h5_open_file ( name2, H5_O_APPEND, 0, 0 );
 	free ( name2 );
 	H5_API_RETURN((h5_int64_t)(size_t)f);
 }
