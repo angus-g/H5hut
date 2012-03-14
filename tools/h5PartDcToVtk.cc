@@ -167,7 +167,7 @@ int get_option(int argc, const char **argv, const char *opts, const struct long_
     }
   else
     {
-      register char *cp;    /* pointer into current token */
+      register const char *cp;    /* pointer into current token */
 
       /* short command line option */
       opt_opt = argv[opt_ind][sp];
