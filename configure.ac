@@ -199,7 +199,7 @@ if test "X$USE_C" = "Xyes"; then
 	LIB_C="libH5hutC.la"
 	BUILD_LIBS="$BUILD_LIBS libH5hutC"
 	BUILD_TESTS="$BUILD_TESTS h5u_test h5b_test"
-	BUILD_TOOLS="$BUILD_TOOLS h5hutcc h5PartDcToVtk h5PartSurfaceToVtk"
+	BUILD_TOOLS="$BUILD_TOOLS h5hutcc"
 fi
 
 ############################ fortran enabled ##################################
