@@ -19,11 +19,11 @@ h5_alloc (
 	void* ptr,
 	const size_t size
 	) {
-	MALLOC_WRAPPER_ENTER (void_p, "ptr=%p, size=%lu", ptr, size); 
+	MALLOC_WRAPPER_ENTER (void_p, "ptr=%p, size=%zu", ptr, size); 
 	ptr = realloc (ptr, size);
 	if (ptr == NULL) {
 		MALLOC_WRAPPER_LEAVE (
-			(void_p)h5_error (H5_ERR_NOMEM, "Out of memory."));
+			(void_p)(uintptr_t)h5_error (H5_ERR_NOMEM, "Out of memory."));
 	}
 	MALLOC_WRAPPER_RETURN (ptr);
 }
@@ -37,7 +37,7 @@ h5_calloc (
 	void* ptr = calloc (count, size);
 	if (ptr == NULL) {
 		MALLOC_WRAPPER_LEAVE (
-			(void_p)h5_error (H5_ERR_NOMEM, "Out of memory."));
+			(void_p)(uintptr_t)h5_error (H5_ERR_NOMEM, "Out of memory."));
 	}
 	MALLOC_WRAPPER_RETURN (ptr);
 }
@@ -62,7 +62,7 @@ h5_strdup (
 	char_p s2 = (char_p)h5_calloc (1, strlen (s1)+1 );
 	if (s2 == NULL) {
 		MALLOC_WRAPPER_LEAVE (
-			(char_p)h5_error (H5_ERR_NOMEM, "Out of memory."));
+			(char_p)(uintptr_t)h5_error (H5_ERR_NOMEM, "Out of memory."));
 	}
 	MALLOC_WRAPPER_RETURN (strcpy (s2, s1));
 }
