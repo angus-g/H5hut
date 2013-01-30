@@ -1,6 +1,10 @@
 # tools level Makefile.am
 
-OBJEXT=o
+SUBDIRS =
+
+if ENABLE_VTKCONVERTER
+SUBDIRS +=	vtk2h5grid
+endif
 
 AM_LDFLAGS = -L../src/lib @LDFLAGS@
 LIBS = -lH5hutC -lH5hut @LIBS@

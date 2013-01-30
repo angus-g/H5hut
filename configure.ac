@@ -49,6 +49,13 @@ AC_ARG_ENABLE(
 	[Compile the MPI/IO interface [default=no]])],
 	[USE_PARALLEL=$enableval])
 
+AC_ARG_ENABLE(
+	[vtkconverter],
+	[AS_HELP_STRING([--enable-vtkconverter],
+	[Compile the vtk to H5hut converter for grids [default=no]])],
+	[ENABLE_VTKCONVERTER=$enableval])
+AM_CONDITIONAL([ENABLE_VTKCONVERTER], [test "$ENABLE_VTKCONVERTER" = "yes"])
+
 AC_ARG_WITH(
 	[hdf5],
 	[AC_HELP_STRING([--with-hdf5],
@@ -66,6 +73,12 @@ AC_ARG_WITH(
 	[AC_HELP_STRING([--with-lustre],
 	[path to lustre user API [default=""]])],
 	[LUSTREPATH=$withval], [LUSTREPATH=""])
+
+AC_ARG_WITH(
+	[vtk],
+	[AS_HELP_STRING([--with-vtk],
+	[path to VTK installation [default=""]])],
+	[VTK_PREFIX=$withval], [VTK_PREFIX=""])
 
 ###############################################################################
 ############### PATH SERACH FUNCTION - to be used later... ####################
@@ -365,6 +378,16 @@ fi
 LIBS="$LIBS -lz -lm"
 
 ###############################################################################
+# TOOLS
+AC_MSG_CHECKING([if we have to compile the VTK to H5hut grid converter])
+if test "X$ENABLE_VTKCONVERTER" = "Xyes"; then
+	AC_MSG_RESULT([yes])
+        # :TODO: add test whether we can compile/link a prog with vtk
+else
+	AC_MSG_RESULT([no])
+fi
+
+###############################################################################
 ############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
 ###############################################################################
 # AC_SUBST (variable, [value])
@@ -400,6 +423,7 @@ AC_CONFIG_FILES([
         test/H5Fed/Makefile
 	tools/Makefile
 	tools/h5hutcc
+        tools/vtk2h5grid/Makefile
 ])
 
 AC_OUTPUT

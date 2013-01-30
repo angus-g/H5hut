@@ -566,6 +566,8 @@ tools/h5hutcc.in -text
 tools/h5pAttrib.cc -text
 tools/h5pToGNUplot.cc -text
 tools/homdynToH5p.cc -text
+tools/vtk2h5grid/Makefile.am -text
+tools/vtk2h5grid/vtk2h5grid.cc -text
 visit_plugins/databases/H5Part/.depend -text
 visit_plugins/databases/H5Part/Makefile -text
 visit_plugins/databases/H5Part/README.txt -text
