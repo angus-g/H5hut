@@ -333,7 +333,7 @@ if test -z "$HDF5ROOT"; then
 	exit 1
 fi
 
-INCLUDES="$INCLUDES -I$HDF5ROOT/include"
+AM_CPPFLAGS="$AM_CPPFLAGS -I$HDF5ROOT/include"
 LDFLAGS="$LDFLAGS -L$HDF5ROOT/lib"
 LIBS="$LIBS -lhdf5"
 
@@ -370,7 +370,7 @@ if test -z "$LUSTREROOT"; then
 	AC_MSG_WARN([Couldn't locate the lustre API... building without support for lustre striping!])
 else
         CFLAGS="$CFLAGS -DH5_USE_LUSTRE"
-        INCLUDES="$INCLUDES -I$LUSTREROOT/usr/include"
+        AM_CPPFLAGS=="$AM_CPPFLAGS -I$LUSTREROOT/usr/include"
         LDFLAGS="$LDFLAGS -L$LUSTREROOT/usr/lib"
         LIBS="$LIBS -llustreapi"
 fi
@@ -401,7 +401,7 @@ AC_SUBST(HDF5ROOT)
 AC_SUBST(LUSTREROOT)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
-AC_SUBST(INCLUDES)
+AC_SUBST(AM_CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(LIBS)
 AC_SUBST(UNDERSCORE_H)

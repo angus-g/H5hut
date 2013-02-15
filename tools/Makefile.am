@@ -9,7 +9,7 @@ endif
 AM_LDFLAGS = -L../src/lib @LDFLAGS@
 LIBS = -lH5hutC -lH5hut @LIBS@
 
-INCLUDES = -I../src/include @INCLUDES@
+AM_CPPFLAGS = -I../src/include @AM_CPPFLAGS@
 
 # What to build... make install will place these files in the $(prefix)/bin directory.
 bin_PROGRAMS = @BUILD_TOOLS@

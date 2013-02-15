@@ -3,7 +3,7 @@ CC = @CC@
 CXX = @CXX@
 
 LIBS = @LIBS@
-INCLUDES = -I../include @INCLUDES@
+AM_CPPFLAGS = -I../include @AM_CPPFLAGS@
 
 OBJEXT = o
 

@@ -4,7 +4,7 @@ OBJEXT = o
 
 AM_LDFLAGS = -L../../src/lib @LDFLAGS@
 LIBS = -lH5hutC -lH5hut @LIBS@
-INCLUDES = -I../../src/include @INCLUDES@
+AM_CPPFLAGS = -I../../src/include @AM_CPPFLAGS@
 
 noinst_PROGRAMS =				\
 		tetmesh_write			\

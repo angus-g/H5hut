@@ -2,7 +2,7 @@
 
 OBJEXT=o
 
-INCLUDES = -I../include @INCLUDES@
+AM_CPPFLAGS = -I../include @AM_CPPFLAGS@
 
 F90_FILES =     	H5.f90 \
 			H5_attribs.f90 \

@@ -2,7 +2,7 @@
 
 OBJEXT=o
 
-INCLUDES = -I../include @INCLUDES@
+AM_CPPFLAGS = -I../include @AM_CPPFLAGS@
 
 # What to build... Will be determined by configure script.
 lib_LTLIBRARIES = @LIB_C@

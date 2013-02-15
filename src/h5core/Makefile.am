@@ -2,7 +2,7 @@
 
 OBJEXT=o
 
-INCLUDES = -I../include @INCLUDES@
+AM_CPPFLAGS = -I../include @AM_CPPFLAGS@
 
 EXTRA_HEADERS =					\
 	../include/h5core/h5_attach.h		\
