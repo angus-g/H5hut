@@ -245,6 +245,9 @@ h5t_end_store_elems (
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
 
 	m->num_elems[m->leaf_level] = m->last_stored_eid+1;
+        if (m->leaf_level == 0) {
+                m->num_leaf_elems[0] = m->num_elems[0];
+        }
 
 	/* assign global indices to new indices */
 	TRY (assign_glb_elem_indices (m));
