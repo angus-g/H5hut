@@ -1,0 +1,84 @@
+/*!
+\mainpage H5hut: A High-Performance I/O Library for Particle-based Simulations
+
+Particle-based simulations running on large high-performance computing systems
+over many time steps can generate an enormous amount of particle- and
+field-based data for post-processing and analysis. Achieving high-performance
+I/O for this data, effectively managing it on disk, and interfacing it with
+analysis and visualization tools can be challenging, especially for domain
+scientists who do not have I/O and data management expertise. We present the
+H5hut library, an implementation of several data models for particle-based
+simulations that encapsulates the complexity of HDF5 and is simple to use, yet
+does not compromise performance.
+
+Developers:
+
+<UL>
+<LI> Andreas Adelmann (PSI) </LI>
+<LI> Achim Gsell (PSI) </LI>
+<LI> Benedikt Oswald (PSI) </LI>
+<LI> Mark Howison (NERSC/LBNL) </LI>
+<LI> Prabhat (NERSC/LBNL) </LI>
+<LI> Wes Bethel (NERSC/LBNL) </LI>
+</UL>
+
+Previous developers:
+
+<UL>
+<LI> John Shalf (NERSC/LBNL)</LI>
+<LI> Cristina Siegerist (NERSC/LBNL)</LI>
+</UL>
+
+For more information, please contact the
+ <a href="mailto:h5part@lists.psi.ch">h5part</a> mailing list.
+
+*/
+
+/*!
+        \defgroup c_api                                 C API
+        @{
+                \defgroup h5hut_c_api                   H5hut basic functions
+                @{
+                        \defgroup h5hut_file            file handling
+                        \defgroup h5hut_error           error handling
+                        \defgroup h5hut_model           setting up the data model
+                        \defgroup h5hut_attrib          reading and writing attributes
+                @}
+                \defgroup h5part_c_api H5Part
+                @{
+                        \defgroup h5part_model          setting up the data model
+                        \defgroup h5part_data	        reading and writing datasets
+                 @}
+                 \defgroup h5block_c_api                H5Block
+                 @{
+                        \defgroup h5block_model         setting up the data model
+                        \defgroup h5block_data          reading and writing datasets
+                        \defgroup h5block_attrib        reading and writing attributes
+                 @}
+       @}
+*/
+
+/*!
+        \defgroup f90_api                               Fortran90 API
+        @{
+                \defgroup h5hut_f90_api                 H5hut basic functions
+                @{
+                        \defgroup h5hut_file_f          file handling
+                        \defgroup h5hut_error_f         error handling
+                        \defgroup h5hut_model_f         setting up the data model
+                        \defgroup h5hut_attrib_f        reading and writing attributes
+                @}
+                \defgroup h5part_f90_api                H5Part
+                @{
+                        \defgroup h5part_model_f        setting up the data model
+                        \defgroup h5part_data_f         reading and writing datasets
+                @}
+                \defgroup h5block_f90_api               H5Block
+                @{
+                        \defgroup h5block_model_f       setting up the data model
+                        \defgroup h5block_data_f        reading and writing datasets
+                        \defgroup h5block_attrib_f      reading and writing attributes
+                @}
+        @}
+*/
+
