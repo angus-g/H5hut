@@ -121,6 +121,16 @@ AC_CANONICAL_HOST
 
 AC_PROG_MAKE_SET
 
+AC_MSG_CHECKING([if debug is enabled])
+
+if test "X$USE_DEBUG" = "Xyes"; then
+    AC_MSG_RESULT([yes])
+    CFLAGS="$CFLAGS -g"
+    FFLAGS="$FFLAGS -g"
+else
+    AC_MSG_RESULT([no])
+fi
+
 # Determine a C/C++ compiler to use. 
 # If CC is not already set in the environment, check for gcc and cc, then
 # for other C compilers. 
@@ -193,16 +203,6 @@ AC_DEFINE_UNQUOTED(MY_UNAME, "$uname", "")
 ###############################################################################
 ######################## CONFIGURE LINE OPTIONS ###############################
 ###############################################################################
-
-AC_MSG_CHECKING([if debug is enabled])
-
-if test "X$USE_DEBUG" = "Xyes"; then
-    AC_MSG_RESULT([yes])
-    CFLAGS="$CFLAGS -g"
-    FFLAGS="$FFLAGS -g"
-else
-    AC_MSG_RESULT([no])
-fi
 
 ############################ fortran enabled ##################################
 AC_MSG_CHECKING([if C interface enabled])

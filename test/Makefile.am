@@ -5,7 +5,7 @@ SUBDIRS = H5Fed
 
 OBJEXT=o
 
-AM_LDFLAGS = -I../src/include @AM_CPPFLAGS@
+AM_CPPFLAGS = -I../src/include @AM_CPPFLAGS@
 
 noinst_PROGRAMS = @BUILD_TESTS@
 
