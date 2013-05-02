@@ -1,11 +1,36 @@
-#### H5PART 1.99 ############################################################
+#### H5PART trunk ############################################################
 
-Renamed type: 
+* h5_file_t is now uintptr_t
+* experimental version of parallel H5Fed
+* new API function for file open using properties (similiar to hdf5 properties)
+
+#### H5PART 1.99.10 ############################################################
+
+* C99 compiler required
+* C API with inline functions
+
+
+#### H5PART 1.99.0 ############################################################
+
+rudimental implementation of a grid manager
+
+Important changes from version 1.6 to 1.99.0
+
+Renamed type:
     H5PartFile -> h5_file_t
     h5part_int64_t -> h5_int64_t
+    h5part_float64_t -> h5_float_t
 
 Renamed functions:
-    
+    All function not related to a specific data model have been renamed from
+    H5PartFunction() to H5Function().
+
+    Example:
+       H5PartOpenFile() -> H5OpenFile()
+
+Removed functions:
+    To simplify the API, there is just one function to open a file. It's the
+    same function for serial and parallel code.
 
 #### H5PART 1.6.6 ############################################################
 
