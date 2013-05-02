@@ -17,6 +17,11 @@
 extern "C" {
 #endif
 
+#define H5_VERBOSE_NONE    	(0)
+#define H5_VERBOSE_ERROR   	(1)
+#define H5_VERBOSE_WARN    	(2)
+#define H5_VERBOSE_INFO    	(3)
+
 #define H5_DEBUG_USER		(1<<2)
 #define H5_DEBUG_API		(1<<3)
 #define H5_DEBUG_CORE_API	(1<<4)
