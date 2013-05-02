@@ -1,6 +1,6 @@
 AM_CPPFLAGS += -I${abs_top_builddir}/src/include
 FFLAGS += -cpp $(AM_CPPFLAGS)
-LDFLAGS += -L${abs_top_builddir}/src/lib
+AM_LDFLAGS += -L${abs_top_builddir}/src/lib
 
 LDADD = 
 
@@ -21,6 +21,7 @@ noinst_PROGRAMS +=		\
 	Bench			\
 	H5test			\
 	core_vfd		\
+	particles		\
 	read_canonicalview	\
 	write_setnumparticles	\
 	write_setview
@@ -35,6 +36,7 @@ EXTRA_PROGRAMS = Bench H5test H5testF
 Bench_SOURCES = Bench.c
 H5test_SOURCES = H5test.c
 core_vfd_SOURCES = core_vfd.c
+particles_SOURCES = particles.c
 read_canonicalview_SOURCES = read_canonicalview.c
 write_setnumparticles_SOURCES = write_setnumparticles.c
 write_setview_SOURCES = write_setview.c

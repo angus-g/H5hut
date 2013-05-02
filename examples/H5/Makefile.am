@@ -1,6 +1,6 @@
 AM_CPPFLAGS += -I${abs_top_builddir}/src/include
 FFLAGS += -cpp $(AM_CPPFLAGS)
-LDFLAGS += -L${abs_top_builddir}/src/lib
+AM_LDFLAGS += -L${abs_top_builddir}/src/lib
 
 LDADD = 
 

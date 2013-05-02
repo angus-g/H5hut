@@ -2,7 +2,7 @@
 
 OBJEXT=o
 
-AM_CPPFLAGS = -I../include @AM_CPPFLAGS@
+AM_CPPFLAGS = -I$(top_srcdir)/src/include @AM_CPPFLAGS@
 
 EXTRA_HEADERS =					\
 	h5_attribs_private.h			\
@@ -103,6 +103,7 @@ libH5hut_la_DEPENDENCIES = $(EXTRA_HEADERS)
 libH5hut_la_LDFLAGS = -version-info 2:0:0
 
 all-local:
+	$(INSTALL) -m755 -d ../lib
 	$(INSTALL) -m644 .libs/libH5hut.a ../lib
 
 install-exec-local:

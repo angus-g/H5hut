@@ -1,10 +1,14 @@
-# test level Makefile.am
+AM_CPPFLAGS += -I${abs_top_builddir}/src/include
+FFLAGS += -cpp $(AM_CPPFLAGS)
+AM_LDFLAGS += -L${abs_top_builddir}/src/lib
 
-OBJEXT = o
+LDADD =
 
-AM_LDFLAGS = -L../../src/lib @LDFLAGS@
-LIBS = -lH5hut @LIBS@
-AM_CPPFLAGS = -I../../src/include @AM_CPPFLAGS@
+if ENABLE_FORTRAN
+LDADD += -lH5hutF
+endif
+
+LDADD += -lH5hut
 
 noinst_PROGRAMS =				\
 		tetmesh_write			\

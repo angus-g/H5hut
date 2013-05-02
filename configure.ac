@@ -4,8 +4,6 @@ AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 
-BUILD_LIBS='libH5hut'
-
 ENABLE_DEBUG='no'
 ENABLE_C='yes'
 ENABLE_FORTRAN='no'
@@ -211,9 +209,6 @@ AC_MSG_CHECKING([if C interface enabled])
 if test "X$ENABLE_C" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 	BINDINGS="$BINDINGS C"
-	BUILD_LIBS="$BUILD_LIBS"
-	BUILD_TESTS="$BUILD_TESTS h5u_test h5b_test"
-	BUILD_TOOLS="$BUILD_TOOLS h5hutcc"
 else
         AC_MSG_RESULT([no])
 fi
@@ -224,7 +219,6 @@ if test "X$ENABLE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 	BINDINGS="$BINDINGS Fortran"
 	LIB_FORTRAN="libH5hutF.la"
-        BUILD_LIBS="$BUILD_LIBS libH5hutF"
 
 	if test "X$ENABLE_PARALLEL" = "Xyes"; then
 		AC_PROG_FC(mpif90 mpif77)
@@ -284,7 +278,7 @@ if test "X$ENABLE_PARALLEL" = "Xyes"; then
         	AC_MSG_CHECKING([for ParMETIS])
                 if test "X$PARMETISPATH" != "X"; then
                         AM_CPPFLAGS="$AM_CPPFLAGS -I$PARMETISPATH/include"
-	                LDFLAGS="$LDFLAGS -L$PARMETISPATH/lib"
+	                AM_LDFLAGS="$AM_LDFLAGS -L$PARMETISPATH/lib"
 	        fi
 
                 LIBS="$LIBS -lparmetis -lmetis"
@@ -305,7 +299,7 @@ fi
 # LIBRARY PATHS
 if test -n "${HDF5_PREFIX}" ; then
         AM_CPPFLAGS="$AM_CPPFLAGS -I$HDF5_PREFIX/include"
-        LDFLAGS="$LDFLAGS -L$HDF5_PREFIX/lib"
+        AM_LDFLAGS="$AM_LDFLAGS -L$HDF5_PREFIX/lib"
 fi
 AC_CHECK_LIB([z], [compress2])
 AC_CHECK_LIB([hdf5], [H5open])
@@ -337,7 +331,7 @@ if test -z "$LUSTREROOT"; then
 else
         CFLAGS="$CFLAGS -DH5_USE_LUSTRE"
         AM_CPPFLAGS="$AM_CPPFLAGS -I$LUSTREROOT/usr/include"
-        LDFLAGS="$LDFLAGS -L$LUSTREROOT/usr/lib"
+        AM_LDFLAGS="$AM_LDFLAGS -L$LUSTREROOT/usr/lib"
         LIBS="$LIBS -llustreapi"
 fi
 
@@ -360,13 +354,11 @@ AC_SUBST(LUSTREROOT)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
 AC_SUBST(AM_CPPFLAGS)
-AC_SUBST(LDFLAGS)
+AC_SUBST(AM_LDFLAGS)
 AC_SUBST(LIBS)
 AC_SUBST(UNDERSCORE_H)
 AC_SUBST(LIB_FORTRAN)
 AC_SUBST(BINDINGS)
-AC_SUBST(BUILD_TESTS)
-AC_SUBST(BUILD_TOOLS)
 
 AC_CONFIG_FILES([
 	Makefile
@@ -396,16 +388,13 @@ AC_MSG_RESULT([ ])
 AC_MSG_RESULT([Host OS:             $host_os])
 AC_MSG_RESULT([Host CPU:            $host_cpu])
 AC_MSG_RESULT([Host vendor:         $host_vendor])
-AC_MSG_RESULT([Build libraries:     $BUILD_LIBS])
-AC_MSG_RESULT([Build test programs: $BUILD_TESTS])
-AC_MSG_RESULT([Build tools:         $BUILD_TOOLS])
 AC_MSG_RESULT([CC =                 $CC])
 AC_MSG_RESULT([CXX =                $CXX])
 AC_MSG_RESULT([FC =                 $FC])
 AC_MSG_RESULT([CFLAGS =             $CFLAGS])
 AC_MSG_RESULT([FFLAGS =             $FFLAGS])
 AC_MSG_RESULT([AM_CPPFLAGS =        $AM_CPPFLAGS])
-AC_MSG_RESULT([LDFLAGS =            $LDFLAGS])
+AC_MSG_RESULT([AM_LDFLAGS =         $AM_LDFLAGS])
 AC_MSG_RESULT([LIBS =               $LIBS])
 AC_MSG_RESULT([HDF5_PREFIX =        $HDF5_PREFIX])
 AC_MSG_RESULT([LUSTREROOT =         $LUSTREROOT])

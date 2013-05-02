@@ -1,16 +1,16 @@
-# test level Makefile.am
+AM_CPPFLAGS = -I$(top_srcdir)/src/include @AM_CPPFLAGS@
+AM_LDFLAGS += -L${abs_top_builddir}/src/lib
 
-OBJEXT=o
+LDADD =
+LDADD += -lH5hut
 
-AM_CPPFLAGS = -I../src/include @AM_CPPFLAGS@
+noinst_PROGRAMS =
 
-LDADD = \
-	../src/lib/libH5hut.a
-
-noinst_PROGRAMS = @BUILD_TESTS@
+if ENABLE_C
+noinst_PROGRAMS += h5u_test h5b_test h5_attach_test
+endif
 
 TESTS_ENVIRONMENT = env LD_LIBRARY_PATH=@HDF5_PREFIX@/lib:$(LD_LIBRARY_PATH)
-TESTS = @BUILD_TESTS@
 
 EXTRA_PROGRAMS = h5u_test h5b_test h5_attach_test
 
