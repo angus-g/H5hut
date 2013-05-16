@@ -498,6 +498,7 @@ src/include/H5Part.h -text
 src/include/H5_attachments.h -text
 src/include/H5_attribs.h -text
 src/include/H5hut.h -text
+src/include/Makefile.am -text
 src/include/grephdr -text
 src/include/h5core/h5_attach.h -text
 src/include/h5core/h5_attribs.h -text
