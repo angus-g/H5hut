@@ -1,10 +1,7 @@
-# test level Makefile.am
-
-OBJEXT = o
 
 AM_LDFLAGS = -L../../src/lib @LDFLAGS@
 LIBS = -lH5hutC -lH5hut @LIBS@
-AM_CPPFLAGS = -I../../src/include @AM_CPPFLAGS@
+AM_CPPFLAGS += -I$(top_srcdir)/src/include
 
 noinst_PROGRAMS =				\
 		tetmesh_write			\

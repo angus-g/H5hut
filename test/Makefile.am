@@ -1,16 +1,17 @@
 # test level Makefile.am
 
-#SUBDIRS = H5Block H5Fed H5Part
-SUBDIRS = H5Fed
+AM_CPPFLAGS += -I$(top_srcdir)/src/include
+AM_LDFLAGS += -L${abs_top_builddir}/src/lib
 
-OBJEXT=o
+LDADD =
+LDADD += -lH5hut
 
-AM_CPPFLAGS = -I../src/include @AM_CPPFLAGS@
+noinst_PROGRAMS =
 
-noinst_PROGRAMS = @BUILD_TESTS@
+if ENABLE_C
+noinst_PROGRAMS += h5u_test h5b_test h5_attach_test
 
-TESTS_ENVIRONMENT = env LD_LIBRARY_PATH=@HDF5ROOT@/lib:$(LD_LIBRARY_PATH)
-TESTS = @BUILD_TESTS@
+TESTS_ENVIRONMENT = env LD_LIBRARY_PATH=@HDF5_PREFIX@/lib:$(LD_LIBRARY_PATH)
 
 EXTRA_PROGRAMS = h5u_test h5b_test h5_attach_test
 
@@ -22,10 +23,6 @@ h5u_test_SOURCES =	\
 		testframe.h \
 		params.h
 
-h5u_test_LDADD = \
-		../src/C/libH5hutC.la \
-		../src/h5core/libH5hut.la
-
 h5b_test_SOURCES =	\
 		h5b_test.c \
 		h5b_write.c \
@@ -34,16 +31,9 @@ h5b_test_SOURCES =	\
 		testframe.h \
 		params.h
 
-h5b_test_LDADD = \
-		../src/C/libH5hutC.la \
-		../src/h5core/libH5hut.la
-
 h5_attach_test_SOURCES = \
 		h5_attach_test.c
-
-h5_attach_test_LDADD = \
-		../src/C/libH5hutC.la \
-		../src/h5core/libH5hut.la
+endif
 
 clean-local:
 	${RM} -f *.h5

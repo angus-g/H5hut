@@ -1,36 +1,6 @@
-# src level Makefile.am
-
-OBJEXT=o
-
-AM_CPPFLAGS = -I../include @AM_CPPFLAGS@
+AM_CPPFLAGS += -I$(top_srcdir)/src/include
 
 EXTRA_HEADERS =					\
-	../include/h5core/h5_attach.h		\
-	../include/h5core/h5_attribs.h		\
-	../include/h5core/h5_core.h		\
-	../include/h5core/h5_errno.h		\
-	../include/h5core/h5_errorhandling.h	\
-	../include/h5core/h5_hdf5.h		\
-	../include/h5core/h5_maps.h		\
-	../include/h5core/h5_openclose.h	\
-	../include/h5core/h5_readwrite.h	\
-	../include/h5core/h5_syscall.h		\
-	../include/h5core/h5_types.h		\
-	../include/h5core/h5u_readwrite.h	\
-	../include/h5core/h5b_readwrite.h	\
-	../include/h5core/h5u_model.h		\
-	../include/h5core/h5b_model.h		\
-	../include/h5core/h5b_attribs.h		\
-	../include/h5core/h5t_adjacencies.h	\
-	../include/h5core/h5t_core.h		\
-	../include/h5core/h5t_inquiry.h		\
-	../include/h5core/h5t_map.h		\
-	../include/h5core/h5t_model.h		\
-	../include/h5core/h5t_readwrite.h	\
-	../include/h5core/h5t_ref_elements.h	\
-	../include/h5core/h5t_retrieve.h	\
-	../include/h5core/h5t_storemesh.h	\
-	../include/h5core/h5t_tags.h		\
 	h5_attribs_private.h			\
 	h5_core_private.h			\
 	h5_errorhandling_private.h		\
@@ -72,7 +42,7 @@ EXTRA_DIST = $(EXTRA_HEADERS)
 lib_LTLIBRARIES = libH5hut.la
 
 # Listing of sources
-libH5hut_la_SOURCES =			\
+libH5hut_la_SOURCES =				\
 	h5_attach.c				\
 	h5_attribs.c				\
 	h5_errorhandling.c			\
@@ -120,12 +90,14 @@ libH5hut_la_DEPENDENCIES = $(EXTRA_HEADERS)
 libH5hut_la_LDFLAGS = -version-info 2:0:0
 
 all-local:
-	$(INSTALL) -m644 .libs/libH5hut.a ../lib
+	$(INSTALL) -m0755 -d $(top_builddir)/src/lib
+	$(INSTALL) -m644 .libs/libH5hut.a $(top_builddir)/src/lib
 
 install-exec-local:
 	@$(INSTALL) -d $(DESTDIR)$(includedir)/h5core
-	@$(INSTALL) -m644 ../include/h5core/*.h $(DESTDIR)$(includedir)/h5core/
+	@$(INSTALL) -m644 $(top_srcdir)/src/include/h5core/*.h $(DESTDIR)$(includedir)/h5core/
 
 clean-local:
-	$(RM) -f ../lib/libH5hut.*
+	$(RM) -f $(top_srcdir)/src/lib/libH5hut.*
+	$(RM) -f *~
 

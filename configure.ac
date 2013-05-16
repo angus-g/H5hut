@@ -1,53 +1,55 @@
-# Every configure script must call AC_INIT before doing anything else.
-# AC_INIT (package, version, [bug-report], [tarname])
-AC_INIT([H5hut], [1.99.6], [h5part@lists.psi.ch], H5hut)
-
-
-# Ensure that a recent enough version of Autoconf is being used. 
-# If the version of Autoconf being used to create configure is earlier than version, 
-# print an error message to the standard error output and do not create configure.
+AC_INIT([H5hut], [1.99-trunk], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
-
-# should be called right after AC_INIT.
-# configure scripts can create a C header file containing `#define' directives. 
-# The AC_CONFIG_HEADERS macro selects this kind of output.
 AC_CONFIG_HEADERS(config.h)
-
 AC_CONFIG_MACRO_DIR([m4])
-
-# AM_INIT_AUTOMAKE is required to use autoconf with automake
 AM_INIT_AUTOMAKE
 
-BUILD_LIBS='libH5hut'
-USE_C='yes'
+ENABLE_DEBUG='no'
+ENABLE_C='yes'
+ENABLE_FORTRAN='no'
+ENABLE_PARALLEL='no'
 
 ###############################################################################
-################# --enable-xxx and --with-xxx Argument ########################
-###############################################################################
-
+# --enable-xxx and --with-xxx Arguments
 AC_ARG_ENABLE(
 	[debug],
-	[AC_HELP_STRING([--enable-debug],
-	[Compile with debug flags [default=no]])],
-	[USE_DEBUG=$enableval])
+	[AS_HELP_STRING([--enable-debug], [Compile with debug flags [default=no]])],
+	[ENABLE_DEBUG=$enableval])
+AM_CONDITIONAL([ENABLE_DEBUG], [test "$ENABLE_DEBUG" = "yes"])
 
 AC_ARG_ENABLE(
 	[c],
-	[AC_HELP_STRING([--enable-c],
+	[AS_HELP_STRING([--enable-c],
 	[Compile the C interface [default=yes]])],
-	[USE_C=$enableval])
+	[ENABLE_C=$enableval])
+AM_CONDITIONAL([ENABLE_C], [test "$ENABLE_C" = "yes"])
 
 AC_ARG_ENABLE(
 	[fortran],
-	[AC_HELP_STRING([--enable-fortran],
+	[AS_HELP_STRING([--enable-fortran],
 	[Compile the Fortran interface [default=no]])],
-	[USE_FORTRAN=$enableval])
+	[ENABLE_FORTRAN=$enableval])
+AM_CONDITIONAL([ENABLE_FORTRAN], [test "$ENABLE_FORTRAN" = "yes"])
 
 AC_ARG_ENABLE(
 	[parallel],
-	[AC_HELP_STRING([--enable-parallel],
+	[AS_HELP_STRING([--enable-parallel],
 	[Compile the MPI/IO interface [default=no]])],
-	[USE_PARALLEL=$enableval])
+	[ENABLE_PARALLEL=$enableval])
+AM_CONDITIONAL([ENABLE_PARALLEL], [test "$ENABLE_PARALLEL" = "yes"])
+
+AC_ARG_ENABLE(
+	[large-indices],
+	[AC_HELP_STRING([--enable-large-indices],
+	[Compile with 64bit local IDs and indices [default=no]])],
+	[USE_LARGE_INDICES=$enableval])
+
+AC_ARG_ENABLE(
+        [experimental],
+        [AS_HELP_STRING([--enable-experimental],
+        [Compile experimental code [default=no]])],
+        [ENABLE_EXPERIMENTAL=$enableval])
+AM_CONDITIONAL([ENABLE_EXPERIMENTAL], [test "$ENABLE_EXPERIMENTAL" = "yes"])
 
 AC_ARG_ENABLE(
 	[vtkconverter],
@@ -58,27 +60,28 @@ AM_CONDITIONAL([ENABLE_VTKCONVERTER], [test "$ENABLE_VTKCONVERTER" = "yes"])
 
 AC_ARG_WITH(
 	[hdf5],
-	[AC_HELP_STRING([--with-hdf5],
+	[AS_HELP_STRING([--with-hdf5],
 	[path to HDF5 installation [default=""]])],
-	[HDF5PATH=$withval], [HDF5PATH=""])
+	[HDF5_PREFIX=$withval], [HDF5_PREFIX=""])
 
 AC_ARG_WITH(
 	[mpi],
-	[AC_HELP_STRING([--with-mpi],
+	[AS_HELP_STRING([--with-mpi],
 	[path to MPI installation [default=""]])],
-	[MPIPATH=$withval;PATH=$MPIPATH/bin:$PATH], [MPIPATH=""])
+	[PATH=$MPI_PREFIX/bin:$PATH])
 
 AC_ARG_WITH(
 	[lustre],
-	[AC_HELP_STRING([--with-lustre],
+	[AS_HELP_STRING([--with-lustre],
 	[path to lustre user API [default=""]])],
 	[LUSTREPATH=$withval], [LUSTREPATH=""])
 
 AC_ARG_WITH(
-	[vtk],
-	[AS_HELP_STRING([--with-vtk],
-	[path to VTK installation [default=""]])],
-	[VTK_PREFIX=$withval], [VTK_PREFIX=""])
+	[parmetis],
+	[AC_HELP_STRING([--with-parmetis],
+	[path to ParMETIS API [default=""]])],
+	[PARMETISPATH=$withval], [PARMETISPATH=""])
+
 
 ###############################################################################
 ############### PATH SERACH FUNCTION - to be used later... ####################
@@ -111,33 +114,27 @@ PATH_Search() {
 	return
 }
 
+###############################################################################
+# MISC SETTINGS INCLUDING C & C++ COMPILER SETTING
 
-###############################################################################
-############# MISC SETTINGS INCLUDING C & C++ COMPILER SETTING ################
-###############################################################################
-# Compute the canonical host-system type variable, host, and its three
-# individual parts host_cpu, host_vendor, and host_os.
 AC_CANONICAL_HOST
-
 AC_PROG_MAKE_SET
 
+# debug enabled?
 AC_MSG_CHECKING([if debug is enabled])
-
-if test "X$USE_DEBUG" = "Xyes"; then
+if test "X$ENABLE_DEBUG" = "Xyes"; then
     AC_MSG_RESULT([yes])
-    CFLAGS="$CFLAGS -g"
+    CFLAGS="$CFLAGS -g -Wall"
+    CXXFLAGS="$CFLAGS -g -Wall"
     FFLAGS="$FFLAGS -g"
 else
     AC_MSG_RESULT([no])
 fi
 
 # Determine a C/C++ compiler to use. 
-# If CC is not already set in the environment, check for gcc and cc, then
-# for other C compilers. 
-# Set output variable CC to the name of the compiler found.
-if test "x$USE_PARALLEL" = "xyes"; then
-   	CCOMPILERS="mpicc cc"
-	CXXCOMPILERS="mpic++ c++"
+if test "x$ENABLE_PARALLEL" = "xyes"; then
+   	CCOMPILERS="mpicc"
+	CXXCOMPILERS="mpic++"
 else
 	CCOMPILERS="pgcc pathcc icc gcc cc_r cc"
 	CXXCOMPILERS="pgcc pathcc icc g++ cc_r c++"
@@ -148,17 +145,12 @@ CC=`which $CC`
 AC_PROG_CXX($CXXCOMPILERS)
 CXX=`which $CXX`
 
-# Use macro to set C99 mode instead of checking for gcc, which breaks with
-# parallel builds.
 AC_PROG_CC_C99
 if test "x$ac_cv_prog_cc_c99" = "xno"; then
 	AC_MSG_ERROR([Cannot set C compiler to use C99 standard!])
 	exit 1
 fi
 
-# Set output variable INSTALL to the path of a BSD-compatible install program,
-# if one is found in the current PATH. 
-# Otherwise, set INSTALL to `dir/install-sh -c`
 AC_PROG_INSTALL
 AC_PROG_AWK
 
@@ -201,34 +193,27 @@ AC_DEFINE_UNQUOTED(MY_UNAME, "$uname", "")
 
 
 ###############################################################################
-######################## CONFIGURE LINE OPTIONS ###############################
-###############################################################################
+# PROCESS ARGUMENTS
 
-############################ fortran enabled ##################################
+# C enabled?
 AC_MSG_CHECKING([if C interface enabled])
-if test "X$USE_C" = "Xyes"; then
+if test "X$ENABLE_C" = "Xyes"; then
 	AC_MSG_RESULT([yes])
-	BINDINGS="$BINDINGS C"
-	LIB_C="libH5hutC.la"
-	BUILD_LIBS="$BUILD_LIBS libH5hutC"
-	BUILD_TESTS="$BUILD_TESTS h5u_test h5b_test"
-	BUILD_TOOLS="$BUILD_TOOLS h5hutcc"
+else
+        AC_MSG_RESULT([no])
 fi
 
-############################ fortran enabled ##################################
+# fortran enabled?
 AC_MSG_CHECKING([if fortran interface enabled])
-if test "X$USE_FORTRAN" = "Xyes"; then
+if test "X$ENABLE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
-	BINDINGS="$BINDINGS Fortran"
-	LIB_FORTRAN="libH5hutF.la"
-        BUILD_LIBS="$BUILD_LIBS libH5hutF"
 
-	if test "X$USE_PARALLEL" = "Xyes"; then
+	if test "X$ENABLE_PARALLEL" = "Xyes"; then
 		AC_PROG_FC(mpif90 mpif77)
 	else
 		AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
 	fi
-
+        FC=`which $FC`
 	if test -z "$FC" ; then
 		AC_MSG_ERROR([Cannot find a Fortran compiler!])
 		exit 1
@@ -249,12 +234,11 @@ if test "X$USE_FORTRAN" = "Xyes"; then
 	`cd src/Fortran && ${FC} ${FFLAGS} -o TestUnderscore TestUnderscore.o TestUnderscoreC.o`
 
 	if test -f src/Fortran/TestUnderscore ; then
-		UNDERSCORE_H=Underscore.h
 		`cd src/Fortran && ./TestUnderscore > Underscore.h`
 		AC_MSG_RESULT([ok])
 	else
 		AC_MSG_RESULT([nok])
-		AC_MSG_ERROR([Cannot determine the symbon convention for Fortran object files!])
+		AC_MSG_ERROR([Cannot determine the symbol convention for Fortran object files!])
 		exit 1
 	fi
 
@@ -262,91 +246,54 @@ else
 	AC_MSG_RESULT([no])
 fi
 
+######################## large indices enabled ###########################
+AC_MSG_CHECKING([if large indices are enabled])
+if test "X$USE_LARGE_INDICES" = "Xyes"; then
+	AC_MSG_RESULT([yes])
+	CFLAGS="${CFLAGS} -DUSE_LARGE_INDICES"
+else
+	AC_MSG_RESULT([no])
+fi
 
 ######################## parallel interface enabled ###########################
 AC_MSG_CHECKING([if parallel interface enabled])
-if test "X$USE_PARALLEL" = "Xyes"; then
+if test "X$ENABLE_PARALLEL" = "Xyes"; then
 	AC_MSG_RESULT([yes])
+	AM_CPPFLAGS="${AM_CPPFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
 
-	CFLAGS="${CFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
+        if test "X$ENABLE_EXPERIMENTAL" = "Xyes"; then
+        	AC_MSG_CHECKING([for ParMETIS])
+                if test "X$PARMETISPATH" != "X"; then
+                        AM_CPPFLAGS="$AM_CPPFLAGS -I$PARMETISPATH/include"
+	                AM_LDFLAGS="$AM_LDFLAGS -L$PARMETISPATH/lib"
+	        fi
 
-	AC_MSG_CHECKING([if we can compile MPI code without setting flags])
-	AC_TRY_LINK([#include "mpi.h"], [
-		MPI_Comm comm;
-		int n;
-		MPI_Comm_size( comm, &n ); ], 
-		[AC_MSG_RESULT([yes]); r='yes'], [AC_MSG_RESULT([no]); r='no'] )
+                LIBS="$LIBS -lparmetis -lmetis"
+	        AC_TRY_LINK([#include <parmetis.h>], [
+	                ParMETIS_V3_PartGeom (NULL, NULL, NULL, NULL, NULL);],
+		        [AC_MSG_RESULT([yes]); r='yes'], [AC_MSG_RESULT([no]); r='no'] )
 
-	if test "X$r" = "Xno"; then
-		AC_MSG_ERROR([MPI wrapper can't compile or link MPI program! Please set the INCLUDE and LIBS variables manually.])
-		exit 1
-	fi
-
-	TPTARGET="${TPTARGET} H5PartTestP H5PartAndreasTest Bench"
-	TBTARGET="${TBTARGET} H5BlockTestAttributes"
-	TBTARGET="${TBTARGET} H5BlockParTestScalarField"
-
-	# parallel + fortran
-	if test "X$USE_FORTRAN" = "Xyes"; then
-		TPTARGET="${TPTARGET} H5testFpar"
-		TBTARGET="${TBTARGET} H5BlockParTestScalarFieldF"
-	fi
-
+	        if test "X$r" = "Xno"; then
+		        AC_MSG_ERROR([ParMETIS])
+		        exit 1
+	        fi
+        fi
 else  # --enable-parallel=no
 	AC_MSG_RESULT([no])
-
-	TPTARGET="${TPTARGET} H5test"
-	TBTARGET="${TBTARGET} H5BlockTestAttributes"
-
-	if test "X$USE_FORTRAN" = "Xyes"; then
-		TPTARGET="${TPTARGET} H5testF"
-		TBTARGET="${TBTARGET} H5BlockTestAttributesF"
-	fi
 fi
 
 ###############################################################################
-######################### PATH CHECKING & SETTING #############################
-###############################################################################
-
-AC_MSG_CHECKING([for HDF5 root ])
-AC_MSG_RESULT([])
-if test -n "${HDF5PATH}" ; then
-	P=${HDF5PATH}
-elif test -n "${HDF5ROOT}"; then
-	P=${HDF5ROOT}
-elif test -n "${HDF5HOME}" ; then
-	P=${HDF5HOME}
-elif test -n "${HDF5_DIR}" ; then
-	P=${HDF5_DIR}
-else
-	P=''
-	P="$P /usr"
-	P="$P /usr/local"
-	P="$P /usr/local/hdf5"
-	P="$P /usr/local/packages/hdf5"
-	P="$P /apps/hdf5"
-	P="$P /opt/hdf5"
+# LIBRARY PATHS
+if test -n "${HDF5_PREFIX}" ; then
+        AM_CPPFLAGS="$AM_CPPFLAGS -I$HDF5_PREFIX/include"
+        AM_LDFLAGS="$AM_LDFLAGS -L$HDF5_PREFIX/lib"
 fi
-PATH_Search HDF5ROOT "$P" include/hdf5.h
-if test -z "$HDF5ROOT"; then
-	AC_MSG_ERROR([Cannot find an HDF5 library!])
-	exit 1
-fi
+AC_CHECK_LIB([z], [compress2])
+AC_CHECK_LIB([hdf5], [H5open])
+AS_IF([test "x$ac_cv_lib_hdf5_H5open" != xyes], 
+        [AC_MSG_ERROR([Cannot compile and link a HDF5 program]); 
+        exit 1])
 
-AM_CPPFLAGS="$AM_CPPFLAGS -I$HDF5ROOT/include"
-LDFLAGS="$LDFLAGS -L$HDF5ROOT/lib"
-LIBS="$LIBS -lhdf5"
-
-AC_MSG_CHECKING([if we need to link to libsz ])
-if test -n "$HDF5ROOT"; then
-	if test -f $HDF5ROOT/lib/libsz.a; then
-		AC_MSG_RESULT([yes])
-		LDFLAGS="$LDFLAGS -L$HDF5ROOT/lib"
-                LIBS="$LIBS -lsz"
-	else
-		AC_MSG_RESULT([no])
-	fi
-fi
 
 AC_MSG_CHECKING([for lustre API ])
 AC_MSG_RESULT([])
@@ -370,12 +317,12 @@ if test -z "$LUSTREROOT"; then
 	AC_MSG_WARN([Couldn't locate the lustre API... building without support for lustre striping!])
 else
         CFLAGS="$CFLAGS -DH5_USE_LUSTRE"
-        AM_CPPFLAGS=="$AM_CPPFLAGS -I$LUSTREROOT/usr/include"
-        LDFLAGS="$LDFLAGS -L$LUSTREROOT/usr/lib"
+        AM_CPPFLAGS="$AM_CPPFLAGS -I$LUSTREROOT/usr/include"
+        AM_LDFLAGS="$AM_LDFLAGS -L$LUSTREROOT/usr/lib"
         LIBS="$LIBS -llustreapi"
 fi
 
-LIBS="$LIBS -lz -lm"
+LIBS="$LIBS -lm"
 
 ###############################################################################
 # TOOLS
@@ -388,39 +335,25 @@ else
 fi
 
 ###############################################################################
-############## EXPORTING VARIABLES & CREATING OUTPUT FILES ####################
-###############################################################################
-# AC_SUBST (variable, [value])
-# Create an output variable from a shell variable.  Make AC_OUTPUT substitute
-# the variable variable into output files (typically one or more `Makefile's).
-# This means that AC_OUTPUT will replace instances of `@variable@' in input
-# files with the value that the shell variable variable has when AC_OUTPUT is
-# called.  This value of variable should not contain literal newlines.  If
-# value is given, in addition assign it to variable. 
-AC_SUBST(HDF5ROOT)
-AC_SUBST(LUSTREROOT)
+# EXPORTING VARIABLES & CREATING OUTPUT FILES
+AC_SUBST(HDF5_PREFIX)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
 AC_SUBST(AM_CPPFLAGS)
-AC_SUBST(LDFLAGS)
-AC_SUBST(LIBS)
-AC_SUBST(UNDERSCORE_H)
-AC_SUBST(LIB_C)
-AC_SUBST(LIB_FORTRAN)
-AC_SUBST(BINDINGS)
-AC_SUBST(BUILD_TESTS)
-AC_SUBST(BUILD_TOOLS)
+AC_SUBST(AM_LDFLAGS)
 
-# Make AC_OUTPUT create each `file' by copying an input file (by default `file.in'),
-# substituting the output variable values.
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
-	src/C/Makefile
 	src/h5core/Makefile
+	src/include/Makefile
+        src/C/Makefile
         src/Fortran/Makefile
 	test/Makefile
-        test/H5Fed/Makefile
+        doc/Makefile
+        examples/H5Part/Makefile
+        examples/H5Block/Makefile
+        examples/H5Fed/Makefile
 	tools/Makefile
 	tools/h5hutcc
         tools/vtk2h5grid/Makefile
@@ -429,25 +362,21 @@ AC_CONFIG_FILES([
 AC_OUTPUT
 
 ###############################################################################
-########################## PRINTING SUMMARY ###################################
-###############################################################################
+# PRINTING SUMMARY
 AC_MSG_RESULT([ ])
 AC_MSG_RESULT([Summary:])
 AC_MSG_RESULT([ ])
 AC_MSG_RESULT([Host OS:             $host_os])
 AC_MSG_RESULT([Host CPU:            $host_cpu])
 AC_MSG_RESULT([Host vendor:         $host_vendor])
-AC_MSG_RESULT([Build libraries:     $BUILD_LIBS])
-AC_MSG_RESULT([Build test programs: $BUILD_TESTS])
-AC_MSG_RESULT([Build tools:         $BUILD_TOOLS])
 AC_MSG_RESULT([CC =                 $CC])
 AC_MSG_RESULT([CXX =                $CXX])
 AC_MSG_RESULT([FC =                 $FC])
 AC_MSG_RESULT([CFLAGS =             $CFLAGS])
 AC_MSG_RESULT([FFLAGS =             $FFLAGS])
-AC_MSG_RESULT([INCLUDES =           $INCLUDES])
-AC_MSG_RESULT([LDFLAGS =            $LDFLAGS])
+AC_MSG_RESULT([AM_CPPFLAGS =        $AM_CPPFLAGS])
+AC_MSG_RESULT([AM_LDFLAGS =         $AM_LDFLAGS])
 AC_MSG_RESULT([LIBS =               $LIBS])
-AC_MSG_RESULT([HDF5ROOT =           $HDF5ROOT])
+AC_MSG_RESULT([HDF5_PREFIX =        $HDF5_PREFIX])
 AC_MSG_RESULT([LUSTREROOT =         $LUSTREROOT])
 AC_MSG_RESULT([ ])

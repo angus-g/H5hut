@@ -495,36 +495,6 @@ h5_get_num_steps(
 		f->prefix_step_name);
 }
 
-/*!
-  \ingroup h5_core_filehandling
-
-  Start traversing steps.
-
-  \return \c H5_SUCCESS or error code 
-*/
-h5_err_t
-h5_start_traverse_steps (
-	h5_file_t* const f		/*!< file handle		*/
-	) {
-	UNUSED_ARGUMENT (f);
-	return h5_error_not_implemented ();
-}
-
-/*!
-  \ingroup h5_core_filehandling
-
-  Go to next step.
-
-  \return \c H5_SUCCESS or error code 
-*/
-h5_err_t
-h5_traverse_steps (
-	h5_file_t* const f		/*!< file handle		*/
-	) {
-	UNUSED_ARGUMENT (f);
-	return h5_error_not_implemented ();
-}
-
 char *
 h5_strdupfor2c (
 	const char *s,
