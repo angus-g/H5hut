@@ -324,4 +324,8 @@ H5SetThrottle (
 }
 #endif // PARALLEL_IO
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif
