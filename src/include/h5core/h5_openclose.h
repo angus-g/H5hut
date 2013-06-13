@@ -24,6 +24,10 @@ h5_close_file (
 	);
 
 h5_err_t
+h5_close_hdf5 (
+	void);
+
+h5_err_t
 h5_flush_step (
 	h5_file_t * const f
 	);
@@ -87,23 +91,6 @@ h5_start_traverse_steps (
 h5_err_t
 h5_traverse_steps (
 	h5_file_t * f			/*!< file handle		*/
-	);
-
-char *
-h5_strdupfor2c (
-	const char *s,
-	const ssize_t len
-	);
-
-char *
-h5_strc2for (
-	char * const str,
-	const ssize_t l_str
-	);
-
-h5_file_t *
-h5_filehandlefor2c (
-	const h5_int64_t *ptr
 	);
 
 #ifdef __cplusplus
