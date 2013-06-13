@@ -423,6 +423,7 @@ src/Fortran/Makefile.am -text
 src/Fortran/TestUnderscore.f -text
 src/Fortran/TestUnderscoreC.c -text
 src/Fortran/generate-h5-attribs-f.py -text
+src/Fortran/h5_private.h -text
 src/Makefile.am -text
 src/h5core/Makefile.am -text
 src/h5core/h5_attach.c -text
