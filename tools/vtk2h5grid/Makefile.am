@@ -4,7 +4,7 @@ LDFLAGS += -L${abs_top_builddir}/src/lib
 
 LDADD = 
 
-LDADD += -lH5hut -lH5hutC -lvtkCommon -lvtkIO
+LDADD += -lH5hut -lvtkCommon -lvtkIO -lvtkFiltering -lvtksys
 
 
 bin_PROGRAMS = 
