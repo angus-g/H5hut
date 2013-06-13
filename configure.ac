@@ -1,4 +1,4 @@
-AC_INIT([H5hut], [1.99-trunk], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [1.99.11], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
