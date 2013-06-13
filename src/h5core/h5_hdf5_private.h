@@ -1072,6 +1072,19 @@ hdf5_close_file (
 }
 
 static inline h5_err_t
+hdf5_close (
+	void
+	) {
+	HDF5_WRAPPER_ENTER (h5_err_t, "%s", "void");
+	if (H5close () < 0)
+		HDF5_WRAPPER_LEAVE (
+			h5_error (
+				H5_ERR_HDF5,
+				"Cannot close HDF5 library."));
+	HDF5_WRAPPER_RETURN (H5_SUCCESS);
+}
+
+static inline h5_err_t
 hdf5_flush (
 	hid_t obj_id,
 	H5F_scope_t scope

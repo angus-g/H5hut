@@ -368,6 +368,14 @@ h5_close_file (
 }
 
 h5_err_t
+h5_close_hdf5 (
+        void
+        ) {
+	H5_CORE_API_ENTER (h5_err_t, "%s", "");
+	H5_CORE_API_RETURN (hdf5_close ());
+}
+
+h5_err_t
 h5_flush_step (
 	h5_file_t* const f
 	) {
