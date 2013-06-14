@@ -66,6 +66,8 @@ src/h5core/libH5hut.a
 src/include/H5hutF.h
 src/include/Makefile
 src/include/Makefile.in
+src/include/h5core/Makefile
+src/include/h5core/Makefile.in
 src/lib
 /stamp-h1
 /svn-prop.tmp
