@@ -347,6 +347,7 @@ AC_CONFIG_FILES([
 	src/Makefile
 	src/h5core/Makefile
 	src/include/Makefile
+	src/include/h5core/Makefile
         src/C/Makefile
         src/Fortran/Makefile
 	test/Makefile
