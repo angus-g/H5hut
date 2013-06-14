@@ -351,9 +351,6 @@ AC_CONFIG_FILES([
         src/Fortran/Makefile
 	test/Makefile
         doc/Makefile
-        examples/H5Part/Makefile
-        examples/H5Block/Makefile
-        examples/H5Fed/Makefile
 	tools/Makefile
 	tools/h5hutcc
         tools/vtk2h5grid/Makefile

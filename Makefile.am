@@ -3,7 +3,8 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = \
 	src \
 	test \
-	tools
+	tools \
+	doc 
 
 MAINTAINERCLEANFILES = \
 	config.h \

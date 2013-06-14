@@ -18,7 +18,10 @@ include_HEADERS =				\
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS =
+
 endif
+
+EXTRA_DIST = Makefile.in
 
 clean-local:
 	$(RM) *~

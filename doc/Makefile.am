@@ -1,6 +1,7 @@
-EXTRA_DIST = \
-	Doxyfile \
-        H5.dox
+EXTRA_DIST = 		\
+	Doxyfile	\
+        H5.dox		\
+	Makefile.in
 
 all:
 

@@ -18,6 +18,7 @@ EXTRA_HEADERS =
 EXTRA_DIST =			\
 	TestUnderscoreC.c 	\
 	TestUnderscore.f 	\
+	h5_private.h		\
 	$(F90_FILES)
 
 # Files that I don't want to include in the dist tar ball
