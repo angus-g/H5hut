@@ -55,6 +55,8 @@ src/C/libH5hutC.a
 src/Fortran/.deps
 src/Fortran/Makefile
 src/Fortran/Makefile.in
+src/Fortran/TestUnderscore
+src/Fortran/Underscore.h
 src/Makefile
 src/Makefile.in
 src/h5core/.deps
@@ -62,9 +64,12 @@ src/h5core/Makefile
 src/h5core/Makefile.in
 src/h5core/libH5hut.a
 src/include/H5hutF.h
+src/include/Makefile
+src/include/Makefile.in
 src/lib
 /stamp-h1
 /svn-prop.tmp
+/test-driver
 test/.deps
 test/Makefile
 test/Makefile.in
@@ -78,3 +83,9 @@ tools/Makefile.in
 tools/h5PartDcToVtk
 tools/h5PartSurfaceToVtk
 tools/h5hutcc
+tools/vtk2h5grid/.deps
+tools/vtk2h5grid/Makefile
+tools/vtk2h5grid/Makefile.in
+tools/vtk2h5grid/cgun_full.h5
+tools/vtk2h5grid/cgun_full.vtk
+tools/vtk2h5grid/vtk2h5grid
