@@ -88,10 +88,11 @@ convert_vtk2h5grid (
         ) {
         IdMap idmap;
         vtkIdType num_vtk_cells = vtk_grid->GetNumberOfCells ();
+        vtkIdType num_vtk_pts = vtk_grid->GetNumberOfPoints ();
         h5_loc_idx_t (*cells)[4] = new h5_loc_idx_t[num_vtk_cells][4];
         int h5_cell_idx = 0;
         int h5_vertex_idx = 0;
-        H5FedBeginStoreVertices (h5_grid, num_vtk_cells);
+        H5FedBeginStoreVertices (h5_grid, num_vtk_pts);
         for (vtkIdType vtk_cell_id = 0; vtk_cell_id < num_vtk_cells; vtk_cell_id++) {
                 if (vtk_grid->GetCellType (vtk_cell_id) != cell_type) 
                         continue;
@@ -120,8 +121,8 @@ convert_vtk2h5grid (
         int num_h5_cells = h5_cell_idx;
         cout << "  number of points in mesh: " << num_h5_vertices << endl;
         cout << "  number of cells in mesh:  " << num_h5_cells << endl;
-        // add tetrahedra to H5hut file
-        H5FedBeginStoreElements (h5_grid, num_vtk_cells);
+        // add cells to H5hut file
+        H5FedBeginStoreElements (h5_grid, num_h5_cells);
         for (int i = 0; i < num_h5_cells; i++) {
                 H5FedStoreElement (h5_grid, cells[i]);
         }
@@ -182,7 +183,7 @@ main (
                 vtkUnstructuredGrid* vtk_grid = reader->GetOutput ();
 
                 // open new H5hut file
-                h5_file_t* f = H5OpenFile (h5grid_filename.c_str(), H5_O_WRONLY, 0);
+                h5_file_t f = H5OpenFile (h5grid_filename.c_str(), H5_O_WRONLY, 0);
 
                 h5t_mesh_t* h5_grid;
                 if (convert_boundary) {
