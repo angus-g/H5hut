@@ -327,7 +327,7 @@ static h5_err_t
 traverse_level (
 	h5t_mesh_t* const m,
 	h5t_tagset_t* tagset,
-	const h5t_lvl_idx_t level_id,
+	const h5_lvl_idx_t level_id,
 	int dumpit,
 	Timer* timer
 	) {
@@ -362,7 +362,7 @@ traverse_mesh (
 	printf ("    Number of levels in mesh: %lld\n", (long long)num_levels);
 
 	/* loop over all levels */
-	h5t_lvl_idx_t level_id;
+	h5_lvl_idx_t level_id;
 	for (level_id = 0; level_id < num_levels; level_id++) {
 		traverse_level (mesh, tagset, level_id, dumpit, timer);
 	}

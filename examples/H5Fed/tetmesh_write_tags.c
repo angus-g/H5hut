@@ -5,7 +5,6 @@
 
 #include "H5hut.h"
 
-const h5_oid_t MESH_TYPE = H5_TETRAHEDRAL_MESH;
 const char* FNAME = "simple_tet.h5";
 
 typedef struct timer {
@@ -197,7 +196,7 @@ main (
 	h5_info ("  Time to open mesh %fsec", timer->elapsed(timer));
 
 	/* open last level */
-	h5_size_t num_levels = H5FedGetNumLevels (mesh);
+	//h5_size_t num_levels = H5FedGetNumLevels (mesh);
 	//H5FedSetLevel (mesh, num_levels-1);
 	H5FedSetLevel (mesh, 0);
 

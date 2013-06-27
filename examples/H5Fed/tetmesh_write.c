@@ -66,13 +66,11 @@ main (
 	H5FedEndStoreElements (mesh);
 
 	/* add 1. Level */
-	H5FedAddLevel(mesh);
 	H5FedBeginRefineElements (mesh);
 	H5FedRefineElement (mesh, 0);
 	H5FedEndRefineElements (mesh);
 
 	/* add 2. Level */
-	H5FedAddLevel(mesh);
 	H5FedBeginRefineElements (mesh);
 	H5FedRefineElement (mesh, 2);
 	H5FedEndRefineElements (mesh);

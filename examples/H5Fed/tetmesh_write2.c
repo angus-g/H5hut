@@ -81,7 +81,6 @@ main (
 	H5FedEndStoreElements (mesh);
 
 	/* add 1. Level */
-	H5FedAddLevel(mesh);
 	H5FedBeginRefineElements (mesh);
 	H5FedRefineElement (mesh, 0);
 	H5FedEndRefineElements (mesh);
@@ -92,7 +91,6 @@ main (
 	for (level_id = 2; level_id < num_levels; level_id++) {
 
 		/* refine 4 to the power of level_id-1 elems */
-		H5FedAddLevel(mesh);
 		h5_int32_t num_elems2refine = power (4, level_id-1);
 		H5FedBeginRefineElements (mesh);
 		for (i = num_elems_last_level;

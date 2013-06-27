@@ -13,7 +13,9 @@ LDADD += -lH5hut
 noinst_PROGRAMS = 
 
 if ENABLE_C
-noinst_PROGRAMS += openclose
+noinst_PROGRAMS += 	\
+	openclose	\
+	file_attribs
 endif
 
 if ENABLE_FORTRAN

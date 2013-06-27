@@ -58,7 +58,6 @@ main (
 	H5FedEndStoreElements (m);
 
 	/* add 1. Level */
-	H5FedAddLevel(m);
 	H5FedBeginRefineElements (m);
 	H5FedRefineElement (m, 0);
 	H5FedEndRefineElements (m);
