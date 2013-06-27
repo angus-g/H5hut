@@ -126,7 +126,7 @@ pre_refine_tet (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	unsigned int num_interior_elems_to_refine = m->marked_entities->num_items;
 	TRY (h5t_begin_store_vertices (m, num_interior_elems_to_refine*3 + 192));
-	TRY (h5t_begin_store_elems (m, num_interior_elems_to_refine*8, m->num_weights));
+	TRY (h5t_begin_store_elems (m, num_interior_elems_to_refine*8));
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
@@ -170,61 +170,87 @@ refine_tet (
 	// add new tets
 	h5_loc_idx_t new_elem[4];
 
+        /*
+          Add refined cells with pre-sorted vertices!
+          This is actually importend: sorting refined cells may produce wrong
+          orientated cells. This can easily be shown with triangle:
+
+         0
+          * 
+               
+                     *4
+          2*                 
+                               *2
+                     *
+            *        5
+            1
+
+          The parent triangle is (0,1,2) with a counter-clockwise orientation.
+          Since we must use an epsilon comparision, we run into a problem, if
+          the comparision returns X(0) < X(1), but X(0) == X(2). This happens,
+          if
+             X(0) - X(1) < 2*epsilon
+          The refined triangle (0,2,4) would be stored as (2,0,4), if we try 
+          to sort the vertices. The orientation of (2,0,4) is clockwise! But
+          we assume that (0,2,4), (2,1,5) and (4,5,2) have the same orientation
+          as the parent and (2,4,5) the opposite orientation.
+        */
+
 	// child 0
 	new_elem[0] = vertices[0];      // vertex 0
 	new_elem[1] = vertices[4];      // split point (0,1)
 	new_elem[2] = vertices[5];      // split point (0,2)
 	new_elem[3] = vertices[7];      // split point (0,3)
-	TRY( elem_idx_of_first_child = h5t_store_elem (m, elem_idx, new_elem, NULL) ); //TODO check use of h5t_store_elem2
+	TRY (elem_idx_of_first_child = h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	// child 1
 	new_elem[0] = vertices[4];      // split point (0,1)
 	new_elem[1] = vertices[1];      // vertex 1
 	new_elem[2] = vertices[6];      // split point (1,2)
 	new_elem[3] = vertices[8];      // split point (1,3)
-	TRY( h5t_store_elem (m, elem_idx, new_elem, NULL) ); //TODO check use of h5t_store_elem2
+	TRY (h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	// child 2
 	new_elem[0] = vertices[5];      // split point (0,2)
 	new_elem[1] = vertices[6];      // split point (1,2)
 	new_elem[2] = vertices[2];      // vertex 2
 	new_elem[3] = vertices[9];      // split point (2,3)
-	TRY( h5t_store_elem (m, elem_idx, new_elem, NULL) ); //TODO check use of h5t_store_elem2
+	TRY (h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	// child 3
 	new_elem[0] = vertices[7];      // split point (0,3)
 	new_elem[1] = vertices[8];      // split point (1,3)
 	new_elem[2] = vertices[9];      // split point (2,3)
 	new_elem[3] = vertices[3];      // vertex 3
-	TRY( h5t_store_elem (m, elem_idx, new_elem, NULL) );//TODO check use of h5t_store_elem2
+	TRY (h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	// child 4
 	new_elem[0] = vertices[4];      // split point (0,1)
 	new_elem[1] = vertices[5];      // split point (0,2)
 	new_elem[2] = vertices[6];      // split point (1,2)
 	new_elem[3] = vertices[8];      // split point (1,3)
-	TRY( h5t_store_elem (m, elem_idx, new_elem, NULL) );//TODO check use of h5t_store_elem2
+	TRY (h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	// child 5
 	new_elem[0] = vertices[4];      // split point (0,1)
 	new_elem[1] = vertices[5];      // split point (0,2)
 	new_elem[2] = vertices[7];      // split point (0,3)
 	new_elem[3] = vertices[8];      // split point (1,3)
-	TRY( h5t_store_elem (m, elem_idx, new_elem, NULL) );//TODO check use of h5t_store_elem2
+	TRY (h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	// child 6
 	new_elem[0] = vertices[5];      // split point (0,2)
 	new_elem[1] = vertices[6];      // split point (1,2)
 	new_elem[2] = vertices[8];      // split point (1,3)
 	new_elem[3] = vertices[9];      // split point (2,3)
-	TRY( h5t_store_elem (m, elem_idx, new_elem, NULL) );//TODO check use of h5t_store_elem2
+	TRY (h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	// child 7
 	new_elem[0] = vertices[5];      // split point (0,2)
 	new_elem[1] = vertices[7];      // split point (0,3)
 	new_elem[2] = vertices[8];      // split point (1,3)
 	new_elem[3] = vertices[9];      // split point (2,3)
-	TRY( h5t_store_elem (m, elem_idx, new_elem, NULL) );//TODO check use of h5t_store_elem2
+	TRY (h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	((h5_loc_tet_t*)m->loc_elems)[elem_idx].child_idx = elem_idx_of_first_child;
 	m->num_interior_leaf_elems[m->leaf_level]--;

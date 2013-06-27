@@ -137,6 +137,7 @@ h5_err_t
 h5t_add_tetrahedral_mesh (
 	const h5_file_t fh,
 	const char* name,
+        const h5_weight_t num_weights,
 	h5t_mesh_t** mesh
 	) {
         h5_file_p f = (h5_file_p)fh;
@@ -177,11 +178,13 @@ h5t_add_tetrahedral_mesh (
 
 	m->leaf_level = 0;
 	m->num_leaf_levels = 0;
+        m->num_weights = num_weights;
 	TRY (h5tpriv_add_level (m));
 	m->mesh_changed = 1;
 
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
+
 /*!
    Add new mesh
 
@@ -191,6 +194,7 @@ h5_err_t
 h5t_add_chunked_tetrahedral_mesh (
 	const h5_file_t fh,
         const char* name,
+        const h5_weight_t num_weights,
         h5t_mesh_t** mesh
         ) {
         h5_file_p f = (h5_file_p)fh;

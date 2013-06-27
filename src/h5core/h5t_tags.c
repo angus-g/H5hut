@@ -29,7 +29,7 @@
 
 static h5_err_t
 read_dataset (
-		h5t_mesh_t* const m,
+        h5t_mesh_t* const m,
         const h5_file_p f,
         hid_t dset_id,
         h5_dsinfo_t* dsinfo,
@@ -421,11 +421,13 @@ read_tagset (
 	TRY (dset_id = hdf5_open_dataset (loc_id, "elems"));
 	TRY (num_interior_elems = hdf5_get_npoints_of_dataset (dset_id));
 	TRY (elems = h5_calloc (num_interior_elems, sizeof(*elems)));
+
 	h5_dsinfo_t dsinfo;
 	memset (&dsinfo, 0, sizeof (dsinfo));
 	dsinfo.type_id = h5_dta_types.h5t_glb_tag_idx_t;
-	TRY (h5priv_read_dataset (
-		     tagset->m->f,
+	TRY (read_dataset (
+                     tagset->m,
+                     tagset->m->f,
 		     dset_id,
 		     &dsinfo,
 		     open_space_all,
@@ -442,7 +444,7 @@ read_tagset (
 	TRY (num_entities = hdf5_get_npoints_of_dataset (dset_id));
 	TRY (entities = h5_calloc (num_entities, sizeof(*entities)));
 	TRY (read_dataset (
-				 tagset->m,
+                     tagset->m,
 	             tagset->m->f,
 	             dset_id,
 	             &dsinfo,

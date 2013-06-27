@@ -203,7 +203,8 @@ copy_glb_elems (
 	return (h5_glb_elem_t*)dst;
 }
 
-int compare_glb_elems(const void *p_a, const void *p_b) {
+static int
+compare_glb_elems(const void *p_a, const void *p_b) {
 	return ((h5_glb_tri_t*) p_a)->idx - ((h5_glb_tri_t*) p_b)->idx;
 }
 

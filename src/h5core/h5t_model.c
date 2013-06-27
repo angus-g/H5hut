@@ -191,7 +191,8 @@ h5tpriv_init_mesh (
 		             "__num_leaf_levels__",
 		             H5T_NATIVE_INT16,
 		             &m->num_leaf_levels));
-		m->leaf_level = m->num_leaf_levels-1; //seems not to be set otherwise but for reading vtx it should be...
+                //seems not to be set otherwise but for reading vtx it should be...
+		m->leaf_level = m->num_leaf_levels-1;
 		TRY (m->num_glb_elems = h5_calloc (m->num_leaf_levels, sizeof(*m->num_glb_elems)));
 		TRY (m->num_glb_leaf_elems = h5_calloc (m->num_leaf_levels, sizeof(*m->num_glb_leaf_elems)));
 		TRY (m->num_glb_vertices = h5_calloc (m->num_leaf_levels, sizeof (*m->num_glb_vertices)));

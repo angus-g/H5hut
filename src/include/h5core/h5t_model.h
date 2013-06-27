@@ -42,48 +42,76 @@ h5t_open_triangle_mesh_by_idx (
 
 h5_err_t
 h5t_open_triangle_mesh_part (
-        const h5_file_t, const char*, h5t_mesh_t** mesh,
+        const h5_file_t, const char*, h5t_mesh_t**,
         h5_glb_idx_t*, h5_glb_idx_t);
 
-h5_lvl_idx_t h5t_is_chunked (h5t_mesh_t* const);
+h5_lvl_idx_t
+h5t_is_chunked (
+        h5t_mesh_t* const);
 
-h5_ssize_t h5t_get_num_trimeshes (const h5_file_t f);
+h5_ssize_t
+h5t_get_num_trimeshes (
+        const h5_file_t f);
 
-h5_ssize_t h5t_get_num_leaf_levels (h5t_mesh_t* const);
+h5_ssize_t
+h5t_get_num_leaf_levels (
+        h5t_mesh_t* const);
 
-h5_ssize_t h5t_get_num_vertices (h5t_mesh_t* const, const h5_id_t);
+h5_ssize_t
+h5t_get_num_vertices (
+        h5t_mesh_t* const, const h5_id_t);
 
-h5_ssize_t h5t_get_num_leaf_elems (h5t_mesh_t* const, const h5_id_t);
+h5_ssize_t
+h5t_get_num_leaf_elems (
+        h5t_mesh_t* const, const h5_id_t);
 
-h5_id_t h5t_add_chunked_tetrahedral_mesh (const h5_file_t, const char* name, h5t_mesh_t**);
+h5_id_t
+h5t_add_chunked_tetrahedral_mesh (
+        const h5_file_t, const char*, const h5_weight_t, h5t_mesh_t**);
 
-h5_id_t h5t_add_triangle_mesh (const h5_file_t, const char*, h5t_mesh_t**);
+h5_id_t
+h5t_add_chunked_triangle_mesh (
+        const h5_file_t, const char*, const h5_weight_t, h5t_mesh_t**);
 
-h5_id_t h5t_add_chunked_triangle_mesh (const h5_file_t, const char*, h5t_mesh_t**);
+h5_lvl_idx_t
+h5t_get_level (
+        h5t_mesh_t* const);
 
-h5_lvl_idx_t h5t_get_level (h5t_mesh_t* const);
+h5_err_t
+h5t_open_tetrahedral_mesh (
+        const h5_file_t, const char*, h5t_mesh_t**);
 
-h5_err_t h5t_open_tetrahedral_mesh (const h5_file_t ,
-                                    const char*, h5t_mesh_t**);
-h5_err_t h5t_open_tetrahedral_mesh_by_idx (const h5_file_t ,
-                                           const h5_id_t, h5t_mesh_t**);
+h5_err_t
+h5t_open_tetrahedral_mesh_by_idx (
+        const h5_file_t, const h5_id_t, h5t_mesh_t**);
 
-h5_err_t h5t_open_triangle_mesh (const h5_file_t,
-                                 const char*,	h5t_mesh_t**);
-h5_err_t h5t_open_triangle_mesh_by_idx (const h5_file_t,
-                                        const h5_id_t, h5t_mesh_t**);
-h5_id_t h5t_add_tetrahedral_mesh (const h5_file_t,
-                                  const char* name, h5t_mesh_t**);
-h5_id_t h5t_add_triangle_mesh (const h5_file_t,
-                               const char*, h5t_mesh_t**);
+h5_err_t
+h5t_open_triangle_mesh (
+        const h5_file_t, const char*, h5t_mesh_t**);
 
-h5_err_t h5t_set_level (h5t_mesh_t* const, const h5_lvl_idx_t);
+h5_err_t
+h5t_open_triangle_mesh_by_idx (
+        const h5_file_t, const h5_id_t, h5t_mesh_t**);
 
-h5_err_t h5t_set_mesh_changed (h5t_mesh_t* const m);
+h5_id_t
+h5t_add_tetrahedral_mesh (
+        const h5_file_t, const char*, const h5_weight_t, h5t_mesh_t**);
 
-h5_err_t h5t_close_mesh (h5t_mesh_t* const);
+h5_id_t
+h5t_add_triangle_mesh (
+        const h5_file_t, const char*, const h5_weight_t, h5t_mesh_t**);
 
+h5_err_t
+h5t_set_level (
+        h5t_mesh_t* const, const h5_lvl_idx_t);
 
+h5_err_t
+h5t_set_mesh_changed (
+        h5t_mesh_t* const m);
+
+h5_err_t
+h5t_close_mesh (
+        h5t_mesh_t* const);
 
 #ifdef __cplusplus
 }

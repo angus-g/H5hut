@@ -108,7 +108,7 @@ pre_refine_triangle (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	unsigned int num_interior_elems_to_refine = m->marked_entities->num_items;
 	TRY (h5t_begin_store_vertices (m, num_interior_elems_to_refine*3 + 64));
-	TRY (h5t_begin_store_elems (m, num_interior_elems_to_refine*4, m->num_weights));
+	TRY (h5t_begin_store_elems (m, num_interior_elems_to_refine*4));
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
@@ -149,22 +149,22 @@ refine_triangle (
 	new_elem[0] = vertices[0]; // V[0] < V[3] , V[4]
 	new_elem[1] = vertices[3];
 	new_elem[2] = vertices[4];
-	TRY( elem_idx_of_first_child = h5t_store_elem (m, elem_idx, new_elem, NULL) );
+	TRY (elem_idx_of_first_child = h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	new_elem[0] = vertices[3];  // V[3] < V[1] , V[5]
 	new_elem[1] = vertices[1];
 	new_elem[2] = vertices[5];
-	TRY( h5t_store_elem (m, elem_idx, new_elem, NULL) );
+	TRY (h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	new_elem[0] = vertices[4];  // V[4] < V[5] , V[2]
 	new_elem[1] = vertices[5];
 	new_elem[2] = vertices[2];
-	TRY( h5t_store_elem (m, elem_idx, new_elem, NULL) );
+	TRY (h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	new_elem[0] = vertices[3];  // V[3] < V[4] , V[5]
 	new_elem[1] = vertices[5];
 	new_elem[2] = vertices[4]; // TODO check if that ordering is correct!
-	TRY( h5t_store_elem (m, elem_idx, new_elem, NULL) );
+	TRY (h5tpriv_add_cell (m, elem_idx, new_elem, NULL));
 
 	((h5_loc_tri_t*)m->loc_elems)[elem_idx].child_idx = elem_idx_of_first_child;
 	m->num_interior_leaf_elems[m->leaf_level]--;

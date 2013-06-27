@@ -319,7 +319,7 @@ h5t_get_vertex_coords_by_id (
 	                   (long long unsigned)vertex_id,
 	                   P);
 	h5_loc_idx_t vertex_index;
-	TRY (h5tpriv_get_vertex_index_of_vertex (m, vertex_id, &vertex_index));
+	TRY (h5tpriv_get_loc_vtx_idx_of_vtx (m, vertex_id, &vertex_index));
 	TRY (h5t_get_vertex_coords_by_index (m, vertex_index, P));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
@@ -336,7 +336,7 @@ h5t_get_vertex_by_id (
 	                   m, (long long)vertex_id, glb_idx, P);
 	// get loc index of vertex
 	h5_loc_idx_t idx;
-	TRY (h5t_get_loc_vertex_index_of_vertex (m, vertex_id, &idx));
+	TRY (h5tpriv_get_loc_vtx_idx_of_vtx (m, vertex_id, &idx));
 	*glb_idx = m->vertices[idx].idx;
 	*P = m->vertices[idx].P;
 	H5_CORE_API_RETURN (H5_SUCCESS);

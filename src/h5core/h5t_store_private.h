@@ -37,6 +37,11 @@ h5tpriv_alloc_loc_elems (
 	return m->methods->store->alloc_loc_elems (m, cur, new);
 }
 
+h5_loc_idx_t
+h5tpriv_add_cell (
+        h5t_mesh_t* const, const h5_loc_idx_t, const h5_loc_idx_t*, const h5_weight_t*);
+
+
 static inline h5_loc_idx_t
 h5tpriv_refine_elem (
         h5t_mesh_t * const m,

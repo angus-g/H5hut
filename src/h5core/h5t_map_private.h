@@ -69,14 +69,14 @@ h5priv_find_in_idlist (glb_id)
 h5priv_search_in_xlist (glb_id)
 
 h5_err_t
-h5tpriv_get_vertex_index_of_vertex (
+h5tpriv_get_loc_vtx_idx_of_vtx (
 	h5t_mesh_t* const m,
 	const h5_loc_id_t entity_id,
 	h5_loc_idx_t* vertex_index
 	);
 
 h5_err_t
-h5tpriv_get_vertex_index_of_vertex2 (
+h5tpriv_get_loc_vtx_idx_of_vtx2 (
 	h5t_mesh_t* const m,
 	const h5_loc_idx_t face_idx,
 	const h5_loc_idx_t elem_idx,

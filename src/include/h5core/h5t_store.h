@@ -30,15 +30,11 @@ h5t_end_store_vertices (
 
 h5_err_t
 h5t_begin_store_elems (
-        h5t_mesh_t* const, const h5_size_t, const h5_weight_t);
+        h5t_mesh_t* const, const h5_size_t);
 
 h5_loc_idx_t
-h5t_store_elem (
-        h5t_mesh_t* const, const h5_loc_idx_t, const h5_loc_idx_t*, const h5_weight_t*);
-
-h5_loc_idx_t
-h5t_store_elem2 (
-        h5t_mesh_t* const, const h5_loc_idx_t, const h5_loc_idx_t*, const h5_weight_t*);
+h5t_add_lvl0_cell (
+        h5t_mesh_t* const, const h5_loc_idx_t*, const h5_weight_t*);
 
 h5_err_t
 h5t_end_store_elems (

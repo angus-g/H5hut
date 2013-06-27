@@ -168,7 +168,7 @@ get_edges_uadj_to_vertex (
 	                    "m=%p, entity_id=%llu, list=%p",
 	                    m, (long long unsigned)entity_id, list);
 	h5_loc_idx_t vertex_idx;
-	TRY( h5tpriv_get_vertex_index_of_vertex (m, entity_id, &vertex_idx) );
+	TRY( h5tpriv_get_loc_vtx_idx_of_vtx (m, entity_id, &vertex_idx) );
 	h5_loc_idlist_t* tv = m->adjacencies.tv.v[vertex_idx];
 
 	TRY( h5priv_alloc_loc_idlist (list, 8) );
@@ -204,7 +204,7 @@ get_triangles_uadj_to_vertex (
 	                    "m=%p, entity_id=%llu, list=%p",
 	                    m, (long long unsigned)entity_id, list);
 	h5_loc_idx_t vertex_idx;
-	TRY( h5tpriv_get_vertex_index_of_vertex (m, entity_id, &vertex_idx) );
+	TRY( h5tpriv_get_loc_vtx_idx_of_vtx (m, entity_id, &vertex_idx) );
 	h5_loc_idlist_t* tv = m->adjacencies.tv.v[vertex_idx];
 
 	TRY ( h5priv_alloc_loc_idlist (list, 8) );

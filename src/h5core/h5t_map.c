@@ -303,7 +303,7 @@ h5t_get_glb_vertex_indices_of_entity (
 }
 
 h5_err_t
-h5tpriv_get_vertex_index_of_vertex (
+h5tpriv_get_loc_vtx_idx_of_vtx (
 	h5t_mesh_t* const m,
 	const h5_loc_id_t entity_id,
 	h5_loc_idx_t* vertex_index
@@ -315,12 +315,12 @@ h5tpriv_get_vertex_index_of_vertex (
 	                   (long long unsigned)*vertex_index);
 	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	H5_CORE_API_RETURN (h5tpriv_get_vertex_index_of_vertex2 (
+	H5_CORE_API_RETURN (h5tpriv_get_loc_vtx_idx_of_vtx2 (
 				    m, face_idx, elem_idx, vertex_index));
 }
 
 h5_err_t
-h5tpriv_get_vertex_index_of_vertex2 (
+h5tpriv_get_loc_vtx_idx_of_vtx2 (
 	h5t_mesh_t* const m,
 	const h5_loc_idx_t face_idx,	// vertex index according ref. element
 	const h5_loc_idx_t elem_idx,	// local element index

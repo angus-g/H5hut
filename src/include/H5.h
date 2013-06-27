@@ -215,10 +215,6 @@ static inline H5SetThrottle (
 	H5_API_RETURN (h5_set_throttle(f, factor));
 }
 #endif // PARALLEL_IO
-#ifdef __cplusplus
-}
-#endif
-
 
 /*!
   \ingroup h5hut_file

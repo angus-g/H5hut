@@ -41,7 +41,7 @@ h5u_set_num_particles (
 
 h5_err_t
 h5u_has_view (
-	const const h5_file_t);
+	const h5_file_t);
 
 h5_err_t
 h5u_reset_view (

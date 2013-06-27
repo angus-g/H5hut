@@ -1,5 +1,5 @@
-# src/C level Makefile.am
 
+if ENABLE_C
 # Header files that I wish to install in $(prefix)/include
 include_HEADERS =				\
 	../include/H5.h				\
@@ -22,6 +22,7 @@ include_HEADERS =				\
 
 # Listing of all possible headers that I may include
 EXTRA_HEADERS =
+endif
 
 clean-local:
 	$(RM) *~

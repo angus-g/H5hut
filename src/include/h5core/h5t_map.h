@@ -45,21 +45,6 @@ h5t_map_glb_elem_indices2loc (
         );
 
 h5_err_t
-h5t_get_loc_vertex_index_of_vertex (
-        h5t_mesh_t* const m,
-        const h5_loc_id_t entity_id,
-        h5_loc_idx_t* vertex_index
-        );
-
-h5_err_t
-h5t_get_loc_vertex_index_of_vertex2 (
-        h5t_mesh_t* const m,
-        const h5_loc_idx_t face_idx,
-        const h5_loc_idx_t elem_idx,
-        h5_loc_idx_t* vertex_indices
-        );
-
-h5_err_t
 h5t_get_loc_vertex_indices_of_edge (
         h5t_mesh_t* const m,
         const h5_loc_id_t entity_id,

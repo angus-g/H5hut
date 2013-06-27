@@ -497,12 +497,11 @@ h5t_end_store_vertices (
 h5_err_t
 h5t_begin_store_elems (
         h5t_mesh_t* const m,
-        const h5_size_t num,
-        const h5_weight_t num_weights
+        const h5_size_t num
         ) {
 	H5_CORE_API_ENTER (h5_err_t,
-	                   "m=%p, num=%llu, num_weights=%d",
-	                   m, (long long unsigned)num, num_weights);
+	                   "m=%p, num=%llu",
+	                   m, (long long unsigned)num);
 
 	h5_debug ("begin storing %llu elements", (long long)num);
 	size_t cur = m->leaf_level > 0 ? m->num_interior_elems[m->leaf_level-1] : 0;
@@ -515,9 +514,8 @@ h5t_begin_store_elems (
 	m->num_interior_leaf_elems[m->leaf_level] = m->leaf_level > 0 ?
 	                                            num + m->num_interior_leaf_elems[m->leaf_level-1] : num;
 
-	m->num_weights = num_weights;
 	if (m->leaf_level == 0) {
-		TRY (m->weights = h5_calloc(num_weights * num, sizeof (* m->weights) ));
+		TRY (m->weights = h5_calloc(m->num_weights * num, sizeof (* m->weights) ));
 		if (m->num_weights < 1) {
 			m->weights = NULL;
 		}
@@ -541,13 +539,13 @@ h5t_begin_store_elems (
                                         tetrahedron.
  */
 h5_loc_idx_t
-h5t_store_elem (
+h5tpriv_add_cell (
         h5t_mesh_t* const m,
         const h5_loc_idx_t parent_idx,
         const h5_loc_idx_t* vertex_indices,
         const h5_weight_t* weights
         ) {
-	H5_CORE_API_ENTER (h5_loc_idx_t,
+	H5_PRIV_FUNC_ENTER (h5_loc_idx_t,
 	                   "m=%p, parent_idx=%lld, vertex_indices=%p, weights=%p",
 	                   m,
 	                   (long long)parent_idx,
@@ -602,20 +600,19 @@ h5t_store_elem (
 	}
 	H5_CORE_API_RETURN (elem_idx);
 }
+
 h5_loc_idx_t
-h5t_store_elem2 (
+h5t_add_lvl0_cell (
         h5t_mesh_t* const m,
-        const h5_loc_idx_t parent_idx,
         const h5_loc_idx_t* vertex_indices,
         const h5_weight_t* weights
         ) {
 	H5_CORE_API_ENTER (h5_loc_idx_t,
-		                   "m=%p, parent_idx=%lld, vertex_indices=%p, weights=%p",
+		                   "m=%p, vertex_indices=%p, weights=%p",
 		                   m,
-		                   (long long)parent_idx,
 		                   vertex_indices,
 		                   weights);
-	h5t_store_elem (m, parent_idx, vertex_indices, weights);
+	h5tpriv_add_cell (m, -1, vertex_indices, weights);
 	h5_loc_idx_t* loc_vertex_indices = h5tpriv_get_loc_elem_vertex_indices (
 	        m, m->last_stored_eid);
 	int num_vertices = h5tpriv_ref_elem_get_num_vertices (m);
@@ -682,7 +679,11 @@ h5t_end_store_elems (
         h5t_mesh_t* const m
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
-	h5_debug ("end storing elements");
+
+        if (m->leaf_level == 0) {
+                m->num_glb_leaf_elems[0] = m->num_glb_elems[0];
+        }
+
 	m->num_interior_elems[m->leaf_level] = m->last_stored_eid+1;
 	m->num_glb_elems[m->leaf_level] = m->last_stored_eid+1;
 	m->num_glb_leaf_elems[m->leaf_level] = m->num_interior_leaf_elems[m->leaf_level];
@@ -1787,7 +1788,8 @@ h5t_refine_marked_elems_chk (
 
 	// refine elements
 	for (int i = 0; i < num_midpoints; i++) {
-		TRY (h5tpriv_refine_elem (m, h5t_map_glb_elem_idx2loc(m,midpoints[i].elem))); // needs to be ordered acc to octants
+                // needs to be ordered acc to octants
+		TRY (h5tpriv_refine_elem (m, h5t_map_glb_elem_idx2loc(m,midpoints[i].elem)));
 	}
 	TRY (h5_free (oct_c_list.items));
 	TRY (h5_free (elem_range));
@@ -2147,7 +2149,9 @@ store_exchanged_elems (
 
 
 	// create list of new glb_vtx
-	h5_glb_vertex_t* new_vtx = h5_calloc(new_elems_c * 4, sizeof (*new_vtx));// TODO should be by far enough -> could be optimzed
+
+        // TODO should be by far enough -> could be optimzed
+	h5_glb_vertex_t* new_vtx = h5_calloc(new_elems_c * 4, sizeof (*new_vtx));
 	int new_vtx_c = 0;
 
 

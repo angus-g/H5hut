@@ -32,7 +32,7 @@ h5tpriv_enter_tv2 (
 	                   m, (long long)face_idx, (long long)elem_idx, idlist);
 
 	h5_loc_idx_t vertex_idx;
-	TRY (h5t_get_loc_vertex_index_of_vertex2 (
+	TRY (h5tpriv_get_loc_vtx_idx_of_vtx2 (
 	             m,
 	             face_idx, elem_idx,
 	             &vertex_idx));

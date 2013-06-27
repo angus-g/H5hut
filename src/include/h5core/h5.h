@@ -69,7 +69,6 @@ h5_err_t
 h5_close_hdf5 (
 	void);
 
-
 h5_err_t
 h5_flush_step (
 	const h5_file_t);

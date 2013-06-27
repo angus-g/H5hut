@@ -25,21 +25,21 @@ extern "C" {
    H5_O_APPEND: allows to append a new datasets to an existing file
    H5_O_RDWR:   dataset may exist
  */
-
-#define H5_O_RDWR               0x001
-#define H5_O_RDONLY             0x002
-#define H5_O_WRONLY             0x004
-#define H5_O_APPEND             0x008
+#define H5_O_RDWR		0x00000001
+#define H5_O_RDONLY		0x00000002
+#define H5_O_WRONLY		0x00000004
+#define H5_O_APPEND		0x00000008
 
 #define H5_VFD_MPIPOSIX         0x00000010
 #define H5_VFD_MPIIO_IND        0x00000020
+#define H5_VFD_INDEPENDENT      H5_VFD_MPIIO_IND // obsolete(?)
 #define H5_VFD_CORE		0x00000040
 
-#define H5_FLUSH_FILE           0x040
-#define H5_FLUSH_STEP           0x080
-#define H5_FLUSH_DATASET        0x100
+#define H5_FLUSH_FILE		0x00001000
+#define H5_FLUSH_STEP		0x00002000
+#define H5_FLUSH_DATASET	0x00004000
 
-#define H5_FS_LUSTRE            0x200
+#define H5_FS_LUSTRE		0x00010000
 
 #define H5_ID_T                 H5T_NATIVE_INT64
 #define H5_FLOAT64_T            H5T_NATIVE_DOUBLE

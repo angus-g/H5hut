@@ -109,15 +109,6 @@ H5FedSetMeshChanged (
 	H5_API_RETURN (h5t_set_mesh_changed (m));
 }
 
-static inline h5_err_t
-H5FedLinkMeshToStep (
-        h5_file_t* const m,
-        const h5_id_t mesh_id
-        ) {
-	H5_API_ENTER (h5_err_t, "m=%p, mesh_id=%lld", m, (long long)mesh_id);
-	H5_API_RETURN (h5_error_not_implemented ());
-}
-
 #ifdef __cplusplus
 }
 #endif

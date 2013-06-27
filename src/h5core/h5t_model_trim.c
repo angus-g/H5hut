@@ -153,6 +153,7 @@ h5_err_t
 h5t_add_triangle_mesh (
 	const h5_file_t fh,
 	const char* name,
+        const h5_weight_t num_weights,
 	h5t_mesh_t** mesh
 	) {
         h5_file_p f = (h5_file_p)fh;
@@ -207,6 +208,7 @@ h5_err_t
 h5t_add_chunked_triangle_mesh(
         const h5_file_t fh,
         const char* name,
+        const h5_weight_t num_weights,
         h5t_mesh_t** mesh
         ) {
         h5_file_p f = (h5_file_p)fh;

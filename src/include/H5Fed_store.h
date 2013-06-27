@@ -28,7 +28,7 @@ H5FedAddTetrahedralMesh (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name=%s, mesh=%p",
                       (h5_file_p)f, name, mesh);
-	H5_API_RETURN (h5t_add_tetrahedral_mesh (f, name, mesh));
+	H5_API_RETURN (h5t_add_tetrahedral_mesh (f, name, 0, mesh));
 }
 
 static inline h5_err_t
@@ -40,7 +40,7 @@ H5FedAddChunkedTetrahedralMesh (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name=%s, mesh=%p",
                       (h5_file_p)f, name, mesh);
-	H5_API_RETURN (h5t_add_chunked_tetrahedral_mesh (f, name, mesh));
+	H5_API_RETURN (h5t_add_chunked_tetrahedral_mesh (f, name, 0, mesh));
 }
 
 
@@ -53,7 +53,7 @@ H5FedAddTriangleMesh (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name=%s, mesh=%p",
                       (h5_file_p)f, name, mesh);
-	H5_API_RETURN (h5t_add_triangle_mesh (f, name, mesh));
+	H5_API_RETURN (h5t_add_triangle_mesh (f, name, 0, mesh));
 }
 
 static inline h5_err_t
@@ -65,8 +65,9 @@ H5FedAddChunkedTriangleMesh (
 	H5_API_ENTER(h5_err_t,
                      "f=%p, name=%s, mesh=%p",
                      (h5_file_p)f, name, mesh);
-	H5_API_RETURN (h5t_add_chunked_triangle_mesh (f, name, mesh));
+	H5_API_RETURN (h5t_add_chunked_triangle_mesh (f, name, 0, mesh));
 }
+
 /*!
    \ingroup h5fed_c_api
 
@@ -136,13 +137,12 @@ H5FedEndStoreVertices (
 static inline h5_err_t
 H5FedBeginStoreElements (
         h5t_mesh_t* const m,
-        const h5_size_t num,
-        const h5_weight_t num_weights
+        const h5_size_t num
         ) {
 	H5_API_ENTER (h5_err_t,
-	              "m=%p, num=%llu, num_weights=%d",
-	              m, (long long unsigned)num, num_weights);
-	H5_API_RETURN (h5t_begin_store_elems (m, num, num_weights));
+	              "m=%p, num=%llu",
+	              m, (long long unsigned)num);
+	H5_API_RETURN (h5t_begin_store_elems (m, num));
 }
 
 /*!
@@ -162,6 +162,21 @@ H5FedBeginStoreElements (
 static inline h5_loc_idx_t
 H5FedStoreElement (
         h5t_mesh_t* const m,            /*!< file handle		*/
+        const h5_loc_idx_t local_vids[] /*!< tuple with vertex id's	*/
+        ) {
+	H5_API_ENTER (h5_loc_idx_t, "m=%p, local_vids=%p", m, local_vids);
+	if (h5t_get_level (m) != 0) {
+		H5_API_LEAVE (
+		        h5_error (
+		                H5_ERR_INVAL,
+		                "Elements can be added to level 0 only!"));
+	}
+	H5_API_RETURN (h5t_add_lvl0_cell (m, local_vids, NULL));
+}
+
+static inline h5_loc_idx_t
+H5FedStoreWeightedElement (
+        h5t_mesh_t* const m,            /*!< file handle		*/
         const h5_loc_idx_t local_vids[], /*!< tuple with vertex id's	*/
         const h5_weight_t weights[]    // tuple with weights
         ) {
@@ -172,7 +187,7 @@ H5FedStoreElement (
 		                H5_ERR_INVAL,
 		                "Elements can be added to level 0 only!"));
 	}
-	H5_API_RETURN (h5t_store_elem2 (m, -1, local_vids, weights));
+	H5_API_RETURN (h5t_add_lvl0_cell (m, local_vids, weights));
 }
 
 static inline h5_err_t
