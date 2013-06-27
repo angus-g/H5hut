@@ -1,5 +1,3 @@
-# tools level Makefile.am
-
 SUBDIRS =
 
 if ENABLE_VTKCONVERTER
@@ -14,7 +12,7 @@ LDADD =
 LDADD += -lH5hut
 
 if ENABLE_C
-EXTRA_SCRIPTS = h5hutcc
+EXTRA_SCRIPTS = #h5hutcc
 EXTRA_PROGRAMS = h5pAttrib
 endif
 
