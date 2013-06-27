@@ -103,13 +103,6 @@ test_read_data64(h5_file_t file, int nparticles, int step)
 	double *px,*py,*pz;
 	h5_int64_t *id;
 
-	x=(double*)malloc(nparticles*sizeof(double));
-	y=(double*)malloc(nparticles*sizeof(double));
-	z=(double*)malloc(nparticles*sizeof(double));
-	px=(double*)malloc(nparticles*sizeof(double));
-	py=(double*)malloc(nparticles*sizeof(double));
-	pz=(double*)malloc(nparticles*sizeof(double));
-	id=(h5_int64_t*)malloc(nparticles*sizeof(h5_int64_t));
 
 	TEST("Verifying dataset info");
 
@@ -120,6 +113,14 @@ test_read_data64(h5_file_t file, int nparticles, int step)
 	nprocs = 1;
 	rank = 2;
 #endif
+
+	x=(double*)malloc(nprocs*nparticles*sizeof(double));
+	y=(double*)malloc(nprocs*nparticles*sizeof(double));
+	z=(double*)malloc(nprocs*nparticles*sizeof(double));
+	px=(double*)malloc(nprocs*nparticles*sizeof(double));
+	py=(double*)malloc(nprocs*nparticles*sizeof(double));
+	pz=(double*)malloc(nprocs*nparticles*sizeof(double));
+	id=(h5_int64_t*)malloc(nprocs*nparticles*sizeof(h5_int64_t));
 
 	val = H5PartGetNumParticles(file);
 	IVALUE(val, nprocs*nparticles, "particle count");

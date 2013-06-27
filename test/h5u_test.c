@@ -49,8 +49,8 @@ int main(int argc, char **argv)
 	/* Parse command line arguments */
 	TestParseCmdLine(argc, argv);
 
-	//H5SetVerbosityLevel(GetTestVerbosity());
-	H5SetVerbosityLevel(1);
+	H5SetVerbosityLevel(GetTestVerbosity());
+	//H5SetVerbosityLevel(-1);
 
 	/* Perform requested testing */
 	PerformTests();
