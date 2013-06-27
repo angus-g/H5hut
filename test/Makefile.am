@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(top_srcdir)/src/include @AM_CPPFLAGS@
+AM_CPPFLAGS += -I$(top_srcdir)/src/include
 AM_LDFLAGS += -L${abs_top_builddir}/src/lib
 
 LDADD =
@@ -34,5 +34,4 @@ h5_attach_test_SOURCES = \
 		h5_attach_test.c
 
 clean-local:
-	${RM} -f *.h5
-
+	${RM} -f *.h5 *~

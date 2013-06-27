@@ -1,4 +1,4 @@
-AC_INIT([H5hut], [1.99.10], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [1.99-trunk], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
@@ -117,8 +117,6 @@ PATH_Search() {
 ###############################################################################
 # MISC SETTINGS INCLUDING C & C++ COMPILER SETTING
 
-# Compute the canonical host-system type variable, host, and its three
-# individual parts host_cpu, host_vendor, and host_os.
 AC_CANONICAL_HOST
 AC_PROG_MAKE_SET
 
@@ -134,8 +132,6 @@ else
 fi
 
 # Determine a C/C++ compiler to use. 
-# If CC is not already set in the environment, check for other C compilers. 
-# Set output variable CC to the name of the compiler found.
 if test "x$ENABLE_PARALLEL" = "xyes"; then
    	CCOMPILERS="mpicc"
 	CXXCOMPILERS="mpic++"
@@ -149,17 +145,12 @@ CC=`which $CC`
 AC_PROG_CXX($CXXCOMPILERS)
 CXX=`which $CXX`
 
-# Use macro to set C99 mode instead of checking for gcc, which breaks with
-# parallel builds.
 AC_PROG_CC_C99
 if test "x$ac_cv_prog_cc_c99" = "xno"; then
 	AC_MSG_ERROR([Cannot set C compiler to use C99 standard!])
 	exit 1
 fi
 
-# Set output variable INSTALL to the path of a BSD-compatible install program,
-# if one is found in the current PATH. 
-# Otherwise, set INSTALL to `dir/install-sh -c`
 AC_PROG_INSTALL
 AC_PROG_AWK
 
@@ -208,7 +199,6 @@ AC_DEFINE_UNQUOTED(MY_UNAME, "$uname", "")
 AC_MSG_CHECKING([if C interface enabled])
 if test "X$ENABLE_C" = "Xyes"; then
 	AC_MSG_RESULT([yes])
-	BINDINGS="$BINDINGS C"
 else
         AC_MSG_RESULT([no])
 fi
@@ -217,8 +207,6 @@ fi
 AC_MSG_CHECKING([if fortran interface enabled])
 if test "X$ENABLE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
-	BINDINGS="$BINDINGS Fortran"
-	LIB_FORTRAN="libH5hutF.la"
 
 	if test "X$ENABLE_PARALLEL" = "Xyes"; then
 		AC_PROG_FC(mpif90 mpif77)
@@ -246,7 +234,6 @@ if test "X$ENABLE_FORTRAN" = "Xyes"; then
 	`cd src/Fortran && ${FC} ${FFLAGS} -o TestUnderscore TestUnderscore.o TestUnderscoreC.o`
 
 	if test -f src/Fortran/TestUnderscore ; then
-		UNDERSCORE_H=Underscore.h
 		`cd src/Fortran && ./TestUnderscore > Underscore.h`
 		AC_MSG_RESULT([ok])
 	else
@@ -350,21 +337,17 @@ fi
 ###############################################################################
 # EXPORTING VARIABLES & CREATING OUTPUT FILES
 AC_SUBST(HDF5_PREFIX)
-AC_SUBST(LUSTREROOT)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
 AC_SUBST(AM_CPPFLAGS)
 AC_SUBST(AM_LDFLAGS)
-AC_SUBST(LIBS)
-AC_SUBST(UNDERSCORE_H)
-AC_SUBST(LIB_FORTRAN)
-AC_SUBST(BINDINGS)
 
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 	src/h5core/Makefile
 	src/include/Makefile
+	src/include/h5core/Makefile
         src/C/Makefile
         src/Fortran/Makefile
 	test/Makefile

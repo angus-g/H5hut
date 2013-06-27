@@ -1,0 +1,24 @@
+otherincludedir = $(includedir)/h5core
+
+include_HEADERS =		\
+	h5.h			\
+	h5_attribs.h		\
+	h5_debug.h		\
+	h5_errorhandling.h	\
+	h5_model.h		\
+	h5_syscall.h		\
+	h5_types.h		\
+	h5b_attribs.h		\
+	h5b_model.h		\
+	h5b_io.h		\
+	h5t_adjacencies.h	\
+	h5t_map.h		\
+	h5t_model.h		\
+	h5t_retrieve.h		\
+	h5t_store.h		\
+	h5t_tags.h		\
+	h5u_model.h		\
+	h5u_io.h
+
+clean-local:
+	$(RM) *~
