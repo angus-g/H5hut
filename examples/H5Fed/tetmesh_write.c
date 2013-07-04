@@ -4,11 +4,14 @@
 
 #include "H5hut.h"
 
-#ifndef PARALLEL_IO
-#ifndef MPI_COMM_WORLD
-#define MPI_COMM_WORLD 0
+#if !defined (PARALLEL_IO)
+#define MPI_Init(argc, argv)
+#define MPI_Comm_size(comm, nprocs) { *nprocs = 1; }
+#define MPI_Comm_rank(comm, myproc) { *myproc = 0; }
+#define MPI_Finalize()
+#define MPI_COMM_WORLD (0)
 #endif
-#endif
+
 
 const char* FNAME = "simple_tet.h5";
 
@@ -41,12 +44,20 @@ main (
 	int argc,
 	char* argv[]
 	) {
+	MPI_Comm comm = MPI_COMM_WORLD;
+
+	int myproc;
+	int nprocs;
+	MPI_Init (&argc, &argv);
+	MPI_Comm_size (comm, &nprocs);
+	MPI_Comm_rank (comm, &myproc);
+
 	/* abort program on errors in library */
 	H5SetErrorHandler (H5AbortErrorhandler);
 	H5SetVerbosityLevel (5);
 
 	/* open file and add mesh */
-	h5_file_t const f = H5OpenFile (FNAME, H5_O_WRONLY, 0);
+	h5_file_t const f = H5OpenFile (FNAME, H5_O_WRONLY, comm);
 	h5t_mesh_t* mesh;
 	H5FedAddTetrahedralMesh (f, "0", &mesh);
 

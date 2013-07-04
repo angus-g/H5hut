@@ -6,6 +6,14 @@
 
 #include "H5hut.h"
 
+#if !defined (PARALLEL_IO)
+#define MPI_Init(argc, argv)
+#define MPI_Comm_size(comm, nprocs) { *nprocs = 1; }
+#define MPI_Comm_rank(comm, myproc) { *myproc = 0; }
+#define MPI_Finalize()
+#define MPI_COMM_WORLD (0)
+#endif
+
 const char* FNAME = "simple_tet.h5";
 
 
@@ -328,12 +336,20 @@ main (
 	int argc,
 	char* argv[]
 	) {
+	MPI_Comm comm = MPI_COMM_WORLD;
+
+	int myproc;
+	int nprocs;
+	MPI_Init (&argc, &argv);
+	MPI_Comm_size (comm, &nprocs);
+	MPI_Comm_rank (comm, &myproc);
+
 	/* abort program on error, so we don't have to handle them */
 	H5SetErrorHandler (H5AbortErrorhandler);
 	H5SetVerbosityLevel (2);
 
 	/* open file and get number of meshes */
-	h5_file_t f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
+	h5_file_t f = H5OpenFile (FNAME, H5_O_RDONLY, comm);
 	h5_size_t num_meshes = H5FedGetNumTetrahedralMeshes (f);
 	printf ("    Number of meshes: %lld\n", (long long)num_meshes);
 

@@ -551,7 +551,7 @@ h5t_get_num_leaf_elems (
 	if (m->leaf_level < 0) {
 		H5_CORE_API_LEAVE (h5tpriv_error_undef_level ());
 	}
-	H5_CORE_API_RETURN (m->num_interior_elems[m->leaf_level]);
+	H5_CORE_API_RETURN (m->num_interior_leaf_elems[m->leaf_level]);
 }
 /*!
   Return number of vertices on compute node \c cnode_id

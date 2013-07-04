@@ -53,16 +53,17 @@ bisect_edge (
         const h5_loc_idx_t face_idx,
         const h5_loc_idx_t elem_idx
         ) {
-	H5_PRIV_FUNC_ENTER (h5_loc_idx_t,
-	                    "m=%p, face_idx=%lld, elem_idx=%lld",
-	                    m, (long long)face_idx, (long long)elem_idx);
+	H5_PRIV_FUNC_ENTER (
+                h5_loc_idx_t,
+                "m=%p, face_idx=%lld, elem_idx=%lld",
+                m, (long long)face_idx, (long long)elem_idx);
 	h5_loc_idlist_t* retval;
 	/*
 	   get all elements sharing the given edge
 	 */
 	TRY (h5tpriv_find_te2 (m, face_idx, elem_idx, &retval));
 	/*
-	   check wether one of the found elements has been refined
+	   check wether one of the cells in retval has been refined
 	 */
 	size_t i;
 	for (i = 0; i < retval->num_items; i++) {
@@ -339,8 +340,8 @@ compute_neighbors_of_elems (
  */
 static int
 get_num_new_tetrahedra (
-		void
-		) {
+        void
+        ) {
 	return 8;
 }
 

@@ -178,7 +178,9 @@ h5tpriv_calc_chunk_statistic (
 		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
 	}
 	fprintf (file, "# printing chunk statistics of file \n");
-	fprintf (file, "# num_levels level max_elem num_chunks elems_p_level minfill maxfill avg_p_level avg_fill_p_level \n");
+	fprintf (file,
+                 "# num_levels level max_elem num_chunks elems_p_level "
+                 "minfill maxfill avg_p_level avg_fill_p_level \n");
 	int counter = 0;
 	h5_glb_idx_t* num_elems_p_level = NULL;
 	TRY (num_elems_p_level = h5_calloc (m->chunks->num_levels +1, sizeof (*num_elems_p_level)));
@@ -199,14 +201,22 @@ h5tpriv_calc_chunk_statistic (
 		for (int j = 0; j < m->chunks->num_chunks_p_level[i]; j++) {
 			num_elems_p_level[i] += m->chunks->chunks[counter].num_elems;
 			num_elems_p_level[m->chunks->num_levels] += m->chunks->chunks[counter].num_elems;
-			min_elems_p_level[i] > m->chunks->chunks[counter].num_elems ? min_elems_p_level[i] = m->chunks->chunks[counter].num_elems : 0;
-			max_elems_p_level[i] < m->chunks->chunks[counter].num_elems ? max_elems_p_level[i] = m->chunks->chunks[counter].num_elems : 0;
+                        min_elems_p_level[i] = 
+                                (min_elems_p_level[i] > m->chunks->chunks[counter].num_elems) ?
+                                m->chunks->chunks[counter].num_elems : 0;
+                        max_elems_p_level[i] = 
+                                max_elems_p_level[i] < m->chunks->chunks[counter].num_elems ?
+                                m->chunks->chunks[counter].num_elems : 0;
 			counter++;
 		}
 		avg_p_level[i] = num_elems_p_level[i] / (double) m->chunks->num_chunks_p_level[i];
 		avgfill_p_level[i] = avg_p_level[i] / max_num_elems_p_chunk;
-		min_elems_p_level[m->chunks->num_levels] > min_elems_p_level[i] ? min_elems_p_level[m->chunks->num_levels] = min_elems_p_level[i] : 0;
-		max_elems_p_level[m->chunks->num_levels] < max_elems_p_level[i] ? max_elems_p_level[m->chunks->num_levels] = max_elems_p_level[i] : 0;
+                min_elems_p_level[m->chunks->num_levels] = 
+                        min_elems_p_level[m->chunks->num_levels] > min_elems_p_level[i] ?
+                        min_elems_p_level[i] : 0;
+                max_elems_p_level[m->chunks->num_levels] = 
+                        max_elems_p_level[m->chunks->num_levels] < max_elems_p_level[i] ?
+                        max_elems_p_level[i] : 0;
 	}
 	avg_p_level[m->chunks->num_levels] = num_elems_p_level[m->chunks->num_levels] / (double) counter;
 	avgfill_p_level[m->chunks->num_levels] = avg_p_level[m->chunks->num_levels] / max_num_elems_p_chunk;
@@ -218,9 +228,10 @@ h5tpriv_calc_chunk_statistic (
 					(long long int)max_elems_p_level[i],avg_p_level[i],avgfill_p_level[i]);
 		} else {
 			fprintf (file, " %6d %6d %9d %9d %10lld %10lld %10lld %10.4f %10.4f \n",
-					m->chunks->num_levels, i, max_num_elems_p_chunk, m->chunks->num_chunks_p_level[i],
-					(long long int) num_elems_p_level[i],(long long int)min_elems_p_level[i],
-					(long long int)max_elems_p_level[i],avg_p_level[i],avgfill_p_level[i]);
+                                 m->chunks->num_levels, i, max_num_elems_p_chunk,
+                                 m->chunks->num_chunks_p_level[i],
+                                 (long long int) num_elems_p_level[i],(long long int)min_elems_p_level[i],
+                                 (long long int)max_elems_p_level[i],avg_p_level[i],avgfill_p_level[i]);
 		}
 
 	}
@@ -280,32 +291,31 @@ assign_global_vertex_indices (
 	h5_loc_idx_t local_idx = (m->leaf_level == 0) ?
 	                         0 : m->num_loc_vertices[m->leaf_level-1];
 
-
-#ifdef PARALLEL_IO
-	// exchange num vertices and calc range
-	h5_glb_idx_t* range = NULL;
-	TRY (range = h5_calloc (m->f->nprocs + 1, sizeof (*range)));
-	TRY (h5tpriv_get_vtx_ranges (m, range));
-	int counter = 0;
-	for (;local_idx < m->num_loc_vertices[m->num_leaf_levels-1];
-		     local_idx++, counter++) {
-			m->vertices[local_idx].idx = range[m->f->myproc] + counter;
-		}
-	if (counter + range[m->f->myproc] != range[m->f->myproc + 1]) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
-	}
-	TRY (h5_free (range));
-#else
-	/*
-	   simple in serial runs: global_id = local_id
-	 */
-
-	for (;
-	     local_idx < m->num_loc_vertices[m->num_leaf_levels-1];
-	     local_idx++) {
-		m->vertices[local_idx].idx = local_idx;
-	}
-#endif
+        if (m->is_chunked && m->f->nprocs > 1) {
+                // exchange num vertices and calc range
+                h5_glb_idx_t* range = NULL;
+                TRY (range = h5_calloc (m->f->nprocs + 1, sizeof (*range)));
+                TRY (h5tpriv_get_vtx_ranges (m, range));
+                int counter = 0;
+                for (
+                        ;
+                        local_idx < m->num_loc_vertices[m->num_leaf_levels-1];
+                        local_idx++, counter++) {
+                        m->vertices[local_idx].idx = range[m->f->myproc] + counter;
+                }
+                if (counter + range[m->f->myproc] != range[m->f->myproc + 1]) {
+                        H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+                }
+                TRY (h5_free (range));
+        } else {
+                // simple in serial runs: global_id = local_id
+                for (
+                        ;
+                        local_idx < m->num_loc_vertices[m->num_leaf_levels-1];
+                        local_idx++) {
+                        m->vertices[local_idx].idx = local_idx;
+                }
+        }
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 /*
@@ -315,11 +325,11 @@ assign_global_vertex_indices (
 
 static h5_err_t
 assign_global_vertex_indices_chk (
-		h5t_mesh_t* const m,
-		h5_loc_idxlist_t* vtx_list, // list with vertices that don't need to be assigned
-		h5_glb_idx_t* vtx_range
-		) {
-	H5_PRIV_FUNC_ENTER 	(h5_err_t, "m=%p, vtx_list=%p, vtx_range=%p", m, vtx_list, vtx_range);
+        h5t_mesh_t* const m,
+        h5_loc_idxlist_t* vtx_list, // list with vertices that don't need to be assigned
+        h5_glb_idx_t* vtx_range
+        ) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, vtx_list=%p, vtx_range=%p", m, vtx_list, vtx_range);
 	h5_loc_idx_t local_idx = (m->leaf_level == 0) ?
 	                         0 : m->num_loc_vertices[m->leaf_level-1]; // should not be 0 since only after ref...
 
@@ -2458,21 +2468,21 @@ h5t_end_refine_elems (
 	if (m->is_chunked) {
 #ifdef PARALLEL_IO		
 		TRY (h5priv_mpi_barrier (m->f->props->comm));
-	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
+                m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 		h5_glb_idxlist_t* glb_list = NULL;
 		h5_oct_point_t* midpoints = NULL;
 		TRY (h5t_pre_refine_chk (m, &glb_list, &midpoints));
 		TRY (h5priv_mpi_barrier (m->f->props->comm));
-	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
+                m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 		TRY (h5t_refine_marked_elems_chk (m, glb_list, midpoints));
 		TRY (h5priv_mpi_barrier (m->f->props->comm));
-	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
+                m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 		TRY (h5_free (midpoints));
 		midpoints = NULL;
 		TRY (h5t_post_refine_chk (m, glb_list));
 		m->mesh_changed = 1;
 		TRY (h5priv_mpi_barrier (m->f->props->comm));
-	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
+                m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 #endif
 	} else {
 		TRY (h5t_pre_refine (m));
