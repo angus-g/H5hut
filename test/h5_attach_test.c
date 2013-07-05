@@ -19,13 +19,15 @@ main (
 	H5CloseFile (f);
 	f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
 	h5_ssize_t num_attachments = H5GetNumAttachments (f);
-	printf ("Number of attachments: %lld\n", num_attachments);
+	printf ("Number of attachments: %lld\n", (long long int)num_attachments);
 	int i;
 	char fname[FILENAME_MAX];
 	h5_size_t fsize;
 	for (i=0; i < num_attachments; i++) {
 		H5GetAttachmentInfoByIdx (f, i, fname, sizeof(fname), &fsize);
-		printf ("Attachment %d: Name: %s, Size: %llu\n", i, fname, fsize);
+		printf (
+			"Attachment %d: Name: %s, Size: %llu\n",
+			i, fname, (long long unsigned)fsize);
 		H5GetAttachment (f, fname);
 		H5DeleteAttachment (f, fname);
 	}

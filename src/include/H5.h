@@ -41,7 +41,7 @@ H5SetPropFileAlign (
         h5_prop_t prop,
         h5_int64_t align
         ) {
-        H5_API_ENTER (h5_err_t, "prop=%p, align=%lld", (void*)prop, align);
+        H5_API_ENTER (h5_err_t, "prop=%p, align=%lld", (void*)prop, (long long int)align);
         H5_API_RETURN (h5_set_prop_file_align (prop, align));
 }
 
@@ -50,7 +50,7 @@ H5SetPropFileThrottle (
         h5_prop_t prop,
         h5_int64_t throttle
         ) {
-        H5_API_ENTER (h5_err_t, "prop=%p, throttle=%lld", (void*)prop, throttle);
+        H5_API_ENTER (h5_err_t, "prop=%p, throttle=%lld", (void*)prop, (long long int)throttle);
         H5_API_RETURN (h5_set_prop_file_throttle (prop, throttle));
 }
 
@@ -108,7 +108,7 @@ H5OpenFile2 (
 	) {
 	H5_API_ENTER (h5_file_t,
                       "filename='%s', mode=%lld, props=%p",
-                      filename, mode, (void*)props);
+                      filename, (long long int)mode, (void*)props);
         H5_API_RETURN (h5_open_file2 (filename, mode, props));
 }
 

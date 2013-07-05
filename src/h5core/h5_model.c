@@ -167,9 +167,12 @@ h5_set_throttle (
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, factor=%d", f, factor);
 	if ( (f->props->mode & H5_VFD_MPIIO_IND) || (f->props->mode & H5_VFD_MPIPOSIX) ) {
 		f->props->throttle = factor;
-		h5_info ("Throttling enabled with factor = %lld", f->props->throttle );
+		h5_info (
+			"Throttling enabled with factor = %lld",
+			(long long int)f->props->throttle );
 	} else {
-		h5_warn ("Throttling is only permitted with the MPI-POSIX "
+		h5_warn (
+			"Throttling is only permitted with the MPI-POSIX "
 			"or MPI-IO Independent VFD." );
 	}
 
@@ -183,12 +186,15 @@ h5priv_start_throttle (
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
 	if (f->props->throttle > 0) {
 		int token = 1;
-		h5_info ("Throttling with factor = %lld", f->props->throttle);
+		h5_info (
+			"Throttling with factor = %lld",
+			(long long int)f->props->throttle);
 		if (f->myproc / f->props->throttle > 0) {
-			h5_debug ("throttle: waiting on token from %lld",
-				  f->myproc - f->props->throttle);
+			h5_debug (
+				"throttle: waiting on token from %lld",
+				(long long int)(f->myproc - f->props->throttle));
 			// wait to receive token before continuing with read
-            TRY( h5priv_mpi_recv(
+			TRY( h5priv_mpi_recv(
 				&token, 1, MPI_INT,
 				f->myproc - f->props->throttle, // receive from previous proc
 				f->myproc, // use this proc id as message tag
@@ -209,8 +215,9 @@ h5priv_end_throttle (
 		int token;
 		if (f->myproc + f->props->throttle < f->nprocs) {
 			// pass token to next proc 
-			h5_debug ("throttle: passing token to %lld",
-				  f->myproc + f->props->throttle);
+			h5_debug (
+				"throttle: passing token to %lld",
+				(long long int)(f->myproc + f->props->throttle));
 			TRY (h5priv_mpi_send(
 				     &token, 1, MPI_INT,
 				     f->myproc + f->props->throttle, // send to next proc

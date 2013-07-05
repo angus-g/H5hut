@@ -116,14 +116,17 @@ set_alignment (
 	) {
 	H5_INLINE_FUNC_ENTER (h5_err_t);
 	if ( f->props->align != 0 ) {
-		h5_info ("Setting HDF5 alignment to %llu bytes "
-                         "with threshold at half that many bytes.",
-                         f->props->align);
+		h5_info (
+			"Setting HDF5 alignment to %lld bytes "
+			"with threshold at half that many bytes.",
+			(long long int)f->props->align);
 		TRY (hdf5_set_alignment_property (
                              f->props->access_prop,
                              f->props->align / 2,
                              f->props->align));
-		h5_info ("Setting HDF5 meta block to %llu bytes", f->props->align);
+		h5_info (
+			"Setting HDF5 meta block to %lld bytes",
+			(long long int)f->props->align);
 		TRY (H5Pset_meta_block_size (f->props->access_prop, f->props->align));
 	}
 	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
@@ -158,7 +161,8 @@ h5_set_prop_file_mpio (
                 H5_INLINE_FUNC_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
-                                "Invalid property class: %lld", prop->class));
+                                "Invalid property class: %lld",
+				(long long int)prop->class));
         }
         h5_prop_file_t* file_prop = (h5_prop_file_t*)prop;
         file_prop->comm = *comm;
@@ -171,12 +175,16 @@ h5_set_prop_file_align (
         h5_int64_t align
         ) {
         h5_prop_p prop = (h5_prop_p)_prop;
-        H5_CORE_API_ENTER (h5_err_t, "prop=%p, align=%lld", prop, align);
+        H5_CORE_API_ENTER (
+		h5_err_t,
+		"prop=%p, align=%lld",
+		prop, (long long int)align);
         if (prop->class != H5_PROP_FILE) {
                 H5_INLINE_FUNC_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
-                                "Invalid property class: %lld", prop->class));
+                                "Invalid property class: %lld",
+				(long long int)prop->class));
         }
         h5_prop_file_t* file_prop = (h5_prop_file_t*)prop;
         file_prop->align = align;
@@ -189,12 +197,16 @@ h5_set_prop_file_throttle (
         h5_int64_t throttle
         ) {
         h5_prop_p prop = (h5_prop_p)_prop;
-        H5_CORE_API_ENTER (h5_err_t, "prop=%p, throttle=%lld", prop, throttle);
+        H5_CORE_API_ENTER (
+		h5_err_t,
+		"prop=%p, throttle=%lld",
+		prop, (long long int)throttle);
         if (prop->class != H5_PROP_FILE) {
                 H5_INLINE_FUNC_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
-                                "Invalid property class: %lld", prop->class));
+                                "Invalid property class: %lld",
+				(long long int)prop->class));
         }
         h5_prop_file_t* file_prop = (h5_prop_file_t*)prop;
         file_prop->throttle = throttle;
@@ -206,8 +218,10 @@ h5_prop_t
 h5_create_prop (
         h5_int64_t class
         ) {
-        H5_CORE_API_ENTER (h5_prop_t,
-                           "class=%lld", class);
+        H5_CORE_API_ENTER (
+		h5_prop_t,
+		"class=%lld",
+		(long long int)class);
         h5_prop_t* prop;
         switch (class) {
         case H5_PROP_FILE:
@@ -218,7 +232,8 @@ h5_create_prop (
                 H5_CORE_API_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
-                                "Invalid property class: %lld", class));
+                                "Invalid property class: %lld",
+				(long long int)class));
         }
         H5_CORE_API_RETURN ((h5_prop_t)prop);
 }
@@ -239,7 +254,8 @@ h5_close_prop (
                 H5_CORE_API_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
-                                "Invalid property class: %lld", prop->class));
+                                "Invalid property class: %lld",
+				(long long int)prop->class));
         }
         H5_CORE_API_RETURN (h5_free (prop));
 }
@@ -298,7 +314,8 @@ open_file (
 		H5_PRIV_FUNC_LEAVE (
 			h5_error (
 				H5_ERR_INVAL,
-				"Invalid file access mode '%lld'.", f->props->mode));
+				"Invalid file access mode '%lld'.",
+				(long long int)f->props->mode));
 	}
 	
 	if (f->file < 0)
@@ -306,7 +323,7 @@ open_file (
 			h5_error (
 				H5_ERR_HDF5,
 				"Cannot open file '%s' with mode '%lld'",
-				filename, f->props->mode));
+				filename, (long long int)f->props->mode));
 	TRY (f->root_gid = hdf5_open_group (f->file, "/" ));
 
 	TRY (h5upriv_open_file (f));
@@ -339,7 +356,7 @@ h5_open_file2 (
                                 h5_error (
                                         H5_ERR_INVAL,
                                         "Invalid property class: %lld.",
-                                        props->class));
+                                        (long long int)props->class));
                 }
                 f->props->comm = props->comm;
                 f->props->mode |= props->mode;
@@ -381,9 +398,10 @@ h5_open_file (
 	MPI_Comm comm,
 	h5_size_t align
 	) {
-	H5_CORE_API_ENTER (h5_file_t,
-			   "filename='%s', mode=%d, comm=?, align=%llu",
-			   filename, mode, align);
+	H5_CORE_API_ENTER (
+		h5_file_t,
+		"filename='%s', mode=%d, comm=?, align=%llu",
+		filename, mode, (long long int)align);
         h5_prop_file_t* props;
         h5_file_t f;
         TRY (props = (h5_prop_file_t*)h5_create_prop (H5_PROP_FILE));
