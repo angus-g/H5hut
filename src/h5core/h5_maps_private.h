@@ -22,7 +22,6 @@ typedef struct {
 	char* items[1];
 } h5_strlist_t;
 
-
 // Allocate new list
 #define h5priv_alloc_xlist( type )                                      \
         static inline h5_err_t                                          \
@@ -36,6 +35,7 @@ typedef struct {
                 (*list)->size = size;                                   \
                 H5_PRIV_API_RETURN (H5_SUCCESS);                        \
 	}
+
 // Free list
 #define h5priv_free_xlist( type )                                       \
         static inline h5_err_t                                          \
@@ -92,49 +92,51 @@ typedef struct {
 // Find ID in sorted list
 #define h5priv_find_in_xlist(type)                                      \
         static inline h5_loc_idx_t                                      \
-                h5priv_find_in_ ## type ## list (                       \
-                        h5_ ## type ## list_t* list,                    \
-                        const h5_ ## type ## _t item                    \
-                        ) {                                             \
-                        H5_PRIV_API_ENTER (h5_err_t,                    \
-                                           "list=%p, item=%llu",        \
-                                           list, (long long unsigned)item); \
-		if (!list) {                                                            \
-			H5_PRIV_API_LEAVE (-1);                         \
-		}                                                       \
-		register ssize_t low = 0;                                               \
-		register ssize_t mid;                                                   \
-		register ssize_t high = list->num_items - 1;                            \
-		while (low <= high) {                                                   \
-			mid = (low + high) / 2;                                         \
-			if (list->items[mid] > item)                                    \
-				high = mid - 1;                                         \
-			else if (list->items[mid] < item)                               \
-				low = mid + 1;                                          \
-			else                                                            \
-				H5_PRIV_API_LEAVE (mid);                                \
-		}                                                                       \
-		H5_PRIV_API_RETURN (-(low+1));                                          \
+        h5priv_find_in_ ## type ## list (                               \
+                h5_ ## type ## list_t* list,                            \
+                const h5_ ## type ## _t item                            \
+                ) {                                                     \
+                H5_PRIV_API_ENTER (h5_err_t,                            \
+                                   "list=%p, item=%llu",                \
+                                   list, (long long unsigned)item);     \
+                if (!list) {                                            \
+                        H5_PRIV_API_LEAVE (-1);                         \
+                }                                                       \
+                register ssize_t low = 0;                               \
+                register ssize_t mid;                                   \
+                register ssize_t high = list->num_items - 1;            \
+                while (low <= high) {                                   \
+                        mid = (low + high) / 2;                         \
+                        if (list->items[mid] > item)                    \
+                                high = mid - 1;                         \
+                        else if (list->items[mid] < item)               \
+                                low = mid + 1;                          \
+                        else                                            \
+                                H5_PRIV_API_LEAVE (mid);                \
+                }                                                       \
+                H5_PRIV_API_RETURN (-(low+1));                          \
 	}
 
 
 // Search in sorted list. If item is not in list, add it.
-#define h5priv_search_in_xlist( type )                                          \
-        static inline h5_loc_idx_t                                              \
-        h5priv_search_in_ ## type ## list (                                         \
-                h5_ ## type ## list_t**list,                                       \
-                h5_ ## type ## _t item                                              \
-                ) {                                                                     \
-		H5_PRIV_API_ENTER (h5_err_t,                                            \
-		                   "list=%p, item=%llu",                                \
-		                   list, (long long unsigned)item);                     \
-		h5_loc_idx_t idx = h5priv_find_in_ ## type ## list (*list, item);           \
-		if (idx < 0) {                                                          \
-			idx = -(idx+1);                                                 \
-			TRY (idx = h5priv_insert_into_ ## type ## list (list, item, idx));  \
-			     }                                                                       \
-			     H5_PRIV_API_RETURN (idx);                                               \
-		}
+#define h5priv_search_in_xlist( type )                                  \
+        static inline h5_loc_idx_t                                      \
+        h5priv_search_in_ ## type ## list (                             \
+                h5_ ## type ## list_t**list,                            \
+                h5_ ## type ## _t item                                  \
+                ) {                                                     \
+		H5_PRIV_API_ENTER (                                     \
+                        h5_err_t,                                       \
+                        "list=%p, item=%llu",                           \
+                        list, (long long unsigned)item);                \
+		h5_loc_idx_t idx = h5priv_find_in_ ## type ## list (    \
+                        *list, item);                                   \
+                        if (idx < 0) {                                  \
+                                idx = -(idx+1);                         \
+                                TRY (idx = h5priv_insert_into_ ## type ## list (list, item, idx)); \
+                        }                                               \
+                        H5_PRIV_API_RETURN (idx);                       \
+        }
 
 
 h5priv_alloc_xlist (loc_idx)
