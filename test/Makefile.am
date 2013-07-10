@@ -1,5 +1,5 @@
 AM_CPPFLAGS += -I$(top_srcdir)/src/include
-AM_LDFLAGS += -L${abs_top_builddir}/src/lib
+AM_LDFLAGS += -L${abs_top_builddir}/src/h5core/.libs
 
 LDADD =
 LDADD += -lH5hut

@@ -259,13 +259,13 @@ fi
 AC_MSG_CHECKING([if parallel interface enabled])
 if test "X$ENABLE_PARALLEL" = "Xyes"; then
 	AC_MSG_RESULT([yes])
-	AM_CPPFLAGS="${AM_CPPFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
+	CPPFLAGS="${CPPFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
 
         if test "X$ENABLE_EXPERIMENTAL" = "Xyes"; then
         	AC_MSG_CHECKING([for ParMETIS])
                 if test "X$PARMETISPATH" != "X"; then
-                        AM_CPPFLAGS="$AM_CPPFLAGS -I$PARMETISPATH/include"
-	                AM_LDFLAGS="$AM_LDFLAGS -L$PARMETISPATH/lib"
+                        CPPFLAGS="$CPPFLAGS -I$PARMETISPATH/include"
+	                LDFLAGS="$LDFLAGS -L$PARMETISPATH/lib"
 	        fi
 
                 LIBS="$LIBS -lparmetis -lmetis"
@@ -285,11 +285,11 @@ fi
 ###############################################################################
 # LIBRARY PATHS
 if test -n "${HDF5_PREFIX}" ; then
-        AM_CPPFLAGS="$AM_CPPFLAGS -I$HDF5_PREFIX/include"
-        AM_LDFLAGS="$AM_LDFLAGS -L$HDF5_PREFIX/lib"
+        CPPFLAGS="$CPPFLAGS -I$HDF5_PREFIX/include"
+        LDFLAGS="$LDFLAGS -L$HDF5_PREFIX/lib"
 fi
 AC_CHECK_LIB([z], [compress2])
-AC_CHECK_LIB([hdf5], [H5open])
+AC_CHECK_LIB([hdf5], [H5open],,, [-lm])
 AS_IF([test "x$ac_cv_lib_hdf5_H5open" != xyes], 
         [AC_MSG_ERROR([Cannot compile and link a HDF5 program]); 
         exit 1])
@@ -317,8 +317,8 @@ if test -z "$LUSTREROOT"; then
 	AC_MSG_WARN([Couldn't locate the lustre API... building without support for lustre striping!])
 else
         CFLAGS="$CFLAGS -DH5_USE_LUSTRE"
-        AM_CPPFLAGS="$AM_CPPFLAGS -I$LUSTREROOT/usr/include"
-        AM_LDFLAGS="$AM_LDFLAGS -L$LUSTREROOT/usr/lib"
+        CPPFLAGS="$CPPFLAGS -I$LUSTREROOT/usr/include"
+        LDFLAGS="$LDFLAGS -L$LUSTREROOT/usr/lib"
         LIBS="$LIBS -llustreapi"
 fi
 
@@ -336,6 +336,9 @@ fi
 
 ###############################################################################
 # EXPORTING VARIABLES & CREATING OUTPUT FILES
+AM_CPPFLAGS=$CPP_FLAGS
+AM_LDFLAGS=$LD_FLAGS
+
 AC_SUBST(HDF5_PREFIX)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
