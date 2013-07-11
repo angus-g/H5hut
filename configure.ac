@@ -133,8 +133,8 @@ fi
 
 # Determine a C/C++ compiler to use. 
 if test "x$ENABLE_PARALLEL" = "xyes"; then
-   	CCOMPILERS="mpicc"
-	CXXCOMPILERS="mpic++"
+   	CCOMPILERS="mpicc cc"
+	CXXCOMPILERS="mpic++ CC"
 else
 	CCOMPILERS="pgcc pathcc icc gcc cc_r cc"
 	CXXCOMPILERS="pgcc pathcc icc g++ cc_r c++"
