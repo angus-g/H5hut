@@ -7,7 +7,7 @@ LDADD += -lH5hut
 noinst_PROGRAMS =
 
 if ENABLE_C
-noinst_PROGRAMS += h5u_test h5b_test h5_attach_test
+noinst_PROGRAMS += h5u_test h5b_test
 endif
 
 TESTS_ENVIRONMENT = env LD_LIBRARY_PATH=@HDF5_PREFIX@/lib:$(LD_LIBRARY_PATH)

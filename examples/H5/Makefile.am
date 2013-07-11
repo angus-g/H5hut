@@ -15,16 +15,17 @@ noinst_PROGRAMS =
 if ENABLE_C
 noinst_PROGRAMS += 	\
 	openclose	\
-	file_attribs
+	file_attribs	\
+	attach_file
 endif
 
 if ENABLE_FORTRAN
 noinst_PROGRAMS += 
 endif
 
-EXTRA_PROGRAMS = openclose
+#EXTRA_PROGRAMS = openclose
 
-openclose_SOURCES = openclose.c
+#openclose_SOURCES = openclose.c
 
-%.o : %.f90
-	$(FC)  $(FFLAGS) -c $<
+#%.o : %.f90
+#	$(FC)  $(FFLAGS) -c $<

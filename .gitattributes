@@ -364,6 +364,7 @@ doc/tetrahedron_refinements/6-edges/edge_01-12-20-23-30-31_refined/output_file.j
 doc/tetrahedron_refinements/README -text
 doc/tetrahedron_refinements/text2vtk.py -text
 examples/H5/Makefile.am -text
+examples/H5/attach_file.c -text
 examples/H5/file_attribs.c -text
 examples/H5/openclose.c -text
 examples/H5Block/H5BlockExample.pbs -text
@@ -547,7 +548,6 @@ src/include/h5core/h5t_tags.h -text
 src/include/h5core/h5u_io.h -text
 src/include/h5core/h5u_model.h -text
 test/Makefile.am -text
-test/h5_attach_test.c -text
 test/h5b_read.c -text
 test/h5b_test.c -text
 test/h5b_write.c -text
