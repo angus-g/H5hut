@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I${abs_top_builddir}/src/include -Wno-deprecated
+AM_CPPFLAGS = -I${abs_top_srcdir}/src/include -Wno-deprecated
 FFLAGS += -cpp $(AM_CPPFLAGS)
 LDFLAGS += -L${abs_top_builddir}/src/lib
 

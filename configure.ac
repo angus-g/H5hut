@@ -1,4 +1,4 @@
-AC_INIT([H5hut], [1.99.11], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [1.99.12], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
@@ -62,7 +62,7 @@ AC_ARG_WITH(
 	[hdf5],
 	[AS_HELP_STRING([--with-hdf5],
 	[path to HDF5 installation [default=""]])],
-	[HDF5_PREFIX=$withval], [HDF5_PREFIX=""])
+	[HDF5_PREFIX=$withval], [])
 
 AC_ARG_WITH(
 	[mpi],
@@ -259,13 +259,13 @@ fi
 AC_MSG_CHECKING([if parallel interface enabled])
 if test "X$ENABLE_PARALLEL" = "Xyes"; then
 	AC_MSG_RESULT([yes])
-	AM_CPPFLAGS="${AM_CPPFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
+	CPPFLAGS="${CPPFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
 
         if test "X$ENABLE_EXPERIMENTAL" = "Xyes"; then
         	AC_MSG_CHECKING([for ParMETIS])
                 if test "X$PARMETISPATH" != "X"; then
-                        AM_CPPFLAGS="$AM_CPPFLAGS -I$PARMETISPATH/include"
-	                AM_LDFLAGS="$AM_LDFLAGS -L$PARMETISPATH/lib"
+                        CPPFLAGS="$CPPFLAGS -I$PARMETISPATH/include"
+	                LDFLAGS="$LDFLAGS -L$PARMETISPATH/lib"
 	        fi
 
                 LIBS="$LIBS -lparmetis -lmetis"
@@ -284,9 +284,15 @@ fi
 
 ###############################################################################
 # LIBRARY PATHS
-if test -n "${HDF5_PREFIX}" ; then
-        AM_CPPFLAGS="$AM_CPPFLAGS -I$HDF5_PREFIX/include"
-        AM_LDFLAGS="$AM_LDFLAGS -L$HDF5_PREFIX/lib"
+if test -z "${HDF5_PREFIX}"; then
+	# alternatives to HDF5_PREFIX
+	if test -n "${HDF5_DIR}"; then
+		HDF5_PREFIX=${HDF5_DIR}
+	fi
+fi
+if test -n "${HDF5_PREFIX}"; then
+        CPPFLAGS="$CPPFLAGS -I$HDF5_PREFIX/include"
+        LDFLAGS="$LDFLAGS -L$HDF5_PREFIX/lib"
 fi
 AC_CHECK_LIB([z], [compress2])
 AC_CHECK_LIB([hdf5], [H5open])
@@ -317,8 +323,8 @@ if test -z "$LUSTREROOT"; then
 	AC_MSG_WARN([Couldn't locate the lustre API... building without support for lustre striping!])
 else
         CFLAGS="$CFLAGS -DH5_USE_LUSTRE"
-        AM_CPPFLAGS="$AM_CPPFLAGS -I$LUSTREROOT/usr/include"
-        AM_LDFLAGS="$AM_LDFLAGS -L$LUSTREROOT/usr/lib"
+        CPPFLAGS="$CPPFLAGS -I$LUSTREROOT/usr/include"
+        LDFLAGS="$LDFLAGS -L$LUSTREROOT/usr/lib"
         LIBS="$LIBS -llustreapi"
 fi
 
@@ -336,6 +342,9 @@ fi
 
 ###############################################################################
 # EXPORTING VARIABLES & CREATING OUTPUT FILES
+AM_CPPFLAGS=$CPPFLAGS
+AM_LDFLAGS=$LDFLAGS
+
 AC_SUBST(HDF5_PREFIX)
 AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
