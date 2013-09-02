@@ -10,6 +10,7 @@ endif
 
 if ENABLE_FORTRAN
 LDADD += -lH5hutF
+AM_LDFLAGS += -L${abs_top_builddir}/src/Fortran/.libs
 endif
 
 LDADD += -lH5hut

@@ -38,6 +38,7 @@ PROGRAM H5PartExampleF
       CALL EXIT (1)
    END IF
    DO i = 1, num_args
+      PRINT *, "Loop..."
       if (skip .EQV. .TRUE.) THEN
          CYCLE
       END IF
@@ -103,13 +104,16 @@ PROGRAM H5PartExampleF
   IF (h5_err < 0) THEN
      PRINT "('[proc ', I3, ']: Error closing file ...')", myproc
   ENDIF
+  PRINT "('[proc ', I3, ']: File closed.')", myproc
 
   h5_err = h5_finalize ()
   IF (h5_err < 0) THEN
      PRINT "('[proc ', I3, ']: Error closing H5hut library ...')", myproc
   ENDIF
+  PRINT "('[proc ', I3, ']: H5hut finalized.')", myproc
 
   CALL MPI_Finalize (mpi_error)
+  PRINT "('[proc ', I3, ']: MPI finalized.')", myproc
 
 #else
   !! SERIAL CODE

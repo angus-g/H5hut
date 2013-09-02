@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2012, The Regents of the University of California,
+  Copyright (c) 2006-2013, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -8,6 +8,9 @@
 */
 
 #include "h5_private.h"
+
+#include "h5core/h5.h"
+#include "h5core/h5_debug.h"
 #include "h5core/h5_model.h"
 
 /* file handling interface */
