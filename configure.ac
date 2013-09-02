@@ -1,4 +1,4 @@
-AC_INIT([H5hut], [1.99-trunk], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [1.99.12], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
@@ -62,7 +62,7 @@ AC_ARG_WITH(
 	[hdf5],
 	[AS_HELP_STRING([--with-hdf5],
 	[path to HDF5 installation [default=""]])],
-	[HDF5_PREFIX=$withval], [HDF5_PREFIX=""])
+	[HDF5_PREFIX=$withval], [])
 
 AC_ARG_WITH(
 	[mpi],
@@ -284,12 +284,18 @@ fi
 
 ###############################################################################
 # LIBRARY PATHS
-if test -n "${HDF5_PREFIX}" ; then
+if test -z "${HDF5_PREFIX}"; then
+	# alternatives to HDF5_PREFIX
+	if test -n "${HDF5_DIR}"; then
+		HDF5_PREFIX=${HDF5_DIR}
+	fi
+fi
+if test -n "${HDF5_PREFIX}"; then
         CPPFLAGS="$CPPFLAGS -I$HDF5_PREFIX/include"
         LDFLAGS="$LDFLAGS -L$HDF5_PREFIX/lib"
 fi
 AC_CHECK_LIB([z], [compress2])
-AC_CHECK_LIB([hdf5], [H5open],,, [-lm])
+AC_CHECK_LIB([hdf5], [H5open])
 AS_IF([test "x$ac_cv_lib_hdf5_H5open" != xyes], 
         [AC_MSG_ERROR([Cannot compile and link a HDF5 program]); 
         exit 1])
@@ -336,8 +342,8 @@ fi
 
 ###############################################################################
 # EXPORTING VARIABLES & CREATING OUTPUT FILES
-AM_CPPFLAGS=$CPP_FLAGS
-AM_LDFLAGS=$LD_FLAGS
+AM_CPPFLAGS=$CPPFLAGS
+AM_LDFLAGS=$LDFLAGS
 
 AC_SUBST(HDF5_PREFIX)
 AC_SUBST(CFLAGS)
@@ -355,13 +361,13 @@ AC_CONFIG_FILES([
         src/Fortran/Makefile
 	test/Makefile
         doc/Makefile
+	tools/Makefile
+	tools/h5hutcc
+        tools/vtk2h5grid/Makefile
         examples/H5/Makefile
         examples/H5Part/Makefile
         examples/H5Block/Makefile
         examples/H5Fed/Makefile
-	tools/Makefile
-	tools/h5hutcc
-        tools/vtk2h5grid/Makefile
 ])
 
 AC_OUTPUT
