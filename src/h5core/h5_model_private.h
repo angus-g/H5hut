@@ -14,7 +14,6 @@
 /* WARNING! Changing these values will alter the data model and introduce
  * file incompatibilities with previous versions. */
 
-#define H5_MAX_NAME_LEN          64
 #define H5_DATANAME_LEN		H5_MAX_NAME_LEN
 #define H5_STEPNAME_LEN		H5_MAX_NAME_LEN
 #define H5_STEPNAME		"Step"

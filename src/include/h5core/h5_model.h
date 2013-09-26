@@ -16,6 +16,8 @@
 extern "C" {
 #endif
 
+#define H5_MAX_NAME_LEN          64
+
 h5_int64_t
 h5_set_step (
 	const h5_file_t, const h5_int64_t);
