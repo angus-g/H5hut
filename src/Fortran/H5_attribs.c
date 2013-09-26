@@ -39,9 +39,9 @@ h5_getnfileattribs (
 }
 
 #define h5_getfileattribinfo F77_NAME(           \
-                        h5_getfileattribinfo,    \
-                        h5_getfileattribinfo_,   \
-                        H5_GETFILEATTRIBINFO)
+                h5_getfileattribinfo,            \
+                h5_getfileattribinfo_,           \
+                H5_GETFILEATTRIBINFO)
 h5_int64_t
 h5_getfileattribinfo (
 	const h5_int64_t* const fh,
@@ -61,7 +61,7 @@ h5_getfileattribinfo (
 		      (h5_file_p)fh,
 		      (long long)*attrib_idx,
 		      attrib_name, attrib_type, attrib_nelem);
-        h5_int64_t h5err = h5_get_file_attrib_info (
+        h5_int64_t h5err = h5_get_file_attrib_info_by_idx (
                 f,
                 *attrib_idx - 1,
                 attrib_name, l_attrib_name,
@@ -69,6 +69,36 @@ h5_getfileattribinfo (
                 (h5_size_t*)attrib_nelem);
 	h5_strc2for (attrib_name, l_attrib_name);
         convert_type2for (attrib_type);
+	H5_API_RETURN (h5err);
+}
+
+#define h5_getfileattribinfo_by_name F77_NAME(           \
+                h5_getfileattribinfo_by_name,            \
+                h5_getfileattribinfo_by_name_,           \
+                H5_GETFILEATTRIBINFO_BY_NAME)
+h5_int64_t
+h5_getfileattribinfo_by_name (
+	const h5_int64_t* const fh,
+	const char* const _name,
+        h5_int64_t* const _type,
+	h5_int64_t* const _nelem,
+	const int l_name
+        ) {
+	h5_file_t f = h5_filehandlefor2c(fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, "
+		      "name=%.*s, "
+		      "type=%p, "
+		      "nelem=%p",
+		      (h5_file_p)fh,
+		      l_name, _name, _type, _nelem);
+	char* name = h5_strdupfor2c (_name, l_name);
+        h5_int64_t h5err = h5_get_file_attrib_info_by_name (
+                f,
+                name,
+                _type,
+                (h5_size_t*)_nelem);
+        convert_type2for (_type);
 	H5_API_RETURN (h5err);
 }
 
@@ -309,8 +339,8 @@ h5_writefileattrib_i4 (
 	) {
 	h5_file_t f = h5_filehandlefor2c(fh);
 	H5_API_ENTER (h5_int64_t,
-		      "fh=%p, name='%.*s', buffer=%p, nelem=%lld",
-		      (h5_file_p)f, l_name, name, buffer, (long long)*nelem);
+		      "fh=%p, name='%.*s', buffer[12]=%d, %x, %x, nelem=%lld",
+		      (h5_file_p)f, l_name, name, buffer[12], buffer[13], buffer[14], (long long)*nelem);
         H5_API_RETURN (write_file_attrib(
                                f,
                                name, l_name,
@@ -386,7 +416,7 @@ h5_getstepattribinfo (
 		      (h5_file_p)f,
 		      (long long)*attrib_idx,
 		      attrib_name, attrib_type, attrib_nelem);
-        h5_int64_t h5err = h5_get_step_attrib_info (
+        h5_int64_t h5err = h5_get_step_attrib_info_by_idx (
                 f,
                 *attrib_idx - 1,
                 attrib_name, l_attrib_name,
@@ -394,6 +424,36 @@ h5_getstepattribinfo (
                 (h5_size_t*)attrib_nelem);
 	h5_strc2for (attrib_name, l_attrib_name);
         convert_type2for (attrib_type);
+	H5_API_RETURN (h5err);
+}
+
+#define h5_getstepattribinfo_by_name F77_NAME(           \
+                h5_getstepattribinfo_by_name,            \
+                h5_getstepattribinfo_by_name_,           \
+                H5_GETSTEPATTRIBINFO_BY_NAME)
+h5_int64_t
+h5_getstepattribinfo_by_name (
+	const h5_int64_t* const fh,
+	const char* const _name,
+        h5_int64_t* const _type,
+	h5_int64_t* const _nelem,
+	const int l_name
+        ) {
+	h5_file_t f = h5_filehandlefor2c(fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, "
+		      "name=%.*s, "
+		      "type=%p, "
+		      "nelem=%p",
+		      (h5_file_p)fh,
+		      l_name, _name, _type, _nelem);
+	char* name = h5_strdupfor2c (_name, l_name);
+        h5_int64_t h5err = h5_get_step_attrib_info_by_name (
+                f,
+                name,
+                _type,
+                (h5_size_t*)_nelem);
+        convert_type2for (_type);
 	H5_API_RETURN (h5err);
 }
 

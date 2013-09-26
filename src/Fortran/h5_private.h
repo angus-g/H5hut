@@ -80,4 +80,15 @@ h5_filehandlefor2c (
 	) {
 	return (h5_file_t)*ptr;
 }
+
+static inline
+int strlenf (
+        const char* s,
+        int len
+        ) {
+        if (len == 0) return 0;
+        while (s[--len] == ' ');
+        return ++len;
+}
+
 #endif

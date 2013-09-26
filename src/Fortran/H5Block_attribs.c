@@ -69,7 +69,7 @@ h5bl_getfieldattribinfo (
 
 	char *field_name2 = h5_strdupfor2c ( field_name, l_field_name );
 	h5_int64_t attrib_type;
-	h5_int64_t herr = h5b_get_field_attrib_info (
+	h5_int64_t herr = h5b_get_field_attrib_info_by_idx (
                 f,
                 field_name2, *attrib_idx - 1,
 		attrib_name, l_attrib_name,
