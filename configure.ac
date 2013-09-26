@@ -119,16 +119,23 @@ PATH_Search() {
 
 AC_CANONICAL_HOST
 AC_PROG_MAKE_SET
+        
+CFLAGS="$CFLAGS -Wall"
+CXXFLAGS="$CFLAGS -Wall"
+FFLAGS="$FFLAGS -Wall"
 
 # debug enabled?
 AC_MSG_CHECKING([if debug is enabled])
 if test "X$ENABLE_DEBUG" = "Xyes"; then
     AC_MSG_RESULT([yes])
-    CFLAGS="$CFLAGS -g -Wall"
-    CXXFLAGS="$CFLAGS -g -Wall"
+    CFLAGS="$CFLAGS -g"
+    CXXFLAGS="$CFLAGS -g"
     FFLAGS="$FFLAGS -g"
 else
     AC_MSG_RESULT([no])
+    CFLAGS="$CFLAGS -O3"
+    CXXFLAGS="$CFLAGS -O3"
+    FFLAGS="$FFLAGS -O3"
 fi
 
 # Determine a C/C++ compiler to use. 
