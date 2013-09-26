@@ -19,20 +19,14 @@ main (
         int argc,
         char* argv[]
         ) {
-	MPI_Comm comm = MPI_COMM_WORLD;
-
-	int myproc;
-	int nprocs;
 	MPI_Init (&argc, &argv);
-	MPI_Comm_size (comm, &nprocs);
-	MPI_Comm_rank (comm, &myproc);
 
 	H5SetErrorHandler (H5AbortErrorhandler);
 	H5SetVerbosityLevel (255);
-	h5_file_t f = H5OpenFile (FNAME, H5_O_WRONLY, comm);
+	h5_file_t f = H5OpenFile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT);
 	H5AddAttachment (f, ATTACHMENT);
 	H5CloseFile (f);
-	f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
+	f = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
 	h5_ssize_t num_attachments = H5GetNumAttachments (f);
 	printf ("Number of attachments: %lld\n", (long long int)num_attachments);
 	int i;

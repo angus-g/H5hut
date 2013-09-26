@@ -21,12 +21,9 @@ main (
 	MPI_Comm_size (comm, &nprocs);
 	MPI_Comm_rank (comm, &myproc);
 
-	h5_file_t f = H5OpenFile ("testfile.h5", H5_O_WRONLY, comm);
-	H5CloseFile (f);
-
         h5_prop_t prop = H5CreateFileProp ();
         H5SetPropFileMPIO (prop, &comm);
-        f = H5OpenFile2 ("testfile.h5", H5_O_WRONLY, prop);
+        h5_file_t f = H5OpenFile ("testfile.h5", H5_O_WRONLY, prop);
         H5CloseProp (prop);
 	H5CloseFile (f);
 

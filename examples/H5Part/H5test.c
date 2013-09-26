@@ -11,152 +11,119 @@
 #ifdef PARALLEL_IO
 
 int main(int argc,char *argv[]){
-  int sz=5;
-  double *x,*y,*z;
-  h5_int64_t *id;
-  h5_file_t file;
-  int i,t,nt,nds;
-  int nprocs,myproc;
-  MPI_Comm comm=MPI_COMM_WORLD;
+        int sz=5;
+        double *x,*y,*z;
+        h5_int64_t *id;
+        h5_file_t file;
+        int i,t,nt,nds;
 
-  MPI_Init(&argc,&argv);
-  MPI_Comm_size(comm,&nprocs);
-  MPI_Comm_rank(comm,&myproc);
+        int nprocs = 1;
+        int myproc = 0;
+        MPI_Comm comm = MPI_COMM_WORLD;
 
-  x=(double*)malloc(sz*nprocs*sizeof(double));
-  y=(double*)malloc(sz*nprocs*sizeof(double));
-  z=(double*)malloc(sz*nprocs*sizeof(double));
-  id=(h5_int64_t*)malloc(sz*nprocs*sizeof(h5_int64_t));
-  /* parallel file creation */
-  file=H5OpenFile ("parttest.h5",H5_O_WRONLY,comm);
-  if(!file) {
-    perror("File open failed:  exiting!");
-    exit(0);
-  }
+#if PARALLEL_IO
+        MPI_Init (&argc,&argv);
+        MPI_Comm_size (comm,&nprocs);
+        MPI_Comm_rank (comm,&myproc);
+#endif
+        x = (double*)malloc (sz*nprocs*sizeof(double));
+        y = (double*)malloc (sz*nprocs*sizeof(double));
+        z = (double*)malloc (sz*nprocs*sizeof(double));
+        id=(h5_int64_t*)malloc (sz*nprocs*sizeof(h5_int64_t));
 
-  for(t=0;t<5;t++){
-    MPI_Barrier(comm);
-    for(i=0;i<sz;i++) {
-      x[i]=(double)(i+t)+10.0*(double)myproc;
-      y[i]=0.1 + (double)(i+t);
-      z[i]=0.2 + (double)(i+t*10);
-      id[i]=i+sz*myproc;
-    }
-    printf("Proc[%u] Writing timestep %u \n",myproc,t);
-    H5SetStep(file,t); /* must set the current timestep in file */
-    H5PartSetNumParticles(file,sz); /* then set number of particles to store */
-    /* now write different tuples of data into this timestep of the file */
-    H5PartWriteDataFloat64(file,"x",x); 
-    H5PartWriteDataFloat64(file,"y",y);
-    H5PartWriteDataFloat64(file,"z",z);
+        file=H5OpenFile ("parttest.h5",H5_O_WRONLY,comm);
+        if(!file) {
+                perror("File open failed:  exiting!");
+                exit(0);
+        }
 
-    H5PartWriteDataFloat64(file,"px",x); 
-    H5PartWriteDataFloat64(file,"py",y);
-    H5PartWriteDataFloat64(file,"pz",z);
+        H5PartWriteFileAttribString (
+                file,
+                "File Description",
+                "This file is created by H5PartTest.cc. "
+                "Simple H5Part file for testing purpose...");
+        char* FileAttrib = "Created by H5PartTest.cc";
+        H5PartWriteFileAttrib (
+                file,
+                "Origin",
+                H5T_NATIVE_CHAR,
+                FileAttrib ,strlen(FileAttrib));
 
-    H5PartWriteDataInt64(file,"id",id);
-  }
+        for(t=0;t<5;t++){
+                MPI_Barrier(comm);
+                for(i=0;i<sz;i++) {
+                        x[i]=(double)(i+t)+10.0*(double)myproc;
+                        y[i]=0.1 + (double)(i+t);
+                        z[i]=0.2 + (double)(i+t*10);
+                        id[i]=i+sz*myproc;
+                }
+                printf("Proc[%u] Writing timestep %u \n",myproc,t);
+                H5SetStep(file,t); /* must set the current timestep in file */
+                H5PartSetNumParticles(file,sz); /* then set number of particles to store */
+                /* now write different tuples of data into this timestep of the file */
+                H5PartWriteDataFloat64(file,"x",x); 
+                H5PartWriteDataFloat64(file,"y",y);
+                H5PartWriteDataFloat64(file,"z",z);
+                
+                H5PartWriteDataFloat64(file,"px",x); 
+                H5PartWriteDataFloat64(file,"py",y);
+                H5PartWriteDataFloat64(file,"pz",z);
 
-  unsigned int idStart = 0+sz*myproc;
-  unsigned int idEnd = (sz-1)+sz*myproc;
+                H5PartWriteDataInt64(file,"id",id);
+                H5PartWriteStepAttribString (
+                        file,
+                        "Step Description",
+                        "STEP STEP STEP");
+                char* StepAttrib = "STEP";
+                H5PartWriteStepAttrib (
+                        file,
+                        "Step",
+                        H5T_NATIVE_CHAR,
+                        StepAttrib ,strlen(StepAttrib));
 
-  printf("AllDone p[%u]\n",myproc);
-  H5CloseFile(file);
-  fprintf(stderr,"Closed files p[%u]\n",myproc);
-  MPI_Barrier(comm);
+        }
+
+        printf("Done writing p[%u]\n",myproc);
+        H5CloseFile(file);
+        fprintf(stderr,"Closed files p[%u]\n",myproc);
+        MPI_Barrier(comm);
   
-  fprintf(stderr,"p[%u:%u] : OK, close file and reopen for reading idStart %u  idEnd %u \n",myproc,nprocs,idStart,idEnd);
+        fprintf(stderr,
+                "p[%u:%u] : OK, close file and reopen for reading idStart %u  idEnd %u \n",
+                myproc,nprocs,idStart,idEnd);
 
-  file=H5OpenFile("parttest.h5",H5_O_RDONLY,comm);
-  H5SetStep(file,0);
- // unsigned int np = 0;
-  unsigned int np = (int)H5PartGetNumParticles(file);
-  nt=H5GetNumSteps(file); /* get number of steps in file */
-  nds=H5PartGetNumDatasets(file); /* get number of datasets in timestep 0 */
+        unsigned int idStart = 0+sz*myproc;
+        unsigned int idEnd = (sz-1)+sz*myproc;
 
-  MPI_Barrier(comm);
+
+        file=H5OpenFile("parttest.h5",H5_O_RDONLY,comm);
+        H5SetStep(file,0);
+        // unsigned int np = 0;
+        unsigned int np = (int)H5PartGetNumParticles(file);
+        nt=H5GetNumSteps(file); /* get number of steps in file */
+        nds=H5PartGetNumDatasets(file); /* get number of datasets in timestep 0 */
+
+        MPI_Barrier(comm);
   
-  H5PartSetView(file,idStart,idEnd);
+        H5PartSetView(file,idStart,idEnd);
 
-  np = (int)H5PartGetNumParticles(file);
-  printf("After SetView(%d,%d): steps= %u  datasets= %u particles= %u\n",
-	(int)idStart,(int)idEnd,
-	nt,nds,np);
+        np = (int)H5PartGetNumParticles(file);
+        printf("After SetView(%d,%d): steps= %u  datasets= %u particles= %u\n",
+               (int)idStart,(int)idEnd,
+               nt,nds,np);
+        
+        free(x); 
+        free(y);
+        free(z);
+        free(id);
 
-  if(x) 
-    free(x); 
-  if(y) 
-    free(y);
-  if(z) 
-    free(z);
-  if(id) 
-    free(id);
-
-  H5CloseFile(file);
-  MPI_Barrier(comm);
-  fprintf(stderr,"proc[%u]:  done\n",myproc);
-  return MPI_Finalize();
+        H5CloseFile(file);
+        MPI_Barrier(comm);
+        fprintf(stderr,"proc[%u]:  done\n",myproc);
+        return MPI_Finalize();
 }
 
 #else
-int main(int argc,char *argv[]){
-  int sz=10;
-  double *x,*y,*z;
-  h5_int64_t *id;
-  h5_file_t *file;
-  int i,t,nt,nds,np;
-  h5_int64_t idStart = 0;
-  h5_int64_t idEnd = 0;
-
-
-  x=(double*)malloc(sz*sizeof(double));
-  y=(double*)malloc(sz*sizeof(double));
-  z=(double*)malloc(sz*sizeof(double));
-  id=(h5_int64_t*)malloc(sz*sizeof(h5_int64_t));
-  /* parallel file creation */
-  file=H5PartOpenFile("parttest.h5",H5_O_WRONLY);
-  if(!file) {
-    perror("File open failed:  exiting!");
-    exit(0);
-  }
-
-  H5PartWriteFileAttribString(file,"File Description", "This file is created by H5PartTest.cc. Simple H5Part file for testing purpose...");
-  char* FileAttrib = "Created by H5PartTest.cc";
-  H5PartWriteFileAttrib(file, "Origin", H5T_NATIVE_CHAR, FileAttrib ,strlen(FileAttrib));
-
-  for(t=0;t<5;t++){
-    fprintf(stdout,"Writing timestep %u\n",t);
-    for(i=0;i<sz;i++) {
-      x[i]=(double)(i+t);
-      y[i]=0.1 + (double)(i+t);
-      z[i]=0.2 + (double)(i+t*10);
-      id[i]=i;
-      fprintf(stdout,"\tp[%u] x=%f y=%f z=%f id=%d\n",
-	      i,x[i],y[i],z[i],(int)id[i]);
-    }
-    H5PartSetStep(file,t); /* must set the current timestep in file */
-
-    H5PartSetNumParticles(file,sz); /* then set number of particles to store */
-    /* now write different tuples of data into this timestep of the file */
-    H5PartWriteDataFloat64(file,"x",x); 
-    H5PartWriteDataFloat64(file,"y",y);
-    H5PartWriteDataFloat64(file,"z",z);
-
-    H5PartWriteDataFloat64(file,"px",x); 
-    H5PartWriteDataFloat64(file,"py",y);
-    H5PartWriteDataFloat64(file,"pz",z);
-
-    H5PartWriteDataInt64(file,"id",id);
-
-    H5PartWriteStepAttribString(file,"Step Description", "STEP STEP STEP");
-    char* StepAttrib = "STEP";
-    H5PartWriteStepAttrib(file, "Step", H5T_NATIVE_CHAR, StepAttrib ,strlen(StepAttrib));
-  }
-
-
-  printf("AllDone writing\n");
-  H5PartCloseFile(file);
-  
  
   /*+++++++++++++ Reopen File for Reading +++H5PartSetStep(h5partFile,0)++++++++*/
   file=H5PartOpenFile("parttest.h5",H5_O_RDONLY);

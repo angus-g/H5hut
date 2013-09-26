@@ -6,6 +6,7 @@ LDADD =
 
 if ENABLE_FORTRAN
 LDADD += -lH5hutF
+AM_LDFLAGS += -L${abs_top_builddir}/src/Fortran/.libs
 endif
 
 LDADD += -lH5hut
@@ -13,19 +14,32 @@ LDADD += -lH5hut
 noinst_PROGRAMS = 
 
 if ENABLE_C
-noinst_PROGRAMS += 	\
-	openclose	\
-	file_attribs	\
-	attach_file
+noinst_PROGRAMS +=		\
+	attach_file		\
+	openclose		\
+	query			\
+	read_file_attribs	\
+	read_step_attribs	\
+	write_file_attribs	\
+	write_step_attribs
 endif
 
 if ENABLE_FORTRAN
-noinst_PROGRAMS += 
+noinst_PROGRAMS +=		\
+	openclosef		\
+	queryf			\
+	read_file_attribsf	\
+	read_step_attribsf	\
+	write_file_attribsf 	\
+	write_step_attribsf
+
+openclosef_SOURCES = openclosef.f90
+queryf_SOURCES = queryf.f90
+read_file_attribsf_SOURCES = read_file_attribsf.f90
+read_step_attribsf_SOURCES = read_step_attribsf.f90
+write_file_attribsf_SOURCES = write_file_attribsf.f90
+write_step_attribsf_SOURCES = write_step_attribsf.f90
 endif
 
-#EXTRA_PROGRAMS = openclose
-
-#openclose_SOURCES = openclose.c
-
-#%.o : %.f90
-#	$(FC)  $(FFLAGS) -c $<
+%.o : %.f90
+	$(FC)  $(FFLAGS) -c $<

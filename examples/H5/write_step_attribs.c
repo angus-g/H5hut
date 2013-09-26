@@ -9,13 +9,13 @@
 
 #include "H5hut.h"
 
-#define FNAME           "example_file_attribs.h5"
+#define FNAME           "example_step_attribs.h5"
 
-#define ATTR_STRING     "FileAttrString"
-#define ATTR_INT32      "FileAttrInt32"
-#define ATTR_INT64      "FileAttrInt64"
-#define ATTR_FLOAT32    "FileAttrFloat32"
-#define ATTR_FLOAT64    "FileAttrFloat64"
+#define ATTR_STRING     "StepAttrString"
+#define ATTR_INT32      "StepAttrInt32"
+#define ATTR_INT64      "StepAttrInt64"
+#define ATTR_FLOAT32    "StepAttrFloat32"
+#define ATTR_FLOAT64    "StepAttrFloat64"
 
 #define asize(array)    (sizeof(array)/sizeof(array[0]))
 
@@ -24,7 +24,7 @@ main (
 	int argc,
 	char** argv
 	) {
-        char* string_value = "This is a string attribute bound to the file.";
+        char* string_value = "This is a string attribute bound to this step.";
         int32_t int32_value[] = {0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144};
         int64_t int64_value[] = {42, 43, 44, 45};
         h5_float32_t float32_value[] = {2.71828};
@@ -36,11 +36,12 @@ main (
 
         // if file properties is set to default, MPI_COMM_WORLD will be used
         h5_file_t f = H5OpenFile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT);
-        H5WriteFileAttribString  (f, ATTR_STRING,  string_value);
-        H5WriteFileAttribInt32   (f, ATTR_INT32,   int32_value,   asize(int32_value));
-        H5WriteFileAttribInt64   (f, ATTR_INT64,   int64_value,   asize(int64_value));
-        H5WriteFileAttribFloat32 (f, ATTR_FLOAT32, float32_value, asize(float32_value));
-        H5WriteFileAttribFloat64 (f, ATTR_FLOAT64, float64_value, asize(float32_value));
+        H5SetStep (f, 1);
+        H5WriteStepAttribString  (f, ATTR_STRING,  string_value);
+        H5WriteStepAttribInt32   (f, ATTR_INT32,   int32_value,   asize(int32_value));
+        H5WriteStepAttribInt64   (f, ATTR_INT64,   int64_value,   asize(int64_value));
+        H5WriteStepAttribFloat32 (f, ATTR_FLOAT32, float32_value, asize(float32_value));
+        H5WriteStepAttribFloat64 (f, ATTR_FLOAT64, float64_value, asize(float32_value));
 
 	H5CloseFile (f);
 	MPI_Finalize ();
