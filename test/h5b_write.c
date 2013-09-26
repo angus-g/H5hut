@@ -66,12 +66,6 @@ test_write_data64(h5_file_t file, int step)
 	ez=(double*)malloc(nelems*sizeof(double));
 	id=(h5_int64_t*)malloc(nelems*sizeof(h5_int64_t));
 
-#if defined(PARALLEL_IO)
-	TEST("Setting throttle");
-	status = H5SetThrottle(file, 2);
-	RETURN(status, H5_SUCCESS, "H5SetThrottle");
-#endif
-
 	TEST("Writing 64-bit data");
 
 	for (t=step; t<step+NTIMESTEPS; t++)
@@ -185,12 +179,21 @@ void h5b_test_write1(void)
 	h5_file_t file1;
 
 	h5_err_t status;
+        MPI_Comm comm = MPI_COMM_WORLD;
 
 	TEST("Opening file once, write-truncate");
-	file1 = H5OpenFile(FILENAME, H5_O_WRONLY, MPI_COMM_WORLD);
+        h5_prop_t props = H5CreateFileProp ();
+        status = H5SetPropFileMPIO (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileThrottle (props, 2);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 
+	file1 = H5OpenFile(FILENAME, H5_O_WRONLY, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
+
+        status = H5CloseProp (props);
+	RETURN(status, H5_SUCCESS, "H5CloseProp");
 
 	test_write_data64(file1, 1);
 
@@ -206,12 +209,12 @@ void h5b_test_write2(void)
 	h5_err_t status;
 
 	TEST("Opening file twice, write-append + read-only");
-	file1 = H5OpenFile(FILENAME, H5_O_APPEND, MPI_COMM_WORLD);
+	file1 = H5OpenFile(FILENAME, H5_O_APPEND, H5_PROP_DEFAULT);
 
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
-	file2 = H5OpenFile(FILENAME, H5_O_RDONLY, MPI_COMM_WORLD);
+	file2 = H5OpenFile(FILENAME, H5_O_RDONLY, H5_PROP_DEFAULT);
 
 	status = H5CheckFile(file2);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");

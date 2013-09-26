@@ -86,12 +86,6 @@ test_write_data64(h5_file_t file, int nparticles, int step)
 	pz=(double*)malloc(nparticles*sizeof(double));
 	id=(h5_int64_t*)malloc(nparticles*sizeof(h5_int64_t));
 
-#if PARALLEL_IO
-	TEST("Setting throttle");
-	status = H5SetThrottle(file, 2);
-	RETURN(status, H5_SUCCESS, "H5SetThrottle");
-#endif
-
 	TEST("Writing 64-bit data");
 
 	for (t=step; t<step+NTIMESTEPS; t++)
@@ -219,11 +213,6 @@ test_write_data32(h5_file_t file, int nparticles, int step)
 	RETURN(status, H5_SUCCESS, "H5PartSetNumParticles");
 
 #if defined(PARALLEL_IO)
-	/* will generate a warning since we are in MPI-IO Collective mode */
-	TEST("Setting throttle");
-	status = H5SetThrottle(file, 2);
-	RETURN(status, H5_SUCCESS, "H5SetThrottle");
-
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 #else
@@ -365,14 +354,22 @@ test_write_strided_data32(h5_file_t file, int nparticles, int step)
 void h5u_test_write1(void)
 {
 	h5_file_t file1;
-
 	h5_err_t status;
+        MPI_Comm comm = MPI_COMM_WORLD;
 
 	TEST("Opening file once, write-truncate");
-	file1 = H5OpenFile(FILENAME, H5_O_WRONLY, MPI_COMM_WORLD);
+        h5_prop_t props = H5CreateFileProp ();
+        status = H5SetPropFileMPIO (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileThrottle (props, 2);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 
+	file1 = H5OpenFile(FILENAME, H5_O_WRONLY, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
+
+        status = H5CloseProp (props);
+	RETURN(status, H5_SUCCESS, "H5CloseProp");
 
 	test_write_data32(file1, NPARTICLES, 1);
 	test_write_file_attribs(file1, 0);
@@ -385,17 +382,26 @@ void h5u_test_write2(void)
 {
 	h5_file_t file1;
 	h5_file_t file2;
-
 	h5_err_t status;
+        MPI_Comm comm = MPI_COMM_WORLD;
 
 	TEST("Opening file twice, write-append + read-only");
-	file1 = H5OpenFile(FILENAME, H5_O_APPEND, MPI_COMM_WORLD);
+        h5_prop_t props = H5CreateFileProp ();
+        status = H5SetPropFileMPIO (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileThrottle (props, 2);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
+
+	file1 = H5OpenFile(FILENAME, H5_O_APPEND, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
-	file2 = H5OpenFile(FILENAME, H5_O_RDONLY, MPI_COMM_WORLD);
+	file2 = H5OpenFile(FILENAME, H5_O_RDONLY, props);
 	status = H5CheckFile(file2);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
+
+        status = H5CloseProp (props);
+	RETURN(status, H5_SUCCESS, "H5CloseProp");
 
 	test_write_strided_data32(file1, NPARTICLES, NTIMESTEPS+1);
 	test_write_file_attribs(file1, 1);
@@ -411,12 +417,22 @@ void h5u_test_write3(void)
 	h5_file_t file1;
 
 	h5_err_t status;
+        MPI_Comm comm = MPI_COMM_WORLD;
 
 	TEST("Opening file once, write-truncate, MPI-POSIX VFD");
-	file1 = H5OpenFile(FILENAME, H5_O_WRONLY | H5_VFD_MPIPOSIX, MPI_COMM_WORLD);
+        h5_prop_t props = H5CreateFileProp ();
+        status = H5SetPropFileMPIO (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileThrottle (props, 2);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
+
+	file1 = H5OpenFile(FILENAME, H5_O_WRONLY | H5_VFD_MPIPOSIX, props);
 
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
+
+        status = H5CloseProp (props);
+	RETURN(status, H5_SUCCESS, "H5CloseProp");
 
 	TEST("Redefining step name");
 	status = H5SetStepNameFormat(file1, LONGNAME, 16);
@@ -435,15 +451,26 @@ void h5u_test_write4(void)
 	h5_file_t file2;
 
 	h5_err_t status;
+        h5_prop_t props;
+        MPI_Comm comm = MPI_COMM_WORLD;
 
 	TEST("Opening file twice, write-append + read-only, MPI-IO Independent VFD");
-	file1 = H5OpenFile(FILENAME, H5_O_APPEND | H5_VFD_MPIIO_IND, MPI_COMM_WORLD);
+        props = H5CreateFileProp ();
+        status = H5SetPropFileMPIO (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileThrottle (props, 2);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
+
+	file1 = H5OpenFile(FILENAME, H5_O_APPEND | H5_VFD_MPIIO_IND, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
-	file2 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIIO_IND, MPI_COMM_WORLD);
+	file2 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIIO_IND, props);
 	status = H5CheckFile(file2);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
+
+        status = H5CloseProp (props);
+	RETURN(status, H5_SUCCESS, "H5CloseProp");
 
 	TEST("Redefining step name");
 	status = H5SetStepNameFormat(file1, LONGNAME, 16);
