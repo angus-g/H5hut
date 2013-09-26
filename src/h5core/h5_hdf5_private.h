@@ -853,6 +853,38 @@ hdf5_insert_type (
 	HDF5_WRAPPER_RETURN (H5_SUCCESS);
 }
 
+static inline H5T_class_t
+hdf5_get_class_type (
+        hid_t dtype_id
+        ) {
+	HDF5_WRAPPER_ENTER (h5_err_t, "dtype_id=%d", dtype_id);
+        H5T_class_t class = H5Tget_class (dtype_id);
+	if (class < 0)
+		HDF5_WRAPPER_LEAVE (
+		        h5_error(
+		                H5_ERR_HDF5,
+		                "Can't determine class of type %d.",
+		                dtype_id));
+	HDF5_WRAPPER_RETURN (class);
+}
+
+static inline h5_ssize_t
+hdf5_get_sizeof_type (
+        hid_t dtype_id
+        ) {
+	HDF5_WRAPPER_ENTER (h5_ssize_t, "dtype_id=%d", dtype_id);
+        h5_ssize_t size = H5Tget_size (dtype_id);
+        if (size == 0) {
+		HDF5_WRAPPER_LEAVE (
+		        h5_error(
+		                H5_ERR_HDF5,
+		                "Can't determine size of type %d.",
+		                dtype_id));
+        }
+	HDF5_WRAPPER_RETURN (size);
+}
+
+
 static inline h5_err_t
 hdf5_close_type (
         hid_t dtype_id

@@ -317,7 +317,7 @@ H5ReadFileAttribString (
 */
 static inline h5_err_t
 H5ReadStepAttribString (
-	const h5_file_t f,     	///< [in]  file handle.
+	const h5_file_t f,              ///< [in]  file handle.
 	const char *name,       	///< [in]  name of attribute to create.
 	char *buffer            	///< [out] value of attribute. 
 	) {
@@ -560,6 +560,34 @@ H5GetNumStepAttribs (
 	H5_API_RETURN (h5_get_num_step_attribs (f));
 }
 
+/*!
+  \ingroup h5hut_attrib
+
+  Get the type and number of elements of the file attribute
+  specified by its name.
+
+  \return	\c H5_SUCCESS or \c H5_FAILURE. 
+*/
+
+static inline h5_err_t
+H5GetFileAttribInfoByName (
+	const h5_file_t f,		///< [in]  file handle.
+	const char* const name,     	///< [in]  name of attribute.
+	h5_int64_t* type,               ///< [out] type of value..
+	h5_size_t* nelems               ///< [out] number of elements.
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "name=%s, "
+		      "type=%p, nelems=%p",
+                      (h5_file_p)f,
+                      name,
+                      type, nelems);
+	H5_API_RETURN (h5_get_file_attrib_info_by_name (
+			       f,
+			       name,
+			       type, nelems));
+}
 
 /*!
   \ingroup h5hut_attrib
@@ -594,12 +622,40 @@ H5GetFileAttribInfo (
                       (long long unsigned)len_name,
                       type,
                       nelems);
-	H5_API_RETURN (h5_get_file_attrib_info (
+	H5_API_RETURN (h5_get_file_attrib_info_by_idx (
 			       f,
 			       idx,
 			       name, len_name,
 			       type,
 			       nelems));
+}
+
+/*!
+  \ingroup h5hut_attrib
+
+  Gets the type and number of elements of the step attribute
+  specified by its name.
+
+  \return	\c H5_SUCCESS or \c H5_FAILURE. 
+*/
+static inline h5_err_t
+H5GetStepAttribInfoByName (
+	const h5_file_t f,		///< [in]  file handle.
+	const char* const name,     	///< [in]  name of attribute.
+	h5_int64_t* type,               ///< [out] type of value..
+	h5_size_t* nelems               ///< [out] number of elements.
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "name=%s, "
+		      "type=%p, nelems=%p",
+                      (h5_file_p)f,
+                      name,
+                      type, nelems);
+	H5_API_RETURN (h5_get_step_attrib_info_by_name (
+			       f,
+			       name,
+			       type, nelems));
 }
 
 /*!
@@ -634,7 +690,7 @@ H5GetStepAttribInfo (
                       (long long unsigned)len_name,
                       type,
                       nelems);
-	H5_API_RETURN (h5_get_step_attrib_info (
+	H5_API_RETURN (h5_get_step_attrib_info_by_idx (
 			       f,
 			       idx,
 			       name,

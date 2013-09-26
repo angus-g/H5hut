@@ -77,7 +77,7 @@ H5BlockGetFieldAttribInfo (
 		      attrib_type,
 		      attrib_nelem);
 	H5_API_RETURN (
-		h5b_get_field_attrib_info (
+		h5b_get_field_attrib_info_by_idx (
 			f,
 			field_name,
 			attrib_idx,

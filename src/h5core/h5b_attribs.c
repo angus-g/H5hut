@@ -50,7 +50,7 @@ h5b_write_field_attrib (
 		attrib_type,
 		attrib_value,
 		attrib_nelem,
-		1) );
+		!is_appendonly (f)) );
 
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
@@ -103,7 +103,7 @@ h5b_get_num_field_attribs (
 }
 
 h5_err_t
-h5b_get_field_attrib_info (
+h5b_get_field_attrib_info_by_idx (
 	const h5_file_t fh,			/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const h5_size_t attrib_idx,		/*!< IN: attribute index */
@@ -132,7 +132,7 @@ h5b_get_field_attrib_info (
 	TRY (h5bpriv_open_field_group(f, field_name));
 
 	H5_CORE_API_RETURN (
-		h5priv_get_attrib_info (
+		h5priv_get_attrib_info_by_idx (
 			f->b->field_gid,
 			attrib_idx,
 			attrib_name,

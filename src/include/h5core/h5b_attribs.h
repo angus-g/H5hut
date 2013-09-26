@@ -32,7 +32,7 @@ h5b_get_num_field_attribs (
         const char*);
 
 h5_err_t
-h5b_get_field_attrib_info (
+h5b_get_field_attrib_info_by_idx (
 	const h5_file_t,
 	const char*, const h5_size_t, char* const, const h5_size_t,
         h5_int64_t* const, h5_size_t*);

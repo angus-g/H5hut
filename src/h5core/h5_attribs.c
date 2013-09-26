@@ -180,7 +180,7 @@ h5_write_file_attrib (
 				    attrib_type,
 				    attrib_value,
 				    attrib_nelem,
-				    1));
+				    !is_appendonly (f)));
 }
 
 h5_err_t
@@ -209,11 +209,62 @@ h5_write_step_attrib (
 				    attrib_type,
 				    attrib_value,
 				    attrib_nelem,
-				    1));
+				    !is_appendonly (f)));
+}
+
+static inline h5_err_t
+get_attrib_info (
+	hid_t attrib_id,
+	h5_int64_t* attrib_type,	/*!< OUT: H5 type of attribute */
+	h5_size_t* attrib_nelem		/*!< OUT: number of elements */
+	) {
+        H5_INLINE_FUNC_ENTER (h5_err_t);
+	hid_t mytype;
+        TRY (mytype = hdf5_get_attribute_type (attrib_id));
+
+        H5T_class_t type_class;
+        TRY (type_class = hdf5_get_class_type (mytype));
+
+	if (attrib_nelem) {
+                if (type_class == H5T_STRING) {
+                        *attrib_nelem = H5Tget_size(mytype);
+                } else {
+                        hid_t space_id;
+                        TRY (space_id = hdf5_get_attribute_dataspace (attrib_id));
+                        TRY (*attrib_nelem = hdf5_get_npoints_of_dataspace (space_id));
+                        TRY (hdf5_close_dataspace (space_id));
+                }
+	}
+	if (attrib_type) {
+		TRY (*attrib_type = h5priv_normalize_h5_type (mytype));
+	}
+        TRY (hdf5_close_type (mytype));
+	TRY (hdf5_close_attribute (attrib_id));
+	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
-h5priv_get_attrib_info (
+h5priv_get_attrib_info_by_name (
+	const hid_t id,			/*!< IN: HDF5 object ID */
+	const char* const attrib_name,	/*!< IN: name of attribute */
+	h5_int64_t* attrib_type,	/*!< OUT: H5 type of attribute */
+	h5_size_t* attrib_nelem		/*!< OUT: number of elements */
+	) {
+	H5_PRIV_API_ENTER (h5_err_t,
+			   "id=%d, "
+			   "attrib_name=%s,"
+			   "attrib_type=%p, attrib_nelem=%p",
+			   id,
+			   attrib_name,
+			   attrib_type,
+			   attrib_nelem);
+	hid_t attrib_id;
+        TRY (attrib_id = hdf5_open_attribute (id, attrib_name));
+        H5_PRIV_API_RETURN (get_attrib_info (attrib_id, attrib_type, attrib_nelem));
+}
+
+h5_err_t
+h5priv_get_attrib_info_by_idx (
 	const hid_t id,			/*!< HDF5 object ID */
 	const h5_size_t attrib_idx,	/*!< index of attribute */
 	char* attrib_name,		/*!< OUT: name of attribute */
@@ -233,30 +284,17 @@ h5priv_get_attrib_info (
 			   attrib_type,
 			   attrib_nelem);
 	hid_t attrib_id;
-	hid_t mytype;
-	hid_t space_id;
 	TRY (attrib_id = hdf5_open_attribute_idx (
 		      id,
 		      (unsigned int)attrib_idx));
 
-	if (attrib_nelem) {
-		TRY (space_id = hdf5_get_attribute_dataspace (attrib_id));
-		TRY (*attrib_nelem = hdf5_get_npoints_of_dataspace (space_id));
-		TRY (hdf5_close_dataspace (space_id));
-	}
 	if (attrib_name) {
 		TRY (hdf5_get_attribute_name (
 			     attrib_id,
 			     (size_t)len_attrib_name,
 			     attrib_name));
 	}
-	if (attrib_type) {
-		TRY (mytype = hdf5_get_attribute_type (attrib_id));
-		TRY (*attrib_type = h5priv_normalize_h5_type (mytype));
-		TRY (hdf5_close_type (mytype));
-	}
-	TRY (hdf5_close_attribute (attrib_id));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+        H5_PRIV_API_RETURN (get_attrib_info (attrib_id, attrib_type, attrib_nelem));
 }
 
 /*!
@@ -267,7 +305,30 @@ h5priv_get_attrib_info (
   \return \c H5_SUCCESS or error code.
 */
 h5_err_t
-h5_get_file_attrib_info (
+h5_get_file_attrib_info_by_name (
+	const h5_file_t f_,			/*!< IN: handle to open file */
+	char* attrib_name,			/*!< IN: name of attribute */
+	h5_int64_t* attrib_type,		/*!< OUT: H5 type of attribute */
+	h5_size_t* attrib_nelem			/*!< OUT: number of elements */
+	) {
+        h5_file_p f = (h5_file_p)f_;
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, "
+			   "attrib_name=%s, "
+			   "attrib_type=%p, attrib_nelem=%p",
+			   f,
+			   attrib_name,
+			   attrib_type,
+			   attrib_nelem);
+	CHECK_FILEHANDLE (f);
+	TRY (h5priv_get_attrib_info_by_name (
+		     f->root_gid, attrib_name,
+		     attrib_type, attrib_nelem));
+	H5_CORE_API_RETURN (H5_SUCCESS);
+}
+
+h5_err_t
+h5_get_file_attrib_info_by_idx (
 	const h5_file_t f_,			/*!< handle to open file */
 	const h5_size_t attrib_idx,		/*!< index of attribute */
 	char* attrib_name,			/*!< OUT: name of attribute */
@@ -278,23 +339,46 @@ h5_get_file_attrib_info (
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
 			   "f=%p, "
-			   "attrib_idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
+			   "attrib_idx=%llu, "
+                           "attrib_name=%p, len_attrib_name=%llu, "
 			   "attrib_type=%p, attrib_nelem=%p",
 			   f,
 			   (long long unsigned)attrib_idx,
-			   attrib_name,
-			   (long long unsigned)len_attrib_name,
-			   attrib_type,
-			   attrib_nelem);
+			   attrib_name, (long long unsigned)len_attrib_name,
+			   attrib_type, attrib_nelem);
 	CHECK_FILEHANDLE (f);
-	TRY (h5priv_get_attrib_info (
+	TRY (h5priv_get_attrib_info_by_idx (
 		     f->root_gid, attrib_idx, attrib_name, len_attrib_name,
 		     attrib_type, attrib_nelem));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
-h5_get_step_attrib_info (
+h5_get_step_attrib_info_by_name (
+	const h5_file_t f_,			/*!< handle to open file */
+	char* attrib_name,			/*!< OUT: name of attribute */
+	h5_int64_t* attrib_type,		/*!< OUT: H5 type of attribute */
+	h5_size_t* attrib_nelem			/*!< OUT: number of elements */
+	) {
+        h5_file_p f = (h5_file_p)f_;
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, "
+			   "attrib_name=%p, "
+			   "attrib_type=%p, attrib_nelem=%p",
+			   f,
+			   attrib_name,
+			   attrib_type, attrib_nelem);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
+	TRY (h5priv_get_attrib_info_by_name (
+		     f->step_gid,
+                     attrib_name,
+		     attrib_type, attrib_nelem));
+	H5_CORE_API_RETURN (H5_SUCCESS);
+}
+
+h5_err_t
+h5_get_step_attrib_info_by_idx (
 	const h5_file_t f_,			/*!< handle to open file */
 	const h5_size_t attrib_idx,		/*!< index of attribute */
 	char* attrib_name,			/*!< OUT: name of attribute */
@@ -315,7 +399,7 @@ h5_get_step_attrib_info (
 			   attrib_nelem);
 	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
-	TRY (h5priv_get_attrib_info (
+	TRY (h5priv_get_attrib_info_by_idx (
 		     f->step_gid, attrib_idx, attrib_name, len_attrib_name,
 		     attrib_type, attrib_nelem));
 	H5_CORE_API_RETURN (H5_SUCCESS);

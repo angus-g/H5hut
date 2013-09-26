@@ -31,7 +31,15 @@ h5priv_write_attrib (
 	);
 
 h5_err_t
-h5priv_get_attrib_info (
+h5priv_get_attrib_info_by_name (
+	const hid_t id,
+	const char* const attrib_name,
+	h5_int64_t* attrib_type,
+	h5_size_t* attrib_nelem
+	);
+
+h5_err_t
+h5priv_get_attrib_info_by_idx (
 	const hid_t id,
 	const h5_size_t attrib_idx,
 	char* attrib_name,

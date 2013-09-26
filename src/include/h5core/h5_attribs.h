@@ -33,12 +33,20 @@ h5_write_step_attrib (
 	const h5_file_t, const char*, const hid_t, const void*, const hsize_t);
 
 h5_err_t
-h5_get_file_attrib_info (
+h5_get_file_attrib_info_by_name (
+	const h5_file_t, const char* const, h5_int64_t* const, h5_size_t*);
+
+h5_err_t
+h5_get_file_attrib_info_by_idx (
 	const h5_file_t, const h5_size_t, char*, const h5_size_t, h5_int64_t* const,
 	h5_size_t*);
 
 h5_err_t
-h5_get_step_attrib_info (
+h5_get_step_attrib_info_by_name (
+	const h5_file_t, const char* const, h5_int64_t*, h5_size_t*);
+
+h5_err_t
+h5_get_step_attrib_info_by_idx (
 	const h5_file_t, const h5_size_t, char*, const h5_size_t, h5_int64_t*,
 	h5_size_t*);
 
