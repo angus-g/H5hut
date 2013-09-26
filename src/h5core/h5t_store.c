@@ -1097,8 +1097,6 @@ h5t_end_store_ckd_elems (
 //		/* mesh specific finalize */
 //		TRY (m->methods->store->end_store_elems (m));
 	}
-#endif //  CHUNKING_OF_VTX
-
 #endif
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }

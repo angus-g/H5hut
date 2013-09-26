@@ -146,6 +146,9 @@ set_default_file_props (
                 H5_STEPNAME,
                 H5_STEPNAME_LEN - 1);
         file_props->width_step_idx = H5_STEPWIDTH;
+#ifdef PARALLEL_IO
+        file_props->comm = MPI_COMM_WORLD;
+#endif
         H5_INLINE_FUNC_RETURN (H5_SUCCESS);
 }
 
@@ -412,32 +415,6 @@ h5_open_file (
         H5_CORE_API_RETURN (f);
 
 }
-#if 0
-h5_file_t
-h5_open_file (
-        const char* filename,
-        h5_int32_t mode,
-        MPI_Comm comm,
-        h5_size_t align
-        ) {
-        H5_CORE_API_ENTER (h5_file_t,
-                           "filename='%s', mode=%d, comm=?, align=%llu",
-                           filename, mode, align);
-        h5_prop_file_t* props;
-        TRY (props = (h5_prop_file_t*)h5_create_prop (H5_PROP_FILE));
-        TRY (set_default_file_props (props));
-
-        TRY (h5_set_prop_file_mpio ((h5_prop_t)props, &comm));
-        TRY (h5_set_prop_file_align ((h5_prop_t)props, align));
-        
-        h5_file_p f = NULL;
-        TRY (f = h5_calloc (1, sizeof (*f)));
-        f->props = props;
-        TRY (open_file (f, filename, mode));
-
-	H5_CORE_API_RETURN ((h5_file_t)f);
-}
-#endif
 
 /*!
   \ingroup h5_core_filehandling

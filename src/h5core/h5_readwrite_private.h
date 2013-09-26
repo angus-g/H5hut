@@ -15,6 +15,7 @@
 
 #define is_writable(f) (f->props->mode != H5_O_RDONLY)
 #define is_readonly(f) (f->props->mode == H5_O_RDONLY)
+#define is_appendonly(f) (f->props->mode == H5_O_APPEND)
 
 #define CHECK_WRITABLE_MODE(f)                                          \
 	TRY (is_writable (f) ? H5_SUCCESS : h5_error (                  \

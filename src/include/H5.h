@@ -45,6 +45,22 @@ H5SetPropFileAlign (
         H5_API_RETURN (h5_set_prop_file_align (prop, align));
 }
 
+/*!
+  \ingroup h5hut_file
+
+  Set the `throttle` factor, which causes HDF5 write and read
+  calls to be issued in that number of batches.
+
+  This can prevent large concurrency parallel applications that
+  use independent writes from overwhelming the underlying
+  parallel file system.
+
+  Throttling only works with the H5_VFD_MPIPOSIX or
+  H5_VFD_MPIIO_IND drivers and is only available in
+  the parallel library.
+
+  \return \c H5_SUCCESS or \c H5_FAILURE
+*/
 static inline h5_err_t
 H5SetPropFileThrottle (
         h5_prop_t prop,
@@ -71,7 +87,7 @@ H5CloseProp (
 
 
   File mode flags are:
-  - \c H5_O_RDONLY: only reading allowed
+  - \c H5_O_RDONLY: Only reading allowed
   - \c H5_O_WRONLY: create new file, dataset must not exist
   - \c H5_O_APPEND: allows to append a new datasets to an existing file
   - \c H5_O_RDWR:   dataset may exist
@@ -90,18 +106,6 @@ H5CloseProp (
 */
 static inline h5_file_t
 H5OpenFile (
-	const char* filename,	///< [in] file name.
-	h5_int32_t flags,	///< [in] file access mode flags.
-	MPI_Comm comm		///< [in] MPI communicator.
-	) {
-	H5_API_ENTER (h5_file_t,
-                      "filename='%s', flags=%d, ...",
-                      filename, flags);
-	H5_API_RETURN (h5_open_file (filename, flags, comm, 0));
-}
-
-static inline h5_file_t
-H5OpenFile2 (
 	const char* filename,
 	h5_int64_t mode,
         h5_prop_t props
@@ -110,47 +114,6 @@ H5OpenFile2 (
                       "filename='%s', mode=%lld, props=%p",
                       filename, (long long int)mode, (void*)props);
         H5_API_RETURN (h5_open_file2 (filename, mode, props));
-}
-
-/*!
-  \ingroup h5hut_file
-  <A NAME="H5OpenFileAlign"></A>
-
-  Opens file with specified filename, and also specifices an alignment
-  value used for HDF5 tuning parameters.  In the serial case \c comm may have
-  any value.
-
-  File modes and flags are bit values that can be combined with the bit operator \c |
-  and include:
-
-  - \c H5_O_RDONLY: only reading allowed
-  - \c H5_O_WRONLY: create new file, dataset must not exist
-  - \c H5_O_APPEND: allows to append a new datasets to an existing file
-  - \c H5_O_RDWR:   dataset may exist
-  - \c H5_FS_LUSTRE - enable optimizations for the Lustre file system
-  - \c H5_VFD_MPIPOSIX - use the HDF5 MPI-POSIX virtual file driver
-  - \c H5_VFD_MPIIO_IND - use MPI-IO in indepedent mode
-
-  The typical file extension is \c .h5.
-  
-  \c h5_file_p should be treated as an essentially opaque
-  datastructure.  It acts as the file handle, but internally
-  it maintains several key state variables associated with 
-  the file.
-
-  \return	File handle or \c (void*)H5_FAILURE
- */
-static inline h5_file_t
-H5OpenFileAlign (
-	const char* filename,	///< [in] name of the data file to open.
-	const h5_int32_t flags,	///< [in] file access mode flags.
-	MPI_Comm comm,		///< [in] MPI communicator.
-	const h5_size_t align 	///< [in] alignment size in bytes.
-	) {
-	H5_API_ENTER (h5_file_t,
-                      "filename='%s', flags=%d, ...",
-                      filename, flags);
-	H5_API_RETURN (h5_open_file (filename, flags, comm, align));
 }
 
 /*!
@@ -186,35 +149,6 @@ H5CheckFile (
                       (h5_file_p)f);
 	H5_API_RETURN (h5_check_filehandle (f));
 }
-
-/*!
-  \ingroup h5hut_file
-
-  Set the `throttle` factor, which causes HDF5 write and read
-  calls to be issued in that number of batches.
-
-  This can prevent large concurrency parallel applications that
-  use independent writes from overwhelming the underlying
-  parallel file system.
-
-  Throttling only works with the H5_VFD_MPIPOSIX or
-  H5_VFD_MPIIO_IND drivers and is only available in
-  the parallel library.
-
-  \return \c H5_SUCCESS or \c H5_FAILURE
-*/
-#ifdef PARALLEL_IO
-h5_err_t
-static inline H5SetThrottle (
-	const h5_file_t f,              ///< [in] file handle.
-	int factor                      ///< [in] throttle factor
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, factor=%d",
-                      (h5_file_p)f, factor);
-	H5_API_RETURN (h5_set_throttle(f, factor));
-}
-#endif // PARALLEL_IO
 
 /*!
   \ingroup h5hut_file
@@ -294,6 +228,21 @@ H5SetErrorHandler (
 	H5_API_RETURN (h5_set_errorhandler (handler));
 }
 
+/*!
+  \ingroup h5hut_error
+
+  Set the abort error handler.
+
+  \return \c H5_SUCCESS
+*/
+static inline h5_err_t
+H5AbortOnError (
+        void
+        ) {
+	H5_API_ENTER (h5_err_t, "%s", "");
+	H5_API_RETURN (h5_set_errorhandler (h5_abort_errorhandler));
+}
+        
 /*!
   \ingroup h5hut_error
 
