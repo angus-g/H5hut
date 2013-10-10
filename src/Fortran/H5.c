@@ -25,12 +25,12 @@ h5_createprop_file (
         H5_API_RETURN ((h5_int64_t)h5_create_prop (H5_PROP_FILE));
 }
 
-#define h5_setprop_filempio F77_NAME( \
-                h5_setprop_filempio,  \
-                h5_setprop_filempio_, \
-                H5_SETPROP_FILEMPIO)
+#define h5_setprop_file_mpio F77_NAME( \
+                h5_setprop_file_mpio,  \
+                h5_setprop_file_mpio_, \
+                H5_SETPROP_FILE_MPIO)
 h5_int64_t
-h5_setprop_filempio (
+h5_setprop_file_mpio (
         h5_int64_t* _prop,
 	MPI_Fint* _comm
         ) {
@@ -39,15 +39,81 @@ h5_setprop_filempio (
                       (long long int)*_prop, (long long int)*_comm);
         h5_prop_t prop = (h5_prop_t)*_prop;
         MPI_Comm comm = MPI_Comm_f2c (*_comm);
-        H5_API_RETURN ((h5_int64_t)h5_set_prop_file_mpio (prop, &comm));
+        H5_API_RETURN ((h5_int64_t)h5_set_prop_file_mpio_collective (prop, &comm));
 }
 
-#define h5_setprop_filealign F77_NAME (  \
-                h5_setprop_filealign,    \
-                h5_setprop_filealign_,   \
-                H5_SETPROP_FILEALIGN)
+#define h5_setprop_file_mpio_collective F77_NAME( \
+                h5_setprop_file_mpio_collective,  \
+                h5_setprop_file_mpio_collective_, \
+                H5_SETPROP_FILE_MPIO_COLLECTIVE)
 h5_int64_t
-h5_setprop_filealign (
+h5_setprop_file_mpio_collective (
+        h5_int64_t* _prop,
+	MPI_Fint* _comm
+        ) {
+        H5_API_ENTER (h5_int64_t,
+                      "prop=%lld, comm=%lld",
+                      (long long int)*_prop, (long long int)*_comm);
+        h5_prop_t prop = (h5_prop_t)*_prop;
+        MPI_Comm comm = MPI_Comm_f2c (*_comm);
+        H5_API_RETURN ((h5_int64_t)h5_set_prop_file_mpio_collective (prop, &comm));
+}
+
+#define h5_setprop_file_mpio_independent F77_NAME( \
+                h5_setprop_file_mpio_independent,  \
+                h5_setprop_file_mpio_independent_, \
+                H5_SETPROP_FILE_MPIO_INDEPENDENT)
+h5_int64_t
+h5_setprop_file_mpio_independent (
+        h5_int64_t* _prop,
+	MPI_Fint* _comm
+        ) {
+        H5_API_ENTER (h5_int64_t,
+                      "prop=%lld, comm=%lld",
+                      (long long int)*_prop, (long long int)*_comm);
+        h5_prop_t prop = (h5_prop_t)*_prop;
+        MPI_Comm comm = MPI_Comm_f2c (*_comm);
+        H5_API_RETURN ((h5_int64_t)h5_set_prop_file_mpio_independent (prop, &comm));
+}
+
+#define h5_setprop_file_mpio_posix F77_NAME( \
+                h5_setprop_file_mpio_posix,  \
+                h5_setprop_file_mpio_posix_, \
+                H5_SETPROP_FILE_MPIO_POSIX)
+h5_int64_t
+h5_setprop_file_mpio_posix (
+        h5_int64_t* _prop,
+	MPI_Fint* _comm
+        ) {
+        H5_API_ENTER (h5_int64_t,
+                      "prop=%lld, comm=%lld",
+                      (long long int)*_prop, (long long int)*_comm);
+        h5_prop_t prop = (h5_prop_t)*_prop;
+        MPI_Comm comm = MPI_Comm_f2c (*_comm);
+        H5_API_RETURN ((h5_int64_t)h5_set_prop_file_mpio_posix (prop, &comm));
+}
+
+#define h5_setprop_file_corevfd F77_NAME( \
+                h5_setprop_file_corevfd,  \
+                h5_setprop_file_corevfd,  \
+                H5_SETPROP_FILE_COREVFD)
+h5_int64_t
+h5_setprop_file_corevfd (
+        h5_int64_t* _prop
+        ) {
+        H5_API_ENTER (h5_int64_t,
+                      "prop=%lld",
+                      (long long int)*_prop);
+        h5_prop_t prop = (h5_prop_t)*_prop;
+        H5_API_RETURN ((h5_int64_t)h5_set_prop_file_core_vfd (prop));
+}
+
+#define h5_setprop_file_align F77_NAME (  \
+                h5_setprop_file_align,    \
+                h5_setprop_file_align_,   \
+                H5_SETPROP_FILE_ALIGN)
+h5_int64_t
+h5_setprop_file_align (
         h5_int64_t* _prop,
         h5_int64_t* align
         ) {
@@ -58,13 +124,13 @@ h5_setprop_filealign (
         H5_API_RETURN (h5_set_prop_file_align (prop, *align));
 }
 
-#define h5_setprop_filethrottle F77_NAME (               \
-                h5_setprop_filethrottle,                 \
-                h5_setprop_filethrottle_,                \
-                H5_SETPROP_FILETHROTTLE)
+#define h5_setprop_file_throttle F77_NAME (               \
+                h5_setprop_file_throttle,                 \
+                h5_setprop_file_throttle_,                \
+                H5_SETPROP_FILE_THROTTLE)
 
 h5_int64_t
-h5_setprop_filethrottle (
+h5_setprop_file_throttle (
         h5_int64_t* _prop,
         h5_int64_t* throttle
         ) {
