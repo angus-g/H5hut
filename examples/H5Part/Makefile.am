@@ -19,32 +19,37 @@ noinst_PROGRAMS =
 
 if ENABLE_C
 noinst_PROGRAMS +=		\
-	Bench			\
-	H5test			\
-	core_vfd		\
-	particles		\
 	read_canonicalview	\
-	write_setnumparticles	\
-	write_setview
+	read_setnparticles	\
+	read_setview		\
+	read_strided		\
+	use_core_vfd		\
+	write_setnparticles	\
+	write_setview		\
+	write_strided
 endif
 
 if ENABLE_FORTRAN
-noinst_PROGRAMS += H5testF
+noinst_PROGRAMS +=		\
+	read_canonicalviewf	\
+	read_setnparticlesf	\
+	read_setviewf		\
+	read_stridedf		\
+	use_core_vfd		\
+	write_setnparticlesf	\
+	write_setviewf		\
+	write_stridedf
 endif
 
-EXTRA_PROGRAMS = Bench H5test H5testF
+EXTRA_PROGRAMS = 
 
-Bench_SOURCES = Bench.c
-H5test_SOURCES = H5test.c
-core_vfd_SOURCES = core_vfd.c
-particles_SOURCES = particles.c
-read_canonicalview_SOURCES = read_canonicalview.c
-write_setnumparticles_SOURCES = write_setnumparticles.c
-write_setview_SOURCES = write_setview.c
-H5testF_SOURCES = H5testF.f90
+write_setviewf_SOURCES = write_setviewf.f90
+write_stridedf_SOURCES = write_stridedf.f90
 
 %.o : %.f90
 	$(FC)  $(FFLAGS) -c $<
 
 clean-local:
 	$(RM) *~
+
+

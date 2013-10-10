@@ -8,6 +8,7 @@
 */
 
 #include "H5hut.h"
+#include "examples.h"
 
 #define FNAME           "example_particles.h5"
 
@@ -25,11 +26,9 @@ main (
         h5_file_t file = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
 
         H5SetStep (file, 0);
-  
-        H5PartSetCanonicalView (file);
-        h5_int64_t num_particles = H5PartGetNumParticles (file);
-        printf ("[proc %d]: particles in view: %lld\n", myproc, num_particles);
 
+        // TODO
+  
         H5CloseFile (file);
         return MPI_Finalize ();
 }

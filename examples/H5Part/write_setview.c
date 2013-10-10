@@ -1,57 +1,60 @@
-#include <stdlib.h>
-#include <assert.h>
-#include <mpi.h>
-#include <H5hut.h>
+/*
+  Copyright (c) 2006-2013, The Regents of the University of California,
+  through Lawrence Berkeley National Laboratory (subject to receipt of any
+  required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
+  Institut (Switzerland).  All rights reserved.
 
-#define DATASIZE 32
-#define ITERS 4
+  License: see file COPYING in top level of source distribution.
+*/
+
+#include <stdlib.h>
+#include "H5hut.h"
+
+#define FNAME           "example_setview.h5"
+#define DATASIZE        32
+#define ITERS           4
 
 int main (
         int argc, char** argv
         ) {
-        int i, rank, nprocs;
-        h5_int32_t data[ITERS*DATASIZE];
-        h5_int64_t stat;
-        h5_int64_t offset;
-        h5_file_t file;
-        
-        // initialize MPI
+        h5_int64_t npoints = ITERS*DATASIZE
+
+        // initialize MPI & H5hut
         MPI_Init (&argc, &argv);
-        MPI_Comm_rank (MPI_COMM_WORLD, &rank);
-        MPI_Comm_size (MPI_COMM_WORLD, &nprocs);
+        MPI_Comm comm = MPI_COMM_WORLD;
+        int rank = 0;
+        MPI_Comm_rank (comm, &rank);
 
-        H5SetVerbosityLevel(1);
-
-        file = H5OpenFile ("test.h5", H5_O_WRONLY, MPI_COMM_WORLD);
-        assert (file != H5_FAILURE);
-
-        stat = H5SetStep(file, 0);
-        assert (stat == H5_SUCCESS);
-
-        stat = H5PartSetNumParticles(file, ITERS*DATASIZE);
-        assert (stat == H5_SUCCESS);
+        H5AbortOnError ();
 
         // create fake data
-        for (i=0; i<ITERS*DATASIZE; i++) {
-                data[i] = i + rank * ITERS * DATASIZE;
+        h5_int32_t data[ITERS*DATASIZE];
+        for (int i = 0; i < npoints; i++) {
+                data[i] = i + rank*npoints;
         }
 
-        offset = rank * ITERS * DATASIZE;
+        // open file and create step #0
+        h5_file_t file = H5OpenFile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT);
+        H5SetStep(file, 0);
 
-        // iterate over arrays
-        for (i=0; i<ITERS; i++) {
+        // before we can start writing, we have to define the number of
+        // items this processor will write
+        H5PartSetNumParticles(file, npoints);
+
+        // write ITER consecutive blocks of size DATASIZE
+        h5_int64_t offset = rank * npoints;
+        for (int i = 0; i < ITERS; i++) {
                 // set the "view" to select a subset of the dataset
-                stat = H5PartSetView (file,
-                                      offset + i * DATASIZE,
-                                      offset + (i+1) * DATASIZE - 1);
-                assert (stat == H5_SUCCESS);
+                H5PartSetView (
+                        file,
+                        offset + i * DATASIZE,
+                        offset + (i+1) * DATASIZE - 1);
                 // write the data
-                stat = H5PartWriteDataInt32 (file, "data", data + i*DATASIZE);
-                assert (stat == H5_SUCCESS);
+                H5PartWriteDataInt32 (file, "data", data + i*DATASIZE);
         }
-        
+
+        // done
         H5CloseFile(file);
-        
         MPI_Finalize();
         return H5_SUCCESS;
 }

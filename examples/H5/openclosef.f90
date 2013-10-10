@@ -25,7 +25,7 @@ program openclose
   call mpi_comm_rank(comm, rank, ierr)
 
   props = h5_createprop_file ()
-  status = h5_setprop_filempio (props, comm)
+  status = h5_setprop_file_mpio_collective (props, comm)
   file_id = h5_openfile ("testfile.h5", H5_O_WRONLY, props)
   status = h5_closeprop (props)
   status = h5_closefile (file_id);

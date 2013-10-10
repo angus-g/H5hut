@@ -16,7 +16,11 @@
     ! the file name we want to read
     character (len=*), parameter :: FNAME =               "example_file_attribs.h5"
 
-    ! verbosity level: set it to a power of 2 minus one or zero
+    ! verbosity level: set it to
+    ! - 1 to see error messages, if something goes wrong
+    ! - 0 to get no output
+    ! - a power of 2 minus one to get lot of output
+    ! zeror zero
     integer*8, parameter :: verbosity_level =             1
 
     ! we know the attribute names!

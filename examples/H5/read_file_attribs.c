@@ -10,6 +10,7 @@
 #include "H5hut.h"
 
 #define FNAME           "example_file_attribs.h5"
+#define VERBOSITY       H5_VERBOSE_ERROR
 
 #define ATTR_STRING     "FileAttrString"
 #define ATTR_INT32      "FileAttrInt32"
@@ -22,8 +23,11 @@ main (
 	int argc,
 	char** argv
 	) {
-	MPI_Init (&argc, &argv);
         H5AbortOnError ();
+        H5SetVerbosityLevel (VERBOSITY);
+
+	MPI_Init (&argc, &argv);
+
         // if file properties is set to default, MPI_COMM_WORLD will be used
         h5_file_t f = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
         h5_size_t len;
@@ -74,7 +78,7 @@ main (
         printf ("\n");
         free (attr_float64);
 
-
+        // cleanup
 	H5CloseFile (f);
 	MPI_Finalize ();
 	return 0;

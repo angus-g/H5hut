@@ -1,14 +1,28 @@
+/*
+  Copyright (c) 2006-2013, The Regents of the University of California,
+  through Lawrence Berkeley National Laboratory (subject to receipt of any
+  required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
+  Institut (Switzerland).  All rights reserved.
+
+  License: see file COPYING in top level of source distribution.
+*/
+
+#include "H5hut.h"
+#include "examples.h"
+
 #include <stdlib.h>
 #include <assert.h>
-#include <mpi.h>
-#include <H5hut.h>
 
+#define FNAME           "example_core_vfd"
 #define DATASIZE 32
 
-int main(
-        int argc, char** argv
-        ) {
-        int i, rank, nprocs;
+int
+main (
+        int argc, char* argv[]
+        ){
+        H5AbortOnError ();
+        H5SetVerbosityLevel (VERBOSITY);
+
         h5_int32_t data[DATASIZE];
         h5_int64_t stat;
         h5_file_t file;
@@ -18,31 +32,25 @@ int main(
         MPI_Comm_rank (MPI_COMM_WORLD, &rank);
         MPI_Comm_size (MPI_COMM_WORLD, &nprocs);
 
-        H5SetVerbosityLevel (1);
-
-        char filename[8];
-        sprintf (filename, "%d.h5", rank);
+        char filename[32];
+        sprintf (filename, "%s.%d.h5", FNAME, rank);
         file = H5OpenFile (filename, H5_O_WRONLY|H5_VFD_CORE, MPI_COMM_SELF);
-        assert (file != H5_FAILURE);
 
-        stat = H5SetStep (file, 0);
-        assert (stat == H5_SUCCESS);
+        H5SetStep (file, 0);
 
-        stat = H5PartSetNumParticles(file, DATASIZE);
-        assert (stat == H5_SUCCESS);
+        H5PartSetNumParticles(file, DATASIZE);
 
         // create fake data
-        for (i=0; i<DATASIZE; i++) {
+        for (int i = 0; i < DATASIZE; i++) {
                 data[i] = i + rank * DATASIZE;
         }
 
         // write the data
-        stat = H5PartWriteDataInt32(file, "data", data);
-        assert (stat == H5_SUCCESS);
+        H5PartWriteDataInt32 (file, "data", data);
         
-        H5CloseFile(file);
+        H5CloseFile (file);
 
-        MPI_Finalize();
+        MPI_Finalize ();
         return H5_SUCCESS;
 }
 
