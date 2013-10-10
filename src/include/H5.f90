@@ -18,33 +18,77 @@
 
      !>
      !! \ingroup h5hut_file_f
-     !! Store MPI IO comminicator information in file property list. See \ref H5SetPropFileMPIO
+     !! Store MPI IO comminicator information in file property list.
+     !! See \ref H5SetPropFileMPIO
      !! \return 0 on success or -2 on error
      !<
-     INTEGER*8 FUNCTION h5_setprop_filempio (prop, comm)
+     INTEGER*8 FUNCTION h5_setprop_file_mpio (prop, comm)
        INTEGER*8, INTENT(IN) :: prop               !< property
        INTEGER, INTENT(IN) :: comm                 !< the MPI communicator used by the program
-     END FUNCTION h5_setprop_filempio
+     END FUNCTION h5_setprop_file_mpio
+
+     !>
+     !! \ingroup h5hut_file_f
+     !! Store MPI IO comminicator information in file property list.
+     !! See \ref H5SetPropFileMPIOCollective
+     !! \return 0 on success or -2 on error
+     !<
+     INTEGER*8 FUNCTION h5_setprop_file_mpio_collective (prop, comm)
+       INTEGER*8, INTENT(IN) :: prop               !< property
+       INTEGER, INTENT(IN) :: comm                 !< the MPI communicator used by the program
+     END FUNCTION h5_setprop_file_mpio_collective
+
+     !>
+     !! \ingroup h5hut_file_f
+     !! Store MPI IO comminicator information in file property list.
+     !! See \ref H5SetPropFileMPIOIndependent
+     !! \return 0 on success or -2 on error
+     !<
+     INTEGER*8 FUNCTION h5_setprop_file_mpio_independent (prop, comm)
+       INTEGER*8, INTENT(IN) :: prop               !< property
+       INTEGER, INTENT(IN) :: comm                 !< the MPI communicator used by the program
+     END FUNCTION h5_setprop_file_mpio_independent
+
+     !>
+     !! \ingroup h5hut_file_f
+     !! Store MPI IO comminicator information in file property list.
+     !! See \ref H5SetPropFileMPIOPosix
+     !! \return 0 on success or -2 on error
+     !<
+     INTEGER*8 FUNCTION h5_setprop_file_mpio_posix (prop, comm)
+       INTEGER*8, INTENT(IN) :: prop               !< property
+       INTEGER, INTENT(IN) :: comm                 !< the MPI communicator used by the program
+     END FUNCTION h5_setprop_file_mpio_posix
+
+     !>
+     !! \ingroup h5hut_file_f
+     !! Store core VFD.
+     !! See \ref H5SetPropCoreVFD
+     !! \return 0 on success or -2 on error
+     !<
+     INTEGER*8 FUNCTION h5_setprop_file_core_vfd (prop)
+       INTEGER*8, INTENT(IN) :: prop               !< property
+     END FUNCTION h5_setprop_file_core_vfd
 
      !>
      !! \ingroup h5hut_file_f
      !! Set alignment. See \ref H5SetPropFileAlign
      !! \return 0 on success or -2 on error
      !<
-     INTEGER*8 FUNCTION h5_setprop_filealign (prop, align)
+     INTEGER*8 FUNCTION h5_setprop_file_align (prop, align)
        INTEGER*8, INTENT(IN) :: prop               !< property
        INTEGER*8, INTENT(IN) :: align              !< alignment
-     END FUNCTION h5_setprop_filealign
+     END FUNCTION h5_setprop_file_align
 
      !>
      !! \ingroup h5hut_file_f
      !! Set throttle. See \ref H5SetPropFileThrottle
      !! \return 0 on success or -2 on error
      !<
-     INTEGER*8 FUNCTION h5_setprop_filethrottle (prop, throttle)
+     INTEGER*8 FUNCTION h5_setprop_file_throttle (prop, throttle)
        INTEGER*8, INTENT(IN) :: prop               !< property
        INTEGER*8, INTENT(IN) :: throttle           !< throttle
-     END FUNCTION h5_setprop_filethrottle
+     END FUNCTION h5_setprop_file_throttle
 
      !>
      !! \ingroup h5hut_file_f
