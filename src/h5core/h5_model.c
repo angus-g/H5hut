@@ -165,7 +165,8 @@ h5_set_throttle (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, factor=%d", f, factor);
-	if ( (f->props->mode & H5_VFD_MPIIO_IND) || (f->props->mode & H5_VFD_MPIPOSIX) ) {
+	if ( (f->props->flags & H5_VFD_MPIO_INDEPENDENT) ||
+             (f->props->flags & H5_VFD_MPIO_POSIX) ) {
 		f->props->throttle = factor;
 		h5_info (
 			"Throttling enabled with factor = %lld",

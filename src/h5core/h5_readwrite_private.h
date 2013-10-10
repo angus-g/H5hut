@@ -13,19 +13,15 @@
 #include "h5core/h5_types.h"
 
 
-#define is_writable(f) (f->props->mode != H5_O_RDONLY)
-#define is_readonly(f) (f->props->mode == H5_O_RDONLY)
-#define is_appendonly(f) (f->props->mode == H5_O_APPEND)
+#define is_writable(f) (f->props->flags & (H5_O_RDWR | H5_O_WRONLY | H5_O_APPENDONLY))
+#define is_readable(f) (f->props->flags & (H5_O_RDWR | H5_O_RDONLY))
+#define is_readonly(f) (f->props->flags & H5_O_RDONLY)
+#define is_appendonly(f) (f->props->flags & H5_O_APPENDONLY)
 
 #define CHECK_WRITABLE_MODE(f)                                          \
 	TRY (is_writable (f) ? H5_SUCCESS : h5_error (                  \
                      H5_ERR_INVAL,                                      \
                      "Attempting to write to read-only file"));
-
-#define CHECK_READONLY_MODE(f)                                         \
-	TRY (is_readonly (f) ? H5_SUCCESS : h5_error (                 \
-                     H5_ERR_INVAL,                                     \
-                     "Operation is not allowed on writable files."));
 
 #define CHECK_TIMEGROUP(f)                                             \
 	TRY ((f->step_gid > 0) ? H5_SUCCESS : h5_error (               \

@@ -18,11 +18,10 @@ struct h5_prop {                        // generic property class
         char pad[248];                  // sizeof (struct h5_prop) == 256
 };
 
-typedef struct {                        // file property
+struct h5_prop_file {                        // file property
         h5_int64_t class;               // property class == H5_PROP_FILE
-        h5_int64_t mode;
-        h5_int64_t flags;
-        h5_int64_t align;
+        h5_int64_t flags;               // file access mode (read-write, readonly ...
+        h5_int64_t align;               // HDF5 alignment
         h5_int64_t throttle;
         MPI_Comm comm;
 	hid_t	xfer_prop;		// dataset transfer properties
@@ -30,8 +29,9 @@ typedef struct {                        // file property
 	hid_t	create_prop;		// file create properties
 	char*	prefix_step_name;	// Prefix of step name
 	int	width_step_idx;		// pad step index with 0 up to this
-} h5_prop_file_t;
-
+};
+typedef struct h5_prop_file h5_prop_file_t;
+typedef h5_prop_file_t* h5_prop_file_p;
 
 /**
    \struct h5_file
@@ -43,7 +43,7 @@ typedef struct {                        // file property
 */
 struct h5_file {
 	hid_t		file;		// HDF5 file id
-        h5_prop_file_t* props;           // file properties
+        h5_prop_file_p  props;           // file properties
 	char		empty;          // flag (should be int?!)
 
 	/* MPI */

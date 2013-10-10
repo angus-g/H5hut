@@ -20,20 +20,20 @@ extern "C" {
 
 /*
    file modes:
-   H5_O_RDONLY: only reading allowed
-   H5_O_WRONLY: create new file, dataset must not exist
-   H5_O_APPEND: allows to append a new datasets to an existing file
-   H5_O_RDWR:   dataset may exist
+   H5_O_RDONLY: read data from existing file
+   H5_O_WRONLY: create new file, if file not exists; write new or overwrite existing data
+   H5_O_APPENDONLY: allows to append new data to an existing file
+   H5_O_RDWR: create new file, if file not exists; read and (over-)write data
  */
 #define H5_O_RDWR		0x00000001
 #define H5_O_RDONLY		0x00000002
 #define H5_O_WRONLY		0x00000004
-#define H5_O_APPEND		0x00000008
+#define H5_O_APPENDONLY		0x00000008
 
-#define H5_VFD_MPIPOSIX         0x00000010
-#define H5_VFD_MPIIO_IND        0x00000020
-#define H5_VFD_INDEPENDENT      H5_VFD_MPIIO_IND // obsolete(?)
-#define H5_VFD_CORE		0x00000040
+#define H5_VFD_MPIO_POSIX       0x00000010
+#define H5_VFD_MPIO_INDEPENDENT 0x00000020
+#define H5_VFD_MPIO_COLLECTIVE  0x00000040
+#define H5_VFD_CORE		0x00000080
 
 #define H5_FLUSH_FILE		0x00001000
 #define H5_FLUSH_STEP		0x00002000
@@ -100,9 +100,6 @@ typedef h5_float64_t            h5_coord3d_t[3];
 struct h5_prop;
 typedef struct h5_prop* h5_prop_p;
 typedef uintptr_t h5_prop_t;
-
-struct h5_prop_file;
-typedef struct h5_prop_file* h5_prop_file_p;
 
 struct h5_file;
 typedef struct h5_file* h5_file_p;

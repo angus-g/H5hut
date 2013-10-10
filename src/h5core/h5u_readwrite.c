@@ -230,7 +230,7 @@ h5u_write_data (
 #ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (f));
 #endif
-	if (f->props->mode & H5_FLUSH_STEP)
+	if (f->props->flags & H5_FLUSH_STEP)
 		TRY (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
 
 	TRY (hdf5_close_dataset (dset_id));

@@ -27,13 +27,49 @@ H5CreateFileProp (
         H5_API_RETURN (h5_create_prop (H5_PROP_FILE));
 }
 
+
 static inline h5_err_t
 H5SetPropFileMPIO (
         h5_prop_t prop,
         MPI_Comm* comm
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p, comm=%p", (void*)prop, comm);
-        H5_API_RETURN (h5_set_prop_file_mpio (prop, comm));
+        H5_API_RETURN (h5_set_prop_file_mpio_collective (prop, comm));
+}
+
+static inline h5_err_t
+H5SetPropFileMPIOCollective (
+        h5_prop_t prop,
+        MPI_Comm* comm
+        ) {
+        H5_API_ENTER (h5_err_t, "prop=%p, comm=%p", (void*)prop, comm);
+        H5_API_RETURN (h5_set_prop_file_mpio_collective (prop, comm));
+}
+
+static inline h5_err_t
+H5SetPropFileMPIOIndependent (
+        h5_prop_t prop,
+        MPI_Comm* comm
+        ) {
+        H5_API_ENTER (h5_err_t, "prop=%p, comm=%p", (void*)prop, comm);
+        H5_API_RETURN (h5_set_prop_file_mpio_independent (prop, comm));
+}
+
+static inline h5_err_t
+H5SetPropFileMPIOPosix (
+        h5_prop_t prop,
+        MPI_Comm* comm
+        ) {
+        H5_API_ENTER (h5_err_t, "prop=%p, comm=%p", (void*)prop, comm);
+        H5_API_RETURN (h5_set_prop_file_mpio_posix (prop, comm));
+}
+
+static inline h5_err_t
+H5SetPropFileCoreVFD (
+        h5_prop_t prop
+        ) {
+        H5_API_ENTER (h5_err_t, "prop=%p", (void*)prop);
+        H5_API_RETURN (h5_set_prop_file_core_vfd (prop));
 }
 
 static inline h5_err_t
@@ -55,8 +91,8 @@ H5SetPropFileAlign (
   use independent writes from overwhelming the underlying
   parallel file system.
 
-  Throttling only works with the H5_VFD_MPIPOSIX or
-  H5_VFD_MPIIO_IND drivers and is only available in
+  Throttling only works with the H5_VFD_MPIO_POSIX or
+  H5_VFD_MPIO_INDEPENDENT drivers and is only available in
   the parallel library.
 
   \return \c H5_SUCCESS or \c H5_FAILURE
@@ -89,11 +125,11 @@ H5CloseProp (
   File mode flags are:
   - \c H5_O_RDONLY: Only reading allowed
   - \c H5_O_WRONLY: create new file, dataset must not exist
-  - \c H5_O_APPEND: allows to append a new datasets to an existing file
+  - \c H5_O_APPENDONLY: allows to append new data to an existing file
   - \c H5_O_RDWR:   dataset may exist
   - \c H5_FS_LUSTRE - enable optimizations for the Lustre file system
-  - \c H5_VFD_MPIPOSIX - use the HDF5 MPI-POSIX virtual file driver
-  - \c H5_VFD_MPIIO_IND - use MPI-IO in indepedent mode
+  - \c H5_VFD_MPIO_POSIX - use the HDF5 MPI-POSIX virtual file driver
+  - \c H5_VFD_MPIO_INDEPENDENT - use MPI-IO in indepedent mode
 
   The typical file extension is \c .h5.
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2012, The Regents of the University of California,
+  Copyright (c) 2006-2013, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -12,7 +12,7 @@
 
 static h5_errorhandler_t	h5_errhandler = h5_report_errorhandler;
 h5_err_t			h5_errno;
-h5_int32_t			h5_debug_level = 1;
+h5_int32_t			h5_debug_level = H5_VERBOSE_ERROR;
 struct call_stack		h5_call_stack;
 
 char *h5_rfmts[] = {
@@ -44,12 +44,19 @@ char *h5_rfmts[] = {
 /*!
    \ingroup h5_core
    \defgroup h5_core_errorhandling
+
+   TODO: this is broken by design ...
  */
 const char* const H5_O_MODES[] = {
-	"H5_O_RDWR",
-	"H5_O_RDONLY",
-	"H5_O_WRONLY",
-	"H5_O_APPEND"
+        "unknown",              // 0
+	"H5_O_RDWR",            // 1
+        "H5_O_RDONLY",          // 2
+        "unknown",              // 3
+	"H5_O_WRONLY",          // 4
+        "unknown",              // 5
+        "unknown",              // 6
+        "unknown",              // 7
+	"H5_O_APPENDONLY"
 };
 
 /*!
@@ -71,7 +78,7 @@ h5_set_debuglevel (
         const h5_id_t level     /*!< debug level */
         ) {
 	if (level < 0)
-		h5_debug_level = (1 << 20) - 1;
+		h5_debug_level = ((1 << 20) - 1) & ~0x7;
 	else
 		h5_debug_level = level;
 	return H5_SUCCESS;
@@ -238,6 +245,6 @@ h5_verror (
         va_list ap
         ) {
 
-	if (h5_debug_level < 1) return;
+	if ((h5_debug_level & 0x3) < 1) return;
 	h5priv_vprintf (stderr, "E", h5_call_stack.entry[0].name, fmt, ap);
 }

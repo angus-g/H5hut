@@ -44,10 +44,10 @@ h5priv_write_dataset_by_name (
 
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (loc_id, dsinfo->name));
-	if ((exists > 0) && ((f->props->mode==H5_O_WRONLY) || (f->props->mode==H5_O_APPEND))) {
+	if ((exists > 0) && (f->props->flags & H5_O_APPENDONLY)) {
 		h5_warn ("Dataset %s/%s already exist.",
 		         hdf5_get_objname (loc_id), dsinfo->name);
-		H5_PRIV_API_LEAVE (h5priv_handle_file_mode_error(f->props->mode));
+		H5_PRIV_API_LEAVE (h5priv_handle_file_mode_error(f->props->flags));
 	}
 
 	/*
@@ -112,7 +112,7 @@ h5priv_write_dataset_by_name (
  */
 h5_err_t
 h5priv_write_dataset_by_name_id (
-	 	const h5_file_p f,
+        const h5_file_p f,
         const hid_t loc_id,
         h5_dsinfo_t* dsinfo,
         hid_t dset_id,
@@ -132,10 +132,10 @@ h5priv_write_dataset_by_name_id (
 
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (loc_id, dsinfo->name));
-	if ((exists > 0) && ((f->props->mode==H5_O_WRONLY) || (f->props->mode==H5_O_APPEND))) {
+	if ((exists > 0) && (f->props->flags & H5_O_APPENDONLY)) {
 		h5_warn ("Dataset %s/%s already exist.",
 		         hdf5_get_objname (loc_id), dsinfo->name);
-		H5_PRIV_API_LEAVE (h5priv_handle_file_mode_error(f->props->mode));
+		H5_PRIV_API_LEAVE (h5priv_handle_file_mode_error(f->props->flags));
 	}
 
 #ifdef PARALLEL_IO

@@ -109,10 +109,6 @@ h5u_set_num_particles (
 		                "Invalid number particles: %lld!\n",
 		                (long long)nparticles));
 
-	hsize_t hstride = (hsize_t)stride;
-	if (hstride > 1)
-		h5_debug ("Striding by %lld elements.", (long long)hstride);
-
 #ifndef PARALLEL_IO
 	/*
 	   if we are not using parallel-IO, there is enough information
@@ -139,8 +135,10 @@ h5u_set_num_particles (
 	/* we need a hyperslab selection if there is striding
 	 * (otherwise, the default H5S_ALL selection is ok)
 	 */
-	if (hstride > 1) {
+	if (stride > 1) {
+		h5_debug ("Striding by %lld elements.", (long long)stride);
 		start = 0;
+                hsize_t hstride = (hsize_t)stride;
 		count = u->nparticles;
 		TRY (hdf5_select_hyperslab_of_dataspace (
                              u->memshape,
@@ -189,8 +187,8 @@ h5u_set_num_particles (
 	TRY( u->diskshape = hdf5_create_dataspace(1, &count, NULL) );
 
 	count = nparticles;
-	hstride = 1;
 	if (count > 0) {
+                hsize_t hstride = 1;
 		TRY( hdf5_select_hyperslab_of_dataspace(
 		             u->diskshape,
 		             H5S_SELECT_SET,

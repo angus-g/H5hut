@@ -79,27 +79,30 @@ mpi_init (
 	TRY (f->props->access_prop = hdf5_create_property(H5P_FILE_ACCESS));
 
 	/* select the HDF5 VFD */
-	if (f->props->mode & H5_VFD_MPIPOSIX) {
+	if ((f->props->flags & H5_VFD_MPIO_POSIX)) {
 		h5_info("Selecting MPI-POSIX VFD");
 		hbool_t use_gpfs = 0; // TODO autodetect GPFS?
 		TRY (hdf5_set_fapl_mpiposix_property (f->props->access_prop,
                                                      f->props->comm, use_gpfs));
 
-        } else if (f->props->mode & H5_VFD_CORE) {
+        } else if ((f->props->flags & H5_VFD_CORE)) {
 		h5_info("Selecting CORE VFD");
                 TRY (hdf5_set_fapl_core (f->props->access_prop,
                                          f->props->align, 1));
-	} else {
-		h5_info("Selecting MPI-IO VFD");
+        }
+        else if ((f->props->flags & H5_VFD_MPIO_INDEPENDENT)){
+                h5_info("Selecting MPI-IO VFD, using independent mode");
 		TRY (hdf5_set_fapl_mpio_property (f->props->access_prop,
                                                   f->props->comm, MPI_INFO_NULL));
-		if (f->props->mode & H5_VFD_MPIIO_IND) {
-			h5_info("MPI-IO: Using independent mode");
-		} else {
-			h5_info("MPI-IO: Using collective mode");
-			TRY (hdf5_set_dxpl_mpio_property (f->props->xfer_prop,
-                                                          H5FD_MPIO_COLLECTIVE) );
-		}
+                TRY (hdf5_set_dxpl_mpio_property (f->props->xfer_prop,
+                                                  H5FD_MPIO_INDEPENDENT) );
+        } else {
+                // default is MPI-IO colloctive mode
+		h5_info("Selecting MPI-IO VFD, using collective mode");
+		TRY (hdf5_set_fapl_mpio_property (f->props->access_prop,
+                                                  f->props->comm, MPI_INFO_NULL));
+                TRY (hdf5_set_dxpl_mpio_property (f->props->xfer_prop,
+                                                  H5FD_MPIO_COLLECTIVE) );
 	}
 #ifdef H5_USE_LUSTRE
 	if (f->flags & H5_FS_LUSTRE) {
@@ -134,85 +137,145 @@ set_alignment (
 
 static inline h5_err_t
 set_default_file_props (
-        h5_prop_file_t* props
+        h5_prop_file_t* _props
         ) {
         H5_INLINE_FUNC_ENTER (h5_err_t);
-        h5_prop_file_t* file_props = (h5_prop_file_t*)props;
-        bzero (file_props, sizeof (file_props));
-        file_props->class = H5_PROP_FILE;
-        TRY (file_props->prefix_step_name = h5_calloc (1, H5_STEPNAME_LEN));
+        h5_prop_file_p props = (h5_prop_file_p)_props;
+        bzero (props, sizeof (props));
+        props->class = H5_PROP_FILE;
+        TRY (props->prefix_step_name = h5_calloc (1, H5_STEPNAME_LEN));
         strncpy (
-                file_props->prefix_step_name,
+                props->prefix_step_name,
                 H5_STEPNAME,
                 H5_STEPNAME_LEN - 1);
-        file_props->width_step_idx = H5_STEPWIDTH;
-#ifdef PARALLEL_IO
-        file_props->comm = MPI_COMM_WORLD;
-#endif
+        props->width_step_idx = H5_STEPWIDTH;
+        props->comm = MPI_COMM_WORLD;
         H5_INLINE_FUNC_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
-h5_set_prop_file_mpio (
-        h5_prop_t _prop,
+h5_set_prop_file_mpio_collective (
+        h5_prop_t _props,
         MPI_Comm* comm
         ) {
-        h5_prop_p prop = (h5_prop_p)_prop;
-        H5_CORE_API_ENTER (h5_err_t, "prop=%p, comm=%p", prop, comm);
+        h5_prop_file_p props = (h5_prop_file_p)_props;
+        H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
         
-        if (prop->class != H5_PROP_FILE) {
+        if (props->class != H5_PROP_FILE) {
                 H5_INLINE_FUNC_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
-				(long long int)prop->class));
+				(long long int)props->class));
         }
-        h5_prop_file_t* file_prop = (h5_prop_file_t*)prop;
-        file_prop->comm = *comm;
+        props->flags &= ~(H5_VFD_MPIO_POSIX | H5_VFD_MPIO_INDEPENDENT | H5_VFD_CORE);
+        props->flags |= H5_VFD_MPIO_COLLECTIVE;
+        props->comm = *comm;
         H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
-h5_set_prop_file_align (
-        h5_prop_t _prop,
-        h5_int64_t align
+h5_set_prop_file_mpio_independent (
+        h5_prop_t _props,
+        MPI_Comm* comm
         ) {
-        h5_prop_p prop = (h5_prop_p)_prop;
-        H5_CORE_API_ENTER (
-		h5_err_t,
-		"prop=%p, align=%lld",
-		prop, (long long int)align);
-        if (prop->class != H5_PROP_FILE) {
+        h5_prop_file_p props = (h5_prop_file_p)_props;
+        H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
+        
+        if (props->class != H5_PROP_FILE) {
                 H5_INLINE_FUNC_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
-				(long long int)prop->class));
+				(long long int)props->class));
         }
-        h5_prop_file_t* file_prop = (h5_prop_file_t*)prop;
-        file_prop->align = align;
+        props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_POSIX | H5_VFD_CORE);
+        props->flags |= H5_VFD_MPIO_INDEPENDENT;
+        props->comm = *comm;
+        H5_CORE_API_RETURN (H5_SUCCESS);
+}
+
+h5_err_t
+h5_set_prop_file_mpio_posix (
+        h5_prop_t _props,
+        MPI_Comm* comm
+        ) {
+        h5_prop_file_p props = (h5_prop_file_p)_props;
+        H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
+        
+        if (props->class != H5_PROP_FILE) {
+                H5_INLINE_FUNC_LEAVE (
+                        h5_error (
+                                H5_ERR_INVAL,
+                                "Invalid property class: %lld",
+				(long long int)props->class));
+        }
+        props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_POSIX | H5_VFD_CORE);
+        props->flags |= H5_VFD_MPIO_INDEPENDENT;
+        props->comm = *comm;
+        H5_CORE_API_RETURN (H5_SUCCESS);
+}
+
+h5_err_t
+h5_set_prop_file_core_vfd (
+        h5_prop_t _props
+        ) {
+        h5_prop_file_p props = (h5_prop_file_p)_props;
+        H5_CORE_API_ENTER (h5_err_t, "props=%p", props);
+        
+        if (props->class != H5_PROP_FILE) {
+                H5_INLINE_FUNC_LEAVE (
+                        h5_error (
+                                H5_ERR_INVAL,
+                                "Invalid property class: %lld",
+				(long long int)props->class));
+        }
+        props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_INDEPENDENT | H5_VFD_MPIO_POSIX);
+        props->flags |= H5_VFD_MPIO_INDEPENDENT;
+        props->comm = MPI_COMM_SELF;
+        H5_CORE_API_RETURN (H5_SUCCESS);
+}
+
+
+h5_err_t
+h5_set_prop_file_align (
+        h5_prop_t _props,
+        h5_int64_t align
+        ) {
+        h5_prop_file_p props = (h5_prop_file_p)_props;
+        H5_CORE_API_ENTER (
+		h5_err_t,
+		"props=%p, align=%lld",
+		props, (long long int)align);
+        if (props->class != H5_PROP_FILE) {
+                H5_INLINE_FUNC_LEAVE (
+                        h5_error (
+                                H5_ERR_INVAL,
+                                "Invalid property class: %lld",
+				(long long int)props->class));
+        }
+        props->align = align;
         H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
 h5_set_prop_file_throttle (
-        h5_prop_t _prop,
+        h5_prop_t _props,
         h5_int64_t throttle
         ) {
-        h5_prop_p prop = (h5_prop_p)_prop;
+        h5_prop_file_p props = (h5_prop_file_p)_props;
         H5_CORE_API_ENTER (
 		h5_err_t,
-		"prop=%p, throttle=%lld",
-		prop, (long long int)throttle);
-        if (prop->class != H5_PROP_FILE) {
+		"props=%p, throttle=%lld",
+		props, (long long int)throttle);
+        if (props->class != H5_PROP_FILE) {
                 H5_INLINE_FUNC_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
-				(long long int)prop->class));
+				(long long int)props->class));
         }
-        h5_prop_file_t* file_prop = (h5_prop_file_t*)prop;
-        file_prop->throttle = throttle;
+        props->throttle = throttle;
         H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
@@ -272,7 +335,7 @@ open_file (
 	H5_INLINE_FUNC_ENTER (h5_err_t);
         h5_info ("Opening file %s.", filename);
 
-        f->props->mode = mode;
+        f->props->flags |= mode;
 
         f->nprocs = 1; // queried later
         f->myproc = 0; // queried later
@@ -292,19 +355,21 @@ open_file (
 	TRY (mpi_init (f));              // noop if serial
 	TRY (set_alignment (f));
 
-	if (f->props->mode & H5_O_RDONLY) {
+	if (f->props->flags & H5_O_RDONLY) {
 		f->file = H5Fopen (filename, H5F_ACC_RDONLY, f->props->access_prop);
 	}
-	else if (f->props->mode & H5_O_WRONLY){
-		f->file = H5Fcreate (filename, H5F_ACC_TRUNC, f->props->create_prop,
-				     f->props->access_prop);
+	else if (f->props->flags & H5_O_WRONLY){
+		f->file = H5Fcreate (
+                        filename, H5F_ACC_TRUNC, f->props->create_prop,
+                        f->props->access_prop);
 		f->empty = 1;
 	}
-	else if (f->props->mode & H5_O_APPEND || f->props->mode & H5_O_RDWR) {
+	else if (f->props->flags & H5_O_APPENDONLY || f->props->flags & H5_O_RDWR) {
 		int fd = open (filename, O_RDONLY, 0);
 		if ((fd == -1) && (errno == ENOENT)) {
-			f->file = H5Fcreate (filename, H5F_ACC_TRUNC,
-					     f->props->create_prop, f->props->access_prop);
+			f->file = H5Fcreate (
+                                filename, H5F_ACC_TRUNC,
+                                f->props->create_prop, f->props->access_prop);
 			f->empty = 1;
 		}
 		else if (fd != -1) {
@@ -318,15 +383,15 @@ open_file (
 			h5_error (
 				H5_ERR_INVAL,
 				"Invalid file access mode '%lld'.",
-				(long long int)f->props->mode));
+				(long long int)f->props->flags & 0xff));
 	}
 	
 	if (f->file < 0)
 		H5_PRIV_FUNC_LEAVE (
 			h5_error (
 				H5_ERR_HDF5,
-				"Cannot open file '%s' with mode '%lld'",
-				filename, (long long int)f->props->mode));
+				"Cannot open file '%s' with mode '%s'",
+				filename, H5_O_MODES[f->props->flags & 0xff]));
 	TRY (f->root_gid = hdf5_open_group (f->file, "/" ));
 
 	TRY (h5upriv_open_file (f));
@@ -362,7 +427,7 @@ h5_open_file2 (
                                         (long long int)props->class));
                 }
                 f->props->comm = props->comm;
-                f->props->mode |= props->mode;
+                f->props->flags = props->flags;
                 f->props->throttle = props->throttle;
                 f->props->align = props->align;
 
@@ -395,7 +460,7 @@ h5_open_file2 (
 */
 
 h5_file_t
-h5_open_file (
+h5_open_file1 (
 	const char* filename,
 	h5_int32_t mode,
 	MPI_Comm comm,
@@ -408,7 +473,7 @@ h5_open_file (
         h5_prop_file_t* props;
         h5_file_t f;
         TRY (props = (h5_prop_file_t*)h5_create_prop (H5_PROP_FILE));
-        TRY (h5_set_prop_file_mpio ((h5_prop_t)props, &comm));
+        TRY (h5_set_prop_file_mpio_collective ((h5_prop_t)props, &comm));
         TRY (h5_set_prop_file_align ((h5_prop_t)props, align));
         TRY (f = h5_open_file2 (filename, mode, (h5_prop_t)props));
         TRY (h5_close_prop ((h5_prop_t)props));

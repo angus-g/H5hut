@@ -246,7 +246,7 @@ h5_warn (
         const char* fmt,
         ...
         ) {
-	if (h5_debug_level >= 2) {
+	if ((h5_debug_level & 0x3) >= 2) {
 		va_list ap;
 		va_start (ap, fmt);
 		h5priv_vprintf (stderr, "W", h5_get_funcname(), fmt, ap);
@@ -274,7 +274,7 @@ h5_info (
         const char* fmt,
         ...
         ) {
-	if (h5_debug_level >= 3) {
+	if ((h5_debug_level & 0x3) == 3) {
 		va_list ap;
 		va_start (ap, fmt);
 		h5priv_vprintf (stdout, "I", h5_get_funcname(), fmt, ap);

@@ -15,6 +15,15 @@
 
 #define UNUSED_ARGUMENT(x) (void)x
 
+// dummy MPI calls for serial code
+#if !defined (PARALLEL_IO)
+#define MPI_Init(argc, argv)
+#define MPI_Comm_size(comm, nprocs) { *nprocs = 1; }
+#define MPI_Comm_rank(comm, myproc) { *myproc = 0; }
+#define MPI_Finalize()
+#define MPI_COMM_WORLD (0)
+#define MPI_COMM_SELF (1)
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,15 +51,27 @@ h5_set_prop_file_align (
         h5_prop_t, const h5_int64_t);
 
 h5_err_t
-h5_set_prop_file_mpio (
+h5_set_prop_file_mpio_collective (
         h5_prop_t, MPI_Comm* const);
+
+h5_err_t
+h5_set_prop_file_mpio_independent (
+        h5_prop_t, MPI_Comm* const);
+
+h5_err_t
+h5_set_prop_file_mpio_posix (
+        h5_prop_t, MPI_Comm* const);
+
+h5_err_t
+h5_set_prop_file_core_vfd (
+        h5_prop_t);
 
 h5_err_t
 h5_close_prop (
         h5_prop_t);
 
 h5_file_t
-h5_open_file (
+h5_open_file1 (
 	const char*, const h5_int32_t, 	MPI_Comm, const h5_size_t);
 
 h5_file_t

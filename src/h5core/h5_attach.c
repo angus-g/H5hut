@@ -30,9 +30,9 @@ h5_add_attachment (
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
 	// allowed file modes: O_RDWR, O_WRONLY; O_APPEND
-	if (f->props->mode == H5_O_RDONLY) {
+	if (f->props->flags & H5_O_RDONLY) {
 		H5_PRIV_FUNC_LEAVE (
-			h5priv_handle_file_mode_error (f->props->mode));
+			h5priv_handle_file_mode_error (f->props->flags));
 	}
 
 	struct stat st;
@@ -86,11 +86,9 @@ h5_add_attachment (
 	TRY (loc_id = h5priv_open_group (1, f->file, H5_ATTACHMENT));
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (loc_id, fname));
-	if (exists && (f->props->mode == H5_O_RDWR || f->props->mode == H5_O_WRONLY)) {
-		// remove
-	} else if (exists && f->props->mode == H5_O_APPEND) {
+        if (exists && (f->props->flags & H5_O_APPENDONLY)) {
 		H5_PRIV_FUNC_LEAVE (
-			h5priv_handle_file_mode_error (f->props->mode));
+			h5priv_handle_file_mode_error (f->props->flags));
 	}
 	hid_t diskspace_id;
 	TRY (diskspace_id = hdf5_create_dataspace (1, &fsize, &fsize));
@@ -227,18 +225,18 @@ h5_get_attachment (
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
 	// allowed modes: O_RDWR, O_RDONLY; O_APPEND
 	// forbidden modes: O_WRONLY
-	if (f->props->mode == H5_O_WRONLY) {
+	if (f->props->flags & H5_O_WRONLY) {
 		H5_PRIV_FUNC_LEAVE (
-			h5priv_handle_file_mode_error (f->props->mode));
+			h5priv_handle_file_mode_error (f->props->flags));
 	}
 
 	hid_t loc_id;
 	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (loc_id, fname));
-	if (f->props->mode == H5_O_WRONLY) {
+	if (f->props->flags & H5_O_WRONLY) {
 		H5_PRIV_FUNC_LEAVE (
-			h5priv_handle_file_mode_error (f->props->mode));
+			h5priv_handle_file_mode_error (f->props->flags));
 	} else if (!exists) {
 		H5_PRIV_FUNC_LEAVE (
 			h5_error (

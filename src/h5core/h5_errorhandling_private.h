@@ -7,7 +7,7 @@
         h5_error(                                                       \
                 H5_ERR_BADF,                                            \
                 "Operation not permitted in mode '%s'",                 \
-                H5_O_MODES[mode_id] );
+                H5_O_MODES[mode_id & 0xff] );
 
 #define HANDLE_H5_OVERFLOW_ERR( max )                                   \
         h5_error(                                                       \

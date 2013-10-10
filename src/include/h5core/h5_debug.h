@@ -32,7 +32,7 @@ extern "C" {
 #define H5_DEBUG_MALLOC		(1<<9)
 #define H5_DEBUG_CLIB		(1<<10)
 
-#define H5_DEBUG_ALL		(-1)
+#define H5_DEBUG_ALL		(-1 & ~0x3)
 
 extern char* h5_rfmts[];
 
