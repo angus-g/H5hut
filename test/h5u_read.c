@@ -478,7 +478,7 @@ void h5u_test_read3(void)
 	h5_int64_t status;
 
 	TEST("Opening file once, read-only, MPI-POSIX VFD");
-	file1 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIPOSIX, H5_PROP_DEFAULT);
+	file1 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIO_POSIX, H5_PROP_DEFAULT);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
@@ -508,11 +508,11 @@ void h5u_test_read4(void)
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 
-	file1 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIIO_IND, props);
+	file1 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIO_INDEPENDENT, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
-	file2 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIIO_IND, props);
+	file2 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIO_INDEPENDENT, props);
 	status = H5CheckFile(file2);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 

@@ -209,7 +209,7 @@ void h5b_test_write2(void)
 	h5_err_t status;
 
 	TEST("Opening file twice, write-append + read-only");
-	file1 = H5OpenFile(FILENAME, H5_O_APPEND, H5_PROP_DEFAULT);
+	file1 = H5OpenFile(FILENAME, H5_O_APPENDONLY, H5_PROP_DEFAULT);
 
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");

@@ -392,7 +392,7 @@ void h5u_test_write2(void)
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 
-	file1 = H5OpenFile(FILENAME, H5_O_APPEND, props);
+	file1 = H5OpenFile(FILENAME, H5_O_APPENDONLY, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
@@ -426,7 +426,7 @@ void h5u_test_write3(void)
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 
-	file1 = H5OpenFile(FILENAME, H5_O_WRONLY | H5_VFD_MPIPOSIX, props);
+	file1 = H5OpenFile(FILENAME, H5_O_WRONLY | H5_VFD_MPIO_POSIX, props);
 
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
@@ -461,11 +461,11 @@ void h5u_test_write4(void)
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 
-	file1 = H5OpenFile(FILENAME, H5_O_APPEND | H5_VFD_MPIIO_IND, props);
+	file1 = H5OpenFile(FILENAME, H5_O_APPENDONLY | H5_VFD_MPIO_INDEPENDENT, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
-	file2 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIIO_IND, props);
+	file2 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIO_INDEPENDENT, props);
 	status = H5CheckFile(file2);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
