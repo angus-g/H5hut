@@ -22,6 +22,8 @@ extern "C" {
 #define H5_VERBOSE_WARN    	(2)
 #define H5_VERBOSE_INFO    	(3)
 
+#define H5_VERBOSE_DEFAULT      H5_VERBOSE_ERROR
+
 #define H5_DEBUG_USER		(1<<2)
 #define H5_DEBUG_API		(1<<3)
 #define H5_DEBUG_CORE_API	(1<<4)
