@@ -80,7 +80,13 @@ AC_ARG_WITH(
 	[parmetis],
 	[AC_HELP_STRING([--with-parmetis],
 	[path to ParMETIS API [default=""]])],
-	[PARMETISPATH=$withval], [PARMETISPATH=""])
+	[PARMETIS_PREFIX=$withval], [])
+
+AC_ARG_WITH(
+	[vtk],
+	[AC_HELP_STRING([--with-vtk],
+	[VTK installation path [default=""]])],
+	[VTK_PREFIX=$withval], [])
 
 
 ###############################################################################
@@ -270,9 +276,9 @@ if test "X$ENABLE_PARALLEL" = "Xyes"; then
 
         if test "X$ENABLE_EXPERIMENTAL" = "Xyes"; then
         	AC_MSG_CHECKING([for ParMETIS])
-                if test "X$PARMETISPATH" != "X"; then
-                        CPPFLAGS="$CPPFLAGS -I$PARMETISPATH/include"
-	                LDFLAGS="$LDFLAGS -L$PARMETISPATH/lib"
+                if test "X$PARMETIS_PREFIX" != "X"; then
+                        CPPFLAGS="$CPPFLAGS -I$PARMETIS_PREFIX/include"
+	                LDFLAGS="$LDFLAGS -L$PARMETIS_PREFIX/lib"
 	        fi
 
                 LIBS="$LIBS -lparmetis -lmetis"
