@@ -229,6 +229,11 @@ h5u_reset_view (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
+/*
+  if start == -1 && end == -1 -> reset view
+  elif end == -1 -> select zero particles 
+
+ */
 h5_err_t
 h5u_set_view (
 	const h5_file_t fh,		///!< [in]  Handle to open file
@@ -240,20 +245,16 @@ h5u_set_view (
 	                   "f=%p, start=%lld, end=%lld",
 	                   f, (long long)start, (long long)end);
 	hsize_t total = 0;
-	hsize_t stride = 1;
 	hsize_t dmax = H5S_UNLIMITED;
 	struct h5u_fdata *u = f->u;
 
 	TRY (h5u_reset_view (fh));
 
-	if (start == -1 && end == -1)
+	if (start == -1 && end == -1)   // we are already done
 		H5_CORE_API_LEAVE (H5_SUCCESS);
 
 	if (f->u->shape > 0) {
 		TRY (total = hdf5_get_npoints_of_dataspace (f->u->shape) );
-		h5_debug(
-			"Found %lld particles from previous H5PartSetNumParticles call.",
-			(long long)total);
         } else {
                 TRY (total = (hsize_t)h5u_get_totalnum_particles_by_idx (fh,0));
         }
@@ -264,44 +265,57 @@ h5u_set_view (
 		H5_CORE_API_LEAVE (H5_SUCCESS);
 	}
 
-	if (start == -1) start = 0;
-	if (end == -1) end = total - 1; // select to end
-
-        if (end < start)
+        if (start < 0 || start >= total) {
 		H5_CORE_API_LEAVE (
 		        h5_error(
 		                H5_ERR_INVAL,
-		                "Invalid selection for last particle: start=%lld, end=%lld!\n",
+		                "Start of selection out of range: %lld not in [0..%lld]",
+		                (long long)start, (long long)total-1));
+        } else if (end < 0 || end >= total) {
+		H5_CORE_API_LEAVE (
+		        h5_error(
+		                H5_ERR_INVAL,
+		                "End of selection out of range: %lld not in [0..%lld]",
+		                (long long)end, (long long)total-1));
+        } else if (end+1 < start) {
+		H5_CORE_API_LEAVE (
+		        h5_error(
+		                H5_ERR_INVAL,
+		                "Invalid selection: start=%lld > end=%lld!\n",
 		                (long long)start, (long long)end));
-
+        }
 	/* setting up the new view */
 	u->viewstart =  start;
 	u->viewend =    end;
-	u->nparticles = end - start + 1;
+        if (end == -1)
+                u->nparticles = 0;
+        else
+                u->nparticles = end - start + 1;
 
 	h5_debug (
-	        "This view selected %lld particles.",
+	        "This view includes %lld particles.",
 	        (long long)u->nparticles );
 
 	/* declare overall data size  but then will select a subset */
 	TRY (u->diskshape = hdf5_create_dataspace ( 1, &total, NULL ));
 
-	total = (hsize_t)u->nparticles;
 	hsize_t hstart = (hsize_t)start;
+	hsize_t hstride = 1;
+	hsize_t hcount = (hsize_t)u->nparticles;
 
 	TRY (hdf5_select_hyperslab_of_dataspace (
 	             u->diskshape,
 	             H5S_SELECT_SET,
-	             &hstart, &stride, &total,
+	             &hstart, &hstride, &hcount,
 	             NULL));
 
 	/* declare local memory datasize */
-	TRY (u->memshape = hdf5_create_dataspace (1, &total, &dmax));
+	TRY (u->memshape = hdf5_create_dataspace (1, &hcount, &dmax));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
-h5u_set_view_start_length (
+h5u_set_view_length (
 	const h5_file_t fh,		///!< [in]  Handle to open file
 	h5_int64_t start,		///!< [in]  Start particle
 	h5_int64_t length	       	///!< [in]  number of particle in view
@@ -310,9 +324,6 @@ h5u_set_view_start_length (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, start=%lld, length=%lld",
 	                   f, (long long)start, (long long)length);
-	hsize_t total = 0;
-	hsize_t stride = 1;
-	hsize_t dmax = H5S_UNLIMITED;
 	struct h5u_fdata *u = f->u;
 
 	TRY (h5u_reset_view (fh));
@@ -320,6 +331,7 @@ h5u_set_view_start_length (
 	if (start == -1 && length == -1)
 		H5_CORE_API_LEAVE (H5_SUCCESS);
 
+	hsize_t total = 0;
 	if (u->shape > 0) {
 		TRY (total = hdf5_get_npoints_of_dataspace (u->shape) );
 		h5_debug(
@@ -348,23 +360,25 @@ h5u_set_view_start_length (
 	u->nparticles = length;
 
 	h5_debug (
-	        "This view selected %lld particles.",
+	        "This view has %lld particles.",
 	        (long long)u->nparticles );
 
 	/* declare overall data size  but then will select a subset */
-	TRY (u->diskshape = hdf5_create_dataspace ( 1, &total, NULL ));
+	TRY (u->diskshape = hdf5_create_dataspace (1, &total, NULL));
 
-	total = (hsize_t)u->nparticles;
 	hsize_t hstart = (hsize_t)start;
+	hsize_t hstride = 1;
+	hsize_t hcount = (hsize_t)u->nparticles;
 
 	TRY (hdf5_select_hyperslab_of_dataspace (
 	             u->diskshape,
 	             H5S_SELECT_SET,
-	             &hstart, &stride, &total,
+	             &hstart, &hstride, &hcount,
 	             NULL));
 
 	/* declare local memory datasize */
-	TRY (u->memshape = hdf5_create_dataspace (1, &total, &dmax));
+	hsize_t dmax = H5S_UNLIMITED;
+	TRY (u->memshape = hdf5_create_dataspace (1, &hcount, &dmax));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
@@ -501,7 +515,7 @@ h5u_set_canonical_view (
 	u->nparticles = total;
 	h5_int64_t length = total - 1;
 #endif // PARALLEL_IO
-	H5_CORE_API_RETURN (h5u_set_view_start_length (fh, start, length));
+	H5_CORE_API_RETURN (h5u_set_view_length (fh, start, length));
 }
 
 h5_ssize_t
