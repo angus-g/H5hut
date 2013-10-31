@@ -153,6 +153,7 @@ main (
         }
         argv += optind;
         H5SetErrorHandler (H5Errorhandler);
+        MPI_Init (&argc, &argv);
         for (int i = 0; i < argc; i++) {
                 std::string vtk_filename = argv[i];
                 std::string h5grid_filename = vtk_filename.substr (0, vtk_filename.find_last_of ('.')) + ".h5";
@@ -200,5 +201,6 @@ main (
                 }
                 H5CloseFile (f);
         }
+        MPI_Finalize ();
         return 0;
 }
