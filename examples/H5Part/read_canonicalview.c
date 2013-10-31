@@ -9,21 +9,22 @@
 
 #include "H5hut.h"
 
-#define FNAME           "example_particles.h5"
-
+#define FNAME           "example_setview.h5"
+#define VERBOSITY       H5_VERBOSE_DEFAULT
 int
 main (
         int argc, char* argv[]
         ){
-        H5AbortOnError ();
-        H5SetVerbosityLevel (VERBOSITY);
-
-        int myproc;
+        // initialize MPI & H5hut
+        int mpi_rank = 0;
+        int mpi_size = 1;
         MPI_Init (&argc, &argv);
-        MPI_Comm_rank (MPI_COMM_WORLD, &myproc);
+        MPI_Comm comm = MPI_COMM_WORLD;
+        MPI_Comm_rank (comm, &mpi_rank);
+        MPI_Comm_size (comm, &mpi_size);
 
+        // open file and go to step#0
         h5_file_t file = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
-
         H5SetStep (file, 0);
   
         H5PartSetCanonicalView (file);
