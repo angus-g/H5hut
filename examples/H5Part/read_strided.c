@@ -8,20 +8,25 @@
 */
 
 #include "H5hut.h"
-#include "examples.h"
 
-#define FNAME           "example_particles.h5"
+#define DEFAULT_VERBOSITY       H5_VERBOSE_DEFAULT
+
+#define FNAME                   "example_particles.h5"
 
 int
 main (
         int argc, char* argv[]
         ){
-        H5AbortOnError ();
-        H5SetVerbosityLevel (VERBOSITY);
+        h5_int64_t verbosity = DEFAULT_VERBOSITY;
 
-        int myproc;
+        // initialize MPI & H5hut
         MPI_Init (&argc, &argv);
-        MPI_Comm_rank (MPI_COMM_WORLD, &myproc);
+        MPI_Comm comm = MPI_COMM_WORLD;
+        int rank = 0;
+        MPI_Comm_rank (comm, &rank);
+
+        H5AbortOnError ();
+        H5SetVerbosityLevel (verbosity);
 
         h5_file_t file = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
 

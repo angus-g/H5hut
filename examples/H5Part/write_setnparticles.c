@@ -10,21 +10,26 @@
 #include <stdlib.h>
 #include "H5hut.h"
 
-#define FNAME           "example_setnparticles.h5"
-#define NUM_PARTICLES   3
+#define DEFAULT_VERBOSITY       H5_VERBOSE_DEFAULT
+
+#define FNAME                   "example_setnparticles.h5"
+#define NUM_PARTICLES           3
 
 int
 main (
         int argc,
         char* argv[]
         ){
+        h5_int64_t verbosity = DEFAULT_VERBOSITY;
+
         // initialize MPI & H5hut
         MPI_Init (&argc, &argv);
         MPI_Comm comm = MPI_COMM_WORLD;
         int rank = 0;
         MPI_Comm_rank (comm, &rank);
+
         H5AbortOnError ();
-        H5SetVerbosityLevel (-1);
+        H5SetVerbosityLevel (verbosity);
 
         // create fake data
         h5_int32_t data[NUM_PARTICLES];

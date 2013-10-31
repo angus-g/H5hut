@@ -9,20 +9,26 @@
 
 #include "H5hut.h"
 
-#define FNAME           "example_strided.h5"
-#define NPOINTS         99
+#define DEFAULT_VERBOSITY       H5_VERBOSE_DEFAULT
+
+#define FNAME                   "example_strided.h5"
+#define NPOINTS                 99
 
 int
 main (
 	int argc,
 	char** argv
 	) {
+        h5_int64_t verbosity = DEFAULT_VERBOSITY;
+
         // MPI & H5hut init
 	MPI_Init (&argc, &argv);
         int rank;
         MPI_Comm comm = MPI_COMM_WORLD;
         MPI_Comm_rank (comm, &rank);
+
         H5AbortOnError ();
+        H5SetVerbosityLevel (verbosity);
 
         // create fake data
         h5_float64_t particles[6*NPOINTS];
