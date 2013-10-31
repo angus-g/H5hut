@@ -23,7 +23,7 @@ noinst_PROGRAMS +=		\
 	read_setnparticles	\
 	read_setview		\
 	read_strided		\
-	use_core_vfd		\
+	write_core_vfd		\
 	write_setnparticles	\
 	write_setview		\
 	write_strided
@@ -35,7 +35,7 @@ noinst_PROGRAMS +=		\
 	read_setnparticlesf	\
 	read_setviewf		\
 	read_stridedf		\
-	use_core_vfd		\
+	write_core_vfd		\
 	write_setnparticlesf	\
 	write_setviewf		\
 	write_stridedf
