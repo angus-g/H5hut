@@ -36,7 +36,7 @@ main (
   
         H5PartSetCanonicalView (file);
         h5_int64_t num_particles = H5PartGetNumParticles (file);
-        printf ("[proc %d]: particles in view: %lld\n", myproc, num_particles);
+        printf ("[proc %d]: particles in view: %lld\n", comm_rank, num_particles);
 
         H5CloseFile (file);
         return MPI_Finalize ();
