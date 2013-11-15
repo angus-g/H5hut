@@ -51,8 +51,8 @@ main (
         else
                 start += remainder;
         
-        // Note: if npartices is 0 end = start - 1
-        // this forces the selection of zero particles!
+        // Note: setting end = start - 1 forces the 
+        // selection of zero particles!
         h5_int64_t end = start + nparticles - 1;
         
         printf ("[proc %d]: set view to [%lld..%lld]\n", comm_rank, start, end);
