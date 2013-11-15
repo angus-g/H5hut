@@ -1,3 +1,10 @@
+*.o
+*.lo
+*.la
+*~
+*.h5
+.deps
+.libs
 /H5hut
 /INSTALL
 /Makefile
