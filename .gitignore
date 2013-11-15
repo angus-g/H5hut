@@ -52,7 +52,7 @@ examples/H5Part/read_canonicalview
 examples/H5Part/read_setnparticles
 examples/H5Part/read_setview
 examples/H5Part/read_strided
-examples/H5Part/use_core_vfd
+examples/H5Part/write_core_vfd
 examples/H5Part/write_setnparticles
 examples/H5Part/write_setnumparticles
 examples/H5Part/write_setview
