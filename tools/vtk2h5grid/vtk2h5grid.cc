@@ -14,9 +14,21 @@
 
 #include "H5hut.h"
 
+#if !defined (PARALLEL_IO)
+#define MPI_Init(argc, argv)
+#define MPI_Comm_size(comm, nprocs) { *nprocs = 1; }
+#define MPI_Comm_rank(comm, myproc) { *myproc = 0; }
+#define MPI_Finalize()
+#define MPI_COMM_WORLD (0)
+#endif
+
 const char* version = "0.1.0";
 int convert_boundary = 1;
 int convert_volume = 0;
+double x_shift = 0.0;
+double y_shift = 0.0;
+double z_shift = 0.0;
+
 const struct option longopts[] = {
         {"version",     no_argument, 0,                 'v'},
         {"help",        no_argument, 0,                 'h'},
@@ -24,6 +36,7 @@ const struct option longopts[] = {
         {"volume",      no_argument, &convert_volume,   1},
         {"no-boundary", no_argument, &convert_boundary, 0},
         {"no-volume",   no_argument, &convert_volume,   0},
+        {"shift",       required_argument,  0,          's'},
         {0,0,0,0},
 };
 
@@ -75,6 +88,10 @@ init (
                 case 'v':
                         print_version (argv[0]);
                         break;
+                case 's':
+                        sscanf (optarg, "%lf,%lf,%lf", &x_shift, &y_shift, &z_shift);
+                        cout << "shift = (" << x_shift << ", " << y_shift << ", " << z_shift << ")" << endl;
+                        break;
                 }
         }
         return argc - optind;
@@ -106,6 +123,9 @@ convert_vtk2h5grid (
                                 // add point to H5hut mesh
                                 double pt[3];
                                 vtk_grid->GetPoint (pts[i], pt);
+                                pt[0] += x_shift;
+                                pt[1] += y_shift;
+                                pt[2] += z_shift;
                                 H5FedStoreVertex (h5_grid, -1, pt);
                                 // map pt index in vtk file to pt index in H5hut file
                                 idmap.insert (IdMap::value_type (pts[i], h5_vertex_idx));
@@ -145,6 +165,10 @@ main (
         int argc,
         char* argv[]
         ) {
+        MPI_Init (&argc, &argv);
+        MPI_Comm comm = MPI_COMM_WORLD;
+        int comm_size;
+        MPI_Comm_size (comm,&comm_size);
 
         argc = init (argc, argv);
         if (argc == 0) {
