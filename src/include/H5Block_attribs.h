@@ -395,16 +395,6 @@ H5BlockReadFieldAttribInt32 (
 			       (void*)buffer ));
 }
 
-/*
-  :TODO: move macros to private include file
-*/
-#define H5BLOCK_FIELD_ORIGIN_NAME	"__Origin__"
-#define H5BLOCK_FIELD_SPACING_NAME	"__Spacing__"
-#define H5BLOCK_FIELD_XCOORD_NAME	"__X_Coordinates__"
-#define H5BLOCK_FIELD_YCOORD_NAME	"__Y_Coordinates__"
-#define H5BLOCK_FIELD_ZCOORD_NAME	"__Z_Coordinates__"
-
-
 /*!
   \ingroup h5block_attrib
   \anchor H5Block3dGetFieldOrigin
