@@ -11,6 +11,38 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_model.h"
 
+#define h5bl_hasfielddata F77_NAME (                              \
+                h5bl_hasfielddata,				  \
+                h5bl_hasdata_,					  \
+                H5BL_HASFIELDDATA )
+h5_int64_t
+h5bl_hasfielddata (
+	const h5_int64_t* const fh
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+                      "fh=%p",
+                      (h5_file_p)f);
+	H5_API_RETURN (h5b_has_field_data ( f ));
+}
+
+
+#define h5bl_3d_hasview F77_NAME (                              \
+                h5bl_hasview,                                   \
+                h5bl_hasview_,                                  \
+                H5BL_HASVIEW )
+h5_int64_t
+h5bl_3d_hasview (
+	const h5_int64_t* const fh
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+                      "fh=%p",
+                      (h5_file_p)f);
+	H5_API_RETURN (h5b_3d_has_view ( f ));
+}
+
+
 #define h5bl_3d_setview F77_NAME (					\
                 h5bl_3d_setview,                                        \
                 h5bl_3d_setview_,                                       \
@@ -120,21 +152,6 @@ h5bl_3d_getreducedview (
         H5_API_RETURN (H5_SUCCESS);
 }
 
-#define h5bl_3d_hasview F77_NAME (                              \
-                h5bl_hasview,                                   \
-                h5bl_hasview_,                                  \
-                H5BL_HASVIEW )
-h5_int64_t
-h5bl_3d_hasview (
-	const h5_int64_t* const fh
-	) {
-	h5_file_t f = h5_filehandlefor2c (fh);
-	H5_API_ENTER (h5_int64_t,
-                      "fh=%p",
-                      (h5_file_p)f);
-	H5_API_RETURN (h5b_3d_has_view ( f ));
-}
-
 #define h5bl_3d_setchunk F77_NAME (				\
                 h5bl_3d_setchunk,                               \
                 h5bl_3d_setchunk_,                              \
@@ -149,8 +166,108 @@ h5bl_3d_setchunk (
 	h5_file_t f = h5_filehandlefor2c (fh);
 	H5_API_ENTER (h5_int64_t,
 		      "fh=%p, i=%lld, j=%lld, k=%lld",
-		      (h5_file_p)f, (long long)i, (long long)j, (long long)k);
-	H5_API_RETURN(h5b_3d_set_chunk ( f, *i, *j, *k ));
+		      (h5_file_p)f, (long long)*i, (long long)*j, (long long)*k);
+	H5_API_RETURN(h5b_3d_set_chunk (f, *i, *j, *k));
+}
+
+#define h5bl_3d_getchunk F77_NAME (				\
+                h5bl_3d_getchunk,                               \
+                h5bl_3d_getchunk_,                              \
+                H5BL_3D_GETCHUNK )
+h5_int64_t
+h5bl_3d_getchunk (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_int64_t* const i,
+	h5_int64_t* const j,
+	h5_int64_t* const k,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, i=%p, j=%p, k=%p",
+		      (h5_file_p)f, i, j, k);
+	char *field_name2 = h5_strdupfor2c (field_name, l_field_name);
+	h5_int64_t h5err = h5b_3d_get_chunk (f, field_name2, (h5_size_t*)i, (h5_size_t*)j, (h5_size_t*)k);
+	free (field_name2);
+	H5_API_RETURN (h5err);
+}
+
+
+#ifdef PARALLEL_IO
+#define h5bl_3d_setgrid F77_NAME (		\
+		h5bl_3d_setgrid,		\
+		h5bl_3d_setgrid_,		\
+		h5bl_3d_setgrid)
+h5_int64_t
+h5bl_3d_setgrid (
+	const h5_int64_t* const fh,
+	const h5_int64_t* const i,
+	const h5_int64_t* const j,
+	const h5_int64_t* const k
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, i=%lld, j=%lld, k=%lld",
+		      (h5_file_p)f, (long long)*i, (long long)*j, (long long)*k);
+	H5_API_RETURN(h5b_3d_set_grid (f, *i, *j, *k));
+}
+
+#define h5bl_3d_getgrid F77_NAME (	        \
+		h5bl_3d_getgrid,		\
+		h5bl_3d_getgrid_,               \
+		H5BL_3D_GETGRID)
+h5_int64_t
+h5bl_3d_getgrid (
+	const h5_int64_t* const fh,
+	const h5_int64_t* const proc,
+	h5_int64_t* const i,
+	h5_int64_t* const j,
+	h5_int64_t* const k
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, proc=%lld, i=%p, j=%p, k=%p",
+		      (h5_file_p)f, (long long)proc, i, j, k);
+	H5_API_RETURN(h5b_3d_get_grid_coords (f, (int)*proc, i, j, k));
+}
+
+#define h5bl_3d_setdims F77_NAME (		\
+		h5bl_3d_setdims,                \
+		h5bl_3d_setdims_,               \
+		H5BL_3D_SETDIMS)
+h5_int64_t
+h5bl_3d_setdims (
+	const h5_int64_t* const fh,
+	const h5_int64_t* const i,
+	const h5_int64_t* const j,
+	const h5_int64_t* const k
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, i=%lld, j=%lld, k=%lld",
+		      (h5_file_p)f, (long long)*i, (long long)*j, (long long)*k);
+	H5_API_RETURN(h5b_3d_set_dims (f, *i, *j, *k));
+}
+
+#endif
+
+#define h5bl_3d_sethalo F77_NAME (		\
+         	h5bl_3d_sethalo,                \
+		h5bl_3d_sethalo_,               \
+		H5BL_3D_SETHALO)
+h5_int64_t
+h5bl_3d_sethalo (
+	const h5_int64_t* const fh,
+	const h5_int64_t* const i,
+	const h5_int64_t* const j,
+	const h5_int64_t* const k
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, i=%lld, j=%lld, k=%lld",
+		      (h5_file_p)f, (long long)*i, (long long)*j, (long long)*k);
+	H5_API_RETURN(h5b_3d_set_halo (f, *i, *j, *k));
 }
 
 #define h5bl_getnumfields F77_NAME (					\
@@ -161,7 +278,6 @@ h5_int64_t
 h5bl_getnumfields (
 	const h5_int64_t* const fh
 	) {
-
 	h5_file_t f = h5_filehandlefor2c (fh);
 	H5_API_ENTER (h5_int64_t,
                       "fh=%p",
@@ -198,3 +314,31 @@ h5bl_getfieldinfo (
 	H5_API_RETURN(herr);
 }
 
+#define h5bl_getfieldinfobyname F77_NAME (	\
+		h5bl_getfieldinfobyname,        \
+		h5bl_getfieldinfobyname_,       \
+		H5BL_GETFIELDINFOBYNAME)
+h5_int64_t
+h5bl_getfieldinfobyname (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_size_t* const field_rank,
+	h5_size_t* const field_dims,
+	h5_size_t* const elem_rank,
+	h5_int64_t* const type,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p"
+		      ", field_name=%*s,"
+		      ", field_rank=%p, field_dims=%p, elem_rank=%p, type=%p",
+		      (h5_file_p)f, l_field_name, field_name,
+		      field_rank, field_dims, elem_rank, type);
+	char *field_name2 = h5_strdupfor2c (field_name, l_field_name);
+	h5_int64_t herr = h5b_get_field_info_by_name (
+		f, field_name2,
+		field_rank, field_dims, elem_rank, type );
+	free (field_name2);
+	H5_API_RETURN(herr);
+}

@@ -454,3 +454,358 @@ h5bl_readfieldattrib_i4 (
                                H5_I4_T,
                                attrib_value));
 }
+
+#define h5bl_get_fieldorigin F77_NAME (		\
+		h5bl_get_fieldorigin,		\
+		h5bl_get_fieldorigin_,		\
+		H5BL_GET_FIELDORIGIN)
+
+h5_int64_t
+h5bl_get_fieldorigin (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_float64_t* const x_origin,
+	h5_float64_t* const y_origin,
+	h5_float64_t* const z_origin,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, field_name='%.*s'"
+                      ", x_origin=%p"
+                      ", y_origin=%p"
+                      ", z_origin=%p",
+		      (h5_file_p)f,
+                      l_field_name, field_name,
+		      x_origin, y_origin, z_origin);
+	h5_float64_t origin[3];
+	TRY (read_field_attrib (
+		     f,
+		     field_name, l_field_name,
+		     H5BLOCK_FIELD_ORIGIN_NAME, sizeof (H5BLOCK_FIELD_ORIGIN_NAME),
+		     H5_R8_T,
+		     origin));
+	*x_origin = origin[0];
+	*y_origin = origin[1];
+	*z_origin = origin[2];
+
+	H5_API_RETURN (H5_SUCCESS);
+}
+
+#define h5bl_set_fieldorigin F77_NAME (		\
+		h5bl_set_fieldorigin,		\
+		h5bl_set_fieldorigin_,		\
+		H5BL_SET_FIELDORIGIN)
+
+h5_int64_t
+h5bl_set_fieldorigin (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_float64_t* const x_origin,
+	h5_float64_t* const y_origin,
+	h5_float64_t* const z_origin,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, field_name='%.*s'"
+                      ", x_origin=%g"
+                      ", y_origin=%g"
+                      ", z_origin=%g",
+		      (h5_file_p)f,
+                      l_field_name, field_name,
+		      *x_origin, *y_origin, *z_origin);
+	h5_float64_t origin[3] = { *x_origin, *y_origin, *z_origin };
+	TRY (write_field_attrib (
+		     f,
+		     field_name, l_field_name,
+		     H5BLOCK_FIELD_ORIGIN_NAME, sizeof (H5BLOCK_FIELD_ORIGIN_NAME),
+		     H5_R8_T,
+		     origin, 3));
+
+	H5_API_RETURN (H5_SUCCESS);
+}
+
+#define h5bl_get_fieldspacing F77_NAME (		\
+		h5bl_get_fieldspacing,			\
+		h5bl_get_fieldspacing_,			\
+		H5BL_GET_FIELDSPACING)
+
+h5_int64_t
+h5bl_get_fieldspacing (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_float64_t* const x_spacing,
+	h5_float64_t* const y_spacing,
+	h5_float64_t* const z_spacing,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, field_name='%.*s'"
+                      ", x_spacing=%p"
+                      ", y_spacing=%p"
+                      ", z_spacing=%p",
+		      (h5_file_p)f,
+                      l_field_name, field_name,
+		      x_spacing, y_spacing, z_spacing);
+	h5_float64_t spacing[3];
+	TRY (read_field_attrib (
+		     f,
+		     field_name, l_field_name,
+		     H5BLOCK_FIELD_ORIGIN_NAME, sizeof (H5BLOCK_FIELD_ORIGIN_NAME),
+		     H5_R8_T,
+		     spacing));
+	*x_spacing = spacing[0];
+	*y_spacing = spacing[1];
+	*z_spacing = spacing[2];
+
+	H5_API_RETURN (H5_SUCCESS);
+}
+
+#define h5bl_set_fieldspacing F77_NAME (		\
+		h5bl_set_fieldspacing,			\
+		h5bl_set_fieldspacing_,			\
+		H5BL_SET_FIELDSPACING)
+
+h5_int64_t
+h5bl_set_fieldspacing (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_float64_t* const x_spacing,
+	h5_float64_t* const y_spacing,
+	h5_float64_t* const z_spacing,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_int64_t,
+		      "fh=%p, field_name='%.*s'"
+                      ", x_spacing=%g"
+                      ", y_spacing=%g"
+                      ", z_spacing=%g",
+		      (h5_file_p)f,
+                      l_field_name, field_name,
+		      *x_spacing, *y_spacing, *z_spacing);
+	h5_float64_t spacing[3] = { *x_spacing, *y_spacing, *z_spacing };
+	TRY (read_field_attrib (
+		     f,
+		     field_name, l_field_name,
+		     H5BLOCK_FIELD_ORIGIN_NAME, sizeof (H5BLOCK_FIELD_SPACING_NAME),
+		     H5_R8_T,
+		     spacing));
+
+	H5_API_RETURN (H5_SUCCESS);
+}
+
+
+static inline h5_int64_t
+set_field_coords (
+	const h5_file_t f,
+	int rank,
+	const char* field_name,
+	const int l_field_name,
+        const char* attrib_name,
+	const int l_attrib_name,
+	const h5_float64_t* coords,
+	const h5_int64_t n_coords
+	) {
+	char *field_name2 = h5_strdupfor2c (field_name, l_field_name);
+	char *attrib_name2 = h5_strdupfor2c (attrib_name, l_attrib_name);
+
+	h5_int64_t h5err = h5b_set_3d_field_coords (
+		f, rank,
+		field_name2, attrib_name2,
+		coords, n_coords);
+
+	free (field_name2);
+	free (attrib_name2);
+
+	return (h5err);
+}
+
+static inline h5_int64_t
+get_field_coords (
+	const h5_file_t f,
+	int rank,
+	const char* field_name,
+	const int l_field_name,
+        const char* attrib_name,
+	const int l_attrib_name,
+	h5_float64_t* const coords,
+	const h5_int64_t n_coords
+	) {
+	char *field_name2 = h5_strdupfor2c (field_name, l_field_name);
+	char *attrib_name2 = h5_strdupfor2c (attrib_name, l_attrib_name);
+
+	h5_int64_t h5err = h5b_get_3d_field_coords (
+		f, rank,
+		field_name2, attrib_name2,
+		coords, n_coords);
+
+	free (field_name2);
+	free (attrib_name2);
+
+	return (h5err);
+}
+
+#define h5bl_set_fieldxcoords F77_NAME (	 \
+		h5bl_set_fieldxcoords,		 \
+		h5bl_set_fieldxcoords_,		 \
+		H5BL_SET_FIELDXCOORDS)
+h5_int64_t
+h5bl_set_fieldxcoords (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t* n_coords,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_err_t,
+		      "fh=%p, field_name='%.*s'"
+                      "coords=%p, n_coords=%llu",
+                      (h5_file_p)f,
+                      l_field_name, field_name,
+                      coords, (long long unsigned)n_coords);
+        H5_API_RETURN (set_field_coords (
+                               f, 0,
+			       field_name, l_field_name,
+			       H5BLOCK_FIELD_XCOORD_NAME, sizeof(H5BLOCK_FIELD_XCOORD_NAME),
+                               coords, *n_coords));
+}
+
+#define h5bl_get_fieldxcoords F77_NAME (	 \
+		h5bl_get_fieldxcoords,		 \
+		h5bl_get_fieldxcoords_,		 \
+		H5BL_GET_FIELDXCOORDS)
+h5_int64_t
+h5bl_get_fieldxcoords (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t* n_coords,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_err_t,
+		      "fh=%p"
+		      ", field_name='%.*s'"
+                      ", coords=%p, n_coords=%llu",
+                      (h5_file_p)f,
+                      l_field_name, field_name,
+                      coords, (long long unsigned)n_coords);
+        H5_API_RETURN (get_field_coords (
+                               f, 0,
+			       field_name, l_field_name,
+			       H5BLOCK_FIELD_XCOORD_NAME, sizeof (H5BLOCK_FIELD_XCOORD_NAME),
+                               coords, *n_coords));
+}
+
+#define h5bl_set_fieldycoords F77_NAME (	 \
+		h5bl_set_fieldycoords,		 \
+		h5bl_set_fieldycoords_,		 \
+		H5BL_SET_FIELDYCOORDS)
+h5_int64_t
+h5bl_set_fieldycoords (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t* n_coords,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_err_t,
+		      "fh=%p"
+		      ", field_name='%.*s'"
+                      ", coords=%p, n_coords=%llu",
+                      (h5_file_p)f,
+                      l_field_name, field_name,
+                      coords, (long long unsigned)n_coords);
+        H5_API_RETURN (set_field_coords (
+                               f, 1,
+			       field_name, l_field_name,
+			       H5BLOCK_FIELD_YCOORD_NAME, sizeof (H5BLOCK_FIELD_YCOORD_NAME),
+                               coords, *n_coords));
+}
+
+#define h5bl_get_fieldycoords F77_NAME (	 \
+		h5bl_get_fieldycoords,		 \
+		h5bl_get_fieldycoords_,		 \
+		H5BL_GET_FIELDyCOORDS)
+h5_int64_t
+h5bl_get_fieldycoords (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t* n_coords,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_err_t,
+		      "fh=%p"
+		      ", field_name='%.*s'"
+                      ", coords=%p, n_coords=%llu",
+                      (h5_file_p)f,
+                      l_field_name, field_name,
+                      coords, (long long unsigned)n_coords);
+        H5_API_RETURN (get_field_coords (
+                               f, 1,
+			       field_name, l_field_name,
+			       H5BLOCK_FIELD_YCOORD_NAME, sizeof (H5BLOCK_FIELD_YCOORD_NAME),
+                               coords, *n_coords));
+}
+
+
+#define h5bl_set_fieldzcoords F77_NAME (	 \
+		h5bl_set_fieldzcoords,		 \
+		h5bl_set_fieldzcoords_,		 \
+		H5BL_SET_FIELDZCOORDS)
+h5_int64_t
+h5bl_set_fieldzcoords (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t* n_coords,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_err_t,
+		      "fh=%p"
+		      ", field_name='%.*s'"
+                      ", coords=%p, n_coords=%llu",
+                      (h5_file_p)f,
+                      l_field_name, field_name,
+                      coords, (long long unsigned)n_coords);
+        H5_API_RETURN (set_field_coords (
+                               f, 2,
+			       field_name, l_field_name, 
+			       H5BLOCK_FIELD_ZCOORD_NAME, sizeof (H5BLOCK_FIELD_ZCOORD_NAME),
+                               coords, *n_coords));
+}
+
+#define h5bl_get_fieldzcoords F77_NAME (	 \
+		h5bl_get_fieldzcoords,		 \
+		h5bl_get_fieldzcoords_,		 \
+		H5BL_GET_FIELDZCOORDS)
+h5_int64_t
+h5bl_get_fieldzcoords (
+	const h5_int64_t* const fh,
+	const char* const field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t* n_coords,
+	const int l_field_name
+	) {
+	h5_file_t f = h5_filehandlefor2c (fh);
+	H5_API_ENTER (h5_err_t,
+		      "fh=%p"
+		      ", field_name='%.*s'"
+                      "coords=%p, n_coords=%llu",
+                      (h5_file_p)f,
+                      l_field_name, field_name,
+                      coords, (long long unsigned)n_coords);
+        H5_API_RETURN (get_field_coords (
+                               f, 2,
+			       field_name, l_field_name,
+			       H5BLOCK_FIELD_ZCOORD_NAME, sizeof (H5BLOCK_FIELD_ZCOORD_NAME),
+                               coords, *n_coords));
+}

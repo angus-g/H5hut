@@ -1,5 +1,5 @@
 !
-!  Copyright (c) 2006-2013, The Regents of the University of California,
+!  Copyright (c) 2006-2014, The Regents of the University of California,
 !  through Lawrence Berkeley National Laboratory (subject to receipt of any
 !  required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
 !  Institut (Switzerland).  All rights reserved.!
@@ -170,5 +170,13 @@
      !<
      SUBROUTINE h5_abort_on_error ()
      END SUBROUTINE h5_abort_on_error
+
+     !>
+     !! \ingroup h5hut_error_f
+     !! Get error number.
+     !! \return 0 on success or error code
+     !<
+     SUBROUTINE h5_get_error_number ()
+     END SUBROUTINE h5_get_error_number
 
   END INTERFACE

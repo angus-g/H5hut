@@ -30,6 +30,73 @@
        INTEGER*8, INTENT(IN) :: stride     !< the stride value (e.g. the number of fields in the particle data array)
      END FUNCTION h5pt_setnpoints_strided
 
+
+     !>
+     !! \ingroup h5part_model_f
+     !!
+     !! See \ref H5PartSetView
+     !! \return 0 on success or error code
+     !<
+     INTEGER*8 FUNCTION h5pt_setview (filehandle,start,end)
+       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
+       INTEGER*8, INTENT(IN) :: start      !< offset of the first particle in the view
+       INTEGER*8, INTENT(IN) :: end        !< offset of the last particle in the view (inclusive)
+     END FUNCTION h5pt_setview
+
+     !>
+     !! \ingroup h5part_model_f
+     !!
+     !! See \ref H5PartSetViewIndices
+     !! \return 0 on success or error code
+     !<
+     INTEGER*8 FUNCTION h5pt_setview_indices (filehandle,indices,nelem)
+       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
+       INTEGER*8, INTENT(IN) :: indices(*) !< list of indicies to select in this view
+       INTEGER*8, INTENT(IN) :: nelem      !< number of particles in the list
+     END FUNCTION h5pt_setview_indices
+
+     !>
+     !! \ingroup h5part_model_f
+     !!
+     !! See \ref H5PartSetCanonicalView
+     !! \return 0 on success or error code
+     !<
+     INTEGER*8 FUNCTION h5pt_setcanonicalview (filehandle)
+       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
+     END FUNCTION h5pt_setcanonicalview
+
+     !>
+     !! \ingroup h5part_model_f
+     !!
+     !! See \ref H5PartResetView
+     !! \return 0 on success or error code
+     !<
+     INTEGER*8 FUNCTION h5pt_resetview (filehandle)
+       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
+     END FUNCTION h5pt_resetview
+
+     !>
+     !! \ingroup h5part_model_f
+     !!
+     !! See \ref H5PartResetView
+     !! \return 1 if true, 0 if false, or error code
+     !<
+     INTEGER*8 FUNCTION h5pt_hasview (filehandle)
+       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
+     END FUNCTION h5pt_hasview
+
+     !>
+     !! \ingroup h5part_model_f
+     !!
+     !! See \ref H5PartGetView
+     !! \return 0 on success or error code
+     !<
+     INTEGER*8 FUNCTION h5pt_getview (filehandle,start,end)
+       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
+       INTEGER*8, INTENT(OUT) :: start     !< buffer to store the offset of the first particle in the view
+       INTEGER*8, INTENT(OUT) :: end       !< buffer to store the offset of the last particle in the view (inclusive)
+     END FUNCTION h5pt_getview
+
      !>
      !! \ingroup h5part_model_f
      !!
@@ -79,57 +146,11 @@
      !>
      !! \ingroup h5part_model_f
      !!
-     !! See \ref H5PartSetView
-     !! \return 0 on success or error code
+     !! See \ref H5PartSetChunkSize
+     !! \return 0 on success or -2 on error
      !<
-     INTEGER*8 FUNCTION h5pt_setview (filehandle,start,end)
-       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
-       INTEGER*8, INTENT(IN) :: start      !< offset of the first particle in the view
-       INTEGER*8, INTENT(IN) :: end        !< offset of the last particle in the view (inclusive)
-     END FUNCTION h5pt_setview
-
-     !>
-     !! \ingroup h5part_model_f
-     !!
-     !! See \ref H5PartSetViewIndices
-     !! \return 0 on success or error code
-     !<
-     INTEGER*8 FUNCTION h5pt_setview_indices (filehandle,indices,nelem)
-       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
-       INTEGER*8, INTENT(IN) :: indices(*) !< list of indicies to select in this view
-       INTEGER*8, INTENT(IN) :: nelem      !< number of particles in the list
-     END FUNCTION h5pt_setview_indices
-
-     !>
-     !! \ingroup h5part_model_f
-     !!
-     !! See \ref H5PartResetView
-     !! \return 0 on success or error code
-     !<
-     INTEGER*8 FUNCTION h5pt_resetview (filehandle)
-       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
-     END FUNCTION h5pt_resetview
-
-     !>
-     !! \ingroup h5part_model_f
-     !!
-     !! See \ref H5PartResetView
-     !! \return 1 if true, 0 if false, or error code
-     !<
-     INTEGER*8 FUNCTION h5pt_hasview (filehandle)
-       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
-     END FUNCTION h5pt_hasview
-
-     !>
-     !! \ingroup h5part_model_f
-     !!
-     !! See \ref H5PartGetView
-     !! \return 0 on success or error code
-     !<
-     INTEGER*8 FUNCTION h5pt_getview (filehandle,start,end)
-       INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
-       INTEGER*8, INTENT(OUT) :: start     !< buffer to store the offset of the first particle in the view
-       INTEGER*8, INTENT(OUT) :: end       !< buffer to store the offset of the last particle in the view (inclusive)
-     END FUNCTION h5pt_getview
+     INTEGER*8 FUNCTION h5pt_getnpoints (filehandle)
+       INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned during file open
+     END FUNCTION h5pt_getnpoints
 
   END INTERFACE

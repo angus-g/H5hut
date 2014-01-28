@@ -255,5 +255,83 @@
        REAL*8, INTENT(IN) :: z
      END FUNCTION h5bl_3d_set_field_origin
 
+     !   __ _      _     _                           _     
+     !  / _(_) ___| | __| |   ___ ___   ___  _ __ __| |___ 
+     ! | |_| |/ _ \ |/ _` |  / __/ _ \ / _ \| '__/ _` / __|
+     ! |  _| |  __/ | (_| | | (_| (_) | (_) | | | (_| \__ \
+     ! |_| |_|\___|_|\__,_|  \___\___/ \___/|_|  \__,_|___/
+
+     !>
+     !! \ingroup h5block_attrib_f
+     !! See \ref H5Block3dSetFieldXCoords
+     !! \return 0 on success -1 on error
+     !<
+     INTEGER*8 FUNCTION h5bl_set_fieldxcoords (filehandle, field_name, coords, n_coords)
+       INTEGER*8, INTENT(IN) :: filehandle
+       CHARACTER(LEN=*), INTENT(IN) :: field_name
+       REAL*8, INTENT(IN) :: coords(*)
+       INTEGER*8, INTENT(IN) :: n_coords
+     END FUNCTION h5bl_set_fieldxcoords
+
+     !>
+     !! \ingroup h5block_attrib_f
+     !! See \ref H5Block3dGetFieldXCoords
+     !! \return 0 on success -1 on error
+     !<
+     INTEGER*8 FUNCTION h5bl_get_fieldxcoords (filehandle, field_name, coords, n_coords)
+       INTEGER*8, INTENT(IN) :: filehandle
+       CHARACTER(LEN=*), INTENT(IN) :: field_name
+       REAL*8, INTENT(OUT) :: coords(*)
+       INTEGER*8, INTENT(IN) :: n_coords
+     END FUNCTION h5bl_get_fieldxcoords
+
+     !>
+     !! \ingroup h5block_attrib_f
+     !! See \ref H5Block3dSetFieldYCoords
+     !! \return 0 on success -1 on error
+     !<
+     INTEGER*8 FUNCTION h5bl_set_fieldycoords (filehandle, field_name, coords, n_coords)
+       INTEGER*8, INTENT(IN) :: filehandle
+       CHARACTER(LEN=*), INTENT(IN) :: field_name
+       REAL*8, INTENT(IN) :: coords(*)
+       INTEGER*8, INTENT(IN) :: n_coords
+     END FUNCTION h5bl_set_fieldycoords
+
+     !>
+     !! \ingroup h5block_attrib_f
+     !! See \ref H5Block3dGetFieldYCoords
+     !! \return 0 on success -1 on error
+     !<
+     INTEGER*8 FUNCTION h5bl_get_fieldycoords (filehandle, field_name, coords, n_coords)
+       INTEGER*8, INTENT(IN) :: filehandle
+       CHARACTER(LEN=*), INTENT(IN) :: field_name
+       REAL*8, INTENT(OUT) :: coords(*)
+       INTEGER*8, INTENT(IN) :: n_coords
+     END FUNCTION h5bl_get_fieldycoords
+
+     !>
+     !! \ingroup h5block_attrib_f
+     !! See \ref H5Block3dSetFieldZCoords
+     !! \return 0 on success -1 on error
+     !<
+     INTEGER*8 FUNCTION h5bl_set_fieldzcoords (filehandle, field_name, coords, n_coords)
+       INTEGER*8, INTENT(IN) :: filehandle
+       CHARACTER(LEN=*), INTENT(IN) :: field_name
+       REAL*8, INTENT(IN) :: coords(*)
+       INTEGER*8, INTENT(IN) :: n_coords
+     END FUNCTION h5bl_set_fieldzcoords
+
+     !>
+     !! \ingroup h5block_attrib_f
+     !! See \ref H5Block3dGetFieldZCoords
+     !! \return 0 on success -1 on error
+     !<
+     INTEGER*8 FUNCTION h5bl_get_fieldzcoords (filehandle, field_name, coords, n_coords)
+       INTEGER*8, INTENT(IN) :: filehandle
+       CHARACTER(LEN=*), INTENT(IN) :: field_name
+       REAL*8, INTENT(OUT) :: coords(*)
+       INTEGER*8, INTENT(IN) :: n_coords
+     END FUNCTION h5bl_get_fieldzcoords
+
      !> @}
   END INTERFACE

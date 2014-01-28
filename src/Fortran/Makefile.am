@@ -8,9 +8,9 @@ F90_FILES =						\
 	$(top_srcdir)/src/include/H5_const.f90		\
 	$(top_srcdir)/src/include/H5_attribs.f90	\
 	$(top_srcdir)/src/include/H5_model.f90		\
-	$(top_srcdir)/src/include/H5Part.f90		\
+	$(top_srcdir)/src/include/H5Part_model.f90	\
 	$(top_srcdir)/src/include/H5Part_io.f90		\
-	$(top_srcdir)/src/include/H5Block.f90		\
+	$(top_srcdir)/src/include/H5Block_model.f90	\
 	$(top_srcdir)/src/include/H5Block_attribs.f90	\
 	$(top_srcdir)/src/include/H5Block_io.f90
 
@@ -34,9 +34,9 @@ libH5hutF_la_SOURCES =		\
 	H5.c			\
 	H5_attribs.c		\
 	H5_model.c		\
-	H5Part.c		\
+	H5Part_model.c		\
 	H5Part_io.c		\
-	H5Block.c		\
+	H5Block_model.c		\
 	H5Block_attribs.c	\
 	H5Block_io.c
 

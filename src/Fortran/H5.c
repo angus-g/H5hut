@@ -273,4 +273,14 @@ h5_abort_on_error (
         H5_API_RETURN (h5_set_errorhandler (h5_abort_errorhandler));
 }
 
-
+#define h5_get_error_number F77_NAME( \
+                h5_get_error_number,  \
+                h5_get_error_number_, \
+                H5_GET_ERROR_NUMBER)
+h5_int64_t
+h5_get_error_number (
+        void
+        ) {
+	H5_API_ENTER (h5_int64_t, "%s", "");
+        H5_API_RETURN (h5_get_errno ());
+}
