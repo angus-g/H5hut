@@ -13,10 +13,10 @@ MODULE H5hut
   include 'H5_attribs.f90'
   include 'H5_model.f90'
 
-  include 'H5Part.f90'
+  include 'H5Part_model.f90'
   include 'H5Part_io.f90'
 
-  include 'H5Block.f90'
+  include 'H5Block_model.f90'
   include 'H5Block_attribs.f90'
   include 'H5Block_io.f90'
 END MODULE H5hut

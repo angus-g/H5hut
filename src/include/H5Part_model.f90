@@ -110,16 +110,6 @@
      !>
      !! \ingroup h5part_model_f
      !!
-     !! See \ref H5PartGetNumParticles
-     !! \return the number of particles or error code
-     !<
-     INTEGER*8 FUNCTION h5pt_getnpoints (filehandle)
-       INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned during file open
-     END FUNCTION h5pt_getnpoints
-
-     !>
-     !! \ingroup h5part_model_f
-     !!
      !! See \ref H5PartGetDatasetName
      !! \return 0 on success or error code
      !<
