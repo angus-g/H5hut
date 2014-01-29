@@ -18,7 +18,8 @@ program read_canonicalview
   integer*8, parameter :: NPOINTS =             99
 
   integer :: comm, rank, ierr
-  integer*8 :: file, i, status
+  integer*8 :: file, status
+  integer*4 :: i
   integer*4, allocatable :: data(:)
 
   ! init MPI & H5hut
@@ -30,7 +31,7 @@ program read_canonicalview
   ! create fake data
   allocate (data (NPOINTS))
   do i = 1, NPOINTS
-    data (i) = i + NPOINTS*rank
+    data (i) = i + int(NPOINTS)*rank
   enddo
 
   ! open the a file for parallel writing and ceate step #0
@@ -48,4 +49,4 @@ program read_canonicalview
   deallocate (data)
   call mpi_finalize (ierr)
 
-end program write_setnparticles
+end program read_canonicalview

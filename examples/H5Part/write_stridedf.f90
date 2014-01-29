@@ -18,7 +18,8 @@ program write_stridedf
   integer*8, parameter :: NPOINTS =             99
 
   integer :: comm, rank, ierr
-  integer*8 :: file, i, status
+  integer*8 :: file, status
+  integer*4 :: i
   real*8, allocatable :: particles(:)
   integer*8, allocatable :: id(:)
 

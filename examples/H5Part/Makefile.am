@@ -48,7 +48,7 @@ read_setnparticlesf_SOURCES = read_setnparticlesf.f90
 read_setviewf_SOURCES = read_setviewf.f90
 read_stridedf_SOURCES = read_stridedf.f90
 write_core_vfdf_SOURCES = write_core_vfdf.f90
-write_setnparticles_SOURCES = write_setnparticles.f90
+write_setnparticlesf_SOURCES = write_setnparticlesf.f90
 write_setviewf_SOURCES = write_setviewf.f90
 write_stridedf_SOURCES = write_stridedf.f90
 

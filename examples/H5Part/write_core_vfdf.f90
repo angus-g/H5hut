@@ -18,7 +18,7 @@ program write_core_vfd
   integer*8, parameter :: DIM =                 99
 
   integer :: comm, rank, ierr
-  integer*8 :: file, i, status
+  integer*8 :: file, status
   integer*4, allocatable :: data(:)
 
   ! init MPI & H5hut
