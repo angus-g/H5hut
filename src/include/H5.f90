@@ -153,7 +153,6 @@
      INTEGER*8 FUNCTION h5_finalize ()
      END FUNCTION h5_finalize
 
-
      !>
      !! \ingroup h5hut_error_f
      !! See \ref H5SetVerbosityLevel
