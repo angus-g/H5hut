@@ -56,12 +56,11 @@
      !! See \ref H5BlockWriteFieldAttribString
      !! \return 0 on success or error code
      !<
-     INTEGER*8 FUNCTION h5bl_writefieldattrib_string (filehandle, field_name, attrib_name, attrib_value, attrib_nelems)
+     INTEGER*8 FUNCTION h5bl_writefieldattrib_string (filehandle, field_name, attrib_name, attrib_value)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of attribute
        CHARACTER(LEN=*), INTENT(IN) :: attrib_value!< attribute data to be written
-       INTEGER*8, INTENT(IN) :: attrib_nelems      !< number of elements in data array
      END FUNCTION h5bl_writefieldattrib_string
 
      !>
