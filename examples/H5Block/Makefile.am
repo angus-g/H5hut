@@ -16,19 +16,19 @@ noinst_PROGRAMS =
 if ENABLE_C
 noinst_PROGRAMS += 	\
 	fields		\
-	read_write
+	read_write_scalar_field
 endif
 
 if ENABLE_FORTRAN
-noinst_PROGRAMS += H5BlockExampleF
+noinst_PROGRAMS += read_write_scalar_fieldf
 endif
 
 fields_SOURCES = fields.c
-read_write_SOURCES = read_write.c
-H5BlockExampleF_SOURCES = H5BlockExampleF.f90
+read_write_scalar_field_SOURCES = read_write_scalar_field.c
+read_write_scalar_fieldf_SOURCES = read_write_scalar_fieldf.f90
 
 %.o : %.f90
 	$(FC)  $(FFLAGS) -c $<
 
-distclean-local:
+clean-local:
 	$(RM) *~

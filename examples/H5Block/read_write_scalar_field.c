@@ -1,11 +1,16 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+/*
+  Copyright (c) 2006-2014, The Regents of the University of California,
+  through Lawrence Berkeley National Laboratory (subject to receipt of any
+  required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
+  Institut (Switzerland).  All rights reserved.
 
-#include <hdf5.h>
+  License: see file COPYING in top level of source distribution.
+*/
+
 #include "H5hut.h"
 
 #define NPROCS  8
+#define DEFAULT_VERBOSITY       H5_VERBOSE_DEFAULT
 
 struct H5BlockPartition {
 	h5_int64_t	i_start;
@@ -262,34 +267,17 @@ _write_file (
 	MPI_Comm comm,
 	struct H5BlockPartition *layout
 	) {
-	
-	h5_file_t f;
-	h5_int64_t timestep = 0;
-	h5_int64_t herr;
-
-	printf ("PROC[%d]: Open file \"%s\" for writing ...\n",
+		printf ("PROC[%d]: Open file \"%s\" for writing ...\n",
 		myproc, fname );
-  
-	f = H5OpenFile ( fname, H5_O_WRONLY, comm );
-	if ( f == H5_FAILURE ) return -1;
+        h5_file_t file = H5OpenFile (fname, H5_O_WRONLY, H5_PROP_DEFAULT);
+        H5SetStep (file, 0);
 	
-	herr = H5SetStep ( f, timestep );
-	if ( herr < 0 ) return herr;
+	_write_data (file, myproc, layout);
+	_write_attributes (file, myproc);
 	
-	if ( _write_data ( f, myproc, layout ) < 0 ) {
-		printf ("Failed to write file \"%s\"\n", fname );
-		return 2;
-	}
-
-	if ( _write_attributes ( f, myproc ) < 0 ) {
-		printf ("Failed to write attributes \"%s\"\n", fname );
-		return 2;
-	}
+	H5CloseFile (file);
 	
-	herr = H5CloseFile (f);
-	if ( herr < 0 ) return -1;
-	
-	return 0;
+	return H5_SUCCESS;
 }
 
 static h5_int64_t
@@ -300,29 +288,25 @@ _read_data (
 	) {
 
 	h5_int64_t i, j, k, idx;
-	h5_int64_t herr;
 	h5_float64_t *data;
 	h5_int64_t i_dims = layout->i_end - layout->i_start + 1;
 	h5_int64_t j_dims = layout->j_end - layout->j_start + 1;
 	h5_int64_t k_dims = layout->k_end - layout->k_start + 1;
 
-	printf ( "Reading Step #%lld\n", (long long)H5GetStep (f) );
+	printf ("Reading Step #%lld\n", (long long)H5GetStep (f));
 
-	data = malloc ( i_dims * j_dims * k_dims * sizeof ( *data ) );
+	data = malloc (i_dims * j_dims * k_dims * sizeof (*data));
 
-	herr = H5Block3dSetView (
+	H5Block3dSetView (
 		f,
 		layout->i_start, layout->i_end,
 		layout->j_start, layout->j_end,
 		layout->k_start, layout->k_end );
-	if ( herr < 0 ) return herr;
+	H5Block3dReadScalarFieldFloat64 ( f, "TestField", data );
 
-	herr = H5Block3dReadScalarFieldFloat64 ( f, "TestField", data );
-	if ( herr < 0 ) return herr;
-
-	for ( i = 0; i < i_dims; i++ ) {
-		for ( j = 0; j < j_dims; j++ ) {
-			for ( k = 0; k < k_dims; k++ ) {
+	for (i = 0; i < i_dims; i++) {
+		for (j = 0; j < j_dims; j++) {
+			for (k = 0; k < k_dims; k++) {
 				idx = _calc_index (
 					i, i_dims,
 					j, j_dims,
@@ -332,7 +316,7 @@ _read_data (
 					+ 1000 * j
 					+ 100000 * i
 					+ 10000000 * myproc;
-				if ( *(data + idx) != value ) {
+				if (*(data + idx) != value) {
 					printf (
 						"PROC[%d]: "
 						"value missmatch for (%lld,%lld,%lld); is: %f;"
@@ -346,9 +330,9 @@ _read_data (
 		}
 	}
 
-	free ( data );
+	free (data);
 
-	return 0;
+	return H5_SUCCESS;
 }
 
 static h5_int64_t
@@ -359,45 +343,41 @@ _read_attributes (
 	) {
 	h5_int64_t timestep = 0;
 	
-	h5_int64_t herr = H5SetStep ( f, timestep );
-	if ( herr < 0 ) return herr;
+	H5SetStep (f, timestep);
 
 	char sval[16];
-	herr = H5BlockReadFieldAttribString (
+	H5BlockReadFieldAttribString (
 		f,
 		"TestField",
 		"TestString",
 		sval );
-	if ( herr < 0 ) return -1;
-	if ( strcmp ( sval, "42" ) != 0 ) {
-		printf ( "Error reading string attribute: "
-			 "Value is \"%s\" and should be \"42\"\n", sval );
+	if (strcmp (sval, "42") != 0) {
+		printf ("Error reading string attribute: "
+			"Value is \"%s\" and should be \"42\"\n", sval);
 	}
 
 	h5_int64_t ival[1];
 	h5_float64_t rval[1];
-	herr = H5BlockReadFieldAttribInt64 (
+	H5BlockReadFieldAttribInt64 (
 		f,
 		"TestField",
 		"TestInt64",
 		ival );
-	if ( herr < 0 ) return -1;
-	if ( ival[0] != 42 ) {
-		printf ( "Error reading int64 attribute: "
-			 "Value is %lld and should be 42\n",
-			 (long long) ival[0] );
+	if (ival[0] != 42) {
+		printf ("Error reading int64 attribute: "
+			"Value is %lld and should be 42\n",
+			(long long) ival[0]);
 	}
 
-	herr = H5BlockReadFieldAttribFloat64 (
+	H5BlockReadFieldAttribFloat64 (
 		f,
 		"TestField",
 		"TestFloat64",
 		rval );
-	if ( herr < 0 ) return -1;
-	if ( rval[0] != 42.0 ) {
-		printf ( "Error reading float64 attribute: "
-			 "Value is %f and should be 42.0\n",
-			 rval[0] );
+	if (rval[0] != 42.0) {
+		printf ("Error reading float64 attribute: "
+			"Value is %f and should be 42.0\n",
+			rval[0]);
 	}
 
 	h5_float64_t x_origin;
@@ -407,31 +387,29 @@ _read_attributes (
 	h5_float64_t y_spacing;
 	h5_float64_t z_spacing;
 
-	herr = H5Block3dGetFieldOrigin (
+	H5Block3dGetFieldOrigin (
 		f, "TestField",
 		&x_origin,
 		&y_origin,
 		&z_origin );
-	if ( herr < 0 ) return -1;
 
-	if ( x_origin != 1.0 || y_origin != 2.0 || z_origin != 3.0 ) {
+	if (x_origin != 1.0 || y_origin != 2.0 || z_origin != 3.0) {
 		printf (
 			"Error reading field origin: Read values (%f,%f,%f)\n",
-			x_origin, y_origin, z_origin );
+			x_origin, y_origin, z_origin);
 	}
-	herr = H5Block3dGetFieldSpacing (
+	H5Block3dGetFieldSpacing (
 		f, "TestField",
 		&x_spacing,
 		&y_spacing,
 		&z_spacing );
-	if ( herr < 0 ) return -1;
-	if ( x_spacing != 2.0 || y_spacing != 3.0 || z_spacing != 4.0 ) {
+	if (x_spacing != 2.0 || y_spacing != 3.0 || z_spacing != 4.0) {
 		printf (
 			"Error reading field spacing: Read values (%f,%f,%f)\n",
-			x_spacing, y_spacing, z_spacing );
+			x_spacing, y_spacing, z_spacing);
 	}
 
-	return 0;
+	return H5_SUCCESS;
 }
 
 static h5_int64_t
@@ -441,33 +419,18 @@ _read_file (
 	MPI_Comm comm,
 	struct H5BlockPartition *layout
 	) {
-	
-	h5_file_t f;
-	h5_int64_t timestep = 0;
-	h5_int64_t herr;
-
 	printf ("PROC[%d]: Open file \"%s\" for reading ...\n",
 		myproc, fname );
-  
-	f = H5OpenFile ( fname, H5_O_RDONLY, comm );
-	if ( f == H5_FAILURE ) return -1;
-	
-	herr = H5SetStep ( f, timestep );
-	if ( herr < 0 ) return herr;
-	
-	if ( _read_data ( f, myproc, layout ) < 0 ) {
-		printf ("Failed to read file \"%s\"\n", fname );
-		return 2;
-	}
-        if ( _read_attributes ( f, myproc, comm ) < 0 ) {
-                printf ("Failed to read attributes \"%s\"\n", fname );
-                return 3;
-        }
 
-	herr = H5CloseFile ( f );
-	if ( herr < 0 ) return -1;
+	h5_file_t file = H5OpenFile (fname, H5_O_RDONLY, H5_PROP_DEFAULT);
+        H5SetStep (file, 0);
+
+	_read_data (file, myproc, layout);
+        _read_attributes (file, myproc, comm);
+
+	H5CloseFile (file);
 	
-	return 0;
+	return H5_SUCCESS;
 }
 
 int
@@ -475,14 +438,12 @@ main (
 	int argc,
 	char **argv
 	) {
+        h5_int64_t verbosity = DEFAULT_VERBOSITY;
 	char *fname;
-	int myproc;
-	int nprocs;
 	int opt_with_ghosts = 0;
 	int opt_read = 0;
 	int opt_write = 0;
 	struct H5BlockPartition *layout;
-	MPI_Comm comm = MPI_COMM_WORLD;
 
         if (argc == 1) {
                 fprintf ( stderr,
@@ -490,55 +451,63 @@ main (
                           argv[0] );
                 return 1;
         }
-	while ( --argc ) {
-		if ( strcmp ( argv[argc], "-r" ) == 0 )
+	while (--argc) {
+		if (strcmp (argv[argc], "-r") == 0)
 			opt_read = 1;
-		else if ( strcmp ( argv[argc], "-w" ) == 0 )
+		else if (strcmp (argv[argc], "-w") == 0)
 			opt_write = 1;
-		else if ( strcmp ( argv[argc], "-g" ) == 0 )
+		else if (strcmp (argv[argc], "-g") == 0)
 			opt_with_ghosts = 1;
 		else {
-			fprintf ( stderr,
-				  "Illegal option %s\n\n"
-				  "Usage: %s -w -r -g\n",
-				  argv[argc], argv[0] );
+			fprintf (stderr,
+				 "Illegal option %s\n\n"
+				 "Usage: %s -w -r -g\n",
+				 argv[argc], argv[0]);
 			return 1;
 		}
 	}
 
-	MPI_Init( &argc, &argv );
-	MPI_Comm_size ( comm, &nprocs );
-	MPI_Comm_rank( comm, &myproc );
-	switch ( nprocs ) {
+        // initialize MPI & H5hut
+        int comm_rank = 0;
+        int comm_size = 1;
+        MPI_Init (&argc, &argv);
+        MPI_Comm comm = MPI_COMM_WORLD;
+        MPI_Comm_rank (comm, &comm_rank);
+        MPI_Comm_size (comm, &comm_size);
+
+        H5AbortOnError ();
+        H5SetVerbosityLevel (verbosity);
+
+	switch (comm_size) {
 	case 1:
 		fname  = "blockfile1.h5";
-		layout = &Layout1[myproc];
+		layout = &Layout1[comm_rank];
 		break;
 	case 8:
-		if ( opt_with_ghosts ) {
+		if (opt_with_ghosts) {
 			fname  = "blockfile8G.h5";
-			layout = &Layout8G[myproc];
+			layout = &Layout8G[comm_rank];
 		} else {
 			fname  = "blockfile8.h5";
-			layout = &Layout8[myproc];
+			layout = &Layout8[comm_rank];
 		}
 		break;
 	case 16:
-		if ( opt_with_ghosts ) {
+		if (opt_with_ghosts) {
 			fname  = "blockfile16G.h5";
-			layout = &Layout16G[myproc];
+			layout = &Layout16G[comm_rank];
 		} else {
 			fname  = "blockfile16.h5";
-			layout = &Layout16[myproc];
+			layout = &Layout16[comm_rank];
 		}
 		break;
 	case 32:
-		if ( opt_with_ghosts ) {
+		if (opt_with_ghosts) {
 			fname  = "blockfile32G.h5";
-			layout = &Layout32G[myproc];
+			layout = &Layout32G[comm_rank];
 		} else {
 			fname  = "blockfile32.h5";
-			layout = &Layout32[myproc];
+			layout = &Layout32[comm_rank];
 		}
 		break;
 	default:
@@ -546,23 +515,12 @@ main (
 		return 1;
 	}
 
-	H5SetVerbosityLevel ( 4 );
-
-	if ( opt_write ) {
-		if ( _write_file ( fname, myproc, comm, layout ) < 0 ) {
-			printf ("Failed to write file \"%s\"\n", fname );
-                        goto cleanup;
-		}
-	} else if ( opt_read ) {
-		if ( _read_file ( fname, myproc, comm, layout ) < 0 ) {
-			printf ("Failed to read file \"%s\"\n", fname );
-                        goto cleanup;
-		}
+	if (opt_write) {
+		_write_file (fname, comm_rank, comm, layout);
+	} else if (opt_read) {
+		_read_file (fname, comm_rank, comm, layout);
 	}
-        printf ("Done.\n");
 
-cleanup:
 	MPI_Finalize();
-
 	return 0;
 }
