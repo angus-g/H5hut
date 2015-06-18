@@ -100,8 +100,8 @@ _select_hyperslab_for_writing (
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "f=%p", f);
 	/*
-	  re-use existing hyperslab
-	*/
+	   re-use existing hyperslab
+	 */
 	if ( f->b->shape >= 0 )
 		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
 
