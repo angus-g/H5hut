@@ -79,6 +79,7 @@ mpi_init (
 	TRY (f->props->access_prop = hdf5_create_property(H5P_FILE_ACCESS));
 
 	/* select the HDF5 VFD */
+#if H5_VERSION_LE(1,8,12)
 	if ((f->props->flags & H5_VFD_MPIO_POSIX)) {
 		h5_info("Selecting MPI-POSIX VFD");
 		hbool_t use_gpfs = 0; // TODO autodetect GPFS?
@@ -89,8 +90,7 @@ mpi_init (
 		h5_info("Selecting CORE VFD");
                 TRY (hdf5_set_fapl_core (f->props->access_prop,
                                          f->props->align, 1));
-        }
-        else if ((f->props->flags & H5_VFD_MPIO_INDEPENDENT)){
+        } else if ((f->props->flags & H5_VFD_MPIO_INDEPENDENT)){
                 h5_info("Selecting MPI-IO VFD, using independent mode");
 		TRY (hdf5_set_fapl_mpio_property (f->props->access_prop,
                                                   f->props->comm, MPI_INFO_NULL));
@@ -104,6 +104,27 @@ mpi_init (
                 TRY (hdf5_set_dxpl_mpio_property (f->props->xfer_prop,
                                                   H5FD_MPIO_COLLECTIVE) );
 	}
+#else
+	// VFD_MPIO_POSIX has been removed in HDF5 1.8.13
+        if ((f->props->flags & H5_VFD_CORE)) {
+		h5_info("Selecting CORE VFD");
+                TRY (hdf5_set_fapl_core (f->props->access_prop,
+                                         f->props->align, 1));
+        } else if ((f->props->flags & H5_VFD_MPIO_INDEPENDENT)){
+                h5_info("Selecting MPI-IO VFD, using independent mode");
+		TRY (hdf5_set_fapl_mpio_property (f->props->access_prop,
+                                                  f->props->comm, MPI_INFO_NULL));
+                TRY (hdf5_set_dxpl_mpio_property (f->props->xfer_prop,
+                                                  H5FD_MPIO_INDEPENDENT) );
+        } else {
+                // default is MPI-IO colloctive mode
+		h5_info("Selecting MPI-IO VFD, using collective mode");
+		TRY (hdf5_set_fapl_mpio_property (f->props->access_prop,
+                                                  f->props->comm, MPI_INFO_NULL));
+                TRY (hdf5_set_dxpl_mpio_property (f->props->xfer_prop,
+                                                  H5FD_MPIO_COLLECTIVE) );
+	}
+#endif
 #ifdef H5_USE_LUSTRE
 	if (f->flags & H5_FS_LUSTRE) {
 		TRY (h5_optimize_for_lustre(f, filename));
@@ -141,7 +162,7 @@ set_default_file_props (
         ) {
         H5_INLINE_FUNC_ENTER (h5_err_t);
         h5_prop_file_p props = (h5_prop_file_p)_props;
-        bzero (props, sizeof (props));
+        bzero (props, sizeof (*props));
         props->class = H5_PROP_FILE;
         TRY (props->prefix_step_name = h5_calloc (1, H5_STEPNAME_LEN));
         strncpy (

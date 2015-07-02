@@ -1007,6 +1007,7 @@ hdf5_set_fapl_mpio_property (
 	HDF5_WRAPPER_RETURN (H5_SUCCESS);
 }
 
+#if H5_VERSION_LE(1,8,12)
 static inline h5_err_t
 hdf5_set_fapl_mpiposix_property (
         hid_t fapl_id,
@@ -1024,6 +1025,7 @@ hdf5_set_fapl_mpiposix_property (
 		                " the file access property list."));
 	HDF5_WRAPPER_RETURN (H5_SUCCESS);
 }
+#endif
 
 static inline h5_err_t
 hdf5_set_dxpl_mpio_property (
