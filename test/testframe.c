@@ -528,7 +528,7 @@ int
 TestPrintf(const char *format, ...)
 {
 	va_list arglist;
-	int ret_value;
+	int ret_value = -1;
 
 #if defined(PARALLEL_IO)
 	int nproc;
@@ -559,7 +559,7 @@ int
 TestErrPrintf(const char *format, ...)
 {
 	va_list arglist;
-	int ret_value;
+	int ret_value = -1;
 
 	/* Increment the error count */
 	num_errs++;
