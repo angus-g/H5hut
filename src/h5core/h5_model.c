@@ -159,36 +159,23 @@ h5priv_normalize_dataset_name (
 
 #ifdef PARALLEL_IO
 h5_err_t
-h5_set_throttle (
-	const h5_file_t f_,
-	const int factor
-	) {
-        h5_file_p f = (h5_file_p)f_;
-	H5_CORE_API_ENTER (h5_err_t, "f=%p, factor=%d", f, factor);
-	if ( (f->props->flags & H5_VFD_MPIO_INDEPENDENT)
-#if H5_VERSION_LE(1,8,12)
-	     || (f->props->flags & H5_VFD_MPIO_POSIX)
-#endif
-		) {
-		f->props->throttle = factor;
-		h5_info (
-			"Throttling enabled with factor = %lld",
-			(long long int)f->props->throttle );
-	} else {
-		h5_warn (
-			"Throttling is only permitted with the MPI-POSIX "
-			"or MPI-IO Independent VFD." );
-	}
-
-	H5_CORE_API_RETURN (H5_SUCCESS);
-}
-
-h5_err_t
 h5priv_start_throttle (
 	const h5_file_p f
 	) {
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
 	if (f->props->throttle > 0) {
+		// throttle only if VFD is MPIO independent od POSIX
+		h5_int64_t mask = H5_VFD_MPIO_INDEPENDENT;
+#if H5_VERSION_LE(1,8,12)
+		mask |= H5_VFD_MPIO_POSIX;
+#endif
+		if (! (f->props->flags & mask)) {
+			h5_warn (
+				"Throttling is only permitted with the MPI-POSIX "
+				"or MPI-IO Independent VFD." );
+			H5_CORE_API_LEAVE (H5_SUCCESS);
+		}
+
 		int token = 1;
 		h5_info (
 			"Throttling with factor = %lld",
@@ -199,11 +186,11 @@ h5priv_start_throttle (
 				(long long int)(f->myproc - f->props->throttle));
 			// wait to receive token before continuing with read
 			TRY( h5priv_mpi_recv(
-				&token, 1, MPI_INT,
-				f->myproc - f->props->throttle, // receive from previous proc
-				f->myproc, // use this proc id as message tag
-				f->props->comm
-				) );
+				     &token, 1, MPI_INT,
+				     f->myproc - f->props->throttle, // receive from previous proc
+				     f->myproc, // use this proc id as message tag
+				     f->props->comm
+				     ) );
 		}
 		h5_debug ("throttle: received token");
 	}

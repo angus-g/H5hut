@@ -130,12 +130,6 @@ h5_err_t
 h5_traverse_steps (
 	const h5_file_t);
 
-h5_err_t
-h5_set_throttle (
-        h5_file_t f,
-        int factor
-        );
-
 #ifdef __cplusplus
 }
 #endif

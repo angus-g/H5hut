@@ -192,6 +192,11 @@ h5_set_prop_file_mpio_collective (
         props->flags &= ~(H5_VFD_MPIO_POSIX | H5_VFD_MPIO_INDEPENDENT | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_COLLECTIVE;
         props->comm = *comm;
+	if (props->throttle > 0) {
+		h5_warn ("Throttling is not permitted with collective VFD. Reset throttling.");
+		props->throttle = 0;
+	}
+
         H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
@@ -216,6 +221,7 @@ h5_set_prop_file_mpio_independent (
         H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
+#if H5_VERSION_LE(1,8,12)
 h5_err_t
 h5_set_prop_file_mpio_posix (
         h5_prop_t _props,
@@ -236,6 +242,7 @@ h5_set_prop_file_mpio_posix (
         props->comm = *comm;
         H5_CORE_API_RETURN (H5_SUCCESS);
 }
+#endif
 
 h5_err_t
 h5_set_prop_file_core_vfd (
@@ -254,6 +261,10 @@ h5_set_prop_file_core_vfd (
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_INDEPENDENT | H5_VFD_MPIO_POSIX);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = MPI_COMM_SELF;
+	if (props->throttle > 0) {
+		h5_warn ("Throttling us not permitted with core VFD. Reset throttling.");
+		props->throttle = 0;
+	}
         H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
@@ -290,12 +301,30 @@ h5_set_prop_file_throttle (
 		"props=%p, throttle=%lld",
 		props, (long long int)throttle);
         if (props->class != H5_PROP_FILE) {
-                H5_INLINE_FUNC_LEAVE (
+                H5_CORE_API_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
 				(long long int)props->class));
         }
+	// throttle only if VFD is MPIO independent od POSIX
+	h5_int64_t mask = H5_VFD_MPIO_INDEPENDENT;
+#if H5_VERSION_LE(1,8,12)
+	mask |= H5_VFD_MPIO_POSIX;
+#endif
+	if (! (props->flags & mask)) {
+#if H5_VERSION_LE(1,8,12)
+		h5_warn (
+			"Throttling is only permitted with the MPI-POSIX "
+			"or MPI-IO Independent VFD. Property ignored." );
+#else
+		h5_warn (
+			"Throttling is only permitted with "
+			"the MPI-IO Independent VFD. Property ignored.");
+#endif
+		props->throttle = 0;
+	}
+
         props->throttle = throttle;
         H5_CORE_API_RETURN (H5_SUCCESS);
 }
