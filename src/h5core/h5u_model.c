@@ -231,7 +231,7 @@ h5u_reset_view (
 
 /*
   if start == -1 && end == -1 -> reset view
-  elif end == -1 -> select zero particles 
+  elif end == -1 -> select to end
 
  */
 h5_err_t
@@ -264,7 +264,10 @@ h5u_set_view (
 		 * many particles there should be! */
 		H5_CORE_API_LEAVE (H5_SUCCESS);
 	}
-
+	if (end < 0) {
+		end = total+end;
+	}
+	
         if (start < 0 || start >= total) {
 		H5_CORE_API_LEAVE (
 		        h5_error(
