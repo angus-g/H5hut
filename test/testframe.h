@@ -36,7 +36,7 @@
 #define VERBO_DEF  0     /* Default */
 #define VERBO_LO   2     /* Low     */
 #define VERBO_MED  3     /* Medium  */
-#define VERBO_HI   4     /* High    */
+#define VERBO_HI   65535     /* High    */
 
 /*
  * Verbose queries
