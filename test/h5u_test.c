@@ -50,7 +50,6 @@ int main(int argc, char **argv)
 	TestParseCmdLine(argc, argv);
 
 	H5SetVerbosityLevel(GetTestVerbosity());
-	//H5SetVerbosityLevel(-1);
 
 	/* Perform requested testing */
 	PerformTests();
