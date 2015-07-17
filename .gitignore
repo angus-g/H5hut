@@ -70,5 +70,6 @@ src/include/H5hutF.h
 stamp-h1
 test/h5b_test
 test/h5u_test
+test/h5_attach_test
 test/test.h5
 tools/h5hutcc
