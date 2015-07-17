@@ -195,7 +195,6 @@ test_write_data32(h5_file_t file, int nparticles, int step)
 	int i,t;
 	h5_err_t status;
 	h5_size_t val;
-	int rank, nprocs;
 
 	float *x,*y,*z;
 	float *px,*py,*pz;
@@ -213,11 +212,11 @@ test_write_data32(h5_file_t file, int nparticles, int step)
 	RETURN(status, H5_SUCCESS, "H5PartSetNumParticles");
 
 #if defined(PARALLEL_IO)
+	int rank, nprocs;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 #else
-	rank = 0;
-	nprocs = 1;
+	int rank = 0;
 #endif
 
 	TEST("Writing 32-bit data");

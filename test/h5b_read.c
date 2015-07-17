@@ -60,7 +60,6 @@ test_read_data64(h5_file_t file, int step)
 	extern h5_size_t layout[6];
 
 	int i,t;
-	int rank, nprocs;
 	h5_err_t status;
 	h5_int64_t val, type[2];
 	char name[4];
@@ -84,11 +83,9 @@ test_read_data64(h5_file_t file, int step)
 	TEST("Verifying dataset info");
 
 #if defined(PARALLEL_IO)
+	int rank, nprocs;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-#else
-	nprocs = 1;
-	rank = 2;
 #endif
 
 	status = H5SetStep(file, step);

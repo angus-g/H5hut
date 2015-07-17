@@ -8,10 +8,6 @@
 
 #include <H5hut.h>
 
-#ifndef PARALLEL_IO
-#define MPI_COMM_WORLD 0
-#endif
-
 /*
  * Predefined test verbosity levels.
  *

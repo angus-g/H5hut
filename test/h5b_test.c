@@ -18,6 +18,7 @@ void h5b_test_write2(void);
 void h5b_test_read1(void);
 void h5b_test_read2(void);
 
+#ifdef PARALLEL_IO
 static int
 _nth_root_int_divisor (const int m, const int n)
 {
@@ -33,6 +34,7 @@ _nth_root_int_divisor (const int m, const int n)
 
 	return i;
 }
+#endif
 
 int main(int argc, char **argv)
 {

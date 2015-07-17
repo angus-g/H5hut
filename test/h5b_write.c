@@ -108,8 +108,6 @@ test_write_data64(h5_file_t file, int step)
 static void
 test_write_data32(h5_file_t file, int step)
 {
-	extern h5_size_t grid[3];
-
 	int i,j,k,t;
 	h5_int64_t status, val;
 
@@ -152,6 +150,8 @@ test_write_data32(h5_file_t file, int step)
 		if (val == 0) test_write_field_attribs(file, "e", t);
 
 #if defined(PARALLEL_IO)
+		extern h5_size_t grid[3];
+
 		status = H5Block3dSetGrid(file, grid[0], grid[1], grid[2]);
 		RETURN(status, H5_SUCCESS, "H5Block3dSetGrid");
 
