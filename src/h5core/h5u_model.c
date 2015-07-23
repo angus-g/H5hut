@@ -499,10 +499,10 @@ h5u_set_canonical_view (
 
 	TRY (total = h5u_get_num_particles (fh));
 
+	u->nparticles = total / f->nprocs;
+
 #ifdef PARALLEL_IO
 	h5_int64_t remainder = 0;
-
-	u->nparticles = total / f->nprocs;
 	remainder = total % f->nprocs;
 	start = f->myproc * u->nparticles;
 
@@ -510,14 +510,13 @@ h5u_set_canonical_view (
 	if ( f->myproc < remainder ) u->nparticles++;
 
 	/* adjust the offset */
-	if ( f->myproc < remainder ) start += f->myproc;
-	else start += remainder;
+	if ( f->myproc < remainder )
+		start += f->myproc;
+	else
+		start += remainder;
+#endif // PARALLEL_IO
 
 	h5_int64_t length = u->nparticles;
-#else
-	u->nparticles = total;
-	h5_int64_t length = total - 1;
-#endif // PARALLEL_IO
 	H5_CORE_API_RETURN (h5u_set_view_length (fh, start, length));
 }
 
