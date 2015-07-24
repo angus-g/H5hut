@@ -17,8 +17,6 @@ F90_FILES =						\
 EXTRA_HEADERS =
 
 EXTRA_DIST =			\
-	TestUnderscoreC.c	\
-	TestUnderscore.f	\
 	$(F90_FILES)
 
 nodist_include_HEADERS = 	\
