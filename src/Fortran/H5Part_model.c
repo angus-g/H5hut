@@ -15,9 +15,8 @@
 
 /*=============Setting and getting views================*/
 
-#define h5pt_setnpoints F77_NAME (					\
+#define h5pt_setnpoints FC_MANGLING (					\
                 h5pt_setnpoints,                                        \
-                h5pt_setnpoints_,                                       \
                 H5PT_SETNPOINTS )
 h5_int64_t
 h5pt_setnpoints (
@@ -31,9 +30,8 @@ h5pt_setnpoints (
 	H5_API_RETURN (h5u_set_num_particles (f, *npoints, 1));
 }
                 
-#define h5pt_setnpoints_strided F77_NAME (                              \
+#define h5pt_setnpoints_strided FC_MANGLING (				\
                         h5pt_setnpoints_strided,                        \
-                        h5pt_setnpoints_strided_,                       \
                         H5PT_SETNPOINTS_STRIDED )
 h5_int64_t
 h5pt_setnpoints_strided (
@@ -50,9 +48,8 @@ h5pt_setnpoints_strided (
 
 
 
-#define h5pt_setview F77_NAME (						\
+#define h5pt_setview FC_MANGLING (					\
                 h5pt_setview,                                           \
-                h5pt_setview_,                                          \
                 H5PT_SETVIEW )
 h5_int64_t
 h5pt_setview (
@@ -67,9 +64,8 @@ h5pt_setview (
 	H5_API_RETURN (h5u_set_view (f, (*start)-1, (*end)-1));
 }
 
-#define h5pt_setview_indices F77_NAME(					\
+#define h5pt_setview_indices FC_MANGLING(				\
                 h5pt_setview_indices,                                   \
-                h5pt_setview_indices_,                                  \
                 H5PT_SETVIEW_INDICES )
 h5_int64_t
 h5pt_setview_indices (
@@ -90,9 +86,8 @@ h5pt_setview_indices (
 	H5_API_RETURN (H5_SUCCESS);
 }
 
-#define h5pt_setcanonicalview F77_NAME (				\
+#define h5pt_setcanonicalview FC_MANGLING (				\
 		h5pt_setcanonicalview,					\
-		h5pt_setcanonicalview_,					\
 		H5PT_SETCANONICALVIEW)
 h5_int64_t
 h5pt_setcanonicalview (
@@ -106,9 +101,8 @@ h5pt_setcanonicalview (
 }
 
 
-#define h5pt_resetview F77_NAME (					\
+#define h5pt_resetview FC_MANGLING (					\
                 h5pt_resetview,                                         \
-                h5pt_resetview_,                                        \
                 H5PT_RESETVIEW )
 h5_int64_t
 h5pt_resetview (
@@ -121,9 +115,8 @@ h5pt_resetview (
 	H5_API_RETURN (h5u_reset_view (f));
 }
 
-#define h5pt_hasview F77_NAME (						\
+#define h5pt_hasview FC_MANGLING (					\
                 h5pt_hasview,                                           \
-                h5pt_hasview_,                                          \
                 H5PT_HASVIEW )
 h5_int64_t
 h5pt_hasview (
@@ -136,9 +129,8 @@ h5pt_hasview (
 	H5_API_RETURN (h5u_has_view (f));
 }
 
-#define h5pt_getview F77_NAME (						\
+#define h5pt_getview FC_MANGLING (					\
                 h5pt_getview,                                           \
-                h5pt_getview_,                                          \
                 H5PT_GETVIEW )
 h5_int64_t
 h5pt_getview (
@@ -158,9 +150,8 @@ h5pt_getview (
 
 /*==============Reading Data Characteristics============*/
 
-#define h5pt_getndatasets F77_NAME (					\
+#define h5pt_getndatasets FC_MANGLING (					\
                 h5pt_getndatasets,                                      \
-                h5pt_getndatasets_,                                     \
                 H5PT_GETNDATASETS )
 h5_int64_t
 h5pt_getndatasets (
@@ -171,9 +162,8 @@ h5pt_getndatasets (
 	H5_API_RETURN(h5u_get_num_datasets (f));
 }
 
-#define h5pt_getnpoints F77_NAME (					\
+#define h5pt_getnpoints FC_MANGLING (					\
                 h5pt_getnpoints,                                        \
-                h5pt_getnpoints_,                                       \
                 H5PT_GETNPOINTS )
 h5_int64_t
 h5pt_getnpoints (
@@ -184,9 +174,8 @@ h5pt_getnpoints (
 	H5_API_RETURN (h5u_get_num_particles (f));
 }
 
-#define h5pt_getdatasetname F77_NAME (					\
+#define h5pt_getdatasetname FC_MANGLING (				\
                 h5pt_getdatasetname,                                    \
-                h5pt_getdatasetname_,                                   \
                 H5PT_GETDATASETNAME )
 h5_int64_t
 h5pt_getdatasetname (
@@ -205,9 +194,8 @@ h5pt_getdatasetname (
 	H5_API_RETURN (herr);
 }
 
-#define h5pt_getdatasetinfo F77_NAME (		 \
+#define h5pt_getdatasetinfo FC_MANGLING (	 \
                 h5pt_getdatasetinfo,             \
-                h5pt_getdatasetinfo_,            \
                 H5PT_GETDATASETINFO)
 h5_int64_t
 h5pt_getdatasetinfo (
@@ -241,9 +229,8 @@ h5pt_getdatasetinfo (
 
 /*===================== misc =====================*/
 
-#define h5pt_setchunksize F77_NAME (					\
+#define h5pt_setchunksize FC_MANGLING (					\
                 h5pt_setchunksize,					\
-                h5pt_setchunksize_,					\
                 H5PT_SETCHUNKSIZE )
 h5_int64_t
 h5pt_setchunksize (

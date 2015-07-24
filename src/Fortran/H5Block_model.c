@@ -11,9 +11,8 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_model.h"
 
-#define h5bl_hasfielddata F77_NAME (                              \
+#define h5bl_hasfielddata FC_MANGLING (				  \
                 h5bl_hasfielddata,				  \
-                h5bl_hasdata_,					  \
                 H5BL_HASFIELDDATA )
 h5_int64_t
 h5bl_hasfielddata (
@@ -27,9 +26,8 @@ h5bl_hasfielddata (
 }
 
 
-#define h5bl_3d_hasview F77_NAME (                              \
+#define h5bl_3d_hasview FC_MANGLING (				\
                 h5bl_hasview,                                   \
-                h5bl_hasview_,                                  \
                 H5BL_HASVIEW )
 h5_int64_t
 h5bl_3d_hasview (
@@ -43,9 +41,8 @@ h5bl_3d_hasview (
 }
 
 
-#define h5bl_3d_setview F77_NAME (					\
+#define h5bl_3d_setview FC_MANGLING (					\
                 h5bl_3d_setview,                                        \
-                h5bl_3d_setview_,                                       \
                 H5BL_3D_SETVIEW )
 h5_int64_t
 h5bl_3d_setview (
@@ -74,9 +71,8 @@ h5bl_3d_setview (
 		*k_start-1, *k_end-1 ));
 }
 
-#define h5bl_3d_getview F77_NAME (					\
+#define h5bl_3d_getview FC_MANGLING (					\
                 h5bl_3d_getview,                                        \
-                h5bl_3d_getview_,                                       \
                 H5BL_3D_GETVIEW )
 h5_int64_t
 h5bl_3d_getview (
@@ -114,9 +110,8 @@ h5bl_3d_getview (
 
 
 
-#define h5bl_3d_getreducedview F77_NAME (                               \
+#define h5bl_3d_getreducedview FC_MANGLING (				\
                 h5bl_3d_getreducedview,                                 \
-                h5bl_3d_getreducedview_,                                \
                 H5BL_3D_GETREDUCEDVIEW )
 h5_int64_t
 h5bl_3d_getreducedview (
@@ -152,9 +147,8 @@ h5bl_3d_getreducedview (
         H5_API_RETURN (H5_SUCCESS);
 }
 
-#define h5bl_3d_setchunk F77_NAME (				\
+#define h5bl_3d_setchunk FC_MANGLING (				\
                 h5bl_3d_setchunk,                               \
-                h5bl_3d_setchunk_,                              \
                 H5BL_3D_SETCHUNK )
 h5_int64_t
 h5bl_3d_setchunk (
@@ -170,9 +164,8 @@ h5bl_3d_setchunk (
 	H5_API_RETURN(h5b_3d_set_chunk (f, *i, *j, *k));
 }
 
-#define h5bl_3d_getchunk F77_NAME (				\
+#define h5bl_3d_getchunk FC_MANGLING (				\
                 h5bl_3d_getchunk,                               \
-                h5bl_3d_getchunk_,                              \
                 H5BL_3D_GETCHUNK )
 h5_int64_t
 h5bl_3d_getchunk (
@@ -195,9 +188,8 @@ h5bl_3d_getchunk (
 
 
 #ifdef PARALLEL_IO
-#define h5bl_3d_setgrid F77_NAME (		\
+#define h5bl_3d_setgrid FC_MANGLING (		\
 		h5bl_3d_setgrid,		\
-		h5bl_3d_setgrid_,		\
 		h5bl_3d_setgrid)
 h5_int64_t
 h5bl_3d_setgrid (
@@ -213,9 +205,8 @@ h5bl_3d_setgrid (
 	H5_API_RETURN(h5b_3d_set_grid (f, *i, *j, *k));
 }
 
-#define h5bl_3d_getgrid F77_NAME (	        \
+#define h5bl_3d_getgrid FC_MANGLING (	        \
 		h5bl_3d_getgrid,		\
-		h5bl_3d_getgrid_,               \
 		H5BL_3D_GETGRID)
 h5_int64_t
 h5bl_3d_getgrid (
@@ -232,9 +223,8 @@ h5bl_3d_getgrid (
 	H5_API_RETURN(h5b_3d_get_grid_coords (f, (int)*proc, i, j, k));
 }
 
-#define h5bl_3d_setdims F77_NAME (		\
+#define h5bl_3d_setdims FC_MANGLING (		\
 		h5bl_3d_setdims,                \
-		h5bl_3d_setdims_,               \
 		H5BL_3D_SETDIMS)
 h5_int64_t
 h5bl_3d_setdims (
@@ -252,9 +242,8 @@ h5bl_3d_setdims (
 
 #endif
 
-#define h5bl_3d_sethalo F77_NAME (		\
+#define h5bl_3d_sethalo FC_MANGLING (		\
          	h5bl_3d_sethalo,                \
-		h5bl_3d_sethalo_,               \
 		H5BL_3D_SETHALO)
 h5_int64_t
 h5bl_3d_sethalo (
@@ -270,9 +259,8 @@ h5bl_3d_sethalo (
 	H5_API_RETURN(h5b_3d_set_halo (f, *i, *j, *k));
 }
 
-#define h5bl_getnumfields F77_NAME (					\
+#define h5bl_getnumfields FC_MANGLING (					\
                 h5bl_getnumfields,                                      \
-                h5bl_getnumfields_,                                     \
                 H5BL_GETNUMFIELDS )
 h5_int64_t
 h5bl_getnumfields (
@@ -285,9 +273,8 @@ h5bl_getnumfields (
 	H5_API_RETURN (h5b_get_num_fields (f));
 }
 
-#define h5bl_getfieldinfo F77_NAME (					\
+#define h5bl_getfieldinfo FC_MANGLING (					\
                 h5bl_getfieldinfo,                                      \
-                h5bl_getfieldinfo_,                                     \
                 H5BL_GETFIELDINFO )
 h5_int64_t
 h5bl_getfieldinfo (
@@ -314,9 +301,8 @@ h5bl_getfieldinfo (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_getfieldinfobyname F77_NAME (	\
+#define h5bl_getfieldinfobyname FC_MANGLING (	\
 		h5bl_getfieldinfobyname,        \
-		h5bl_getfieldinfobyname_,       \
 		H5BL_GETFIELDINFOBYNAME)
 h5_int64_t
 h5bl_getfieldinfobyname (

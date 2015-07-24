@@ -26,9 +26,8 @@
      |_|                |___/
 */
 
-#define h5_getnfileattribs F77_NAME( \
-                h5_getnfileattribs,  \
-                h5_getnfileattribs_, \
+#define h5_getnfileattribs FC_MANGLING(		\
+                h5_getnfileattribs,		\
                 H5_GETNFILEATTRIBS)
 h5_int64_t
 h5_getnfileattribs (
@@ -39,9 +38,8 @@ h5_getnfileattribs (
         H5_API_RETURN (h5_get_num_file_attribs (f));
 }
 
-#define h5_getfileattribinfo F77_NAME(           \
+#define h5_getfileattribinfo FC_MANGLING(	 \
                 h5_getfileattribinfo,            \
-                h5_getfileattribinfo_,           \
                 H5_GETFILEATTRIBINFO)
 h5_int64_t
 h5_getfileattribinfo (
@@ -73,9 +71,8 @@ h5_getfileattribinfo (
 	H5_API_RETURN (h5err);
 }
 
-#define h5_getfileattribinfo_by_name F77_NAME(           \
+#define h5_getfileattribinfo_by_name FC_MANGLING(	 \
                 h5_getfileattribinfo_by_name,            \
-                h5_getfileattribinfo_by_name_,           \
                 H5_GETFILEATTRIBINFO_BY_NAME)
 h5_int64_t
 h5_getfileattribinfo_by_name (
@@ -145,9 +142,8 @@ read_file_attrib (
 	return herr;
 }
 
-#define h5_writefileattrib_string F77_NAME (                            \
+#define h5_writefileattrib_string FC_MANGLING (				\
                 h5_writefileattrib_string,                              \
-                h5_writefileattrib_string_,                             \
                 H5_WRITEFILEATTRIB_STRING)
 h5_int64_t
 h5_writefileattrib_string (
@@ -168,9 +164,8 @@ h5_writefileattrib_string (
 	H5_API_RETURN (herr);
 }
 
-#define h5_readfileattrib_string F77_NAME (                             \
+#define h5_readfileattrib_string FC_MANGLING (				\
                 h5_readfileattrib_string,                               \
-                h5_readfileattrib_string_,                              \
                 H5_READFILEATTRIB_STRING)
 h5_int64_t
 h5_readfileattrib_string (
@@ -189,9 +184,8 @@ h5_readfileattrib_string (
 	H5_API_RETURN (herr);
 }
 
-#define h5_writefileattrib_r8 F77_NAME (        \
+#define h5_writefileattrib_r8 FC_MANGLING (	\
                 h5_writefileattrib_r8,          \
-                h5_writefileattrib_r8_,         \
                 H5_WRITEFILEATTRIB_R8)
 h5_int64_t
 h5_writefileattrib_r8 (
@@ -212,9 +206,8 @@ h5_writefileattrib_r8 (
                                buffer, (hsize_t)*nelem));
 }
 
-#define h5_readfileattrib_r8 F77_NAME ( \
-                h5_readfileattrib_r8,  \
-                h5_readfileattrib_r8_, \
+#define h5_readfileattrib_r8 FC_MANGLING (	\
+                h5_readfileattrib_r8,		\
                 H5_READFILEATTRIB_R8 )
 h5_int64_t
 h5_readfileattrib_r8 (
@@ -234,9 +227,8 @@ h5_readfileattrib_r8 (
                 (void*)buffer));
 }
 
-#define h5_writefileattrib_r4 F77_NAME ( \
-                h5_writefileattrib_r4,  \
-                h5_writefileattrib_r4_, \
+#define h5_writefileattrib_r4 FC_MANGLING (	\
+                h5_writefileattrib_r4,		\
                 H5_WRITEFILEATTRIB_R4 )
 h5_int64_t
 h5_writefileattrib_r4 (
@@ -257,9 +249,8 @@ h5_writefileattrib_r4 (
                                buffer, (hsize_t)*nelem));
 }
 
-#define h5_readfileattrib_r4 F77_NAME ( \
-                h5_readfileattrib_r4,  \
-                h5_readfileattrib_r4_, \
+#define h5_readfileattrib_r4 FC_MANGLING (	\
+                h5_readfileattrib_r4,		\
                 H5_READFILEATTRIB_R4 )
 h5_int64_t
 h5_readfileattrib_r4 (
@@ -279,9 +270,8 @@ h5_readfileattrib_r4 (
                 buffer));
 }
 
-#define h5_writefileattrib_i8 F77_NAME (        \
+#define h5_writefileattrib_i8 FC_MANGLING (	\
                 h5_writefileattrib_i8,          \
-                h5_writefileattrib_i8_,         \
                 H5_WRITEFILEATTRIB_I8)
 h5_int64_t
 h5_writefileattrib_i8 (
@@ -302,9 +292,8 @@ h5_writefileattrib_i8 (
                                buffer, (hsize_t)*nelem));
 }
 
-#define h5_readfileattrib_i8 F77_NAME ( \
-                h5_readfileattrib_i8,  \
-                h5_readfileattrib_i8_, \
+#define h5_readfileattrib_i8 FC_MANGLING (	\
+                h5_readfileattrib_i8,		\
                 H5_READFILEATTRIB_I8 )
 h5_int64_t
 h5_readfileattrib_i8 (
@@ -324,9 +313,8 @@ h5_readfileattrib_i8 (
                 buffer));
 }
 
-#define h5_writefileattrib_i4 F77_NAME (        \
+#define h5_writefileattrib_i4 FC_MANGLING (	\
                 h5_writefileattrib_i4,          \
-                h5_writefileattrib_i4_,         \
                 H5_WRITEFILEATTRIB_I4 )
 h5_int64_t
 h5_writefileattrib_i4 (
@@ -347,9 +335,8 @@ h5_writefileattrib_i4 (
                                buffer, (hsize_t)*nelem));
 }
 
-#define h5_readfileattrib_i4 F77_NAME (         \
+#define h5_readfileattrib_i4 FC_MANGLING (	\
                 h5_readfileattrib_i4,           \
-                h5_readfileattrib_i4_,          \
                 H5_READFILEATTRIB_I4 )
 h5_int64_t
 h5_readfileattrib_i4 (
@@ -383,9 +370,8 @@ h5_readfileattrib_i4 (
   \__, |\__,_|\___|_|   \__, |
      |_|                |___/
 */
-#define h5_getnstepattribs F77_NAME( \
+#define h5_getnstepattribs FC_MANGLING( \
                 h5_getnstepattribs,  \
-                h5_getnstepattribs_, \
                 H5_GETNSTEPATTRIBS)
 h5_int64_t
 h5_getnstepattribs (
@@ -398,10 +384,9 @@ h5_getnstepattribs (
         H5_API_RETURN (h5_get_num_step_attribs (f));
 }
 
-#define h5_getstepattribinfo F77_NAME(           \
-                        h5_getstepattribinfo,    \
-                        h5_getstepattribinfo_,   \
-                        H5_GETSTEPATTRIBINFO)
+#define h5_getstepattribinfo FC_MANGLING(	 \
+		h5_getstepattribinfo,		 \
+		H5_GETSTEPATTRIBINFO)
 h5_int64_t
 h5_getstepattribinfo (
 	const h5_int64_t* fh,
@@ -432,9 +417,8 @@ h5_getstepattribinfo (
 	H5_API_RETURN (h5err);
 }
 
-#define h5_getstepattribinfo_by_name F77_NAME(           \
+#define h5_getstepattribinfo_by_name FC_MANGLING(	 \
                 h5_getstepattribinfo_by_name,            \
-                h5_getstepattribinfo_by_name_,           \
                 H5_GETSTEPATTRIBINFO_BY_NAME)
 h5_int64_t
 h5_getstepattribinfo_by_name (
@@ -506,9 +490,8 @@ read_step_attrib (
 	return herr;
 }
 
-#define h5_writestepattrib_string F77_NAME (                            \
+#define h5_writestepattrib_string FC_MANGLING (				\
                 h5_writestepattrib_string,                              \
-                h5_writestepattrib_string_,                             \
                 H5_WRITESTEPATTRIB_STRING)
 h5_int64_t
 h5_writestepattrib_string (
@@ -529,9 +512,8 @@ h5_writestepattrib_string (
 	H5_API_RETURN (herr);
 }
 
-#define h5_readstepattrib_string F77_NAME (                             \
+#define h5_readstepattrib_string FC_MANGLING (				\
                 h5_readstepattrib_string,                               \
-                h5_readstepattrib_string_,                              \
                 H5_READSTEPATTRIB_STRING)
 h5_int64_t
 h5_readstepattrib_string (
@@ -550,9 +532,8 @@ h5_readstepattrib_string (
 	H5_API_RETURN (herr);
 }
 
-#define h5_writestepattrib_r8 F77_NAME (        \
+#define h5_writestepattrib_r8 FC_MANGLING (	\
                 h5_writestepattrib_r8,          \
-                h5_writestepattrib_r8_,         \
                 H5_WRITESTEPATTRIB_R8)
 h5_int64_t
 h5_writestepattrib_r8 (
@@ -573,9 +554,8 @@ h5_writestepattrib_r8 (
                                buffer, (hsize_t)*nelem));
 }
 
-#define h5_readstepattrib_r8 F77_NAME ( \
-                h5_readstepattrib_r8,  \
-                h5_readstepattrib_r8_, \
+#define h5_readstepattrib_r8 FC_MANGLING (	\
+                h5_readstepattrib_r8,		\
                 H5_READSTEPATTRIB_R8 )
 h5_int64_t
 h5_readstepattrib_r8 (
@@ -595,9 +575,8 @@ h5_readstepattrib_r8 (
                 (void*)buffer));
 }
 
-#define h5_writestepattrib_r4 F77_NAME ( \
-                h5_writestepattrib_r4,  \
-                h5_writestepattrib_r4_, \
+#define h5_writestepattrib_r4 FC_MANGLING (	\
+                h5_writestepattrib_r4,		\
                 H5_WRITESTEPATTRIB_R4 )
 h5_int64_t
 h5_writestepattrib_r4 (
@@ -618,9 +597,8 @@ h5_writestepattrib_r4 (
                                buffer, (hsize_t)*nelem));
 }
 
-#define h5_readstepattrib_r4 F77_NAME ( \
-                h5_readstepattrib_r4,  \
-                h5_readstepattrib_r4_, \
+#define h5_readstepattrib_r4 FC_MANGLING (	\
+                h5_readstepattrib_r4,		\
                 H5_READSTEPATTRIB_R4 )
 h5_int64_t
 h5_readstepattrib_r4 (
@@ -640,9 +618,8 @@ h5_readstepattrib_r4 (
                 buffer));
 }
 
-#define h5_writestepattrib_i8 F77_NAME (        \
+#define h5_writestepattrib_i8 FC_MANGLING (	\
                 h5_writestepattrib_i8,          \
-                h5_writestepattrib_i8_,         \
                 H5_WRITESTEPATTRIB_I8)
 h5_int64_t
 h5_writestepattrib_i8 (
@@ -663,9 +640,8 @@ h5_writestepattrib_i8 (
                                buffer, (hsize_t)*nelem));
 }
 
-#define h5_readstepattrib_i8 F77_NAME ( \
-                h5_readstepattrib_i8,  \
-                h5_readstepattrib_i8_, \
+#define h5_readstepattrib_i8 FC_MANGLING (	\
+                h5_readstepattrib_i8,		\
                 H5_READSTEPATTRIB_I8 )
 h5_int64_t
 h5_readstepattrib_i8 (
@@ -685,9 +661,8 @@ h5_readstepattrib_i8 (
                 buffer));
 }
 
-#define h5_writestepattrib_i4 F77_NAME (        \
+#define h5_writestepattrib_i4 FC_MANGLING (	\
                 h5_writestepattrib_i4,          \
-                h5_writestepattrib_i4_,         \
                 H5_WRITESTEPATTRIB_I4 )
 h5_int64_t
 h5_writestepattrib_i4 (
@@ -708,9 +683,8 @@ h5_writestepattrib_i4 (
                                buffer, (hsize_t)*nelem));
 }
 
-#define h5_readstepattrib_i4 F77_NAME (         \
+#define h5_readstepattrib_i4 FC_MANGLING (	\
                 h5_readstepattrib_i4,           \
-                h5_readstepattrib_i4_,          \
                 H5_READSTEPATTRIB_I4 )
 h5_int64_t
 h5_readstepattrib_i4 (

@@ -15,9 +15,8 @@
 
 /* H5hut data model */
 
-#define h5_hasstep F77_NAME(                  \
+#define h5_hasstep FC_MANGLING(		      \
                 h5_hasstep,                   \
-                h5_hasstep_,                  \
                 H5_HASSTEP)
 int
 h5_hasstep (
@@ -33,9 +32,8 @@ h5_hasstep (
 	H5_API_RETURN (h5_has_step (fh, *stepno));
 }
 
-#define h5_setstep F77_NAME(                    \
+#define h5_setstep FC_MANGLING(			\
                 h5_setstep,                     \
-                h5_setstep_,                    \
                 H5_SETSTEP)
 h5_int64_t
 h5_setstep (
@@ -47,9 +45,8 @@ h5_setstep (
 	H5_API_RETURN (h5_set_step (fh, *step));
 }
 
-#define h5_getstep F77_NAME(                    \
+#define h5_getstep FC_MANGLING(			\
                 h5_getstep,                     \
-                h5_getstep_,                    \
                 H5_GETSTEP)
 h5_int64_t
 h5_getstep (
@@ -61,9 +58,8 @@ h5_getstep (
 	H5_API_RETURN (h5_get_step (fh) + 1);
 }
 
-#define h5_getnsteps F77_NAME(                  \
+#define h5_getnsteps FC_MANGLING(		\
                 h5_getnsteps,                   \
-                h5_getnsteps_,                  \
                 H5_GETNSTEPS)
 h5_int64_t
 h5_getnsteps (

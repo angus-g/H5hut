@@ -17,14 +17,20 @@
 
 #include "Underscore.h"
 
-#if defined(F77_NO_UNDERSCORE)
-#define F77_NAME(a,b,c) a
-#elif defined(F77_SINGLE_UNDERSCORE)
-#define F77_NAME(a,b,c) b
-#elif defined(F77_CRAY_UNDERSCORE)
-#define F77_NAME(a,b,c) c
+#if defined(FC_MANGLING_LOWERCASE_NO_UNDERSCORE)
+#    define FC_MANGLING(a,b) a
+#elif defined(FC_MANGLING_LOWERCASE_SINGLE_UNDERSCORE)
+#    define FC_MANGLING(a,b) a ## _
+#elif defined(FC_MANGLING_LOWERCASE_DOUBLE_UNDERSCORE)
+#    define FC_MANGLING(a,b) a ## __
+#elif defined(FC_MANGLING_UPPERCASE_NO_UNDERSCORE)
+#    define FC_MANGLING(a,b) b
+#elif defined(FC_MANGLING_UPPERCASE_SINGLE_UNDERSCORE)
+#    define FC_MANGLING(a,b) b ## _
+#elif defined(FC_MANGLING_UPPERCASE_DOUBLE_UNDERSCORE)
+#    define FC_MANGLING(a,b) b ## __
 #else
-#error Error, no way to determine how to construct fortran bindings
+#  error "Unknown Fortran symbol mangling"
 #endif
 
 #define convert_type2for(type)                  \

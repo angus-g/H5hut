@@ -13,9 +13,8 @@
 #include "h5core/h5u_io.h"
 
 /*==================Writing data ============*/
-#define h5pt_writedata_r8 F77_NAME (					\
+#define h5pt_writedata_r8 FC_MANGLING (					\
                 h5pt_writedata_r8,                                      \
-                h5pt_writedata_r8_,                                     \
                 H5PT_WRITEDATA_R8 )
 h5_int64_t
 h5pt_writedata_r8 (
@@ -35,9 +34,8 @@ h5pt_writedata_r8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_writedata_r4 F77_NAME (					\
+#define h5pt_writedata_r4 FC_MANGLING (					\
                 h5pt_writedata_r4,                                      \
-                h5pt_writedata_r4_,                                     \
                 H5PT_WRITEDATA_R4 )
 h5_int64_t
 h5pt_writedata_r4 (
@@ -57,9 +55,8 @@ h5pt_writedata_r4 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_writedata_i8 F77_NAME (					\
+#define h5pt_writedata_i8 FC_MANGLING (					\
                 h5pt_writedata_i8,                                      \
-                h5pt_writedata_i8_,                                     \
                 H5PT_WRITEDATA_I8 )
 h5_int64_t
 h5pt_writedata_i8 (
@@ -79,9 +76,8 @@ h5pt_writedata_i8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_writedata_i4 F77_NAME (					\
+#define h5pt_writedata_i4 FC_MANGLING (					\
                 h5pt_writedata_i4,                                      \
-                h5pt_writedata_i4_,                                     \
                 H5PT_WRITEDATA_I4 )
 h5_int64_t
 h5pt_writedata_i4 (
@@ -103,9 +99,8 @@ h5pt_writedata_i4 (
 
 
 /*==================Reading data ============*/
-#define h5pt_readdata_r8 F77_NAME (					\
+#define h5pt_readdata_r8 FC_MANGLING (					\
                 h5pt_readdata_r8,                                       \
-                h5pt_readdata_r8_,                                      \
                 H5PT_READDATA_R8 )
 h5_int64_t
 h5pt_readdata_r8 (
@@ -125,9 +120,8 @@ h5pt_readdata_r8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_readdata_r4 F77_NAME (					\
+#define h5pt_readdata_r4 FC_MANGLING (					\
                 h5pt_readdata_r4,                                       \
-                h5pt_readdata_r4_,                                      \
                 H5PT_READDATA_R4 )
 h5_int64_t
 h5pt_readdata_r4 (
@@ -147,9 +141,8 @@ h5pt_readdata_r4 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_readdata_i8 F77_NAME (					\
+#define h5pt_readdata_i8 FC_MANGLING (					\
                 h5pt_readdata_i8,                                       \
-                h5pt_readdata_i8_,                                      \
                 H5PT_READDATA_I8 )
 h5_int64_t
 h5pt_readdata_i8 (
@@ -170,9 +163,8 @@ h5pt_readdata_i8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_readdata_i4 F77_NAME (					\
+#define h5pt_readdata_i4 FC_MANGLING (					\
                 h5pt_readdata_i4,                                       \
-                h5pt_readdata_i4_,                                      \
                 H5PT_READDATA_I4 )
 h5_int64_t
 h5pt_readdata_i4 (

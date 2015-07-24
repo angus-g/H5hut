@@ -1,4 +1,4 @@
-AC_INIT([H5hut], [1.99.12], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [1.99.14], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
@@ -88,6 +88,26 @@ AC_ARG_WITH(
 	[VTK installation path [default=""]])],
 	[VTK_PREFIX=$withval], [])
 
+# Determine a C/C++ compiler to use. 
+CC=''
+CXX=''
+if test "x$ENABLE_PARALLEL" = "xyes"; then
+   	AC_PROG_CC(mpicc cc)
+	AC_PROG_CXX(mpic++ CC)
+else
+	AC_PROG_CC(pgcc pathcc icc gcc cc_r cc)
+	AC_PROG_CXX(pgcc pathcc icc g++ cc_r c++)
+fi
+
+CC=`which $CC`
+CXX=`which $CXX`
+
+AC_PROG_CC_C99
+if test "x$ac_cv_prog_cc_c99" = "xno"; then
+	AC_MSG_ERROR([Cannot set C compiler to use C99 standard!])
+	exit 1
+fi
+
 
 ###############################################################################
 ############### PATH SERACH FUNCTION - to be used later... ####################
@@ -133,36 +153,17 @@ FFLAGS="$FFLAGS -Wall"
 # debug enabled?
 AC_MSG_CHECKING([if debug is enabled])
 if test "X$ENABLE_DEBUG" = "Xyes"; then
-    AC_MSG_RESULT([yes])
-    CFLAGS="$CFLAGS -g"
-    CXXFLAGS="$CFLAGS -g"
-    FFLAGS="$FFLAGS -g"
+	AC_MSG_RESULT([yes])
+	CFLAGS="$CFLAGS -g"
+	CXXFLAGS="$CFLAGS -g"
+	FFLAGS="$FFLAGS -g"
 else
-    AC_MSG_RESULT([no])
-    CFLAGS="$CFLAGS -O3"
-    CXXFLAGS="$CFLAGS -O3"
-    FFLAGS="$FFLAGS -O3"
+	AC_MSG_RESULT([no])
+	CFLAGS="$CFLAGS -O3"
+	CXXFLAGS="$CFLAGS -O3"
+	FFLAGS="$FFLAGS -O3"
 fi
 
-# Determine a C/C++ compiler to use. 
-if test "x$ENABLE_PARALLEL" = "xyes"; then
-   	CCOMPILERS="mpicc cc"
-	CXXCOMPILERS="mpic++ CC"
-else
-	CCOMPILERS="pgcc pathcc icc gcc cc_r cc"
-	CXXCOMPILERS="pgcc pathcc icc g++ cc_r c++"
-fi
-
-AC_PROG_CC($CCOMPILERS)
-CC=`which $CC`
-AC_PROG_CXX($CXXCOMPILERS)
-CXX=`which $CXX`
-
-AC_PROG_CC_C99
-if test "x$ac_cv_prog_cc_c99" = "xno"; then
-	AC_MSG_ERROR([Cannot set C compiler to use C99 standard!])
-	exit 1
-fi
 
 AC_PROG_INSTALL
 AC_PROG_AWK
@@ -220,41 +221,43 @@ fi
 AC_MSG_CHECKING([if fortran interface enabled])
 if test "X$ENABLE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
-
+	AC_LANG_PUSH(Fortran)
+	FC=''
+	F77=''
+	F90=''
 	if test "X$ENABLE_PARALLEL" = "Xyes"; then
 		AC_PROG_FC(mpif90 mpif77)
 	else
 		AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
 	fi
-        FC=`which $FC`
-	if test -z "$FC" ; then
-		AC_MSG_ERROR([Cannot find a Fortran compiler!])
-		exit 1
+	FC=`which $FC`
+	
+	# Query Fortran symbol mangling. __AC_FC_NAME_MANGLING sets
+	# ac_cv_{f77,fc}_mangling. The value contains three fields, separated
+	# by commas:
+	#
+	# lower case / upper case:
+	#    case translation of the Fortran symbols
+	# underscore / no underscore:
+	#    whether the compiler appends "_" to symbol names
+	# extra underscore / no extra underscore:
+	#    whether the compiler appends an extra "_" to symbol names already
+	#    containing at least one underscore
+	__AC_FC_NAME_MANGLING
+	if test "X${ac_cv_fc_mangling}" == "Xlower case, no underscore, no extra underscore"; then
+	    	CPPFLAGS+=" -DFC_MANGLING_LOWERCASE_NO_UNDERSCORE"
+	elif test "X${ac_cv_fc_mangling}" == "Xlower case, underscore, no extra underscore"; then
+	    	CPPFLAGS+=" -DFC_MANGLING_LOWERCASE_SINGLE_UNDERSCORE"
+	elif test "X${ac_cv_fc_mangling}" == "Xlower case, underscore, extra underscore"; then
+	    	CPPFLAGS+=" -DFC_MANGLING_LOWERCASE_DOUBLE_UNDERSCORE"
+	elif test "X${ac_cv_fc_mangling}" == "Xupper case, no underscore, no extra underscore"; then
+	    	CPPFLAGS+=" -DFC_MANGLING_UPPERCASE_NO_UNDERSCORE"
+	elif test "X${ac_cv_fc_mangling}" == "Xupper case, underscore, no extra underscore"; then
+	    	CPPFLAGS+=" -DFC_MANGLING_UPPERCASE_SINGLE_UNDERSCORE"
+	elif test "X${ac_cv_fc_mangling}" == "Xupper case, underscore, extra underscore"; then
+	    	CPPFLAGS+=" -DFC_MANGLING_UPPERCASE_DOUBLE_UNDERSCORE"
 	fi
-
-	if test $FC = "g90"; then
-		FFLAGS="${FFLAGS} -fno-second-underscore"
-	fi
-
-	if test $FC = "g95"; then
-		FFLAGS="${FFLAGS} -fno-second-underscore"
-	fi
-
-	AC_MSG_CHECKING([symbol convention in object files])
-	`cd src/Fortran && rm -f TestUnderscore.o TestUnderscoreC.o TestUnderscore`
-	`cd src/Fortran && ${FC} ${FFLAGS} -c TestUnderscore.f`
-	`cd src/Fortran && ${CC} ${CFLAGS} -c TestUnderscoreC.c`
-	`cd src/Fortran && ${FC} ${FFLAGS} -o TestUnderscore TestUnderscore.o TestUnderscoreC.o`
-
-	if test -f src/Fortran/TestUnderscore ; then
-		`cd src/Fortran && ./TestUnderscore > Underscore.h`
-		AC_MSG_RESULT([ok])
-	else
-		AC_MSG_RESULT([nok])
-		AC_MSG_ERROR([Cannot determine the symbol convention for Fortran object files!])
-		exit 1
-	fi
-
+	AC_LANG_POP(Fortran)
 else
 	AC_MSG_RESULT([no])
 fi

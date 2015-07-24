@@ -11,9 +11,8 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_io.h"
 
-#define h5bl_3d_write_scalar_field_r8 F77_NAME ( \
-                h5bl_3d_write_scalar_field_r8,  \
-                h5bl_3d_write_scalar_field_r8_, \
+#define h5bl_3d_write_scalar_field_r8 FC_MANGLING (	\
+                h5bl_3d_write_scalar_field_r8,		\
                 H5BL_3D_WRITE_SCALAR_FIELD_R8 )
 h5_err_t
 h5bl_3d_write_scalar_field_r8 (
@@ -33,9 +32,8 @@ h5bl_3d_write_scalar_field_r8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_read_scalar_field_r8 F77_NAME ( \
-                h5bl_3d_read_scalar_field_r8,   \
-                h5bl_3d_read_scalar_field_r8_,  \
+#define h5bl_3d_read_scalar_field_r8 FC_MANGLING (	\
+                h5bl_3d_read_scalar_field_r8,		\
                 H5BL_3D_READ_SCALAR_FIELD_R8 )
 h5_err_t
 h5bl_3d_read_scalar_field_r8 (
@@ -55,9 +53,8 @@ h5bl_3d_read_scalar_field_r8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_write_vector3d_field_r8 F77_NAME (      \
+#define h5bl_3d_write_vector3d_field_r8 FC_MANGLING (	\
                 h5bl_3d_write_vector3d_field_r8,        \
-                h5bl_3d_write_vector3d_field_r8_,       \
                 H5BL_3D_WRITE_VECTOR3D_FIELD_R8 )
 h5_err_t
 h5bl_3d_write_vector3d_field_r8 (
@@ -80,9 +77,8 @@ h5bl_3d_write_vector3d_field_r8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_read_vector3d_field_r8 F77_NAME (       \
-                h5bl_3d_read_vector3d_field_r8,         \
-                h5bl_3d_read_vector3d_field_r8_,        \
+#define h5bl_3d_read_vector3d_field_r8 FC_MANGLING (       \
+                h5bl_3d_read_vector3d_field_r8,		   \
                 H5BL_3D_READ_VECTOR3D_FIELD_R8 )
 h5_err_t
 h5bl_3d_read_vector3d_field_r8 (
@@ -105,9 +101,8 @@ h5bl_3d_read_vector3d_field_r8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_write_scalar_field_r4 F77_NAME (        \
-                h5bl_3d_write_scalar_field_r4,          \
-                h5bl_3d_write_scalar_field_r4_,         \
+#define h5bl_3d_write_scalar_field_r4 FC_MANGLING (        \
+                h5bl_3d_write_scalar_field_r4,		   \
                 H5BL_3D_WRITE_SCALAR_FIELD_R4 )
 h5_err_t
 h5bl_3d_write_scalar_field_r4 (
@@ -127,9 +122,8 @@ h5bl_3d_write_scalar_field_r4 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_read_scalar_field_r4 F77_NAME ( \
-                h5bl_3d_read_scalar_field_r4,   \
-                h5bl_3d_read_scalar_field_r4_,  \
+#define h5bl_3d_read_scalar_field_r4 FC_MANGLING (	\
+                h5bl_3d_read_scalar_field_r4,		\
                 H5BL_3D_READ_SCALAR_FIELD_R4 )
 h5_err_t
 h5bl_3d_read_scalar_field_r4 (
@@ -149,9 +143,8 @@ h5bl_3d_read_scalar_field_r4 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_write_vector3d_field_r4 F77_NAME (      \
+#define h5bl_3d_write_vector3d_field_r4 FC_MANGLING (	\
                 h5bl_3d_write_vector3d_field_r4,        \
-                h5bl_3d_write_vector3d_field_r4_,       \
                 H5BL_3D_WRITE_VECTOR3D_FIELD_R4 )
 h5_err_t
 h5bl_3d_write_vector3d_field_r4 (
@@ -174,9 +167,8 @@ h5bl_3d_write_vector3d_field_r4 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_read_vector3d_field_r4 F77_NAME (       \
+#define h5bl_3d_read_vector3d_field_r4 FC_MANGLING (	\
                 h5bl_3d_read_vector3d_field_r4,         \
-                h5bl_3d_read_vector3d_field_r4_,        \
                 H5BL_3D_READ_VECTOR3D_FIELD_R4 )
 h5_err_t
 h5bl_3d_read_vector3d_field_r4 (
@@ -199,9 +191,8 @@ h5bl_3d_read_vector3d_field_r4 (
 	H5_API_RETURN (herr);
 }
 
-#define h5bl_3d_write_scalar_field_i8 F77_NAME (        \
+#define h5bl_3d_write_scalar_field_i8 FC_MANGLING (	\
                 h5bl_3d_write_scalar_field_i8,          \
-                h5bl_3d_write_scalar_field_i8_,         \
                 H5BL_3D_WRITE_SCALAR_FIELD_I8 )
 h5_err_t
 h5bl_3d_write_scalar_field_i8 (
@@ -221,9 +212,8 @@ h5bl_3d_write_scalar_field_i8 (
 	H5_API_RETURN (herr);
 }
 
-#define h5bl_3d_read_scalar_field_i8 F77_NAME ( \
-                h5bl_3d_read_scalar_field_i8,   \
-                h5bl_3d_read_scalar_field_i8_,  \
+#define h5bl_3d_read_scalar_field_i8 FC_MANGLING (	\
+                h5bl_3d_read_scalar_field_i8,		\
                 H5BL_3D_READ_SCALAR_FIELD_I8 )
 h5_err_t
 h5bl_3d_read_scalar_field_i8 (
@@ -243,9 +233,8 @@ h5bl_3d_read_scalar_field_i8 (
 	H5_API_RETURN (herr);
 }
 
-#define h5bl_3d_write_vector3d_field_i8 F77_NAME (      \
+#define h5bl_3d_write_vector3d_field_i8 FC_MANGLING (	\
                 h5bl_3d_write_vector3d_field_i8,        \
-                h5bl_3d_write_vector3d_field_i8_,       \
                 H5BL_3D_WRITE_VECTOR3D_FIELD_I8 )
 h5_err_t
 h5bl_3d_write_vector3d_field_i8 (
@@ -268,9 +257,8 @@ h5bl_3d_write_vector3d_field_i8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_read_vector3d_field_i8 F77_NAME (       \
+#define h5bl_3d_read_vector3d_field_i8 FC_MANGLING (	\
                 h5bl_3d_read_vector3d_field_i8,         \
-                h5bl_3d_read_vector3d_field_i8_,        \
                 H5BL_3D_READ_VECTOR3D_FIELD_I8 )
 h5_err_t
 h5bl_3d_read_vector3d_field_i8 (
@@ -293,9 +281,8 @@ h5bl_3d_read_vector3d_field_i8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_write_scalar_field_i4 F77_NAME (        \
+#define h5bl_3d_write_scalar_field_i4 FC_MANGLING (	\
                 h5bl_3d_write_scalar_field_i4,          \
-                h5bl_3d_write_scalar_field_i4_,         \
                 H5BL_3D_WRITE_SCALAR_FIELD_I4 )
 h5_err_t
 h5bl_3d_write_scalar_field_i4 (
@@ -315,9 +302,8 @@ h5bl_3d_write_scalar_field_i4 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_read_scalar_field_i4 F77_NAME ( \
-                h5bl_3d_read_scalar_field_i4,   \
-                h5bl_3d_read_scalar_field_i4_,  \
+#define h5bl_3d_read_scalar_field_i4 FC_MANGLING (	\
+                h5bl_3d_read_scalar_field_i4,		\
                 H5BL_3D_READ_SCALAR_FIELD_I4 )
 h5_err_t
 h5bl_3d_read_scalar_field_i4 (
@@ -337,9 +323,8 @@ h5bl_3d_read_scalar_field_i4 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_write_vector3d_field_i4 F77_NAME (      \
+#define h5bl_3d_write_vector3d_field_i4 FC_MANGLING (	\
                 h5bl_3d_write_vector3d_field_i4,        \
-                h5bl_3d_write_vector3d_field_i4_,       \
                 H5BL_3D_WRITE_VECTOR3D_FIELD_I4 )
 h5_err_t
 h5bl_3d_write_vector3d_field_i4 (
@@ -362,9 +347,8 @@ h5bl_3d_write_vector3d_field_i4 (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_3d_read_vector3d_field_i4 F77_NAME (       \
+#define h5bl_3d_read_vector3d_field_i4 FC_MANGLING (	\
                 h5bl_3d_read_vector3d_field_i4,         \
-                h5bl_3d_read_vector3d_field_i4_,        \
                 H5BL_3D_READ_VECTOR3D_FIELD_I4 )
 h5_err_t
 h5bl_3d_read_vector3d_field_i4 (
