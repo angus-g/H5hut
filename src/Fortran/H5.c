@@ -73,6 +73,7 @@ h5_setprop_file_mpio_independent (
         H5_API_RETURN ((h5_int64_t)h5_set_prop_file_mpio_independent (prop, &comm));
 }
 
+#if H5_VERSION_LE(1,8,12)
 #define h5_setprop_file_mpio_posix FC_MANGLING( \
                 h5_setprop_file_mpio_posix,  \
                 H5_SETPROP_FILE_MPIO_POSIX)
@@ -88,6 +89,8 @@ h5_setprop_file_mpio_posix (
         MPI_Comm comm = MPI_Comm_f2c (*_comm);
         H5_API_RETURN ((h5_int64_t)h5_set_prop_file_mpio_posix (prop, &comm));
 }
+#endif
+
 #endif
 
 #define h5_setprop_file_corevfd FC_MANGLING( \
