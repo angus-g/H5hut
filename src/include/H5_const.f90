@@ -1,5 +1,5 @@
 !
-!  Copyright (c) 2006-2013, The Regents of the University of California,
+!  Copyright (c) 2006-2015, The Regents of the University of California,
 !  through Lawrence Berkeley National Laboratory (subject to receipt of any
 !  required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
 !  Institut (Switzerland).  All rights reserved.!
@@ -47,3 +47,10 @@
   
   INTEGER*8, PARAMETER :: H5_ERR_INTERNAL =        -253
   INTEGER*8, PARAMETER :: H5_ERR_NOT_IMPLEMENTED = -254
+
+  INTEGER*8, PARAMETER :: H5_VERBOSE_NONE =        0
+  INTEGER*8, PARAMETER :: H5_VERBOSE_ERROR =       1
+  INTEGER*8, PARAMETER :: H5_VERBOSE_WARN =        2
+  INTEGER*8, PARAMETER :: H5_VERBOSE_INFO =        3
+
+  INTEGER*8, PARAMETER :: H5_VERBOSE_DEFAULT =     H5_VERBOSE_ERROR

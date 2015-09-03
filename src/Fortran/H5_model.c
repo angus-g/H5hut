@@ -21,15 +21,15 @@
 int
 h5_hasstep (
 	const h5_int64_t* f,
-	const h5_int64_t* stepno
+	const h5_int64_t* step
 	) {
 
 	h5_file_t fh = h5_filehandlefor2c(f);
 	H5_API_ENTER (
                 int,
                 "f=%p, stepno=%lld",
-                (h5_file_p)fh, (long long int)stepno);
-	H5_API_RETURN (h5_has_step (fh, *stepno));
+                (h5_file_p)fh, (long long int)step);
+	H5_API_RETURN (h5_has_step (fh, (*step)-1));
 }
 
 #define h5_setstep FC_MANGLING(			\
@@ -42,7 +42,7 @@ h5_setstep (
 
 	h5_file_t fh = h5_filehandlefor2c(f);
 	H5_API_ENTER (h5_int64_t, "f=%p, step=%lld", (h5_file_p)fh, (long long)*step);
-	H5_API_RETURN (h5_set_step (fh, *step));
+	H5_API_RETURN (h5_set_step (fh, (*step)-1));
 }
 
 #define h5_getstep FC_MANGLING(			\
