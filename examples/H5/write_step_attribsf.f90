@@ -22,7 +22,7 @@
     character (len=*), parameter :: ATTR_R4 =          "StepAttrFloat32"
     character (len=*), parameter :: ATTR_R8 =          "StepAttrFloat64"
 
-    character (len=*),parameter :: string_value =      "This is a string attribute bound to the file."
+    character (len=*),parameter :: string_value =      "This is a string attribute bound to this step."
 
     integer*4, parameter, dimension(*) :: i4_value =   (/0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144/)
     integer*8, parameter, dimension(*) :: i8_value =   (/42, 43, 44, 45/)
