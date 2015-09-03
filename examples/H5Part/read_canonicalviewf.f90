@@ -14,13 +14,10 @@ program read_canonicalview
   include 'mpif.h'
 
   ! the file name we want to read
-  character (len=*), parameter :: FNAME =       "example_setnparticles.h5"
-  integer*8, parameter :: NPOINTS =             99
+  character (len=*), parameter :: FNAME =       "example_setview.h5"
 
   integer :: comm, rank, ierr
-  integer*8 :: file, status
-  integer*4 :: i
-  integer*4, allocatable :: data(:)
+  integer*8 :: file, status, num_particles
 
   ! init MPI & H5hut
   comm = MPI_COMM_WORLD
@@ -28,25 +25,16 @@ program read_canonicalview
   call mpi_comm_rank(comm, rank, ierr)
   call h5_abort_on_error ()
 
-  ! create fake data
-  allocate (data (NPOINTS))
-  do i = 1, NPOINTS
-    data (i) = i + int(NPOINTS)*rank
-  enddo
-
   ! open the a file for parallel writing and ceate step #0
   file = h5_openfile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT)
-  status = h5_setstep(file, 0_8)
+  status = h5_setstep(file, 1_8)
 
-  ! set the size of the 1D array
-  status = h5pt_setnpoints (file, npoints)
-
-  ! write the particles
-  status = h5pt_readdata_i4 (file, "data", data)
+  status = h5pt_setcanonicalview (file)
+  num_particles = h5pt_getnpoints (file)
+  write (*, "('[proc ', i4, '] particles in view: ', i8)") rank, num_particles
 
   ! cleanup
   status = h5_closefile (file)
-  deallocate (data)
   call mpi_finalize (ierr)
 
 end program read_canonicalview
