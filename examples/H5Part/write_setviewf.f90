@@ -37,12 +37,12 @@ program write_setview
   ! create fake data
   allocate (data (npoints))
   do i = 1, npoints
-    data (i) = i + rank*npoints
+    data (i) = (i-1) + rank*npoints
   enddo
 
   ! open the a file for parallel writing and ceate step #0
   file = h5_openfile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT)
-  status = h5_setstep(file, 0_8)
+  status = h5_setstep(file, 1_8)
 
   ! set the size of the 1D array
   status = h5pt_setnpoints (file, int8(npoints))

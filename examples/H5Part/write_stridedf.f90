@@ -43,7 +43,7 @@ program write_stridedf
 
   ! open the a file for parallel writing and ceate step #0
   file = h5_openfile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT)
-  status = h5_setstep(file, 0_8)
+  status = h5_setstep(file, 1_8)
 
   ! define number of items this processor will write and set the
   ! in-memory striding
