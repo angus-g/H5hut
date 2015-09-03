@@ -28,8 +28,8 @@ main (
         H5AbortOnError ();
         H5SetVerbosityLevel (verbosity);
 
+	// open file and go to first step
         h5_file_t file = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
-
         H5SetStep (file, 0);
 
         // Get number of particles in datasets and allocate memory
