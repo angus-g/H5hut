@@ -235,20 +235,36 @@ _write_attributes (
 		"42" );
 	if ( herr < 0 ) return -1;
 
-	h5_int64_t ival[1] = { 42 };
-	h5_float64_t rval[1] = { 42.0 };
+	h5_int32_t i4_val[1] = { 42 };
+	herr = H5BlockWriteFieldAttribInt32 (
+		f,
+		"TestField",
+		"TestInt32",
+		i4_val, 1 );
+	if ( herr < 0 ) return -1;
+
+	h5_int64_t i8_val[1] = { 42 };
 	herr = H5BlockWriteFieldAttribInt64 (
 		f,
 		"TestField",
 		"TestInt64",
-		ival, 1 );
+		i8_val, 1 );
 	if ( herr < 0 ) return -1;
 
+	h5_float32_t r4_val[1] = { 42.0 };
+	herr = H5BlockWriteFieldAttribFloat32 (
+		f,
+		"TestField",
+		"TestFloat32",
+		r4_val, 1 );
+	if ( herr < 0 ) return -1;
+
+	h5_float64_t r8_val[1] = { 42.0 };
 	herr = H5BlockWriteFieldAttribFloat64 (
 		f,
 		"TestField",
 		"TestFloat64",
-		rval, 1 );
+		r8_val, 1 );
 	if ( herr < 0 ) return -1;
 
 	herr = H5Block3dSetFieldOrigin ( f, "TestField", 1.0, 2.0, 3.0 );
@@ -356,28 +372,52 @@ _read_attributes (
 			"Value is \"%s\" and should be \"42\"\n", sval);
 	}
 
-	h5_int64_t ival[1];
-	h5_float64_t rval[1];
+	h5_int32_t i4_val[1];
+	H5BlockReadFieldAttribInt32 (
+		f,
+		"TestField",
+		"TestInt32",
+		i4_val );
+	if (i4_val[0] != 42) {
+		printf ("Error reading int32 attribute: "
+			"Value is %lld and should be 42\n",
+			(long long) i4_val[0]);
+	}
+
+	h5_int64_t i8_val[1];
 	H5BlockReadFieldAttribInt64 (
 		f,
 		"TestField",
 		"TestInt64",
-		ival );
-	if (ival[0] != 42) {
+		i8_val );
+	if (i8_val[0] != 42) {
 		printf ("Error reading int64 attribute: "
 			"Value is %lld and should be 42\n",
-			(long long) ival[0]);
+			(long long) i8_val[0]);
 	}
 
+	h5_float32_t r4_val[1];
+	H5BlockReadFieldAttribFloat32 (
+		f,
+		"TestField",
+		"TestFloat32",
+		r4_val );
+	if (r4_val[0] != 42.0) {
+		printf ("Error reading float64 attribute: "
+			"Value is %f and should be 42.0\n",
+			r4_val[0]);
+	}
+
+	h5_float64_t r8_val[1];
 	H5BlockReadFieldAttribFloat64 (
 		f,
 		"TestField",
 		"TestFloat64",
-		rval );
-	if (rval[0] != 42.0) {
+		r8_val );
+	if (r8_val[0] != 42.0) {
 		printf ("Error reading float64 attribute: "
 			"Value is %f and should be 42.0\n",
-			rval[0]);
+			r8_val[0]);
 	}
 
 	h5_float64_t x_origin;
