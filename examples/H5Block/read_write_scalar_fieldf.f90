@@ -373,7 +373,7 @@ program read_write_scalar_field
      integer*8 :: timestep = 1
 
      print "('[proc ', I3, ']: Open file for reading ...')", comm_rank
-     file = h5_openfile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT)
+     file = h5_openfile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT)
      h5_err = h5_setstep (file, timestep)
 
      h5_err =  read_field (file, comm_rank, layout)
