@@ -17,11 +17,11 @@ extern "C" {
 #endif
 
 h5_ssize_t
-h5u_get_num_particles (
+h5u_get_num_points (
 	const h5_file_t);
 
 h5_ssize_t
-h5u_get_num_particles_in_view (
+h5u_get_num_points_in_view (
 	const h5_file_t);
 
 h5_ssize_t
@@ -35,7 +35,7 @@ h5u_get_totalnum_particles_by_idx (
         h5_id_t);
 
 h5_err_t
-h5u_set_num_particles (
+h5u_set_num_points (
 	const h5_file_t,
 	const h5_size_t, const h5_size_t);
 

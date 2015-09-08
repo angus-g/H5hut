@@ -18,7 +18,7 @@
 #include "h5core/h5u_model.h"
 
 h5_ssize_t
-h5u_get_num_particles (
+h5u_get_num_points (
 	const h5_file_t fh      /*!< [in]  Handle to open file */
 	) {
         h5_file_p f = (h5_file_p)fh;
@@ -27,7 +27,7 @@ h5u_get_num_particles (
 
 	if (h5u_has_view ((h5_file_t)f)) {
                 /* if a view exists, use its size as the number of particles */
-		TRY (nparticles = h5u_get_num_particles_in_view (fh));
+		TRY (nparticles = h5u_get_num_points_in_view (fh));
 	} else {
 		/* otherwise, report all particles on disk in the first dataset
                    for this timestep */
@@ -38,7 +38,7 @@ h5u_get_num_particles (
 }
 
 h5_ssize_t
-h5u_get_num_particles_in_view (
+h5u_get_num_points_in_view (
 	const h5_file_t fh      /*!< [in]  Handle to open file */
 	) {
         h5_file_p f = (h5_file_p)fh;
@@ -79,16 +79,19 @@ h5u_get_totalnum_particles_by_idx (
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p, idx=%lld", f, (long long)idx);
         char dataset_name[H5_DATANAME_LEN];
         dataset_name[0] = '\0';
-        TRY (hdf5_get_name_of_dataset_by_idx (
+	h5_err_t h5err;
+        TRY (h5err = hdf5_get_name_of_dataset_by_idx (
                     f->step_gid,
                     idx,
                     dataset_name,
                     H5_DATANAME_LEN));
+	if (h5err == H5_NOK)
+		H5_CORE_API_LEAVE (H5_NOK);
         H5_CORE_API_RETURN (h5u_get_totalnum_particles_by_name (fh, dataset_name));
 }
 
 h5_err_t
-h5u_set_num_particles (
+h5u_set_num_points (
 	const h5_file_t fh,		/*!< [in] Handle to open file */
 	const h5_size_t nparticles,	/*!< [in] Number of particles */
 	const h5_size_t stride		/*!< [in] Stride of particles in memory */
@@ -256,37 +259,74 @@ h5u_set_view (
 	if (f->u->shape > 0) {
 		TRY (total = hdf5_get_npoints_of_dataspace (f->u->shape) );
         } else {
-                TRY (total = (hsize_t)h5u_get_totalnum_particles_by_idx (fh,0));
+                TRY (total = (hsize_t)h5u_get_totalnum_particles_by_idx (fh, 0));
         }
-	if (total == 0) {
-		/* No datasets have been created yet and no views are set.
-		 * We have to leave the view empty because we don't know how
-		 * many particles there should be! */
-		H5_CORE_API_LEAVE (H5_SUCCESS);
-	}
-	if (end < 0) {
-		end = total+end;
+	h5_debug ("Total = %lld", (long long) total);
+	if ((long long)total <= 0) {
+		/*
+		  No datasets have been created yet and no views are set.
+		  We have to leave the view empty because we don't know how
+		  many particles there should be!
+
+		  :FIXME: Should 'total == 0' be considered valid or not?
+		  :FIXME: why not gather total size?
+		*/
+		if (start < 0) {
+			H5_CORE_API_LEAVE (
+				h5_error(
+					H5_ERR_INVAL,
+					"Start of selection '%lld' out of range: must be >= 0",
+					(long long)start)
+				);
+		}
+		if (end < start) {
+			H5_CORE_API_LEAVE (
+				h5_error(
+					H5_ERR_INVAL,
+					"End of selection '%lld' out of range: must be >= %lld",
+					(long long)end,
+					(long long)start)
+				);
+		}
+#if PARALLEL_IO
+		TRY (
+			h5priv_mpi_allreduce_max (
+			     &end, &total, 1, MPI_LONG_LONG, f->props->comm)
+			);
+#else
+		total = end - start;
+#endif
+		total++;
+		TRY (h5u_reset_view(fh));
+
+		TRY (hdf5_close_dataspace (u->shape));
+		TRY (u->shape = hdf5_create_dataspace(1, &total, NULL) );
+	} else {
+		if (end < 0) {
+			end = total+end;
+		}
+	
+		if (start < 0 || start >= total) {
+			H5_CORE_API_LEAVE (
+				h5_error(
+					H5_ERR_INVAL,
+					"Start of selection '%lld' out of range: must be in [0..%lld]",
+					(long long)start, (long long)total-1));
+		} else if (end < 0 || end >= total) {
+			H5_CORE_API_LEAVE (
+				h5_error(
+					H5_ERR_INVAL,
+					"End of selection '%lld' out of range: must be in [0..%lld]",
+					(long long)end, (long long)total-1));
+		} else if (end+1 < start) {
+			H5_CORE_API_LEAVE (
+				h5_error(
+					H5_ERR_INVAL,
+					"Invalid selection: start=%lld > end=%lld!\n",
+					(long long)start, (long long)end));
+		}
 	}
 	
-        if (start < 0 || start >= total) {
-		H5_CORE_API_LEAVE (
-		        h5_error(
-		                H5_ERR_INVAL,
-		                "Start of selection out of range: %lld not in [0..%lld]",
-		                (long long)start, (long long)total-1));
-        } else if (end < 0 || end >= total) {
-		H5_CORE_API_LEAVE (
-		        h5_error(
-		                H5_ERR_INVAL,
-		                "End of selection out of range: %lld not in [0..%lld]",
-		                (long long)end, (long long)total-1));
-        } else if (end+1 < start) {
-		H5_CORE_API_LEAVE (
-		        h5_error(
-		                H5_ERR_INVAL,
-		                "Invalid selection: start=%lld > end=%lld!\n",
-		                (long long)start, (long long)end));
-        }
 	/* setting up the new view */
 	u->viewstart =  start;
 	u->viewend =    end;
@@ -363,7 +403,7 @@ h5u_set_view_length (
 	u->nparticles = length;
 
 	h5_debug (
-	        "This view has %lld particles.",
+	        "This view includes %lld particles.",
 	        (long long)u->nparticles );
 
 	/* declare overall data size  but then will select a subset */
@@ -476,7 +516,7 @@ h5u_get_view (
 		viewend = u->viewend;
 	}
 	else {
-		TRY (viewend = h5u_get_num_particles (fh));
+		TRY (viewend = h5u_get_num_points (fh));
 	}
 
 	if ( start ) *start = viewstart;
@@ -497,7 +537,7 @@ h5u_set_canonical_view (
 	h5_int64_t start = 0;
 	h5_int64_t total = 0;
 
-	TRY (total = h5u_get_num_particles (fh));
+	TRY (total = h5u_get_num_points (fh));
 
 	u->nparticles = total / f->nprocs;
 

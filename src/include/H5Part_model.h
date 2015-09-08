@@ -47,6 +47,18 @@ extern "C" {
   \return	\c H5_SUCCESS or \c H5_FAILURE.
  */
 static inline h5_err_t
+H5PartSetNumPoints (
+	const h5_file_t f,		///< [in]  file handle.
+	h5_size_t npoints               ///< [in]  Number of elements.
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, npoints=%llu",
+		      (h5_file_p)f, (long long unsigned)npoints);
+	h5_size_t stride = 1;
+	H5_API_RETURN (h5u_set_num_points (f, npoints, stride));
+}
+
+static inline h5_err_t
 H5PartSetNumParticles (
 	const h5_file_t f,		///< [in]  file handle.
 	h5_size_t nparticles            ///< [in]  Number of particles.
@@ -55,7 +67,7 @@ H5PartSetNumParticles (
 		      "f=%p, nparticles=%llu",
 		      (h5_file_p)f, (long long unsigned)nparticles);
 	h5_size_t stride = 1;
-	H5_API_RETURN (h5u_set_num_particles (f, nparticles, stride));
+	H5_API_RETURN (h5u_set_num_points (f, nparticles, stride));
 }
 
 /*!
@@ -81,22 +93,22 @@ H5PartSetNumParticles (
   
   If you instead have a separate array for each fields,
   such as \c x[] and \c y[],
-  use \ref H5PartSetNumParticles.
+  use \ref H5PartSetNumParticles().
 
   \return	\c H5_SUCCESS or \c H5_FAILURE.
 */
 static inline h5_err_t
 H5PartSetNumParticlesStrided (
 	const h5_file_t f,              ///< [in]  file handle.
-	h5_size_t nparticles,           ///< [in]  number of particles.
+	h5_size_t npoints,              ///< [in]  number of elements.
 	h5_size_t stride                ///< [in]  stride value (e.g. number
                                         ///<       of fields in the particle array).
 	) {
 	H5_API_ENTER (h5_err_t,
-		      "f=%p, nparticles=%llu, stride=%llu",
-		      (h5_file_p)f, (long long unsigned)nparticles,
+		      "f=%p, npoints=%llu, stride=%llu",
+		      (h5_file_p)f, (long long unsigned)npoints,
 		      (long long unsigned)stride);
-	H5_API_RETURN (h5u_set_num_particles (f, nparticles, stride));
+	H5_API_RETURN (h5u_set_num_points (f, npoints, stride));
 }
 
 /*!
@@ -215,7 +227,7 @@ H5PartGetDatasetInfo (
   if a view has been set.
 
   If not, it returns the total number of particles across all processors
-  from the last \ref H5PartSetNumParticles call.
+  from the last \ref H5PartSetNumParticles() call.
 
   If you have neither set the number of particles
   nor set a view, then this returns the total number of
@@ -226,9 +238,19 @@ H5PartGetDatasetInfo (
   
   If none of these conditions are met, an error is thrown.
 
-  \return	number of particles in current step.
+  \return	number of elements in datasets in current step.
   \return       \c H5_FAILURE on error.
  */
+	static inline h5_ssize_t
+H5PartGetNumPoints (
+	const h5_file_t f		///< [in]  file handle.
+	) {
+	H5_API_ENTER (h5_ssize_t,
+                      "f=%p",
+                      (h5_file_p)f);
+	H5_API_RETURN (h5u_get_num_points (f));
+}
+
 static inline h5_ssize_t
 H5PartGetNumParticles (
 	const h5_file_t f		///< [in]  file handle.
@@ -236,7 +258,7 @@ H5PartGetNumParticles (
 	H5_API_ENTER (h5_ssize_t,
                       "f=%p",
                       (h5_file_p)f);
-	H5_API_RETURN (h5u_get_num_particles (f));
+	H5_API_RETURN (h5u_get_num_points (f));
 }
 
 /*!
@@ -260,7 +282,7 @@ H5PartResetView (
   \ingroup h5part_model
 
   Check whether a view has been set, either automatically with
-  \ref H5PartSetNumParticles or manually with \ref H5PartSetView
+  \ref H5PartSetNumParticles() or manually with \ref H5PartSetView
   or \ref H5PartSetViewIndices.
 
   \return \c 1 if view has been set.
@@ -288,7 +310,7 @@ H5PartHasView (
   is set, or the number of particles in a dataset changes, or the view is
   "unset" by calling \c H5PartSetView(file,-1,-1);
 
-  Before you set a view, \ref H5PartGetNumParticles will return the
+  Before you set a view, \ref H5PartGetNumPoints will return the
   total number of particles in the current time-step (even for the parallel
   reads).  However, after you set a view, it will return the number of
   particles contained in the view.
@@ -326,7 +348,7 @@ H5PartSetView (
   for all the intermediate values (which will not be touched by the read
   or write).
 
-  Before you set a view, the \c H5PartGetNumParticles() will return the
+  Before you set a view, the \c H5PartGetNumPoints() will return the
   total number of particles in the current time-step (even for the parallel
   reads).  However, after you set a view, it will return the number of
   particles contained in the view.
