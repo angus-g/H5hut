@@ -54,7 +54,6 @@ libH5hut_la_SOURCES =				\
 	h5_hsearch.c				\
 	h5_maps.c				\
 	h5_model.c				\
-	h5_mpi.c				\
 	h5_openclose.c				\
 	h5_qsort.c				\
 	h5_qsort_r.c				\
