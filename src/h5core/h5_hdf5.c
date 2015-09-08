@@ -359,6 +359,8 @@ hdf5_get_name_of_dataset_by_idx (
 		                (long unsigned int)idx,
 		                hdf5_get_objname (loc_id)));
 	}
+	if (op_data.cnt < 0)
+		HDF5_WRAPPER_LEAVE (H5_NOK);
 	HDF5_WRAPPER_RETURN (H5_SUCCESS);
 }
 
