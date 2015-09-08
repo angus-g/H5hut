@@ -27,7 +27,7 @@ h5pt_setnpoints (
 	H5_API_ENTER (h5_int64_t,
                       "fh=%p, npoints=%lld",
                       (h5_file_p)f, (long long)*npoints);
-	H5_API_RETURN (h5u_set_num_particles (f, *npoints, 1));
+	H5_API_RETURN (h5u_set_num_points (f, *npoints, 1));
 }
                 
 #define h5pt_setnpoints_strided FC_MANGLING (				\
@@ -43,7 +43,7 @@ h5pt_setnpoints_strided (
 	H5_API_ENTER (h5_int64_t,
                       "fh=%p, npoints=%lld, stride=%lld",
                       (h5_file_p)f, (long long)*npoints, (long long)*stride);
-	H5_API_RETURN (h5u_set_num_particles (f, *npoints, *stride));
+	H5_API_RETURN (h5u_set_num_points (f, *npoints, *stride));
 }
 
 
@@ -171,7 +171,7 @@ h5pt_getnpoints (
 	) {
 	h5_file_t f = h5_filehandlefor2c (fh);
 	H5_API_ENTER (h5_int64_t, "fh=%p", (h5_file_p)f);
-	H5_API_RETURN (h5u_get_num_particles (f));
+	H5_API_RETURN (h5u_get_num_points (f));
 }
 
 #define h5pt_getdatasetname FC_MANGLING (				\
