@@ -277,8 +277,11 @@ hdf5_create_dataspace (
         const hsize_t* maxdims
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "rank=%d",
-	                    rank);
+	                    "rank=%d, dims[0]=%lld,...,maxdims[0]=%lld,...",
+	                    rank,
+			    (dims ? (long long)dims[0] : -1),
+			    (maxdims ? (long long)maxdims[0] : -1)
+		);
 	hid_t dataspace_id = H5Screate_simple (rank, dims, maxdims);
 	if (dataspace_id < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -496,10 +499,13 @@ hdf5_create_dataset (
         const hid_t create_proplist
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%d (%s), dataset_name='%s'",
+	                    "loc_id=%d (%s), dataset_name='%s', dataspace_id=%d, create_proplist=%d",
 	                    loc_id,
 	                    hdf5_get_objname (loc_id),
-	                    dataset_name);
+	                    dataset_name,
+			    dataspace_id,
+			    create_proplist
+		);
 	hid_t dataset_id = H5Dcreate (
 	        loc_id,
 	        dataset_name,
