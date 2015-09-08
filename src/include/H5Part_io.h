@@ -24,7 +24,7 @@ extern "C" {
 
   Write array of 64 bit floating point data to file.
 
-  After setting the number of particles with \c H5PartSetNumParticles() and
+  After setting the number of elements with \c H5PartSetNumParticles() and
   the current timestep using \c H5SetStep(), you can start writing datasets
   into the file. Each dataset has a name associated with it (chosen by the
   user) in order to facilitate later retrieval. The name of the dataset is
@@ -38,8 +38,8 @@ extern "C" {
   type representations.
 
   All data that is written after setting the timestep is associated with that
-  timestep. While the number of particles can change for each timestep, you
-  cannot change the number of particles in the middle of a given timestep.
+  timestep. While the number of elements can change for each timestep, you
+  cannot change the number of elements in the middle of a given timestep.
 
   The data is committed to disk before the routine returns.
 
@@ -62,24 +62,7 @@ H5PartWriteDataFloat64 (
 
   Write array of 32 bit floating point data to file.
 
-  After setting the number of particles with \c H5PartSetNumParticles() and
-  the current timestep using \c H5SetStep(), you can start writing datasets
-  into the file. Each dataset has a name associated with it (chosen by the
-  user) in order to facilitate later retrieval. The name of the dataset is
-  specified in the parameter \c name, which must be a null-terminated string.
-
-  There are no restrictions on naming of datasets, but it is useful to arrive
-  at some common naming convention when sharing data with other groups.
-
-  The writing routines also implicitly store the datatype of the array so that
-  the array can be reconstructed properly on other systems with incompatible
-  type representations.
-
-  All data that is written after setting the timestep is associated with that
-  timestep. While the number of particles can change for each timestep, you
-  cannot change the number of particles in the middle of a given timestep.
-
-  The data is committed to disk before the routine returns.
+  See \c H5PartWriteDataFloat64() for more details.
 
   \return	\c H5_SUCCESS or \c H5_FAILURE.
  */
@@ -100,24 +83,7 @@ H5PartWriteDataFloat32 (
 
   Write array of 64 bit integer data to file.
 
-  After setting the number of particles with \c H5PartSetNumParticles() and
-  the current timestep using \c H5SetStep(), you can start writing datasets
-  into the file. Each dataset has a name associated with it (chosen by the
-  user) in order to facilitate later retrieval. The name of the dataset is
-  specified in the parameter \c name, which must be a null-terminated string.
-
-  There are no restrictions on naming of datasets, but it is useful to arrive
-  at some common naming convention when sharing data with other groups.
-
-  The writing routines also implicitly store the datatype of the array so that
-  the array can be reconstructed properly on other systems with incompatible
-  type representations.
-
-  All data that is written after setting the timestep is associated with that
-  timestep. While the number of particles can change for each timestep, you
-  cannot change the number of particles in the middle of a given timestep.
-
-  The data is committed to disk before the routine returns.
+  See \c H5PartWriteDataFloat64() for more details.
 
   \return	\c H5_SUCCESS or \c H5_FAILURE.
  */
@@ -138,24 +104,7 @@ H5PartWriteDataInt64 (
 
   Write array of 32 bit integer data to file.
 
-  After setting the number of particles with \c H5PartSetNumParticles() and
-  the current timestep using \c H5SetStep(), you can start writing datasets
-  into the file. Each dataset has a name associated with it (chosen by the
-  user) in order to facilitate later retrieval. The name of the dataset is
-  specified in the parameter \c name, which must be a null-terminated string.
-
-  There are no restrictions on naming of datasets, but it is useful to arrive
-  at some common naming convention when sharing data with other groups.
-
-  The writing routines also implicitly store the datatype of the array so that
-  the array can be reconstructed properly on other systems with incompatible
-  type representations.
-
-  All data that is written after setting the timestep is associated with that
-  timestep. While the number of particles can change for each timestep, you
-  cannot change the number of particles in the middle of a given timestep.
-
-  The data is committed to disk before the routine returns.
+  See \c H5PartWriteDataFloat64() for more details.
 
   \return	\c H5_SUCCESS or \c H5_FAILURE.
  */
@@ -176,16 +125,13 @@ H5PartWriteDataInt32 (
 
   Read array of 64 bit floating point data from file.
 
-  When retrieving datasets from disk, you ask for them
-  by name. There are no restrictions on naming of arrays,
-  but it is useful to arrive at some common naming
-  convention when sharing data with other groups.
+  See \c H5PartWriteDataFloat64() for more details.
 
   \return	\c H5_SUCCESS or \c H5_FAILURE.
 */
 static inline h5_err_t
 H5PartReadDataFloat64 (
-	const h5_file_t f,                   ///< [in]  file handle.
+	const h5_file_t f,              ///< [in]  file handle.
 	const char* name,       	///< [in]  name to associate dataset with.
 	h5_float64_t* data      	///< [out] array of data.
 	) {
@@ -200,10 +146,7 @@ H5PartReadDataFloat64 (
 
   Read array of 32 bit floating point data from file.
 
-  When retrieving datasets from disk, you ask for them
-  by name. There are no restrictions on naming of arrays,
-  but it is useful to arrive at some common naming
-  convention when sharing data with other groups.
+  See \c H5PartWriteDataFloat64() for more details.
 
   \return	\c H5_SUCCESS or \c H5_FAILURE.
 */
@@ -224,10 +167,7 @@ H5PartReadDataFloat32 (
 
   Read array of 64 bit integer data from file.
 
-  When retrieving datasets from disk, you ask for them
-  by name. There are no restrictions on naming of arrays,
-  but it is useful to arrive at some common naming
-  convention when sharing data with other groups.
+  See \c H5PartWriteDataFloat64() for more details.
 
   \return	\c H5_SUCCESS or \c H5_FAILURE.
 */
@@ -248,10 +188,7 @@ H5PartReadDataInt64 (
 
   Read array of 32 bit integer data from file.
 
-  When retrieving datasets from disk, you ask for them
-  by name. There are no restrictions on naming of arrays,
-  but it is useful to arrive at some common naming
-  convention when sharing data with other groups.
+  See \c H5PartWriteDataFloat64() for more details.
 
   \return	\c H5_SUCCESS or \c H5_FAILURE.
 */
