@@ -244,7 +244,6 @@ h5_verror (
         const char* fmt,
         va_list ap
         ) {
-
-	if ((h5_debug_level & 0x3) < 1) return;
+	if (h5_debug_level == 0) return;
 	h5priv_vprintf (stderr, "E", h5_call_stack.entry[0].name, fmt, ap);
 }
