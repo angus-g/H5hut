@@ -62,13 +62,13 @@
 
      !>
      !! \ingroup h5hut_file_f
-     !! Store core VFD.
+     !! Use the core virtual file driver.
      !! See \ref H5SetPropCoreVFD
      !! \return 0 on success or -2 on error
      !<
-     INTEGER*8 FUNCTION h5_setprop_file_core_vfd (prop)
+     INTEGER*8 FUNCTION h5_setprop_file_corevfd (prop)
        INTEGER*8, INTENT(IN) :: prop               !< property
-     END FUNCTION h5_setprop_file_core_vfd
+     END FUNCTION h5_setprop_file_corevfd
 
      !>
      !! \ingroup h5hut_file_f
