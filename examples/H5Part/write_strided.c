@@ -9,62 +9,65 @@
 
 #include "H5hut.h"
 
-#define DEFAULT_VERBOSITY       H5_VERBOSE_DEFAULT
+// name of output file
+const char* fname = "example_strided.h5";
 
-#define FNAME                   "example_strided.h5"
-#define NPOINTS                 99
+// H5hut verbosity level
+const h5_int64_t h5_verbosity = H5_VERBOSE_DEFAULT;
+
+// number of particles we are going to write per core
+const h5_int64_t num_particles = 99;
 
 int
 main (
-	int argc,
-	char** argv
-	) {
-        h5_int64_t verbosity = DEFAULT_VERBOSITY;
-
-        // MPI & H5hut init
-	MPI_Init (&argc, &argv);
-        int rank;
+        int argc,
+	char* argv[]
+        ){
+	
+        // initialize MPI & H5hut
+        MPI_Init (&argc, &argv);
         MPI_Comm comm = MPI_COMM_WORLD;
-        MPI_Comm_rank (comm, &rank);
-
+        int comm_size = 1;
+        MPI_Comm_size (comm, &comm_size);
+        int comm_rank = 0;
+        MPI_Comm_rank (comm, &comm_rank);
         H5AbortOnError ();
-        H5SetVerbosityLevel (verbosity);
+        H5SetVerbosityLevel (h5_verbosity);
+
+        // open file and create first step
+        h5_file_t file = H5OpenFile (fname, H5_O_WRONLY, H5_PROP_DEFAULT);
+        H5SetStep (file, 0);
 
         // create fake data
-        h5_float64_t particles[6*NPOINTS];
-        h5_int64_t id[NPOINTS];
-        for (int i = 0; i < NPOINTS; i++) {
-                particles [6*i + 0] = 0.0 + i + NPOINTS * rank;
-                particles [6*i + 1] = 0.1 + i + NPOINTS * rank;
-                particles [6*i + 2] = 0.2 + i + NPOINTS * rank;
-                particles [6*i + 3] = 0.3 + i + NPOINTS * rank;
-                particles [6*i + 4] = 0.4 + i + NPOINTS * rank;
-                particles [6*i + 5] = 0.5 + i + NPOINTS * rank;
-                id [i] = i + NPOINTS * rank;
+        h5_float64_t data[6*num_particles];
+        h5_int64_t id[num_particles];
+        for (int i = 0; i < num_particles; i++) {
+                data [6*i + 0] = 0.0 + i + num_particles * comm_rank;
+                data [6*i + 1] = 0.1 + i + num_particles * comm_rank;
+                data [6*i + 2] = 0.2 + i + num_particles * comm_rank;
+                data [6*i + 3] = 0.3 + i + num_particles * comm_rank;
+                data [6*i + 4] = 0.4 + i + num_particles * comm_rank;
+                data [6*i + 5] = 0.5 + i + num_particles * comm_rank;
+                id [i] = i + num_particles * comm_rank;
         }
-
-        // open file with MPI_COMM_WORLD and create step #0
-        h5_file_t file = H5OpenFile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT);
-        H5SetStep (file, 0);
 
         // define number of items this processor will write and set the
         // in-memory striding
-        H5PartSetNumParticlesStrided (file, NPOINTS, 6);
+        H5PartSetNumParticlesStrided (file, num_particles, 6);
 
         // write strided data
-        H5PartWriteDataFloat64 (file, "x",  particles+0);
-        H5PartWriteDataFloat64 (file, "y",  particles+1);
-        H5PartWriteDataFloat64 (file, "z",  particles+2);
-        H5PartWriteDataFloat64 (file, "px", particles+3);
-        H5PartWriteDataFloat64 (file, "py", particles+4);
-        H5PartWriteDataFloat64 (file, "pz", particles+5);
+        H5PartWriteDataFloat64 (file, "x",  data+0);
+        H5PartWriteDataFloat64 (file, "y",  data+1);
+        H5PartWriteDataFloat64 (file, "z",  data+2);
+        H5PartWriteDataFloat64 (file, "px", data+3);
+        H5PartWriteDataFloat64 (file, "py", data+4);
+        H5PartWriteDataFloat64 (file, "pz", data+5);
 
         // disable striding to write the ID's
-        H5PartSetNumParticles (file, NPOINTS);
+        H5PartSetNumParticles (file, num_particles);
         H5PartWriteDataInt64 (file, "id", id);
 
         // cleanup
 	H5CloseFile (file);
-	MPI_Finalize ();
-	return 0;
+	return MPI_Finalize ();
 }

@@ -7,60 +7,68 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include <stdlib.h>
 #include "H5hut.h"
 
-#define DEFAULT_VERBOSITY       H5_VERBOSE_DEFAULT
+// name of output file
+const char* fname = "example_setview.h5";
 
-#define FNAME                   "example_setview.h5"
-#define DATASIZE                32
-#define ITERS                   4
+// H5hut verbosity level
+const h5_int64_t h5_verbosity = H5_DEBUG_ALL;
+
+// we are going to write multiple consecutive blocks
+const h5_int64_t num_blocks = 4;
+const h5_int64_t num_particles_per_block = 32;
 
 int
 main (
-        int argc, char** argv
-        ) {
-        h5_int64_t verbosity = DEFAULT_VERBOSITY;
+	int argc,
+	char* argv[]
+        ){
 
         // initialize MPI & H5hut
         MPI_Init (&argc, &argv);
         MPI_Comm comm = MPI_COMM_WORLD;
+        int comm_size = 1;
+        MPI_Comm_size (comm, &comm_size);
         int comm_rank = 0;
         MPI_Comm_rank (comm, &comm_rank);
-
         H5AbortOnError ();
-        H5SetVerbosityLevel (verbosity);
+        H5SetVerbosityLevel (h5_verbosity);
 
-        // create fake data
-        h5_int64_t npoints = ITERS*DATASIZE;
-        h5_int32_t data[ITERS*DATASIZE];
-        for (int i = 0; i < npoints; i++) {
-                data[i] = i + comm_rank*npoints;
-        }
+        // open file and create first step
+        h5_file_t file = H5OpenFile (fname, H5_O_WRONLY, H5_PROP_DEFAULT);
+        H5SetStep (file, 0);
 
-        // open file and create step #0
-        h5_file_t file = H5OpenFile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT);
-        H5SetStep(file, 0);
+	/*
+	  If we want to write consecutive blocks, the 'view' can be defined
+	  with H5PartSetview(). Otherwise we have to define the total number
+	  of particles with H5PartSetNumParticles().
+	 */
+        const h5_int64_t offset = comm_rank * num_blocks * num_particles_per_block;
+	H5PartSetView (
+		file,
+		offset,
+		offset + num_blocks*num_particles_per_block -1);
 
-        // before we can start writing, we have to define the number of
-        // items this processor will write
-        H5PartSetNumParticles(file, npoints);
-
-        // write ITER consecutive blocks of size DATASIZE
-        h5_int64_t offset = comm_rank * npoints;
-        for (int i = 0; i < ITERS; i++) {
+        // write multiple consecutive blocks
+        for (int i = 0; i < num_blocks; i++) {
+		// create fake data
+		h5_int32_t data[num_particles_per_block];
+		for (int j = 0; j < num_particles_per_block; j++) {
+			data[j] = j + i*num_particles_per_block + offset;
+		}
+		
                 // set the "view" to select a subset of the dataset
                 H5PartSetView (
                         file,
-                        offset + i * DATASIZE,
-                        offset + (i+1) * DATASIZE - 1);
-                // write the data
-                H5PartWriteDataInt32 (file, "data", data + i*DATASIZE);
+                        offset + i*num_particles_per_block,
+                        offset + (i+1)*num_particles_per_block - 1);
+                // write data
+                H5PartWriteDataInt32 (file, "data", data);
         }
 
         // done
         H5CloseFile(file);
-        MPI_Finalize();
-        return H5_SUCCESS;
+        return MPI_Finalize();
 }
 

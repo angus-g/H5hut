@@ -13,40 +13,40 @@ program read_setviewf
   implicit none
   include 'mpif.h'
 
-  ! the file name we want to read
-  character (len=*), parameter :: FNAME =       "example_setview.h5"
-  integer*8, parameter :: DEFAULT_VERBOSITY = H5_VERBOSE_DEFAULT
+  ! name of input file
+  character (len=*), parameter :: fname = "example_setview.h5"
 
-  integer*8 :: verbosity = DEFAULT_VERBOSITY
-  integer :: comm, comm_rank, comm_size, ierr
-  integer*8 :: file, status
-  integer*8 :: i
+  ! H5hut verbosity level
+  integer*8, parameter :: h5_verbosity = H5_VERBOSE_DEFAULT
+  
+  integer   :: comm, comm_size, comm_rank, mpi_ierror
+  integer*8 :: file, h5_ierror
+  integer*8 :: num_particles, num_particles_total
+  integer*8 :: i, start, end, remainder
   integer*4, allocatable :: data(:)
-  integer*8 :: total_particles, nparticles, remainder
-  integer*8 :: start, end
-
+  
   ! initialize MPI & H5hut
   comm = MPI_COMM_WORLD
-  call mpi_init (ierr)
-  call mpi_comm_rank (comm, comm_rank, ierr)
-  call mpi_comm_size (comm, comm_size, ierr)
+  call mpi_init (mpi_error)
+  call mpi_comm_size (comm, comm_size, mpi_ierror)
+  call mpi_comm_rank (comm, comm_rank, mpi_ierror)
   call h5_abort_on_error ()
-  call h5_set_verbosity_level (verbosity)
+  call h5_set_verbosity_level (h5_verbosity)
 
   ! open file and go to first step
-  file = h5_openfile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT)
-  status = h5_setstep (file, 1_8)
+  file = h5_openfile (fname, H5_O_RDONLY, H5_PROP_DEFAULT)
+  h5_ierror = h5_setstep(file, 1_8)
 
-  ! compute a "canonical" view: all cores get almost the same number of
-  ! particles
-  total_particles = h5pt_getnpoints (file);
-  nparticles = total_particles / comm_size;
-  remainder = mod (total_particles, comm_size);
-  start = comm_rank * nparticles;
+  ! compute a "canonical" view:
+  ! all cores get almost the same number of particles
+  num_particles_total = h5pt_getnpoints (file);
+  num_particles = num_particles_total / comm_size;
+  remainder = mod (num_particles_total, comm_size);
+  start = comm_rank * num_particles;
 
   ! adjust number of local particles
   if (comm_rank < remainder) then
-     nparticles = nparticles + 1
+     num_particles = num_particles + 1
   end if
 
   ! adjust start
@@ -56,27 +56,28 @@ program read_setviewf
      start = start + remainder
   end if
   
-  ! Note: setting end = start - 1 forces the 
-  ! selection of zero particles!
-  end = start + nparticles - 1;
+  ! Note:
+  ! setting end = start - 1 forces the selection of zero particles!
+  end = start + num_particles - 1;
 
-  ! in Fortran we start at 1 not 0
+  ! adjust Fortran indices: in Fortran we start at 1 not 0
   start = start + 1
   end = end + 1
 
   write (*, "('[proc ', i4, ']: set view to [', i4, '..', i4, ']')") comm_rank, start, end
-  status = h5pt_setview (file, start, end);
-  allocate (data (nparticles))
+  h5_ierror = h5pt_setview (file, start, end);
 
-  status = h5pt_readdata_i4 (file, "data", data);
-  do i = 1, nparticles
+  ! read and print data
+  allocate (data (num_particles))
+  h5_ierror = h5pt_readdata_i4 (file, "data", data);
+  do i = 1, num_particles
      write (*, "('[proc ', i4, ']: global index = ', i4, '; local index = ', i4, ', value = ', i4)") &
           comm_rank, start+i-1, i, data(i)
   end do
 
   ! cleanup
-  status = h5_closefile (file)
   deallocate (data)
-  call mpi_finalize (ierr)
+  h5_ierror = h5_closefile (file)
+  call mpi_finalize (mpi_ierror)
 
 end program read_setviewf

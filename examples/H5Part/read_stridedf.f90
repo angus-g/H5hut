@@ -12,47 +12,55 @@ program read_stridedf
   use H5hut
   implicit none
   include 'mpif.h'
+  ! name of input file
+  character (len=*), parameter :: fname = "example_strided.h5"
 
-  ! the file name we want to read
-  character (len=*), parameter :: FNAME =       "example_strided.h5"
-  integer*8, parameter :: DEFAULT_VERBOSITY = H5_VERBOSE_DEFAULT
-
-  integer*8 :: verbosity = DEFAULT_VERBOSITY
-  integer :: comm, comm_rank, comm_size, ierr
-  integer*8 :: file, status
+  ! H5hut verbosity level
+  integer*8, parameter :: h5_verbosity = H5_VERBOSE_DEFAULT
+  
+  integer   :: comm, comm_size, comm_rank, mpi_ierror
+  integer*8 :: file, h5_ierror
+  integer*8 :: num_particles
   real*8, allocatable :: data(:)
-  integer*8 :: nparticles
-
+  integer*8 :: i, start
+  
   ! initialize MPI & H5hut
   comm = MPI_COMM_WORLD
-  call mpi_init (ierr)
-  call mpi_comm_rank (comm, comm_rank, ierr)
-  call mpi_comm_size (comm, comm_size, ierr)
+  call mpi_init (mpi_error)
+  call mpi_comm_size (comm, comm_size, mpi_ierror)
+  call mpi_comm_rank (comm, comm_rank, mpi_ierror)
   call h5_abort_on_error ()
-  call h5_set_verbosity_level (verbosity)
+  call h5_set_verbosity_level (h5_verbosity)
 
   ! open file and go to first step
-  file = h5_openfile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT)
-  status = h5_setstep (file, 1_8)
+  file = h5_openfile (fname, H5_O_RDONLY, H5_PROP_DEFAULT)
+  h5_ierror = h5_setstep(file, 1_8)
 
-  ! Get number of particles in datasets and allocate memory
-  nparticles = h5pt_getnpoints (file)
-  allocate (data (6*nparticles))
+  ! Get number of particles in datasets
+  num_particles = h5pt_getnpoints (file)
     
   ! set number of particles and memory stride
-  status = h5pt_setnpoints_strided (file, nparticles, 6_8)
+  h5_ierror = h5pt_setnpoints_strided (file, num_particles, 6_8)
 
   ! read data
-  status = h5pt_readdata_r8 (file, "x",  data(1:))
-  status = h5pt_readdata_r8 (file, "y",  data(2:))
-  status = h5pt_readdata_r8 (file, "z",  data(3:))
-  status = h5pt_readdata_r8 (file, "px", data(4:))
-  status = h5pt_readdata_r8 (file, "py", data(5:))
-  status = h5pt_readdata_r8 (file, "pz", data(6:))
+  allocate (data (6*num_particles))
+  h5_ierror = h5pt_readdata_r8 (file, "x",  data(1:))
+  h5_ierror = h5pt_readdata_r8 (file, "y",  data(2:))
+  h5_ierror = h5pt_readdata_r8 (file, "z",  data(3:))
+  h5_ierror = h5pt_readdata_r8 (file, "px", data(4:))
+  h5_ierror = h5pt_readdata_r8 (file, "py", data(5:))
+  h5_ierror = h5pt_readdata_r8 (file, "pz", data(6:))
+
+  ! print dataset "x"
+  start = 1
+  do i = start, num_particles*6, 6
+     write (*, "('[proc ', i4, ']: global index = ', i4, '; local index = ', i4, ', value = ', f10.2)") &
+          comm_rank, start+i-2, i, data(i)
+  end do
   
   ! cleanup
-  status = h5_closefile (file)
   deallocate (data)
-  call mpi_finalize (ierr)
+  h5_ierror = h5_closefile (file)
+  call mpi_finalize (mpi_ierror)
 
 end program read_stridedf

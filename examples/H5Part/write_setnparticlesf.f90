@@ -13,40 +13,48 @@ program write_setnparticles
   implicit none
   include 'mpif.h'
 
-  ! the file name we want to read
-  character (len=*), parameter :: FNAME =       "example_setnparticles.h5"
-  integer*8, parameter :: NPOINTS =             99
 
-  integer :: comm, rank, ierr
-  integer*8 :: file, status
+  ! name of output file
+  character (len=*), parameter :: fname = "example_setnparticles.h5"
+
+  ! H5hut verbosity level
+  integer*8, parameter :: h5_verbosity = H5_VERBOSE_DEFAULT
+
+  ! number of particles we are going to write per core
+  integer*8, parameter :: num_particles = 32
+
+  integer   :: comm, comm_size, comm_rank, mpi_ierror
+  integer*8 :: file, h5_ierror
   integer*4 :: i
   integer*4, allocatable :: data(:)
 
-  ! init MPI & H5hut
+  ! initialize MPI & H5hut
   comm = MPI_COMM_WORLD
-  call mpi_init(ierr)
-  call mpi_comm_rank(comm, rank, ierr)
+  call mpi_init (mpi_ierror)
+  call mpi_comm_size (comm, comm_size, mpi_ierror)
+  call mpi_comm_rank (comm, comm_rank, mpi_ierror)
   call h5_abort_on_error ()
+  call h5_set_verbosity_level (h5_verbosity)
+
+  ! open file and create first step
+  file = h5_openfile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT)
+  h5_ierror = h5_setstep(file, 0_8)
+
+  ! define number of particles this process will write
+  h5_ierror = h5pt_setnpoints (file, num_particles)
 
   ! create fake data
-  allocate (data (NPOINTS))
-  do i = 1, NPOINTS
-    data (i) = i + int(NPOINTS)*rank
+  allocate (data (num_particles))
+  do i = 1, num_particles
+    data (i) = i + int(num_particles)*comm_rank
   enddo
 
-  ! open the a file for parallel writing and ceate step #0
-  file = h5_openfile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT)
-  status = h5_setstep(file, 0_8)
-
-  ! set the size of the 1D array
-  status = h5pt_setnpoints (file, npoints)
-
-  ! write the particles
-  status = h5pt_writedata_i4 (file, "data", data)
+  ! write data
+  h5_ierror = h5pt_writedata_i4 (file, "data", data)
 
   ! cleanup
-  status = h5_closefile (file)
   deallocate (data)
-  call mpi_finalize (ierr)
+  h5_ierror = h5_closefile (file)
+  call mpi_finalize (mpi_ierror)
 
 end program write_setnparticles

@@ -13,52 +13,54 @@ program write_setview
   implicit none
   include 'mpif.h'
 
-  ! the file name we want to read
-  character (len=*), parameter :: FNAME =       "example_setview.h5"
-  integer*8, parameter :: DATASIZE =            32
-  integer*8, parameter :: ITERS =               4
+  ! name of output file
+  character (len=*), parameter :: fname = "example_setview.h5"
 
-  integer*4, parameter :: npoints =             ITERS*DATASIZE
+  ! H5hut verbosity level
+  integer*8, parameter :: h5_verbosity = H5_VERBOSE_DEFAULT
 
-  integer :: comm, rank, ierr
-  integer*8 :: file, status
-  integer*4 :: i
+  ! we are going to write multiple consecutive blocks
+  integer*8, parameter :: num_blocks = 4;
+  integer*8, parameter :: num_particles_per_block = 32
+
+  integer   :: comm, comm_size, comm_rank, mpi_ierror
+  integer*8 :: file, h5_ierror
+  integer*8 :: i, j, offset
   integer*4, allocatable :: data(:)
-  integer*8 start, end, offset
 
-  ! init MPI & H5hut
+  ! initialize MPI & H5hut
   comm = MPI_COMM_WORLD
-  call mpi_init(ierr)
-  call mpi_comm_rank(comm, rank, ierr)
+  call mpi_init (mpi_ierror)
+  call mpi_comm_size (comm, comm_size, mpi_ierror)
+  call mpi_comm_rank (comm, comm_rank, mpi_ierror)
   call h5_abort_on_error ()
-  call h5_set_verbosity_level (-1_8)
+  call h5_set_verbosity_level (h5_verbosity)
 
-
-  ! create fake data
-  allocate (data (npoints))
-  do i = 1, npoints
-    data (i) = (i-1) + rank*npoints
-  enddo
-
-  ! open the a file for parallel writing and ceate step #0
+  ! open file and create first step
   file = h5_openfile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT)
-  status = h5_setstep(file, 1_8)
+  h5_ierror = h5_setstep(file, 1_8)
 
-  ! set the size of the 1D array
-  status = h5pt_setnpoints (file, int8(npoints))
+  ! If we want to write consecutive blocks, the 'view' can be defined
+  ! with H5PartSetview(). Otherwise we have to define the total number
+  ! of particles with H5PartSetNumParticles().
+  offset = comm_rank * num_blocks * num_particles_per_block+1
+  h5_ierror = h5pt_setview (file, offset, offset + num_blocks*num_particles_per_block)
 
-  offset = rank*npoints
-  do i = 1, ITERS
-     start = offset + 1 + (i-1)*DATASIZE
-     end = offset + i*DATASIZE 
-     status = h5pt_setview (file, start, end)
-     ! write the particles
-     status = h5pt_writedata_i4 (file, "data", data ((i-1)*DATASIZE+1))
+  !  write multiple consecutive blocks
+  allocate (data (num_particles_per_block))
+  do i = 1, num_blocks
+     ! create fake data
+     do j = 1, num_particles_per_block
+        data (i) = int((j-1) + i*num_particles_per_block + offset)
+     end do
+     h5_ierror = h5pt_setview (file, offset + i*num_particles_per_block, (i+1)*num_particles_per_block)
+     ! write data
+     h5_ierror = h5pt_writedata_i4 (file, "data", data)
   end do
 
   ! cleanup
-  status = h5_closefile (file)
   deallocate (data)
-  call mpi_finalize (ierr)
+  h5_ierror = h5_closefile (file)
+  call mpi_finalize (mpi_ierror)
 
 end program write_setview

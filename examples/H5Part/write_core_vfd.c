@@ -7,53 +7,59 @@
   License: see file COPYING in top level of source distribution.
 */
 
+/*
+  Note:
+  Running this example on more than one core is possible but the result
+  might not be what you expect. Please read the HDF5 documentation about 
+  the VFD core driver.
+*/
 #include "H5hut.h"
 
-#define DEFAULT_VERBOSITY       H5_VERBOSE_DEFAULT
+// name of output file
+const char* fname = "example_core_vfd.h5";
 
-#define FNAME                   "example_core_vfd"
-#define DATASIZE                32
+// H5hut verbosity level
+const h5_int64_t h5_verbosity = H5_VERBOSE_DEFAULT;
+
+// number of particles we are going to write per core
+const h5_int64_t num_particles = 32;
 
 int
 main (
-        int argc, char* argv[]
+        int argc,
+	char* argv[]
         ){
-        h5_int64_t verbosity = DEFAULT_VERBOSITY;
-
+	
         // initialize MPI & H5hut
-        int comm_rank = 0;
-        int comm_size = 1;
         MPI_Init (&argc, &argv);
         MPI_Comm comm = MPI_COMM_WORLD;
-        MPI_Comm_rank (comm, &comm_rank);
+        int comm_size = 1;
         MPI_Comm_size (comm, &comm_size);
-
+        int comm_rank = 0;
+        MPI_Comm_rank (comm, &comm_rank);
         H5AbortOnError ();
-        H5SetVerbosityLevel (verbosity);
+        H5SetVerbosityLevel (h5_verbosity);
 
-        // open file and go to step#0
-        char fname[64];
-        sprintf (fname, "%s.%d.h5", FNAME, comm_rank);
+        // open file and create first step
         h5_prop_t prop = H5CreateFileProp ();
         H5SetPropFileCoreVFD (prop);
-        h5_file_t file = H5OpenFile (fname, H5_O_RDONLY, prop);
+        h5_file_t file = H5OpenFile (fname, H5_O_WRONLY, prop);
         H5SetStep (file, 0);
 
-        h5_int32_t data[DATASIZE];
-
-        H5PartSetNumParticles(file, DATASIZE);
+	// set number of particles this process is going to write
+        H5PartSetNumParticles(file, num_particles);
 
         // create fake data
-        for (int i = 0; i < DATASIZE; i++) {
-                data[i] = i + comm_rank * DATASIZE;
+        h5_int32_t data[num_particles];
+        for (int i = 0; i < num_particles; i++) {
+                data[i] = i + comm_rank * num_particles;
         }
 
         // write the data
         H5PartWriteDataInt32 (file, "data", data);
-        
-        H5CloseFile (file);
 
-        MPI_Finalize ();
-        return H5_SUCCESS;
+	// cleanup
+        H5CloseFile (file);
+        return MPI_Finalize ();
 }
 

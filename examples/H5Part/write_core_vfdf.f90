@@ -13,24 +13,50 @@ program write_core_vfd
   implicit none
   include 'mpif.h'
 
-  ! the file name we want to read
-  character (len=*), parameter :: FNAME =       "example_core_vfd"
-  integer*8, parameter :: DIM =                 99
+  ! name of output file
+  character (len=*), parameter :: fname = "example_core_vfd.h5"
 
-  integer :: comm, rank, ierr
-  integer*8 :: file, status
+  ! H5hut verbosity level
+  integer*8, parameter :: h5_verbosity = H5_VERBOSE_DEFAULT
+
+  ! number of particles we are going to write per core
+  integer*4, parameter :: num_particles = 32
+
+  integer   :: comm, comm_size, comm_rank, mpi_ierror
+  integer*8 :: file, h5_ierror
+  integer*8 :: prop
+  integer*4 :: i
   integer*4, allocatable :: data(:)
 
-  ! init MPI & H5hut
+  ! initialize MPI & H5hut
   comm = MPI_COMM_WORLD
-  call mpi_init(ierr)
-  call mpi_comm_rank(comm, rank, ierr)
+  call mpi_init (mpi_ierror)
+  call mpi_comm_size (comm, comm_size, mpi_ierror)
+  call mpi_comm_rank (comm, comm_rank, mpi_ierror)
   call h5_abort_on_error ()
+  call h5_set_verbosity_level (h5_verbosity)
 
+  ! open file and create first step
+  prop = h5_createprop_file ()
+  h5_ierror = h5_setprop_file_corevfd (prop);
+  file = h5_openfile (fname, H5_O_WRONLY, prop)
+  h5_ierror = h5_setstep(file, 1_8)
+
+  ! set number of particles this process is going to write
+  h5_ierror = h5pt_setnpoints (file, int8 (num_particles))
+
+  ! create fake data
+  allocate (data (num_particles))
+  do i = 1, num_particles
+     data (i) = (i-1) + comm_rank * num_particles
+  end do
+
+  ! write the data
+  h5_ierror = h5pt_writedata_i4 (file, "data", data);
 
   ! cleanup
-  status = h5_closefile (file)
   deallocate (data)
-  call mpi_finalize (ierr)
+  h5_ierror = h5_closefile (file)
+  call mpi_finalize (mpi_ierror)
 
 end program write_core_vfd

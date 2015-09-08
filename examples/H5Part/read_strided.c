@@ -9,37 +9,39 @@
 
 #include "H5hut.h"
 
-#define DEFAULT_VERBOSITY       H5_VERBOSE_DEFAULT
+// name of input file
+const char* fname = "example_strided.h5";
 
-#define FNAME                   "example_strided.h5"
+// H5hut verbosity level
+const h5_int64_t h5_verbosity = H5_VERBOSE_DEFAULT;
 
 int
 main (
         int argc, char* argv[]
         ){
-        h5_int64_t verbosity = DEFAULT_VERBOSITY;
-
+	
         // initialize MPI & H5hut
         MPI_Init (&argc, &argv);
         MPI_Comm comm = MPI_COMM_WORLD;
-        int rank = 0;
-        MPI_Comm_rank (comm, &rank);
-
+        int comm_size = 1;
+        MPI_Comm_size (comm, &comm_size);
+        int comm_rank = 0;
+        MPI_Comm_rank (comm, &comm_rank);
         H5AbortOnError ();
-        H5SetVerbosityLevel (verbosity);
+        H5SetVerbosityLevel (h5_verbosity);
 
-	// open file and go to first step
-        h5_file_t file = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
+        // open file and go to first step
+        h5_file_t file = H5OpenFile (fname, H5_O_RDONLY, H5_PROP_DEFAULT);
         H5SetStep (file, 0);
 
-        // Get number of particles in datasets and allocate memory
+        // Get number of particles in datasets
         h5_int64_t num_particles = H5PartGetNumParticles (file);
-        h5_float64_t* data = calloc (6*num_particles, sizeof (*data));
 
         // set number of particles and memory stride
         H5PartSetNumParticlesStrided (file, num_particles, 6);
 
         // read data
+        h5_float64_t* data = calloc (6*num_particles, sizeof (*data));
         H5PartReadDataFloat64 (file, "x",  data+0);
         H5PartReadDataFloat64 (file, "y",  data+1);
         H5PartReadDataFloat64 (file, "z",  data+2);
@@ -47,6 +49,14 @@ main (
         H5PartReadDataFloat64 (file, "py", data+4);
         H5PartReadDataFloat64 (file, "pz", data+5);
 
+	// print dataset "x"
+        for (int i = 0; i < num_particles; i+=6) {
+                printf ("[proc %d]: local index = %d, value = %6.3f\n",
+                        comm_rank, i, data[i]);
+        }
+
+	// cleanup
+	free (data);
         H5CloseFile (file);
         return MPI_Finalize ();
 }

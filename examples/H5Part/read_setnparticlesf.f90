@@ -13,44 +13,53 @@ program read_setnparticles
   implicit none
   include 'mpif.h'
 
-  ! the file name we want to read
-  character (len=*), parameter :: FNAME =       "example_setnparticles.h5"
+  ! name of input file
+  character (len=*), parameter :: fname =       "example_setnparticles.h5"
 
-  integer :: comm, comm_rank, comm_size, ierr
-  integer*8 :: file, status
-  integer*8 :: nparticels, nparticels_total
+  ! H5hut verbosity level
+  integer*8, parameter         :: h5_verbosity = H5_VERBOSE_DEFAULT
+  
+  integer   :: comm, comm_size, comm_rank, mpi_ierror
+  integer*8 :: file, h5_ierror
+  integer*8 :: num_particles, num_particles_total
+  integer*8 :: i
   integer*4, allocatable :: data(:)
 
   ! initialize MPI & H5hut
   comm = MPI_COMM_WORLD
-  call mpi_init(ierr)
-  call mpi_comm_rank (comm, comm_rank, ierr)
-  call mpi_comm_size (comm, comm_size, ierr)
+  call mpi_init (mpi_error)
+  call mpi_comm_size (comm, comm_size, mpi_ierror)
+  call mpi_comm_rank (comm, comm_rank, mpi_ierror)
   call h5_abort_on_error ()
+  call h5_set_verbosity_level (h5_verbosity)
 
   ! open file and go to first step
-  file = h5_openfile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT)
-  status = h5_setstep(file, 1_8)
+  file = h5_openfile (fname, H5_O_RDONLY, H5_PROP_DEFAULT)
+  h5_ierror = h5_setstep(file, 1_8)
 
-  ! compute number of particles this process has to read
-  nparticels_total = h5pt_getnpoints (file)
-  nparticels = nparticels_total / comm_size
-
+  ! compute and set number of particles this process has to read
+  num_particles_total = h5pt_getnpoints (file)
+  num_particles = num_particles_total / comm_size
   if (comm_rank+1 == comm_size) then
-     nparticels = nparticels + mod (nparticels_total, comm_size)
+     num_particles = num_particles + mod (num_particles_total, comm_size)
   end if
 
-  write (*, "('Total number of particles: ', i8)") nparticels_total
-  write (*, "('Number of particles on this core: ', i8)") nparticels
+  write (*, "('Total number of particles: ', i8)") num_particles_total
+  write (*, "('Number of particles on this core: ', i8)") num_particles
 
-  ! read data
-  status = h5pt_setnpoints (file, nparticels)
-  allocate (data (nparticels))
-  status = h5pt_readdata_i4 (file, "data", data)
+  h5_ierror = h5pt_setnpoints (file, num_particles)
+
+  ! read and print data
+  allocate (data (num_particles))
+  h5_ierror = h5pt_readdata_i4 (file, "data", data)
+  do i = 1, num_particles
+     write (*, "('[proc ', i4, ']: local index = ', i4, ', value = ', i4)") &
+          comm_rank, i, data(i)
+  end do
 
   ! cleanup
-  status = h5_closefile (file)
   deallocate (data)
-  call mpi_finalize (ierr)
+  h5_ierror = h5_closefile (file)
+  call mpi_finalize (mpi_ierror)
 
 end program read_setnparticles
