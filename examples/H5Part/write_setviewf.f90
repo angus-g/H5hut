@@ -17,7 +17,7 @@ program write_setview
   character (len=*), parameter :: fname = "example_setview.h5"
 
   ! H5hut verbosity level
-  integer*8, parameter :: h5_verbosity = H5_VERBOSE_DEFAULT
+  integer*8, parameter :: h5_verbosity = H5_DEBUG_ALL
 
   ! we are going to write multiple consecutive blocks
   integer*8, parameter :: num_blocks = 4;
@@ -44,16 +44,16 @@ program write_setview
   ! with H5PartSetview(). Otherwise we have to define the total number
   ! of particles with H5PartSetNumParticles().
   offset = comm_rank * num_blocks * num_particles_per_block+1
-  h5_ierror = h5pt_setview (file, offset, offset + num_blocks*num_particles_per_block)
+  h5_ierror = h5pt_setview (file, offset, offset + num_blocks*num_particles_per_block - 1)
 
   !  write multiple consecutive blocks
   allocate (data (num_particles_per_block))
   do i = 1, num_blocks
      ! create fake data
      do j = 1, num_particles_per_block
-        data (i) = int((j-1) + i*num_particles_per_block + offset)
+        data (j) = int((j-1) + (i-1)*num_particles_per_block + offset - 1)
      end do
-     h5_ierror = h5pt_setview (file, offset + i*num_particles_per_block, (i+1)*num_particles_per_block)
+     h5_ierror = h5pt_setview (file, offset + (i-1)*num_particles_per_block, offset - 1 + i*num_particles_per_block)
      ! write data
      h5_ierror = h5pt_writedata_i4 (file, "data", data)
   end do

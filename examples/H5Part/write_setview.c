@@ -71,4 +71,3 @@ main (
         H5CloseFile(file);
         return MPI_Finalize();
 }
-
