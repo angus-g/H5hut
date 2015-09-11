@@ -385,7 +385,7 @@ h5t_close_mesh (
 		                H5_ERR_H5FED,
 		                "Mesh cannot be closed: Mesh is referenced by open tagsets"));
 
-	if (!(m->f->props->mode & H5_O_RDONLY)) {
+	if (!(m->f->props->flags & H5_O_RDONLY)) {
 		TRY (h5tpriv_write_mesh (m));
 	}
 	TRY (hdf5_close_group (m->mesh_gid));
