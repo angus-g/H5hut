@@ -24,8 +24,12 @@
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-int max_num_elems_p_chunk = 120; // minimum is 4 for triangle meshes and
-// 8 for thetrahedral meshes
+/*
+  maximum elements per chunk.
+  minimum is 4 for triangle meshes
+  and 8 for thetrahedral meshes
+ */
+int max_num_elems_p_chunk = 120;
 
 #ifdef PARALLEL_IO
 // that probably doesn't belong here... //TODO put in right place + print variables
@@ -1098,6 +1102,7 @@ h5t_end_store_ckd_elems (
 //		TRY (m->methods->store->end_store_elems (m));
 	}
 #endif
+#endif
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
@@ -1217,7 +1222,9 @@ h5t_pre_refine_chk (
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
 	// exchange list of marked entities
-	TRY (*point_list = h5_calloc (m->num_glb_leaf_elems[m->leaf_level-1], sizeof (**point_list)));  // alloc for maximal num elems to refine
+	TRY (*point_list = h5_calloc (
+		     // alloc for maximal num elems to refine
+		     m->num_glb_leaf_elems[m->leaf_level-1], sizeof (**point_list))); 
 
 	TRY (h5priv_exchange_loc_list_to_glb (m, glb_list));
 	h5_glb_idxlist_t* glb_marked_entities = *glb_list;
@@ -1225,12 +1232,15 @@ h5t_pre_refine_chk (
 	// decide which elements this proc has to refine
 	TRY (h5tpriv_mark_chk_elems_to_refine (m, glb_marked_entities, *point_list));
 
-	//TODO maybe check that sum of m->marked_entities->num_items over all proc is equal to glb_marked_entities->num_items
-	// this would find out if there is a problem with loading neighboring chunks...
-
-	H5_CORE_API_RETURN (m->methods->store->pre_refine (m));
+	/*
+	  TODO maybe check that sum of m->marked_entities->num_items over
+	  all proc is equal to glb_marked_entities->num_items this would
+	  find out if there is a problem with loading neighboring chunks...
+	*/
+	  H5_CORE_API_RETURN (m->methods->store->pre_refine (m));
 }
 #endif
+
 /*
    Refine previously marked elements.
  */
@@ -1259,7 +1269,9 @@ h5tpriv_get_ranges (
 		h5_glb_idx_t mycount,
 		h5_glb_idx_t glb_start
 		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, range=%p, mycount=%lld, glb_start=%lld", m, range, (long long int) mycount, (long long int) glb_start);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "m=%p, range=%p, mycount=%lld, glb_start=%lld",
+			    m, range, (long long int) mycount, (long long int) glb_start);
 
 	TRY (h5priv_mpi_allgather (
 			&mycount,
@@ -1318,8 +1330,8 @@ check_edge (
 		h5_glb_idxlist_t* glb_elems
 		) {
 	H5_PRIV_FUNC_ENTER (h5_loc_idx_t,
-		                    "m=%p, face_idx=%lld, elem_idx=%lld, glb_elems=%p",
-		                    m, (long long)face_idx, (long long)elem_idx, glb_elems);
+			    "m=%p, face_idx=%lld, elem_idx=%lld, glb_elems=%p",
+			    m, (long long)face_idx, (long long)elem_idx, glb_elems);
 	h5_loc_idlist_t* retval;
 		// get all elements sharing the given edge
 		TRY (h5tpriv_find_te2 (m, face_idx, elem_idx, &retval));
@@ -1412,7 +1424,12 @@ h5tpriv_find_boundary_edges ( // todo maybe put some part into another function.
 			// get all elements sharing the given edge
 			TRY (h5tpriv_find_te2 (m, j, elem_idx, &retval));
 
-			// check if it is a border edge //TODO does not work yet since flags are not set properly but as long as we have all surounding elems it's not a problem -> i.e. tetrahedrals
+			/*
+			  check if it is a border edge
+			  TODO does not work yet since flags are not set
+			  properly but as long as we have all surounding
+			  elems it's not a problem -> i.e. tetrahedrals
+			*/
 			if (retval->flags == H5_BORDER_ENTITY && 0) {
 				// add to edgelist
 				h5_glb_idx_t vertices[2];
@@ -1430,7 +1447,8 @@ h5tpriv_find_boundary_edges ( // todo maybe put some part into another function.
 				h5_loc_idx_t loc_new_vtx = get_new_vtx_of_edge(m, retval->items[l]);
 				assert (loc_new_vtx > -1);
 
-				TRY (h5tpriv_add_edge_list (list ,vertices[0], vertices[1], loc_new_vtx, m->f->myproc));
+				TRY (h5tpriv_add_edge_list (
+					     list ,vertices[0], vertices[1], loc_new_vtx, m->f->myproc));
 				continue;
 			}
 			// check if one of the neighbors (locally available) was refined on a different proc

@@ -1182,39 +1182,7 @@ read_elems (
 	             H5S_SELECT_SET,
 	             &hstart, &hstride, &hcount,
 	             NULL));
-#if 0
-	// TODO DELETE from here
-h5_glb_elem_t* glb_elems2 = glb_elems;
 
-#if NDEBUG == 0
-sleep (m->f->myproc*2);
-for (int i = 0; i < num_glb_elems;i++) {
-	h5_debug ("\n"
-			"GLB ELEM\n     idx:          %d \n"
-			"     parent_idx:   %d \n"
-			"     child_idx:    %d \n"
-			"     level_idx:    %d \n"
-			"    refinement:    %d \n"
-			"         flags:    %d \n"
-			"       indices:    %d %d %d\n"
-			"    neigh_indi:    %d %d %d\n\n",
-			(int)glb_elems2[i].idx,
-			(int)glb_elems2[i].parent_idx,
-			(int)glb_elems2[i].child_idx,
-			(int)glb_elems2[i].level_idx,
-			(int)glb_elems2[i].refinement,
-			(int)glb_elems2[i].flags,
-			(int)((h5_glb_tri_t*)glb_elems2)[i].vertex_indices[0],
-			(int)((h5_glb_tri_t*)glb_elems2)[i].vertex_indices[1],
-			(int)((h5_glb_tri_t*)glb_elems2)[i].vertex_indices[2],
-			(int)((h5_glb_tri_t*)glb_elems2)[i].neighbor_indices[0],
-			(int)((h5_glb_tri_t*)glb_elems2)[i].neighbor_indices[1],
-			(int)((h5_glb_tri_t*)glb_elems2)[i].neighbor_indices[2]);
-}
-
-#endif
-#endif
-// TODO END
 #ifdef PARALLEL_IO
 	TRY (h5priv_start_throttle (m->f));
 #endif
@@ -1229,39 +1197,6 @@ for (int i = 0; i < num_glb_elems;i++) {
 #ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (m->f));
 #endif
-
-	// TODO DELETE from here
-
-#if 0
-#if NDEBUG == 0
-sleep (m->f->myproc*2);
-for (int i = 0; i < num_glb_elems;i++) {
-	h5_debug ("\n"
-			"GLB ELEM\n     idx:          %d \n"
-			"     parent_idx:   %d \n"
-			"     child_idx:    %d \n"
-			"     level_idx:    %d \n"
-			"    refinement:    %d \n"
-			"         flags:    %d \n"
-			"       indices:    %d %d %d\n"
-			"    neigh_indi:    %d %d %d\n\n",
-			(int)glb_elems2[i].idx,
-			(int)glb_elems2[i].parent_idx,
-			(int)glb_elems2[i].child_idx,
-			(int)glb_elems2[i].level_idx,
-			(int)glb_elems2[i].refinement,
-			(int)glb_elems2[i].flags,
-			(int)((h5_glb_tri_t*)glb_elems2)[i].vertex_indices[0],
-			(int)((h5_glb_tri_t*)glb_elems2)[i].vertex_indices[1],
-			(int)((h5_glb_tri_t*)glb_elems2)[i].vertex_indices[2],
-			(int)((h5_glb_tri_t*)glb_elems2)[i].neighbor_indices[0],
-			(int)((h5_glb_tri_t*)glb_elems2)[i].neighbor_indices[1],
-			(int)((h5_glb_tri_t*)glb_elems2)[i].neighbor_indices[2]);
-}
-
-#endif
-#endif
-// TODO END
 
 	TRY (hdf5_close_dataspace (dspace_id));
 	TRY (hdf5_close_dataspace (mspace_id));
@@ -1734,7 +1669,8 @@ h5tpriv_read_mesh (
 	m->num_loaded_levels = 1;
 
 	TRY (h5tpriv_init_loc_elems_struct (m, glb_elems, 0, num_interior_elems, 0));
-	TRY (h5tpriv_init_loc_elems_struct (m, ghost_elems, num_interior_elems, num_ghost_elems, H5_GHOST_ENTITY));
+	TRY (h5tpriv_init_loc_elems_struct (
+		     m, ghost_elems, num_interior_elems, num_ghost_elems, H5_GHOST_ENTITY));
 
 	TRY (h5_free (glb_elems));
 	TRY (h5_free (ghost_elems));
@@ -1778,7 +1714,7 @@ h5tpriv_read_mesh (
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 #endif
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5FED
 static h5_err_t
 read_octree (
         h5t_mesh_t* m
@@ -1873,7 +1809,8 @@ read_weights (
 			             "__num_weights__",
 			             H5_INT32_T,
 			             &m->num_weights));
-	TRY (m->weights = h5_calloc (m->num_weights * m->num_glb_elems[m->num_leaf_levels-1], sizeof (*m->weights)));
+	TRY (m->weights =
+	     h5_calloc (m->num_weights * m->num_glb_elems[m->num_leaf_levels-1], sizeof (*m->weights)));
 	if (m->num_weights < 1) {
 		m->weights = NULL;
 	}
@@ -1891,7 +1828,10 @@ read_weights (
 	// check that weights are > 0
 	for (h5_glb_idx_t i = 0; i < m->num_weights * m->num_glb_elems[m->num_leaf_levels-1]; i++) {
 		if (m->weights[i] < 1) {
-			h5_debug ("Warning: weight %d from elem %lld was %d ", (int) i%m->num_weights, (long long int) i/m->num_weights, m->weights[i]);
+			h5_debug ("Warning: weight %d from elem %lld was %d ",
+				  (int) i%m->num_weights,
+				  (long long int) i/m->num_weights,
+				  m->weights[i]);
 			m->weights[i] = 1;
 
 		}
@@ -1926,14 +1866,16 @@ read_chunks (
 			             H5_INT16_T,
 			             &m->chunks->num_levels));
 
-	TRY (m->chunks->num_chunks_p_level = h5_calloc (m->chunks->num_levels, sizeof (*m->chunks->num_chunks_p_level)));
+	TRY (m->chunks->num_chunks_p_level =
+	     h5_calloc (m->chunks->num_levels, sizeof (*m->chunks->num_chunks_p_level)));
 
 	TRY (h5priv_read_attrib (
 			             m->mesh_gid,
 			             "__num_chk_p_level__",
 			             H5_INT32_T,
 			             m->chunks->num_chunks_p_level));
-	TRY (m->chunks->chunks = h5_calloc (m->chunks->num_alloc, sizeof (*m->chunks->chunks)));
+	TRY (m->chunks->chunks =
+	     h5_calloc (m->chunks->num_alloc, sizeof (*m->chunks->chunks)));
 
 	TRY (h5priv_start_throttle (m->f));
 
@@ -1955,9 +1897,10 @@ read_chunks (
 }
 
 /*
- * get weights of octant (i.e. of all elements that belong to a chunk that belongs to the octant or its parents)
- * for parent octants a factor is used. therefore the weight of an octant is divided equally onto it's children
- */
+  get weights of octant (i.e. of all elements that belong to a chunk that
+  belongs to the octant or its parents) for parent octants a factor is used.
+  therefore the weight of an octant is divided equally onto it's children
+*/
 
 static h5_err_t
 get_weights_of_octant (
@@ -2737,7 +2680,7 @@ h5tpriv_read_chunked_mesh (
         h5t_mesh_t* const m
         ) {
 	H5_PRIV_API_ENTER (h5_err_t, "m=%p", m);
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5FED
 
 	TRY (read_octree (m));
 	TRY (h5priv_mpi_barrier (m->f->props->comm));
@@ -2752,12 +2695,6 @@ h5tpriv_read_chunked_mesh (
 	}
 	TRY (h5priv_mpi_barrier (m->f->props->comm));
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
-//	if (m->f->myproc == 0) {
-//		plot_leaf_octants(m->octree);
-//		sleep (30);
-//	} else {
-//		sleep (30);
-//	}
 	h5_oct_idx_t* new_numbering = NULL;
 	idx_t* weights = NULL;
 	h5_oct_idx_t num_tot_leaf_oct = -1;
