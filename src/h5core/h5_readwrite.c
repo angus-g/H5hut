@@ -80,9 +80,7 @@ h5priv_write_dataset_by_name (
 	}
 	TRY (memspace_id = (*set_memspace)(m, 0));
 	TRY (diskspace_id = (*set_diskspace)(m, dataspace_id));
-#ifdef PARALLEL_IO
 	TRY (h5priv_start_throttle (f));
-#endif
 	TRY (hdf5_write_dataset (
 	             dset_id,
 	             dsinfo->type_id,
@@ -90,9 +88,7 @@ h5priv_write_dataset_by_name (
 	             diskspace_id,
 	             f->props->xfer_prop,
 	             data));
-#ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (f));
-#endif
 	TRY (hdf5_close_dataspace (diskspace_id));
 	TRY (hdf5_close_dataspace (memspace_id));
 	TRY (hdf5_close_dataset (dset_id));
@@ -138,9 +134,7 @@ h5priv_write_dataset_by_name_id (
 		H5_PRIV_API_LEAVE (h5priv_handle_file_mode_error(f->props->flags));
 	}
 
-#ifdef PARALLEL_IO
 	TRY (h5priv_start_throttle (f));
-#endif
 	TRY (hdf5_write_dataset (
 	             dset_id,
 	             dsinfo->type_id,
@@ -148,10 +142,7 @@ h5priv_write_dataset_by_name_id (
 	             diskspace_id,
 	             f->props->xfer_prop,
 	             data));
-#ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (f));
-#endif
-
 
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }

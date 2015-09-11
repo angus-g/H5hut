@@ -228,9 +228,7 @@ _write_data (
 		             b->shape,
 		             b->dcreate_prop));
 	}
-#ifdef PARALLEL_IO
 	TRY (h5priv_start_throttle (f));
-#endif
 	TRY (hdf5_write_dataset(
 	             dataset,
 	             type,
@@ -238,9 +236,7 @@ _write_data (
 	             b->diskshape,
 	             f->props->xfer_prop,
 	             data));
-#ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (f));
-#endif
 	TRY (hdf5_close_dataset (dataset));
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
@@ -391,9 +387,7 @@ read_data (
 
 	TRY (dataset = hdf5_open_dataset (b->field_gid, dataset_name));
 	TRY (_select_hyperslab_for_reading (f, dataset) );
-#ifdef PARALLEL_IO
 	TRY (h5priv_start_throttle (f));
-#endif
 	TRY (hdf5_read_dataset(
 	             dataset,
 	             type,
@@ -401,9 +395,7 @@ read_data (
 	             f->b->diskshape,
 	             f->props->xfer_prop,
 	             data));
-#ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (f));
-#endif
 	TRY (hdf5_close_dataset(dataset));
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);

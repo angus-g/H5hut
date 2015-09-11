@@ -49,9 +49,7 @@ read_dataset (
 
 	TRY (mspace_id = (*set_mspace)(m, dset_id));
 	TRY (dspace_id = (*set_dspace)(m, dset_id));
-#ifdef PARALLEL_IO
 	TRY (h5priv_start_throttle (f));
-#endif
 	TRY (hdf5_read_dataset (
 	             dset_id,
 	             dsinfo->type_id,
@@ -59,9 +57,7 @@ read_dataset (
 	             dspace_id,
 	             f->props->xfer_prop,
 	             data));
-#ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (f));
-#endif
 	TRY (hdf5_close_dataspace (dspace_id));
 	TRY (hdf5_close_dataspace (mspace_id));
 

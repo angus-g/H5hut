@@ -479,10 +479,7 @@ write_vertices_chk (
 	}
 	TRY (h5priv_mpi_barrier (m->f->props->comm));
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
-#if defined(WITH_PARALLEL_H5FED)
 	TRY (h5priv_start_throttle (m->f));
-#endif
-
 
 	TRY( h5priv_write_dataset_by_name_id (
 	             m->f,
@@ -516,9 +513,7 @@ write_vertices_chk (
 	             m->num_leaf_levels,
 	             1));
 
-#if defined(WITH_PARALLEL_H5FED)
 	TRY (h5priv_end_throttle (m->f));
-#endif
 	TRY (hdf5_close_dataspace (dspace_id));
 	TRY (hdf5_close_dataspace (mspace_id));
 	TRY (hdf5_close_dataset (dset_id));
@@ -1135,10 +1130,7 @@ read_vertices (
 		TRY (h5tpriv_alloc_loc_vertices (m, num_vertices));
 	}
 
-#if defined(WITH_PARALLEL_H5FED)
 	TRY (h5priv_start_throttle (m->f));
-#endif
-
 	TRY (hdf5_read_dataset (
 	             dset_id,
 	             m->dsinfo_vertices.type_id,
@@ -1146,9 +1138,7 @@ read_vertices (
 	             dspace_id,
 	             m->f->props->xfer_prop,
 	             m->vertices));
-#if defined(WITH_PARALLEL_H5FED)
 	TRY (h5priv_end_throttle (m->f));
-#endif
 	TRY (hdf5_close_dataspace (dspace_id));
 	TRY (hdf5_close_dataspace (mspace_id));
 	TRY (hdf5_close_dataset (dset_id));
@@ -1183,10 +1173,7 @@ read_elems (
 	             &hstart, &hstride, &hcount,
 	             NULL));
 
-#ifdef PARALLEL_IO
 	TRY (h5priv_start_throttle (m->f));
-#endif
-
 	TRY (hdf5_read_dataset (
 	             dset_id,
 	             m->dsinfo_elems.type_id,
@@ -1194,9 +1181,7 @@ read_elems (
 	             dspace_id,
 	             m->f->props->xfer_prop,
 	             glb_elems));
-#ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (m->f));
-#endif
 
 	TRY (hdf5_close_dataspace (dspace_id));
 	TRY (hdf5_close_dataspace (mspace_id));
@@ -2620,9 +2605,7 @@ read_chunked_elements (
 		seloper = H5S_SELECT_OR;
 	}
 
-#ifdef PARALLEL_IO
 	TRY (h5priv_start_throttle (m->f));
-#endif
 	TRY (hdf5_read_dataset (
 	             dset_id,
 	             m->dsinfo_elems.type_id,
@@ -2630,9 +2613,7 @@ read_chunked_elements (
 	             dspace_id,
 	             m->f->props->xfer_prop,
 	             *glb_elems));
-#ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (m->f));
-#endif
 	TRY (hdf5_close_dataspace (dspace_id));
 	TRY (hdf5_close_dataspace (mspace_id));
 	TRY (hdf5_close_dataset (dset_id));

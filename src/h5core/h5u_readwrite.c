@@ -154,9 +154,7 @@ h5u_read_data (
 			memspace_id = H5S_ALL;
 		}
 	}
-#ifdef PARALLEL_IO
 	TRY (h5priv_start_throttle (f));
-#endif
 	TRY (hdf5_read_dataset (
 	             dataset_id,
 	             type,
@@ -164,9 +162,7 @@ h5u_read_data (
 	             space_id,
 	             f->props->xfer_prop,
 	             data ));
-#ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (f));
-#endif
 	if (space_id != f->u->diskshape) {
 		TRY (hdf5_close_dataspace (space_id));
 	}
@@ -215,9 +211,7 @@ h5u_write_data (
 		             H5P_DEFAULT));
 	}
 
-#ifdef PARALLEL_IO
 	TRY (h5priv_start_throttle (f));
-#endif
 	h5_info ("Writing dataset %s/%s.",
 	         hdf5_get_objname(f->step_gid), name2);
 	TRY (hdf5_write_dataset (
@@ -227,9 +221,7 @@ h5u_write_data (
 	             u->diskshape,
 	             f->props->xfer_prop,
 	             data));
-#ifdef PARALLEL_IO
 	TRY (h5priv_end_throttle (f));
-#endif
 	if (f->props->flags & H5_FLUSH_STEP)
 		TRY (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
 
