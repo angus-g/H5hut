@@ -12,7 +12,7 @@ endif
 
 TESTS_ENVIRONMENT = env LD_LIBRARY_PATH=@HDF5_PREFIX@/lib:$(LD_LIBRARY_PATH)
 
-EXTRA_PROGRAMS = h5u_test h5b_test h5_attach_test
+EXTRA_PROGRAMS = h5u_test h5b_test
 
 h5u_test_SOURCES =	\
 		h5u_test.c \
@@ -29,9 +29,6 @@ h5b_test_SOURCES =	\
 		testframe.c \
 		testframe.h \
 		params.h
-
-h5_attach_test_SOURCES = \
-		h5_attach_test.c
 
 clean-local:
 	${RM} -f *.h5 *~
