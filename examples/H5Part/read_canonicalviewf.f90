@@ -27,7 +27,7 @@ program read_canonicalview
 
   ! initialize MPI & H5hut
   comm = MPI_COMM_WORLD
-  call mpi_init (mpi_error)
+  call mpi_init (mpi_ierror)
   call mpi_comm_size (comm, comm_size, mpi_ierror)
   call mpi_comm_rank (comm, comm_rank, mpi_ierror)
   call h5_abort_on_error ()

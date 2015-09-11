@@ -17,7 +17,7 @@ program write_setview
   character (len=*), parameter :: fname = "example_setview.h5"
 
   ! H5hut verbosity level
-  integer*8, parameter :: h5_verbosity = H5_DEBUG_ALL
+  integer*8, parameter :: h5_verbosity = H5_VERBOSE_DEFAULT
 
   ! we are going to write multiple consecutive blocks
   integer*8, parameter :: num_blocks = 4;

@@ -13,7 +13,7 @@
 const char* fname = "example_setview.h5";
 
 // H5hut verbosity level
-const h5_int64_t h5_verbosity = H5_DEBUG_ALL;
+const h5_int64_t h5_verbosity = H5_VERBOSE_DEFAULT;
 
 // we are going to write multiple consecutive blocks
 const h5_int64_t num_blocks = 4;

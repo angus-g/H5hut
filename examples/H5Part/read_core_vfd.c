@@ -7,19 +7,26 @@
   License: see file COPYING in top level of source distribution.
 */
 
+/*
+  Note:
+  Running this example on more than one core is possible but the result
+  might not be what you expect. Please read the HDF5 documentation about 
+  the VFD core driver.
+*/
 #include "H5hut.h"
 
 // name of input file
-const char* fname = "example_setnparticles.h5";
+const char* fname = "example_core_vfd.h5";
 
 // H5hut verbosity level
 const h5_int64_t h5_verbosity = H5_VERBOSE_DEFAULT;
 
 int
 main (
-        int argc, char* argv[]
+        int argc,
+	char* argv[]
         ){
-
+	
         // initialize MPI & H5hut
         MPI_Init (&argc, &argv);
         MPI_Comm comm = MPI_COMM_WORLD;
@@ -30,23 +37,17 @@ main (
         H5AbortOnError ();
         H5SetVerbosityLevel (h5_verbosity);
 
-        // open file and go to first step
-        h5_file_t file = H5OpenFile (fname, H5_O_RDONLY, H5_PROP_DEFAULT);
+        // open file and create first step
+        h5_prop_t prop = H5CreateFileProp ();
+        H5SetPropFileCoreVFD (prop);
+        h5_file_t file = H5OpenFile (fname, H5_O_RDONLY, prop);
         H5SetStep (file, 0);
 
-        // compute and set number of particles this process has to read
-        h5_ssize_t num_particles_total = H5PartGetNumParticles (file);
-        h5_ssize_t num_particles = num_particles_total / comm_size;
-        if (comm_rank+1 == comm_size)
-                num_particles += num_particles_total % comm_size;
+	// with core cfd we read the hole file on all cores!
+        h5_int64_t num_particles = H5PartGetNumParticles (file);
+        printf ("[proc %d]: particles in view: %lld\n", comm_rank, num_particles);
 
-	printf ("[proc %d]: particles in view: %lld\n", comm_rank, num_particles);
-	printf ("[proc %d]: total number of particles: %lld\n",
-		comm_rank, (long long unsigned)num_particles_total);
-
-        H5PartSetNumParticles (file, num_particles);
-
-        // read and print data
+	// read and print data
         h5_int32_t* data = calloc (num_particles, sizeof (*data));
         H5PartReadDataInt32 (file, "data", data);
         for (int i = 0; i < num_particles; i++) {
@@ -54,8 +55,9 @@ main (
                         comm_rank, i, data[i]);
         }
 
-        // cleanup
+	// cleanup
 	free (data);
         H5CloseFile (file);
         return MPI_Finalize ();
 }
+
