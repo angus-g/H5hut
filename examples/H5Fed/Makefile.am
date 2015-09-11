@@ -10,6 +10,8 @@ endif
 
 LDADD += -lH5hut
 
+if ENABLE_EXAMPLES
+if ENABLE_EXPERIMENTAL
 noinst_PROGRAMS =				\
 		tetmesh_write			\
 		tetmesh_write1			\
@@ -41,7 +43,8 @@ EXTRA_DIST =					\
 		trimesh_write.c			\
 		trimesh_2gnuplot.c		\
 		trimesh_write_dunetest.c
-
+endif
+endif
 #		map_tet2globalid.c \
 #		map_triangle2globalid.c \
 #		$(bin_SCRIPTS)

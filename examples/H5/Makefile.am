@@ -22,6 +22,7 @@ LDADD += -lH5hut
 
 noinst_PROGRAMS = 
 
+if ENABLE_EXAMPLES
 if ENABLE_C
 noinst_PROGRAMS +=		\
 	attach_file		\
@@ -48,6 +49,7 @@ read_file_attribsf_SOURCES = read_file_attribsf.f90
 read_step_attribsf_SOURCES = read_step_attribsf.f90
 write_file_attribsf_SOURCES = write_file_attribsf.f90
 write_step_attribsf_SOURCES = write_step_attribsf.f90
+endif
 endif
 
 %.o : %.f90

@@ -13,6 +13,7 @@ AM_LDFLAGS += -L${abs_top_builddir}/src/h5core/.libs
 
 LDADD = 
 
+if ENABLE_EXAMPLES
 if ENABLE_FORTRAN
 LDADD += -lH5hutF
 AM_LDFLAGS += -L${abs_top_builddir}/src/Fortran/.libs
@@ -35,6 +36,8 @@ endif
 fields_SOURCES = fields.c
 read_write_scalar_field_SOURCES = read_write_scalar_field.c
 read_write_scalar_fieldf_SOURCES = read_write_scalar_fieldf.f90
+
+endif
 
 %.o : %.f90
 	$(FC)  $(FFLAGS) -c $<

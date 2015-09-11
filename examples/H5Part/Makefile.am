@@ -13,6 +13,7 @@ AM_LDFLAGS += -L${abs_top_builddir}/src/h5core/.libs
 
 LDADD = 
 
+if ENABLE_EXAMPLES
 if ENABLE_C
 LDADD +=
 endif
@@ -28,6 +29,7 @@ noinst_PROGRAMS =
 
 if ENABLE_C
 noinst_PROGRAMS +=		\
+	read_core_vfd		\
 	read_canonicalview	\
 	read_setnparticles	\
 	read_setview		\
@@ -40,6 +42,7 @@ endif
 
 if ENABLE_FORTRAN
 noinst_PROGRAMS +=		\
+	read_core_vfdf		\
 	read_canonicalviewf	\
 	read_setnparticlesf	\
 	read_setviewf		\
@@ -52,6 +55,7 @@ endif
 
 EXTRA_PROGRAMS = 
 
+read_core_vfdf_SOURCES = read_core_vfdf.f90
 read_canonicalviewf_SOURCES = read_canonicalviewf.f90
 read_setnparticlesf_SOURCES = read_setnparticlesf.f90
 read_setviewf_SOURCES = read_setviewf.f90
@@ -60,6 +64,8 @@ write_core_vfdf_SOURCES = write_core_vfdf.f90
 write_setnparticlesf_SOURCES = write_setnparticlesf.f90
 write_setviewf_SOURCES = write_setviewf.f90
 write_stridedf_SOURCES = write_stridedf.f90
+
+endif
 
 %.o : %.f90
 	$(FC)  $(FFLAGS) -c $<

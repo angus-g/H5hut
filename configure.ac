@@ -1,4 +1,4 @@
-AC_INIT([H5hut], [1.99.14], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [1.99.15], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
@@ -57,6 +57,13 @@ AC_ARG_ENABLE(
 	[Compile the vtk to H5hut converter for grids [default=no]])],
 	[ENABLE_VTKCONVERTER=$enableval])
 AM_CONDITIONAL([ENABLE_VTKCONVERTER], [test "$ENABLE_VTKCONVERTER" = "yes"])
+
+AC_ARG_ENABLE(
+	[examples],
+	[AS_HELP_STRING([--enable-examples],
+	[Compile the H5hut examples [default=no]])],
+	[ENABLE_EXAMPLES=$enableval])
+AM_CONDITIONAL([ENABLE_EXAMPLES], [test "$ENABLE_EXAMPLES" = "yes"])
 
 AC_ARG_WITH(
 	[hdf5],
@@ -352,6 +359,15 @@ AC_MSG_CHECKING([if we have to compile the VTK to H5hut grid converter])
 if test "X$ENABLE_VTKCONVERTER" = "Xyes"; then
 	AC_MSG_RESULT([yes])
         # :TODO: add test whether we can compile/link a prog with vtk
+else
+	AC_MSG_RESULT([no])
+fi
+
+###############################################################################
+# EXAMPLES
+AC_MSG_CHECKING([if we have to compile the H5hut examples])
+if test "X$ENABLE_EXAMPLES" = "Xyes"; then
+	AC_MSG_RESULT([yes])
 else
 	AC_MSG_RESULT([no])
 fi
