@@ -109,7 +109,7 @@ h5u_set_num_points (
 		H5_CORE_API_LEAVE (
 		        h5_error(
 		                H5_ERR_INVAL,
-		                "Invalid number particles: %lld!\n",
+		                "Invalid number of particles: %lld!\n",
 		                (long long)nparticles));
 
 #ifndef PARALLEL_IO
