@@ -7,6 +7,7 @@
   License: see file COPYING in top level of source distribution.
 */
 
+#include "h5core/h5.h"
 #include "h5_types_private.h"
 #include "h5_hdf5_private.h"
 #include "h5_model_private.h"
