@@ -9,14 +9,6 @@
 
 #include "H5hut.h"
 
-#if !defined (PARALLEL_IO)
-#define MPI_Init(argc, argv)
-#define MPI_Comm_size(comm, nprocs) { *nprocs = 1; }
-#define MPI_Comm_rank(comm, myproc) { *myproc = 0; }
-#define MPI_Finalize()
-#define MPI_COMM_WORLD (0)
-#endif
-
 int
 main (
 	int argc,

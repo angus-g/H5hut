@@ -59,5 +59,6 @@ main (
 	// cleanup
 	free (data);
         H5CloseFile (file);
-        return MPI_Finalize ();
+	MPI_Finalize ();
+        return 0;
 }
