@@ -99,12 +99,15 @@ AC_ARG_WITH(
 CC=''
 CXX=''
 if test "x$ENABLE_PARALLEL" = "xyes"; then
-   	AC_PROG_CC(mpicc cc)
-	AC_PROG_CXX(mpic++ CC)
+   	c_compilers="mpicc cc"
+	cxx_compilers="mpic++ CC"
 else
-	AC_PROG_CC(pgcc pathcc icc gcc cc_r cc)
-	AC_PROG_CXX(pgcc pathcc icc g++ cc_r c++)
+	c_compilers="pgcc pathcc icc gcc cc_r cc"
+	cxx_compilers="pgcc pathcc icc g++ cc_r c++"
 fi
+
+AC_PROG_CC($c_compilers)
+AC_PROG_CXX($cxx_compilers)
 
 CC=`which $CC`
 CXX=`which $CXX`
@@ -161,9 +164,9 @@ FFLAGS="$FFLAGS -Wall"
 AC_MSG_CHECKING([if debug is enabled])
 if test "X$ENABLE_DEBUG" = "Xyes"; then
 	AC_MSG_RESULT([yes])
-	CFLAGS="$CFLAGS -g"
-	CXXFLAGS="$CFLAGS -g"
-	FFLAGS="$FFLAGS -g"
+	CFLAGS="$CFLAGS -g3 -O0"
+	CXXFLAGS="$CFLAGS -g3 -O0"
+	FFLAGS="$FFLAGS -g3 -O0"
 else
 	AC_MSG_RESULT([no])
 	CFLAGS="$CFLAGS -O3"
@@ -285,6 +288,7 @@ if test "X$ENABLE_PARALLEL" = "Xyes"; then
 	CPPFLAGS="${CPPFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
 
         if test "X$ENABLE_EXPERIMENTAL" = "Xyes"; then
+		CPPFLAGS="$CPPFLAGS -DWITH_PARALLEL_H5GRID"
         	AC_MSG_CHECKING([for ParMETIS])
                 if test "X$PARMETIS_PREFIX" != "X"; then
                         CPPFLAGS="$CPPFLAGS -I$PARMETIS_PREFIX/include"
