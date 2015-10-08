@@ -44,20 +44,13 @@ main (
 	int argc,
 	char* argv[]
 	) {
-	MPI_Comm comm = MPI_COMM_WORLD;
-
-	int myproc;
-	int nprocs;
-	MPI_Init (&argc, &argv);
-	MPI_Comm_size (comm, &nprocs);
-	MPI_Comm_rank (comm, &myproc);
 
 	/* abort program on errors in library */
 	H5SetErrorHandler (H5AbortErrorhandler);
 	H5SetVerbosityLevel (5);
 
 	/* open file and add mesh */
-	h5_file_t const f = H5OpenFile (FNAME, H5_O_WRONLY, comm);
+	h5_file_t const f = H5OpenFile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT);
 	h5t_mesh_t* mesh;
 	H5FedAddTetrahedralMesh (f, "0", &mesh);
 

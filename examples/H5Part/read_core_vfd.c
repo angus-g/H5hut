@@ -29,7 +29,6 @@ main (
 	
         // initialize MPI & H5hut
         MPI_Init (&argc, &argv);
-        MPI_Comm comm = MPI_COMM_WORLD;
         int comm_size = 1;
         MPI_Comm_size (comm, &comm_size);
         int comm_rank = 0;
@@ -58,6 +57,7 @@ main (
 	// cleanup
 	free (data);
         H5CloseFile (file);
-        return MPI_Finalize ();
+	MPI_Finalize ();
+        return H5_SUCCESS;
 }
 

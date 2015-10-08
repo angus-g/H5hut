@@ -3,15 +3,9 @@ FFLAGS += -cpp $(AM_CPPFLAGS)
 AM_LDFLAGS += -L${abs_top_builddir}/src/h5core/.libs
 
 LDADD =
-
-if ENABLE_FORTRAN
-LDADD += -lH5hutF
-endif
-
 LDADD += -lH5hut
 
 if ENABLE_EXAMPLES
-if ENABLE_EXPERIMENTAL
 noinst_PROGRAMS =				\
 		tetmesh_write			\
 		tetmesh_write1			\
@@ -43,7 +37,6 @@ EXTRA_DIST =					\
 		trimesh_write.c			\
 		trimesh_2gnuplot.c		\
 		trimesh_write_dunetest.c
-endif
 endif
 #		map_tet2globalid.c \
 #		map_triangle2globalid.c \

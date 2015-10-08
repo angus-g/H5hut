@@ -57,12 +57,6 @@ main (
 	char* argv[]
 	) {
 
-#if defined (PARALLEL_IO)
-	MPI_Comm comm = MPI_COMM_WORLD;
-	MPI_Init (&argc, &argv);
-#else
-	MPI_Comm comm = 0;
-#endif
 	if (argc < 2 || argc > 3) {
 		fprintf (stderr, "Usage: %s FILE [LEVEL]\n", argv[0]);
 		exit (42);
@@ -73,7 +67,7 @@ main (
 	H5SetVerbosityLevel (0);
 
 	/* open file and get number of meshes */
-	h5_file_t f = H5OpenFile (argv[1], H5_O_RDONLY, comm);
+	h5_file_t f = H5OpenFile (argv[1], H5_O_RDONLY, H5_PROP_DEFAULT);
 	h5t_mesh_t*  m;
 	H5FedOpenTriangleMeshByIndex (f, 0, &m);
 	int num_levels = H5FedGetNumLevels (m);

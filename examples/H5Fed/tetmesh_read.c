@@ -336,20 +336,13 @@ main (
 	int argc,
 	char* argv[]
 	) {
-	MPI_Comm comm = MPI_COMM_WORLD;
-
-	int myproc;
-	int nprocs;
-	MPI_Init (&argc, &argv);
-	MPI_Comm_size (comm, &nprocs);
-	MPI_Comm_rank (comm, &myproc);
 
 	/* abort program on error, so we don't have to handle them */
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (2);
+	H5SetVerbosityLevel (0);
 
 	/* open file and get number of meshes */
-	h5_file_t f = H5OpenFile (FNAME, H5_O_RDONLY, comm);
+	h5_file_t f = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
 	h5_size_t num_meshes = H5FedGetNumTetrahedralMeshes (f);
 	printf ("    Number of meshes: %lld\n", (long long)num_meshes);
 

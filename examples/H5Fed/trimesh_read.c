@@ -236,19 +236,12 @@ main (
 	char* argv[]
 	) {
 
-#if defined (PARALLEL_IO)
-	MPI_Comm comm = MPI_COMM_WORLD;
-	MPI_Init (&argc, &argv);
-#else
-	MPI_Comm comm = 0;
-#endif
-
 	/* abort program on error, so we don't have to handle them */
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (0);
+	H5SetVerbosityLevel (H5_DEBUG_ALL);
 
 	/* open file and get number of meshes */
-	h5_file_t f = H5OpenFile (FNAME, H5_O_RDONLY, comm);
+	h5_file_t f = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
 	h5_size_t num_meshes = H5FedGetNumTriangleMeshes (f);
 	printf ("    Number of meshes: %lld\n", (long long)num_meshes);
 

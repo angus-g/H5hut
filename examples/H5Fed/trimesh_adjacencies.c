@@ -243,7 +243,7 @@ traverse_elems (
 	clock_t t_min = CLOCKS_PER_SEC;
 	clock_t t_max = 0;
 	clock_t t = 0;
-	printf ("\nAdjacencies to tetrahedra\n");
+	printf ("\nAdjacencies to triangles\n");
 	h5t_iterator_t* iter = H5FedBeginTraverseEntities (m, 0);
 	while ((local_id = H5FedTraverseEntities (iter)) >= 0) {
 		print_adjacencies_of_elem (m, local_id, &t);

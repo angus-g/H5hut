@@ -546,8 +546,9 @@ main (
 
 	/* abort program on error, so we don't have to handle them */
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (2);
-
+	//H5SetVerbosityLevel (H5_DEBUG_ALL);
+	H5SetVerbosityLevel (0);
+	
 	/* open file and get number of meshes */
 	h5_file_t f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
 	h5_size_t num_meshes = H5FedGetNumTetrahedralMeshes (f);
