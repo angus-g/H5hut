@@ -14,6 +14,10 @@
 #include "h5core/h5_types.h"
 #include "h5core/h5t_octree.h"
 
+#if defined(PARALLEL_IO)
+#include <mpi.h>
+#endif
+
 #define OCT_MAX_NEIGHBORS 1000
 
 struct h5_oct_point {
