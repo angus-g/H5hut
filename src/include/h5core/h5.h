@@ -13,8 +13,6 @@
 #include "h5core/h5_types.h"
 #include <hdf5.h>
 
-#define UNUSED_ARGUMENT(x) (void)x
-
 // dummy MPI calls for serial code
 #if !defined (PARALLEL_IO)
 #define MPI_Init(argc, argv)

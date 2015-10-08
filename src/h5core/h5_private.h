@@ -4,6 +4,8 @@
 #include "h5_types_private.h"
 #include "h5_errorhandling_private.h"
 
+#define UNUSED_ARGUMENT(x) (void)x
+
 static inline h5_err_t
 check_filehandle (
 	const h5_file_p f
