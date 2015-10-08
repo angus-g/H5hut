@@ -89,7 +89,13 @@ typedef struct {
                H5_PRIV_API_RETURN (idx);                                \
         }
 
-// Find ID in sorted list
+/*
+  Find ID in sorted list.
+
+  Note:
+  if the number of items is zero, the while condition is false. So
+  we don't have to handle this case special.
+*/
 #define h5priv_find_in_xlist(type)                                      \
         static inline h5_loc_idx_t                                      \
         h5priv_find_in_ ## type ## list (                               \
@@ -99,7 +105,7 @@ typedef struct {
                 H5_PRIV_API_ENTER (h5_err_t,                            \
                                    "list=%p, item=%llu",                \
                                    list, (long long unsigned)item);     \
-                if (!list) {                                            \
+                if (!list) {						\
                         H5_PRIV_API_LEAVE (-1);                         \
                 }                                                       \
                 register ssize_t low = 0;                               \
@@ -129,13 +135,12 @@ typedef struct {
                         h5_err_t,                                       \
                         "list=%p, item=%llu",                           \
                         list, (long long unsigned)item);                \
-		h5_loc_idx_t idx = h5priv_find_in_ ## type ## list (    \
-                        *list, item);                                   \
-                        if (idx < 0) {                                  \
-                                idx = -(idx+1);                         \
-                                TRY (idx = h5priv_insert_into_ ## type ## list (list, item, idx)); \
-                        }                                               \
-                        H5_PRIV_API_RETURN (idx);                       \
+		h5_loc_idx_t idx = h5priv_find_in_ ## type ## list (*list, item); \
+		if (idx < 0) {						\
+			idx = -(idx+1);					\
+			TRY (idx = h5priv_insert_into_ ## type ## list (list, item, idx)); \
+		}							\
+		H5_PRIV_API_RETURN (idx);				\
         }
 
 
