@@ -26,6 +26,7 @@
 
 #include "h5core/h5_types.h"
 #include "h5core/h5_model.h"
+#include "h5_private.h"
 #include "h5_mpi_private.h"
 
 #ifdef PARALLEL_IO
@@ -97,8 +98,9 @@ h5priv_start_throttle (const h5_file_p f) {
 	UNUSED_ARGUMENT (f);
 	return H5_SUCCESS;
 }
-static inline
-h5priv_end_throttle (const h5_file_p f)
+
+static inline h5_err_t
+h5priv_end_throttle (const h5_file_p f) {
 	UNUSED_ARGUMENT (f);
 	return H5_SUCCESS;
 }
