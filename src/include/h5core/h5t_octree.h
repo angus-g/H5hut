@@ -19,18 +19,18 @@ extern "C" {
 // it is very unlikely that there are more than 2^32 octants needed. since there is no id
 // we dont need that...
 //#if defined(USE_LARGE_INDICES)
-//typedef int64_t h5_oct_idx_t;                   // type for a octant
-//typedef h5_uint64_t	h5_oct_userlev_t;			// type for user defined levels
+//typedef int64_t h5_oct_idx_t;                 // type for a octant
+//typedef h5_uint64_t	h5_oct_userlev_t;	// type for user defined levels
 //#define OCT_USERLEV_LENGTH 64
 //#else
-typedef h5_int32_t h5_oct_idx_t;                   // type for a octant
-typedef h5_uint32_t	h5_oct_userlev_t;			// type for user defined levels
+typedef h5_int32_t h5_oct_idx_t;                // type for a octant
+typedef h5_uint32_t	h5_oct_userlev_t;	// type for user defined levels
 #define OCT_USERLEV_LENGTH 32
 //#endif
 
 typedef h5_int32_t h5_oct_level_t;
-typedef int16_t h5_oct_orient_t;			// orientation of an octant
-typedef int16_t h5_oct_dir_t; 				// direction to look for neighboring octants
+typedef int16_t h5_oct_orient_t;		// orientation of an octant
+typedef int16_t h5_oct_dir_t; 			// direction to look for neighboring octants
 
 
 #define OCT_CHG_INTERNAL  11

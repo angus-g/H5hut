@@ -57,6 +57,7 @@ h5tpriv_get_num_new_elems (
 	return m->methods->store->get_num_new_elems ();
 }
 
+#if defined(WITH_PARALLEL_H5GRID)
 h5_err_t
 h5tpriv_init_chunks (h5t_mesh_t* const);
 
@@ -86,5 +87,6 @@ h5tpriv_octant_is_full (h5t_octree_t* octree, h5_oct_idx_t oct_idx);
 
 h5_err_t
 h5tpriv_get_ranges (h5t_mesh_t* const m, h5_glb_idx_t* range, h5_glb_idx_t mycount, h5_glb_idx_t glb_start);
+#endif
 
 #endif

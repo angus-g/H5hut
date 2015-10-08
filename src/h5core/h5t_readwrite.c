@@ -7,17 +7,15 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include <unistd.h> // for the use of sleep
-#if defined (PARALLEL_IO)
-//#define WITH_PARALLEL_H5FED
-#endif
+#include "h5core/h5.h"
+#include "h5_types_private.h"
 
-//#if defined (WITH_PARALLEL_H5FED) // WARNING just used for eclipse to index all code...
-#ifdef PARALLEL_IO
+#include <stdlib.h>
+#include <unistd.h> // for the use of sleep
+
+#ifdef WITH_PARALLEL_H5GRID
 #include <parmetis.h>
 #endif
-#include <stdlib.h>
-//#endif
 
 #include "h5_attribs_private.h"
 #include "h5_hdf5_private.h"
@@ -153,7 +151,7 @@ write_vertices (
 	             1));
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 
 h5_err_t
 add_chunk_to_list (
@@ -211,7 +209,7 @@ h5tpriv_get_list_of_chunks_to_write (
 	}
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
-#endif
+
 static h5_err_t
 exchange_g2l_vtx_map (
 		h5t_mesh_t* const m,
@@ -220,7 +218,6 @@ exchange_g2l_vtx_map (
 		h5_glb_idx_t** glb_vtx
 		) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p map=%p, range=%p, glb_vtx=%p", m, map, range, glb_vtx);
-#ifdef PARALLEL_IO
 	// alloc/get range
 	TRY (*range = h5_calloc (m->f->nprocs + 1, sizeof (**range)));
 	TRY (h5tpriv_get_ranges (m,*range, map->num_items, 0));
@@ -250,9 +247,9 @@ exchange_g2l_vtx_map (
 				recvdisp,
 				MPI_LONG,
 				m->f->props->comm));
-#endif
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
+#endif
 
 int sort_glb_idx(const void *p_a, const void *p_b)
 {
@@ -288,6 +285,8 @@ remove_item_from_idxmap (
 	map->num_items--;
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
+
+#if defined(WITH_PARALLEL_H5GRID)
 /*
  * Check if any proc with lower rank already writes a vtx that this proc has planed to write
  * if so remove it from the map. Only the proc with the lowest rank writes the vertex
@@ -323,6 +322,7 @@ check_multiple_vtx_writes (
 	}
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
+#endif
 
 h5_int32_t
 find_proc_to_write (
@@ -330,7 +330,7 @@ find_proc_to_write (
 		h5_loc_idx_t elem_idx
 		) {
 	H5_PRIV_FUNC_ENTER (int, "m=%p ", m);
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	h5_glb_idx_t glb_idx = h5tpriv_get_loc_elem_glb_idx (m, elem_idx);
 	for (int i = 0; i < m->chunks->num_alloc; i++) {
 		if ( glb_idx >= m->chunks->chunks[i].elem &&
@@ -341,6 +341,8 @@ find_proc_to_write (
 #endif
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
+
+#ifdef WITH_PARALLEL_H5GRID
 /*
  * function returns a map with all the vtx that should be written by this proc
  *
@@ -354,7 +356,6 @@ get_map_vertices_write (
 		h5_idxmap_t* map
 		) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, map=%p", m, map);
-#ifdef PARALLEL_IO
 	h5_chk_idx_t* list_of_chunks;
 	int num_chunks = 0;
 	TRY (h5tpriv_get_list_of_chunks_to_write (m, &list_of_chunks, &num_chunks));
@@ -409,7 +410,7 @@ get_map_vertices_write (
 	h5priv_sort_idxmap (map);
 	TRY (h5_free (range));
 	TRY (h5_free (glb_vtx));
-#endif
+
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
@@ -420,7 +421,6 @@ write_vertices_chk (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	assert (m->num_leaf_levels > 0);
-#ifdef PARALLEL_IO
 	hid_t dset_id;
 	TRY (dset_id = hdf5_open_dataset (m->mesh_gid, m->dsinfo_vertices.name));
 	hid_t mspace_id;
@@ -518,10 +518,10 @@ write_vertices_chk (
 	TRY (hdf5_close_dataspace (mspace_id));
 	TRY (hdf5_close_dataset (dset_id));
 	m->f->empty = 0;
-#endif
+
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
-#if defined(WITH_PARALLEL_H5FED)
+
 static h5_err_t
 write_elems (
         h5t_mesh_t* const m
@@ -599,7 +599,7 @@ write_elems (
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 #endif
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 //TODO maybe use ifdef to have name without _chk
 static h5_err_t
 write_elems_chk (
@@ -1042,7 +1042,7 @@ h5tpriv_write_mesh (
 	H5_PRIV_API_ENTER (h5_err_t, "m=%p", m);
 	if (m->mesh_changed) {
 		if (m->is_chunked) {
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 			if (m->num_weights > 0) {
 				TRY (write_weights (m));
 			}
@@ -2847,7 +2847,7 @@ h5tpriv_read_mesh_part (
         h5_glb_idx_t num_elems
         ) {
 	H5_PRIV_API_ENTER (h5_err_t, "m=%p", m);
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	TRY (h5priv_mpi_barrier (m->f->props->comm)); // octree
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 	TRY (h5priv_mpi_barrier (m->f->props->comm)); // chunks
@@ -2857,11 +2857,11 @@ h5tpriv_read_mesh_part (
 	TRY (h5priv_mpi_barrier (m->f->props->comm)); // distribute chunks
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 #endif
-	h5_glb_elem_t* glb_elems;
+	h5_glb_elem_t* glb_elems = NULL;
 	TRY (read_elems_part (m, &glb_elems, elem_indices, num_elems));
 	h5_loc_idx_t num_interior_elems = m->num_interior_elems[0];
 	h5_loc_idx_t num_ghost_elems = m->num_ghost_elems[0] = 0;
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	TRY (h5priv_mpi_barrier (m->f->props->comm)); // read elems
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 #endif
@@ -2904,7 +2904,7 @@ h5tpriv_read_mesh_part (
 	TRY (read_vertices (m, map));
 	TRY (h5tpriv_alloc_loc_elems (m, 0, num_interior_elems+num_ghost_elems));
 	m->num_loaded_levels = 1;
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	TRY (h5priv_mpi_barrier (m->f->props->comm)); // read vtx
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 #endif
@@ -2913,7 +2913,7 @@ h5tpriv_read_mesh_part (
 	TRY (h5tpriv_update_internal_structs (m, 0));
 
 	TRY (h5_free (glb_elems));
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	TRY (h5priv_mpi_barrier (m->f->props->comm)); // init update
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 #endif

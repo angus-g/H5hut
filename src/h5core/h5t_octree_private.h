@@ -10,13 +10,9 @@
 #ifndef __H5T_OCTREE_PRIVATE_H
 #define __H5T_OCTREE_PRIVATE_H
 
+
 #include "h5core/h5_types.h"
 #include "h5core/h5t_octree.h"
-
-// iterators
-#if defined(PARALLEL_IO)
-#include <mpi.h>
-#endif
 
 #define OCT_MAX_NEIGHBORS 1000
 
@@ -174,7 +170,5 @@ h5_err_t plot_octant_anc (h5t_octree_t* octree, h5_oct_idx_t oct_idx);
 
 h5_err_t plot_leaf_octants (h5t_octree_t* octree);
 void print_array (h5_int32_t* neigh, h5_oct_idx_t nbr_neigh, int rank);
+
 #endif
-
-
-

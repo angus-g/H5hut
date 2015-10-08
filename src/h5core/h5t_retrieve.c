@@ -7,6 +7,9 @@
   License: see file COPYING in top level of source distribution.
 */
 
+#include "h5core/h5.h"
+#include "h5_private.h"
+
 #include "h5t_types_private.h"
 #include "h5t_errorhandling_private.h"
 #include "h5t_map_private.h"
@@ -15,7 +18,6 @@
 #include "h5t_tags_private.h"
 #include "h5t_retrieve_private.h"
 
-#include "h5core/h5.h"
 #include "h5core/h5t_map.h"
 
 /*

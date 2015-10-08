@@ -8,7 +8,7 @@
 */
 
 #include "h5core/h5.h"
-
+#include "h5_private.h"
 #include "h5t_types_private.h"
 #include "h5t_adjacencies_private.h"
 #include "h5t_map_private.h"

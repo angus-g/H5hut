@@ -14,7 +14,7 @@
 #include "h5t_types_private.h"
 
 struct h5t_access_methods {
-#if defined(PARALLEL_IO)
+#if defined(WITH_PARALLEL_H5GRID)
 	MPI_Datatype (*get_mpi_type_of_glb_elem)(
 	        h5t_mesh_t* const m);
 #endif
@@ -75,7 +75,7 @@ struct h5t_access_methods {
 extern struct h5t_access_methods h5tpriv_access_trim_methods;
 extern struct h5t_access_methods h5tpriv_access_tetm_methods;
 
-#if defined(PARALLEL_IO)
+#if defined(WITH_PARALLEL_H5GRID)
 static inline MPI_Datatype
 h5tpriv_get_mpi_type_of_glb_elem (
         h5t_mesh_t* const m

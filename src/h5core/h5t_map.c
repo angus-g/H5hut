@@ -456,7 +456,7 @@ h5t_get_loc_vertex_indices_of_tet (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 int
 compare_glb_idx_oct (const void *  p_a,const void*  p_b) {
 	return *(h5_glb_idx_t*) p_a - *(h5_glb_idx_t*) p_b;

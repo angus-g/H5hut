@@ -196,7 +196,7 @@ init_glb_elems_struct_chk (
         int num_chk
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
-
+#if defined(WITH_PARALLEL_H5GRID)
 	h5_chk_idx_t chk_idx = -1;
 	h5_chk_size_t num_elems = -1;
 	h5_size_t counter = 0;
@@ -224,8 +224,10 @@ init_glb_elems_struct_chk (
 				if (loc_elem->neighbor_indices[i] > -1) {
 					glb_elem->neighbor_indices[i] =  ((H5_LOC_ELEM_T*)m->loc_elems)[loc_elem->neighbor_indices[i]].glb_idx;
 				} else {
-					if (loc_elem->neighbor_indices[i] < -1) {// if elem not locally available we store the - (glb_idx + 2)
-						glb_elem->neighbor_indices[i] = -( loc_elem->neighbor_indices[i] + 2); //TODO is there a func or makro that does that?
+					if (loc_elem->neighbor_indices[i] < -1) {
+						// if elem not locally available we store the - (glb_idx + 2)
+						//TODO is there a func or makro that does that?
+						glb_elem->neighbor_indices[i] = -( loc_elem->neighbor_indices[i] + 2);
 					} else {
 					glb_elem->neighbor_indices[i] = loc_elem->neighbor_indices[i]; // geometrical border
 					}
@@ -236,7 +238,7 @@ init_glb_elems_struct_chk (
 		}
 
 	}
-
+#endif
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 

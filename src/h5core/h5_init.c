@@ -237,10 +237,12 @@ create_tet_type (
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
+#if defined(WITH_PARALLEL_H5GRID)
+
 static inline h5_err_t
 create_chunk_type (
-		void
-		) {
+	void
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
 	TRY(
 	        h5_dta_types.h5_chunk_t = hdf5_create_type (
@@ -339,6 +341,7 @@ create_octree_type (
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
+
 static inline h5_err_t
 create_userdata_type (
 		void
@@ -357,7 +360,7 @@ create_userdata_type (
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
-#if defined(PARALLEL_IO)
+
 static inline h5_err_t
 create_mpi_type_glb_tet (
         void
@@ -674,11 +677,12 @@ h5_initialize (
 	TRY (create_triangle_type ());
 	TRY (create_tet_type ());
 	TRY (create_tag_types ());
+
+#if defined(WITH_PARALLEL_H5GRID)
 	TRY (create_chunk_type ());
 	TRY (create_octree_type ());
 	TRY (create_userdata_type ());
 
-#if defined(PARALLEL_IO)
 	TRY (create_mpi_type_glb_tri ());
 	TRY (create_mpi_type_glb_tet ());
 	TRY (create_mpi_type_glb_vtx ());

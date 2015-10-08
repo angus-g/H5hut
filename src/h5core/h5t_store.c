@@ -31,7 +31,7 @@
  */
 int max_num_elems_p_chunk = 120;
 
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 // that probably doesn't belong here... //TODO put in right place + print variables
 h5_edge_list_t*
 h5tpriv_init_edge_list (
@@ -294,7 +294,7 @@ assign_global_vertex_indices (
 	H5_PRIV_FUNC_ENTER 	(h5_err_t, "m=%p", m);
 	h5_loc_idx_t local_idx = (m->leaf_level == 0) ?
 	                         0 : m->num_loc_vertices[m->leaf_level-1];
-
+#if defined(WITH_PARALLEL_H5GRID)
         if (m->is_chunked && m->f->nprocs > 1) {
                 // exchange num vertices and calc range
                 h5_glb_idx_t* range = NULL;
@@ -311,7 +311,9 @@ assign_global_vertex_indices (
                         H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
                 }
                 TRY (h5_free (range));
-        } else {
+        } else
+#endif
+	{
                 // simple in serial runs: global_id = local_id
                 for (
                         ;
@@ -322,6 +324,8 @@ assign_global_vertex_indices (
         }
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
+
+#if defined(WITH_PARALLEL_H5GRID)
 /*
  * there is a different version needed for after the refinement because
  * not all vertices need to get a glb_idx from this proc
@@ -359,25 +363,6 @@ assign_global_vertex_indices_chk (
    Assign unique global indices to new elements.
  */
 static h5_err_t
-assign_glb_elem_indices (
-        h5t_mesh_t* const m
-        ) {
-	/*
-	   simple in serial runs: global index = local index
-	 */
-	h5_loc_idx_t loc_idx = (m->leaf_level == 0) ? 0 : m->num_interior_elems[m->leaf_level-1];
-
-	for (; loc_idx < m->num_interior_elems[m->leaf_level]; loc_idx++) {
-		h5tpriv_set_loc_elem_glb_idx (m, loc_idx, loc_idx);
-	}
-
-	return H5_SUCCESS;
-}
-
-/*!
-   Assign unique global indices to new elements.
- */
-static h5_err_t
 assign_glb_elem_indices_chk ( //TODO use ifdef instead of new func name
         h5t_mesh_t* const m,
         h5_glb_idx_t* range
@@ -398,6 +383,27 @@ assign_glb_elem_indices_chk ( //TODO use ifdef instead of new func name
 
 }
 
+
+#endif
+
+/*!
+   Assign unique global indices to new elements.
+ */
+static h5_err_t
+assign_glb_elem_indices (
+        h5t_mesh_t* const m
+        ) {
+	/*
+	   simple in serial runs: global index = local index
+	 */
+	h5_loc_idx_t loc_idx = (m->leaf_level == 0) ? 0 : m->num_interior_elems[m->leaf_level-1];
+
+	for (; loc_idx < m->num_interior_elems[m->leaf_level]; loc_idx++) {
+		h5tpriv_set_loc_elem_glb_idx (m, loc_idx, loc_idx);
+	}
+
+	return H5_SUCCESS;
+}
 
 h5_lvl_idx_t
 h5tpriv_add_level (
@@ -714,6 +720,8 @@ h5t_end_store_elems (
 
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
+
+#if defined(WITH_PARALLEL_H5GRID)
 /*
  * linear search trough chunks to find chk_idx which contains element
  */
@@ -824,7 +832,7 @@ h5tpriv_calc_vtx_revpermutation (
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 #endif // CHUNKING_OF_VTX
-
+#endif // WITH_PARALLEL_H5GRID
 // used to chunk vtx
 //static h5_err_t
 //h5tpriv_store_vtx_range_to_chk (
@@ -852,14 +860,13 @@ h5tpriv_calc_vtx_revpermutation (
 //	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 //}
 
-
 h5_err_t
 h5t_end_store_ckd_elems (
         h5t_mesh_t* const m
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
 	h5_debug ("end storing elements");
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	m->num_interior_elems[m->leaf_level] = m->last_stored_eid+1;
 	m->num_glb_elems[m->leaf_level] = m->last_stored_eid+1;// only works for serial case
 	m->num_glb_leaf_elems[m->leaf_level] = m->num_interior_leaf_elems[m->leaf_level];
@@ -1106,7 +1113,7 @@ h5t_end_store_ckd_elems (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 h5_err_t
 h5tpriv_find_oct_proc_of_point (
 		h5t_mesh_t* m,
@@ -1212,7 +1219,7 @@ h5t_pre_refine (
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
 	H5_CORE_API_RETURN (m->methods->store->pre_refine (m));
 }
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 //TODO maybe use ifdef to have name without _chk
 h5_err_t
 h5t_pre_refine_chk (
@@ -1256,7 +1263,7 @@ h5t_refine_marked_elems (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 /*
  * Calculate the global entity range
  * range[i] = first glb entity of proc i
@@ -1401,6 +1408,7 @@ get_new_vtx_of_edge(
 	}
 	H5_PRIV_FUNC_RETURN (H5_ERR_INTERNAL); //edge that should be refined in not refined
 }
+
 /*
  * Go through elements and find boundary edges that were refined on this proc.
  * we try to find edges that are shared with non-local elements (they could have
@@ -2241,8 +2249,7 @@ h5t_post_refine (
 }
 
 
-#ifdef PARALLEL_IO
-
+#ifdef WITH_PARALLEL_H5GRID
 h5_err_t
 h5t_post_refine_chk (
         h5t_mesh_t* const m,
@@ -2251,7 +2258,8 @@ h5t_post_refine_chk (
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
 	h5_debug("post_refine_chk");
 	// get boundary edges
-	h5_edge_list_t* b_edges = h5tpriv_init_edge_list(h5tpriv_ref_elem_get_num_edges(m) * m->marked_entities->num_items);
+	h5_edge_list_t* b_edges = h5tpriv_init_edge_list (
+		h5tpriv_ref_elem_get_num_edges(m) * m->marked_entities->num_items);
 	TRY (h5tpriv_find_boundary_edges (m, marked_glb_elems, b_edges));
 
 	// exchange boundary edges
@@ -2482,7 +2490,7 @@ h5t_end_refine_elems (
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
 	if (m->is_chunked) {
-#ifdef PARALLEL_IO		
+#ifdef WITH_PARALLEL_H5GRID		
 		TRY (h5priv_mpi_barrier (m->f->props->comm));
                 m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 		h5_glb_idxlist_t* glb_list = NULL;
@@ -2510,7 +2518,7 @@ h5t_end_refine_elems (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
-
+#if defined(WITH_PARALLEL_H5GRID)
 h5_err_t
 h5tpriv_init_chunks (
 		h5t_mesh_t* const m
@@ -2639,7 +2647,6 @@ h5tpriv_create_chunk (
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
-#ifdef PARALLEL_IO
 /*
  * exchange newly created chunks
  */

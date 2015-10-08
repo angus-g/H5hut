@@ -259,11 +259,13 @@ struct h5t_mesh {
 
 	/*** chunking ***/
 	h5_lvl_idx_t is_chunked;		/* == 1 if mesh is chunked */
+#if defined(WITH_PARALLEL_H5GRID)
 	h5t_octree_t* octree;
 	h5t_chunks_t* chunks;
 	h5_dsinfo_t dsinfo_chunks;
 	h5_dsinfo_t dsinfo_octree;
 	h5_dsinfo_t dsinfo_userdata;
+#endif
 	h5t_timing_t timing;
 
 	h5_strlist_t*   mtagsets;

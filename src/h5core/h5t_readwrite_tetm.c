@@ -116,7 +116,7 @@ init_elem_flags (
 			// elem is not ghost so it must be interior (for the time
 			// being we have no overlap
 			elem->flags |= H5_INTERIOR_ENTITY;
-			if (elem->neighbor_indices[i] < -1 ||
+			if (elem->neighbor_indices[i] <= -1 ||
 			    (elems[elem->neighbor_indices[i]].flags & H5_GHOST_ENTITY)) {
 				// if neighbor is < -1 we do not have ghost cells and cell
 				// is border cell

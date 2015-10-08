@@ -67,7 +67,7 @@ h5t_open_triangle_mesh (
                 h5_err_t,
                 "f=%p, name=%s, mesh=%p",
                 f, name, mesh);
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	MPI_Barrier (f->props->comm);
 	double start = MPI_Wtime();
 #endif
@@ -90,7 +90,7 @@ h5t_open_triangle_mesh (
 	             &h5t_tri_ref_elem,
 	             &tri_funcs,
 	             0));
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	MPI_Barrier (m->f->props->comm);
 	m->timing.measure[m->timing.next_time++] = start;
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
@@ -114,7 +114,7 @@ h5t_open_triangle_mesh_part (
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", f, name, mesh);
 	hid_t mesh_hid;
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	MPI_Barrier (f->props->comm);
 	double start = MPI_Wtime();
 #endif
@@ -136,7 +136,7 @@ h5t_open_triangle_mesh_part (
 	             &h5t_tri_ref_elem,
 	             &tri_funcs,
 	             0));
-#ifdef PARALLEL_IO  // reason: even if we have a chunked mesh, if h5hut is not parallel
+#ifdef WITH_PARALLEL_H5GRID  // reason: even if we have a chunked mesh, if h5hut is not parallel
 	MPI_Barrier (m->f->props->comm);
 	m->timing.measure[m->timing.next_time++] = start;
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
@@ -216,7 +216,7 @@ h5t_add_chunked_triangle_mesh(
         ) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", f, name, mesh);
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	int size = -1;
 	TRY (h5priv_mpi_comm_size (f->props->comm, &size));
 	if (size != 1) {

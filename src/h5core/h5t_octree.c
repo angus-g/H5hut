@@ -1,7 +1,7 @@
 #include "h5t_octree_private.h"
 #include "h5t_core_private.h"
 
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 
 #include <stdlib.h>
 #include <string.h>

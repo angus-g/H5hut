@@ -8,6 +8,7 @@
 */
 
 #include "h5core/h5.h"
+#include "h5_private.h"
 #include "h5_mpi_private.h"
 #include "h5_errorhandling_private.h"
 
@@ -72,10 +73,12 @@ h5tpriv_init_mesh (
 	m->timing.next_time = 0;
 	m->timing.f = NULL;
 	m->is_chunked = 0;
+#if defined(WITH_PARALLEL_H5GRID)
 
 	/* initialize pointers */
 	m->octree = 					NULL;
 	m->chunks = 					NULL;
+#endif
 	m->loc_elems =                  NULL;
 	m->num_interior_elems =         NULL;
 	m->num_glb_elems =              NULL;
@@ -89,6 +92,7 @@ h5tpriv_init_mesh (
 	m->first_b_vtx = 				NULL;
 //	m->weights = 					NULL;
 
+#if defined(WITH_PARALLEL_H5GRID)
 	/* chunks */
 	strcpy (m->dsinfo_chunks.name, "Chunks");
 	m->dsinfo_chunks.rank = 1;
@@ -133,7 +137,8 @@ h5tpriv_init_mesh (
 	             m->dsinfo_userdata.rank,
 	             m->dsinfo_userdata.chunk_dims) );
 	m->dsinfo_userdata.access_prop = H5P_DEFAULT;
-
+#endif
+	
 	/* vertices */
 	strcpy (m->dsinfo_vertices.name, "Vertices");
 	m->dsinfo_vertices.rank = 1;
@@ -302,7 +307,7 @@ release_memory (
 	TRY (h5tpriv_release_adjacency_structs (m));
 	TRY (release_elems (m));
 	TRY (release_vertices (m));
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	if (m->is_chunked) {
 		TRY (h5tpriv_free_chunks (m));
 		TRY (H5t_free_octree (m->octree));
@@ -374,7 +379,7 @@ h5t_close_mesh (
         h5t_mesh_t* const m
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	TRY (h5priv_mpi_barrier (m->f->props->comm));
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 #endif
@@ -389,9 +394,9 @@ h5t_close_mesh (
 		TRY (h5tpriv_write_mesh (m));
 	}
 	TRY (hdf5_close_group (m->mesh_gid));
-
+#ifdef WITH_PARALLEL_H5GRID
 	TRY (write_timing (m));
-
+#endif
 	TRY (release_memory (m));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }

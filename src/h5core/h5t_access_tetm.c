@@ -8,6 +8,7 @@
 */
 
 #include "h5core/h5.h"
+#include "h5_private.h"
 #include "h5_types_private.h"
 #include "h5_init_private.h"
 #include "h5t_types_private.h"
@@ -16,7 +17,7 @@
 
 /*** op's on local elements ***/
 
-#if defined(PARALLEL_IO)
+#if defined(WITH_PARALLEL_H5GRID)
 static MPI_Datatype
 get_mpi_type_of_glb_elem (
         h5t_mesh_t* const m
@@ -685,7 +686,7 @@ get_loc_entity_children (
 }
 
 struct h5t_access_methods h5tpriv_access_tetm_methods = {
-#if defined(PARALLEL_IO)
+#if defined(WITH_PARALLEL_H5GRID)
 	get_mpi_type_of_glb_elem,
 #endif
 	get_loc_elem,

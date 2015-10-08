@@ -85,7 +85,7 @@ h5t_open_tetrahedral_mesh (
 	             &h5t_tet_ref_elem,
 	             &tet_funcs,
 	             0));
-#ifdef PARALLEL_IO  // reason: even if we have a chunked mesh, if h5hut is not parallel
+#ifdef WITH_PARALLEL_H5GRID  // reason: even if we have a chunked mesh, if h5hut is not parallel
 	// it does not support reading chunked meshes
 	TRY (m->is_chunked ? h5tpriv_read_chunked_mesh (m) :h5tpriv_read_mesh (m));
 #else
@@ -199,7 +199,7 @@ h5t_add_chunked_tetrahedral_mesh (
         ) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", f, name, mesh);
-#ifdef PARALLEL_IO
+#ifdef WITH_PARALLEL_H5GRID
 	CHECK_WRITABLE_MODE (f);
 	h5_err_t exists;
 	TRY (exists = h5priv_link_exists (
