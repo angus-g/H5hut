@@ -66,7 +66,7 @@ libH5hut_la_SOURCES =				\
         h5b_model.c				\
         h5b_attribs.c
 
-if ENABLE_EXPERIMENTAL
+# grid stuff
 libH5hut_la_SOURCES +=				\
 	h5t_access_tetm.c			\
 	h5t_access_trim.c			\
@@ -92,7 +92,7 @@ libH5hut_la_SOURCES +=				\
 	h5t_store_tetm.c			\
 	h5t_store_trim.c			\
 	h5t_tags.c
-endif
+
 
 libH5hut_la_DEPENDENCIES = $(EXTRA_HEADERS)
 
