@@ -37,7 +37,7 @@ main (
 	// set canonical view
         H5PartSetCanonicalView (file);
         h5_int64_t num_particles = H5PartGetNumParticles (file);
-        printf ("[proc %d]: particles in view: %lld\n", comm_rank, num_particles);
+        printf ("[proc %d]: particles in view: %lld\n", comm_rank, (long long)num_particles);
 
         // read and print data
         h5_int32_t* data = calloc (num_particles, sizeof (*data));

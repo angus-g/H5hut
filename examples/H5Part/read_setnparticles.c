@@ -40,7 +40,7 @@ main (
         if (comm_rank+1 == comm_size)
                 num_particles += num_particles_total % comm_size;
 
-	printf ("[proc %d]: particles in view: %lld\n", comm_rank, num_particles);
+	printf ("[proc %d]: particles in view: %lld\n", comm_rank, (long long)num_particles);
 	printf ("[proc %d]: total number of particles: %lld\n",
 		comm_rank, (long long unsigned)num_particles_total);
 

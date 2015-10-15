@@ -48,7 +48,7 @@ print_query_result (
         h5_int64_t type,
         h5_int64_t dim
         ) {
-        printf ("\t%-6lld %-30s %-15s %-10lld\n", i, name, type2string(type), dim);
+        printf ("\t%-6lld %-30s %-15s %-10lld\n", (long long)i, name, type2string(type), (long long)dim);
 }
 
 void
@@ -61,7 +61,7 @@ query_file_attribs (
 
         // query # of file attributes
         h5_int64_t n = H5GetNumFileAttribs (f);
-        printf ("\tNumber of file attributes: %lld\n", n);
+        printf ("\tNumber of file attributes: %lld\n", (long long)n);
 
         // output name and type of all file attribute
         print_header (n);
@@ -85,7 +85,7 @@ query_step_attribs (
 
         // query # of step attributes
         h5_int64_t n = H5GetNumStepAttribs (f);
-        printf ("\tNumber of step attributes: %lld\n", n);
+        printf ("\tNumber of step attributes: %lld\n", (long long)n);
 
         // output name and type of all step attribute
         print_header (n);
@@ -108,7 +108,7 @@ query_file (
 
         // query # of steps, if > 0: go to first step, query and output step attribs
         h5_int64_t n = H5GetNumSteps (f);
-        printf ("\tNumber of steps: %lld\n", n);
+        printf ("\tNumber of steps: %lld\n", (long long)n);
 
         if (n > 0) {
                 // go to first step 

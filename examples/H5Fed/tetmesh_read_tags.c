@@ -111,7 +111,7 @@ traverse_vertices (
 		}
 		if (dumpit) {
 			printf (" (%llx, %llx, %llx) |",
-				tval[0], tval[1], tval[2]);
+				(long long)tval[0], (long long)tval[1], (long long)tval[2]);
 		}
 		num_entities_tagged++;
 		if (tval[0] != local_id ||
@@ -172,7 +172,7 @@ traverse_edges (
 			continue;	// not tagged
 		if (dumpit) {
 			printf (" (%llx, %llx, %llx) |",
-				tval[0], tval[1], tval[2]);
+				(long long)tval[0], (long long)tval[1], (long long)tval[2]);
 		}
 		num_entities_tagged++;
 
@@ -236,7 +236,7 @@ traverse_triangles (
 			continue;	// not tagged
 		if (dumpit) {
 			printf (" (%llx, %llx, %llx) |",
-				tval[0], tval[1], tval[2]);
+				(long long)tval[0], (long long)tval[1], (long long)tval[2]);
 		}
 		num_entities_tagged++;
 
@@ -298,7 +298,7 @@ traverse_tets (
 			continue;	// not tagged
 		if (dumpit) {
 			printf (" (%llx, %llx, %llx) |",
-				tval[0], tval[1], tval[2]);
+				(long long)tval[0], (long long)tval[1], (long long)tval[2]);
 		}
 		num_entities_tagged++;
 
@@ -350,7 +350,7 @@ traverse_mesh (
 	Timer* timer = Timer_.new();
 	timer->start(timer);
 	/* open mesh and get number of levels */
-	printf ("    Opening mesh with id %lld\n", mesh_id);
+	printf ("    Opening mesh with id %lld\n", (long long)mesh_id);
 	H5FedOpenTetrahedralMeshByIndex (f, mesh_id, &mesh);
 	timer->stop(timer);
 	printf ("  %fsec\n", timer->elapsed(timer));

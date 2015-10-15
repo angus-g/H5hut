@@ -283,7 +283,7 @@ traverse_mesh (
 	) {
 	h5t_mesh_t* m;
 	/* open mesh and get number of levels */
-	printf ("    Opening mesh with id %lld\n", mesh_id);
+	printf ("    Opening mesh with id %lld\n", (long long)mesh_id);
 	H5FedOpenTriangleMeshByIndex (f, mesh_id, &m);
 	h5_size_t num_levels = H5FedGetNumLevels (m);
 	printf ("    Number of levels in mesh: %lld\n", (long long)num_levels);

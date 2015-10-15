@@ -305,7 +305,7 @@ traverse_mesh (
 
 	timer->start(timer);
 	/* open mesh and get number of levels */
-	printf ("    Opening mesh with id %lld\n", mesh_id);
+	printf ("    Opening mesh with id %lld\n", (long long)mesh_id);
 	H5FedOpenTetrahedralMeshByIndex (f, mesh_id, &mesh);
 	timer->stop(timer);
 	printf ("  %fsec\n", timer->elapsed(timer));

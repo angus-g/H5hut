@@ -55,7 +55,7 @@ main (
 	// setting end = start - 1 forces the selection of zero particles!
         h5_int64_t end = start + num_particles - 1;
         
-        printf ("[proc %d]: set view to [%lld..%lld]\n", comm_rank, start, end);
+        printf ("[proc %d]: set view to [%lld..%lld]\n", comm_rank, (long long)start, (long long)end);
         H5PartSetView (file, start, end);
 
 	// read and print data
@@ -63,7 +63,7 @@ main (
         H5PartReadDataInt32 (file, "data", data);
         for (int i = 0; i < num_particles; i++) {
                 printf ("[proc %d]: global index = %lld; local index = %d, value = %d\n",
-                        comm_rank, start+i, i, data[i]);
+                        comm_rank, (long long)(start+i), i, data[i]);
         }
 
 	// cleanup
