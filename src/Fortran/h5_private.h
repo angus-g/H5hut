@@ -15,8 +15,6 @@
 
 #include "h5core/h5.h"
 
-#include "Underscore.h"
-
 #if defined(FC_MANGLING_LOWERCASE_NO_UNDERSCORE)
 #    define FC_MANGLING(a,b) a
 #elif defined(FC_MANGLING_LOWERCASE_SINGLE_UNDERSCORE)
