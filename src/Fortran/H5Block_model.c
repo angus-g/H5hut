@@ -61,9 +61,9 @@ h5bl_3d_setview (
 		      "j_start=%lld, j_end=%lld, "
 		       "k_start=%lld, k_end=%lld",
 		      (h5_file_p)f,
-		      *i_start, (long long)i_end,
-		      (long long)j_start, (long long)j_end,
-		      (long long)k_start, (long long)k_end);
+		      (long long)*i_start, (long long)*i_end,
+		      (long long)*j_start, (long long)*j_end,
+		      (long long)*k_start, (long long)*k_end);
 	H5_API_RETURN(h5b_3d_set_view (
 		f,
 		*i_start-1, *i_end-1,

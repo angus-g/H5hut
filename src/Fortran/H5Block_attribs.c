@@ -226,7 +226,7 @@ h5bl_writefieldattrib_r8 (
 		      (h5_file_p)f,
                       l_field_name, field_name,
                       l_attrib_name, attrib_name,
-                      attrib_value, *attrib_nelems);
+                      attrib_value, (long long)*attrib_nelems);
 	H5_API_RETURN (write_field_attrib (
                                f,
                                field_name, l_field_name,
@@ -283,7 +283,7 @@ h5bl_writefieldattrib_r4 (
 		      (h5_file_p)f,
                       l_field_name, field_name,
                       l_attrib_name, attrib_name,
-                      attrib_value, *attrib_nelems);
+                      attrib_value, (long long)*attrib_nelems);
 	H5_API_RETURN (write_field_attrib (
                                f,
                                field_name, l_field_name,
@@ -348,7 +348,7 @@ h5bl_writefieldattrib_i8 (
 		      (h5_file_p)f,
                       l_field_name, field_name,
                       l_attrib_name, attrib_name,
-                      attrib_value, *attrib_nelems);
+                      attrib_value, (long long)*attrib_nelems);
 	H5_API_RETURN (write_field_attrib (
                                f,
                                field_name, l_field_name,
@@ -406,7 +406,7 @@ h5bl_writefieldattrib_i4 (
 		      (h5_file_p)f,
                       l_field_name, field_name,
                       l_attrib_name, attrib_name,
-                      attrib_value, *attrib_nelems);
+                      attrib_value, (long long)*attrib_nelems);
 	H5_API_RETURN (write_field_attrib (
                                f,
                                field_name, l_field_name,
