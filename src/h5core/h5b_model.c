@@ -614,6 +614,11 @@ h5b_3d_set_view (
 
 	h5_free(user_layout);
 	h5_free(write_layout);
+#else
+	b->write_layout[0] = b->user_layout[0];
+	b->i_max = b->user_layout->i_end;
+	b->j_max = b->user_layout->j_end;
+	b->k_max = b->user_layout->k_end;
 #endif
 	TRY( h5bpriv_release_hyperslab(f) );
 	b->have_layout = 1;
