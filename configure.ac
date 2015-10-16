@@ -1,4 +1,12 @@
-AC_INIT([H5hut], [1.99.15], [h5part@lists.psi.ch], H5hut)
+#
+#  Copyright (c) 2006-2015, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt of any
+#  required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
+#  Institut (Switzerland).  All rights reserved.
+#
+#  License: see file COPYING in top level of source distribution.
+#
+AC_INIT([H5hut], [1.99.15rc1], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
