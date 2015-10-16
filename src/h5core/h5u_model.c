@@ -178,6 +178,7 @@ h5u_set_num_points (
 	start -= u->nparticles;
 
 	h5_debug("Total particles across all processors: %lld.", (long long)total);
+	h5_debug("Start index on this processor: %lld.", (long long)start);
 
 	u->viewstart = start;
 	u->viewend   = start + u->nparticles - 1; // view range is *inclusive*
