@@ -20,7 +20,7 @@ program read_stridedf
   
   integer   :: comm, comm_size, comm_rank, mpi_ierror
   integer*8 :: file, h5_ierror
-  integer*8 :: num_particles
+  integer*8 :: num_particles, num_particles_total
   real*8, allocatable :: data(:)
   integer*8 :: i, start
   
@@ -36,10 +36,17 @@ program read_stridedf
   file = h5_openfile (fname, H5_O_RDONLY, H5_PROP_DEFAULT)
   h5_ierror = h5_setstep(file, 1_8)
 
-  ! Get number of particles in datasets
-  num_particles = h5pt_getnpoints (file)
-    
-  ! set number of particles and memory stride
+  ! compute number of particles this process has to read
+  num_particles_total = h5pt_getnpoints (file)
+  num_particles = num_particles_total / comm_size
+  if (comm_rank+1 == comm_size) then
+     num_particles = num_particles + mod (num_particles_total, comm_size)
+  end if
+
+  write (*, "('Total number of particles: ', i8)") num_particles_total
+  write (*, "('Number of particles on this core: ', i8)") num_particles
+
+  ! set number of particeles and memory stride
   h5_ierror = h5pt_setnpoints_strided (file, num_particles, 6_8)
 
   ! read data
