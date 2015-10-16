@@ -14,6 +14,7 @@ include_HEADERS =		\
 	h5t_adjacencies.h	\
 	h5t_map.h		\
 	h5t_model.h		\
+	h5t_octree.h		\
 	h5t_retrieve.h		\
 	h5t_store.h		\
 	h5t_tags.h		\

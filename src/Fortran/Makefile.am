@@ -17,7 +17,8 @@ F90_FILES =						\
 EXTRA_HEADERS =
 
 EXTRA_DIST =			\
-	$(F90_FILES)
+	$(F90_FILES)		\
+	h5_private.h
 
 nodist_include_HEADERS = 	\
 	$(top_srcdir)/src/include/H5hut.f

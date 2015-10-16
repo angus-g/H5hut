@@ -8,6 +8,7 @@ EXTRA_HEADERS =					\
 	h5_fcmp_private.h			\
 	h5_hdf5_private.h			\
 	h5_hsearch_private.h			\
+	h5_init_private.h			\
 	h5_lustre_private.h			\
 	h5_maps_private.h			\
 	h5_model_private.h			\
