@@ -37,7 +37,7 @@ program read_setnparticles
   file = h5_openfile (fname, H5_O_RDONLY, H5_PROP_DEFAULT)
   h5_ierror = h5_setstep (file, 1_8)
 
-  ! compute and set number of particles this process has to read
+  ! compute number of particles this process has to read
   num_particles_total = h5pt_getnpoints (file)
   num_particles = num_particles_total / comm_size
   if (comm_rank+1 == comm_size) then
@@ -47,6 +47,7 @@ program read_setnparticles
   write (*, "('Total number of particles: ', i8)") num_particles_total
   write (*, "('Number of particles on this core: ', i8)") num_particles
 
+  ! set number of particeles
   h5_ierror = h5pt_setnpoints (file, num_particles)
 
   ! read and print data

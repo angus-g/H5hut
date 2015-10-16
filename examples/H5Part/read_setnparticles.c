@@ -34,7 +34,7 @@ main (
         h5_file_t file = H5OpenFile (fname, H5_O_RDONLY, H5_PROP_DEFAULT);
         H5SetStep (file, 0);
 
-        // compute and set number of particles this process has to read
+        // compute number of particles this process has to read
         h5_ssize_t num_particles_total = H5PartGetNumParticles (file);
         h5_ssize_t num_particles = num_particles_total / comm_size;
         if (comm_rank+1 == comm_size)
@@ -44,6 +44,7 @@ main (
 	printf ("[proc %d]: total number of particles: %lld\n",
 		comm_rank, (long long unsigned)num_particles_total);
 
+	// set number of particles
         H5PartSetNumParticles (file, num_particles);
 
         // read and print data
