@@ -51,9 +51,8 @@ extern "C" {
 #define H5_STRING_T             H5T_NATIVE_CHAR
 #define H5_COMPOUND_T           H5T_COMPOUND
 
-#define H5_VER_STRING           "2.0.0"
-
-extern const char * const H5_O_MODES[];
+extern const char* H5_VER_STRING;
+extern const char* const H5_O_MODES[];
 
 #ifdef   WIN32
 typedef __int64                 int64_t;

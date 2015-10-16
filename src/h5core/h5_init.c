@@ -1,7 +1,18 @@
+/*
+  Copyright (c) 2006-2015, The Regents of the University of California,
+  through Lawrence Berkeley National Laboratory (subject to receipt of any
+  required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
+  Institut (Switzerland).  All rights reserved.
+
+  License: see file COPYING in top level of source distribution.
+*/
+
 #include <stdlib.h>
 #include <stdarg.h>     /* va_arg - System dependent ?! */
 #include <string.h>
 #include <assert.h>
+
+#include "config.h"
 
 #include "h5core/h5.h"
 #include "h5_hdf5_private.h"
@@ -15,7 +26,7 @@
 int h5_initialized = 0;
 h5_dta_types_t h5_dta_types;            // type ids' for base & compound data types
 int h5_myproc = 0;                      // proc id
-
+const char* H5_VER_STRING = PACKAGE_VERSION;
 /*
    create several HDF5 types
  */
