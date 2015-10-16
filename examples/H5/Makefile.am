@@ -35,6 +35,7 @@ noinst_PROGRAMS +=		\
 endif
 
 if ENABLE_FORTRAN
+if ENABLE_PARALLEL
 noinst_PROGRAMS +=		\
 	openclosef		\
 	queryf			\
@@ -49,6 +50,7 @@ read_file_attribsf_SOURCES = read_file_attribsf.f90
 read_step_attribsf_SOURCES = read_step_attribsf.f90
 write_file_attribsf_SOURCES = write_file_attribsf.f90
 write_step_attribsf_SOURCES = write_step_attribsf.f90
+endif
 endif
 endif
 

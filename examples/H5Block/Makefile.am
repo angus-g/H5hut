@@ -30,7 +30,9 @@ noinst_PROGRAMS += 	\
 endif
 
 if ENABLE_FORTRAN
+if ENABLE_PARALLEL
 noinst_PROGRAMS += read_write_scalar_fieldf
+endif
 endif
 
 fields_SOURCES = fields.c

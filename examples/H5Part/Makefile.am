@@ -41,6 +41,7 @@ noinst_PROGRAMS +=		\
 endif
 
 if ENABLE_FORTRAN
+if ENABLE_PARALLEL
 noinst_PROGRAMS +=		\
 	read_core_vfdf		\
 	read_canonicalviewf	\
@@ -51,6 +52,7 @@ noinst_PROGRAMS +=		\
 	write_setnparticlesf	\
 	write_setviewf		\
 	write_stridedf
+endif
 endif
 
 EXTRA_PROGRAMS = 
