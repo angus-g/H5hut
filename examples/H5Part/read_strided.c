@@ -51,7 +51,7 @@ main (
         H5PartReadDataFloat64 (file, "pz", data+5);
 
 	// print dataset "x"
-        for (int i = 0; i < num_particles*6; i+=1) {
+        for (int i = 0; i < num_particles*6-6; i+=6) {
                 printf ("[proc %d]: local index = %d, value = %6.3f\n",
                         comm_rank, i, data[i]);
         }
