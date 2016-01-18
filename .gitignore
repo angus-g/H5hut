@@ -1,5 +1,4 @@
 *.tar.gz
-*.tar.bz2
 *.[oa]
 *.la
 *.lo
