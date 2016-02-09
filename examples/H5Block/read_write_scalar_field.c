@@ -191,7 +191,7 @@ _write_data (
 
 	printf ( "Writing scalar field data to step #%lld\n", (long long)H5GetStep (f));
 
-	data = malloc ( i_dims * j_dims * k_dims * sizeof ( *data ) );
+	data = (h5_float64_t*)malloc ( i_dims * j_dims * k_dims * sizeof (h5_float64_t) );
 	for ( i = 0; i < i_dims; i++ ) {
 		for ( j = 0; j < j_dims; j++ ) {
 			for ( k = 0; k < k_dims; k++ ) {
@@ -311,7 +311,7 @@ _read_data (
 
 	printf ("Reading Step #%lld\n", (long long)H5GetStep (f));
 
-	data = malloc (i_dims * j_dims * k_dims * sizeof (*data));
+	data = (h5_float64_t*)malloc (i_dims * j_dims * k_dims * sizeof (*data));
 
 	H5Block3dSetView (
 		f,
