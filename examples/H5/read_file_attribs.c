@@ -33,13 +33,13 @@ main (
         h5_size_t len;
 
         H5GetFileAttribInfoByName (f, ATTR_STRING, NULL, &len);
-        char* attr_string = malloc (len+1);
+        char* attr_string = (char*)malloc (len+1);
         H5ReadFileAttribString (f, ATTR_STRING, attr_string);
         printf ("%s: %s\n", ATTR_STRING, attr_string);
         free (attr_string);
 
         H5GetFileAttribInfoByName (f, ATTR_INT32, NULL, &len);
-        int32_t* attr_int32 = malloc (sizeof(*attr_int32)*len);
+        int32_t* attr_int32 = (char*)malloc (sizeof(*attr_int32)*len);
         H5ReadFileAttribInt32 (f, ATTR_INT32, attr_int32);
         printf ("%s:", ATTR_INT32);
         for (int i = 0; i < len; i++) {
@@ -49,7 +49,7 @@ main (
         free (attr_int32);
 
         H5GetFileAttribInfoByName (f, ATTR_INT64, NULL, &len);
-        int64_t* attr_int64 = malloc (sizeof(*attr_int64)*len);
+        int64_t* attr_int64 = (int64_t*)malloc (sizeof(*attr_int64)*len);
         H5ReadFileAttribInt64 (f, ATTR_INT64, attr_int64);
         printf ("%s:", ATTR_INT64);
         for (int i = 0; i < len; i++) {
@@ -59,7 +59,7 @@ main (
         free (attr_int64);
 
         H5GetFileAttribInfoByName (f, ATTR_FLOAT32, NULL, &len);
-        h5_float32_t* attr_float32 = malloc (sizeof(*attr_float32)*len);
+        h5_float32_t* attr_float32 = (h5_float32_t*)malloc (sizeof(*attr_float32)*len);
         H5ReadFileAttribFloat32 (f, ATTR_FLOAT32, attr_float32);
         printf ("%s:", ATTR_FLOAT32);
         for (int i = 0; i < len; i++) {
@@ -69,7 +69,7 @@ main (
         free (attr_float32);
 
         H5GetFileAttribInfoByName (f, ATTR_FLOAT64, NULL, &len);
-        h5_float64_t* attr_float64 = malloc (sizeof(*attr_float64)*len);
+        h5_float64_t* attr_float64 = (h5_float64_t*)malloc (sizeof(*attr_float64)*len);
         H5ReadFileAttribFloat64 (f, ATTR_FLOAT64, attr_float64);
         printf ("%s:", ATTR_FLOAT64);
         for (int i = 0; i < len; i++) {

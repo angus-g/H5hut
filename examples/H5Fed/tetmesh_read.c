@@ -24,7 +24,7 @@ static Timer*
 new (
 	void
 	) {
-	Timer* this = malloc (sizeof (Timer));
+	Timer* this = (Timer*)malloc (sizeof (Timer));
 	*this = Timer_;
 	return this;
 }

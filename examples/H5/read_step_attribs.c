@@ -32,13 +32,13 @@ main (
         H5SetStep (f, 1);
 
         H5GetStepAttribInfoByName (f, ATTR_STRING, NULL, &len);
-        char* attr_string = malloc (len+1);
+        char* attr_string = (char*)malloc (len+1);
         H5ReadStepAttribString (f, ATTR_STRING, attr_string);
         printf ("%s: %s\n", ATTR_STRING, attr_string);
         free (attr_string);
 
         H5GetStepAttribInfoByName (f, ATTR_INT32, NULL, &len);
-        int32_t* attr_int32 = malloc (sizeof(*attr_int32)*len);
+        int32_t* attr_int32 = (int32_t*)malloc (sizeof(*attr_int32)*len);
         H5ReadStepAttribInt32 (f, ATTR_INT32, attr_int32);
         printf ("%s:", ATTR_INT32);
         for (int i = 0; i < len; i++) {
@@ -48,7 +48,7 @@ main (
         free (attr_int32);
 
         H5GetStepAttribInfoByName (f, ATTR_INT64, NULL, &len);
-        int64_t* attr_int64 = malloc (sizeof(*attr_int64)*len);
+        int64_t* attr_int64 = (int64_t*)malloc (sizeof(*attr_int64)*len);
         H5ReadStepAttribInt64 (f, ATTR_INT64, attr_int64);
         printf ("%s:", ATTR_INT64);
         for (int i = 0; i < len; i++) {
@@ -58,7 +58,7 @@ main (
         free (attr_int64);
 
         H5GetStepAttribInfoByName (f, ATTR_FLOAT32, NULL, &len);
-        h5_float32_t* attr_float32 = malloc (sizeof(*attr_float32)*len);
+        h5_float32_t* attr_float32 = (h5_float32_t*)malloc (sizeof(*attr_float32)*len);
         H5ReadStepAttribFloat32 (f, ATTR_FLOAT32, attr_float32);
         printf ("%s:", ATTR_FLOAT32);
         for (int i = 0; i < len; i++) {
@@ -68,7 +68,7 @@ main (
         free (attr_float32);
 
         H5GetStepAttribInfoByName (f, ATTR_FLOAT64, NULL, &len);
-        h5_float64_t* attr_float64 = malloc (sizeof(*attr_float64)*len);
+        h5_float64_t* attr_float64 = (h5_float64_t*)malloc (sizeof(*attr_float64)*len);
         H5ReadStepAttribFloat64 (f, ATTR_FLOAT64, attr_float64);
         printf ("%s:", ATTR_FLOAT64);
         for (int i = 0; i < len; i++) {
