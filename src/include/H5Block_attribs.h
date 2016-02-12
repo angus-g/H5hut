@@ -20,14 +20,14 @@
 extern "C" {
 #endif
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockGetNumFieldAttribs
 
   Query the number of attributes of field \c field_name.
 
   \return number of attributes
-  \return H5_FAILURE on error
+  \return \c H5_FAILURE on error
 */
 static inline h5_ssize_t
 H5BlockGetNumFieldAttribs (
@@ -40,7 +40,7 @@ H5BlockGetNumFieldAttribs (
 	H5_API_RETURN (h5b_get_num_field_attribs (f, field_name));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockGetFieldAttribInfo
 
@@ -52,7 +52,8 @@ H5BlockGetNumFieldAttribs (
   minus one.  The number of attributes bound to the
   field can be queried by calling \ref H5BlockGetNumFieldAttribs.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockGetFieldAttribInfo (
@@ -89,14 +90,15 @@ H5BlockGetFieldAttribInfo (
 
 /********************** reading and writing attribute ************************/
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockWriteFieldAttribString
 
   Write the string in \c buffer as attribute \c attrib_name of field
   \c field_name.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockWriteFieldAttribString (
@@ -124,14 +126,15 @@ H5BlockWriteFieldAttribString (
 			strlen(buffer) + 1));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockReadFieldAttribString (
 
   Read the string value from attribute \c attrib_name of field
   \c field_name into \c buffer.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockReadFieldAttribString (
