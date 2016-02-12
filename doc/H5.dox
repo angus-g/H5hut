@@ -16,7 +16,6 @@ Developers:
 <UL>
 <LI> Andreas Adelmann (PSI) </LI>
 <LI> Achim Gsell (PSI) </LI>
-<LI> Benedikt Oswald (PSI) </LI>
 <LI> Mark Howison (NERSC/LBNL) </LI>
 <LI> Prabhat (NERSC/LBNL) </LI>
 <LI> Wes Bethel (NERSC/LBNL) </LI>
@@ -25,8 +24,9 @@ Developers:
 Previous developers:
 
 <UL>
-<LI> John Shalf (NERSC/LBNL)</LI>
+<LI> Benedikt Oswald (PSI) </LI>
 <LI> Cristina Siegerist (NERSC/LBNL)</LI>
+<LI> John Shalf (NERSC/LBNL)</LI>
 </UL>
 
 For more information, please contact the
@@ -37,14 +37,20 @@ For more information, please contact the
 /*!
         \defgroup c_api                                 C API
         @{
-                \defgroup h5hut_c_api                   H5hut basic functions
+	\note The C API is implemented with '\c static \c inline' functions to minimize the overhead.
+
+	        \defgroup h5hut_c_api_error_handling	Error handling in H5hut
+	        @{
+		        \defgroup h5hut_error           error handling
+		@}
+
+                \defgroup h5hut_c_api                   H5
                 @{
                         \defgroup h5hut_file            file handling
-                        \defgroup h5hut_error           error handling
                         \defgroup h5hut_model           setting up the data model
-                        \defgroup h5hut_attrib          reading and writing attributes
+                        \defgroup h5hut_attrib          reading and writing file attributes
                 @}
-                \defgroup h5part_c_api H5Part
+                \defgroup h5part_c_api			H5Part
                 @{
                         \defgroup h5part_model          setting up the data model
                         \defgroup h5part_data	        reading and writing datasets
