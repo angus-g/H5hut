@@ -262,7 +262,7 @@ h5_set_prop_file_core_vfd (
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = MPI_COMM_SELF;
 	if (props->throttle > 0) {
-		h5_warn ("Throttling us not permitted with core VFD. Reset throttling.");
+		h5_warn ("Throttling is not permitted with core VFD. Reset throttling.");
 		props->throttle = 0;
 	}
         H5_CORE_API_RETURN (H5_SUCCESS);
