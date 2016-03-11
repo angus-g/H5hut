@@ -25,7 +25,7 @@ h5u_get_num_points (
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	h5_ssize_t nparticles;
 
-	if (h5u_has_view ((h5_file_t)f)) {
+	if (h5u_has_view ((h5_file_t)f) == H5_OK) {
                 /* if a view exists, use its size as the number of particles */
 		TRY (nparticles = h5u_get_num_points_in_view (fh));
 	} else {
@@ -45,7 +45,7 @@ h5u_get_num_points_in_view (
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	h5_ssize_t nparticles;
 
-	if (!h5u_has_view (fh)) {
+	if (h5u_has_view (fh) != H5_OK) {
                 H5_CORE_API_LEAVE (
                         h5_error (
                                 H5_ERR_H5PART,
@@ -211,7 +211,8 @@ h5u_has_view (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	H5_CORE_API_RETURN (f->u->viewindexed || f->u->viewstart >= 0);
+	h5_err_t result = (f->u->viewindexed || f->u->viewstart >= 0) ? H5_SUCCESS : H5_NOK;
+	H5_CORE_API_RETURN (result);
 }
 
 h5_err_t
