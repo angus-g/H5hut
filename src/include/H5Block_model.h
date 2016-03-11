@@ -21,14 +21,15 @@ extern "C" {
 
 /********************** defining the layout **********************************/
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5BlockHasFieldData
 
   Checks whether the current time-step has field data or not.
 
-  \return \c H5_SUCCESS if field data is available otherwise \c
-  H5_NOK.
+  \return \c H5_OK if field data is available
+  \return \c H5_NOK if no field data is available
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockHasFieldData (
@@ -40,15 +41,16 @@ H5BlockHasFieldData (
         H5_API_RETURN (h5b_has_field_data (f));
 }
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5Block3dHasView
 
   Tests whether a view has been set, either directly with
   \ref H5Block3dSetView or indirectly with \ref H5Block3dSetGrid.
 
-  \return \c 1 on true.
-  \return \c 0 on false.
+  \return \c H5_OK if field data is available
+  \return \c H5_NOK if no field data is available
+  \return \c H5_FAILURE on error
 */
 static inline h5_int64_t
 H5Block3dHasView (
@@ -60,7 +62,7 @@ H5Block3dHasView (
 	H5_API_RETURN (h5b_3d_has_view (f));
 }
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5Block3dSetView
 
@@ -72,7 +74,8 @@ H5Block3dHasView (
   use the same field dimensions, set the layout only once before the
   first timestep.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetView (
@@ -99,12 +102,13 @@ H5Block3dSetView (
                                         k_start, k_end));
 }
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5Block3dGetView
   Return the view of this processor.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dGetView (
@@ -128,13 +132,14 @@ H5Block3dGetView (
 	H5_API_RETURN (h5b_3d_get_view (f, i_start, i_end, j_start, j_end, k_start, k_end));
 }
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5Block3dGetReducedView
 
   Return the reduced (ghost-zone free) view of this processor.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dGetReducedView (
@@ -158,14 +163,15 @@ H5Block3dGetReducedView (
 	H5_API_RETURN (h5b_3d_get_reduced_view(f, i_start, i_end, j_start, j_end, k_start, k_end));
 }
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5Block3dSetChunkSize
 
   Define the chunk dimensions and enable chunking in the underlying
   HDF5 dataset.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetChunkSize (
@@ -183,13 +189,14 @@ H5Block3dSetChunkSize (
 	H5_API_RETURN (h5b_3d_set_chunk(f, i, j, k));
 }
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5Block3dGetChunkSize
 
   Lookup the chunk dimensions of the underlying HDF5 dataset.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dGetChunkSize (
@@ -206,7 +213,7 @@ H5Block3dGetChunkSize (
 }
 
 #ifdef PARALLEL_IO
-/*!
+/**
   \ingroup h5block_model
   \anchor H5Block3dSetGrid
 
@@ -219,7 +226,8 @@ H5Block3dGetChunkSize (
 
   The product of the dimensions must equal the size of the MPI communicator.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetGrid (
@@ -237,14 +245,15 @@ H5Block3dSetGrid (
 	H5_API_RETURN (h5b_3d_set_grid(f, i, j, k));
 }
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5Block3dGetGridCoords
 
   Look up the index (\c i, \c j, \c k) in the grid belonging to MPI processor
   \c proc.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dGetGridCoords (
@@ -260,7 +269,7 @@ H5Block3dGetGridCoords (
 	H5_API_RETURN (h5b_3d_get_grid_coords(f, proc, i, j, k));
 }
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5Block3dSetDims
 
@@ -270,7 +279,8 @@ H5Block3dGetGridCoords (
   A grid must be already set with \ref H5Block3dSetGrid, and all processors
   must specify the same dimensions.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetDims (
@@ -289,7 +299,7 @@ H5Block3dSetDims (
 }
 #endif
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5Block3dSetHalo
 
@@ -300,7 +310,8 @@ H5Block3dSetDims (
   A grid with dimensions must already be set with \ref H5Block3dSetGrid and
   \ref H5Block3dSetDims, and all processors must specify the same halo radii.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetHalo (
@@ -318,7 +329,7 @@ H5Block3dSetHalo (
 	H5_API_RETURN (h5b_3d_set_halo(f, i, j, k));
 }
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5BlockGetNumFields
 
@@ -338,7 +349,7 @@ H5BlockGetNumFields (
 }
 
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5BlockGetFieldInfo
 
@@ -353,7 +364,8 @@ H5BlockGetNumFields (
   minus one.  The number of fields bound to the current time-step
   can be queried by calling the function \ref H5BlockGetNumFields.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockGetFieldInfo (
@@ -386,14 +398,16 @@ H5BlockGetFieldInfo (
 			type));
 }
 
-/*!
+/**
   \ingroup h5block_model
   \anchor H5BlockGetFieldInfoByName
 
   Get the rank and dimensions of the field specified by its name.
-  See \ref H5BlockGetFieldInfo.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \see H5BlockGetFieldInfo.
 */
 static inline h5_err_t
 H5BlockGetFieldInfoByName (

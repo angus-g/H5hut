@@ -7,10 +7,14 @@
 !  License: see file COPYING in top level of source distribution.
 !
   INTERFACE
+     !> \ingroup h5part_f90_api
+     !! \addtogroup h5part_io_f
+     !! @{
+
      !>
-     !! \ingroup h5part_data_f
      !! See \ref H5PartWriteDataFloat64
      !! \return 0 on success or error code
+
      INTEGER*8 FUNCTION h5pt_writedata_r8 ( filehandle, name, data )
        INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned during file open
        CHARACTER(LEN=*), INTENT(IN) :: name        !< the name of the dataset
@@ -18,9 +22,9 @@
      END FUNCTION h5pt_writedata_r8
 
      !>
-     !! \ingroup h5part_data_f
      !! See \ref H5PartWriteDataFloat32
      !! \return 0 on success or error code
+
      INTEGER*8 FUNCTION h5pt_writedata_r4 ( filehandle, name, data )
        INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned during file open
        CHARACTER(LEN=*), INTENT(IN) :: name        !< the name of the dataset
@@ -28,9 +32,9 @@
      END FUNCTION h5pt_writedata_r4
 
      !>
-     !! \ingroup h5part_data_f
      !! See \ref H5PartWriteDataInt64
      !! \return 0 on success or error code
+
      INTEGER*8 FUNCTION h5pt_writedata_i8 ( filehandle, name, data )
        INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned during file open
        CHARACTER(LEN=*), INTENT(IN) :: name        !< the name of the dataset
@@ -38,9 +42,9 @@
      END FUNCTION h5pt_writedata_i8
 
      !>
-     !! \ingroup h5part_data_f
      !! See \ref H5PartWriteDataInt32
      !! \return 0 on success or error code
+
      INTEGER*8 FUNCTION h5pt_writedata_i4 ( filehandle, name, data )
        INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned during file open
        CHARACTER(LEN=*), INTENT(IN) :: name        !< the name of the dataset
@@ -49,9 +53,9 @@
 
 
      !>
-     !! \ingroup h5part_data_f
      !! See \ref H5PartReadDataFloat64
      !! \return 0 on success or error code
+
      INTEGER*8 FUNCTION h5pt_readdata_r8 (filehandle,name,data)
        INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned during file open
        CHARACTER(LEN=*), INTENT(IN) :: name        !< the name of the dataset
@@ -59,9 +63,9 @@
      END FUNCTION h5pt_readdata_r8
 
      !>
-     !! \ingroup h5part_data_f
      !! See \ref H5PartReadDataFloat32
      !! \return 0 on success or error code
+
      INTEGER*8 FUNCTION h5pt_readdata_r4 (filehandle,name,data)
        INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned during file open
        CHARACTER(LEN=*), INTENT(IN) :: name        !< the name of the dataset
@@ -69,9 +73,9 @@
      END FUNCTION h5pt_readdata_r4
 
      !>
-     !! \ingroup h5part_data_f
      !! See \ref H5PartReadDataInt64
      !! \return 0 on success or error code
+
      INTEGER*8 FUNCTION h5pt_readdata_i8 (filehandle,name,data)
        INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned during file open
        CHARACTER(LEN=*), INTENT(IN) :: name        !< the name of the dataset
@@ -79,13 +83,15 @@
      END FUNCTION h5pt_readdata_i8
 
      !>
-     !! \ingroup h5part_data_f
      !! See \ref H5PartReadDataInt32
      !! \return 0 on success or error code
+
      INTEGER*8 FUNCTION h5pt_readdata_i4 (filehandle,name,data)
        INTEGER*8, INTENT(IN) :: filehandle         !< the handle returned during file open
        CHARACTER(LEN=*), INTENT(IN) :: name        !< the name of the dataset
        INTEGER, INTENT(OUT) :: data(*)             !< array to read int32 data into
      END FUNCTION h5pt_readdata_i4
 
+     !> @}
+     
   END INTERFACE

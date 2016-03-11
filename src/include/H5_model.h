@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-/*!
+/**
   \ingroup h5hut_model
 
   Define format of the step names.
@@ -27,7 +27,8 @@ extern "C" {
   Example: ==H5SetStepNameFormat( f, "Step", 6 )== defines step names 
   like ==Step#000042==.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5SetStepNameFormat (
@@ -41,12 +42,13 @@ H5SetStepNameFormat (
 	H5_API_RETURN (h5_set_stepname_fmt (f, name, width));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Get format of the step names.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetStepNameFormat (
@@ -61,12 +63,13 @@ H5GetStepNameFormat (
 	H5_API_RETURN (h5_get_stepname_fmt (f, name, l_name, width));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Set the current step.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5SetStep (
@@ -79,13 +82,13 @@ H5SetStep (
 	H5_API_RETURN (h5_set_step (f, step));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Get current step.
 
-  \return Step index 
-  \return H5_FAILURE on error
+  \return   Step number
+  \return   \c H5_FAILURE on error
 */
 static inline h5_id_t
 H5GetStep (
@@ -97,13 +100,13 @@ H5GetStep (
 	H5_API_RETURN (h5_get_step (f));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Get the number of processors.
 
-  \return Number of processors.
-  \return \c H5_FAILURE on error.
+  \return   Number of processors.
+  \return   \c H5_FAILURE on error.
  */
 static inline int
 H5GetNumProcs (
@@ -115,7 +118,7 @@ H5GetNumProcs (
 	H5_API_RETURN (h5_get_num_procs(f));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Get the number of time-steps that are currently stored in the file
@@ -137,13 +140,13 @@ H5GetNumSteps (
 	H5_API_RETURN (h5_get_num_steps(f));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Query whether a particular step already exists in the file.
 
-  \return      \c 1 if step exists
-  \return      \c 0 if step does not exist
+  \return      \c H5_OK if step exists
+  \return      \c H5NOK if step does not exist
   \return      \c H5_FAILURE on error
 */
 static inline h5_err_t
@@ -157,14 +160,15 @@ H5HasStep (
 	H5_API_RETURN (h5_has_step (f, stepno));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Start traversing steps.
 
   \note This function is not yet implemented!
 
-  \return \c H5_SUCCESS or \c H5_FAILURE 
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5StartTraverseSteps (
@@ -176,14 +180,15 @@ H5StartTraverseSteps (
 	H5_API_RETURN (h5_start_traverse_steps (f));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Go to next step.
 
   \note This function is not yet implemented!
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5TraverseSteps (
@@ -195,13 +200,13 @@ H5TraverseSteps (
 	H5_API_RETURN (h5_traverse_steps (f));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Return number of attached files.
 
-  \return       number of attachments.
-  \return       \c H5_FAILURE on error.
+  \return   number of attachments.
+  \return   \c H5_FAILURE on error.
 */
 static inline h5_ssize_t
 H5GetNumAttachments (
@@ -213,13 +218,14 @@ H5GetNumAttachments (
 	H5_API_RETURN (h5_get_num_attachments (f));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Get name and size of attachment given by index \c idx. Return the file name
   in \c fname and the original size in \c fsize.
 
-  \return       \c H5_SUCCESS or \c H5_FAILURE
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetAttachmentInfoByIdx (      	
@@ -238,12 +244,13 @@ H5GetAttachmentInfoByIdx (
 			       f, idx, fname, len_fname, fsize));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Get size of attached file with name \c fname.
 
-  \return       \c H5_SUCCESS or \c H5_FAILURE
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetAttachmentInfoByName (
@@ -256,12 +263,13 @@ H5GetAttachmentInfoByName (
 			       f, fname, fsize));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Attach file \c fname.
 
-  \return       \c H5_SUCCESS or \c H5_FAILURE
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5AddAttachment (
@@ -272,13 +280,14 @@ H5AddAttachment (
 	H5_API_RETURN (h5_add_attachment (f, fname));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Get attachment \c fname from H5hut file and write it to disk in
   the current working directory.
 
-  \return       \c H5_SUCCESS or \c H5_FAILURE
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetAttachment (
@@ -289,12 +298,13 @@ H5GetAttachment (
 	H5_API_RETURN (h5_get_attachment (f, fname));
 }
 
-/*!
+/**
   \ingroup h5hut_model
 
   Delete attachment \c fname.
 
-  \return       \c H5_SUCCESS or \c H5_FAILURE
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5DeleteAttachment (

@@ -10,7 +10,7 @@
 #ifndef __H5BLOCK_H
 #define __H5BLOCK_H
 
-/*!
+/**
   \ingroup h5block_model
 
   \note
@@ -21,13 +21,9 @@
   size of the layout.  If the size of the layout doesn't match the
   size of the field, an error will be indicated. 
  
-  \note
-  In write mode partitions are shrinked to make them non-overlaping. This 
-  process may shrink the partitions more than required.
-
-  \note
-  In read-mode partitions may not cross boundaries. This means, if the grid
-  size is (X, Y, Z), all partitions must fit into this grid.
+  \note In write mode views might be reduced to make them
+  non-overlaping, i.e. ghost-zones are eliminated. This may shrink
+  views in an unexpected way.
 
   \todo
   check whether layout is reasonable

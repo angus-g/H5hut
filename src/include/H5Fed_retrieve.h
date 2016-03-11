@@ -21,8 +21,7 @@
 extern "C" {
 #endif
 
-
-/*!
+/**
    Begin traverse over all entities on this compute node.
    Initialize internal data structures.
 
@@ -30,16 +29,12 @@ extern "C" {
    Entities might be on processor boundaries! Therefore the same entity might be
    processed on several compute nodes.
 
-   \param[in]	f	file handle
-   \param[in]	codim	co-dimension of entity to traverse
-
    \return	H5_SUCCESS or error code
  */
-
 static inline h5t_iterator_p
 H5FedBeginTraverseEntities (
-        h5t_mesh_t* const m,
-        const int codim
+        h5t_mesh_t* const m,	///< mesh object
+        const int codim		///< co-dimension of entity to traverse
         ) {
 	H5_API_ENTER (h5t_iterator_p, "m=%p, codim=%d", m, codim);
 	h5t_iterator_p iter;
@@ -60,10 +55,8 @@ H5FedBeginTraverseBoundaryFaces (
 	H5_API_RETURN (iter);
 }
 
-/*!
+/**
    Get next local entity ID.
-
-   \param[in/out]	iter	iterator
 
    \return		Local entity ID
    \return		-1, if done
@@ -71,43 +64,36 @@ H5FedBeginTraverseBoundaryFaces (
  */
 static inline h5_loc_id_t
 H5FedTraverseEntities (
-        h5t_iterator_t* iter
+        h5t_iterator_t* iter	///< [in,out] entity iterator
         ) {
 	H5_API_ENTER (h5_loc_id_t, "iter=%p", iter);
 	H5_API_RETURN (h5t_iterate_entities (iter));
 }
 
-/*!
+/**
    End of traversing. Release internal data structures.
 
-   \param[in/out]	iter	iterator
-
    \return	H5_SUCCESS or error code
-
  */
 static inline h5_err_t
 H5FedEndTraverseEntities (
-        h5t_iterator_t* iter
+	h5t_iterator_t* iter	///< [in,out] entity iterator
         ) {
 	H5_API_ENTER (h5_err_t, "iter=%p", iter);
 	H5_API_RETURN (h5t_release_entity_iterator (iter));
 }
 
 
-/*!
+/**
    Get coordinates of vertex given by local index
-
-   \param[in]	f		file handle
-   \param[in]	vertex_idx	local index of vertex
-   \param[out]	P		3-dimensional coordinates
 
    \return	H5_SUCCESS or error code
  */
 static inline h5_err_t
 H5FedGetVertexCoordsByIndex (
-        h5t_mesh_t* const m,
-        h5_loc_idx_t vertex_index,
-        h5_float64_t P[3]
+        h5t_mesh_t* const m,	    ///< [in] mesh object
+        h5_loc_idx_t vertex_index,  ///< [in] local index of vertex
+        h5_float64_t P[3]	    ///< [out] vertex coordinates
         ) {
 	H5_API_ENTER (h5_err_t,
 	              "m=%p, vertex_index=%lld, P=%p",

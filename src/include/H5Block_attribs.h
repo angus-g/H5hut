@@ -162,14 +162,15 @@ H5BlockReadFieldAttribString (
 }
 
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockWriteFieldAttribFloat64
 
   Write float64 \c values as attribute \c attrib_name of field
   \c field_name.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockWriteFieldAttribFloat64 (
@@ -193,14 +194,15 @@ H5BlockWriteFieldAttribFloat64 (
 			       nelems ));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockReadFieldAttribFloat64
 
   Read float64 values from attribute \c attrib_name of field
   \c field_name into a \c buffer.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockReadFieldAttribFloat64 (
@@ -222,14 +224,15 @@ H5BlockReadFieldAttribFloat64 (
 }
 
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockWriteFieldAttribFloat32
 
   Write float32 \c values as attribute \c attrib_name of field
   \c field_name.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockWriteFieldAttribFloat32 (
@@ -253,14 +256,15 @@ H5BlockWriteFieldAttribFloat32 (
 			       nelems ));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockReadFieldAttribFloat32
 
   Read float32 values from attribute \c attrib_name of field
   \c field_name into a \c buffer.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockReadFieldAttribFloat32 (
@@ -281,14 +285,15 @@ H5BlockReadFieldAttribFloat32 (
 			       buffer ));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockWriteFieldAttribInt64
 
   Write int64 \c values as attribute \c attrib_name of field
   \c field_name.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockWriteFieldAttribInt64 (
@@ -311,14 +316,15 @@ H5BlockWriteFieldAttribInt64 (
 			       nelems ));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockReadFieldAttribInt64
 
   Read int64 values from attribute \c attrib_name of field
   \c field_name into a \c buffer.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockReadFieldAttribInt64 (
@@ -340,14 +346,15 @@ H5BlockReadFieldAttribInt64 (
 }
 
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockWriteFieldAttribInt32
 
   Write int32 \c values as attribute \c attrib_name of field
   \c field_name.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockWriteFieldAttribInt32 (
@@ -371,14 +378,15 @@ H5BlockWriteFieldAttribInt32 (
 			       nelems ));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5BlockReadFieldAttribInt32
 
   Read int32 values from attribute \c attrib_name of field
   \c field_name into a \c buffer.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockReadFieldAttribInt32 (
@@ -398,13 +406,14 @@ H5BlockReadFieldAttribInt32 (
 			       (void*)buffer ));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5Block3dGetFieldOrigin
 
   Get field origin.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dGetFieldOrigin (
@@ -433,13 +442,14 @@ H5Block3dGetFieldOrigin (
 	H5_API_RETURN (H5_SUCCESS);
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5Block3dSetFieldOrigin
 
   Set field origin.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetFieldOrigin (
@@ -462,13 +472,14 @@ H5Block3dSetFieldOrigin (
 			       3));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5Block3dGetFieldSpacing
 
   Get field spacing for field \c field_name in the current time step.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dGetFieldSpacing (
@@ -495,13 +506,14 @@ H5Block3dGetFieldSpacing (
 	H5_API_RETURN (H5_SUCCESS);
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5Block3dSetFieldSpacing
 
   Set field spacing for field \c field_name in the current time step.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetFieldSpacing (
@@ -524,7 +536,7 @@ H5Block3dSetFieldSpacing (
 			       3));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5Block3dSetFieldXCoords
 
@@ -535,7 +547,8 @@ H5Block3dSetFieldSpacing (
   By convention, the \c coords array should have the same length as the X
   dimension of the field, and a warning will be printed if not.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetFieldXCoords (
@@ -557,7 +570,7 @@ H5Block3dSetFieldXCoords (
 }
 
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5Block3dGetFieldXCoords
 
@@ -568,7 +581,8 @@ H5Block3dSetFieldXCoords (
   By convention, the \c coords array should have the same length as the X
   dimension of the field, and a warning will be printed if they differ.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dGetFieldXCoords (
@@ -589,7 +603,7 @@ H5Block3dGetFieldXCoords (
                                coords, n_coords));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5Block3dSetFieldYCoords
 
@@ -600,7 +614,8 @@ H5Block3dGetFieldXCoords (
   By convention, the \c coords array should have the same length as the Y
   dimension of the field, and a warning will be printed if not.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetFieldYCoords (
@@ -622,7 +637,7 @@ H5Block3dSetFieldYCoords (
 }
 
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5Block3dGetFieldYCoords
 
@@ -633,7 +648,8 @@ H5Block3dSetFieldYCoords (
   By convention, the \c coords array should have the same length as the Y
   dimension of the field, and a warning will be printed if they differ.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dGetFieldYCoords (
@@ -654,7 +670,7 @@ H5Block3dGetFieldYCoords (
                                coords, n_coords));
 }
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5Block3dSetFieldZCoords
 
@@ -665,7 +681,8 @@ H5Block3dGetFieldYCoords (
   By convention, the \c coords array should have the same length as the Z
   dimension of the field, and a warning will be printed if not.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetFieldZCoords (
@@ -687,7 +704,7 @@ H5Block3dSetFieldZCoords (
 }
 
 
-/*!
+/**
   \ingroup h5block_attrib
   \anchor H5Block3dGetFieldZCoords
 
@@ -698,7 +715,8 @@ H5Block3dSetFieldZCoords (
   By convention, the \c coords array should have the same length as the Z
   dimension of the field, and a warning will be printed if they differ.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dGetFieldZCoords (

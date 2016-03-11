@@ -19,10 +19,10 @@
 extern "C" {
 #endif
 
-/*!
+/**
   \ingroup h5part_model
 
-  Set the number of particles for the current time-step.
+  Set the number of points/particles for the current time-step.
   After you call this subroutine, all subsequent 
   operations will assume this number of particles will be written.
 
@@ -44,7 +44,8 @@ extern "C" {
   are arranged \f$ x_1,y_1,x_2,y_2\f$... than you need to setup striding
   (in this case with value 2) using \ref H5PartSetNumParticlesStrided.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
  */
 static inline h5_err_t
 H5PartSetNumPoints (
@@ -58,6 +59,11 @@ H5PartSetNumPoints (
 	H5_API_RETURN (h5u_set_num_points (f, npoints, stride));
 }
 
+/**
+  \ingroup h5part_model
+
+  \see H5PartSetNumPoints()
+*/
 static inline h5_err_t
 H5PartSetNumParticles (
 	const h5_file_t f,		///< [in]  file handle.
@@ -70,7 +76,7 @@ H5PartSetNumParticles (
 	H5_API_RETURN (h5u_set_num_points (f, nparticles, stride));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   Set the number of particles for the current time-step.
@@ -95,7 +101,8 @@ H5PartSetNumParticles (
   such as \c x[] and \c y[],
   use \ref H5PartSetNumParticles().
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartSetNumParticlesStrided (
@@ -111,7 +118,7 @@ H5PartSetNumParticlesStrided (
 	H5_API_RETURN (h5u_set_num_points (f, npoints, stride));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   Define the chunk \c size and enables chunking in the underlying
@@ -122,11 +129,12 @@ H5PartSetNumParticlesStrided (
 
   On parallel filesystems that are sensitive to write alignment (e.g. lustre)
   it is recommended to set a reasonable chunk size when using the MPI-POSIX
-  or MPI-IO independent VFDs (see \ref H5OpenFile).
+  or MPI-IO independent VFDs (see \ref H5OpenFile()).
 
   For more details about chunking, please read the HDF5 documentation.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartSetChunkSize (
@@ -139,12 +147,13 @@ H5PartSetChunkSize (
 	H5_API_RETURN (h5u_set_chunk (f, size));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   Get the number of datasets that are stored at the current time-step.
 
-  \return	number of datasets in current timestep or \c H5_FAILURE.
+  \return   number of datasets in current timestep
+  \return   \c H5_FAILURE on error
 */
 static inline h5_ssize_t
 H5PartGetNumDatasets (
@@ -156,7 +165,7 @@ H5PartGetNumDatasets (
 	H5_API_RETURN (h5u_get_num_datasets(f));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   This reads the name of a dataset specified by it's index in the current
@@ -164,7 +173,8 @@ H5PartGetNumDatasets (
 
   If the number of datasets is \c n, the range of \c _index is \c 0 to \c n-1.
 
-  \result	\c H5_SUCCESS
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartGetDatasetName (
@@ -183,7 +193,7 @@ H5PartGetDatasetName (
 	H5_API_RETURN (h5u_get_dataset_info(f, idx, name, len, NULL, NULL));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   Gets the name, type and number of elements of a dataset based on its
@@ -196,7 +206,8 @@ H5PartGetDatasetName (
   - \c H5_INT64_T (for \c h5_int64_t)
   - \c H5_INT32_T (for \c h5_int32_t)
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartGetDatasetInfo (
@@ -220,7 +231,7 @@ H5PartGetDatasetInfo (
 			       f, idx, name, len_name, type, nelems));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   This function returns the number of particles in this processor's view,
@@ -251,6 +262,11 @@ H5PartGetNumPoints (
 	H5_API_RETURN (h5u_get_num_points (f));
 }
 
+/**
+  \ingroup h5part_model
+
+  \see H5PartGetNumPoints()
+*/
 static inline h5_ssize_t
 H5PartGetNumParticles (
 	const h5_file_t f		///< [in]  file handle.
@@ -261,12 +277,13 @@ H5PartGetNumParticles (
 	H5_API_RETURN (h5u_get_num_points (f));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   Reset the view.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartResetView (
@@ -278,15 +295,15 @@ H5PartResetView (
 	H5_API_RETURN (h5u_reset_view (f));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   Check whether a view has been set, either automatically with
   \ref H5PartSetNumParticles() or manually with \ref H5PartSetView
   or \ref H5PartSetViewIndices.
 
-  \return \c 1 if view has been set.
-  \return \c 0 otherwise.
+  \return \c H5_OK if view has been set.
+  \return \c H5_NOK if no view has been set.
   \return \c H5_FAILURE on error.
 */
 static inline h5_err_t
@@ -299,7 +316,7 @@ H5PartHasView (
 	H5_API_RETURN (h5u_has_view (f));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   For parallel I/O or for subsetting operations on the datafile,
@@ -318,7 +335,8 @@ H5PartHasView (
   The range is \e inclusive: the end value is the last index of the
   data.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartSetView (
@@ -332,7 +350,7 @@ H5PartSetView (
 	H5_API_RETURN (h5u_set_view (f, start, end));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   For parallel I/O or for subsetting operations on the datafile,
@@ -353,7 +371,8 @@ H5PartSetView (
   reads).  However, after you set a view, it will return the number of
   particles contained in the view.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartSetViewIndices (
@@ -367,7 +386,7 @@ H5PartSetViewIndices (
 	H5_API_RETURN (h5u_set_view_indices (f, indices, nelems));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
    Allows you to query the current view. Start and End
@@ -390,15 +409,16 @@ H5PartGetView (
 	H5_API_RETURN (h5u_get_view (f, start, end));
 }
 
-/*!
+/**
   \ingroup h5part_model
 
   If it is too tedious to manually set the start and end coordinates
-  for a view, the \c H5SetCanonicalView() will automatically select an
+  for a view, \c H5SetCanonicalView() will automatically select an
   appropriate domain decomposition of the data arrays for the degree
   of parallelism and set the "view" accordingly.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_int64_t
 H5PartSetCanonicalView (

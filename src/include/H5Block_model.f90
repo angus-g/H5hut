@@ -7,6 +7,10 @@
 !  License: see file COPYING in top level of source distribution.
 !
   INTERFACE
+     !> \ingroup h5block_f90_api
+     !! \addtogroup h5block_model_f
+     !! @{
+     
      !      _       _                              _      _ 
      !   __| | __ _| |_ __ _   _ __ ___   ___   __| | ___| |
      !  / _` |/ _` | __/ _` | | '_ ` _ \ / _ \ / _` |/ _ \ |
@@ -15,10 +19,9 @@
 
 
      !>
-     !! \ingroup h5block_model_f
-     !! See \ref H5Block3dSetView
+     !! See \ref H5Block3dSetView()
      !! \return 0 on success or error code
-     !<
+ 
      INTEGER*8 FUNCTION h5bl_3d_setview ( filehandle, i_start, i_end, j_start, j_end, k_start, k_end )
        INTEGER*8, INTENT(IN) :: filehandle
        INTEGER*8, INTENT(IN) :: i_start
@@ -30,10 +33,9 @@
      END FUNCTION h5bl_3d_setview
 
      !>
-     !! \ingroup h5block_model_f
-     !! See \ref H5Block3dGetView
+     !! See \ref H5Block3dGetView()
      !! \return 0 on success or error code
-     !<
+ 
      INTEGER*8 FUNCTION h5bl_3d_getview ( filehandle, i_start, i_end, j_start, j_end, k_start, k_end )
        INTEGER*8, INTENT(IN) :: filehandle
        INTEGER*8, INTENT(OUT) :: i_start
@@ -45,10 +47,9 @@
      END FUNCTION h5bl_3d_getview
 
      !>
-     !! \ingroup h5block_model_f
-     !! See \ref H5Block3dGetReducedView
+     !! See \ref H5Block3dGetReducedView()
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_getreducedview ( filehandle, i_start, i_end, j_start, j_end, k_start, k_end )
        INTEGER*8, INTENT(IN) :: filehandle
        INTEGER*8, INTENT(OUT) :: i_start
@@ -60,19 +61,17 @@
      END FUNCTION h5bl_3d_getreducedview
 
      !>
-     !! \ingroup h5block_model_f
-     !! See \ref H5Block3dHasView
+     !! See \ref H5Block3dHasView()
      !! \return rank of processor error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_hasview ( filehandle )
        INTEGER*8, INTENT(IN) :: filehandle
      END FUNCTION h5bl_3d_hasview
 
      !>
-     !! \ingroup h5block_model_f
-     !! See \ref H5Block3dSetChunk
+     !! See \ref H5Block3dSetChunkSize()
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_setchunk ( filehandle, i, j, k )
        INTEGER*8, INTENT(IN) :: filehandle
        INTEGER*8, INTENT(IN) :: i
@@ -81,19 +80,17 @@
      END FUNCTION h5bl_3d_setchunk
 
      !>
-     !! \ingroup h5block_model_f
      !! See \ref H5BlockGetNumFields
      !! \return number of fields or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_getnumfields ( filehandle )
        INTEGER*8, INTENT(IN) :: filehandle
      END FUNCTION h5bl_getnumfields
 
      !>
-     !! \ingroup h5block_model_f
      !! See \ref H5BlockGetFieldInfo
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_getfieldinfo ( filehandle, idx, field_name, grid_rank, grid_dims, field_dims )
        INTEGER*8, INTENT(IN) :: filehandle
        INTEGER*8, INTENT(IN) :: idx
@@ -103,4 +100,6 @@
        INTEGER*8, INTENT(OUT) :: field_dims
      END FUNCTION h5bl_getfieldinfo
 
+     !> @}
+     
   END INTERFACE

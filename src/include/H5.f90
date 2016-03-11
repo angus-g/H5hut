@@ -7,103 +7,194 @@
 !  License: see file COPYING in top level of source distribution.
 !
   INTERFACE
-
+     !> \ingroup h5hut_f90_api
+     !! \addtogroup h5hut_file_f
+     !! @{
+     
      !>
-     !! \ingroup h5hut_file_f
-     !! Create file property. See \ref H5CreateProp
-     !! \return 0 on success or -2 on error
-     !<
+     !! Create a new, empty file property list.
+     !!
+     !! File property lists are used to control optional behavior like file
+     !! creation, file access, dataset creation, dataset transfer. File
+     !! property lists are attached to file handles while opened with \ref
+     !! h5_openfile().
+     !!
+     !! \return empty file property list
+     !! \return \c H5_FAILURE on error
+     !!
+     !! \see h5_setprop_file_mpio()
+     !! \see h5_setprop_file_mpio_collective()
+     !! \see h5_setprop_file_mpio_independent()
+     !! \see h5_setprop_file_mpio_posix() (HDF5 <= 1.8.12 only)
+     !! \see h5_setprop_file_corevfd()
+     !! \see h5_setprop_file_align()
+     !! \see h5_setprop_file_throttle()
+
      INTEGER*8 FUNCTION h5_createprop_file ()
      END FUNCTION h5_createprop_file
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Store MPI IO comminicator information in file property list.
-     !! See \ref H5SetPropFileMPIO
-     !! \return 0 on success or -2 on error
-     !<
+     !! Stores MPI IO communicator information to given file property list. If used in 
+     !! \ref h5_openfile(), MPI collective IO will be used.
+     !!
+     !! \note This function deprecated. Use h5_setprop_file_mpio_collective() instead.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+     !!
+     !! \see h5_setprop_file_mpio_independent()
+     !! \see h5_setprop_file_mpio_posix() (HDF5 <= 1.8.12 only)
+     !! \see h5_setprop_file_corevfd()
+
      INTEGER*8 FUNCTION h5_setprop_file_mpio (prop, comm)
        INTEGER*8, INTENT(IN) :: prop               !< property
        INTEGER, INTENT(IN) :: comm                 !< the MPI communicator used by the program
      END FUNCTION h5_setprop_file_mpio
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Store MPI IO comminicator information in file property list.
-     !! See \ref H5SetPropFileMPIOCollective
-     !! \return 0 on success or -2 on error
-     !<
+     !! Stores MPI IO communicator information to given file property list. If used in
+     !! \ref h5_openfile(), MPI collective IO will be used.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+     !!
+     !! \note This function deprecates h5_setprop_file_mpio().
+     !!
+     !! \see h5_setprop_file_mpio_independent()
+     !! \see h5_setprop_file_mpio_posix() (HDF5 <= 1.8.12 only)
+     !! \see h5_setprop_file_corevfd()
+
      INTEGER*8 FUNCTION h5_setprop_file_mpio_collective (prop, comm)
        INTEGER*8, INTENT(IN) :: prop               !< property
        INTEGER, INTENT(IN) :: comm                 !< the MPI communicator used by the program
      END FUNCTION h5_setprop_file_mpio_collective
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Store MPI IO comminicator information in file property list.
-     !! See \ref H5SetPropFileMPIOIndependent
-     !! \return 0 on success or -2 on error
-     !<
+     !! Stores MPI IO communicator information to given file property list. If used in 
+     !! \ref h5_openfile(), MPI independent IO will be used.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+     !!
+     !! \see h5_setprop_file_mpio_collective()
+     !! \see h5_setprop_file_mpio_posix() (HDF5 <= 1.8.12 only)
+     !! \see h5_setprop_file_corevfd()
+
      INTEGER*8 FUNCTION h5_setprop_file_mpio_independent (prop, comm)
        INTEGER*8, INTENT(IN) :: prop               !< property
        INTEGER, INTENT(IN) :: comm                 !< the MPI communicator used by the program
      END FUNCTION h5_setprop_file_mpio_independent
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Store MPI IO comminicator information in file property list.
-     !! See \ref H5SetPropFileMPIOPosix
-     !! \return 0 on success or -2 on error
-     !<
+     !! Stores MPI IO communicator information to given file property list. If used in 
+     !! \ref h5_openfile(), MPI POSIX IO will be used.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+     !!
+     !! \note This function is available only, if H5hut has been compiled with
+     !! HDF5 1.8.12 or older. 
+     !!
+     !! \see h5_setprop_file_mpio_collective()
+     !! \see h5_setprop_file_mpio_independent()
+     !! \see h5_setprop_file_corevfd()
+
      INTEGER*8 FUNCTION h5_setprop_file_mpio_posix (prop, comm)
        INTEGER*8, INTENT(IN) :: prop               !< property
        INTEGER, INTENT(IN) :: comm                 !< the MPI communicator used by the program
      END FUNCTION h5_setprop_file_mpio_posix
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Use the core virtual file driver.
-     !! See \ref H5SetPropCoreVFD
-     !! \return 0 on success or -2 on error
-     !<
+     !! Modifies the file property list to use the \c H5FD_CORE driver.  The
+     !! \c H5FD_CORE driver enables an application to work with a file in memory. 
+     !! File contents are stored only in memory until the file is closed.
+     !!
+     !! The increment by which allocated memory is to be increased each time more
+     !! memory is required, must be specified with \c increment.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+
      INTEGER*8 FUNCTION h5_setprop_file_corevfd (prop)
        INTEGER*8, INTENT(IN) :: prop               !< property
      END FUNCTION h5_setprop_file_corevfd
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Set alignment. See \ref H5SetPropFileAlign
-     !! \return 0 on success or -2 on error
-     !<
+     !! Sets alignment properties of a file property list so that any file
+     !! object greater than or equal in size to threshold bytes will be
+     !! aligned on an address which is a multiple of alignment. The
+     !! addresses are relative to the end of the user block; the alignment
+     !! is calculated by subtracting the user block size from the absolute
+     !! file address and then adjusting the address to be a multiple of
+     !! alignment.
+     !!
+     !! Default values for alignment is one, implying no
+     !! alignment. Generally the default value result in the best
+     !! performance for single-process access to the file. For MPI IO and
+     !! other parallel systems, choose an alignment which is a multiple of
+     !! the disk block size.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+     !!
+     !! \see h5_setprop_file_corevfd()
+
      INTEGER*8 FUNCTION h5_setprop_file_align (prop, align)
        INTEGER*8, INTENT(IN) :: prop               !< property
        INTEGER*8, INTENT(IN) :: align              !< alignment
      END FUNCTION h5_setprop_file_align
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Set throttle. See \ref H5SetPropFileThrottle
-     !! \return 0 on success or -2 on error
-     !<
+     !! Set the `throttle` factor, which causes HDF5 write and read
+     !! calls to be issued in that number of batches.
+     !!
+     !! This can prevent large concurrency parallel applications that
+     !! use independent writes from overwhelming the underlying
+     !! parallel file system.
+     !!
+     !! Throttling only works with the H5_VFD_MPIO_POSIX or
+     !! H5_VFD_MPIO_INDEPENDENT drivers and is only available in
+     !! the parallel library.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+
      INTEGER*8 FUNCTION h5_setprop_file_throttle (prop, throttle)
        INTEGER*8, INTENT(IN) :: prop               !< property
-       INTEGER*8, INTENT(IN) :: throttle           !< throttle
+       INTEGER*8, INTENT(IN) :: throttle           !< throttle factor
      END FUNCTION h5_setprop_file_throttle
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Close property. See \ref H5CloseProp
-     !! \return 0 on success or -2 on error
-     !<
+     !! Close file property list.
+
      INTEGER*8 FUNCTION h5_closeprop (prop)
        INTEGER*8, INTENT(IN) :: prop               !< property
      END FUNCTION h5_closeprop
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Opens a file for reading. See \ref H5OpenFile
-     !! \return 0 on success or error code
-     !<
+     !! Open file with name \c filename.
+     !!
+     !! File mode flags are:
+     !! - \c H5_O_RDONLY: Only reading allowed
+     !! - \c H5_O_WRONLY: create new file, dataset must not exist
+     !! - \c H5_O_APPENDONLY: allows to append new data to an existing file
+     !! - \c H5_O_RDWR:   dataset may exist
+     !! - \c H5_FS_LUSTRE - enable optimizations for the Lustre file system
+     !! - \c H5_VFD_MPIO_POSIX - use the HDF5 MPI-POSIX virtual file driver
+     !! - \c H5_VFD_MPIO_INDEPENDENT - use MPI-IO in indepedent mode
+     !!
+     !! The file is opened with the properties set in the file property list
+     !! \c prop.  This argument can also be set to \c H5_PROP_DEFAULT to use
+     !! reasonable default values. In this case \c MPI_COMM_WORLD will be
+     !! used as MPI communicator in a parallel execution environment.
+     !!
+     !! The typical file extension is \c .h5.
+     !!
+     !! \return File handle
+     !! \return \c H5_FAILURE on error
+     !!
+     !! \see h5_createprop_file()
+
      INTEGER*8 FUNCTION h5_openfile (fname, mode, props)
        CHARACTER(LEN=*), INTENT(IN) :: fname       !< the filename to open for reading
        INTEGER*8, INTENT(IN) :: mode               !< file mode
@@ -111,71 +202,167 @@
      END FUNCTION h5_openfile
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Closes a file. See \ref H5CloseFile
-     !! \return 0 on success or error code
+     !! Close file and free all memory associated with the file handle.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+
      INTEGER*8 FUNCTION h5_closefile (filehandle)
        INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
      END FUNCTION h5_closefile
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Checks that a file is valid. See \ref H5CheckFile
-     !! \return H5_SUCCESS or H5_FAILURE
-     !<
+     !! Verify that the passed file handle is a valid H5hut file handle.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+
      INTEGER*8 FUNCTION h5_checkfile ( filehandle )
        INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
      END FUNCTION h5_checkfile
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Flush file data to disk.
-     !! \return H5_SUCCESS or H5_FAILURE
-     !<
+     !! Flush all file data to disk.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+
      INTEGER*8 FUNCTION h5_flushfile (filehandle)
        INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
      END FUNCTION h5_flushfile
 
      !>
-     !! \ingroup h5hut_file_f
      !! Flush step data to disk.
-     !! \return H5_SUCCESS or H5_FAILURE
-     !<
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+
      INTEGER*8 FUNCTION h5_flushstep (filehandle)
        INTEGER*8, INTENT(IN) :: filehandle !< the handle returned during file open
      END FUNCTION h5_flushstep
 
      !>
-     !! \ingroup h5hut_file_f
-     !! Close HDF5 library. See \ref H5Finalize
-     !! \return \c H5_SUCCESS or \c H5_FAILURE
-     !<
+     !! Close H5hut library. This function should be called before program exit.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
+
      INTEGER*8 FUNCTION h5_finalize ()
      END FUNCTION h5_finalize
 
+     !> @}
+
+     !> \ingroup h5hut_f90_api_error_handling_and_debugging
+     !! \addtogroup h5hut_verbosity_f
+     !! @{
+     
      !>
-     !! \ingroup h5hut_error_f
-     !! See \ref H5SetVerbosityLevel
-     !! \return 0 on success or error code
-     !<
+     !! Set verbosity level to \c level.
+     !!
+     !! Verbosity levels are:
+     !! - \c H5_VERBOSE_NONE: be quiet
+     !! - \c H5_VERBOSE_ERROR: output error messages
+     !! - \c H5_VERBOSE_WARN: output error messages and warning
+     !! - \c H5_VERBOSE_INFO: output error messages, warnings and informational messages
+     !!
+     !! The default verbosity level ist \c H5_VERBOSE_ERROR.
+     !!
+     !! \return \c H5_SUCCESS
+     !!
+     !! \see h5_get_verbosity_level()
+
      SUBROUTINE h5_set_verbosity_level ( level )
        INTEGER*8, INTENT(IN) :: level      !< the level from 0 (no output) to 5 (most detailed)
      END SUBROUTINE h5_set_verbosity_level
 
      !>
-     !! \ingroup h5hut_error_f
-     !! Abort program on error.
-     !! \return 0 on success or error code
-     !<
-     SUBROUTINE h5_abort_on_error ()
-     END SUBROUTINE h5_abort_on_error
+     !! Get verbosity level.
+     !!
+     !! \return   verbosity level
+     !!
+     !! \see h5_set_verbosity_level()
+
+     INTEGER*8 FUNCTION h5_get_verbosity_level ()
+     END FUNCTION h5_get_verbosity_level
+
+     !> @}
+
+     !> \addtogroup h5hut_debug_f
+     !! @{
+     
+     !>
+     !! Set debug mask. The debug mask is an or'ed value of
+     !!
+     !! - \c H5_DEBUG_API:	    C-API calls
+     !! - \c H5_DEBUG_CORE_API:   core API calls. The core API is used by the C- and Fortran API.
+     !! - \c H5_DEBUG_PRIV_API:   private API calls
+     !! - \c H5_DEBUG_PRIV_FUNC:  static functions
+     !! - \c H5_DEBUG_HDF5:	    HDF5 wrapper calls
+     !! - \c H5_DEBUG_MPI:	    MPI wrapper calls
+     !! - \c H5_DEBUG_MALLOC:	    memory allocation
+     !! - \c H5_DEBUG_ALL:	    enable all
+     !!
+     !! \return \c H5_SUCCESS
+     !!
+     !! \see h5_get_debug_mask()
+
+     SUBROUTINE h5_set_debug_mask ( mask )
+       INTEGER*9, INTEGER(IN) :: mask   !< [in] debug mask
+     END SUBROUTINE h5_set_debug_mask
 
      !>
-     !! \ingroup h5hut_error_f
-     !! Get error number.
-     !! \return 0 on success or error code
-     !<
-     SUBROUTINE h5_get_error_number ()
-     END SUBROUTINE h5_get_error_number
+     !! Get debug mask.
+     !!
+     !! \return   debug mask
+     !!
+     !! \see h5_set_debug_mask()
 
+     INTEGER*8 FUNCTION h5_get_debug_mask ()
+     END FUNCTION h5_get_debug_mask
+
+     !> @}
+
+     !> \addtogroup h5hut_error_f
+     !! @{
+     
+     !>
+     !! Report error, do not abort program. The error must be handled in the programm.
+
+     SUBROUTINE h5_report_on_error ()
+     END SUBROUTINE h5_report_on_error
+     
+     !>
+     !! Abort program on error.
+
+     SUBROUTINE h5_abort_on_error ()
+     END SUBROUTINE h5_abort_on_error
+     
+     !>
+     !! Get last error code.
+     !!
+     !! Error codes are:
+     !!
+     !! - \c H5_ERR_BADF:	Something is wrong with the file handle.
+     !! - \c H5_ERR_NOMEM:	Out of memory.
+     !! - \c H5_ERR_INVAL:	Invalid argument.
+     !! 
+     !! - \c H5_ERR_VIEW:	Something is wrong with the view.
+     !! - \c H5_ERR_NOENTRY:	A lookup failed.
+     !! 
+     !! - \c H5_ERR_MPI:	A MPI error occured.
+     !! - \c H5_ERR_HDF5:	A HDF5 error occured.
+     !! - \c H5_ERR_H5: 	Unspecified error in H5 module.
+     !! - \c H5_ERR_H5PART:	Unspecified error in H5Part module.
+     !! - \c H5_ERR_H5BLOCK:	Unspecified error in H5Block module.
+     !! - \c H5_ERR_H5FED:	Unspecified error in H5Fed module.
+     !! 
+     !! - \c H5_ERR_INTERNAL:	Internal error.
+     !! - \c H5_ERR_NOT_IMPLEMENTED: Function not yet implemented.
+     !!
+     !! \return error code
+
+     INTEGER*8 FUNCTION h5_get_error_number ()
+     END FUNCTION h5_get_error_number
+
+     !> @}
   END INTERFACE

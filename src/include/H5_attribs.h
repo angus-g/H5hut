@@ -35,12 +35,13 @@ extern "C" {
      |_|                |___/
 */
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Gets the number of attributes in the file's root ("/").
 
-  \return	Number of attributes or \c H5_FAILURE..
+  \return   Number of attributes
+  \return   \c H5_FAILURE on error
 */
 static inline h5_int64_t
 H5GetNumFileAttribs (
@@ -52,8 +53,8 @@ H5GetNumFileAttribs (
 	H5_API_RETURN (h5_get_num_file_attribs (f));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Gets the name, type and number of elements of the file attribute
   specified by its index.
@@ -63,7 +64,8 @@ H5GetNumFileAttribs (
   one.  The number of attributes bound to file \c f can be queried
   by calling \ref H5GetNumFileAttribs.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE. 
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetFileAttribInfo (
@@ -92,13 +94,14 @@ H5GetFileAttribInfo (
 			       nelems));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Get the type and number of elements of the file attribute
   specified by its name.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE. 
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetFileAttribInfoByName (
@@ -134,13 +137,14 @@ H5GetFileAttribInfoByName (
  |_/_/ \___/ 
 */
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Write an attribute \c name with the string \c value to
   the file root ("/").
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5WriteFileAttribString (
@@ -159,13 +163,14 @@ H5WriteFileAttribString (
 			       strlen(value) + 1 ));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Read a string into a \c buffer from an attribute \c name
   in the file root ("/").
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5ReadFileAttribString (
@@ -183,13 +188,14 @@ H5ReadFileAttribString (
 			       (void*)buffer));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Write an attribute \c name with float64 \c values to
   the file root ("/").
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5WriteFileAttribFloat64 (
@@ -209,13 +215,14 @@ H5WriteFileAttribFloat64 (
 			       nelems));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Read float64 values into a \c buffer from an attribute \c name
   in the file root ("/").
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5ReadFileAttribFloat64 (
@@ -234,13 +241,14 @@ H5ReadFileAttribFloat64 (
 }
 
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Write an attribute \c name with float32 \c values to
   the file root ("/").
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5WriteFileAttribFloat32 (
@@ -260,13 +268,14 @@ H5WriteFileAttribFloat32 (
 			       nelems ));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Read float32 values into a \c buffer from an attribute \c name
   in the file root ("/").
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5ReadFileAttribFloat32 (
@@ -284,13 +293,14 @@ H5ReadFileAttribFloat32 (
 			       (void*)buffer));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Write an attribute \c name with int64 \c values to
   the file root ("/").
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5WriteFileAttribInt64 (
@@ -310,13 +320,14 @@ H5WriteFileAttribInt64 (
 			       nelems));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Read int64 values into a \c buffer from an attribute \c name
   in the file root ("/").
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5ReadFileAttribInt64 (
@@ -334,13 +345,14 @@ H5ReadFileAttribInt64 (
 			       (void*)buffer));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Write an attribute \c name with int32 \c values to
   the file root ("/").
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5WriteFileAttribInt32 (
@@ -360,13 +372,14 @@ H5WriteFileAttribInt32 (
 			       nelems));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_file_attribs
 
   Read int32 values into a \c buffer from an attribute \c name
   in the file root ("/").
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5ReadFileAttribInt32 (
@@ -399,12 +412,13 @@ H5ReadFileAttribInt32 (
      |_|                |___/
 */
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Gets the number of attributes bound to the current step.
 
-  \return Number of attributes or \c H5_FAILURE..
+  \return   Number of attributes
+  \return   \c H5_FAILURE on error
 */
 static inline h5_int64_t
 H5GetNumStepAttribs (
@@ -416,8 +430,8 @@ H5GetNumStepAttribs (
 	H5_API_RETURN (h5_get_num_step_attribs (f));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Gets the name, type and number of elements of the step attribute
   specified by its index.
@@ -427,7 +441,8 @@ H5GetNumStepAttribs (
   minus one.  The number of attributes bound to the current
   time-step can be queried by calling \ref H5GetNumStepAttribs.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE. 
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetStepAttribInfo (
@@ -457,13 +472,14 @@ H5GetStepAttribInfo (
 			       nelems));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Gets the type and number of elements of the step attribute
   specified by its name.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE. 
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetStepAttribInfoByName (
@@ -500,13 +516,14 @@ H5GetStepAttribInfoByName (
  |_/_/ \___/ 
 */
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Write an attribute \c name with the string \c value to
   the current timestep.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5WriteStepAttribString (
@@ -525,13 +542,14 @@ H5WriteStepAttribString (
 			       strlen(value) + 1 ));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Read a string into a \c buffer from an attribute \c name
   in the current timestep.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5ReadStepAttribString (
@@ -549,13 +567,14 @@ H5ReadStepAttribString (
 			       (void*)buffer));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Write an attribute \c name with float64 \c values to
   the current time step.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5WriteStepAttribFloat64 (
@@ -575,13 +594,14 @@ H5WriteStepAttribFloat64 (
 			       nelems));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Read float64 values into a \c buffer from an attribute \c name
   in the current time step.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5ReadStepAttribFloat64 (
@@ -599,13 +619,14 @@ H5ReadStepAttribFloat64 (
 			       (void*)buffer));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Write an attribute \c name with float32 \c values to
   the current time step.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5WriteStepAttribFloat32 (
@@ -625,13 +646,14 @@ H5WriteStepAttribFloat32 (
 			       nelems ));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Read float32 values into a \c buffer from an attribute \c name
   in the current time step.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5ReadStepAttribFloat32 (
@@ -649,13 +671,14 @@ H5ReadStepAttribFloat32 (
 			       (void*)buffer));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Write an attribute \c name with int64 \c values to
   the current time step.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5WriteStepAttribInt64 (
@@ -675,13 +698,14 @@ H5WriteStepAttribInt64 (
 			       nelems));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Read int64 values into a \c buffer from an attribute \c name
   in the current time step.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5ReadStepAttribInt64 (
@@ -700,13 +724,14 @@ H5ReadStepAttribInt64 (
 	H5_API_RETURN (h5err);
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Write an attribute \c name with int32 \c values to
   the current time step.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5WriteStepAttribInt32 (
@@ -726,13 +751,14 @@ H5WriteStepAttribInt32 (
 			       nelems));
 }
 
-/*!
-  \ingroup h5hut_attrib
+/**
+  \ingroup h5hut_step_attribs
 
   Read int32 values into a \c buffer from an attribute \c name
   in the current time step.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.   
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5ReadStepAttribInt32 (

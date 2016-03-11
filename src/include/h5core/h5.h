@@ -63,7 +63,7 @@ h5_set_prop_file_mpio_posix (
 
 h5_err_t
 h5_set_prop_file_core_vfd (
-        h5_prop_t);
+        h5_prop_t, h5_int64_t);
 
 h5_err_t
 h5_close_prop (

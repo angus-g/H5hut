@@ -7,6 +7,10 @@
 !  License: see file COPYING in top level of source distribution.
 !
   INTERFACE
+     !>
+     !! \ingroup \h5hut_f90_api
+     !! \addtogroup \h5hut_file_attribs_f
+     !! @{
      !   __ _ _              _   _        _ _           _            
      !  / _(_) | ___    __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
      ! | |_| | |/ _ \  / _` | __| __| '__| | '_ \| | | | __/ _ \/ __|
@@ -19,19 +23,17 @@
      !     |_|                |___/
      
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5GetNumFileAttribs
      !! \return number of attributes or error code
-     !<
+
      INTEGER*8 FUNCTION h5_getnfileattribs (filehandle)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
      END FUNCTION h5_getnfileattribs
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5GetFileAttribInfo
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_getfileattribinfo (fhandle, idx, name, type, nelem)
        INTEGER*8,INTENT(IN) :: fhandle         !< file handle
        INTEGER*8,INTENT(IN) :: idx             !< index of attribute being queried
@@ -41,10 +43,9 @@
      END FUNCTION h5_getfileattribinfo
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5GetFileAttribInfoByName
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_getfileattribinfo_by_name (fhandle, name, type, nelem)
        INTEGER*8,INTENT(IN) :: fhandle         !< file handle
        CHARACTER(LEN=*), INTENT(IN):: name     !< name of attribute
@@ -65,10 +66,9 @@
      !                                    |___/
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5WriteFileAttribString
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_writefileattrib_string (filehandle, attrib_name, attrib_value)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of attribute to write
@@ -76,9 +76,8 @@
      END FUNCTION h5_writefileattrib_string
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_readfileattrib_string (filehandle, attrib_name, attrib_value)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of the attribute to read
@@ -97,10 +96,9 @@
      ! |_/_/ \___/  |_|  \___|\__,_|_|
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5WriteFileAttribFloat64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_writefileattrib_r8 (filehandle, attrib_name, attrib_value, attrib_nelem)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of attribute to read
@@ -109,10 +107,9 @@
      END FUNCTION h5_writefileattrib_r8
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5ReadFileAttribFloat64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_readfileattrib_r8 (filehandle, attrib_name, attrib_value)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of attribute to read
@@ -120,10 +117,9 @@
      END FUNCTION h5_readfileattrib_r8
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5WriteFileAttribFloat32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_writefileattrib_r4 (filehandle, attrib_name, attrib_value, attrib_nelem)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of attribute to read
@@ -132,10 +128,9 @@
      END FUNCTION h5_writefileattrib_r4
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5ReadFileAttribFloat32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_readfileattrib_r4 ( filehandle, attrib_name, attrib_value )
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of attribute to read
@@ -155,10 +150,9 @@
      !                               |___/
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5WriteFileAttribInt64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_writefileattrib_i8 (filehandle, attrib_name, attrib_value, attrib_nelem)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
        CHARACTER (LEN=*), INTENT(IN) :: attrib_name!< name of attribute to write
@@ -167,10 +161,9 @@
      END FUNCTION h5_writefileattrib_i8
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5ReadFileAttribInt64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_readfileattrib_i8 (filehandle, attrib_name, attrib_value)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of attribute to read
@@ -178,10 +171,9 @@
      END FUNCTION h5_readfileattrib_i8
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5WriteFileAttribInt32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_writefileattrib_i4 (filehandle, attrib_name, attrib_value, attrib_nelem)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER (LEN=*), INTENT(IN) :: attrib_name !< name of attribute to write
@@ -190,15 +182,21 @@
      END FUNCTION h5_writefileattrib_i4
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5ReadFileAttribInt32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_readfileattrib_i4 (filehandle, attrib_name, attrib_value)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of attribute to read
        INTEGER*4,INTENT(OUT):: attrib_value(*)     !< attribute data will be read into this array
      END FUNCTION h5_readfileattrib_i4
+
+     !> @}
+
+     !>
+     !! \ingroup \h5hut_f90_api
+     !! \addtogroup \h5hut_step_attribs_f
+     !! @{
 
      !      _                     _   _        _ _           _            
      !  ___| |_ ___ _ __     __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
@@ -213,19 +211,17 @@
      !     |_|                |___/
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5GetNumFileAttribs
      !! \return number of attributes or error code
-     !<
+
      INTEGER*8 FUNCTION h5_getnstepattribs (filehandle)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
      END FUNCTION h5_getnstepattribs
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5GetFileAttribInfo
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_getstepattribinfo (filehandle, idx, name, type, nelem)
        INTEGER*8,INTENT(IN) :: filehandle      !< file handle
        INTEGER*8,INTENT(IN) :: idx             !< index of attribute being queried
@@ -235,10 +231,9 @@
      END FUNCTION h5_getstepattribinfo
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5GetStepAttribInfoByName
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_getstepattribinfo_by_name (fhandle, name, type, nelem)
        INTEGER*8,INTENT(IN) :: fhandle         !< file handle
        CHARACTER(LEN=*), INTENT(IN):: name     !< name of attribute
@@ -260,10 +255,9 @@
      !                                    |___/
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5WriteStepAttribString
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_writestepattrib_string (filehandle, attrib_name, attrib_value)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of attribute to write
@@ -271,10 +265,9 @@
      END FUNCTION h5_writestepattrib_string
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5ReadStepAttribString
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5_readstepattrib_string (filehandle, attrib_name, attrib_value)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: attrib_name !< name of the attribute to read
@@ -294,7 +287,6 @@
      ! |_/_/ \___/  |_|  \___|\__,_|_|
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5WriteStepAttribFloat64
      !! \return 0 on success or error code
      !<
@@ -306,7 +298,6 @@
      END FUNCTION h5_writestepattrib_r8
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5ReadStepAttribFloat64
      !! \return 0 on success or error code
      !<
@@ -317,7 +308,6 @@
      END FUNCTION h5_readstepattrib_r8
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5WriteStepAttribFloat32
      !! \return 0 on success or error code
      !<
@@ -329,7 +319,6 @@
      END FUNCTION h5_writestepattrib_r4
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5ReadStepAttribFloat32
      !! \return 0 on success or error code
      !<
@@ -353,7 +342,6 @@
      !                               |___/
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5WriteStepAttribInt64
      !! \return 0 on success or error code
      !<
@@ -365,7 +353,6 @@
      END FUNCTION h5_writestepattrib_i8
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5ReadStepAttribInt64
      !! \return 0 on success or error code
      !<
@@ -376,7 +363,6 @@
      END FUNCTION h5_readstepattrib_i8
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5WriteStepAttribInt32
      !! \return 0 on success or error code
      !<
@@ -388,7 +374,6 @@
      END FUNCTION h5_writestepattrib_i4
 
      !>
-     !! \ingroup h5hut_attrib_f
      !! See \ref H5ReadStepAttribInt32
      !! \return 0 on success or error code
      !<
@@ -398,4 +383,5 @@
        INTEGER*4,INTENT(OUT):: attrib_value(*)     !< attribute data will be read into this array
      END FUNCTION h5_readstepattrib_i4
 
+     !> @}
   END INTERFACE

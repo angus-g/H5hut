@@ -7,14 +7,14 @@
 !  License: see file COPYING in top level of source distribution.
 !
   INTERFACE
-     !> \ingroup h5hut_f90_api
-     !! \addtogroup h5block_data_f
+     !> \ingroup h5block_f90_api
+     !! \addtogroup h5block_io_f
      !! @{
 
      !>
      !! See \ref H5Block3dWriteScalarFieldFloat64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_r8 ( filehandle, name, buffer )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -24,7 +24,7 @@
      !>
      !! See \ref H5Block3dReadScalarFieldFloat64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_r8 ( filehandle, name, buffer )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -34,7 +34,7 @@
      !>
      !! See \ref H5Block3dWriteVector3dFieldFloat64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_write_vector3d_field_r8 ( filehandle, name, x, y, z )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -46,7 +46,7 @@
      !>
      !! See \ref H5Block3dReadVector3dFieldFloat64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_read_vector3d_field_r8 ( filehandle, name, x, y, z )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -58,7 +58,7 @@
      !>
      !! See \ref H5Block3dWriteScalarFieldFloat32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_r4 ( filehandle, name, buffer )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -68,7 +68,7 @@
      !>
      !! See \ref H5Block3dReadScalarFieldFloat32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_r4 ( filehandle, name, buffer )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -78,7 +78,7 @@
      !>
      !! See \ref H5Block3dWriteVector3dFieldFloat32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_write_vector3d_field_r4 ( filehandle, name, x, y, z )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -90,7 +90,7 @@
      !>
      !! See \ref H5Block3dReadVector3dFieldFloat32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_read_vector3d_field_r4 ( filehandle, name, x, y, z )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -102,7 +102,7 @@
      !>
      !! See \ref H5Block3dWriteScalarFieldInt64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_i8 ( filehandle, name, buffer )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -112,7 +112,7 @@
      !>
      !! See \ref H5Block3dReadScalarFieldInt64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_i8 ( filehandle, name, buffer )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -122,7 +122,7 @@
      !>
      !! See \ref H5Block3dWriteVector3dFieldInt64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_write_vector3d_field_i8 ( filehandle, name, x, y, z )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -134,7 +134,7 @@
      !>
      !! See \ref H5Block3dReadVector3dFieldInt64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_read_vector3d_field_i8 ( filehandle, name, x, y, z )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -146,7 +146,7 @@
      !>
      !! See \ref H5Block3dWriteScalarFieldInt32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_i4 ( filehandle, name, buffer )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -156,7 +156,7 @@
      !>
      !! See \ref H5Block3dReadScalarFieldInt32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_i4 ( filehandle, name, buffer )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -166,7 +166,7 @@
      !>
      !! See \ref H5Block3dWriteVector3dFieldInt32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_write_vector3d_field_i4 ( filehandle, name, x, y, z )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset
@@ -178,7 +178,7 @@
      !>
      !! See \ref H5Block3dReadVector3dFieldInt32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_read_vector3d_field_i4 ( filehandle, name, x, y, z )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
        CHARACTER(LEN=*), INTENT(IN) :: name !< the name of the dataset

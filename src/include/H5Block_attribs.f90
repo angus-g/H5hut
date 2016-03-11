@@ -7,7 +7,10 @@
 !  License: see file COPYING in top level of source distribution.
 !
   INTERFACE
-
+     !> \ingroup h5block_f90_api
+     !! \addtogroup h5block_attrib_f
+     !! @{
+     
      !   __ _      _     _         _   _        _ _           _            
      !  / _(_) ___| | __| |   __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
      ! | |_| |/ _ \ |/ _` |  / _` | __| __| '__| | '_ \| | | | __/ _ \/ __|
@@ -22,20 +25,18 @@
      !     |_|                |___/ 
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5BlockGetNumFieldAttribs
      !! \return number of attributes or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_getnfieldattribs (filehandle, field_name)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
      END FUNCTION h5bl_getnfieldattribs
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5BlockGetFieldAttribInfo
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_getfieldattribinfo (filehandle, field_name, idx, attrib_name, attrib_nelems)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -52,10 +53,9 @@
      !                                    |___/
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5BlockWriteFieldAttribString
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_writefieldattrib_string (filehandle, field_name, attrib_name, attrib_value)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -64,9 +64,8 @@
      END FUNCTION h5bl_writefieldattrib_string
 
      !>
-     !! \ingroup h5block_attrib_f
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_readfieldattrib_string (filehandle, field_name, attrib_name, attrib_value)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -81,11 +80,9 @@
      ! |_/_/ \___/  |_|  \___|\__,_|_|
 
      !>
-     !! \ingroup h5block_attrib_f
-     !!
      !! See \ref H5BlockWriteFieldAttribFloat64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_writefieldattrib_r8 (filehandle, field_name, attrib_name, attrib_value, attrib_nelems)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -95,10 +92,9 @@
      END FUNCTION h5bl_writefieldattrib_r8
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5BlockReadFieldAttribFloat64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_readfieldattrib_r8 ( filehandle, field_name, attrib_name, attrib_value )
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -107,10 +103,9 @@
      END FUNCTION h5bl_readfieldattrib_r8
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5BlockWriteFieldAttribFloat32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_writefieldattrib_r4 (filehandle, field_name, attrib_name, attrib_value, attrib_nelems)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -120,10 +115,9 @@
      END FUNCTION h5bl_writefieldattrib_r4
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5BlockReadFieldAttribFloat32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_readfieldattrib_r4 (filehandle, field_name, attrib_name, attrib_value)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -139,10 +133,9 @@
      !                               |___/
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5BlockWriteFieldAttribInt64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_writefieldattrib_i8 (filehandle, field_name, attrib_name, attrib_value, attrib_nelems)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -152,10 +145,9 @@
      END FUNCTION h5bl_writefieldattrib_i8
 
      !!>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5BlockReadFieldAttribInt64
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_readfieldattrib_i8 (filehandle, field_name, attrib_name, attrib_value)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -164,10 +156,9 @@
      END FUNCTION h5bl_readfieldattrib_i8
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5BlockWriteFieldAttribInt32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_writefieldattrib_i4 (filehandle, field_name, attrib_name, attrib_value, attrib_nelems)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -177,10 +168,9 @@
      END FUNCTION h5bl_writefieldattrib_i4
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5BlockReadFieldAttribInt32
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_readfieldattrib_i4 (filehandle, field_name, attrib_name, attrib_value)
        INTEGER*8,INTENT(IN) :: filehandle          !< file handle
        CHARACTER(LEN=*), INTENT(IN) :: field_name  !< name of field
@@ -196,10 +186,9 @@
      !                          |_|                       |___/ 
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5Block3dGetFieldSpacing
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_get_field_spacing (filehandle, name, x, y, z)
        INTEGER*8, INTENT(IN) :: filehandle
        CHARACTER(LEN=*), INTENT(IN) :: name
@@ -209,10 +198,9 @@
      END FUNCTION h5bl_3d_get_field_spacing
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5Block3dSetFieldSpacing
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_set_field_spacing (filehandle, name, x, y, z)
        INTEGER*8, INTENT(IN) :: filehandle
        CHARACTER(LEN=*), INTENT(IN) :: name
@@ -229,10 +217,9 @@
      !                                    |___/
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5Block3dGetFieldOrigin
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_get_field_origin (filehandle, name, x, y, z)
        INTEGER*8, INTENT(IN) :: filehandle
        CHARACTER(LEN=*), INTENT(IN) :: name
@@ -242,10 +229,9 @@
      END FUNCTION h5bl_3d_get_field_origin
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5Block3dSetFieldOrigin
      !! \return 0 on success or error code
-     !<
+
      INTEGER*8 FUNCTION h5bl_3d_set_field_origin (filehandle, name, x, y, z)
        INTEGER*8, INTENT(IN) :: filehandle
        CHARACTER(LEN=*), INTENT(IN) :: name
@@ -261,10 +247,9 @@
      ! |_| |_|\___|_|\__,_|  \___\___/ \___/|_|  \__,_|___/
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5Block3dSetFieldXCoords
      !! \return 0 on success -1 on error
-     !<
+
      INTEGER*8 FUNCTION h5bl_set_fieldxcoords (filehandle, field_name, coords, n_coords)
        INTEGER*8, INTENT(IN) :: filehandle
        CHARACTER(LEN=*), INTENT(IN) :: field_name
@@ -273,10 +258,9 @@
      END FUNCTION h5bl_set_fieldxcoords
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5Block3dGetFieldXCoords
      !! \return 0 on success -1 on error
-     !<
+
      INTEGER*8 FUNCTION h5bl_get_fieldxcoords (filehandle, field_name, coords, n_coords)
        INTEGER*8, INTENT(IN) :: filehandle
        CHARACTER(LEN=*), INTENT(IN) :: field_name
@@ -285,10 +269,9 @@
      END FUNCTION h5bl_get_fieldxcoords
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5Block3dSetFieldYCoords
      !! \return 0 on success -1 on error
-     !<
+
      INTEGER*8 FUNCTION h5bl_set_fieldycoords (filehandle, field_name, coords, n_coords)
        INTEGER*8, INTENT(IN) :: filehandle
        CHARACTER(LEN=*), INTENT(IN) :: field_name
@@ -297,10 +280,9 @@
      END FUNCTION h5bl_set_fieldycoords
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5Block3dGetFieldYCoords
      !! \return 0 on success -1 on error
-     !<
+
      INTEGER*8 FUNCTION h5bl_get_fieldycoords (filehandle, field_name, coords, n_coords)
        INTEGER*8, INTENT(IN) :: filehandle
        CHARACTER(LEN=*), INTENT(IN) :: field_name
@@ -309,10 +291,9 @@
      END FUNCTION h5bl_get_fieldycoords
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5Block3dSetFieldZCoords
      !! \return 0 on success -1 on error
-     !<
+
      INTEGER*8 FUNCTION h5bl_set_fieldzcoords (filehandle, field_name, coords, n_coords)
        INTEGER*8, INTENT(IN) :: filehandle
        CHARACTER(LEN=*), INTENT(IN) :: field_name
@@ -321,10 +302,9 @@
      END FUNCTION h5bl_set_fieldzcoords
 
      !>
-     !! \ingroup h5block_attrib_f
      !! See \ref H5Block3dGetFieldZCoords
      !! \return 0 on success -1 on error
-     !<
+
      INTEGER*8 FUNCTION h5bl_get_fieldzcoords (filehandle, field_name, coords, n_coords)
        INTEGER*8, INTENT(IN) :: filehandle
        CHARACTER(LEN=*), INTENT(IN) :: field_name

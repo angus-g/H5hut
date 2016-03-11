@@ -20,10 +20,21 @@ extern "C" {
 #endif
 
 /**
-  \ingroup h5hut_file
+   \ingroup h5hut_c_api
+   \addtogroup h5hut_file
+   @{
+*/
 
-  Create a new, empty file property list. This list can be used in \ref H5OpenFile()
-  to set various properties like the file I/O layer.
+/**
+  Create a new, empty file property list.
+
+  File property lists are used to control optional behavior like file
+  creation, file access, dataset creation, dataset transfer. File
+  property lists are attached to file handles while opened with \ref
+  H5OpenFile().
+
+  \return empty file property list
+  \return \c H5_FAILURE on error
 
   \see H5SetPropFileMPIO()
   \see H5SetPropFileMPIOCollective()
@@ -32,9 +43,6 @@ extern "C" {
   \see H5SetPropFileCoreVFD()
   \see H5SetPropFileAlign()
   \see H5SetPropFileThrottle()
-
-  \return empty file property list
-  \return \c H5_FAILURE on error
 */
 static inline h5_prop_t
 H5CreateFileProp (
@@ -45,19 +53,17 @@ H5CreateFileProp (
 }
 
 /**
-  \ingroup h5hut_file
-
   Stores MPI IO communicator information to given file property list. If used in 
   \ref H5OpenFile(), MPI collective IO will be used.
 
   \note H5SetPropFileMPIO() is deprecated. Use H5SetPropFileMPIOCollective() instead.
 
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
   \see H5SetPropFileMPIOIndependent()
   \see H5SetPropFileMPIOPosix() (HDF5 <= 1.8.12 only)
   \see H5SetPropFileCoreVFD()
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5SetPropFileMPIO (
@@ -69,23 +75,21 @@ H5SetPropFileMPIO (
 }
 
 /**
-  \ingroup h5hut_file
-
   Stores MPI IO communicator information to given file property list. If used in 
   \ref H5OpenFile(), MPI collective IO will be used.
 
-  \note H5SetPropFileMPIOCollective() deprecates H5SetPropFileMPIO().
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \note This function deprecates H5SetPropFileMPIO().
 
   \see H5SetPropFileMPIOIndependent()
   \see H5SetPropFileMPIOPosix() (HDF5 <= 1.8.12 only)
   \see H5SetPropFileCoreVFD()
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5SetPropFileMPIOCollective (
-        h5_prop_t prop,	    ///> [in,out] identifier for file property list
+        h5_prop_t prop,	    ///< [in,out] identifier for file property list
 	MPI_Comm* comm	    ///< [in] MPI communicator
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p, comm=%p", (void*)prop, comm);
@@ -93,22 +97,20 @@ H5SetPropFileMPIOCollective (
 }
 
 /**
-  \ingroup h5hut_file
-
   Stores MPI IO communicator information to given file property list. If used in 
   \ref H5OpenFile(), MPI independent IO will be used.
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 
   \see H5SetPropFileMPIOCollective()
   \see H5SetPropFileMPIOPosix() (HDF5 <= 1.8.12 only)
   \see H5SetPropFileCoreVFD()
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5SetPropFileMPIOIndependent (
-        h5_prop_t prop,	    ///> [in,out] identifier for file property list
-        MPI_Comm* comm	    ///> [in] MPI communicator
+        h5_prop_t prop,	    ///< [in,out] identifier for file property list
+        MPI_Comm* comm	    ///< [in] MPI communicator
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p, comm=%p", (void*)prop, comm);
         H5_API_RETURN (h5_set_prop_file_mpio_independent (prop, comm));
@@ -116,10 +118,12 @@ H5SetPropFileMPIOIndependent (
 
 #if H5_VERSION_LE(1,8,12)
 /**
-  \ingroup h5hut_file
-
   Stores MPI IO communicator information to given file property list. If used in 
   \ref H5OpenFile(), MPI POSIX IO will be used.
+
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 
   \note This function is available only, if H5hut has been compiled with
   HDF5 1.8.12 or older. 
@@ -127,14 +131,11 @@ H5SetPropFileMPIOIndependent (
   \see H5SetPropFileMPIOCollective()
   \see H5SetPropFileMPIOIndependent()
   \see H5SetPropFileCoreVFD()
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5SetPropFileMPIOPosix (
-        h5_prop_t prop,	    ///> [in,out] identifier for file property list
-        MPI_Comm* comm	    ///> [in] MPI communicator
+        h5_prop_t prop,	    ///< [in,out] identifier for file property list
+        MPI_Comm* comm	    ///< [in] MPI communicator
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p, comm=%p", (void*)prop, comm);
         H5_API_RETURN (h5_set_prop_file_mpio_posix (prop, comm));
@@ -142,31 +143,26 @@ H5SetPropFileMPIOPosix (
 #endif
 	
 /**
-  \ingroup h5hut_file
-
   Modifies the file property list to use the \c H5FD_CORE driver.  The
   \c H5FD_CORE driver enables an application to work with a file in memory. 
   File contents are stored only in memory until the file is closed.
 
   The increment by which allocated memory is to be increased each time more
-  memory is required, can be specified with \ref H5SetPropFileAlign(). 
-
-  \see H5SetPropFileAlign()
+  memory is required, must be specified with \c increment.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5SetPropFileCoreVFD (
-        h5_prop_t prop	    ///> [in,out] identifier for file property list
+        h5_prop_t prop,		///< [in,out] identifier for file property list
+	h5_int64_t increment	///< [in] size, in bytes, of memory increments.
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p", (void*)prop);
-        H5_API_RETURN (h5_set_prop_file_core_vfd (prop));
+        H5_API_RETURN (h5_set_prop_file_core_vfd (prop, increment));
 }
 
 /**
-  \ingroup h5hut_file
-
   Sets alignment properties of a file property list so that any file
   object greater than or equal in size to threshold bytes will be
   aligned on an address which is a multiple of alignment. The
@@ -181,23 +177,21 @@ H5SetPropFileCoreVFD (
   other parallel systems, choose an alignment which is a multiple of
   the disk block size.
 
-  \see H5SetPropFileCoreVFD()
-
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
+
+  \see H5SetPropFileCoreVFD()
 */
 static inline h5_err_t
 H5SetPropFileAlign (
-        h5_prop_t prop,	    ///> [in,out] identifier for file property list
-        h5_int64_t align    ///> [in] alignment 
+        h5_prop_t prop,	    ///< [in,out] identifier for file property list
+        h5_int64_t align    ///< [in] alignment 
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p, align=%lld", (void*)prop, (long long int)align);
         H5_API_RETURN (h5_set_prop_file_align (prop, align));
 }
 
 /**
-  \ingroup h5hut_file
-
   Set the `throttle` factor, which causes HDF5 write and read
   calls to be issued in that number of batches.
 
@@ -214,29 +208,25 @@ H5SetPropFileAlign (
 */
 static inline h5_err_t
 H5SetPropFileThrottle (
-        h5_prop_t prop,	    ///> [in,out] identifier for file property list
-        h5_int64_t throttle ///> [in] throttle factor
+        h5_prop_t prop,	    ///< [in,out] identifier for file property list
+        h5_int64_t throttle ///< [in] throttle factor
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p, throttle=%lld", (void*)prop, (long long int)throttle);
         H5_API_RETURN (h5_set_prop_file_throttle (prop, throttle));
 }
 
 /**
-  \ingroup h5hut_file
-
   Close file property list.
 */
 static inline h5_err_t
 H5CloseProp (
-        h5_prop_t prop	    ///> [in] identifier for file property list
+        h5_prop_t prop	    ///< [in] identifier for file property list
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p", (void*)prop);
         H5_API_RETURN (h5_close_prop (prop));
 }
 
 /**
-  \ingroup h5hut_file
-
   Open file with name \c filename.
 
   File mode flags are:
@@ -255,16 +245,16 @@ H5CloseProp (
 
   The typical file extension is \c .h5.
 
-  \see H5CreateFileProp()
-
   \return File handle
   \return \c H5_FAILURE on error
+
+  \see H5CreateFileProp()
 */
 static inline h5_file_t
 H5OpenFile (
-	const char* filename,	///> [in] name of file
-	h5_int64_t mode,	///> [in] file mode 
-        h5_prop_t props		///> [in] identifier for file property list
+	const char* filename,	///< [in] name of file
+	h5_int64_t mode,	///< [in] file mode 
+        h5_prop_t props		///< [in] identifier for file property list
 	) {
 	H5_API_ENTER (h5_file_t,
                       "filename='%s', mode=%lld, props=%p",
@@ -273,8 +263,6 @@ H5OpenFile (
 }
 
 /**
-  \ingroup h5hut_file
-
   Close file and free all memory associated with the file handle.
 
   \return \c H5_SUCCESS on success
@@ -291,8 +279,6 @@ H5CloseFile (
 }
 
 /**
-  \ingroup h5hut_file
-
   Verify that the passed file handle is a valid H5hut file handle.
 
   \return \c H5_SUCCESS on success
@@ -309,8 +295,6 @@ H5CheckFile (
 }
 
 /**
-  \ingroup h5hut_file
-
   Flush step data to disk.
 
   \return \c H5_SUCCESS on success
@@ -327,8 +311,6 @@ H5FlushStep (
 }
 
 /**
-  \ingroup h5hut_file
-
   Flush all file data to disk.
 
   \return \c H5_SUCCESS on success
@@ -345,8 +327,6 @@ H5FlushFile (
 }
 
 /**
-  \ingroup h5hut_file
-
   Close H5hut library. This function should be called before program exit.
 
   \return \c H5_SUCCESS on success
@@ -360,26 +340,141 @@ H5Finalize (
 	H5_API_RETURN (h5_close_hdf5 ());
 }
 
-/**
-  \ingroup h5hut_error
 
+///< @}
+
+/**
+   \ingroup h5hut_c_api_error_handling_and_debugging
+   \addtogroup  h5hut_verbosity
+   @{
+ */
+	
+/**
   Set verbosity level to \c level.
 
+  Verbosity levels are:
+  - \c H5_VERBOSE_NONE: be quiet
+  - \c H5_VERBOSE_ERROR: output error messages
+  - \c H5_VERBOSE_WARN: output error messages and warning
+  - \c H5_VERBOSE_INFO: output error messages, warnings and informational messages
+
+  The default verbosity level ist \c H5_VERBOSE_ERROR.
+
   \return \c H5_SUCCESS
+
+  \see H5GetVerbosityLevel()
 */
 static inline h5_err_t
 H5SetVerbosityLevel (
-	const h5_id_t level     ///< [in] verbosity/debug level.
+	const h5_id_t level     ///< [in] verbosity level.
 	) {
-	return h5_set_debuglevel (level);
+	return h5_set_debuglevel (level & 0x03);
 }
 
 /**
-  \ingroup h5hut_error
+  Get verbosity level.
 
+  \return   verbosity level
+
+  \see H5SetVerbosityLevel()
+*/
+static inline h5_id_t
+H5GetVerbosityLevel (
+	void
+	) {
+	return h5_get_debuglevel (level) & 0x03;
+}
+
+///< @}
+
+/**
+   \addtogroup h5hut_debug
+   @{
+*/
+
+/**
+  Set debug mask. The debug mask is an or'ed value of
+
+  - \c H5_DEBUG_API:	    C-API calls
+  - \c H5_DEBUG_CORE_API:   core API calls. The core API is used by the C- and Fortran API.
+  - \c H5_DEBUG_PRIV_API:   private API calls
+  - \c H5_DEBUG_PRIV_FUNC:  static functions
+  - \c H5_DEBUG_HDF5:	    HDF5 wrapper calls
+  - \c H5_DEBUG_MPI:	    MPI wrapper calls
+  - \c H5_DEBUG_MALLOC:	    memory allocation
+  - \c H5_DEBUG_ALL:	    enable all
+
+  \return \c H5_SUCCESS
+
+  \see H5GetDebugMask()
+*/
+static inline h5_err_t
+H5SetDebugMask (
+	const h5_id_t mask     ///< [in] debug mask
+	) {
+	return h5_set_debuglevel (mask & ~0x03);
+}
+
+/**
+  Get debug mask.
+
+  \return   debug mask
+
+  \see H5SetDebugMask()
+*/
+static inline h5_id_t
+H5GetDebugMask (
+	void
+	) {
+	return (h5_get_debuglevel () & ~0x03);
+}
+///< @}
+
+/**
+   \addtogroup h5hut_error
+   @{
+*/
+       
+/**
+  Report error, do not abort program. The error must be handled in the programm.
+
+  \return \c H5_SUCCESS
+
+  \see H5SetErrorHandler()
+  \see H5ReportErrorhandler()
+*/
+static inline h5_err_t
+H5ReportOnError (
+        void
+        ) {
+	H5_API_ENTER (h5_err_t, "%s", "");
+	H5_API_RETURN (h5_set_errorhandler (h5_report_errorhandler));
+}
+
+/**
+  Abort program on error.
+
+  \return \c H5_SUCCESS
+
+  \see H5SetErrorHandler()
+  \see H5AbortErrorhandler()
+*/
+static inline h5_err_t
+H5AbortOnError (
+        void
+        ) {
+	H5_API_ENTER (h5_err_t, "%s", "");
+	H5_API_RETURN (h5_set_errorhandler (h5_abort_errorhandler));
+}
+
+/**
   Set error handler to \c handler.
 
   \return \c H5_SUCCESS
+
+  \see H5GetErrorHandler()
+  \see H5ReportErrorhandler()
+  \see H5AbortErrorhandler()
 */
 static inline h5_err_t
 H5SetErrorHandler (
@@ -390,26 +485,13 @@ H5SetErrorHandler (
 }
 
 /**
-  \ingroup h5hut_error
-
-  Set the abort error handler.
-
-  \return \c H5_SUCCESS
-*/
-static inline h5_err_t
-H5AbortOnError (
-        void
-        ) {
-	H5_API_ENTER (h5_err_t, "%s", "");
-	H5_API_RETURN (h5_set_errorhandler (h5_abort_errorhandler));
-}
-        
-/**
-  \ingroup h5hut_error
-
   Get current error handler.
 
   \return Pointer to error handler.
+
+  \see H5SetErrorHandler()
+  \see H5ReportErrorhandler()
+  \see H5AbortErrorhandler()
 */
 static inline h5_errorhandler_t
 H5GetErrorHandler (
@@ -421,12 +503,10 @@ H5GetErrorHandler (
 
 
 /**
-  \ingroup h5hut_error
-
   The report error handler writes a message to stderr, sets the error number
   and returns.
 
-  \return       \c H5_FAILURE
+  \return   \c H5_FAILURE
  */
 static inline h5_err_t
 H5ReportErrorhandler (
@@ -437,8 +517,6 @@ H5ReportErrorhandler (
 }
 
 /**
-  \ingroup h5hut_error
-
   The abort error handler writes a message to stderr and exits the programm.
 
   \return       does not return.
@@ -452,9 +530,26 @@ H5AbortErrorhandler (
 }
 
 /**
-  \ingroup h5hut_error
-
   Get last error code.
+
+  Error codes are:
+
+  - \c H5_ERR_BADF:	Something is wrong with the file handle.
+  - \c H5_ERR_NOMEM:	Out of memory.
+  - \c H5_ERR_INVAL:	Invalid argument.
+  
+  - \c H5_ERR_VIEW:	Something is wrong with the view.
+  - \c H5_ERR_NOENTRY:	A lookup failed.
+  
+  - \c H5_ERR_MPI:	A MPI error occured.
+  - \c H5_ERR_HDF5:	A HDF5 error occured.
+  - \c H5_ERR_H5:	Unspecified error in H5 module.
+  - \c H5_ERR_H5PART:	Unspecified error in H5Part module.
+  - \c H5_ERR_H5BLOCK:	Unspecified error in H5Block module.
+  - \c H5_ERR_H5FED:	Unspecified error in H5Fed module.
+  
+  - \c H5_ERR_INTERNAL:	Internal error.
+  - \c H5_ERR_NOT_IMPLEMENTED: Function not yet implemented.
 
   \return error code
 */
@@ -465,6 +560,8 @@ H5GetErrno (
 	return h5_get_errno ();
 }
 
+///< @}
+	
 #ifdef __cplusplus
 }
 #endif

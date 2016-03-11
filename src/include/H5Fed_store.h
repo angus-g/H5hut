@@ -75,9 +75,6 @@ H5FedAddChunkedTriangleMesh (
    real number of elements to add the level. If you want to refine \c n tetrahedra
    \c n*8 elements must be added.
 
-   \param[in]	f			File handle.
-   \param[in]	num_elems_to_refine	Number of elements which will be refined.
-
    \return ID of new level.
 
    \note
@@ -90,8 +87,8 @@ H5FedAddChunkedTriangleMesh (
  */
 static inline h5_err_t
 H5FedBeginStoreVertices (
-        h5t_mesh_t* const m,
-        const h5_size_t num
+        h5t_mesh_t* const m,	///< [in] mesh object
+        const h5_size_t num	///< [in] store this number of vertices
         ) {
 	H5_API_ENTER (h5_err_t,
 	              "m=%p, num=%llu",
@@ -176,9 +173,9 @@ H5FedStoreElement (
 
 static inline h5_loc_idx_t
 H5FedStoreWeightedElement (
-        h5t_mesh_t* const m,            /*!< file handle		*/
-        const h5_loc_idx_t local_vids[], /*!< tuple with vertex id's	*/
-        const h5_weight_t weights[]    // tuple with weights
+        h5t_mesh_t* const m,		///< [in] mesh object
+        const h5_loc_idx_t local_vids[],///< tuple with vertex id's
+        const h5_weight_t weights[]	///< tuple with weights
         ) {
 	H5_API_ENTER (h5_loc_idx_t, "m=%p, local_vids=%p", m, local_vids);
 	if (h5t_get_level (m) != 0) {

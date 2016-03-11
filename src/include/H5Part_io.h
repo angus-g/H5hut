@@ -19,8 +19,8 @@
 extern "C" {
 #endif
 
-/*!
-  \ingroup h5part_data
+/**
+  \ingroup h5part_io
 
   Write array of 64 bit floating point data to file.
 
@@ -43,7 +43,8 @@ extern "C" {
 
   The data is committed to disk before the routine returns.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
  */
 static inline h5_err_t
 H5PartWriteDataFloat64 (
@@ -57,14 +58,15 @@ H5PartWriteDataFloat64 (
 	H5_API_RETURN (h5u_write_data (f, name, (void*)data, H5T_NATIVE_DOUBLE));
 }
 
-/*!
-  \ingroup h5part_data
+/**
+  \ingroup h5part_io
 
   Write array of 32 bit floating point data to file.
 
-  See \c H5PartWriteDataFloat64() for more details.
+  See \ref H5PartWriteDataFloat64() for more details.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
  */
 static inline h5_err_t
 H5PartWriteDataFloat32 (
@@ -78,14 +80,15 @@ H5PartWriteDataFloat32 (
 	H5_API_RETURN (h5u_write_data(f, name, (void*)data, H5T_NATIVE_FLOAT));
 }
 
-/*!
-  \ingroup h5part_data
+/**
+  \ingroup h5part_io
 
   Write array of 64 bit integer data to file.
 
-  See \c H5PartWriteDataFloat64() for more details.
+  See \ref H5PartWriteDataFloat64() for more details.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
  */
 static inline h5_err_t
 H5PartWriteDataInt64 (
@@ -99,14 +102,15 @@ H5PartWriteDataInt64 (
 	H5_API_RETURN (h5u_write_data (f, name, (void*)data, H5T_NATIVE_INT64));
 }
 
-/*!
-  \ingroup h5part_data
+/**
+  \ingroup h5part_io
 
   Write array of 32 bit integer data to file.
 
-  See \c H5PartWriteDataFloat64() for more details.
+  See \ref H5PartWriteDataFloat64() for more details.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
  */
 static inline h5_err_t
 H5PartWriteDataInt32 (
@@ -120,14 +124,15 @@ H5PartWriteDataInt32 (
 	H5_API_RETURN (h5u_write_data (f, name, (void*)data, H5T_NATIVE_INT32));
 }
 
-/*!
-  \ingroup h5part_data
+/**
+  \ingroup h5part_io
 
   Read array of 64 bit floating point data from file.
 
-  See \c H5PartWriteDataFloat64() for more details.
+  See \ref H5PartWriteDataFloat64() for more details.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartReadDataFloat64 (
@@ -141,14 +146,15 @@ H5PartReadDataFloat64 (
 	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_DOUBLE));
 }
 
-/*!
-  \ingroup h5part_data
+/**
+  \ingroup h5part_io
 
   Read array of 32 bit floating point data from file.
 
-  See \c H5PartWriteDataFloat64() for more details.
+  See \ref H5PartWriteDataFloat64() for more details.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartReadDataFloat32 (
@@ -162,14 +168,15 @@ H5PartReadDataFloat32 (
 	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_FLOAT));
 }
 
-/*!
-  \ingroup h5part_data
+/**
+  \ingroup h5part_io
 
   Read array of 64 bit integer data from file.
 
-  See \c H5PartWriteDataFloat64() for more details.
+  See \ref H5PartWriteDataFloat64() for more details.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartReadDataInt64 (
@@ -183,14 +190,15 @@ H5PartReadDataInt64 (
 	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_INT64));
 }
 
-/*!
-  \ingroup h5part_data
+/**
+  \ingroup h5part_io
 
   Read array of 32 bit integer data from file.
 
-  See \c H5PartWriteDataFloat64() for more details.
+  See \ref H5PartWriteDataFloat64() for more details.
 
-  \return	\c H5_SUCCESS or \c H5_FAILURE.
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartReadDataInt32 (

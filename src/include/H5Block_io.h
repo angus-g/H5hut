@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2015, The Regents of the University of California,
+  Copyright (c) 2006-2016, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -19,32 +19,35 @@
 extern "C" {
 #endif
 
-/*!
+/**
   \ingroup h5block_io
-  \anchor H5Block3dWriteScalarFieldFloat64
 
-  Write a 3-dimensional field \c name from the buffer starting at \c data
-  to the current time-step using the defined field layout. Values are
-  floating points (64-bit).
+  Attempts to write the 3-dimensional field \p name from the
+  buffer pointed to by \p buffer to the current step using the
+  previously defined field view. 
+
+  The data type is 64bit floating point (\c h5_float64_t). Ensure that
+  the number of items in the buffer matches the view.  Use the FORTRAN
+  indexing scheme to store data in the buffer.
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dWriteScalarFieldFloat64 (
 	const h5_file_t f,		///< [in]  file handle.
 	const char* name,		///< [in]  name of dataset to write.
-	const h5_float64_t* buffer	///< [in]  pointer to write buffer.
+	const h5_float64_t* buffer	///< [in]  pointer to buffer containing data to write.
 	) {
-
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name='%s', buffer=%p",
                       (h5_file_p)f, name, buffer);
 	H5_API_RETURN (h5b_write_scalar_data(f, name, (void*)buffer, H5T_NATIVE_DOUBLE ));
 }
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dReadScalarFieldFloat64
 
@@ -54,7 +57,8 @@ H5Block3dWriteScalarFieldFloat64 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dReadScalarFieldFloat64 (
@@ -69,7 +73,7 @@ H5Block3dReadScalarFieldFloat64 (
 	H5_API_RETURN (h5b_read_scalar_data(f, name, (void*)buffer, H5T_NATIVE_DOUBLE));
 }
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dWriteVector3dFieldFloat64
 
@@ -80,7 +84,8 @@ H5Block3dReadScalarFieldFloat64 (
 
   You must use the Fortran indexing scheme to access items in \c x_buf.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dWriteVector3dFieldFloat64 (
@@ -98,7 +103,7 @@ H5Block3dWriteVector3dFieldFloat64 (
 		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_DOUBLE));
 }
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dReadVector3dFieldFloat64
 
@@ -109,7 +114,8 @@ H5Block3dWriteVector3dFieldFloat64 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dReadVector3dFieldFloat64 (
@@ -128,7 +134,7 @@ H5Block3dReadVector3dFieldFloat64 (
 }
 
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dWriteScalarFieldFloat32
 
@@ -138,7 +144,8 @@ H5Block3dReadVector3dFieldFloat64 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dWriteScalarFieldFloat32 (
@@ -153,7 +160,7 @@ H5Block3dWriteScalarFieldFloat32 (
 	H5_API_RETURN (h5b_write_scalar_data(f, name, buffer, H5T_NATIVE_FLOAT ));
 }
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dReadScalarFieldFloat32
 
@@ -163,7 +170,8 @@ H5Block3dWriteScalarFieldFloat32 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dReadScalarFieldFloat32 (
@@ -178,7 +186,7 @@ H5Block3dReadScalarFieldFloat32 (
 	H5_API_RETURN (h5b_read_scalar_data(f, name, buffer, H5T_NATIVE_FLOAT));
 }
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dWriteVector3dFieldFloat32
 
@@ -189,7 +197,8 @@ H5Block3dReadScalarFieldFloat32 (
 
   You must use the Fortran indexing scheme to access items in \c x_buf.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dWriteVector3dFieldFloat32 (
@@ -207,7 +216,7 @@ H5Block3dWriteVector3dFieldFloat32 (
 		x_buf, y_buf, z_buf, H5T_NATIVE_FLOAT));
 }
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dReadVector3dFieldFloat32
 
@@ -218,7 +227,8 @@ H5Block3dWriteVector3dFieldFloat32 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dReadVector3dFieldFloat32 (
@@ -237,7 +247,7 @@ H5Block3dReadVector3dFieldFloat32 (
 }
 
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dWriteScalarFieldInt64
 
@@ -247,7 +257,8 @@ H5Block3dReadVector3dFieldFloat32 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dWriteScalarFieldInt64 (
@@ -262,7 +273,7 @@ H5Block3dWriteScalarFieldInt64 (
 	H5_API_RETURN (h5b_write_scalar_data(f, name, buffer, H5T_NATIVE_INT64 ));
 }
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dReadScalarFieldInt64
 
@@ -272,7 +283,8 @@ H5Block3dWriteScalarFieldInt64 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dReadScalarFieldInt64 (
@@ -288,7 +300,7 @@ H5Block3dReadScalarFieldInt64 (
 }
 
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dWriteVector3dFieldInt64
 
@@ -299,7 +311,8 @@ H5Block3dReadScalarFieldInt64 (
 
   You must use the Fortran indexing scheme to access items in \c x_buf.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dWriteVector3dFieldInt64 (
@@ -317,7 +330,7 @@ H5Block3dWriteVector3dFieldInt64 (
 					       x_buf, y_buf, z_buf, H5T_NATIVE_INT64));
 }
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dReadVector3dFieldInt64
 
@@ -328,7 +341,8 @@ H5Block3dWriteVector3dFieldInt64 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dReadVector3dFieldInt64 (
@@ -347,7 +361,7 @@ H5Block3dReadVector3dFieldInt64 (
 }
 
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dWriteScalarFieldInt32
 
@@ -357,7 +371,8 @@ H5Block3dReadVector3dFieldInt64 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dWriteScalarFieldInt32 (
@@ -372,7 +387,7 @@ H5Block3dWriteScalarFieldInt32 (
 	H5_API_RETURN (h5b_write_scalar_data(f, name, buffer, H5T_NATIVE_INT32 ));
 }
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dReadScalarFieldInt32
 
@@ -382,7 +397,8 @@ H5Block3dWriteScalarFieldInt32 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dReadScalarFieldInt32 (
@@ -398,7 +414,7 @@ H5Block3dReadScalarFieldInt32 (
 }
 
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dWriteVector3dFieldInt32
 
@@ -409,7 +425,8 @@ H5Block3dReadScalarFieldInt32 (
 
   You must use the Fortran indexing scheme to access items in \c x_buf.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dWriteVector3dFieldInt32 (
@@ -427,7 +444,7 @@ H5Block3dWriteVector3dFieldInt32 (
 					      x_buf, y_buf, z_buf, H5T_NATIVE_INT32));
 }
 
-/*!
+/**
   \ingroup h5block_io
   \anchor H5Block3dReadVector3dFieldInt32
 
@@ -438,7 +455,8 @@ H5Block3dWriteVector3dFieldInt32 (
 
   You must use the Fortran indexing scheme to access items in \c data.
 
-  \return \c H5_SUCCESS or \c H5_FAILURE
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dReadVector3dFieldInt32 (

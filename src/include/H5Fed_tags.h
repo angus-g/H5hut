@@ -130,39 +130,31 @@ H5FedCloseMTagset (
 	H5_API_RETURN (h5t_close_mtagset(tagset));
 }
 
-/*!
+/**
    Remove tagset from mesh
-
-   \param[in]	tagset	tagset
-   \param[in]	name	name of tagset to remove
 
    \return	H5_SUCCESS or error code
  */
 static inline h5_err_t
 H5FedRemoveMTagset (
-        h5t_mesh_t* m,
-        const char name[]
+        h5t_mesh_t* m,	    ///< mesh object
+        const char name[]   ///< [in] name of tagset to remove
         ) {
 	H5_API_ENTER (h5_err_t, "m=%p, name='%s'", m, name);
 	H5_API_RETURN (h5t_remove_mtagset (m, name));
 }
 
-/*!
+/**
    Set tag for entity in current mesh.
-
-   \param[in]	tagset		ptr tagset
-   \param[in]	entity_id	id of entity
-   \param[in]	size		size of value
-   \param[in]	val		tag value
 
    \return	H5_SUCCESS or error code
  */
 static inline h5_err_t
 H5FedSetTag (
-        h5t_tagset_t* const tagset,
-        h5_loc_id_t entity_id,
-        const h5_size_t size,
-        void* val
+        h5t_tagset_t* const tagset, ///< [in,out] tagset object
+        h5_loc_id_t entity_id,	    ///< [in] entity the tag is assigned to
+        const h5_size_t size,	    ///< [in] byte-size of value
+        void* val		    ///< [in] value of tag
         ) {
 	H5_API_ENTER (h5_err_t,
 	              "tagset=%p, entity_id=%lld, size=%lld, val=%p",
