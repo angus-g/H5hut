@@ -246,10 +246,11 @@ h5_set_prop_file_mpio_posix (
 
 h5_err_t
 h5_set_prop_file_core_vfd (
-        h5_prop_t _props
+        h5_prop_t _props,
+	h5_int64_t increment
         ) {
         h5_prop_file_p props = (h5_prop_file_p)_props;
-        H5_CORE_API_ENTER (h5_err_t, "props=%p", props);
+        H5_CORE_API_ENTER (h5_err_t, "props=%p, increment=%lld", props, (long long int)increment);
         
         if (props->class != H5_PROP_FILE) {
                 H5_INLINE_FUNC_LEAVE (
@@ -261,6 +262,7 @@ h5_set_prop_file_core_vfd (
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_INDEPENDENT | H5_VFD_MPIO_POSIX);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = MPI_COMM_SELF;
+	props->increment = increment;
 	if (props->throttle > 0) {
 		h5_warn ("Throttling is not permitted with core VFD. Reset throttling.");
 		props->throttle = 0;

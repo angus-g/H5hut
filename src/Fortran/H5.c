@@ -98,13 +98,14 @@ h5_setprop_file_mpio_posix (
                 H5_SETPROP_FILE_COREVFD)
 h5_int64_t
 h5_setprop_file_corevfd (
-        h5_int64_t* _prop
+        h5_int64_t* _prop,
+	h5_int64_t* increment
         ) {
         H5_API_ENTER (h5_int64_t,
-                      "prop=%lld",
-                      (long long int)*_prop);
+                      "prop=%lld, increment=%lld",
+                      (long long int)*_prop, (long long int)*increment);
         h5_prop_t prop = (h5_prop_t)*_prop;
-        H5_API_RETURN ((h5_int64_t)h5_set_prop_file_core_vfd (prop));
+        H5_API_RETURN ((h5_int64_t)h5_set_prop_file_core_vfd (prop, increment));
 }
 
 #define h5_setprop_file_align FC_MANGLING (  \

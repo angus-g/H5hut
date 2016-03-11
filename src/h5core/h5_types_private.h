@@ -18,10 +18,11 @@ struct h5_prop {                        // generic property class
         char pad[248];                  // sizeof (struct h5_prop) == 256
 };
 
-struct h5_prop_file {                        // file property
+struct h5_prop_file {                   // file property
         h5_int64_t class;               // property class == H5_PROP_FILE
         h5_int64_t flags;               // file access mode (read-write, readonly ...
         h5_int64_t align;               // HDF5 alignment
+	h5_int64_t increment;		// increment for core vfd
         h5_int64_t throttle;
         MPI_Comm comm;
 	hid_t	xfer_prop;		// dataset transfer properties
