@@ -24,7 +24,9 @@
 
 /*!
    \note
-   A partition must not be part of another partition.
+   There are some restrictions to views:
+
+   A partition cannot be inside another partition.
 
    A partition must not divide another partition into two pieces.
 
@@ -543,7 +545,7 @@ h5_int64_t
 h5b_3d_has_view (
 	const h5_file_t fh		/*!< IN: File handle		*/
 	) {
-	return ((h5_file_p)fh)->b->have_layout;
+	return ( ((h5_file_p)fh)->b->have_layout > 0 ? H5_SUCCESS : H5_NOK );
 }
 
 h5_err_t
