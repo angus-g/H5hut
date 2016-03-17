@@ -42,11 +42,8 @@ h5b_has_field_data (
         H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
         CHECK_FILEHANDLE (f);
         h5_err_t exists;
-        h5_err_t result = H5_NOK;
         TRY (exists = hdf5_link_exists (f->step_gid, H5BLOCK_GROUPNAME_BLOCK));
-        if (exists)
-                result = H5_SUCCESS;
-        H5_CORE_API_RETURN (result);
+        H5_CORE_API_RETURN (exists);
 }
 
 static void
@@ -483,19 +480,6 @@ _create_block_group (
 }
 
 h5_err_t
-h5bpriv_have_field_group (
-	const h5_file_p f,			/*!< IN: file handle */
-	const char *name
-	) {
-	H5_PRIV_API_ENTER (h5_err_t, "f=%p, name='%s'", f, name);
-	char name2[H5_DATANAME_LEN];
-	h5priv_normalize_dataset_name (name, name2);
-
-	TRY( h5bpriv_open_block_group(f) );
-	H5_PRIV_API_RETURN (hdf5_link_exists(f->b->block_gid, name2));
-}
-
-h5_err_t
 h5bpriv_open_field_group (
 	const h5_file_p f,			/*!< IN: file handle */
 	const char *name
@@ -545,7 +529,7 @@ h5_int64_t
 h5b_3d_has_view (
 	const h5_file_t fh		/*!< IN: File handle		*/
 	) {
-	return ( ((h5_file_p)fh)->b->have_layout > 0 ? H5_SUCCESS : H5_NOK );
+	return (((h5_file_p)fh)->b->have_layout > 0);
 }
 
 h5_err_t

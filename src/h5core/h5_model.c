@@ -118,6 +118,12 @@ h5priv_get_dataset_type(
 	H5_CORE_API_RETURN (type);
 }
 
+/*
+  returns:
+  TRUE (value > 0): if step exists
+  FALSE (i.e. 0): if step does not exist
+  H5_FAILURE: on error
+ */
 h5_err_t
 h5_has_step (
 	const h5_file_t f_,		/*!< [in]  Handle to open file */
@@ -128,8 +134,11 @@ h5_has_step (
 	char name[2*H5_STEPNAME_LEN];
 	sprintf (name,
 		"%s#%0*lld",
-		f->props->prefix_step_name, f->props->width_step_idx, (long long)step_idx);
-	H5_CORE_API_RETURN (hdf5_link_exists(f->file, name));
+		f->props->prefix_step_name, f->props->width_step_idx,
+		 (long long)step_idx);
+        h5_err_t exists;
+        TRY (exists = hdf5_link_exists (f->file, name));
+	H5_CORE_API_RETURN (exists);
 }
 
 h5_err_t

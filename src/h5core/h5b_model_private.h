@@ -18,12 +18,6 @@
                      "No view has been defined!"));
 
 h5_err_t
-h5bpriv_have_field_group (
-	const h5_file_p f,			/*!< IN: file handle */
-	const char *name
-	);
-
-h5_err_t
 h5bpriv_open_field_group (
 	const h5_file_p f,			/*!< IN: file handle */
 	const char *name

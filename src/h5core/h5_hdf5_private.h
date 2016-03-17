@@ -60,9 +60,9 @@ hdf5_get_objname (
    Determine whether a link with the specified name exists in a group.
 
    Result:
-   1	if link exists
-   0	if link doesn't exist
-   error else
+   TRUE		if link exists
+   FALSE	if link doesn't exist
+   H5_FAILURE	on error
 */
 static inline h5_err_t
 hdf5_link_exists (
