@@ -15,6 +15,12 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_model.h"
 
+/**
+   \ingroup h5block_c_api
+   \addtogroup h5block_model
+   @{
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,14 +28,11 @@ extern "C" {
 /********************** defining the layout **********************************/
 
 /**
-  \ingroup h5block_model
-  \anchor H5BlockHasFieldData
-
   Checks whether the current time-step has field data or not.
 
-  \return \c H5_OK if field data is available
-  \return \c H5_NOK if no field data is available
-  \return \c H5_FAILURE on error
+  \return      true (value \c >0) if step exists
+  \return      false (\c 0) if step does not exist
+  \return      \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockHasFieldData (
@@ -42,15 +45,12 @@ H5BlockHasFieldData (
 }
 
 /**
-  \ingroup h5block_model
-  \anchor H5Block3dHasView
-
   Tests whether a view has been set, either directly with
   \ref H5Block3dSetView or indirectly with \ref H5Block3dSetGrid.
 
-  \return \c H5_OK if field data is available
-  \return \c H5_NOK if no field data is available
-  \return \c H5_FAILURE on error
+  \return      true (value \c >0) if step exists
+  \return      false (\c 0) if step does not exist
+  \return      \c H5_FAILURE on error
 */
 static inline h5_int64_t
 H5Block3dHasView (
@@ -63,9 +63,6 @@ H5Block3dHasView (
 }
 
 /**
-  \ingroup h5block_model
-  \anchor H5Block3dSetView
-
   Defines the partition of the field that this processor owns, using
   Fortran ordering: the fastest moving index is \c i.
 
@@ -103,8 +100,6 @@ H5Block3dSetView (
 }
 
 /**
-  \ingroup h5block_model
-  \anchor H5Block3dGetView
   Return the view of this processor.
 
   \return \c H5_SUCCESS on success
@@ -133,9 +128,6 @@ H5Block3dGetView (
 }
 
 /**
-  \ingroup h5block_model
-  \anchor H5Block3dGetReducedView
-
   Return the reduced (ghost-zone free) view of this processor.
 
   \return \c H5_SUCCESS on success
@@ -164,9 +156,6 @@ H5Block3dGetReducedView (
 }
 
 /**
-  \ingroup h5block_model
-  \anchor H5Block3dSetChunkSize
-
   Define the chunk dimensions and enable chunking in the underlying
   HDF5 dataset.
 
@@ -190,9 +179,6 @@ H5Block3dSetChunkSize (
 }
 
 /**
-  \ingroup h5block_model
-  \anchor H5Block3dGetChunkSize
-
   Lookup the chunk dimensions of the underlying HDF5 dataset.
 
   \return \c H5_SUCCESS on success
@@ -214,9 +200,6 @@ H5Block3dGetChunkSize (
 
 #ifdef PARALLEL_IO
 /**
-  \ingroup h5block_model
-  \anchor H5Block3dSetGrid
-
   Define an underlying 3D Cartesian grid on the processors with dimensions
   (\c i,\c j,\c k). You can look up a processor's index into the grid
   using \ref H5Block3dGetGridCoords.
@@ -246,9 +229,6 @@ H5Block3dSetGrid (
 }
 
 /**
-  \ingroup h5block_model
-  \anchor H5Block3dGetGridCoords
-
   Look up the index (\c i, \c j, \c k) in the grid belonging to MPI processor
   \c proc.
 
@@ -270,9 +250,6 @@ H5Block3dGetGridCoords (
 }
 
 /**
-  \ingroup h5block_model
-  \anchor H5Block3dSetDims
-
   Set the dimensions of each processor's block when the field is a regular
   grid.
   
@@ -300,9 +277,6 @@ H5Block3dSetDims (
 #endif
 
 /**
-  \ingroup h5block_model
-  \anchor H5Block3dSetHalo
-
   Sets the additional cells (\c i, \c j, \c k) in each direction to use as
   the `halo` region (or `ghost zone`) that overlaps between neighboring
   processors on the grid.
@@ -330,9 +304,6 @@ H5Block3dSetHalo (
 }
 
 /**
-  \ingroup h5block_model
-  \anchor H5BlockGetNumFields
-
   Query number of fields in current time step.
 
   \return \c number of fields
@@ -350,9 +321,6 @@ H5BlockGetNumFields (
 
 
 /**
-  \ingroup h5block_model
-  \anchor H5BlockGetFieldInfo
-
   Get the name, rank and dimensions of the field specified by the
   index \c idx.
 
@@ -399,9 +367,6 @@ H5BlockGetFieldInfo (
 }
 
 /**
-  \ingroup h5block_model
-  \anchor H5BlockGetFieldInfoByName
-
   Get the rank and dimensions of the field specified by its name.
 
   \return \c H5_SUCCESS on success
@@ -431,6 +396,8 @@ H5BlockGetFieldInfoByName (
 			elem_rank,
 			type));
 }
+
+///< @}
 
 #ifdef __cplusplus
 }

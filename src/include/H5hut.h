@@ -10,6 +10,10 @@
 #ifndef __H5HUT_H
 #define __H5HUT_H
 
+#if !defined(H5HUT_API_VERSION)
+#define H5HUT_API_VERSION 2
+#endif
+
 #include "H5.h"
 #include "H5Part.h"
 #include "H5Block.h"

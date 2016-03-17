@@ -16,14 +16,18 @@
 #include "h5core/h5.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_attribs.h"
+
+/**
+   \ingroup h5block_c_api
+   \addtogroup h5block_attrib
+   @{
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockGetNumFieldAttribs
-
   Query the number of attributes of field \c field_name.
 
   \return number of attributes
@@ -41,9 +45,6 @@ H5BlockGetNumFieldAttribs (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockGetFieldAttribInfo
-
   Gets the name, type and number of elements of the field attribute
   specified by its index.
 
@@ -91,9 +92,6 @@ H5BlockGetFieldAttribInfo (
 /********************** reading and writing attribute ************************/
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockWriteFieldAttribString
-
   Write the string in \c buffer as attribute \c attrib_name of field
   \c field_name.
 
@@ -127,9 +125,6 @@ H5BlockWriteFieldAttribString (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockReadFieldAttribString (
-
   Read the string value from attribute \c attrib_name of field
   \c field_name into \c buffer.
 
@@ -163,9 +158,6 @@ H5BlockReadFieldAttribString (
 
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockWriteFieldAttribFloat64
-
   Write float64 \c values as attribute \c attrib_name of field
   \c field_name.
 
@@ -195,9 +187,6 @@ H5BlockWriteFieldAttribFloat64 (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockReadFieldAttribFloat64
-
   Read float64 values from attribute \c attrib_name of field
   \c field_name into a \c buffer.
 
@@ -225,9 +214,6 @@ H5BlockReadFieldAttribFloat64 (
 
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockWriteFieldAttribFloat32
-
   Write float32 \c values as attribute \c attrib_name of field
   \c field_name.
 
@@ -257,9 +243,6 @@ H5BlockWriteFieldAttribFloat32 (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockReadFieldAttribFloat32
-
   Read float32 values from attribute \c attrib_name of field
   \c field_name into a \c buffer.
 
@@ -286,9 +269,6 @@ H5BlockReadFieldAttribFloat32 (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockWriteFieldAttribInt64
-
   Write int64 \c values as attribute \c attrib_name of field
   \c field_name.
 
@@ -317,9 +297,6 @@ H5BlockWriteFieldAttribInt64 (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockReadFieldAttribInt64
-
   Read int64 values from attribute \c attrib_name of field
   \c field_name into a \c buffer.
 
@@ -347,9 +324,6 @@ H5BlockReadFieldAttribInt64 (
 
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockWriteFieldAttribInt32
-
   Write int32 \c values as attribute \c attrib_name of field
   \c field_name.
 
@@ -379,9 +353,6 @@ H5BlockWriteFieldAttribInt32 (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5BlockReadFieldAttribInt32
-
   Read int32 values from attribute \c attrib_name of field
   \c field_name into a \c buffer.
 
@@ -407,9 +378,6 @@ H5BlockReadFieldAttribInt32 (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5Block3dGetFieldOrigin
-
   Get field origin.
 
   \return \c H5_SUCCESS on success
@@ -443,9 +411,6 @@ H5Block3dGetFieldOrigin (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5Block3dSetFieldOrigin
-
   Set field origin.
 
   \return \c H5_SUCCESS on success
@@ -473,9 +438,6 @@ H5Block3dSetFieldOrigin (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5Block3dGetFieldSpacing
-
   Get field spacing for field \c field_name in the current time step.
 
   \return \c H5_SUCCESS on success
@@ -507,9 +469,6 @@ H5Block3dGetFieldSpacing (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5Block3dSetFieldSpacing
-
   Set field spacing for field \c field_name in the current time step.
 
   \return \c H5_SUCCESS on success
@@ -537,9 +496,6 @@ H5Block3dSetFieldSpacing (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5Block3dSetFieldXCoords
-
   Set an explicit list of X coordinates for field \c field_name in the current
   time step. The coordinates are a 1D array of floating point values with
   dimension \c n_coords.
@@ -571,9 +527,6 @@ H5Block3dSetFieldXCoords (
 
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5Block3dGetFieldXCoords
-
   Get the explicit list of X coordinates for field \c field_name in the current
   time step. The coordinates are read into the 1D array \c coords which has
   length \c n_coords.
@@ -604,9 +557,6 @@ H5Block3dGetFieldXCoords (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5Block3dSetFieldYCoords
-
   Set an explicit list of Y coordinates for field \c field_name in the current
   time step. The coordinates are a 1D array of floating point values with
   dimension \c n_coords.
@@ -638,9 +588,6 @@ H5Block3dSetFieldYCoords (
 
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5Block3dGetFieldYCoords
-
   Get the explicit list of Y coordinates for field \c field_name in the current
   time step. The coordinates are read into the 1D array \c coords which has
   length \c n_coords.
@@ -671,9 +618,6 @@ H5Block3dGetFieldYCoords (
 }
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5Block3dSetFieldZCoords
-
   Set an explicit list of Z coordinates for field \c field_name in the current
   time step. The coordinates are a 1D array of floating point values with
   dimension \c n_coords.
@@ -705,9 +649,6 @@ H5Block3dSetFieldZCoords (
 
 
 /**
-  \ingroup h5block_attrib
-  \anchor H5Block3dGetFieldZCoords
-
   Get the explicit list of Z coordinates for field \c field_name in the current
   time step. The coordinates are read into the 1D array \c coords which has
   length \c n_coords.
@@ -740,5 +681,7 @@ H5Block3dGetFieldZCoords (
 #ifdef __cplusplus
 }
 #endif
+
+///< @}
 
 #endif

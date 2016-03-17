@@ -15,13 +15,17 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5u_model.h"
 
+/**
+   \ingroup h5part_c_api
+   \addtogroup h5part_model
+   @{
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
-  \ingroup h5part_model
-
   Set the number of points/particles for the current time-step.
   After you call this subroutine, all subsequent 
   operations will assume this number of particles will be written.
@@ -60,8 +64,6 @@ H5PartSetNumPoints (
 }
 
 /**
-  \ingroup h5part_model
-
   \see H5PartSetNumPoints()
 */
 static inline h5_err_t
@@ -77,8 +79,6 @@ H5PartSetNumParticles (
 }
 
 /**
-  \ingroup h5part_model
-
   Set the number of particles for the current time-step.
   After you call this subroutine, all subsequent 
   operations will assume this number of particles will be written.
@@ -119,8 +119,6 @@ H5PartSetNumParticlesStrided (
 }
 
 /**
-  \ingroup h5part_model
-
   Define the chunk \c size and enables chunking in the underlying
   HDF5 layer.
 
@@ -148,8 +146,6 @@ H5PartSetChunkSize (
 }
 
 /**
-  \ingroup h5part_model
-
   Get the number of datasets that are stored at the current time-step.
 
   \return   number of datasets in current timestep
@@ -166,8 +162,6 @@ H5PartGetNumDatasets (
 }
 
 /**
-  \ingroup h5part_model
-
   This reads the name of a dataset specified by it's index in the current
   time-step.
 
@@ -194,8 +188,6 @@ H5PartGetDatasetName (
 }
 
 /**
-  \ingroup h5part_model
-
   Gets the name, type and number of elements of a dataset based on its
   index in the current timestep.
 
@@ -232,8 +224,6 @@ H5PartGetDatasetInfo (
 }
 
 /**
-  \ingroup h5part_model
-
   This function returns the number of particles in this processor's view,
   if a view has been set.
 
@@ -263,8 +253,6 @@ H5PartGetNumPoints (
 }
 
 /**
-  \ingroup h5part_model
-
   \see H5PartGetNumPoints()
 */
 static inline h5_ssize_t
@@ -278,8 +266,6 @@ H5PartGetNumParticles (
 }
 
 /**
-  \ingroup h5part_model
-
   Reset the view.
 
   \return \c H5_SUCCESS on success
@@ -296,15 +282,13 @@ H5PartResetView (
 }
 
 /**
-  \ingroup h5part_model
-
   Check whether a view has been set, either automatically with
   \ref H5PartSetNumParticles() or manually with \ref H5PartSetView
   or \ref H5PartSetViewIndices.
 
-  \return \c H5_OK if view has been set.
-  \return \c H5_NOK if no view has been set.
-  \return \c H5_FAILURE on error.
+  \return      true (value \c >0) if step exists
+  \return      false (\c 0) if step does not exist
+  \return      \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5PartHasView (
@@ -317,8 +301,6 @@ H5PartHasView (
 }
 
 /**
-  \ingroup h5part_model
-
   For parallel I/O or for subsetting operations on the datafile,
   this function allows you to define a subset of the total
   particle dataset to operate on.
@@ -351,8 +333,6 @@ H5PartSetView (
 }
 
 /**
-  \ingroup h5part_model
-
   For parallel I/O or for subsetting operations on the datafile,
   this function allows you to define a subset of the total
   dataset to operate on by specifying a list of indices.
@@ -387,8 +367,6 @@ H5PartSetViewIndices (
 }
 
 /**
-  \ingroup h5part_model
-
    Allows you to query the current view. Start and End
    will be \c -1 if there is no current view established.
    Use \c H5PartHasView() to see if the view is smaller than the
@@ -410,8 +388,6 @@ H5PartGetView (
 }
 
 /**
-  \ingroup h5part_model
-
   If it is too tedious to manually set the start and end coordinates
   for a view, \c H5SetCanonicalView() will automatically select an
   appropriate domain decomposition of the data arrays for the degree
@@ -433,5 +409,7 @@ H5PartSetCanonicalView (
 #ifdef __cplusplus
 }
 #endif
+
+///< @}
 
 #endif

@@ -15,13 +15,17 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5_model.h"
 
+/**
+   \ingroup h5_c_api
+   \addtogroup h5_model
+   @{
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
-  \ingroup h5hut_model
-
   Define format of the step names.
 
   Example: ==H5SetStepNameFormat( f, "Step", 6 )== defines step names 
@@ -43,8 +47,6 @@ H5SetStepNameFormat (
 }
 
 /**
-  \ingroup h5hut_model
-
   Get format of the step names.
 
   \return   \c H5_SUCCESS on success
@@ -64,8 +66,6 @@ H5GetStepNameFormat (
 }
 
 /**
-  \ingroup h5hut_model
-
   Set the current step.
 
   \return   \c H5_SUCCESS on success
@@ -83,8 +83,6 @@ H5SetStep (
 }
 
 /**
-  \ingroup h5hut_model
-
   Get current step.
 
   \return   Step number
@@ -101,8 +99,6 @@ H5GetStep (
 }
 
 /**
-  \ingroup h5hut_model
-
   Get the number of processors.
 
   \return   Number of processors.
@@ -119,8 +115,6 @@ H5GetNumProcs (
 }
 
 /**
-  \ingroup h5hut_model
-
   Get the number of time-steps that are currently stored in the file
   \c f.
 
@@ -141,12 +135,10 @@ H5GetNumSteps (
 }
 
 /**
-  \ingroup h5hut_model
-
   Query whether a particular step already exists in the file.
 
-  \return      \c H5_OK if step exists
-  \return      \c H5NOK if step does not exist
+  \return      true (value \c >0) if step exists
+  \return      false (\c 0) if step does not exist
   \return      \c H5_FAILURE on error
 */
 static inline h5_err_t
@@ -161,8 +153,6 @@ H5HasStep (
 }
 
 /**
-  \ingroup h5hut_model
-
   Start traversing steps.
 
   \note This function is not yet implemented!
@@ -181,8 +171,6 @@ H5StartTraverseSteps (
 }
 
 /**
-  \ingroup h5hut_model
-
   Go to next step.
 
   \note This function is not yet implemented!
@@ -201,8 +189,6 @@ H5TraverseSteps (
 }
 
 /**
-  \ingroup h5hut_model
-
   Return number of attached files.
 
   \return   number of attachments.
@@ -219,8 +205,6 @@ H5GetNumAttachments (
 }
 
 /**
-  \ingroup h5hut_model
-
   Get name and size of attachment given by index \c idx. Return the file name
   in \c fname and the original size in \c fsize.
 
@@ -245,8 +229,6 @@ H5GetAttachmentInfoByIdx (
 }
 
 /**
-  \ingroup h5hut_model
-
   Get size of attached file with name \c fname.
 
   \return   \c H5_SUCCESS on success
@@ -264,8 +246,6 @@ H5GetAttachmentInfoByName (
 }
 
 /**
-  \ingroup h5hut_model
-
   Attach file \c fname.
 
   \return   \c H5_SUCCESS on success
@@ -281,8 +261,6 @@ H5AddAttachment (
 }
 
 /**
-  \ingroup h5hut_model
-
   Get attachment \c fname from H5hut file and write it to disk in
   the current working directory.
 
@@ -299,8 +277,6 @@ H5GetAttachment (
 }
 
 /**
-  \ingroup h5hut_model
-
   Delete attachment \c fname.
 
   \return   \c H5_SUCCESS on success
@@ -319,6 +295,8 @@ H5DeleteAttachment (
 }
 #endif
 
+///< @}
+	
 #endif
 
 

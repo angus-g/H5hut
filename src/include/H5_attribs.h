@@ -17,6 +17,12 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5_attribs.h"
 
+/**
+   \ingroup h5_c_api
+   \addtogroup h5_file_attribs
+   @{
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,8 +42,6 @@ extern "C" {
 */
 
 /**
-  \ingroup h5hut_file_attribs
-
   Gets the number of attributes in the file's root ("/").
 
   \return   Number of attributes
@@ -54,8 +58,6 @@ H5GetNumFileAttribs (
 }
 
 /**
-  \ingroup h5hut_file_attribs
-
   Gets the name, type and number of elements of the file attribute
   specified by its index.
 
@@ -95,8 +97,6 @@ H5GetFileAttribInfo (
 }
 
 /**
-  \ingroup h5hut_file_attribs
-
   Get the type and number of elements of the file attribute
   specified by its name.
 
@@ -138,8 +138,6 @@ H5GetFileAttribInfoByName (
 */
 
 /**
-  \ingroup h5hut_file_attribs
-
   Write an attribute \c name with the string \c value to
   the file root ("/").
 
@@ -164,8 +162,6 @@ H5WriteFileAttribString (
 }
 
 /**
-  \ingroup h5hut_file_attribs
-
   Read a string into a \c buffer from an attribute \c name
   in the file root ("/").
 
@@ -189,8 +185,6 @@ H5ReadFileAttribString (
 }
 
 /**
-  \ingroup h5hut_file_attribs
-
   Write an attribute \c name with float64 \c values to
   the file root ("/").
 
@@ -216,8 +210,6 @@ H5WriteFileAttribFloat64 (
 }
 
 /**
-  \ingroup h5hut_file_attribs
-
   Read float64 values into a \c buffer from an attribute \c name
   in the file root ("/").
 
@@ -242,8 +234,6 @@ H5ReadFileAttribFloat64 (
 
 
 /**
-  \ingroup h5hut_file_attribs
-
   Write an attribute \c name with float32 \c values to
   the file root ("/").
 
@@ -269,8 +259,6 @@ H5WriteFileAttribFloat32 (
 }
 
 /**
-  \ingroup h5hut_file_attribs
-
   Read float32 values into a \c buffer from an attribute \c name
   in the file root ("/").
 
@@ -294,8 +282,6 @@ H5ReadFileAttribFloat32 (
 }
 
 /**
-  \ingroup h5hut_file_attribs
-
   Write an attribute \c name with int64 \c values to
   the file root ("/").
 
@@ -321,8 +307,6 @@ H5WriteFileAttribInt64 (
 }
 
 /**
-  \ingroup h5hut_file_attribs
-
   Read int64 values into a \c buffer from an attribute \c name
   in the file root ("/").
 
@@ -346,8 +330,6 @@ H5ReadFileAttribInt64 (
 }
 
 /**
-  \ingroup h5hut_file_attribs
-
   Write an attribute \c name with int32 \c values to
   the file root ("/").
 
@@ -373,8 +355,6 @@ H5WriteFileAttribInt32 (
 }
 
 /**
-  \ingroup h5hut_file_attribs
-
   Read int32 values into a \c buffer from an attribute \c name
   in the file root ("/").
 
@@ -396,6 +376,13 @@ H5ReadFileAttribInt32 (
 			       H5_INT32_T,
 			       (void*)buffer));
 }
+///< @}
+
+/**
+   \ingroup h5_c_api
+   \addtogroup h5_step_attribs
+   @{
+*/
 
 /*
       _                     _   _        _ _           _            
@@ -413,8 +400,6 @@ H5ReadFileAttribInt32 (
 */
 
 /**
-  \ingroup h5hut_step_attribs
-
   Gets the number of attributes bound to the current step.
 
   \return   Number of attributes
@@ -431,8 +416,6 @@ H5GetNumStepAttribs (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Gets the name, type and number of elements of the step attribute
   specified by its index.
 
@@ -473,8 +456,6 @@ H5GetStepAttribInfo (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Gets the type and number of elements of the step attribute
   specified by its name.
 
@@ -517,8 +498,6 @@ H5GetStepAttribInfoByName (
 */
 
 /**
-  \ingroup h5hut_step_attribs
-
   Write an attribute \c name with the string \c value to
   the current timestep.
 
@@ -543,8 +522,6 @@ H5WriteStepAttribString (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Read a string into a \c buffer from an attribute \c name
   in the current timestep.
 
@@ -568,8 +545,6 @@ H5ReadStepAttribString (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Write an attribute \c name with float64 \c values to
   the current time step.
 
@@ -595,8 +570,6 @@ H5WriteStepAttribFloat64 (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Read float64 values into a \c buffer from an attribute \c name
   in the current time step.
 
@@ -620,8 +593,6 @@ H5ReadStepAttribFloat64 (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Write an attribute \c name with float32 \c values to
   the current time step.
 
@@ -647,8 +618,6 @@ H5WriteStepAttribFloat32 (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Read float32 values into a \c buffer from an attribute \c name
   in the current time step.
 
@@ -672,8 +641,6 @@ H5ReadStepAttribFloat32 (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Write an attribute \c name with int64 \c values to
   the current time step.
 
@@ -699,8 +666,6 @@ H5WriteStepAttribInt64 (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Read int64 values into a \c buffer from an attribute \c name
   in the current time step.
 
@@ -725,8 +690,6 @@ H5ReadStepAttribInt64 (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Write an attribute \c name with int32 \c values to
   the current time step.
 
@@ -752,8 +715,6 @@ H5WriteStepAttribInt32 (
 }
 
 /**
-  \ingroup h5hut_step_attribs
-
   Read int32 values into a \c buffer from an attribute \c name
   in the current time step.
 
@@ -776,6 +737,7 @@ H5ReadStepAttribInt32 (
 			       (void*)buffer));
 }
 
+///< @}
 
 #ifdef __cplusplus
 }

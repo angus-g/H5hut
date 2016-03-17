@@ -15,13 +15,17 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5u_io.h"
 
+/**
+   \ingroup h5part_c_api
+   \addtogroup h5part_io
+   @{
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
-  \ingroup h5part_io
-
   Write array of 64 bit floating point data to file.
 
   After setting the number of elements with \c H5PartSetNumParticles() and
@@ -59,8 +63,6 @@ H5PartWriteDataFloat64 (
 }
 
 /**
-  \ingroup h5part_io
-
   Write array of 32 bit floating point data to file.
 
   See \ref H5PartWriteDataFloat64() for more details.
@@ -81,8 +83,6 @@ H5PartWriteDataFloat32 (
 }
 
 /**
-  \ingroup h5part_io
-
   Write array of 64 bit integer data to file.
 
   See \ref H5PartWriteDataFloat64() for more details.
@@ -103,8 +103,6 @@ H5PartWriteDataInt64 (
 }
 
 /**
-  \ingroup h5part_io
-
   Write array of 32 bit integer data to file.
 
   See \ref H5PartWriteDataFloat64() for more details.
@@ -125,8 +123,6 @@ H5PartWriteDataInt32 (
 }
 
 /**
-  \ingroup h5part_io
-
   Read array of 64 bit floating point data from file.
 
   See \ref H5PartWriteDataFloat64() for more details.
@@ -147,8 +143,6 @@ H5PartReadDataFloat64 (
 }
 
 /**
-  \ingroup h5part_io
-
   Read array of 32 bit floating point data from file.
 
   See \ref H5PartWriteDataFloat64() for more details.
@@ -169,8 +163,6 @@ H5PartReadDataFloat32 (
 }
 
 /**
-  \ingroup h5part_io
-
   Read array of 64 bit integer data from file.
 
   See \ref H5PartWriteDataFloat64() for more details.
@@ -191,8 +183,6 @@ H5PartReadDataInt64 (
 }
 
 /**
-  \ingroup h5part_io
-
   Read array of 32 bit integer data from file.
 
   See \ref H5PartWriteDataFloat64() for more details.
@@ -215,5 +205,7 @@ H5PartReadDataInt32 (
 #ifdef __cplusplus
 }
 #endif
+
+///< @}
 
 #endif

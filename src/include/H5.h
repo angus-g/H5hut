@@ -15,15 +15,23 @@
 #include "H5_model.h"
 #include "H5_attribs.h"
 
+/**
+   \ingroup h5_c_api
+   \addtogroup h5_file
+   @{
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
-   \ingroup h5hut_c_api
-   \addtogroup h5hut_file
-   @{
-*/
+#if H5HUT_API_VERSION == 2
+#define H5OpenFile2 H5OpenFile
+#define H5SetVerbosityLevel2 H5SetVerbosityLevel
+#elif H5HUT_API_VERSION == 1
+#define H5OpenFile1 H5OpenFile
+#define H5SetVerbosityLevel1 H5SetVerbosityLevel
+#endif
 
 /**
   Create a new, empty file property list.
@@ -43,6 +51,11 @@ extern "C" {
   \see H5SetPropFileCoreVFD()
   \see H5SetPropFileAlign()
   \see H5SetPropFileThrottle()
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----				      |
+  | \c 1.99.15 | Function introduced in this release. |
 */
 static inline h5_prop_t
 H5CreateFileProp (
@@ -56,36 +69,17 @@ H5CreateFileProp (
   Stores MPI IO communicator information to given file property list. If used in 
   \ref H5OpenFile(), MPI collective IO will be used.
 
-  \note H5SetPropFileMPIO() is deprecated. Use H5SetPropFileMPIOCollective() instead.
-
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
 
   \see H5SetPropFileMPIOIndependent()
   \see H5SetPropFileMPIOPosix() (HDF5 <= 1.8.12 only)
   \see H5SetPropFileCoreVFD()
-*/
-static inline h5_err_t
-H5SetPropFileMPIO (
-        h5_prop_t prop,	    ///< [in,out] identifier for file property list
-        MPI_Comm* comm	    ///< [in] MPI communicator
-        ) {
-        H5_API_ENTER (h5_err_t, "prop=%p, comm=%p", (void*)prop, comm);
-        H5_API_RETURN (h5_set_prop_file_mpio_collective (prop, comm));
-}
 
-/**
-  Stores MPI IO communicator information to given file property list. If used in 
-  \ref H5OpenFile(), MPI collective IO will be used.
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-
-  \note This function deprecates H5SetPropFileMPIO().
-
-  \see H5SetPropFileMPIOIndependent()
-  \see H5SetPropFileMPIOPosix() (HDF5 <= 1.8.12 only)
-  \see H5SetPropFileCoreVFD()
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----				    |
+  | \c 1.99.15 | Function introduced in this release. |
 */
 static inline h5_err_t
 H5SetPropFileMPIOCollective (
@@ -106,6 +100,11 @@ H5SetPropFileMPIOCollective (
   \see H5SetPropFileMPIOCollective()
   \see H5SetPropFileMPIOPosix() (HDF5 <= 1.8.12 only)
   \see H5SetPropFileCoreVFD()
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----				      |
+  | \c 1.99.15 | Function introduced in this release. |
 */
 static inline h5_err_t
 H5SetPropFileMPIOIndependent (
@@ -125,12 +124,17 @@ H5SetPropFileMPIOIndependent (
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
 
-  \note This function is available only, if H5hut has been compiled with
-  HDF5 1.8.12 or older. 
-
   \see H5SetPropFileMPIOCollective()
   \see H5SetPropFileMPIOIndependent()
   \see H5SetPropFileCoreVFD()
+
+  \note This function is available only, if H5hut has been compiled with
+  HDF5 1.8.12 or older. 
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----				      |
+  | \c 1.99.15 | Function introduced in this release. |
 */
 static inline h5_err_t
 H5SetPropFileMPIOPosix (
@@ -152,6 +156,11 @@ H5SetPropFileMPIOPosix (
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----				    |
+  | \c 1.99.15 | Function introduced in this release. |
 */
 static inline h5_err_t
 H5SetPropFileCoreVFD (
@@ -181,13 +190,19 @@ H5SetPropFileCoreVFD (
   \return \c H5_FAILURE on error
 
   \see H5SetPropFileCoreVFD()
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----				      |
+  | \c 1.99.15 | Function introduced in this release. |
 */
 static inline h5_err_t
 H5SetPropFileAlign (
         h5_prop_t prop,	    ///< [in,out] identifier for file property list
         h5_int64_t align    ///< [in] alignment 
         ) {
-        H5_API_ENTER (h5_err_t, "prop=%p, align=%lld", (void*)prop, (long long int)align);
+        H5_API_ENTER (h5_err_t, "prop=%p, align=%lld",
+		      (void*)prop, (long long int)align);
         H5_API_RETURN (h5_set_prop_file_align (prop, align));
 }
 
@@ -205,18 +220,29 @@ H5SetPropFileAlign (
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----				      |
+  | \c 1.99.15 | Function introduced in this release. |
 */
 static inline h5_err_t
 H5SetPropFileThrottle (
         h5_prop_t prop,	    ///< [in,out] identifier for file property list
         h5_int64_t throttle ///< [in] throttle factor
         ) {
-        H5_API_ENTER (h5_err_t, "prop=%p, throttle=%lld", (void*)prop, (long long int)throttle);
+        H5_API_ENTER (h5_err_t, "prop=%p, throttle=%lld",
+		      (void*)prop, (long long int)throttle);
         H5_API_RETURN (h5_set_prop_file_throttle (prop, throttle));
 }
 
 /**
   Close file property list.
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----			  	      |
+  | \c 1.99.15 | Function introduced in this release. |
 */
 static inline h5_err_t
 H5CloseProp (
@@ -234,9 +260,9 @@ H5CloseProp (
   - \c H5_O_WRONLY: create new file, dataset must not exist
   - \c H5_O_APPENDONLY: allows to append new data to an existing file
   - \c H5_O_RDWR:   dataset may exist
-  - \c H5_FS_LUSTRE - enable optimizations for the Lustre file system
-  - \c H5_VFD_MPIO_POSIX - use the HDF5 MPI-POSIX virtual file driver
-  - \c H5_VFD_MPIO_INDEPENDENT - use MPI-IO in indepedent mode
+  - \c H5_FS_LUSTRE: enable optimizations for the Lustre file system
+  - \c H5_VFD_MPIO_POSIX: use the HDF5 MPI-POSIX virtual file driver
+  - \c H5_VFD_MPIO_INDEPENDENT: use MPI-IO in indepedent mode
 
   The file is opened with the properties set in the file property list
   \c prop.  This argument can also be set to \c H5_PROP_DEFAULT to use
@@ -249,9 +275,13 @@ H5CloseProp (
   \return \c H5_FAILURE on error
 
   \see H5CreateFileProp()
+
+  | Release    | Change       |
+  | :------    | :-----	      |
+  | \c 1.99.15 | API changed, old implementation is available as \c H5OpenFile1()  |
 */
 static inline h5_file_t
-H5OpenFile (
+H5OpenFile2 (
 	const char* filename,	///< [in] name of file
 	h5_int64_t mode,	///< [in] file mode 
         h5_prop_t props		///< [in] identifier for file property list
@@ -260,6 +290,41 @@ H5OpenFile (
                       "filename='%s', mode=%lld, props=%p",
                       filename, (long long int)mode, (void*)props);
         H5_API_RETURN (h5_open_file2 (filename, mode, props));
+}
+
+/**
+  Open file with name \c filename.
+
+  File mode flags are:
+  - \c H5_O_RDONLY: Only reading allowed
+  - \c H5_O_WRONLY: create new file, dataset must not exist
+  - \c H5_O_APPENDONLY: allows to append new data to an existing file
+  - \c H5_O_RDWR:   dataset may exist
+  - \c H5_FS_LUSTRE - enable optimizations for the Lustre file system
+  - \c H5_VFD_MPIO_POSIX - use the HDF5 MPI-POSIX virtual file driver
+       (hdf5 <= 1.8.12 only)
+  - \c H5_VFD_MPIO_INDEPENDENT - use MPI-IO in indepedent mode
+
+  In the serial version of H5hut, \c comm can be set to any value.
+
+  \return File handle.
+  \return (h5_file_p*)H5_FAILURE
+
+  \note This function is deprecated!
+
+  \note
+  | Release    | Change       |
+  | :------    | :-----	      |
+  | \c 1.99.15 | Old implementation of \c H5OpenFile()  |
+*/
+static inline h5_file_p
+H5OpenFile1 (
+	const char* filename,	///< [in] file name
+	h5_int32_t flags,	///< [in] file open flags
+	MPI_Comm comm		///< [in] MPI communicator
+	) {
+	H5_API_ENTER (h5_file_p, "filename='%s', flags=%d, ...",filename,flags);
+	H5_API_RETURN (h5_open_file (filename, flags, comm, 0));
 }
 
 /**
@@ -348,7 +413,7 @@ H5Finalize (
    \addtogroup  h5hut_verbosity
    @{
  */
-	
+
 /**
   Set verbosity level to \c level.
 
@@ -358,17 +423,44 @@ H5Finalize (
   - \c H5_VERBOSE_WARN: output error messages and warning
   - \c H5_VERBOSE_INFO: output error messages, warnings and informational messages
 
-  The default verbosity level ist \c H5_VERBOSE_ERROR.
+  The default verbosity level is \c H5_VERBOSE_ERROR.
+
+  \return \c H5_SUCCESS
+
+  \see H5GetVerbosityLevel()
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----			  	      |
+  | \c 1.99.15 | Function cannot be used to set the debug level. |
+*/
+static inline h5_err_t
+H5SetVerbosityLevel2 (
+	const h5_id_t level     ///< [in] verbosity level.
+	) {
+	return h5_set_debuglevel (level & 0x03);
+}
+
+/**
+  Set verbosity and debug level to \p level.
+
+  Verbosity levels are:
+  - \c H5_VERBOSE_NONE: be quiet
+  - \c H5_VERBOSE_ERROR: output error messages
+  - \c H5_VERBOSE_WARN: output error messages and warning
+  - \c H5_VERBOSE_INFO: output error messages, warnings and informational messages
+
+  The default verbosity level is \c H5_VERBOSE_ERROR.
 
   \return \c H5_SUCCESS
 
   \see H5GetVerbosityLevel()
 */
 static inline h5_err_t
-H5SetVerbosityLevel (
+H5SetVerbosityLevel1 (
 	const h5_id_t level     ///< [in] verbosity level.
 	) {
-	return h5_set_debuglevel (level & 0x03);
+	return h5_set_debuglevel (level);
 }
 
 /**
@@ -396,7 +488,7 @@ H5GetVerbosityLevel (
   Set debug mask. The debug mask is an or'ed value of
 
   - \c H5_DEBUG_API:	    C-API calls
-  - \c H5_DEBUG_CORE_API:   core API calls. The core API is used by the C- and Fortran API.
+  - \c H5_DEBUG_CORE_API:   core API calls.
   - \c H5_DEBUG_PRIV_API:   private API calls
   - \c H5_DEBUG_PRIV_FUNC:  static functions
   - \c H5_DEBUG_HDF5:	    HDF5 wrapper calls
@@ -407,6 +499,11 @@ H5GetVerbosityLevel (
   \return \c H5_SUCCESS
 
   \see H5GetDebugMask()
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----			  	      |
+  | \c 1.99.15 | Function introduced in this release. |
 */
 static inline h5_err_t
 H5SetDebugMask (
@@ -421,6 +518,11 @@ H5SetDebugMask (
   \return   debug mask
 
   \see H5SetDebugMask()
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----			  	      |
+  | \c 1.99.15 | Function introduced in this release. |
 */
 static inline h5_id_t
 H5GetDebugMask (
@@ -560,10 +662,10 @@ H5GetErrno (
 	return h5_get_errno ();
 }
 
-///< @}
-	
 #ifdef __cplusplus
 }
 #endif
 
+///< @}
+	
 #endif

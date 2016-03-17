@@ -45,12 +45,12 @@ For more information, please contact the
 		        \defgroup h5hut_error           error handling
 		@}
 
-                \defgroup h5hut_c_api                   H5
+                \defgroup h5_c_api			H5
                 @{
-                        \defgroup h5hut_file            file handling
-                        \defgroup h5hut_model           setting up the data model
-                        \defgroup h5hut_file_attribs    reading and writing file attributes
-                        \defgroup h5hut_step_attribs    reading and writing step attributes	
+                        \defgroup h5_file		file handling
+                        \defgroup h5_model              setting up the data model
+                        \defgroup h5_file_attribs    	reading and writing file attributes
+                        \defgroup h5_step_attribs    	reading and writing step attributes	
                 @}
                 \defgroup h5part_c_api			H5Part
                 @{
