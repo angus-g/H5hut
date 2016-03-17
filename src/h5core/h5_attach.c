@@ -234,10 +234,7 @@ h5_get_attachment (
 	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (loc_id, fname));
-	if (f->props->flags & H5_O_WRONLY) {
-		H5_PRIV_FUNC_LEAVE (
-			h5priv_handle_file_mode_error (f->props->flags));
-	} else if (!exists) {
+	if (!exists) {
 		H5_PRIV_FUNC_LEAVE (
 			h5_error (
 				H5_ERR_H5,
