@@ -20,20 +20,14 @@
    @{
 */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
-  Attempts to write the 3-dimensional field \p name from the
-  buffer pointed to by \p buffer to the current step using the
-  previously defined field view. 
+  Write the 3-dimensional field \p name from the buffer pointed to by
+  \p buffer to the current step using the previously defined field
+  view.
 
   The data type is 64bit floating point (\c h5_float64_t). Ensure that
   the number of items in the buffer matches the view.  Use the FORTRAN
   indexing scheme to store data in the buffer.
-
-  You must use the Fortran indexing scheme to access items in \c data.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -51,11 +45,12 @@ H5Block3dWriteScalarFieldFloat64 (
 }
 
 /**
-  Read a 3-dimensional field \c name into the buffer starting at \c data from
-  the current time-step using the defined field layout. Values are
-  floating points (64-bit).
+  Read the 3-dimensional field \c name into the buffer pointed to by
+  \p buffer from the current tep using the defined field layout.
 
-  You must use the Fortran indexing scheme to access items in \c data.
+  The data type is 64bit floating point (\c h5_float64_t). Ensure that
+  the number of items in the buffer matches the view.  Use the FORTRAN
+  indexing scheme to access data in the buffer.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -74,7 +69,7 @@ H5Block3dReadScalarFieldFloat64 (
 }
 
 /**
-  Write a 3-dimensional field \c name with 3-dimensional vectors as values
+  Write the 3-dimensional field \c name with 3-dimensional vectors as values
   from the buffers starting at \c x_buf, \c y_buf and \c z_buf to the
   current time-step using the defined field layout. Values are 3-dimensional
   vectors with floating points (64-bit) values.
@@ -432,10 +427,5 @@ H5Block3dReadVector3dFieldInt32 (
 					     x_buf, y_buf, z_buf, H5T_NATIVE_INT32));
 }
 
-#ifdef __cplusplus
-}
-#endif
-
 ///< @}
-
 #endif

@@ -22,10 +22,20 @@
    @{
 */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+/*
+  !   __ _      _     _         _   _        _ _           _            
+  !  / _(_) ___| | __| |   __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
+  ! | |_| |/ _ \ |/ _` |  / _` | __| __| '__| | '_ \| | | | __/ _ \/ __|
+  ! |  _| |  __/ | (_| | | (_| | |_| |_| |  | | |_) | |_| | ||  __/\__ \
+  ! |_| |_|\___|_|\__,_|  \__,_|\__|\__|_|  |_|_.__/ \__,_|\__\___||___/
+  !
+  !
+  !   __ _ _   _  ___ _ __ _   _ 
+  !  / _` | | | |/ _ \ '__| | | |
+  ! | (_| | |_| |  __/ |  | |_| |
+  !  \__, |\__,_|\___|_|   \__, |
+  !     |_|                |___/ 
+ */
 /**
   Query the number of attributes of field \c field_name.
 
@@ -88,7 +98,14 @@ H5BlockGetFieldAttribInfo (
 			attrib_nelem));
 }
 
-/********************** reading and writing attribute ************************/
+/*
+  !  _    __          _        _             
+  ! (_)  / /__    ___| |_ _ __(_)_ __   __ _ 
+  ! | | / / _ \  / __| __| '__| | '_ \ / _` |
+  ! | |/ / (_) | \__ \ |_| |  | | | | | (_| |
+  ! |_/_/ \___/  |___/\__|_|  |_|_| |_|\__, |
+  !                                    |___/
+*/
 
 /**
   Write the string in \c buffer as attribute \c attrib_name of field
@@ -155,6 +172,13 @@ H5BlockReadFieldAttribString (
 			(void*)buffer));
 }
 
+/*
+  !  _    __                     _ 
+  ! (_)  / /__    _ __ ___  __ _| |
+  ! | | / / _ \  | '__/ _ \/ _` | |
+  ! | |/ / (_) | | | |  __/ (_| | |
+  ! |_/_/ \___/  |_|  \___|\__,_|_|
+ */
 
 /**
   Write float64 \c values as attribute \c attrib_name of field
@@ -267,6 +291,15 @@ H5BlockReadFieldAttribFloat32 (
 			       buffer ));
 }
 
+/*
+  !  _    __      _       _                       
+  ! (_)  / /__   (_)_ __ | |_ ___  __ _  ___ _ __ 
+  ! | | / / _ \  | | '_ \| __/ _ \/ _` |/ _ \ '__|
+  ! | |/ / (_) | | | | | | ||  __/ (_| |  __/ |   
+  ! |_/_/ \___/  |_|_| |_|\__\___|\__, |\___|_|   
+  !                               |___/
+*/
+
 /**
   Write int64 \c values as attribute \c attrib_name of field
   \c field_name.
@@ -376,6 +409,14 @@ H5BlockReadFieldAttribInt32 (
 			       (void*)buffer ));
 }
 
+/*
+  !   __ _      _     _              _       _       
+  !  / _(_) ___| | __| |   ___  _ __(_) __ _(_)_ __  
+  ! | |_| |/ _ \ |/ _` |  / _ \| '__| |/ _` | | '_ \ 
+  ! |  _| |  __/ | (_| | | (_) | |  | | (_| | | | | |
+  ! |_| |_|\___|_|\__,_|  \___/|_|  |_|\__, |_|_| |_|
+  !                                    |___/
+*/
 /**
   Get field origin.
 
@@ -436,6 +477,15 @@ H5Block3dSetFieldOrigin (
 			       3));
 }
 
+/*
+  !   __ _      _     _                        _             
+  !  / _(_) ___| | __| |  ___ _ __   __ _  ___(_)_ __   __ _ 
+  ! | |_| |/ _ \ |/ _` | / __| '_ \ / _` |/ __| | '_ \ / _` |
+  ! |  _| |  __/ | (_| | \__ \ |_) | (_| | (__| | | | | (_| |
+  ! |_| |_|\___|_|\__,_| |___/ .__/ \__,_|\___|_|_| |_|\__, |
+  !                          |_|                       |___/ 
+*/
+
 /**
   Get field spacing for field \c field_name in the current time step.
 
@@ -494,6 +544,13 @@ H5Block3dSetFieldSpacing (
 			       3));
 }
 
+/*
+  !   __ _      _     _                           _     
+  !  / _(_) ___| | __| |   ___ ___   ___  _ __ __| |___ 
+  ! | |_| |/ _ \ |/ _` |  / __/ _ \ / _ \| '__/ _` / __|
+  ! |  _| |  __/ | (_| | | (_| (_) | (_) | | | (_| \__ \
+  ! |_| |_|\___|_|\__,_|  \___\___/ \___/|_|  \__,_|___/
+*/
 /**
   Set an explicit list of X coordinates for field \c field_name in the current
   time step. The coordinates are a 1D array of floating point values with
@@ -557,11 +614,9 @@ H5Block3dGetFieldXCoords (
 
 /**
   Set an explicit list of Y coordinates for field \c field_name in the current
-  time step. The coordinates are a 1D array of floating point values with
-  dimension \c n_coords.
+  time step.
 
-  By convention, the \c coords array should have the same length as the Y
-  dimension of the field, and a warning will be printed if not.
+  \see H5Block3dSetFieldXCoords()
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -588,11 +643,9 @@ H5Block3dSetFieldYCoords (
 
 /**
   Get the explicit list of Y coordinates for field \c field_name in the current
-  time step. The coordinates are read into the 1D array \c coords which has
-  length \c n_coords.
+  time step.
 
-  By convention, the \c coords array should have the same length as the Y
-  dimension of the field, and a warning will be printed if they differ.
+  \see H5Block3dGetFieldXCoords()
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -618,11 +671,9 @@ H5Block3dGetFieldYCoords (
 
 /**
   Set an explicit list of Z coordinates for field \c field_name in the current
-  time step. The coordinates are a 1D array of floating point values with
-  dimension \c n_coords.
+  time step.
 
-  By convention, the \c coords array should have the same length as the Z
-  dimension of the field, and a warning will be printed if not.
+  \see H5Block3dSetFieldXCoords()
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -648,12 +699,10 @@ H5Block3dSetFieldZCoords (
 
 
 /**
-  Get the explicit list of Z coordinates for field \c field_name in the current
-  time step. The coordinates are read into the 1D array \c coords which has
-  length \c n_coords.
+  Get the explicit list of Y coordinates for field \c field_name in the current
+  time step.
 
-  By convention, the \c coords array should have the same length as the Z
-  dimension of the field, and a warning will be printed if they differ.
+  \see H5Block3dGetFieldXCoords()
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -676,11 +725,5 @@ H5Block3dGetFieldZCoords (
                                f, 2, field_name, H5BLOCK_FIELD_ZCOORD_NAME,
                                coords, n_coords));
 }
-
-#ifdef __cplusplus
-}
-#endif
-
 ///< @}
-
 #endif

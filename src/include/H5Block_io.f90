@@ -7,13 +7,19 @@
 !  License: see file COPYING in top level of source distribution.
 !
   INTERFACE
-     !> \ingroup h5block_f90_api
      !! \addtogroup h5block_io_f
      !! @{
 
      !>
-     !! See \ref H5Block3dWriteScalarFieldFloat64
-     !! \return 0 on success or error code
+     !! Write the 3-dimensional field \p name from the array \p buffer
+     !! to the current step using the previously defined field
+     !! view.
+     !!
+     !! The data type is 64bit floating point (\c REAL*8). Ensure that
+     !! the number of items in the buffer matches the view.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
 
      INTEGER*8 FUNCTION h5bl_3d_write_scalar_field_r8 ( filehandle, name, buffer )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
@@ -22,8 +28,14 @@
      END FUNCTION h5bl_3d_write_scalar_field_r8
 
      !>
-     !! See \ref H5Block3dReadScalarFieldFloat64
-     !! \return 0 on success or error code
+     !! Read the 3-dimensional field \c name into the array \p buffer
+     !!from the current step using the previously defined field layout.
+     !!
+     !! The data type is 64bit floating point (\c REAL*8). Ensure that
+     !! the number of items in the buffer matches the view.
+     !!
+     !! \return \c H5_SUCCESS on success
+     !! \return \c H5_FAILURE on error
 
      INTEGER*8 FUNCTION h5bl_3d_read_scalar_field_r8 ( filehandle, name, buffer )
        INTEGER*8, INTENT(IN) :: filehandle  !< the handle returned at file open
