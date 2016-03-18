@@ -358,8 +358,8 @@ void h5u_test_write1(void)
 
 	TEST("Opening file once, write-truncate");
         h5_prop_t props = H5CreateFileProp ();
-        status = H5SetPropFileMPIO (props, &comm);
-	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileMPIOCollective (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 
@@ -386,8 +386,8 @@ void h5u_test_write2(void)
 
 	TEST("Opening file twice, write-append + read-only");
         h5_prop_t props = H5CreateFileProp ();
-        status = H5SetPropFileMPIO (props, &comm);
-	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileMPIOCollective (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 
@@ -420,8 +420,8 @@ void h5u_test_write3(void)
 
 	TEST("Opening file once, write-truncate, MPI-POSIX VFD");
         h5_prop_t props = H5CreateFileProp ();
-        status = H5SetPropFileMPIO (props, &comm);
-	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileMPIOCollective (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 
@@ -455,8 +455,8 @@ void h5u_test_write4(void)
 
 	TEST("Opening file twice, write-append + read-only, MPI-IO Independent VFD");
         props = H5CreateFileProp ();
-        status = H5SetPropFileMPIO (props, &comm);
-	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileMPIOCollective (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 

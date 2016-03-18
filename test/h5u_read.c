@@ -503,8 +503,8 @@ void h5u_test_read4(void)
 
 	TEST("Opening file twice, read-only, MPI-IO Independent VFD");
         h5_prop_t props = H5CreateFileProp ();
-        status = H5SetPropFileMPIO (props, &comm);
-	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileMPIOCollective (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 

@@ -241,8 +241,8 @@ void h5b_test_read1(void)
 
 	TEST("Opening file once, read-only");
         h5_prop_t props = H5CreateFileProp ();
-        status = H5SetPropFileMPIO (props, &comm);
-	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIO");
+        status = H5SetPropFileMPIOCollective (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
 
