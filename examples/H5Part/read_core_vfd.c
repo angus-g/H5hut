@@ -39,7 +39,7 @@ main (
 
         // open file and create first step
         h5_prop_t prop = H5CreateFileProp ();
-        H5SetPropFileCoreVFD (prop);
+        H5SetPropFileCoreVFD (prop, 0);
         h5_file_t file = H5OpenFile (fname, H5_O_RDONLY, prop);
         H5SetStep (file, 0);
 
