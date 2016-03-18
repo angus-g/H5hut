@@ -324,7 +324,7 @@ H5OpenFile1 (
 	MPI_Comm comm		///< [in] MPI communicator
 	) {
 	H5_API_ENTER (h5_file_p, "filename='%s', flags=%d, ...",filename,flags);
-	H5_API_RETURN (h5_open_file (filename, flags, comm, 0));
+	H5_API_RETURN (h5_open_file1 (filename, flags, comm, 0));
 }
 
 /**
@@ -474,7 +474,7 @@ static inline h5_id_t
 H5GetVerbosityLevel (
 	void
 	) {
-	return h5_get_debuglevel (level) & 0x03;
+	return h5_get_debuglevel () & 0x03;
 }
 
 ///< @}
