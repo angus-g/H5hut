@@ -69,7 +69,7 @@ h5_err_t
 h5_close_prop (
         h5_prop_t);
 
-h5_file_t
+h5_file_p
 h5_open_file1 (
 	const char*, const h5_int32_t, 	MPI_Comm, const h5_size_t);
 
