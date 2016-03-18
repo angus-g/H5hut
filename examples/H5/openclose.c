@@ -23,7 +23,7 @@ main (
 	MPI_Comm_rank (comm, &myproc);
 
         h5_prop_t prop = H5CreateFileProp ();
-        H5SetPropFileMPIO (prop, &comm);
+        H5SetPropFileMPIOCollective (prop, &comm);
         h5_file_t f = H5OpenFile ("testfile.h5", H5_O_WRONLY, prop);
         H5CloseProp (prop);
 	H5CloseFile (f);
