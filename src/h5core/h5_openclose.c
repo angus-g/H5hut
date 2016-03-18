@@ -511,7 +511,7 @@ h5_open_file2 (
   \return H5_ERR  on error.
 */
 
-h5_file_t
+h5_file_p
 h5_open_file1 (
 	const char* filename,
 	h5_int32_t mode,
@@ -519,7 +519,7 @@ h5_open_file1 (
 	h5_size_t align
 	) {
 	H5_CORE_API_ENTER (
-		h5_file_t,
+		h5_file_p,
 		"filename='%s', mode=%d, comm=?, align=%llu",
 		filename, mode, (long long int)align);
         h5_prop_file_t* props;
@@ -529,7 +529,8 @@ h5_open_file1 (
         TRY (h5_set_prop_file_align ((h5_prop_t)props, align));
         TRY (f = h5_open_file2 (filename, mode, (h5_prop_t)props));
         TRY (h5_close_prop ((h5_prop_t)props));
-        H5_CORE_API_RETURN (f);
+	h5_file_p _f = (h5_file_p)f;
+        H5_CORE_API_RETURN (_f);
 
 }
 
