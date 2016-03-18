@@ -1,5 +1,4 @@
-#include <H5.h>
-#include <H5Block.h>
+#include <H5hut.h>
 
 #define XSIZE		8
 #define YSIZE		8
@@ -41,7 +40,7 @@ main (
                            0, YSIZE - 1,
                            0, ZSIZE - 1);
         H5Block3dWriteScalarFieldFloat64(file, "Q", q);
-        H5Block3dWriteVector3dFieldFloat64(file, "E", ex, ez, ey);
+        H5Block3dWriteVector3dFieldFloat64(file, "E", ex, ey, ez);
         H5CloseFile(file);
 
         MPI_Finalize();
