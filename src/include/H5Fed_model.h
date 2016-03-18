@@ -93,7 +93,7 @@ H5FedGetNumVertices (
 */
 static inline h5_ssize_t
 H5FedGetNumVerticesCnode (
-	h5t_mesh_t* const m	///< [in] mesh object
+	h5t_mesh_t* const m,	///< [in] mesh object
 	const int cnode		///< [in] compute node to query
 	) {
 	H5_API_ENTER (h5_ssize_t, "m=%p, cnode=%d", m, cnode);
@@ -136,7 +136,7 @@ H5FedGetNumElements (
 */
 static inline h5_ssize_t
 H5FedGetNumElementsCnode (
-	h5t_mesh_t* const m	///< [in] mesh object
+	h5t_mesh_t* const m,	///< [in] mesh object
 	const int cnode		///< [in] compute node to query
 	) {
 	H5_API_ENTER (h5_ssize_t, "m=%p, cnode=%d", m, cnode);
