@@ -39,7 +39,7 @@ main (
         free (attr_string);
 
         H5GetFileAttribInfoByName (f, ATTR_INT32, NULL, &len);
-        int32_t* attr_int32 = (char*)malloc (sizeof(*attr_int32)*len);
+        int32_t* attr_int32 = (int32_t*)malloc (sizeof(*attr_int32)*len);
         H5ReadFileAttribInt32 (f, ATTR_INT32, attr_int32);
         printf ("%s:", ATTR_INT32);
         for (int i = 0; i < len; i++) {
