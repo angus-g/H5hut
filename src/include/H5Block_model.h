@@ -16,7 +16,6 @@
 #include "h5core/h5b_model.h"
 
 /**
-   \ingroup h5block_c_api
    \addtogroup h5block_model
    @{
 */

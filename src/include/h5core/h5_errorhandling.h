@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 /**
-   \addtogroup h5hut_error
+   \addtogroup h5_error
    @{
 */
 

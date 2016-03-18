@@ -7,9 +7,7 @@
 !  License: see file COPYING in top level of source distribution.
 !
   INTERFACE
-     !>
-     !! \ingroup h5hut_f90_api
-     !! \addtogroup h5hut_model_f
+     !> \addtogroup h5_model_f
      !! @{
      
      !>

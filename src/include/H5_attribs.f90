@@ -8,8 +8,7 @@
 !
   INTERFACE
      !>
-     !! \ingroup \h5hut_f90_api
-     !! \addtogroup \h5hut_file_attribs_f
+     !! \addtogroup \h5_file_attribs_f
      !! @{
      !   __ _ _              _   _        _ _           _            
      !  / _(_) | ___    __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
@@ -193,9 +192,7 @@
 
      !> @}
 
-     !>
-     !! \ingroup \h5hut_f90_api
-     !! \addtogroup \h5hut_step_attribs_f
+     !> \addtogroup \h5_step_attribs_f
      !! @{
 
      !      _                     _   _        _ _           _            
