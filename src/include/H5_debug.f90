@@ -28,7 +28,7 @@
      !! \see h5_get_debug_mask()
 
      SUBROUTINE h5_set_debug_mask ( mask )
-       INTEGER*9, INTEGER(IN) :: mask   !< [in] debug mask
+       INTEGER*8, INTENT(IN) :: mask   !< [in] debug mask
      END SUBROUTINE h5_set_debug_mask
 
      !>
