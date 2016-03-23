@@ -30,7 +30,7 @@
   INTEGER*8, PARAMETER :: H5_OK =                  H5_SUCCESS
   INTEGER*8, PARAMETER :: H5_NOK =                 -1
   INTEGER*8, PARAMETER :: H5_FAILURE =             -2
-  INTEGER*8, PARAMETER :: H5_FAILED =              H5_FAILED
+  INTEGER*8, PARAMETER :: H5_FAILED =              H5_FAILURE
   INTEGER*8, PARAMETER :: H5_ERR_BADF =            -9
   INTEGER*8, PARAMETER :: H5_ERR_NOMEM =           -12
   INTEGER*8, PARAMETER :: H5_ERR_INVAL =           -22
