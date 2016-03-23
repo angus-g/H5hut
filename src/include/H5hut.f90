@@ -11,8 +11,7 @@ MODULE H5hut
 
   include 'H5_file.f90'
   include 'H5_model.f90'
-  include 'H5_file_attribs.f90'
-  include 'H5_step_attribs.f90'
+  include 'H5_attribs.f90'
   include 'H5_log.f90'
   include 'H5_debug.f90'
   include 'H5_error.f90'
