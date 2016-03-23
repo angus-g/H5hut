@@ -4,10 +4,12 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/include
 
 F90_FILES =						\
 	$(top_srcdir)/src/include/H5hut.f90		\
-	$(top_srcdir)/src/include/H5.f90		\
 	$(top_srcdir)/src/include/H5_const.f90		\
-	$(top_srcdir)/src/include/H5_attribs.f90	\
+	$(top_srcdir)/src/include/H5_file.f90		\
 	$(top_srcdir)/src/include/H5_model.f90		\
+	$(top_srcdir)/src/include/H5_attribs.f90	\
+	$(top_srcdir)/src/include/H5_debug.f90		\
+	$(top_srcdir)/src/include/H5_error.f90		\
 	$(top_srcdir)/src/include/H5Part_model.f90	\
 	$(top_srcdir)/src/include/H5Part_io.f90		\
 	$(top_srcdir)/src/include/H5Block_model.f90	\
