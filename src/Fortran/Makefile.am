@@ -52,7 +52,7 @@ $(top_srcdir)/src/include/H5hut.f: $(F90_FILES)
 	awk '/INTEGER\*8 FUNCTION/{print "       " $$1 " " $$3}' $^ >>$@
 
 all-local: $(top_srcdir)/src/include/H5hut.f
-	$(INSTALL) -m644 .libs/libH5hutF.a $(top_builddir)/src/lib
+
 endif
 
 clean: clean-am
