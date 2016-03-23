@@ -105,7 +105,7 @@ h5_setprop_file_corevfd (
                       "prop=%lld, increment=%lld",
                       (long long int)*_prop, (long long int)*increment);
         h5_prop_t prop = (h5_prop_t)*_prop;
-        H5_API_RETURN ((h5_int64_t)h5_set_prop_file_core_vfd (prop, increment));
+        H5_API_RETURN ((h5_int64_t)h5_set_prop_file_core_vfd (prop, *increment));
 }
 
 #define h5_setprop_file_align FC_MANGLING (  \
