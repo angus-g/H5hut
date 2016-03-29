@@ -92,3 +92,4 @@ examples/H5Fed/trimesh_write_dunetest
 tetmesh_write_tags
 *.gch
 ReferencePages
+vtk2h5grid
