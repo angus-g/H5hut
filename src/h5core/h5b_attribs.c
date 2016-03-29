@@ -87,6 +87,64 @@ h5b_read_field_attrib (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
+h5_err_t
+h5b_has_field_attrib (
+	const h5_file_t fh,			/*!< IN: file handle */
+	const char* const field_name,		/*!< IN: field name */
+	const char* const attrib_name		/*!< IN: attribute name */
+	) {
+        h5_file_p f = (h5_file_p)fh;
+	H5_CORE_API_ENTER (h5_err_t,
+	                   "f=%p, "
+	                   "field_name='%s', "
+	                   "attrib_name=%s, ",
+	                   f,
+	                   field_name,
+	                   attrib_name);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
+
+	TRY (h5bpriv_open_field_group(f, field_name));
+
+	H5_CORE_API_RETURN (
+		hdf5_attribute_exists (
+			f->b->field_gid,
+			attrib_name) );	       
+}
+
+h5_err_t
+h5b_get_field_attrib_info_by_name (
+	const h5_file_t fh,			/*!< IN: file handle */
+	const char* const field_name,		/*!< IN: field name */
+	const char* const attrib_name,		/*!< IN: attribute name */
+	h5_int64_t* attrib_type,		/*!< OUT: attribute type */
+	h5_size_t* attrib_nelem			/*!< OUT: number of elements */
+	) {
+        h5_file_p f = (h5_file_p)fh;
+	H5_CORE_API_ENTER (h5_err_t,
+	                   "f=%p, "
+	                   "field_name='%s', "
+	                   "attrib_name=%s, "
+	                   "attrib_type=%p, "
+	                   "attrib_nelem=%p",
+	                   f,
+	                   field_name,
+	                   attrib_name,
+	                   attrib_type,
+	                   attrib_nelem);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
+
+	TRY (h5bpriv_open_field_group(f, field_name));
+
+	H5_CORE_API_RETURN (
+		h5priv_get_attrib_info_by_name (
+			f->b->field_gid,
+			attrib_name,
+			attrib_type,
+			attrib_nelem));
+}
+
 h5_ssize_t
 h5b_get_num_field_attribs (
 	const h5_file_t fh,			/*<! IN: file handle */

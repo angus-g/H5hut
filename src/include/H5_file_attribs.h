@@ -41,10 +41,62 @@ extern "C" {
 */
 
 /**
+   Determines whether a file attribute with a given name exists.
+
+   \return      true (value \c >0) if atrribute exists
+   \return      false (\c 0) if attribute does not exist
+   \return      \c H5_FAILURE on error
+ */
+static inline h5_err_t
+H5HasFileAttrib (
+	const h5_file_t f,	    ///< [in]  file handle
+	const char* const name	    ///< [in]  name of attribute to query
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "name=%p",
+		      (h5_file_p)f,
+		      name);
+	H5_API_RETURN (
+		h5_has_file_attrib (
+			f,
+			name));
+}
+
+/**
+  Get the type and number of elements of the file attribute
+  given by its name.
+
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
+*/
+static inline h5_err_t
+H5GetFileAttribInfoByName (
+	const h5_file_t f,		///< [in]  file handle.
+	const char* const name,     	///< [in]  name of attribute.
+	h5_int64_t* type,               ///< [out] type of value..
+	h5_size_t* nelems               ///< [out] number of elements.
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "name=%s, "
+		      "type=%p, nelems=%p",
+                      (h5_file_p)f,
+                      name,
+                      type, nelems);
+	H5_API_RETURN (h5_get_file_attrib_info_by_name (
+			       f,
+			       name,
+			       type, nelems));
+}
+
+/**
   Gets the number of attributes in the file's root ("/").
 
   \return   Number of attributes
   \return   \c H5_FAILURE on error
+
+  \see H5GetFileAttribInfo()
 */
 static inline h5_int64_t
 H5GetNumFileAttribs (
@@ -58,7 +110,7 @@ H5GetNumFileAttribs (
 
 /**
   Gets the name, type and number of elements of the file attribute
-  specified by its index.
+  given by its index.
 
   This function can be used to retrieve all attributes bound to the
   file \c f by looping from \c 0 to the number of attribute minus
@@ -93,33 +145,6 @@ H5GetFileAttribInfo (
 			       name, len_name,
 			       type,
 			       nelems));
-}
-
-/**
-  Get the type and number of elements of the file attribute
-  specified by its name.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5GetFileAttribInfoByName (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* const name,     	///< [in]  name of attribute.
-	h5_int64_t* type,               ///< [out] type of value..
-	h5_size_t* nelems               ///< [out] number of elements.
-	) {
-	H5_API_ENTER (h5_err_t,
-		      "f=%p, "
-		      "name=%s, "
-		      "type=%p, nelems=%p",
-                      (h5_file_p)f,
-                      name,
-                      type, nelems);
-	H5_API_RETURN (h5_get_file_attrib_info_by_name (
-			       f,
-			       name,
-			       type, nelems));
 }
 
 /*

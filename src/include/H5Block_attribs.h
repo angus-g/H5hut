@@ -58,12 +58,12 @@ H5BlockGetNumFieldAttribs (
 }
 
 /**
-  Gets the name, type and number of elements of the field attribute
+  Get the name, type and number of elements of the field attribute
   specified by its index.
 
   This function can be used to retrieve all attributes bound to the
   specified field by looping from \c 0 to the number of attribute
-  minus one.  The number of attributes bound to the
+  minus one.  The number of attributes attached to the
   field can be queried by calling \ref H5BlockGetNumFieldAttribs.
 
   \return \c H5_SUCCESS on success
@@ -98,6 +98,66 @@ H5BlockGetFieldAttribInfo (
 			attrib_idx,
 			attrib_name,
 			len_attrib_name,
+			attrib_type,
+			attrib_nelem));
+}
+
+/**
+   Determines whether a field attribute with a given name exists.
+
+   \return      true (value \c >0) if atrribute exists
+   \return      false (\c 0) if attribute does not exist
+   \return      \c H5_FAILURE on error
+ */
+static inline h5_err_t
+H5BlockHasFieldAttrib (
+	const h5_file_t f,		///< [in]  file handle
+	const char* const field_name,	///< [in]  field name
+	const char* const attrib_name	///< [in]  name of attribute to query
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p field_name='%s', "
+		      "attrib_name=%p, ",
+		      (h5_file_p)f,
+		      field_name,
+		      attrib_name);
+	H5_API_RETURN (
+		h5b_has_field_attrib (
+			f,
+			field_name,
+			attrib_name));
+}
+
+/**
+  Get the type and number of elements of the field attribute
+  given by its name.
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+*/
+static inline h5_err_t
+H5BlockGetFieldAttribInfoByName (
+	const h5_file_t f,		///< [in]  file handle
+	const char* const field_name,	///< [in]  field name
+	const char* const attrib_name,	///< [in]  name of attribute to query
+	h5_int64_t* attrib_type,	///< [out] type of value
+	h5_size_t* attrib_nelem         ///< [out] number of elements
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p field_name='%s', "
+		      "attrib_name=%p, "
+		      "attrib_type=%p, "
+		      "attrib_nelem=%p",
+		      (h5_file_p)f,
+		      field_name,
+		      attrib_name,
+		      attrib_type,
+		      attrib_nelem);
+	H5_API_RETURN (
+		h5b_get_field_attrib_info_by_name (
+			f,
+			field_name,
+			attrib_name,
 			attrib_type,
 			attrib_nelem));
 }
@@ -185,19 +245,18 @@ H5BlockReadFieldAttribString (
  */
 
 /**
-  Write float64 \c values as attribute \c attrib_name of field
-  \c field_name.
+  Attach an array of 64 bit floating point data as attribute to given field.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5BlockWriteFieldAttribFloat64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const char* attrib_name,	///< [in]  attribute name.
-	const h5_float64_t* buffer,	///< [in]  attribute values.
-	const h5_size_t nelems		///< [in]  number of elements.
+	const h5_file_t f,		///< [in]  file handle
+	const char* field_name,		///< [in]  attach attribute to field with this name
+	const char* attrib_name,	///< [in]  attribute name
+	const h5_float64_t* buffer,	///< [in]  pointer to attribute data
+	const h5_size_t nelems		///< [in]  number of elements to write
 	) {
 
 	H5_API_ENTER (h5_err_t,

@@ -28,7 +28,7 @@
      !! Query the number of attributes of field \c field_name.
      !!
      !! \return number of attributes
-     !!\return \c H5_FAILURE on error
+     !! \return \c H5_FAILURE on error
 
      INTEGER*8 FUNCTION h5bl_getnfieldattribs (filehandle, field_name)
        INTEGER*8, INTENT(IN) :: filehandle         !< file handle

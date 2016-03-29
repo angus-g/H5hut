@@ -35,6 +35,20 @@ h5b_read_field_attrib (
 	const h5_file_t,
 	const char*, const char*, const h5_int64_t, void* const);
 
+h5_err_t
+h5b_has_field_attrib (
+	const h5_file_t fh,
+	const char* const field_name,
+	const char* const attrib_name);
+
+h5_err_t
+h5b_get_field_attrib_info_by_name (
+	const h5_file_t,
+	const char* const,
+	const char* const,
+	h5_int64_t*,
+	h5_size_t*);
+
 h5_ssize_t
 h5b_get_num_field_attribs (
 	const h5_file_t,
