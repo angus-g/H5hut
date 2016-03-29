@@ -396,10 +396,9 @@ H5BlockGetFieldInfoByName (
 			type));
 }
 
-///< @}
-
 #ifdef __cplusplus
 }
 #endif
 
+///< @}
 #endif

@@ -17,11 +17,14 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5_attribs.h"
 
-
 /**
    \addtogroup h5_step_attribs
    @{
 */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
       _                     _   _        _ _           _            
@@ -376,10 +379,9 @@ H5ReadStepAttribInt32 (
 			       (void*)buffer));
 }
 
-///< @}
-
 #ifdef __cplusplus
 }
 #endif
 
+///< @}
 #endif

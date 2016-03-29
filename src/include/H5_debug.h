@@ -17,6 +17,10 @@
    @{
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
   Set debug mask. The debug mask is an or'ed value of
 
@@ -64,6 +68,9 @@ H5GetDebugMask (
 	return (h5_get_debuglevel () & ~0x03);
 }
 
-///< @}
+#ifdef __cplusplus
+}
+#endif
 
+///< @}
 #endif

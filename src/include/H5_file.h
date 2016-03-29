@@ -19,6 +19,10 @@
    @{
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if H5HUT_API_VERSION == 2
 #define H5OpenFile2 H5OpenFile
 #elif H5HUT_API_VERSION == 1
@@ -397,6 +401,9 @@ H5Finalize (
 	H5_API_RETURN (h5_close_hdf5 ());
 }
 
-///< @}
+#ifdef __cplusplus
+}
+#endif
 
+///< @}
 #endif

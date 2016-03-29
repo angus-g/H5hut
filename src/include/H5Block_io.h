@@ -20,6 +20,10 @@
    @{
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
   Write the 3-dimensional field \p name from the buffer pointed to by
   \p buffer to the current step using the previously defined field
@@ -426,6 +430,10 @@ H5Block3dReadVector3dFieldInt32 (
 	H5_API_RETURN(h5b_read_vector3d_data(f, name,
 					     x_buf, y_buf, z_buf, H5T_NATIVE_INT32));
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 ///< @}
 #endif

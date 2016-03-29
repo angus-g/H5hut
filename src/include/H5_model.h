@@ -289,13 +289,12 @@ H5DeleteAttachment (
 	H5_API_ENTER (h5_err_t, "fname='%s'", fname);
 	H5_API_RETURN (h5_delete_attachment (f, fname));
 }
-
+	
 #ifdef __cplusplus
 }
 #endif
 
 ///< @}
-	
 #endif
 
 

@@ -410,5 +410,4 @@ H5PartSetCanonicalView (
 #endif
 
 ///< @}
-
 #endif

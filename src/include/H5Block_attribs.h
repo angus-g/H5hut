@@ -22,6 +22,10 @@
    @{
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
   !   __ _      _     _         _   _        _ _           _            
   !  / _(_) ___| | __| |   __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
@@ -725,5 +729,10 @@ H5Block3dGetFieldZCoords (
                                f, 2, field_name, H5BLOCK_FIELD_ZCOORD_NAME,
                                coords, n_coords));
 }
+
+#ifdef __cplusplus
+}
+#endif
+
 ///< @}
 #endif

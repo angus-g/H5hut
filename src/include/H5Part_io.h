@@ -206,5 +206,4 @@ H5PartReadDataInt32 (
 #endif
 
 ///< @}
-
 #endif

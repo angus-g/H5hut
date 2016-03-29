@@ -24,6 +24,10 @@
    @{
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
   Set verbosity level to \c level.
 
@@ -87,7 +91,10 @@ H5GetVerbosityLevel (
 	return h5_get_debuglevel () & 0x03;
 }
 
-///< @}
+#ifdef __cplusplus
+}
+#endif
 
+///< @}
 #endif
 

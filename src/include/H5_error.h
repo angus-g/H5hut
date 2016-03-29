@@ -18,7 +18,11 @@
    \addtogroup h5_error
    @{
 */
-       
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
   Report error, do not abort program. The error must be handled in the programm.
 
@@ -144,6 +148,9 @@ H5GetErrno (
 	return h5_get_errno ();
 }
 
+#ifdef __cplusplus
+}
+#endif
+
 ///< @}
-	
 #endif

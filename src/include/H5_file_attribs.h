@@ -22,6 +22,10 @@
    @{
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
    __ _ _              _   _        _ _           _            
   / _(_) | ___    __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
@@ -371,6 +375,10 @@ H5ReadFileAttribInt32 (
 			       H5_INT32_T,
 			       (void*)buffer));
 }
-///< @}
 
+#ifdef __cplusplus
+}
+#endif
+
+///< @}
 #endif

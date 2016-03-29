@@ -14,9 +14,45 @@
 #define H5HUT_API_VERSION 2
 #endif
 
-#include "H5.h"
-#include "H5Part.h"
-#include "H5Block.h"
-#include "H5Fed.h"
+
+#include "H5_file.h"
+#include "H5_model.h"
+#include "H5_file_attribs.h"
+#include "H5_step_attribs.h"
+#include "H5_log.h"
+#include "H5_debug.h"
+#include "H5_error.h"
+
+#include "H5Part_io.h"
+#include "H5Part_model.h"
+
+/**
+  \ingroup h5block_model
+
+  \note
+  Different field sizes are allowed in the same time-step.
+
+  \note
+  The same layout can be used, if the size of the field matches the
+  size of the layout.  If the size of the layout doesn't match the
+  size of the field, an error will be indicated. 
+ 
+  \note In write mode views might be reduced to make them
+  non-overlaping, i.e. ghost-zones are eliminated. This may shrink
+  views in an unexpected way.
+
+  \todo
+  check whether layout is reasonable
+*/
+
+#include "H5Block_attribs.h"
+#include "H5Block_model.h"
+#include "H5Block_io.h"
+
+#include "H5Fed_adjacency.h"
+#include "H5Fed_model.h"
+#include "H5Fed_retrieve.h"
+#include "H5Fed_store.h"
+#include "H5Fed_tags.h"
 
 #endif
