@@ -38,26 +38,22 @@ For more information, please contact the
         \defgroup c_api                                 C API
         @{
 	\note The C API is implemented with '\c static \c inline' functions to minimize overhead.
-	        \defgroup h5hut_c_api_error_handling_and_debugging	Error handling and debugging
-	        @{
-			\defgroup h5hut_verbosity	control verbosity level
-			\defgroup h5hut_debug		control debug output
-		        \defgroup h5hut_error           error handling
-		@}
-
                 \defgroup h5_c_api			H5
                 @{
-                        \defgroup h5_file		file handling
+                        \defgroup h5_file		file interface
                         \defgroup h5_model              setting up the data model
                         \defgroup h5_file_attribs    	reading and writing file attributes
                         \defgroup h5_step_attribs    	reading and writing step attributes	
-                @}
+			\defgroup h5_log		control verbosity level
+			\defgroup h5_debug		control debug output
+		        \defgroup h5_error           	error handling interface
+		@}
                 \defgroup h5part_c_api			H5Part
                 @{
                         \defgroup h5part_model          setting up the data model
                         \defgroup h5part_io	        reading and writing datasets
                  @}
-                 \defgroup h5block_c_api                H5Block
+		 \defgroup h5block_c_api                H5Block
                  @{
                         \defgroup h5block_model         setting up the data model
                         \defgroup h5block_io          	reading and writing datasets
@@ -69,19 +65,15 @@ For more information, please contact the
 /*!
         \defgroup f90_api                               Fortran90 API
         @{
-	        \defgroup h5hut_f90_api_error_handling_and_debugging	Error handling and debugging
-	        @{
-			\defgroup h5hut_verbosity_f	control verbosity level
-			\defgroup h5hut_debug_f		control debug output
-		        \defgroup h5hut_error_f           error handling
-		@}
-	
-                \defgroup h5hut_f90_api                 H5
+                \defgroup h5_f90_api                    H5
                 @{
-                        \defgroup h5hut_file_f          file handling
-                        \defgroup h5hut_model_f         setting up the data model
-                        \defgroup h5hut_file_attribs_f  reading and writing file attributes
-                        \defgroup h5hut_step_attribs_f  reading and writing step attributes	
+                        \defgroup h5_file_f             file interface
+                        \defgroup h5_model_f            setting up the data model
+                        \defgroup h5_file_attribs_f     reading and writing file attributes
+                        \defgroup h5_step_attribs_f     reading and writing step attributes	
+			\defgroup h5_log_f		control verbosity level
+			\defgroup h5_debug_f		control debug output
+		        \defgroup h5_error_f            error handling interface
 		@}
                 \defgroup h5part_f90_api                H5Part
                 @{
