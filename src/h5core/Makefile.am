@@ -99,14 +99,9 @@ libH5hut_la_DEPENDENCIES = $(EXTRA_HEADERS)
 
 libH5hut_la_LDFLAGS = -version-info 2:0:0
 
-#all-local:
-#	$(INSTALL) -m0755 -d $(top_builddir)/src/lib
-#	$(INSTALL) -m644 .libs/libH5hut.a $(top_builddir)/src/lib
-
 install-exec-local:
 	@$(INSTALL) -d $(DESTDIR)$(includedir)/h5core
 	@$(INSTALL) -m644 $(top_srcdir)/src/include/h5core/*.h $(DESTDIR)$(includedir)/h5core/
 
 clean-local:
-	$(RM) -f $(top_srcdir)/src/lib/libH5hut.*
 	$(RM) -f *~
