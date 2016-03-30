@@ -41,15 +41,17 @@ extern "C" {
   !     |_|                |___/ 
  */
 /**
-  Query the number of attributes of field \c field_name.
+  Query the number of attributes attached to a given field.
 
   \return number of attributes
   \return \c H5_FAILURE on error
+
+  \see H5BlockGetFieldAttribInfo()
 */
 static inline h5_ssize_t
 H5BlockGetNumFieldAttribs (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name		///< [in]  field name.
+	const h5_file_t f,		///< [in]  file handle
+	const char* field_name		///< [in]  field name
 	) {
 	H5_API_ENTER (h5_ssize_t,
                       "f=%p, field_name='%s'",
@@ -58,16 +60,18 @@ H5BlockGetNumFieldAttribs (
 }
 
 /**
-  Get the name, type and number of elements of the field attribute
-  specified by its index.
+  Get the name, type and number of elements of a field attribute
+  given by its index.
 
-  This function can be used to retrieve all attributes bound to the
-  specified field by looping from \c 0 to the number of attribute
-  minus one.  The number of attributes attached to the
-  field can be queried by calling \ref H5BlockGetNumFieldAttribs.
+  This function can be used to retrieve all attributes attached to the
+  specified field by looping from \c 0 to the number of attributes
+  minus one.  The number of attributes attached to the field can be
+  queried by calling \ref H5BlockGetNumFieldAttribs().
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
+
+  \see H5BlockGetNumFieldAttribs()
 */
 static inline h5_err_t
 H5BlockGetFieldAttribInfo (
@@ -129,7 +133,7 @@ H5BlockHasFieldAttrib (
 }
 
 /**
-  Get the type and number of elements of the field attribute
+  Get the type and number of elements of a field attribute
   given by its name.
 
   \return \c H5_SUCCESS on success
@@ -180,10 +184,10 @@ H5BlockGetFieldAttribInfoByName (
 */
 static inline h5_err_t
 H5BlockWriteFieldAttribString (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const char* attrib_name,	///< [in]  attribute name.
-	const char* buffer		///< [in]  attribute value.
+	const h5_file_t f,		///< [in]  file handle
+	const char* field_name,		///< [in]  field name
+	const char* attrib_name,	///< [in]  attribute name
+	const char* buffer		///< [in]  attribute value
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, "
