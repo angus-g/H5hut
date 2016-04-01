@@ -83,6 +83,11 @@ h5b_get_num_fields (
 	const h5_file_t);
 
 h5_err_t
+h5b_has_field (
+	const h5_file_t,
+	const char*);
+
+h5_err_t
 h5b_get_field_info_by_name (
 	const h5_file_t,
 	const char* name,

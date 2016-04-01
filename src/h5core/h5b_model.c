@@ -925,9 +925,25 @@ h5b_get_num_fields (
 }
 
 h5_err_t
+h5b_has_field (
+	const h5_file_t fh,		///< [in]  file handle
+	const char *name		///< [in]  field name
+	) {
+        h5_file_p f = (h5_file_p)fh;
+	H5_CORE_API_ENTER (h5_err_t,
+	                   "f=%p, name='%s'",
+	                   f, name);
+	CHECK_TIMEGROUP (f);
+	CHECK_TIMEGROUP (f);
+
+	const char* path[] = { H5BLOCK_GROUPNAME_BLOCK, name };
+	H5_CORE_API_RETURN (h5priv_link_exists_(f->step_gid, path, 2));
+}
+
+h5_err_t
 h5b_get_field_info_by_name (
-	const h5_file_t fh,			/*!< IN: file handle */
-	const char *name,			/*!< OUT: field name */
+	const h5_file_t fh,			/*!< IN:  file handle */
+	const char *name,			/*!< IN:  field name */
 	h5_size_t *field_rank,			/*!< OUT: field rank */
 	h5_size_t *field_dims,			/*!< OUT: field dimensions */
 	h5_size_t *elem_rank,			/*!< OUT: element rank */
