@@ -14,11 +14,6 @@
 #include "h5core/h5.h"
 #include "h5core/h5_debug.h"
 
-/**
-   \addtogroup h5_file
-   @{
-*/
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,6 +23,11 @@ extern "C" {
 #elif H5HUT_API_VERSION == 1
 #define H5OpenFile1 H5OpenFile
 #endif
+
+/**
+   \addtogroup h5_file
+   @{
+*/
 
 /**
   Create a new, empty file property list.

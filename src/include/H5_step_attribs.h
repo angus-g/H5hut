@@ -17,39 +17,33 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5_attribs.h"
 
-/**
-   \addtogroup h5_step_attribs
-   @{
-*/
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*
-      _                     _   _        _ _           _            
-  ___| |_ ___ _ __     __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
- / __| __/ _ \ '_ \   / _` | __| __| '__| | '_ \| | | | __/ _ \/ __|
- \__ \ ||  __/ |_) | | (_| | |_| |_| |  | | |_) | |_| | ||  __/\__ \
- |___/\__\___| .__/   \__,_|\__|\__|_|  |_|_.__/ \__,_|\__\___||___/
-             |_|                                                    
- 
-   __ _ _   _  ___ _ __ _   _ 
-  / _` | | | |/ _ \ '__| | | |
- | (_| | |_| |  __/ |  | |_| |
-  \__, |\__,_|\___|_|   \__, |
-     |_|                |___/
+   !   _                   _          
+   !  (_)_ __   __ _ _   _(_)_ __ ___ 
+   !  | | '_ \ / _` | | | | | '__/ _ \
+   !  | | | | | (_| | |_| | | | |  __/
+   !  |_|_| |_|\__, |\__,_|_|_|  \___|
+   !              |_|
+   !
+*/
+/**
+   \addtogroup h5_step_attribs
+   @{
 */
 
 /**
-  Gets the number of attributes bound to the current step.
+  Query the number of attributes attached to the current step.
 
-  \return   Number of attributes
+  \return   number of attributes
   \return   \c H5_FAILURE on error
 */
 static inline h5_int64_t
 H5GetNumStepAttribs (
-	const h5_file_t f              ///< [in]  file handle.
+	const h5_file_t f              ///< [in]  file handle
 	) {
 	H5_API_ENTER (h5_int64_t,
                       "f=%p",
@@ -59,329 +53,392 @@ H5GetNumStepAttribs (
 
 /**
   Gets the name, type and number of elements of the step attribute
-  specified by its index.
+  given by its index.
 
-  This function can be used to retrieve all attributes bound to the
-  current time-step by looping from \c 0 to the number of attribute
-  minus one.  The number of attributes bound to the current
-  time-step can be queried by calling \ref H5GetNumStepAttribs.
+  This function can be used to retrieve all attributes attached to the
+  current step by looping from \c 0 to the number of attribute
+  minus one.  The number of attributes attached to the current
+  step can be queried by calling \ref H5GetNumStepAttribs().
 
   \return   \c H5_SUCCESS on success
   \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetStepAttribInfo (
-	const h5_file_t f,		///< [in]  file handle.
+	const h5_file_t f,		///< [in]  file handle
 	const h5_size_t idx,    	///< [in]  index of attribute to query
-	char* name,     		///< [out] name of attribute.
-	const h5_size_t len_name,       ///< [in]  length of buffer \c name.
-	h5_int64_t* type,               ///< [out] type of value..
-	h5_size_t* nelems               ///< [out] number of elements.
+	char* attrib_name,     		///< [out] name of attribute
+	const h5_size_t len_attrib_name,///< [in]  size of buffer \c name
+	h5_int64_t* attrib_type,        ///< [out] type of attribute
+	h5_size_t* nelems               ///< [out] number of elements
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, "
-		      "idx=%llu, name=%p, len_name=%llu, "
-		      "type=%p, nelems=%p",
+		      "idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
+		      "attrib_type=%p, nelems=%p",
                       (h5_file_p)f,
                       (long long unsigned)idx,
-                      name,
-                      (long long unsigned)len_name,
-                      type,
+                      attrib_name,
+                      (long long unsigned)len_attrib_name,
+                      attrib_type,
                       nelems);
 	H5_API_RETURN (h5_get_step_attrib_info_by_idx (
 			       f,
 			       idx,
-			       name,
-			       len_name,
-			       type,
+			       attrib_name,
+			       len_attrib_name,
+			       attrib_type,
 			       nelems));
 }
 
 /**
-  Gets the type and number of elements of the step attribute
-  specified by its name.
+   Determines whether a step attribute with a given name exists in current step.
+
+   \return      true (value \c >0) if atrribute exists
+   \return      false (\c 0) if attribute does not exist
+   \return      \c H5_FAILURE on error
+ */
+static inline h5_err_t
+H5HasStepAttrib (
+	const h5_file_t f,	        ///< [in]  file handle
+	const char* const attrib_name	///< [in]  name of attribute to query
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "attrib_name=%p",
+		      (h5_file_p)f,
+		      attrib_name);
+	H5_API_RETURN (
+		h5_has_step_attrib (
+			f,
+			attrib_name));
+}
+
+/**
+  Gets the type and number of elements of a given step attribute.
 
   \return   \c H5_SUCCESS on success
   \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetStepAttribInfoByName (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* const name,     	///< [in]  name of attribute.
-	h5_int64_t* type,               ///< [out] type of value..
-	h5_size_t* nelems               ///< [out] number of elements.
+	const h5_file_t f,		///< [in]  file handle
+	const char* const attrib_name,  ///< [in]  name of attribute to query
+	h5_int64_t* attrib_type,        ///< [out] type of attribute
+	h5_size_t* nelems               ///< [out] number of elements
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, "
-		      "name=%s, "
-		      "type=%p, nelems=%p",
+		      "attrib_name=%s, "
+		      "attrib_type=%p, nelems=%p",
                       (h5_file_p)f,
-                      name,
-                      type, nelems);
+                      attrib_name,
+                      attrib_type, nelems);
 	H5_API_RETURN (h5_get_step_attrib_info_by_name (
 			       f,
-			       name,
-			       type, nelems));
+			       attrib_name,
+			       attrib_type, nelems));
 }
 
 /*
-      _                     _   _        _ _           _            
-  ___| |_ ___ _ __     __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
- / __| __/ _ \ '_ \   / _` | __| __| '__| | '_ \| | | | __/ _ \/ __|
- \__ \ ||  __/ |_) | | (_| | |_| |_| |  | | |_) | |_| | ||  __/\__ \
- |___/\__\___| .__/   \__,_|\__|\__|_|  |_|_.__/ \__,_|\__\___||___/
-             |_|                                                    
-
-  _    __    
- (_)  / /__  
- | | / / _ \ 
- | |/ / (_) |
- |_/_/ \___/ 
+  !                 _ _       
+  !  __      ___ __(_) |_ ___ 
+  !  \ \ /\ / / '__| | __/ _ \
+  !   \ V  V /| |  | | ||  __/
+  !    \_/\_/ |_|  |_|\__\___|
 */
 
 /**
-  Write an attribute \c name with the string \c value to
-  the current timestep.
+   \fn h5_err_t H5WriteStepAttribString (
+	const h5_file_t f,
+	const char* attrib_name,
+	const char* buffer
+	)
 
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
+   \fn  h5_err_t H5WriteStepAttribFloat64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_float64_t* buffer,
+	const h5_size_t nelems
+	)
+
+   \fn h5_err_t H5WriteStepAttribFloat32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_float32_t* buffer,
+	const h5_size_t nelems
+	)
+
+   \fn h5_err_t H5WriteStepAttribInt64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_int64_t* buffer,
+	const h5_size_t nelems
+	)
+
+   \fn h5_err_t H5WriteStepAttribInt32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_int32_t* buffer,
+	const h5_size_t nelems
+	)
+
+  Attach an attribute to current step.
+
+  The type of the attribute can be
+
+  - a C string (\c char*)
+  - an array of 64bit floating point numbers (\c h5_float64_t)
+  - an array of 32bit floating point numbers (\c h5_float32_t)
+  - an array of 64bit integers (\c h5_int64_t)
+  - an array of 32bit integers (\c h5_int32_t)
+
+  \param f		[in]  file handle
+  \param attrib_name	[in]  the attribute name
+  \param buffer		[in]  data to be written
+  \param nelems		[in]  number of elements to be written
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \see H5ReadStepAttribString()
+  \see H5ReadStepAttribFloat64()
+  \see H5ReadStepAttribFloat32()
+  \see H5ReadStepAttribInt64()
+  \see H5ReadStepAttribInt32()
 */
 static inline h5_err_t
 H5WriteStepAttribString (
-	const h5_file_t f,           	///< [in]  file handle.
-	const char *name,       	///< [in]  name of attribute to create.
-	const char *value       	///< [in]  value of attribute. 
+	const h5_file_t f,
+	const char* attrib_name,
+	const char* buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', value='%s'",
-                      (h5_file_p)f, name, value);
+                      "f=%p, attrib_name='%s', buffer='%s'",
+                      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (h5_write_step_attrib (
 			       f, 
-			       name,
+			       attrib_name,
 			       H5T_NATIVE_CHAR,
-			       value,
-			       strlen(value) + 1 ));
+			       buffer,
+			       strlen(buffer) + 1 ));
 }
 
-/**
-  Read a string into a \c buffer from an attribute \c name
-  in the current timestep.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
 static inline h5_err_t
-H5ReadStepAttribString (
-	const h5_file_t f,              ///< [in]  file handle.
-	const char *name,       	///< [in]  name of attribute to create.
-	char *buffer            	///< [out] value of attribute. 
+H5WriteStepAttribFloat64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_float64_t* buffer,
+	const h5_size_t nelems
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', value='%s'",
-		      (h5_file_p)f, name, buffer);
+                      "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
+		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
+	H5_API_RETURN (h5_write_step_attrib (
+			       f,
+			       attrib_name,
+			       H5T_NATIVE_DOUBLE,
+			       buffer,
+			       nelems));
+}
+
+static inline h5_err_t
+H5WriteStepAttribFloat32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_float32_t* buffer,
+	const h5_size_t nelems
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
+		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
+	H5_API_RETURN (h5_write_step_attrib (
+			       f,
+			       attrib_name,
+			       H5T_NATIVE_FLOAT,
+			       buffer,
+			       nelems ));
+}
+
+static inline h5_err_t
+H5WriteStepAttribInt64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_int64_t* buffer,
+	const h5_size_t nelems
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
+		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
+	H5_API_RETURN (h5_write_step_attrib (
+			       f,
+			       attrib_name,
+			       H5T_NATIVE_INT64,
+			       buffer,
+			       nelems));
+}
+
+static inline h5_err_t
+H5WriteStepAttribInt32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_int32_t* buffer,
+	const h5_size_t nelems
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
+		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
+	H5_API_RETURN (h5_write_step_attrib (
+			       f,
+			       attrib_name,
+			       H5T_NATIVE_INT32,
+			       buffer,
+			       nelems));
+}
+
+/*
+  !                      _ 
+  !   _ __ ___  __ _  __| |
+  !  | '__/ _ \/ _` |/ _` |
+  !  | | |  __/ (_| | (_| |
+  !  |_|  \___|\__,_|\__,_|
+ */
+
+/**
+   \fn h5_err_t H5ReadStepAttribString (
+	const h5_file_t f,
+	const char* attrib_name,
+	char* buffer
+	)
+
+   \fn h5_err_t H5ReadStepAttribFloat64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_float64_t* buffer
+	)
+
+   \fn h5_err_t H5ReadStepAttribFloat32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_float32_t* buffer
+	)
+
+   \fn h5_err_t H5ReadStepAttribInt64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_int64_t* buffer
+	)
+
+   \fn h5_err_t H5ReadStepAttribInt32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_int32_t* buffer
+	)
+
+  Read attribute attached to current step.
+
+  \note Make sure that the size of the buffer is large enough!
+
+  \param f		[in]  file handle
+  \param attrib_name	[in]  attribute name
+  \param buffer		[out] buffer for data to be read
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \see H5GetStepAttribInfo()
+  \see H5GetStepAttribInfoByName()
+  \see H5WriteStepAttribString()
+  \see H5WriteStepAttribFloat64()
+  \see H5WriteStepAttribFloat32()
+  \see H5WriteStepAttribInt64()
+  \see H5WriteStepAttribInt32()
+ */
+
+static inline h5_err_t
+H5ReadStepAttribString (
+	const h5_file_t f,
+	const char* attrib_name,
+	char* buffer
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (h5_read_step_attrib (
 			       f, 
-			       name,
+			       attrib_name,
 			       H5_STRING_T,
 			       (void*)buffer));
 }
 
-/**
-  Write an attribute \c name with float64 \c values to
-  the current time step.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5WriteStepAttribFloat64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	const h5_float64_t *values,	///< [in]  values of attribute.
-	const h5_size_t nelems		///< [in]  number of values.
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', values=%p, nelems=%llu",
-		      (h5_file_p)f, name, values, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_step_attrib (
-			       f,
-			       name,
-			       H5T_NATIVE_DOUBLE,
-			       values,
-			       nelems));
-}
-
-/**
-  Read float64 values into a \c buffer from an attribute \c name
-  in the current time step.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
 static inline h5_err_t
 H5ReadStepAttribFloat64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	h5_float64_t *buffer		///< [out] values of attribute.
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_float64_t* buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', buffer=%p",
-		      (h5_file_p)f, name, buffer);
+                      "f=%p, attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (h5_read_step_attrib (
 			       f,
-			       name,
+			       attrib_name,
 			       H5_FLOAT64_T,
 			       (void*)buffer));
 }
 
-/**
-  Write an attribute \c name with float32 \c values to
-  the current time step.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5WriteStepAttribFloat32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	const h5_float32_t *values,	///< [in]  values of attribute.
-	const h5_size_t nelems		///< [in]  number of values.
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', values=%p, nelems=%llu",
-		      (h5_file_p)f, name, values, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_step_attrib (
-			       f,
-			       name,
-			       H5T_NATIVE_FLOAT,
-			       values,
-			       nelems ));
-}
-
-/**
-  Read float32 values into a \c buffer from an attribute \c name
-  in the current time step.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
 static inline h5_err_t
 H5ReadStepAttribFloat32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	h5_float32_t *buffer		///< [out] values of attribute.
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_float32_t* buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', buffer=%p",
-		      (h5_file_p)f, name, buffer);
+                      "f=%p, attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (h5_read_step_attrib (
 			       f,
-			       name,
+			       attrib_name,
 			       H5_FLOAT32_T,
 			       (void*)buffer));
 }
 
-/**
-  Write an attribute \c name with int64 \c values to
-  the current time step.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5WriteStepAttribInt64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	const h5_int64_t *values,	///< [in]  values of attribute.
-	const h5_size_t nelems		///< [in]  number of values.
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', values=%p, nelems=%llu",
-		      (h5_file_p)f, name, values, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_step_attrib (
-			       f,
-			       name,
-			       H5T_NATIVE_INT64,
-			       values,
-			       nelems));
-}
-
-/**
-  Read int64 values into a \c buffer from an attribute \c name
-  in the current time step.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
 static inline h5_err_t
 H5ReadStepAttribInt64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	h5_int64_t *buffer		///< [out] values of attribute.
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_int64_t* buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', buffer=%p",
-		      (h5_file_p)f, name, buffer);
+                      "f=%p, attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, attrib_name, buffer);
 	h5_err_t h5err = h5_read_step_attrib (
 		f,
-		name,
+		attrib_name,
 		H5_INT64_T,
 		(void*)buffer);
 	H5_API_RETURN (h5err);
 }
 
-/**
-  Write an attribute \c name with int32 \c values to
-  the current time step.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5WriteStepAttribInt32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	const h5_int32_t *values,	///< [in]  values of attribute.
-	const h5_size_t nelems		///< [in]  number of values.
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', values=%p, nelems=%llu",
-		      (h5_file_p)f, name, values, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_step_attrib (
-			       f,
-			       name,
-			       H5T_NATIVE_INT32,
-			       values,
-			       nelems));
-}
-
-/**
-  Read int32 values into a \c buffer from an attribute \c name
-  in the current time step.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
 static inline h5_err_t
 H5ReadStepAttribInt32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	h5_int32_t *buffer		///< [out] values of attribute.
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_int32_t* buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', buffer=%p",
-		      (h5_file_p)f, name, buffer);
+                      "f=%p, attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (h5_read_step_attrib (
 			       f,
-			       name,
+			       attrib_name,
 			       H5_INT32_T,
 			       (void*)buffer));
 }
+///< @}
 
 #ifdef __cplusplus
 }
 #endif
 
-///< @}
 #endif

@@ -17,81 +17,27 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5_attribs.h"
 
-/**
-   \addtogroup h5_file_attribs
-   @{
-*/
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*
-   __ _ _              _   _        _ _           _            
-  / _(_) | ___    __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
- | |_| | |/ _ \  / _` | __| __| '__| | '_ \| | | | __/ _ \/ __|
- |  _| | |  __/ | (_| | |_| |_| |  | | |_) | |_| | ||  __/\__ \
- |_| |_|_|\___|  \__,_|\__|\__|_|  |_|_.__/ \__,_|\__\___||___/
- 
-   __ _ _   _  ___ _ __ _   _ 
-  / _` | | | |/ _ \ '__| | | |
- | (_| | |_| |  __/ |  | |_| |
-  \__, |\__,_|\___|_|   \__, |
-     |_|                |___/
+   !   _                   _          
+   !  (_)_ __   __ _ _   _(_)_ __ ___ 
+   !  | | '_ \ / _` | | | | | '__/ _ \
+   !  | | | | | (_| | |_| | | | |  __/
+   !  |_|_| |_|\__, |\__,_|_|_|  \___|
+   !              |_|
+   !
 */
 
 /**
-   Determines whether a file attribute with a given name exists.
-
-   \return      true (value \c >0) if atrribute exists
-   \return      false (\c 0) if attribute does not exist
-   \return      \c H5_FAILURE on error
- */
-static inline h5_err_t
-H5HasFileAttrib (
-	const h5_file_t f,	    ///< [in]  file handle
-	const char* const name	    ///< [in]  name of attribute to query
-	) {
-	H5_API_ENTER (h5_err_t,
-		      "f=%p, "
-		      "name=%p",
-		      (h5_file_p)f,
-		      name);
-	H5_API_RETURN (
-		h5_has_file_attrib (
-			f,
-			name));
-}
-
-/**
-  Get the type and number of elements of the file attribute
-  given by its name.
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
+   \addtogroup h5_file_attribs
+   @{
 */
-static inline h5_err_t
-H5GetFileAttribInfoByName (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* const name,     	///< [in]  name of attribute.
-	h5_int64_t* type,               ///< [out] type of value..
-	h5_size_t* nelems               ///< [out] number of elements.
-	) {
-	H5_API_ENTER (h5_err_t,
-		      "f=%p, "
-		      "name=%s, "
-		      "type=%p, nelems=%p",
-                      (h5_file_p)f,
-                      name,
-                      type, nelems);
-	H5_API_RETURN (h5_get_file_attrib_info_by_name (
-			       f,
-			       name,
-			       type, nelems));
-}
 
 /**
-  Gets the number of attributes in the file's root ("/").
+  Query the number of attributes attached to the file's root ("/").
 
   \return   Number of attributes
   \return   \c H5_FAILURE on error
@@ -100,7 +46,7 @@ H5GetFileAttribInfoByName (
 */
 static inline h5_int64_t
 H5GetNumFileAttribs (
-	const h5_file_t f              ///< [in]  file handle.
+	const h5_file_t f              ///< [in]  file handle
 	) {
 	H5_API_ENTER (h5_int64_t,
                       "f=%p",
@@ -113,297 +59,388 @@ H5GetNumFileAttribs (
   given by its index.
 
   This function can be used to retrieve all attributes bound to the
-  file \c f by looping from \c 0 to the number of attribute minus
-  one.  The number of attributes bound to file \c f can be queried
-  by calling \ref H5GetNumFileAttribs.
+  file \c f by looping from \c 0 to the number of attribute minus one.
+  The number of attributes attached to the file \c f can be queried by
+  calling \ref H5GetNumFileAttribs().
 
   \return   \c H5_SUCCESS on success
   \return   \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5GetFileAttribInfo (
-	const h5_file_t f,		///< [in]  file handle.
+	const h5_file_t f,		///< [in]  file handle
 	const h5_size_t idx,    	///< [in]  index of attribute to query
-	char* name,     		///< [out] name of attribute.
-	const h5_size_t len_name,       ///< [in]  length of buffer \c name.
-	h5_int64_t* type,               ///< [out] type of value..
-	h5_size_t* nelems               ///< [out] number of elements.
+	char* attrib_name,     		///< [out] name of attribute
+	const h5_size_t len_attrib_name,///< [in]  size of buffer \c attrib_name
+	h5_int64_t* attrib_type,        ///< [out] type of value
+	h5_size_t* nelems               ///< [out] number of elements
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, "
-		      "idx=%llu, name=%p, len_name=%llu, "
-		      "type=%p, nelems=%p",
+		      "idx=%llu, attrib_name=%p, len_attrib_name=%llu, "
+		      "attrib_type=%p, nelems=%p",
                       (h5_file_p)f,
                       (long long unsigned)idx,
-                      name,
-                      (long long unsigned)len_name,
-                      type,
+                      attrib_name,
+                      (long long unsigned)len_attrib_name,
+                      attrib_type,
                       nelems);
 	H5_API_RETURN (h5_get_file_attrib_info_by_idx (
 			       f,
 			       idx,
-			       name, len_name,
-			       type,
+			       attrib_name, len_attrib_name,
+			       attrib_type,
+			       nelems));
+}
+
+/**
+   Determines whether a file attribute with a given name exists.
+
+   \return      true (value \c >0) if atrribute exists
+   \return      false (\c 0) if attribute does not exist
+   \return      \c H5_FAILURE on error
+ */
+static inline h5_err_t
+H5HasFileAttrib (
+	const h5_file_t f,		///< [in]  file handle
+	const char* const attrib_name	///< [in]  name of attribute to query
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "attrib_name=%p",
+		      (h5_file_p)f,
+		      attrib_name);
+	H5_API_RETURN (
+		h5_has_file_attrib (
+			f,
+			attrib_name));
+}
+
+/**
+  Get the type and number of elements of the file attribute
+  given by its name.
+
+  \return   \c H5_SUCCESS on success
+  \return   \c H5_FAILURE on error
+*/
+static inline h5_err_t
+H5GetFileAttribInfoByName (
+	const h5_file_t f,		///< [in]  file handle.
+	const char* const attrib_name,  ///< [in]  name of attribute.
+	h5_int64_t* attrib_type,        ///< [out] type of value..
+	h5_size_t* nelems               ///< [out] number of elements.
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "attrib_name=%s, "
+		      "attrib_type=%p, nelems=%p",
+                      (h5_file_p)f,
+                      attrib_name,
+                      attrib_type, nelems);
+	H5_API_RETURN (h5_get_file_attrib_info_by_name (
+			       f,
+			       attrib_name,
+			       attrib_type, nelems));
+}
+
+/*
+  !                 _ _       
+  !  __      ___ __(_) |_ ___ 
+  !  \ \ /\ / / '__| | __/ _ \
+  !   \ V  V /| |  | | ||  __/
+  !    \_/\_/ |_|  |_|\__\___|
+*/
+
+/**
+   \fn h5_err_t H5WriteFileAttribString (
+	const h5_file_t f,
+	const char* attrib_name,
+	const char* buffer
+	)
+
+   \fn  h5_err_t H5WriteFileAttribFloat64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_float64_t* buffer,
+	const h5_size_t nelems
+	)
+
+   \fn h5_err_t H5WriteFileAttribFloat32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_float32_t* buffer,
+	const h5_size_t nelems
+	)
+
+   \fn h5_err_t H5WriteFileAttribInt64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_int64_t* buffer,
+	const h5_size_t nelems
+	)
+
+   \fn h5_err_t H5WriteFileAttribInt32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_int32_t* buffer,
+	const h5_size_t nelems
+	)
+
+  Attach an attribute to a file given by a handle.
+
+  The type of the attribute can be
+
+  - a C string (\c char*)
+  - an array of 64bit floating point numbers (\c h5_float64_t)
+  - an array of 32bit floating point numbers (\c h5_float32_t)
+  - an array of 64bit integers (\c h5_int64_t)
+  - an array of 32bit integers (\c h5_int32_t)
+
+  \param f		[in]  file handle
+  \param attrib_name	[in]  the attribute name
+  \param buffer		[in]  data to be written
+  \param nelems		[in]  number of elements to be written
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \see H5ReadFileAttribString()
+  \see H5ReadFileAttribFloat64()
+  \see H5ReadFileAttribFloat32()
+  \see H5ReadFileAttribInt64()
+  \see H5ReadFileAttribInt32()
+*/
+static inline h5_err_t
+H5WriteFileAttribString (
+	const h5_file_t f,
+	const char* attrib_name,
+	const char* buffer
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, attrib_name='%s', buffer='%s'",
+                      (h5_file_p)f, attrib_name, buffer);
+	H5_API_RETURN (h5_write_file_attrib (
+			       f,
+			       attrib_name,
+			       H5T_NATIVE_CHAR,
+			       buffer,
+			       strlen(buffer) + 1 ));
+}
+
+static inline h5_err_t
+H5WriteFileAttribFloat64 (
+	const h5_file_t f,		///< [in]  file handle.
+	const char *attrib_name,		///< [in]  name of attribute to create.
+	const h5_float64_t *buffers,	///< [in]  buffers of attribute.
+	const h5_size_t nelems		///< [in]  number of buffers.
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, attrib_name='%s', buffers=%p, nelems=%llu",
+		      (h5_file_p)f, attrib_name, buffers, (long long unsigned)nelems);
+	H5_API_RETURN (h5_write_file_attrib (
+			       f,
+			       attrib_name,
+			       H5T_NATIVE_DOUBLE,
+			       buffers,
+			       nelems));
+}
+
+static inline h5_err_t
+H5WriteFileAttribFloat32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_float32_t* buffers,
+	const h5_size_t nelems
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, attrib_name='%s', buffers=%p, nelems=%llu",
+		      (h5_file_p)f, attrib_name, buffers, (long long unsigned)nelems);
+	H5_API_RETURN (h5_write_file_attrib (
+			       f,
+			       attrib_name,
+			       H5T_NATIVE_FLOAT,
+			       buffers,
+			       nelems ));
+}
+
+static inline h5_err_t
+H5WriteFileAttribInt64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_int64_t* buffers,
+	const h5_size_t nelems	
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, attrib_name='%s', buffers=%p, nelems=%llu",
+		      (h5_file_p)f, attrib_name, buffers, (long long unsigned)nelems);
+	H5_API_RETURN (h5_write_file_attrib (
+			       f,
+			       attrib_name,
+			       H5T_NATIVE_INT64,
+			       buffers,
+			       nelems));
+}
+
+static inline h5_err_t
+H5WriteFileAttribInt32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	const h5_int32_t* buffers,
+	const h5_size_t nelems
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, attrib_name='%s', buffers=%p, nelems=%llu",
+		      (h5_file_p)f, attrib_name, buffers, (long long unsigned)nelems);
+	H5_API_RETURN (h5_write_file_attrib (
+			       f,
+			       attrib_name,
+			       H5T_NATIVE_INT32,
+			       buffers,
 			       nelems));
 }
 
 /*
-   __ _ _              _   _        _ _           _            
-  / _(_) | ___    __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
- | |_| | |/ _ \  / _` | __| __| '__| | '_ \| | | | __/ _ \/ __|
- |  _| | |  __/ | (_| | |_| |_| |  | | |_) | |_| | ||  __/\__ \
- |_| |_|_|\___|  \__,_|\__|\__|_|  |_|_.__/ \__,_|\__\___||___/
-
-  _    __    
- (_)  / /__  
- | | / / _ \ 
- | |/ / (_) |
- |_/_/ \___/ 
-*/
+  !                      _ 
+  !   _ __ ___  __ _  __| |
+  !  | '__/ _ \/ _` |/ _` |
+  !  | | |  __/ (_| | (_| |
+  !  |_|  \___|\__,_|\__,_|
+ */
 
 /**
-  Write an attribute \c name with the string \c value to
-  the file root ("/").
+   \fn h5_err_t H5ReadFileAttribString (
+	const h5_file_t f,
+	const char* attrib_name,
+	char* buffer
+	)
 
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5WriteFileAttribString (
-	const h5_file_t f,             ///< [in]  file handle.
-	const char *name,               ///< [in]  name of attribute to create.
-	const char *value               ///< [in]  value of attribute. 
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', value='%s'",
-                      (h5_file_p)f, name, value);
-	H5_API_RETURN (h5_write_file_attrib (
-			       f,
-			       name,
-			       H5T_NATIVE_CHAR,
-			       value,
-			       strlen(value) + 1 ));
-}
+   \fn h5_err_t H5ReadFileAttribFloat64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_float64_t* buffer
+	)
 
-/**
-  Read a string into a \c buffer from an attribute \c name
-  in the file root ("/").
+   \fn h5_err_t H5ReadFileAttribFloat32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_float32_t* buffer
+	)
 
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
+   \fn h5_err_t H5ReadFileAttribInt64 (
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_int64_t* buffer
+	)
+
+   \fn h5_err_t H5ReadFileAttribInt32 (
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_int32_t* buffer
+	)
+
+  Read attribute attached to a file given by a handle.
+
+  \note Make sure that the size of the buffer is large enough!
+
+  \param f		[in]  file handle
+  \param attrib_name	[in]  attribute name
+  \param buffer		[out] buffer for data to be read
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \see H5GetFileAttribInfo()
+  \see H5GetFileAttribInfoByName()
+  \see H5WriteFileAttribString()
+  \see H5WriteFileAttribFloat64()
+  \see H5WriteFileAttribFloat32()
+  \see H5WriteFileAttribInt64()
+  \see H5WriteFileAttribInt32()
+
+ */
 static inline h5_err_t
 H5ReadFileAttribString (
-	const h5_file_t f,     	///< [in]  file handle.
-	const char *name,       	///< [in]  name of attribute to create.
-	char *buffer            	///< [out] value of attribute. 
+	const h5_file_t f,
+	const char* attrib_name,
+	char* buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', value='%s'",
-                      (h5_file_p)f, name, buffer);
+                      "f=%p, attrib_name='%s', buffer='%s'",
+                      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (h5_read_file_attrib (
 			       f,
-			       name,
+			       attrib_name,
 			       H5_STRING_T,
 			       (void*)buffer));
 }
 
-/**
-  Write an attribute \c name with float64 \c values to
-  the file root ("/").
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5WriteFileAttribFloat64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	const h5_float64_t *values,	///< [in]  values of attribute.
-	const h5_size_t nelems		///< [in]  number of values.
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', values=%p, nelems=%llu",
-		      (h5_file_p)f, name, values, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_file_attrib (
-			       f,
-			       name,
-			       H5T_NATIVE_DOUBLE,
-			       values,
-			       nelems));
-}
-
-/**
-  Read float64 values into a \c buffer from an attribute \c name
-  in the file root ("/").
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
 static inline h5_err_t
 H5ReadFileAttribFloat64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	h5_float64_t *buffer		///< [out] values of attribute.
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_float64_t* buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-		      "f=%p, name='%s', buffer=%p",
-		      (h5_file_p)f, name, buffer);
+		      "f=%p, attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (h5_read_file_attrib (
 			       f,
-			       name,
+			       attrib_name,
 			       H5_FLOAT64_T,
 			       (void*)buffer));
 }
 
-
-/**
-  Write an attribute \c name with float32 \c values to
-  the file root ("/").
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5WriteFileAttribFloat32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	const h5_float32_t *values,	///< [in]  values of attribute.
-	const h5_size_t nelems		///< [in]  number of values.
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', values=%p, nelems=%llu",
-		      (h5_file_p)f, name, values, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_file_attrib (
-			       f,
-			       name,
-			       H5T_NATIVE_FLOAT,
-			       values,
-			       nelems ));
-}
-
-/**
-  Read float32 values into a \c buffer from an attribute \c name
-  in the file root ("/").
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
 static inline h5_err_t
 H5ReadFileAttribFloat32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	h5_float32_t *buffer		///< [out] values of attribute.
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_float32_t* buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', buffer=%p",
-		      (h5_file_p)f, name, buffer);
+                      "f=%p, attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (h5_read_file_attrib (
 			       f,
-			       name,
+			       attrib_name,
 			       H5_FLOAT32_T,
 			       (void*)buffer));
 }
 
-/**
-  Write an attribute \c name with int64 \c values to
-  the file root ("/").
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5WriteFileAttribInt64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	const h5_int64_t *values,	///< [in]  values of attribute.
-	const h5_size_t nelems		///< [in]  number of values.
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', values=%p, nelems=%llu",
-		      (h5_file_p)f, name, values, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_file_attrib (
-			       f,
-			       name,
-			       H5T_NATIVE_INT64,
-			       values,
-			       nelems));
-}
-
-/**
-  Read int64 values into a \c buffer from an attribute \c name
-  in the file root ("/").
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
 static inline h5_err_t
 H5ReadFileAttribInt64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	h5_int64_t *buffer		///< [out] values of attribute.
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_int64_t* buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', buffer=%p",
-		      (h5_file_p)f, name, buffer);
+                      "f=%p, attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (h5_read_file_attrib (
 			       f,
-			       name,
+			       attrib_name,
 			       H5_INT64_T,
 			       (void*)buffer));
 }
 
-/**
-  Write an attribute \c name with int32 \c values to
-  the file root ("/").
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5WriteFileAttribInt32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	const h5_int32_t *values,	///< [in]  values of attribute.
-	const h5_size_t nelems		///< [in]  number of values.
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', values=%p, nelems=%llu",
-		      (h5_file_p)f, name, values, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_file_attrib (
-			       f,
-			       name,
-			       H5T_NATIVE_INT32,
-			       values,
-			       nelems));
-}
-
-/**
-  Read int32 values into a \c buffer from an attribute \c name
-  in the file root ("/").
-
-  \return   \c H5_SUCCESS on success
-  \return   \c H5_FAILURE on error
-*/
 static inline h5_err_t
 H5ReadFileAttribInt32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *name,		///< [in]  name of attribute to create.
-	h5_int32_t *buffer		///< [out] values of attribute.
+	const h5_file_t f,
+	const char* attrib_name,
+	h5_int32_t* buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, name='%s', buffer=%p",
-                      (h5_file_p)f, name, buffer);
+                      "f=%p, attrib_name='%s', buffer=%p",
+                      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (h5_read_file_attrib (
 			       f,
-			       name,
+			       attrib_name,
 			       H5_INT32_T,
 			       (void*)buffer));
 }
+///< @}
 
 #ifdef __cplusplus
 }
 #endif
 
-///< @}
 #endif

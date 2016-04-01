@@ -186,6 +186,14 @@ H5TraverseSteps (
                       (h5_file_p)f);
 	H5_API_RETURN (h5_traverse_steps (f));
 }
+/**
+   @}
+*/
+
+/**
+   \addtogroup h5_attach
+   @{
+*/
 
 /**
   Return number of attached files.

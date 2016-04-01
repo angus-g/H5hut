@@ -17,29 +17,24 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_attribs.h"
 
-/**
-   \addtogroup h5block_attrib
-   @{
-*/
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*
-  !   __ _      _     _         _   _        _ _           _            
-  !  / _(_) ___| | __| |   __ _| |_| |_ _ __(_) |__  _   _| |_ ___  ___ 
-  ! | |_| |/ _ \ |/ _` |  / _` | __| __| '__| | '_ \| | | | __/ _ \/ __|
-  ! |  _| |  __/ | (_| | | (_| | |_| |_| |  | | |_) | |_| | ||  __/\__ \
-  ! |_| |_|\___|_|\__,_|  \__,_|\__|\__|_|  |_|_.__/ \__,_|\__\___||___/
-  !
-  !
-  !   __ _ _   _  ___ _ __ _   _ 
-  !  / _` | | | |/ _ \ '__| | | |
-  ! | (_| | |_| |  __/ |  | |_| |
-  !  \__, |\__,_|\___|_|   \__, |
-  !     |_|                |___/ 
- */
+   !   _                   _          
+   !  (_)_ __   __ _ _   _(_)_ __ ___ 
+   !  | | '_ \ / _` | | | | | '__/ _ \
+   !  | | | | | (_| | |_| | | | |  __/
+   !  |_|_| |_|\__, |\__,_|_|_|  \___|
+   !              |_|
+   !
+*/
+/**
+   \addtogroup h5block_attrib
+    @{
+*/
+
 /**
   Query the number of attributes attached to a given field.
 
@@ -79,7 +74,7 @@ H5BlockGetFieldAttribInfo (
 	const char* field_name,		///< [in]  field name.
 	const h5_size_t attrib_idx,	///< [in]  index of attribute to query
 	char* attrib_name,		///< [out] name of attribute.
-	const h5_size_t len_attrib_name,///< [in]  length of buffer \c name.
+	const h5_size_t len_attrib_name,///< [in]  size of buffer \c attrib_name.
 	h5_int64_t* attrib_type,	///< [out] type of value.
 	h5_size_t* attrib_nelem         ///< [out] number of elements.
 	) {
@@ -133,8 +128,7 @@ H5BlockHasFieldAttrib (
 }
 
 /**
-  Get the type and number of elements of a field attribute
-  given by its name.
+  Get the type and number of elements of a given field attribute.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -167,323 +161,43 @@ H5BlockGetFieldAttribInfoByName (
 }
 
 /*
-  !  _    __          _        _             
-  ! (_)  / /__    ___| |_ _ __(_)_ __   __ _ 
-  ! | | / / _ \  / __| __| '__| | '_ \ / _` |
-  ! | |/ / (_) | \__ \ |_| |  | | | | | (_| |
-  ! |_/_/ \___/  |___/\__|_|  |_|_| |_|\__, |
-  !                                    |___/
-*/
-
-/**
-  Write the string in \c buffer as attribute \c attrib_name of field
-  \c field_name.
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5BlockWriteFieldAttribString (
-	const h5_file_t f,		///< [in]  file handle
-	const char* field_name,		///< [in]  field name
-	const char* attrib_name,	///< [in]  attribute name
-	const char* buffer		///< [in]  attribute value
-	) {
-	H5_API_ENTER (h5_err_t,
-		      "f=%p, "
-		      "field_name='%s', "
-		      "attrib_name='%s', "
-		      "buffer='%s'",
-		      (h5_file_p)f,
-		      field_name,
-		      attrib_name,
-		      buffer);
-	H5_API_RETURN (
-		h5b_write_field_attrib (
-			f,
-			field_name,
-			attrib_name,
-			H5T_NATIVE_CHAR,
-			buffer,
-			strlen(buffer) + 1));
-}
-
-/**
-  Read the string value from attribute \c attrib_name of field
-  \c field_name into \c buffer.
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5BlockReadFieldAttribString (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const char* attrib_name,	///< [in]  attribute name.
-	char* buffer			///< [out] attribute value.
-	) {
-	H5_API_ENTER (h5_err_t,
-		      "f=%p, "
-		      "field_name='%s', "
-		      "attrib_name='%s', "
-		      "buffer=%p",
-		      (h5_file_p)f,
-		      field_name,
-		      attrib_name,
-		      buffer);
-	H5_API_RETURN (
-		h5b_read_field_attrib (
-			f,
-			field_name,
-			attrib_name,
-			H5_STRING_T,
-			(void*)buffer));
-}
-
-/*
-  !  _    __                     _ 
-  ! (_)  / /__    _ __ ___  __ _| |
-  ! | | / / _ \  | '__/ _ \/ _` | |
-  ! | |/ / (_) | | | |  __/ (_| | |
-  ! |_/_/ \___/  |_|  \___|\__,_|_|
+  !                       _       _         _   _        
+  !   ___ _ __   ___  ___(_) __ _| |   __ _| |_| |_ _ __ 
+  !  / __| '_ \ / _ \/ __| |/ _` | |  / _` | __| __| '__|
+  !  \__ \ |_) |  __/ (__| | (_| | | | (_| | |_| |_| |   
+  !  |___/ .__/ \___|\___|_|\__,_|_|  \__,_|\__|\__|_|   
+  !      |_|                                          
  */
 
 /**
-  Attach an array of 64 bit floating point data as attribute to given field.
+  Set field origin.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
 */
 static inline h5_err_t
-H5BlockWriteFieldAttribFloat64 (
-	const h5_file_t f,		///< [in]  file handle
-	const char* field_name,		///< [in]  attach attribute to field with this name
-	const char* attrib_name,	///< [in]  attribute name
-	const h5_float64_t* buffer,	///< [in]  pointer to attribute data
-	const h5_size_t nelems		///< [in]  number of elements to write
+H5Block3dSetFieldOrigin (
+	const h5_file_t f,		///< [in]  file handle.
+	const char* field_name,		///< [in]  field name.
+	const h5_float64_t x_origin,	///< [in]  X origin.
+	const h5_float64_t y_origin,	///< [in]  Y origin.
+	const h5_float64_t z_origin	///< [in]  Z origin.
 	) {
-
 	H5_API_ENTER (h5_err_t,
-		      "f=%p, field_name='%s', attrib_name='%s', "
-		      "buffer=%p, nelems=%lld",
-		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
+		      "f=%p, field_name='%s', "
+		      "x_origin=%g, y_origin=%g, z_origin=%g",
+		      (h5_file_p)f, field_name,
+		      x_origin, y_origin, z_origin);
+	h5_float64_t origin[3] = { x_origin, y_origin, z_origin };
 	H5_API_RETURN (h5b_write_field_attrib (
 			       f,
 			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_DOUBLE,
-			       buffer,
-			       nelems ));
+			       H5BLOCK_FIELD_ORIGIN_NAME,
+			       (hid_t)H5_FLOAT64_T, 
+			       origin,
+			       3));
 }
 
-/**
-  Read float64 values from attribute \c attrib_name of field
-  \c field_name into a \c buffer.
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5BlockReadFieldAttribFloat64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const char* attrib_name,	///< [in]  attribute name.
-	h5_float64_t* buffer		///< [out] attribute values.
-	) {
-
-        H5_API_ENTER (h5_err_t,
-                      "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
-		      (h5_file_p)f, field_name, attrib_name, buffer);
-	H5_API_RETURN (h5b_read_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_DOUBLE,
-			       (void*)buffer ));
-}
-
-
-/**
-  Write float32 \c values as attribute \c attrib_name of field
-  \c field_name.
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5BlockWriteFieldAttribFloat32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const char* attrib_name,	///< [in]  attribute name.
-	const h5_float32_t* buffer,	///< [in]  attribute values.
-	const h5_size_t nelems		///< [in]  number of elements.
-	) {
-
-	H5_API_ENTER (h5_err_t,
-		      "f=%p, field_name='%s', attrib_name='%s', "
-		      "buffer=%p, nelems=%lld",
-		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
-	H5_API_RETURN (h5b_write_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_FLOAT,
-			       buffer,
-			       nelems ));
-}
-
-/**
-  Read float32 values from attribute \c attrib_name of field
-  \c field_name into a \c buffer.
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5BlockReadFieldAttribFloat32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const char* attrib_name,	///< [in]  attribute name.
-	h5_float32_t* const buffer	///< [out] attribute values.
-	) {
-
-        H5_API_ENTER (h5_err_t,
-                      "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
-		      (h5_file_p)f, field_name, attrib_name, buffer);
-	H5_API_RETURN (h5b_read_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_FLOAT,
-			       buffer ));
-}
-
-/*
-  !  _    __      _       _                       
-  ! (_)  / /__   (_)_ __ | |_ ___  __ _  ___ _ __ 
-  ! | | / / _ \  | | '_ \| __/ _ \/ _` |/ _ \ '__|
-  ! | |/ / (_) | | | | | | ||  __/ (_| |  __/ |   
-  ! |_/_/ \___/  |_|_| |_|\__\___|\__, |\___|_|   
-  !                               |___/
-*/
-
-/**
-  Write int64 \c values as attribute \c attrib_name of field
-  \c field_name.
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5BlockWriteFieldAttribInt64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const char* attrib_name,	///< [in]  attribute name.
-	const h5_int64_t* buffer,	///< [in]  attribute values.
-	const h5_size_t nelems		///< [in]  number of elements.
-	) {
-
-	H5_API_ENTER (h5_err_t,
-		      "f=%p, field_name='%s', attrib_name='%s', buffer=%p, nelems=%lld",
-		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
-	H5_API_RETURN (h5b_write_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_INT64,
-			       buffer,
-			       nelems ));
-}
-
-/**
-  Read int64 values from attribute \c attrib_name of field
-  \c field_name into a \c buffer.
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5BlockReadFieldAttribInt64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const char* attrib_name,	///< [in]  attribute name.
-	h5_int64_t* const buffer	///< [out] attribute values.
-	) {
-
-        H5_API_ENTER (h5_err_t,
-                      "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
-		      (h5_file_p)f, field_name, attrib_name, buffer);
-	H5_API_RETURN (h5b_read_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_INT64,
-			       buffer ));
-}
-
-
-/**
-  Write int32 \c values as attribute \c attrib_name of field
-  \c field_name.
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5BlockWriteFieldAttribInt32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const char* attrib_name,	///< [in]  attribute name.
-	const h5_int32_t* buffer,	///< [in]  attribute values.
-	const h5_size_t nelems		///< [in]  number of elements.
-	) {
-
-	H5_API_ENTER (h5_err_t,
-		      "f=%p, field_name='%s', attrib_name='%s', "
-		      "buffer=%p, nelems=%lld",
-		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
-	H5_API_RETURN (h5b_write_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_INT32,
-			       buffer,
-			       nelems ));
-}
-
-/**
-  Read int32 values from attribute \c attrib_name of field
-  \c field_name into a \c buffer.
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5BlockReadFieldAttribInt32 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const char* attrib_name,	///< [in]  attribute name.
-	h5_int32_t* buffer		///< [out] attribute values.
-	) {
-        H5_API_ENTER (h5_err_t,
-                      "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
-		      (h5_file_p)f, field_name, attrib_name, buffer);
-	H5_API_RETURN (h5b_read_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_INT32,
-			       (void*)buffer ));
-}
-
-/*
-  !   __ _      _     _              _       _       
-  !  / _(_) ___| | __| |   ___  _ __(_) __ _(_)_ __  
-  ! | |_| |/ _ \ |/ _` |  / _ \| '__| |/ _` | | '_ \ 
-  ! |  _| |  __/ | (_| | | (_) | |  | | (_| | | | | |
-  ! |_| |_|\___|_|\__,_|  \___/|_|  |_|\__, |_|_| |_|
-  !                                    |___/
-*/
 /**
   Get field origin.
 
@@ -518,40 +232,33 @@ H5Block3dGetFieldOrigin (
 }
 
 /**
-  Set field origin.
+  Set field spacing for field \c field_name in the current step.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
 */
 static inline h5_err_t
-H5Block3dSetFieldOrigin (
-	const h5_file_t f,			///< [in]  file handle.
+H5Block3dSetFieldSpacing (
+	const h5_file_t f,		///< [in]  file handle.
 	const char* field_name,		///< [in]  field name.
-	const h5_float64_t x_origin,	///< [in]  X origin.
-	const h5_float64_t y_origin,	///< [in]  Y origin.
-	const h5_float64_t z_origin	///< [in]  Z origin.
+	const h5_float64_t x_spacing,	///< [in]  X spacing.
+	const h5_float64_t y_spacing,	///< [in]  Y spacing.
+	const h5_float64_t z_spacing	///< [in]  Z spacing.
 	) {
 	H5_API_ENTER (h5_err_t,
-		      "f=%p, field_name='%s', x_origin=%g, y_origin=%g, z_origin=%g",
-		      (h5_file_p)f, field_name, x_origin, y_origin, z_origin);
-	h5_float64_t origin[3] = { x_origin, y_origin, z_origin };
+		      "f=%p, field_name='%s', "
+		      "x_spacing=%g, y_spacing=%g, z_spacing=%g",
+		      (h5_file_p)f, field_name,
+		      x_spacing, y_spacing, z_spacing);
+	h5_float64_t spacing[3] = { x_spacing, y_spacing, z_spacing };
 	H5_API_RETURN (h5b_write_field_attrib (
 			       f,
 			       field_name,
-			       H5BLOCK_FIELD_ORIGIN_NAME,
+			       H5BLOCK_FIELD_SPACING_NAME,
 			       (hid_t)H5_FLOAT64_T, 
-			       origin,
+			       spacing,
 			       3));
 }
-
-/*
-  !   __ _      _     _                        _             
-  !  / _(_) ___| | __| |  ___ _ __   __ _  ___(_)_ __   __ _ 
-  ! | |_| |/ _ \ |/ _` | / __| '_ \ / _` |/ __| | '_ \ / _` |
-  ! |  _| |  __/ | (_| | \__ \ |_) | (_| | (__| | | | | (_| |
-  ! |_| |_|\___|_|\__,_| |___/ .__/ \__,_|\___|_|_| |_|\__, |
-  !                          |_|                       |___/ 
-*/
 
 /**
   Get field spacing for field \c field_name in the current time step.
@@ -585,56 +292,49 @@ H5Block3dGetFieldSpacing (
 }
 
 /**
-  Set field spacing for field \c field_name in the current time step.
+   \fn h5_err_t H5Block3dSetFieldXCoords (
+	const h5_file_t f,
+	const char* field_name,
+	const h5_float64_t* const coords,
+	const h5_int64_t n_coords
+	)
 
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5Block3dSetFieldSpacing (
-	const h5_file_t f,		///< [in]  file handle.
-	const char* field_name,		///< [in]  field name.
-	const h5_float64_t x_spacing,	///< [in]  X spacing.
-	const h5_float64_t y_spacing,	///< [in]  Y spacing.
-	const h5_float64_t z_spacing	///< [in]  Z spacing.
-	) {
-	H5_API_ENTER (h5_err_t,
-		      "f=%p, field_name='%s', x_spacing=%g, y_spacing=%g, z_spacing=%g",
-		      (h5_file_p)f, field_name, x_spacing, y_spacing, z_spacing);
-	h5_float64_t spacing[3] = { x_spacing, y_spacing, z_spacing };
-	H5_API_RETURN (h5b_write_field_attrib (
-			       f,
-			       field_name,
-			       H5BLOCK_FIELD_SPACING_NAME,
-			       (hid_t)H5_FLOAT64_T, 
-			       spacing,
-			       3));
-}
+   \fn h5_err_t H5Block3dSetFieldYCoords (
+	const h5_file_t f,
+	const char* field_name,
+	const h5_float64_t* const coords,
+	const h5_int64_t n_coords
+	)
 
-/*
-  !   __ _      _     _                           _     
-  !  / _(_) ___| | __| |   ___ ___   ___  _ __ __| |___ 
-  ! | |_| |/ _ \ |/ _` |  / __/ _ \ / _ \| '__/ _` / __|
-  ! |  _| |  __/ | (_| | | (_| (_) | (_) | | | (_| \__ \
-  ! |_| |_|\___|_|\__,_|  \___\___/ \___/|_|  \__,_|___/
-*/
-/**
-  Set an explicit list of X coordinates for field \c field_name in the current
-  time step. The coordinates are a 1D array of floating point values with
-  dimension \c n_coords.
+   \fn h5_err_t H5Block3dSetFieldZCoords (
+	const h5_file_t f,
+	const char* field_name,
+	const h5_float64_t* const coords,
+	const h5_int64_t n_coords
+	)
 
-  By convention, the \c coords array should have the same length as the X
-  dimension of the field, and a warning will be printed if not.
+  Set an explicit list of X,Y respective Z coordinates for field \c
+  field_name in the current time step. The coordinates are a 1D array
+  of floating point values with dimension \c n_coords.
+
+  By convention, the \c coords array should have the same length as
+  the X, Y respective Z dimension of the field. A warning will be
+  printed if not.
+
+  \param f	    [in] file handle 
+  \param field_name [in] field name
+  \param coords	    [in] X, Y or Z coordinates
+  \param n_coords   [in] number of coordinates
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dSetFieldXCoords (
-	const h5_file_t f,			///< [in] file handle 
-	const char* field_name,		///< [in] field name
-	const h5_float64_t* const coords,///< [in] X coordinates
-	const h5_int64_t n_coords	///< [in] number of coordinates
+	const h5_file_t f,
+	const char* field_name,
+	const h5_float64_t* const coords,
+	const h5_int64_t n_coords
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, "
@@ -648,24 +348,88 @@ H5Block3dSetFieldXCoords (
                                coords, n_coords));
 }
 
+static inline h5_err_t
+H5Block3dSetFieldYCoords (
+	const h5_file_t f,
+	const char* field_name,
+	const h5_float64_t* const coords,
+	const h5_int64_t n_coords
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, "
+                      "field_name='%s', "
+                      "coords=%p, n_coords=%llu",
+                      (h5_file_p)f,
+                      field_name,
+                      coords, (long long unsigned)n_coords);
+        H5_API_RETURN (h5b_set_3d_field_coords (
+                               f, 1, field_name, H5BLOCK_FIELD_YCOORD_NAME,
+                               coords, n_coords));
+}
+
+static inline h5_err_t
+H5Block3dSetFieldZCoords (
+	const h5_file_t f,
+	const char* field_name,
+	const h5_float64_t* const coords,
+	const h5_int64_t n_coords
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, "
+                      "field_name='%s', "
+                      "coords=%p, n_coords=%llu",
+                      (h5_file_p)f,
+                      field_name,
+                      coords, (long long unsigned)n_coords);
+        H5_API_RETURN (h5b_set_3d_field_coords (
+                               f, 2, field_name, H5BLOCK_FIELD_ZCOORD_NAME,
+                               coords, n_coords));
+}
 
 /**
-  Get the explicit list of X coordinates for field \c field_name in the current
-  time step. The coordinates are read into the 1D array \c coords which has
-  length \c n_coords.
+   \fn h5_err_t H5Block3dGetFieldXCoords (
+	const h5_file_t f,
+	const char* field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t n_coords
+	)
 
-  By convention, the \c coords array should have the same length as the X
-  dimension of the field, and a warning will be printed if they differ.
+   \fn h5_err_t H5Block3dGetFieldYCoords (
+	const h5_file_t f,
+	const char* field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t n_coords
+	)
+
+   \fn h5_err_t H5Block3dGetFieldZCoords (
+	const h5_file_t f,
+	const char* field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t n_coords
+	)
+
+  Get the explicit list of X, Y respective Z coordinates for field \c
+  field_name in the current step. The coordinates are read into the 1D
+  array \c coords which has length \c n_coords.
+
+  By convention, the \c coords array should have the same length as
+  the X, Y respective Z dimension of the field. A warning will be
+  printed if they differ.
+
+  \param f	    [in] file handle 
+  \param field_name [in] field name
+  \param coords	    [in] X, Y or Z coordinates
+  \param n_coords   [in] number of coordinates
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
 */
 static inline h5_err_t
 H5Block3dGetFieldXCoords (
-	const h5_file_t f,			///< [in] file handle
-	const char* field_name,		///< [in] field name
-	h5_float64_t* const coords,	///< [in] X coordinates
-	const h5_int64_t n_coords	///< [in] number of coordinates
+	const h5_file_t f,
+	const char* field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t n_coords
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, "
@@ -679,50 +443,12 @@ H5Block3dGetFieldXCoords (
                                coords, n_coords));
 }
 
-/**
-  Set an explicit list of Y coordinates for field \c field_name in the current
-  time step.
-
-  \see H5Block3dSetFieldXCoords()
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5Block3dSetFieldYCoords (
-	const h5_file_t f,			///< [in] file handle 
-	const char* field_name,		///< [in] field name
-	const h5_float64_t* const coords,///< [in] X coordinates
-	const h5_int64_t n_coords	///< [in] number of coordinates
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, "
-                      "field_name='%s', "
-                      "coords=%p, n_coords=%llu",
-                      (h5_file_p)f,
-                      field_name,
-                      coords, (long long unsigned)n_coords);
-        H5_API_RETURN (h5b_set_3d_field_coords (
-                               f, 1, field_name, H5BLOCK_FIELD_YCOORD_NAME,
-                               coords, n_coords));
-}
-
-
-/**
-  Get the explicit list of Y coordinates for field \c field_name in the current
-  time step.
-
-  \see H5Block3dGetFieldXCoords()
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
 static inline h5_err_t
 H5Block3dGetFieldYCoords (
-	const h5_file_t f,			///< [in] file handle
-	const char* field_name,		///< [in] field name
-	h5_float64_t* const coords,	///< [in] Y coordinates
-	const h5_int64_t n_coords	///< [in] number of coordinates
+	const h5_file_t f,
+	const char* field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t n_coords
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, "
@@ -736,50 +462,12 @@ H5Block3dGetFieldYCoords (
                                coords, n_coords));
 }
 
-/**
-  Set an explicit list of Z coordinates for field \c field_name in the current
-  time step.
-
-  \see H5Block3dSetFieldXCoords()
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
-static inline h5_err_t
-H5Block3dSetFieldZCoords (
-	const h5_file_t f,			///< [in] file handle 
-	const char* field_name,		///< [in] field name
-	const h5_float64_t* const coords,///< [in] Z coordinates
-	const h5_int64_t n_coords	///< [in] number of coordinates
-	) {
-	H5_API_ENTER (h5_err_t,
-                      "f=%p, "
-                      "field_name='%s', "
-                      "coords=%p, n_coords=%llu",
-                      (h5_file_p)f,
-                      field_name,
-                      coords, (long long unsigned)n_coords);
-        H5_API_RETURN (h5b_set_3d_field_coords (
-                               f, 2, field_name, H5BLOCK_FIELD_ZCOORD_NAME,
-                               coords, n_coords));
-}
-
-
-/**
-  Get the explicit list of Y coordinates for field \c field_name in the current
-  time step.
-
-  \see H5Block3dGetFieldXCoords()
-
-  \return \c H5_SUCCESS on success
-  \return \c H5_FAILURE on error
-*/
 static inline h5_err_t
 H5Block3dGetFieldZCoords (
-	const h5_file_t f,			///< [in] file handle
-	const char* field_name,		///< [in] field name
-	h5_float64_t* const coords,	///< [in] Z coordinates
-	const h5_int64_t n_coords	///< [in] number of coordinates
+	const h5_file_t f,
+	const char* field_name,
+	h5_float64_t* const coords,
+	const h5_int64_t n_coords
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, "
@@ -792,10 +480,360 @@ H5Block3dGetFieldZCoords (
                                f, 2, field_name, H5BLOCK_FIELD_ZCOORD_NAME,
                                coords, n_coords));
 }
+
+/*
+  !                 _ _       
+  !  __      ___ __(_) |_ ___ 
+  !  \ \ /\ / / '__| | __/ _ \
+  !   \ V  V /| |  | | ||  __/
+  !    \_/\_/ |_|  |_|\__\___|
+*/
+
+/**
+   \fn h5_err_t H5BlockWriteFieldAttribString (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	const char* buffer
+	)
+
+   \fn  h5_err_t H5BlockWriteFieldAttribFloat64 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	const h5_float64_t* buffer,
+	const h5_size_t nelems
+	)
+
+   \fn h5_err_t H5BlockWriteFieldAttribFloat32 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	const h5_float32_t* buffer,
+	const h5_size_t nelems
+	)
+
+   \fn h5_err_t H5BlockWriteFieldAttribInt64 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	const h5_int64_t* buffer,
+	const h5_size_t nelems
+	)
+
+   \fn h5_err_t H5BlockWriteFieldAttribInt32 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	const h5_int32_t* buffer,
+	const h5_size_t nelems
+	)
+
+  Attach an attribute to a given field.
+
+  The type of the attribute can be
+  - a C string (\c char*)
+  - an array of 64bit floating point numbers (\c h5_float64_t)
+  - an array of 32bit floating point numbers (\c h5_float32_t)
+  - an array of 64bit integers (\c h5_int64_t)
+  - an array of 32bit integers (\c h5_int32_t)
+
+  \param f		file handle
+  \param field_name	name of field the attribute is attached to
+  \param attrib_name	the attribute name
+  \param buffer		data to be written
+  \param nelems		number of elements to be written
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \see H5BlockReadFieldAttribString()
+  \see H5BlockReadFieldAttribFloat64()
+  \see H5BlockReadFieldAttribFloat32()
+  \see H5BlockReadFieldAttribInt64()
+  \see H5BlockReadFieldAttribInt32()
+*/
+static inline h5_err_t
+H5BlockWriteFieldAttribString (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	const char* buffer
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "field_name='%s', "
+		      "attrib_name='%s', "
+		      "buffer='%s'",
+		      (h5_file_p)f,
+		      field_name,
+		      attrib_name,
+		      buffer);
+	H5_API_RETURN (
+		h5b_write_field_attrib (
+			f,
+			field_name,
+			attrib_name,
+			H5T_NATIVE_CHAR,
+			buffer,
+			strlen(buffer) + 1));
+}
+
+static inline h5_err_t
+H5BlockWriteFieldAttribFloat64 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	const h5_float64_t* buffer,
+	const h5_size_t nelems
+	) {
+
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "buffer=%p, nelems=%lld",
+		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
+	H5_API_RETURN (h5b_write_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_DOUBLE,
+			       buffer,
+			       nelems ));
+}
+
+static inline h5_err_t
+H5BlockWriteFieldAttribFloat32 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	const h5_float32_t* buffer,
+	const h5_size_t nelems
+	) {
+
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "buffer=%p, nelems=%lld",
+		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
+	H5_API_RETURN (h5b_write_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_FLOAT,
+			       buffer,
+			       nelems ));
+}
+
+static inline h5_err_t
+H5BlockWriteFieldAttribInt64 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	const h5_int64_t* buffer,
+	const h5_size_t nelems
+	) {
+
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', buffer=%p, nelems=%lld",
+		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
+	H5_API_RETURN (h5b_write_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_INT64,
+			       buffer,
+			       nelems ));
+}
+
+static inline h5_err_t
+H5BlockWriteFieldAttribInt32 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	const h5_int32_t* buffer,
+	const h5_size_t nelems
+	) {
+
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, field_name='%s', attrib_name='%s', "
+		      "buffer=%p, nelems=%lld",
+		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
+	H5_API_RETURN (h5b_write_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_INT32,
+			       buffer,
+			       nelems ));
+}
+
+/*
+  !                      _ 
+  !   _ __ ___  __ _  __| |
+  !  | '__/ _ \/ _` |/ _` |
+  !  | | |  __/ (_| | (_| |
+  !  |_|  \___|\__,_|\__,_|
+ */
+	
+
+/**
+   \fn h5_err_t H5BlockReadFieldAttribString (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	char* buffer
+	)
+
+   \fn h5_err_t H5BlockReadFieldAttribFloat64 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	h5_float64_t* buffer
+	)
+
+   \fn h5_err_t H5BlockReadFieldAttribFloat32 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	h5_float32_t* buffer
+	)
+
+   \fn h5_err_t H5BlockReadFieldAttribInt64 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	h5_int64_t* buffer
+	)
+
+   \fn h5_err_t H5BlockReadFieldAttribInt32 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	h5_int32_t* buffer
+	)
+
+  Read attribute attached to a given field.
+
+  \note Make sure that the size of the buffer is large enough!
+
+  \param f		[in]  file handle
+  \param field_name	[in]  name of field the attribute is attached to
+  \param attrib_name	[in]  attribute name
+  \param buffer		[out] buffer for data to be read
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \see H5BlockGetFieldAttribInfo()
+  \see H5BlockGetFieldAttribInfoByName()
+  \see H5BlockWriteFieldAttribString()
+  \see H5BlockReadFieldAttribFloat64()
+  \see H5BlockReadFieldAttribFloat32()
+  \see H5BlockReadFieldAttribInt64()
+  \see H5BlockReadFieldAttribInt32()
+ */
+static inline h5_err_t
+H5BlockReadFieldAttribString (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	char* buffer
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "field_name='%s', "
+		      "attrib_name='%s', "
+		      "buffer=%p",
+		      (h5_file_p)f,
+		      field_name,
+		      attrib_name,
+		      buffer);
+	H5_API_RETURN (
+		h5b_read_field_attrib (
+			f,
+			field_name,
+			attrib_name,
+			H5_STRING_T,
+			(void*)buffer));
+}
+
+static inline h5_err_t
+H5BlockReadFieldAttribFloat64 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	h5_float64_t* buffer
+	) {
+
+        H5_API_ENTER (h5_err_t,
+                      "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, field_name, attrib_name, buffer);
+	H5_API_RETURN (h5b_read_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_DOUBLE,
+			       (void*)buffer ));
+}
+
+static inline h5_err_t
+H5BlockReadFieldAttribFloat32 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	h5_float32_t* const buffer
+	) {
+
+        H5_API_ENTER (h5_err_t,
+                      "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, field_name, attrib_name, buffer);
+	H5_API_RETURN (h5b_read_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_FLOAT,
+			       buffer ));
+}
+
+static inline h5_err_t
+H5BlockReadFieldAttribInt64 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	h5_int64_t* const buffer
+	) {
+
+        H5_API_ENTER (h5_err_t,
+                      "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, field_name, attrib_name, buffer);
+	H5_API_RETURN (h5b_read_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_INT64,
+			       buffer ));
+}
+
+static inline h5_err_t
+H5BlockReadFieldAttribInt32 (
+	const h5_file_t f,
+	const char* field_name,
+	const char* attrib_name,
+	h5_int32_t* buffer
+	) {
+        H5_API_ENTER (h5_err_t,
+                      "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
+		      (h5_file_p)f, field_name, attrib_name, buffer);
+	H5_API_RETURN (h5b_read_field_attrib (
+			       f,
+			       field_name,
+			       attrib_name,
+			       H5T_NATIVE_INT32,
+			       (void*)buffer ));
+}
+///<   @}
 
 #ifdef __cplusplus
 }
 #endif
 
-///< @}
 #endif

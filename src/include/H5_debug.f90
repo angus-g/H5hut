@@ -8,7 +8,7 @@
 !
   INTERFACE
 
-     !> \addtogroup h5_debug_f
+     !> \addtogroup h5_debug_fvalue
      !! @{
      
      !>
