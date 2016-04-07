@@ -156,22 +156,6 @@ struct H5BlockPartition Layout32G[32] = {
 		{ 31,63, 31,63, 447,511}
 };
 
-#if 0
-static h5_int64_t
-_calc_index_KJI (
-	int myproc,
-	h5_int64_t i,
-	h5_int64_t i_dims,
-	h5_int64_t j,
-	h5_int64_t j_dims,
-	h5_int64_t k,
-	h5_int64_t k_dims
-	) {
-
-	return i + j*i_dims + k*i_dims*j_dims;
-}
-#endif
-
 #define _calc_index( i, i_dims, j, j_dims, k, k_dims ) \
 		(i + j*i_dims + k*i_dims*j_dims)
 
@@ -227,7 +211,8 @@ _write_attributes (
 	h5_file_t f,
 	const int myproc
 	) {
-        printf ("Writing attributes to field '%s' in step #%lld\n", "TestField", (long long)H5GetStep (f));
+        printf ("Writing attributes to field '%s' in step #%lld\n",
+		"TestField", (long long)H5GetStep (f));
 	h5_int64_t herr = H5BlockWriteFieldAttribString (
 		f,
 		"TestField",
@@ -551,7 +536,8 @@ main (
 		}
 		break;
 	default:
-		printf ( "Run this test on %d, %d, %d or %d processor(s)!\n", 1, 8, 16, 32);
+		printf ( "Run this test on %d, %d, %d or %d processor(s)!\n",
+			 1, 8, 16, 32);
 		return 1;
 	}
 
