@@ -38,8 +38,7 @@ examples/H5/write_file_attribsf
 examples/H5/write_step_attribs
 examples/H5/write_step_attribsf
 examples/H5Block/H5BlockExampleF
-examples/H5Block/blockfile1.h5
-examples/H5Block/blockfile8.h5
+examples/H5Block/*.h5
 examples/H5Block/fields
 examples/H5Block/read_write
 examples/H5Part/Bench
@@ -90,6 +89,7 @@ examples/H5Fed/trimesh_read
 examples/H5Fed/trimesh_write
 examples/H5Fed/trimesh_write_dunetest
 tetmesh_write_tags
+write_field
 *.gch
 ReferencePages
 vtk2h5grid

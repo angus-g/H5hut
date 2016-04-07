@@ -26,7 +26,8 @@ noinst_PROGRAMS =
 if ENABLE_C
 noinst_PROGRAMS += 	\
 	fields		\
-	read_write_scalar_field
+	read_write_scalar_field \
+	write_field
 endif
 
 if ENABLE_FORTRAN
@@ -38,7 +39,7 @@ endif
 fields_SOURCES = fields.c
 read_write_scalar_field_SOURCES = read_write_scalar_field.c
 read_write_scalar_fieldf_SOURCES = read_write_scalar_fieldf.f90
-
+write_field_SOURCES = write_field.c
 endif
 
 %.o : %.f90
