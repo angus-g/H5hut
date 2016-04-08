@@ -59,6 +59,7 @@ examples/H5Part/write_setnumparticles
 examples/H5Part/write_setview
 examples/H5Part/write_setviewf
 examples/H5Part/write_strided
+has_field
 install-sh
 libtool
 ltmain.sh
