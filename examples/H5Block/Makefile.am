@@ -24,8 +24,9 @@ LDADD += -lH5hut
 noinst_PROGRAMS = 
 
 if ENABLE_C
-noinst_PROGRAMS += 	\
-	fields		\
+noinst_PROGRAMS +=		\
+	fields			\
+	has_field		\
 	read_write_scalar_field \
 	write_field
 endif
@@ -37,6 +38,7 @@ endif
 endif
 
 fields_SOURCES = fields.c
+has_field_SOURCES = has_field.c
 read_write_scalar_field_SOURCES = read_write_scalar_field.c
 read_write_scalar_fieldf_SOURCES = read_write_scalar_fieldf.f90
 write_field_SOURCES = write_field.c
