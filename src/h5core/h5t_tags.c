@@ -38,9 +38,9 @@ read_dataset (
         void* const data
         ) {
 	H5_PRIV_API_ENTER (h5_err_t,
-	                   "f=%p, dset_id=%d (%s), dsinfo=%p, set_mspace=%p, "
+	                   "f=%p, dset_id=%lld (%s), dsinfo=%p, set_mspace=%p, "
 	                   "set_dspace=%p, data=%p",
-	                   f, dset_id, hdf5_get_objname(dset_id),
+	                   f, (long long int)dset_id, hdf5_get_objname(dset_id),
 	                   dsinfo,
 	                   set_mspace, set_dspace, data);
 
@@ -105,8 +105,8 @@ get_tagset_info (
         h5_int64_t* const type
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
-	                    "loc_id=%d, idx=%llu, name=%p, len_name=%llu, type=%p",
-	                    loc_id, (long long unsigned)idx, name,
+	                    "loc_id=%lld, idx=%llu, name=%p, len_name=%llu, type=%p",
+	                    (long long int)loc_id, (long long unsigned)idx, name,
 	                    (long long unsigned)len_name, type);
 
 	hid_t tags_id, tag_id, dset_id;
@@ -740,7 +740,9 @@ remove_tagset (
         const hid_t tagsets_id,
         const char name[]
         ) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "tagsets_id=%d, name=%s", tagsets_id, name);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "tagsets_id=%lld, name=%s",
+			    (long long int)tagsets_id, name);
 	hid_t loc_id;
 	TRY (loc_id = hdf5_open_group (tagsets_id, name));
 	TRY (hdf5_delete_link (loc_id, "elems", H5P_DEFAULT));

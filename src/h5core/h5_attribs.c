@@ -54,10 +54,10 @@ h5priv_get_attrib_info_by_name (
 	h5_size_t* attrib_nelem		/*!< OUT: number of elements */
 	) {
 	H5_PRIV_API_ENTER (h5_err_t,
-			   "id=%d, "
+			   "id=%lld, "
 			   "attrib_name=%s,"
 			   "attrib_type=%p, attrib_nelem=%p",
-			   id,
+			   (long long int)id,
 			   attrib_name,
 			   attrib_type,
 			   attrib_nelem);
@@ -76,11 +76,11 @@ h5priv_get_attrib_info_by_idx (
 	h5_size_t* attrib_nelem		/*!< OUT: number of elements */
 	) {
 	H5_PRIV_API_ENTER (h5_err_t,
-			   "id=%d, "
+			   "id=%lld, "
 			   "attrib_idx=%llu, "
 			   "attrib_name=%p, len_attrib_name=%llu, "
 			   "attrib_type=%p, attrib_nelem=%p",
-			   id,
+			   (long long int)id,
 			   (long long unsigned)attrib_idx,
 			   attrib_name,
 			   (long long unsigned)len_attrib_name,
@@ -108,10 +108,10 @@ h5priv_read_attrib (
 	void* const attrib_value	/*!< OUT: attribute value */
 	) {
 	H5_PRIV_API_ENTER (h5_err_t,
-			   "id=%d, attrib_name='%s', attrib_type=%d, attrib_value=%p",
-			   id,
+			   "id=%lld, attrib_name='%s', attrib_type=%lld, attrib_value=%p",
+			   (long long int)id,
 			   attrib_name,
-			   attrib_type,
+			   (long long int)attrib_type,
 			   attrib_value);
 	hid_t attrib_id;
 	hid_t type_id;
@@ -148,11 +148,11 @@ h5priv_write_attrib (
         const int overwrite
         ) {
 	H5_PRIV_API_ENTER (h5_err_t,
-	                   "id=%d, attrib_name='%s', attrib_type=%d, "
+	                   "id=%lld, attrib_name='%s', attrib_type=%lld, "
 	                   "attrib_value=%p, attrib_nelem=%llu, overwrite=%d",
-	                   id,
+	                   (long long int)id,
 	                   attrib_name,
-	                   attrib_type,
+	                   (long long int)attrib_type,
 	                   attrib_value,
 	                   attrib_nelem,
 	                   overwrite);
@@ -355,11 +355,11 @@ h5_read_file_attrib (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
-			   "f=%p, attrib_name='%s', attrib_type=%d, "
+			   "f=%p, attrib_name='%s', attrib_type=%lld, "
 			   "attrib_value=%p",
 			   f,
 			   attrib_name,
-			   attrib_type,
+			   (long long int)attrib_type,
 			   attrib_value);
 	CHECK_FILEHANDLE (f);
 	H5_CORE_API_RETURN (h5priv_read_attrib (
@@ -378,11 +378,11 @@ h5_read_step_attrib (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
-			   "f=%p, attrib_name='%s', attrib_type=%d, "
+			   "f=%p, attrib_name='%s', attrib_type=%lld, "
 			   "attrib_value=%p",
 			   f,
 			   attrib_name,
-			   attrib_type,
+			   (long long int)attrib_type,
 			   attrib_value);
 	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
@@ -404,11 +404,11 @@ h5_write_file_attrib (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
-			   "f=%p, attrib_name='%s', attrib_type=%d, "
+			   "f=%p, attrib_name='%s', attrib_type=%lld, "
 			   "attrib_value=%p, attrib_nelem=%llu",
 			   f,
 			   attrib_name,
-			   attrib_type,
+			   (long long int)attrib_type,
 			   attrib_value,
 			   attrib_nelem);
 	CHECK_FILEHANDLE (f);
@@ -432,11 +432,11 @@ h5_write_step_attrib (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
-			   "f=%p, attrib_name='%s', attrib_type=%d, "
+			   "f=%p, attrib_name='%s', attrib_type=%lld, "
 			   "attrib_value=%p, attrib_nelem=%llu",
 			   f,
 			   attrib_name,
-			   attrib_type,
+			   (long long int)attrib_type,
 			   attrib_value,
 			   attrib_nelem);
 	CHECK_FILEHANDLE (f);

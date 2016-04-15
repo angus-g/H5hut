@@ -25,8 +25,8 @@
  */
 h5_err_t
 h5priv_write_dataset_by_name (
-		h5t_mesh_t* const m,
-		const h5_file_p f,
+	h5t_mesh_t* const m,
+	const h5_file_p f,
         const hid_t loc_id,
         h5_dsinfo_t* dsinfo,
         hid_t (*set_memspace)(h5t_mesh_t*,hid_t),
@@ -34,9 +34,9 @@ h5priv_write_dataset_by_name (
         const void* const data
         ) {
 	H5_PRIV_API_ENTER (h5_err_t,
-	                   "m=%p, f=%p, loc_id=%d (%s), dsinfo=%p, set_memspace=%p, "
+	                   "m=%p, f=%p, loc_id=%lld (%s), dsinfo=%p, set_memspace=%p, "
 	                   "set_diskspace=%p, data=%p",
-	                   m, f, loc_id, hdf5_get_objname(loc_id),
+	                   m, f, (long long int)loc_id, hdf5_get_objname(loc_id),
 	                   dsinfo,
 	                   set_memspace, set_diskspace, data);
 	h5_info ("Writing dataset %s/%s.",
@@ -117,12 +117,12 @@ h5priv_write_dataset_by_name_id (
         const void* const data
         ) {
 	H5_PRIV_API_ENTER (h5_err_t,
-	                   "f=%p, loc_id=%d (%s), dsinfo=%p, dset_id=%d, memspace_id=%d, "
-	                   "diskspace_id=%d, data=%p",
-	                   f, loc_id, hdf5_get_objname(loc_id),
+	                   "f=%p, loc_id=%lld (%s), dsinfo=%p, dset_id=%lld, memspace_id=%lld, "
+	                   "diskspace_id=%lld, data=%p",
+	                   f, (long long int)loc_id, hdf5_get_objname(loc_id),
 	                   dsinfo,
-	                   dset_id,
-	                   memspace_id, diskspace_id, data);
+	                   (long long int)dset_id,
+	                   (long long int)memspace_id, (long long int)diskspace_id, data);
 	h5_info ("Writing dataset %s/%s.",
 	         hdf5_get_objname (loc_id), dsinfo->name);
 

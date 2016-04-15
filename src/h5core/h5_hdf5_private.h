@@ -70,8 +70,8 @@ hdf5_link_exists (
         const char* name
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "loc_id=%d (%s), name='%s'",
-	                    loc_id, hdf5_get_objname (loc_id), name);
+	                    "loc_id=%lld (%s), name='%s'",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id), name);
 	/* Save old error handler */
 	H5E_auto2_t old_func;
 	void *old_client_data;
@@ -103,8 +103,9 @@ hdf5_delete_link (
         hid_t lapl_id
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "loc_id=%d (%s), name='%s', lapl_id=%d",
-	                    loc_id, hdf5_get_objname (loc_id), name, lapl_id);
+	                    "loc_id=%lld (%s), name='%s', lapl_id=%lld",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id), name,
+			    (long long int)lapl_id);
 	if (H5Ldelete (loc_id, name, lapl_id)  < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -123,8 +124,8 @@ hdf5_open_group (
         const char* const group_name
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%d (%s), group_name='%s'",
-	                    loc_id,
+	                    "loc_id=%lld (%s), group_name='%s'",
+	                    (long long int)loc_id,
 	                    hdf5_get_objname (loc_id),
 	                    group_name);
 	hid_t group_id = H5Gopen (loc_id, group_name, H5P_DEFAULT);
@@ -144,8 +145,8 @@ hdf5_create_group (
         const char* const group_name
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%d (%s), group_name='%s'",
-	                    loc_id,
+	                    "loc_id=%lld (%s), group_name='%s'",
+	                    (long long int)loc_id,
 	                    hdf5_get_objname (loc_id),
 	                    group_name);
 	hid_t group_id = H5Gcreate (
@@ -190,8 +191,8 @@ hdf5_close_group (
         const hid_t group_id
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "group_id=%d (%s)",
-	                    group_id,
+	                    "group_id=%lld (%s)",
+	                    (long long int)group_id,
 	                    hdf5_get_objname (group_id));
 
 	if (group_id == 0 || group_id == -1)
@@ -211,8 +212,8 @@ hdf5_get_num_objs_in_group (
         const hid_t group_id
         ) {
 	HDF5_WRAPPER_ENTER (h5_ssize_t,
-	                    "group_id=%d (%s)",
-	                    group_id,
+	                    "group_id=%lld (%s)",
+	                    (long long int)group_id,
 	                    hdf5_get_objname (group_id));
 	H5G_info_t group_info;
 	if (H5Gget_info (group_id, &group_info) < 0) {
@@ -238,8 +239,8 @@ hdf5_get_objname_by_idx (
         size_t size
         ) {
 	HDF5_WRAPPER_ENTER (h5_ssize_t,
-	                    "loc_id=%d (%s), idx=%lld",
-	                    loc_id,
+	                    "loc_id=%lld (%s), idx=%lld",
+	                    (long long int)loc_id,
 	                    hdf5_get_objname (loc_id),
 	                    (long long)idx);
 
@@ -315,7 +316,7 @@ hdf5_select_hyperslab_of_dataspace (
         const hsize_t* count,
         const hsize_t* block
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "%d", space_id);
+	HDF5_WRAPPER_ENTER (h5_err_t, "%lld", (long long int)space_id);
 	herr_t herr = H5Sselect_hyperslab (
 	        space_id,
 	        op,
@@ -339,7 +340,7 @@ hdf5_select_elements_of_dataspace (
         hsize_t nelems,
         const hsize_t* indices
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "%d", space_id);
+	HDF5_WRAPPER_ENTER (h5_err_t, "%lld", (long long int)space_id);
 	herr_t herr;
 	if ( nelems > 0 ) {
 		herr = H5Sselect_elements (
@@ -364,8 +365,8 @@ hdf5_select_none (
         hid_t space_id
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "%d",
-	                    space_id);
+	                    "%lld",
+	                    (long long int)space_id);
 	herr_t herr = H5Sselect_none (space_id);
 	if (herr < 0) {
 		HDF5_WRAPPER_LEAVE (
@@ -380,7 +381,7 @@ static inline h5_ssize_t
 hdf5_get_selected_npoints_of_dataspace (
         hid_t space_id
         ) {
-	HDF5_WRAPPER_ENTER (h5_ssize_t, "%d", space_id);
+	HDF5_WRAPPER_ENTER (h5_ssize_t, "%lld", (long long int)space_id);
 	hssize_t size = H5Sget_select_npoints (space_id);
 	if (size < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -395,7 +396,7 @@ static inline h5_ssize_t
 hdf5_get_npoints_of_dataspace (
         hid_t space_id
         ) {
-	HDF5_WRAPPER_ENTER (h5_ssize_t, "%d", space_id);
+	HDF5_WRAPPER_ENTER (h5_ssize_t, "%lld", (long long int)space_id);
 	hssize_t size = H5Sget_simple_extent_npoints (space_id);
 	if (size < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -412,7 +413,7 @@ hdf5_get_dims_of_dataspace (
         hsize_t* dims,
         hsize_t* maxdims
         ) {
-	HDF5_WRAPPER_ENTER (int, "%d", space_id);
+	HDF5_WRAPPER_ENTER (int, "%lld", (long long int)space_id);
 	int rank = H5Sget_simple_extent_dims (space_id, dims, maxdims);
 	if (rank < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -433,7 +434,7 @@ static inline h5_err_t
 hdf5_close_dataspace (
         const hid_t dataspace_id
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "dataspace=%d", dataspace_id);
+	HDF5_WRAPPER_ENTER (h5_err_t, "dataspace=%lld", (long long int)dataspace_id);
 	if (dataspace_id <= 0 || dataspace_id == H5S_ALL)
 		HDF5_WRAPPER_LEAVE (H5_SUCCESS);
 
@@ -461,8 +462,8 @@ hdf5_open_dataset (
         const char* const dataset_name
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%d (%s), dataset_name='%s'",
-	                    loc_id,
+	                    "loc_id=%lld (%s), dataset_name='%s'",
+	                    (long long int)loc_id,
 	                    hdf5_get_objname (loc_id),
 	                    dataset_name);
 	hid_t dataset_id = H5Dopen (
@@ -499,12 +500,13 @@ hdf5_create_dataset (
         const hid_t create_proplist
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%d (%s), dataset_name='%s', dataspace_id=%d, create_proplist=%d",
-	                    loc_id,
+	                    "loc_id=%lld (%s), dataset_name='%s'"
+			    ", dataspace_id=%lld, create_proplist=%lld",
+	                    (long long int)loc_id,
 	                    hdf5_get_objname (loc_id),
 	                    dataset_name,
-			    dataspace_id,
-			    create_proplist
+			    (long long int)dataspace_id,
+			    (long long int)create_proplist
 		);
 	hid_t dataset_id = H5Dcreate (
 	        loc_id,
@@ -535,8 +537,8 @@ hdf5_close_dataset (
         const hid_t dataset_id
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "dataset_id=%d (%s)",
-	                    dataset_id,
+	                    "dataset_id=%lld (%s)",
+	                    (long long int)dataset_id,
 	                    hdf5_get_objname (dataset_id));
 	if (dataset_id < 0)
 		HDF5_WRAPPER_LEAVE (H5_SUCCESS);
@@ -563,8 +565,8 @@ hdf5_get_dataset_space (
         const hid_t dataset_id
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "dataset_id=%d (%s)",
-	                    dataset_id,
+	                    "dataset_id=%lld (%s)",
+	                    (long long int)dataset_id,
 	                    hdf5_get_objname(dataset_id));
 	hid_t dataspace_id = H5Dget_space (dataset_id);
 	if (dataspace_id < 0)
@@ -598,10 +600,10 @@ hdf5_write_dataset (
         const void* buf
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "dataset_id=%d (%s) type_id=%d",
-	                    dataset_id,
+	                    "dataset_id=%lld (%s) type_id=%lld",
+	                    (long long int)dataset_id,
 	                    hdf5_get_objname(dataset_id),
-	                    type_id);
+	                    (long long int)type_id);
 
 	herr_t herr = H5Dwrite (
 	        dataset_id,
@@ -632,10 +634,10 @@ hdf5_read_dataset (
         const hid_t xfer_prop,
         void* const buf ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "dataset_id=%d (%s) type_id=%d",
-	                    dataset_id,
+	                    "dataset_id=%lld (%s) type_id=%lld",
+	                    (long long int)dataset_id,
 	                    hdf5_get_objname(dataset_id),
-	                    type_id);
+	                    (long long int)type_id);
 	herr_t herr = H5Dread (
 	        dataset_id,
 	        type_id,
@@ -658,8 +660,8 @@ hdf5_get_dataset_type (
         const hid_t dataset_id
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "dataset_id=%d (%s)",
-	                    dataset_id,
+	                    "dataset_id=%lld (%s)",
+	                    (long long int)dataset_id,
 	                    hdf5_get_objname(dataset_id));
 	hid_t datatype_id = H5Dget_type (dataset_id);
 	if (datatype_id < 0)
@@ -677,8 +679,8 @@ hdf5_set_dataset_extent (
         const hsize_t* size
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "dataset_id=%d (%s), size=%llu",
-	                    dataset_id,
+	                    "dataset_id=%lld (%s), size=%llu",
+	                    (long long int)dataset_id,
 	                    hdf5_get_objname(dataset_id),
 	                    *size);
 	if (H5Dset_extent(dataset_id, size) < 0) {
@@ -696,8 +698,8 @@ hdf5_get_npoints_of_dataset (
         hid_t dataset_id
         ) {
 	HDF5_WRAPPER_ENTER (h5_ssize_t,
-	                    "dataset_id=%d (%s)",
-	                    dataset_id,
+	                    "dataset_id=%lld (%s)",
+	                    (long long int)dataset_id,
 	                    hdf5_get_objname(dataset_id));
 	hid_t dspace_id;
 	hsize_t size;
@@ -713,8 +715,8 @@ hdf5_get_npoints_of_dataset_by_name (
         const char* const name
         ) {
 	HDF5_WRAPPER_ENTER (h5_ssize_t,
-	                    "loc_id=%d (%s), name='%s'",
-	                    loc_id,
+	                    "loc_id=%lld (%s), name='%s'",
+	                    (long long int)loc_id,
 	                    hdf5_get_objname(loc_id),
 	                    name);
 	hid_t dset_id;
@@ -749,7 +751,7 @@ hdf5_get_type_name (
 	if (type_id == H5_STRING_T)
 		return "H5_STRING_T";
 
-	h5_warn ("Unknown type id %d", type_id);
+	h5_warn ("Unknown type id %lld", (long long int)type_id);
 	return "[unknown]";
 }
 
@@ -783,8 +785,8 @@ hdf5_create_array_type (
         const hsize_t* dims
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "base_type_id=%d (%s), rank=%d",
-	                    base_type_id,
+	                    "base_type_id=%lld (%s), rank=%d",
+	                    (long long int)base_type_id,
 	                    hdf5_get_type_name (base_type_id),
 	                    rank);
 	hid_t type_id = H5Tarray_create (base_type_id, rank, dims);
@@ -848,7 +850,9 @@ hdf5_insert_type (
         size_t offset,
         hid_t field_id
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "type_id=%d, name='%s'", type_id, name);
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "type_id=%lld, name='%s'",
+			    (long long int)type_id, name);
 	herr_t herr = H5Tinsert (type_id, name, offset, field_id);
 	if (herr < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -863,14 +867,14 @@ static inline H5T_class_t
 hdf5_get_class_type (
         hid_t dtype_id
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "dtype_id=%d", dtype_id);
+	HDF5_WRAPPER_ENTER (h5_err_t, "dtype_id=%lld", (long long int)dtype_id);
         H5T_class_t class = H5Tget_class (dtype_id);
 	if (class < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error(
 		                H5_ERR_HDF5,
-		                "Can't determine class of type %d.",
-		                dtype_id));
+		                "Can't determine class of type %lld.",
+		                (long long int)dtype_id));
 	HDF5_WRAPPER_RETURN (class);
 }
 
@@ -878,14 +882,16 @@ static inline h5_ssize_t
 hdf5_get_sizeof_type (
         hid_t dtype_id
         ) {
-	HDF5_WRAPPER_ENTER (h5_ssize_t, "dtype_id=%d", dtype_id);
+	HDF5_WRAPPER_ENTER (h5_ssize_t,
+			    "dtype_id=%lld",
+			    (long long int)dtype_id);
         h5_ssize_t size = H5Tget_size (dtype_id);
         if (size == 0) {
 		HDF5_WRAPPER_LEAVE (
 		        h5_error(
 		                H5_ERR_HDF5,
-		                "Can't determine size of type %d.",
-		                dtype_id));
+		                "Can't determine size of type %lld.",
+		                (long long int)dtype_id));
         }
 	HDF5_WRAPPER_RETURN (size);
 }
@@ -895,7 +901,9 @@ static inline h5_err_t
 hdf5_close_type (
         hid_t dtype_id
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "dtype_id=%d", dtype_id);
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "dtype_id=%lld",
+			    (long long int)dtype_id);
 	herr_t herr = H5Tclose (dtype_id);
 	if (herr < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -911,7 +919,9 @@ static inline hid_t
 hdf5_create_property (
         hid_t cls_id
         ) {
-	HDF5_WRAPPER_ENTER (hid_t, "cls_id=%d", cls_id);
+	HDF5_WRAPPER_ENTER (hid_t,
+			    "cls_id=%lld",
+			    (long long int)cls_id);
 	hid_t prop_id = H5Pcreate (cls_id);
 	if (prop_id < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -932,8 +942,9 @@ static inline hid_t
 hdf5_get_dataset_create_plist (
         const hid_t dataset_id
         ) {
-	HDF5_WRAPPER_ENTER (hid_t, "dataset_id=%d (%s)",
-	                    dataset_id,
+	HDF5_WRAPPER_ENTER (hid_t,
+			    "dataset_id=%lld (%s)",
+	                    (long long int)dataset_id,
 	                    hdf5_get_objname (dataset_id));
 	hid_t plist_id = H5Dget_create_plist (dataset_id);
 	if (plist_id < 0)
@@ -952,8 +963,8 @@ hdf5_set_chunk_property (
         hsize_t* dims
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "plist=%d, rank=%d, dims[0]=%llu ...",
-	                    plist, rank, dims[0]);
+	                    "plist=%lld, rank=%d, dims[0]=%llu ...",
+	                    (long long int)plist, rank, dims[0]);
 	if (H5Pset_chunk (plist, rank, dims) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -969,7 +980,9 @@ hdf5_get_chunk_property (
         int rank,
         hsize_t* dims
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "plist=%d, rank=%d", plist, rank);
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "plist=%lld, rank=%d",
+			    (long long int)plist, rank);
 	if (H5Pget_chunk (plist, rank, dims) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -984,7 +997,9 @@ hdf5_set_layout_property (
         hid_t plist,
         H5D_layout_t layout
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "plist=%d", plist);
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "plist=%lld",
+			    (long long int)plist);
 	if (H5Pset_layout (plist, layout) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1002,8 +1017,8 @@ hdf5_set_fapl_mpio_property (
         MPI_Info info
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "fapl_id=%d, comm=..., info=...",
-	                    fapl_id);
+	                    "fapl_id=%lld, comm=..., info=...",
+	                    (long long int)fapl_id);
 	if (H5Pset_fapl_mpio (fapl_id, comm, info) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1021,8 +1036,8 @@ hdf5_set_fapl_mpiposix_property (
         hbool_t use_gpfs
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "fapl_id=%d, comm=..., use_gpfs=%d",
-	                    fapl_id, (int)use_gpfs);
+	                    "fapl_id=%lld, comm=..., use_gpfs=%d",
+	                    (long long int)fapl_id, (int)use_gpfs);
 	if ( H5Pset_fapl_mpiposix (fapl_id, comm, use_gpfs) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1038,7 +1053,9 @@ hdf5_set_dxpl_mpio_property (
         hid_t dxpl_id,
         H5FD_mpio_xfer_t mode
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "dxpl_id=%d, mode=%d",dxpl_id,(int)mode);
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "dxpl_id=%lld, mode=%d",
+			    (long long int)dxpl_id, (int)mode);
 	if (H5Pset_dxpl_mpio (dxpl_id, mode) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1054,7 +1071,9 @@ hdf5_set_mdc_property (
         hid_t fapl_id,
         H5AC_cache_config_t *config
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "fapl_id=%d, config=%p",fapl_id,config);
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "fapl_id=%lld, config=%p",
+			    (long long int)fapl_id, config);
 	if (H5Pset_mdc_config (fapl_id, config) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1069,7 +1088,9 @@ hdf5_get_mdc_property (
         hid_t fapl_id,
         H5AC_cache_config_t *config
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "fapl_id=%d, config=%p",fapl_id,config);
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "fapl_id=%lld, config=%p",
+			    (long long int)fapl_id, config);
 	if (H5Pget_mdc_config (fapl_id, config) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1085,8 +1106,8 @@ hdf5_set_btree_ik_property (
         const hsize_t btree_ik
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "fapl_id=%d, btree_ik=%llu",
-	                    fcpl_id, btree_ik);
+	                    "fapl_id=%lld, btree_ik=%llu",
+	                    (long long int)fcpl_id, btree_ik);
 	if (H5Pset_istore_k (fcpl_id, btree_ik) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1103,8 +1124,8 @@ hdf5_set_alignment_property (
         hsize_t alignment
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "plist=%d, threshold=%llu, alignment=%llu",
-	                    plist, threshold, alignment);
+	                    "plist=%lld, threshold=%llu, alignment=%llu",
+	                    (long long int)plist, threshold, alignment);
 	if (H5Pset_alignment (plist, threshold, alignment) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1120,8 +1141,8 @@ hdf5_set_meta_block_size (
         hsize_t size
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "fapl_id=%d, size=%llu",
-	                    fapl_id, size);
+	                    "fapl_id=%lld, size=%llu",
+	                    (long long int)fapl_id, size);
 	if (H5Pset_meta_block_size (fapl_id, size) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1138,8 +1159,8 @@ hdf5_set_fapl_core (
         hbool_t backing_store
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-			    "fapl_id=%d, size=%zu, backing_store=%d",
-			    fapl_id, increment, backing_store);
+			    "fapl_id=%lld, size=%zu, backing_store=%d",
+			    (long long int)fapl_id, increment, backing_store);
         if (H5Pset_fapl_core (fapl_id, increment, backing_store))
 		HDF5_WRAPPER_LEAVE (
 			h5_error (
@@ -1152,7 +1173,9 @@ static inline h5_err_t
 hdf5_close_property (
         hid_t prop
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "prop=%d", prop);
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "prop=%lld",
+			    (long long int)prop);
 	if (H5Pclose (prop) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1167,8 +1190,9 @@ static inline h5_err_t
 hdf5_close_file (
         hid_t file_id
         ) {
-	HDF5_WRAPPER_ENTER (h5_err_t, "file_id=%d (%s)",
-	                    file_id, hdf5_get_objname (file_id));
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "file_id=%lld (%s)",
+	                    (long long int)file_id, hdf5_get_objname (file_id));
 	if (H5Fclose (file_id) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1197,8 +1221,8 @@ hdf5_flush (
         H5F_scope_t scope
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "obj_id=%d (%s)",
-	                    obj_id,
+	                    "obj_id=%lld (%s)",
+	                    (long long int)obj_id,
 	                    hdf5_get_objname (obj_id));
 	if (H5Fflush (obj_id, scope) < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1218,8 +1242,8 @@ hdf5_set_errorhandler (
         void* client_data
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "estack_id=%d, func=%p, client_data=%p",
-	                    estack_id, func, client_data);
+	                    "estack_id=%lld, func=%p, client_data=%p",
+	                    (long long int)estack_id, func, client_data);
 	if (H5Eset_auto (estack_id, func, client_data) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1235,8 +1259,8 @@ hdf5_attribute_exists (
         const char* attrib_name
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%d (%s), attr_name='%s'",
-	                    loc_id, hdf5_get_objname (loc_id), attrib_name);
+	                    "loc_id=%lld (%s), attr_name='%s'",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id), attrib_name);
 	htri_t exists = H5Aexists (loc_id, attrib_name);
 	if (exists < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1254,8 +1278,8 @@ hdf5_open_attribute (
         const char* attrib_name
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%d (%s), attr_name='%s'",
-	                    loc_id, hdf5_get_objname (loc_id), attrib_name);
+	                    "loc_id=%lld (%s), attr_name='%s'",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id), attrib_name);
 	hid_t attrib_id = H5Aopen (loc_id, attrib_name, H5P_DEFAULT);
 	if (attrib_id < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1273,8 +1297,8 @@ hdf5_open_attribute_idx (
         unsigned int idx
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%d (%s), idx=%u",
-	                    loc_id, hdf5_get_objname (loc_id), idx);
+	                    "loc_id=%lld (%s), idx=%u",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id), idx);
 	hid_t attr_id = H5Aopen_idx (loc_id, idx);
 	if (attr_id < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1293,8 +1317,8 @@ hdf5_open_attribute_by_name (
         const char* attr_name
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%d (%s), obj_name='%s', attr_name='%s'",
-	                    loc_id, hdf5_get_objname (loc_id),
+	                    "loc_id=%lld (%s), obj_name='%s', attr_name='%s'",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id),
 	                    obj_name, attr_name);
 	hid_t attr_id = H5Aopen_by_name (
 	        loc_id,
@@ -1322,9 +1346,9 @@ hdf5_create_attribute (
         hid_t aapl_id
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%d (%s), attr_name='%s', type_id=%d",
-	                    loc_id, hdf5_get_objname (loc_id),
-	                    attr_name, type_id);
+	                    "loc_id=%lld (%s), attr_name='%s', type_id=%lld",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id),
+	                    attr_name, (long long int)type_id);
 	hid_t attr_id = H5Acreate (
 	        loc_id,
 	        attr_name,
@@ -1349,9 +1373,9 @@ hdf5_read_attribute (
         void* buf
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "attr_id=%d (%s), mem_type_id=%d, buf=%p",
-	                    attr_id, hdf5_get_objname (attr_id),
-	                    mem_type_id, buf);
+	                    "attr_id=%lld (%s), mem_type_id=%lld, buf=%p",
+	                    (long long int)attr_id, hdf5_get_objname (attr_id),
+	                    (long long int)mem_type_id, buf);
 	if (H5Aread (attr_id, mem_type_id, buf) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1371,9 +1395,9 @@ hdf5_write_attribute (
         const void* buf
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "attr_id=%d (%s), mem_type_id=%d, buf=%p",
-	                    attr_id, hdf5_get_objname (attr_id),
-	                    mem_type_id, buf);
+	                    "attr_id=%lld (%s), mem_type_id=%lld, buf=%p",
+	                    (long long int)attr_id, hdf5_get_objname (attr_id),
+	                    (long long int)mem_type_id, buf);
 	if (H5Awrite (attr_id, mem_type_id, buf) < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
@@ -1391,8 +1415,8 @@ hdf5_get_attribute_name (
         char *buf
         ) {
 	HDF5_WRAPPER_ENTER (h5_ssize_t,
-	                    "attr_id=%d (%s), buf_size=%llu, buf=%p",
-	                    attr_id, hdf5_get_objname (attr_id),
+	                    "attr_id=%lld (%s), buf_size=%llu, buf=%p",
+	                    (long long int)attr_id, hdf5_get_objname (attr_id),
 	                    (unsigned long long)buf_size, buf);
 	ssize_t size = H5Aget_name ( attr_id, buf_size, buf );
 	if (size < 0)
@@ -1408,8 +1432,8 @@ hdf5_get_attribute_type (
         hid_t attr_id
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "attr_id=%d (%s)",
-	                    attr_id, hdf5_get_objname (attr_id));
+	                    "attr_id=%lld (%s)",
+	                    (long long int)attr_id, hdf5_get_objname (attr_id));
 	hid_t datatype_id = H5Aget_type (attr_id);
 	if (datatype_id < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1425,8 +1449,8 @@ hdf5_get_attribute_dataspace (
         hid_t attr_id
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
-	                    "attr_id=%d (%s)",
-	                    attr_id, hdf5_get_objname (attr_id));
+	                    "attr_id=%lld (%s)",
+	                    (long long int)attr_id, hdf5_get_objname (attr_id));
 	hid_t space_id = H5Aget_space (attr_id);
 	if (space_id < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1442,8 +1466,8 @@ hdf5_get_num_attribute (
         hid_t loc_id
         ) {
 	HDF5_WRAPPER_ENTER (int,
-	                    "loc_id=%d (%s)",
-	                    loc_id, hdf5_get_objname (loc_id));
+	                    "loc_id=%lld (%s)",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id));
 	int num = H5Aget_num_attrs (loc_id);
 	if (num < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1460,8 +1484,8 @@ hdf5_delete_attribute (
         const char* attrib_name
         ) {
 	HDF5_WRAPPER_ENTER (herr_t,
-	                    "loc_id=%d (%s), attr_name='%s'",
-	                    loc_id, hdf5_get_objname (loc_id), attrib_name);
+	                    "loc_id=%lld (%s), attr_name='%s'",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id), attrib_name);
 	herr_t herr = H5Adelete (loc_id, attrib_name);
 	if (herr < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1478,8 +1502,8 @@ hdf5_close_attribute (
         hid_t attr_id
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "attr_id=%d (%s)",
-	                    attr_id, hdf5_get_objname (attr_id));
+	                    "attr_id=%lld (%s)",
+	                    (long long int)attr_id, hdf5_get_objname (attr_id));
 	if (H5Aclose (attr_id))
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (

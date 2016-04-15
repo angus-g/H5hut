@@ -24,8 +24,9 @@ h5priv_link_exists_ (
         const char const* path[],
         size_t size
         ) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "loc_id=%d, (%s), path=%s, ...",
-	                    loc_id, hdf5_get_objname (loc_id), path[0]);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "loc_id=%lld, (%s), path=%s, ...",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id), path[0]);
 	// for the time being we limit the concatenated path to 1024 bytes
 	char name[1024];
 	char* s = name;
@@ -57,8 +58,8 @@ h5priv_open_group_ (
         size_t size
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
-	                    "create_intermediate=%d, loc_id=%d, (%s), path=%s, ...",
-	                    create_intermediate, loc_id, hdf5_get_objname (loc_id),
+	                    "create_intermediate=%d, loc_id=%lld, (%s), path=%s, ...",
+	                    create_intermediate, (long long int)loc_id, hdf5_get_objname (loc_id),
 	                    path[0]);
 	hid_t hid = loc_id;
 	hid_t hid2 = 0;
@@ -205,8 +206,8 @@ iter_op_count_match (
         void* _op_data
         ) {
 	H5_PRIV_FUNC_ENTER (herr_t,
-	                    "g_id=%d, name='%s', info=%p, _op_data=%p",
-	                    g_id, name, info, _op_data);
+	                    "g_id=%lld, name='%s', info=%p, _op_data=%p",
+	                    (long long int)g_id, name, info, _op_data);
 	op_data_t* op_data = (op_data_t*)_op_data;
 	H5O_type_t type;
 	TRY (type = iter_op_get_obj_type (g_id, name, info));
@@ -223,7 +224,9 @@ ssize_t
 hdf5_get_num_groups (
         const hid_t loc_id
         ) {
-	HDF5_WRAPPER_ENTER (ssize_t, "loc_id=%d (%s)", loc_id, hdf5_get_objname (loc_id));
+	HDF5_WRAPPER_ENTER (ssize_t,
+			    "loc_id=%lld (%s)",
+			    (long long int)loc_id, hdf5_get_objname (loc_id));
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
 	op_data.type = H5O_TYPE_GROUP;
@@ -247,8 +250,8 @@ hdf5_get_num_groups_matching_prefix (
         char* prefix
         ) {
 	HDF5_WRAPPER_ENTER (ssize_t,
-	                    "loc_id=%d (%s), prefix='%s'",
-	                    loc_id, hdf5_get_objname (loc_id), prefix);
+	                    "loc_id=%lld (%s), prefix='%s'",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id), prefix);
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
 	op_data.type = H5O_TYPE_GROUP;
@@ -276,8 +279,8 @@ hdf5_get_name_of_group_by_idx (
         size_t len
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "loc_id=%d (%s), idx=%llu, name=%p, len=%llu",
-	                    loc_id, hdf5_get_objname (loc_id),
+	                    "loc_id=%lld (%s), idx=%llu, name=%p, len=%llu",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id),
 	                    idx, name, (unsigned long long)len);
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
@@ -307,7 +310,8 @@ hdf5_get_num_datasets (
         const hid_t loc_id
         ) {
 	HDF5_WRAPPER_ENTER (ssize_t,
-	                    "loc_id=%d (%s)", loc_id, hdf5_get_objname (loc_id));
+	                    "loc_id=%lld (%s)",
+			    (long long int)loc_id, hdf5_get_objname (loc_id));
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));
 	op_data.type = H5O_TYPE_DATASET;
@@ -336,8 +340,8 @@ hdf5_get_name_of_dataset_by_idx (
         size_t len
         ) {
 	HDF5_WRAPPER_ENTER (h5_err_t,
-	                    "loc_id=%d (%s), idx=%llu, name=%p, len=%llu",
-	                    loc_id, hdf5_get_objname (loc_id),
+	                    "loc_id=%lld (%s), idx=%llu, name=%p, len=%llu",
+	                    (long long int)loc_id, hdf5_get_objname (loc_id),
 	                    idx, name, (unsigned long long)len);
 	op_data_t op_data;
 	memset (&op_data, 0, sizeof (op_data));

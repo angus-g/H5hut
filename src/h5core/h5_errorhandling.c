@@ -31,7 +31,7 @@ char *h5_rfmts[] = {
 	[e_h5t_iterator_p]	"%p",
 	[e_h5_loc_id_t]		"%ld",
 	[e_h5_loc_idx_t]	"%ld",
-	[e_hid_t]		"%ld",
+	[e_hid_t]		"%lld",
 	[e_H5O_type_t]		"%ld",
 	[e_h5_glb_elem_p]       "%p",
         [e_h5_prop_p]           "%p",

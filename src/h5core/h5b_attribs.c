@@ -30,12 +30,12 @@ h5b_write_field_attrib (
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, field_name='%s', "
-	                   "attrib_name='%s', attrib_type=%d, "
+	                   "attrib_name='%s', attrib_type=%lld, "
 	                   "attrib_value=%p, attrib_nelem=%lld",
 	                   f,
 	                   field_name,
 	                   attrib_name,
-	                   attrib_type,
+	                   (long long int)attrib_type,
 	                   attrib_value,
 	                   (long long)attrib_nelem);
 	CHECK_FILEHANDLE (f);

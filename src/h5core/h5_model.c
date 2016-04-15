@@ -66,7 +66,9 @@ h5_int64_t
 h5priv_normalize_h5_type (
 	hid_t type
 	) {
-	H5_CORE_API_ENTER (h5_int64_t, "type=%d", type);
+	H5_CORE_API_ENTER (h5_int64_t,
+			   "type=%lld",
+			   (long long int)type);
 	H5T_class_t tclass;
 	int size;
 	TRY (tclass = H5Tget_class (type));
@@ -104,8 +106,8 @@ h5priv_get_dataset_type(
 	const char* dset_name
 	) {
 	H5_CORE_API_ENTER (h5_int64_t,
-			   "group_id=%d, dset_name='%s'",
-			   group_id, dset_name);
+			   "group_id=%lld, dset_name='%s'",
+			   (long long int)group_id, dset_name);
 	hid_t dset_id;
 	hid_t hdf5_type;
 	h5_int64_t type;

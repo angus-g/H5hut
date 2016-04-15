@@ -201,8 +201,8 @@ _write_data (
 	const hid_t type		/*!< IN: data type */
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
-	                    "f=%p, field_name=%s, data_name=%s, data=%p type=%d",
-	                    f, field_name, data_name, data, type);
+	                    "f=%p, field_name=%s, data_name=%s, data=%p type=%lld",
+	                    f, field_name, data_name, data, (long long int)type);
 	hid_t dataset;
 	h5b_fdata_t *b = f->b;
 
@@ -252,8 +252,8 @@ h5b_write_scalar_data (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
-	                   "f=%p, field_name='%s', data=%p, type=%d",
-	                   f, field_name, data, type);
+	                   "f=%p, field_name='%s', data=%p, type=%lld",
+	                   f, field_name, data, (long long int)type);
 	CHECK_TIMEGROUP (f);
 	CHECK_WRITABLE_MODE (f);
 	CHECK_LAYOUT (f);
@@ -280,8 +280,8 @@ h5b_write_vector3d_data (
 	                   "xdata=%p, "
 	                   "ydata=%p, "
 	                   "zdata=%p, "
-	                   "type=%d",
-	                   f, field_name, xdata, ydata, zdata, type);
+	                   "type=%lld",
+	                   f, field_name, xdata, ydata, zdata, (long long int)type);
 	CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
 	CHECK_LAYOUT( f );
@@ -300,7 +300,9 @@ _select_hyperslab_for_reading (
 	const h5_file_p f,			/*!< IN: file handle */
 	const hid_t dataset
 	) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "f=%p, dataset=%d", f, dataset);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "f=%p, dataset=%lld",
+			    f, (long long int)dataset);
 	h5b_fdata_t *b = f->b;
 	h5b_partition_t *p = b->user_layout;
 	int rank;
@@ -381,8 +383,8 @@ read_data (
 	const hid_t type      		/*!< IN: data type */
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
-	                    "f=%p, dataset_name=%s, data=%p, type=%d",
-	                    f, dataset_name, data, type);
+	                    "f=%p, dataset_name=%s, data=%p, type=%lld",
+	                    f, dataset_name, data, (long long int)type);
 	hid_t dataset;
 	h5b_fdata_t *b = f->b;
 
@@ -411,8 +413,8 @@ h5b_read_scalar_data (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
-	                   "f=%p, field_name='%s', data=%p, type=%d",
-	                   f, field_name, data, type);
+	                   "f=%p, field_name='%s', data=%p, type=%lld",
+	                   f, field_name, data, (long long int)type);
 	CHECK_TIMEGROUP( f );
 	CHECK_LAYOUT( f );
 
@@ -437,8 +439,8 @@ h5b_read_vector3d_data (
 	                   "xdata=%p, "
 	                   "ydata=%p, "
 	                   "zdata=%p, "
-	                   "type=%d",
-	                   f, field_name, xdata, ydata, zdata, type);
+	                   "type=%lld",
+	                   f, field_name, xdata, ydata, zdata, (long long int)type);
 	CHECK_TIMEGROUP( f );
 	CHECK_LAYOUT( f );
 
