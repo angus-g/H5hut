@@ -10,7 +10,7 @@
 #include "H5hut.h"
 
 // name of output file
-const char* fname = "example_write_field.h5";
+const char* fname = "example_field.h5";
 
 // H5hut verbosity level
 const h5_int64_t h5_verbosity = H5_VERBOSE_DEFAULT;
