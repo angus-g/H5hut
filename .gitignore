@@ -10,6 +10,8 @@
 Makefile
 Makefile.in
 aclocal.m4
+attach_field_attributes
+dump_field_attributes
 autom4te.cache/
 compile
 config.guess

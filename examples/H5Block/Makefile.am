@@ -25,6 +25,8 @@ noinst_PROGRAMS =
 
 if ENABLE_C
 noinst_PROGRAMS +=		\
+	attach_field_attributes	\
+	dump_field_attributes	\
 	fields			\
 	has_field		\
 	read_write_scalar_field \
@@ -37,6 +39,8 @@ noinst_PROGRAMS += read_write_scalar_fieldf
 endif
 endif
 
+attach_field_attributes_SOURCES = attach_field_attributes.c
+dump_field_attributes_SOURCES = dump_field_attributes.c
 fields_SOURCES = fields.c
 has_field_SOURCES = has_field.c
 read_write_scalar_field_SOURCES = read_write_scalar_field.c
