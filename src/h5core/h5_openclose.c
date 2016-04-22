@@ -97,7 +97,7 @@ mpi_init (
                 TRY (hdf5_set_dxpl_mpio_property (f->props->xfer_prop,
                                                   H5FD_MPIO_INDEPENDENT) );
         } else {
-                // default is MPI-IO colloctive mode
+                // default is MPI-IO collective mode
 		h5_info("Selecting MPI-IO VFD, using collective mode");
 		TRY (hdf5_set_fapl_mpio_property (f->props->access_prop,
                                                   f->props->comm, MPI_INFO_NULL));
@@ -117,7 +117,7 @@ mpi_init (
                 TRY (hdf5_set_dxpl_mpio_property (f->props->xfer_prop,
                                                   H5FD_MPIO_INDEPENDENT) );
         } else {
-                // default is MPI-IO colloctive mode
+                // default is MPI-IO collective mode
 		h5_info("Selecting MPI-IO VFD, using collective mode");
 		TRY (hdf5_set_fapl_mpio_property (f->props->access_prop,
                                                   f->props->comm, MPI_INFO_NULL));
@@ -717,7 +717,7 @@ h5_get_num_steps(
 /*!
   \ingroup h5_core_filehandling
 
-  Start traversing steps.
+  Start traversing steps. 
 
   \return \c H5_SUCCESS or error code 
 */
@@ -726,8 +726,15 @@ h5_start_traverse_steps (
 	const h5_file_t f_		/*!< file handle		*/
 	) {
         h5_file_p f = (h5_file_p)f_;
-	UNUSED_ARGUMENT (f);
-	return h5_error_not_implemented ();
+	H5_CORE_API_ENTER (int, "f=%p", f);
+
+	/*
+	  fast test: Does Step#0 or Step#1 exist?
+	  otherwise
+	  loop over all steps and get smallest step number
+	 */
+	
+	H5_CORE_API_RETURN (h5_error_not_implemented ());
 }
 
 /*!

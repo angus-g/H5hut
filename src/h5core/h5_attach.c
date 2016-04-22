@@ -127,19 +127,15 @@ h5_add_attachment (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
-
-
-static inline hid_t
-open_attachments (
-	const h5_file_p f
+h5_err_t
+h5_has_attachments (
+	const h5_file_t f_
 	) {
-	h5_err_t exists = hdf5_link_exists (f->file, H5_ATTACHMENT);
-	if (exists > 0) {
-		return hdf5_open_group (f->file, H5_ATTACHMENT);
-	} else if (exists == 0) {
-		return h5_warn ("No attachment group in file");
-	}
-	return exists;
+        h5_file_p f = (h5_file_p)f_;
+	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
+	h5_err_t exists;
+	TRY  (exists = hdf5_link_exists (f->file, H5_ATTACHMENT));
+	H5_CORE_API_RETURN (exists);
 }
 
 h5_ssize_t
@@ -148,12 +144,14 @@ h5_get_num_attachments (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	h5_ssize_t num = 0;
-	hid_t group_id;
-        TRY (group_id = open_attachments (f));
-	if (group_id < 0) {
-		H5_CORE_API_LEAVE (0);
+	h5_err_t exists;
+	TRY  (exists = hdf5_link_exists (f->file, H5_ATTACHMENT));
+	if (exists == 0) {
+		return 0;
 	}
+	hid_t group_id;
+	TRY (group_id = hdf5_open_group (f->file, H5_ATTACHMENT));
+	h5_ssize_t num = 0;
 	TRY (num = hdf5_get_num_datasets (group_id));
 	TRY (hdf5_close_group (group_id));
 	H5_CORE_API_RETURN (num);
@@ -170,13 +168,11 @@ h5_get_attachment_info_by_idx (
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
 			   "f=%p, idx=%llu, fname=%s, len_fname=%llu, fsize=%p",
-			   f, (unsigned long long)idx, fname, (unsigned long long)len_fname,
+			   f, (unsigned long long)idx,
+			   fname, (unsigned long long)len_fname,
 			   fsize);
 	hid_t loc_id;
-        TRY (loc_id = open_attachments (f));
-	if (loc_id < 0) { // no attachment group in file
-		H5_CORE_API_LEAVE (0);
-	}
+	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
 	TRY (hdf5_get_name_of_dataset_by_idx (
 		     loc_id,
 		     idx,
@@ -193,6 +189,20 @@ h5_get_attachment_info_by_idx (
 }
 
 h5_err_t
+h5_has_attachment (
+	const h5_file_t f_,		// [in]
+	const char* const fname		// [in]
+	) {
+	h5_file_p f = (h5_file_p)f_;
+	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
+	hid_t loc_id;
+	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
+	h5_err_t exists;
+        TRY (exists = hdf5_link_exists (f->file, fname));
+	H5_CORE_API_RETURN (exists);
+}
+
+h5_err_t
 h5_get_attachment_info_by_name (
 	const h5_file_t f_,
 	const char* const fname,	// IN
@@ -202,10 +212,7 @@ h5_get_attachment_info_by_name (
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s', fsize=%p", f, fname, fsize);
 
 	hid_t loc_id;
-        TRY (loc_id = open_attachments (f));
-	if (loc_id < 0) {
-		H5_CORE_API_LEAVE (H5_NOK);
-	}
+	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
 	if (fsize) {
 		// get number of elements, do not change value on error
 		h5_ssize_t ssize;
@@ -232,14 +239,6 @@ h5_get_attachment (
 
 	hid_t loc_id;
 	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
-	h5_err_t exists;
-	TRY (exists = hdf5_link_exists (loc_id, fname));
-	if (!exists) {
-		H5_PRIV_FUNC_LEAVE (
-			h5_error (
-				H5_ERR_H5,
-				"Attachment '%s' doesn't exist", fname));
-	}
 
 	// read dataset
 	hid_t dataset_id, diskspace_id;
@@ -320,12 +319,10 @@ h5_delete_attachment (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
-	hid_t group_id;
-        TRY (group_id = open_attachments (f));
-	if (group_id < 0) {
-		H5_CORE_API_LEAVE (H5_NOK);
-	}
-	TRY (hdf5_delete_link (group_id, fname, H5P_DEFAULT));
-	TRY (hdf5_close_group (group_id));
+
+	hid_t loc_id;
+	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
+	TRY (hdf5_delete_link (loc_id, fname, H5P_DEFAULT));
+	TRY (hdf5_close_group (loc_id));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }

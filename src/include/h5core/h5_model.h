@@ -26,6 +26,14 @@ h5_err_t
 h5_add_attachment (
 	const h5_file_t, const char* const);
 
+h5_err_t
+h5_has_attachments (
+	const h5_file_t);
+
+h5_err_t
+h5_has_attachment (
+	const h5_file_t, const char* const);
+	
 h5_ssize_t
 h5_get_num_attachments (
 	const h5_file_t);

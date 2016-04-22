@@ -76,8 +76,14 @@ h5u_get_dataset_info (
         h5_size_t* const);
 
 h5_err_t
+h5u_has_dataset (
+	const h5_file_t fh,
+	const char* const name
+	);
+
+h5_err_t
 h5u_get_dataset_info_by_name (
-        const h5_file_p f,
+        const h5_file_t f,
         const char* const dataset_name,
         h5_int64_t* const type,
         h5_size_t* const nelem

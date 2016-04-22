@@ -142,6 +142,17 @@ typedef struct h5_glb_idxlist {
 	h5_glb_idx_t items[1];
 } h5_glb_idxlist_t;
 
+enum h5_iterators {
+	step_iterator
+};
+
+struct h5_iterator;
+typedef struct {
+	enum h5_iterators it_type;
+	h5_file_t file;
+	h5_int64_t (*iter)(struct h5_iterator*);
+} h5_iterator_t;
+
 struct h5_idxmap;
 typedef struct h5_idxmap h5_idxmap_t;
 

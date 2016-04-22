@@ -600,19 +600,34 @@ h5u_get_dataset_info (
 	             dataset_name, len_dataset_name) );
 
 	H5_CORE_API_RETURN (
-	        h5u_get_dataset_info_by_name(f, dataset_name, type, nelem));
+	        h5u_get_dataset_info_by_name(fh, dataset_name, type, nelem));
 }
 
+h5_err_t
+h5u_has_dataset (
+	const h5_file_t fh,
+	const char* const name
+	) {
+	h5_file_p f = (h5_file_p)fh;
+	H5_CORE_API_ENTER (h5_err_t, 
+			   "f=%p, name='%s'",
+			   f, name);
+        h5_err_t exists;
+        TRY (exists = hdf5_link_exists (f->step_gid, name));
+	H5_CORE_API_RETURN (exists);
+}
+	
 /*!
    Get information about dataset in current index given by its index
  */
 h5_err_t
 h5u_get_dataset_info_by_name (
-        const h5_file_p f,            /*!< [in] Handle to open file */
+        const h5_file_t fh,            /*!< [in] Handle to open file */
         const char* const dataset_name, /*!< [in] Name of dataset */
         h5_int64_t* const type,         /*!< [out] Type of data in dataset */
         h5_size_t* const nelem          /*!< [out] Number of elements. */
         ) {
+	h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, "
 	                   "dataset_name='%s', "

@@ -88,6 +88,9 @@ H5PartGetDatasetName (
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
+
+  \see H5PartGetNumDatasets()
+  \see H5PartGetDatasetInfoByName()
 */
 static inline h5_err_t
 H5PartGetDatasetInfo (
@@ -109,6 +112,58 @@ H5PartGetDatasetInfo (
 		      type, nelems);
 	H5_API_RETURN (h5u_get_dataset_info (
 			       f, idx, name, len_name, type, nelems));
+}
+/**
+  Determines whether a dataset with given name exists in current step.
+
+  \return      true (value \c >0) if step exists
+  \return      false (\c 0) if step does not exist
+  \return      \c H5_FAILURE on error
+*/
+static inline h5_err_t
+H5PartHasDataset (
+	const h5_file_t f,           	///< [in]  file handle
+	const char* const name         	///< [in]  name of dataset
+	) {
+	H5_API_ENTER (h5_int64_t, 
+		      "f=%p, name='%s'",
+		      (h5_file_p)f, name);
+	H5_API_RETURN (h5u_has_dataset (f, name));
+}
+
+/**
+  Gets the type and number of elements of a dataset based on its
+  name in the current timestep.
+
+  Type is one of the following values:
+
+  - \c H5_FLOAT64_T (for \c h5_float64_t)
+  - \c H5_FLOAT32_T (for \c h5_float32_t)
+  - \c H5_INT64_T (for \c h5_int64_t)
+  - \c H5_INT32_T (for \c h5_int32_t)
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \see H5PartHasDataset()
+  \see H5PartGetDatasetInfo()
+*/
+static inline h5_err_t
+H5PartGetDatasetInfoByName (
+	const h5_file_t f,           	///< [in]  file handle
+	const char* const name,         ///< [in]  name of dataset
+	h5_int64_t* type,       	///< [out] type of data in dataset
+	h5_size_t* nelems        	///< [out] number of elements
+	) {
+	H5_API_ENTER (h5_int64_t, 
+		      "f=%p, "
+		      "name='%s', "
+		      "type=%p, nelems=%p",
+		      (h5_file_p)f,
+		      name,
+		      type, nelems);
+	H5_API_RETURN (h5u_get_dataset_info_by_name (
+			       f, name, type, nelems));
 }
 
 /**

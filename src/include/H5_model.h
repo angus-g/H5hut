@@ -236,6 +236,24 @@ H5GetAttachmentInfoByIdx (
 }
 
 /**
+  Query whether a particular attachment exists in the file.
+
+  \return      true (value \c >0) if attachment exists
+  \return      false (\c 0) if attachment does not exist
+  \return      \c H5_FAILURE on error
+*/
+static inline h5_err_t
+H5HasAttachment (
+	const h5_file_t f,              ///< [in]  file handle.
+	const char* const fname		///< [in]  original file name.
+	) {
+	H5_API_ENTER (h5_err_t,
+                      "f=%p, name='%s'",
+                      (h5_file_p)f, fname);
+	H5_API_RETURN (h5_has_attachment (f, fname));
+}
+
+/**
   Get size of attached file with name \c fname.
 
   \return   \c H5_SUCCESS on success
