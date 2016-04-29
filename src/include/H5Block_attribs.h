@@ -12,8 +12,7 @@
 
 #include <string.h>
 
-#include "h5core/h5_types.h"
-#include "h5core/h5.h"
+#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_attribs.h"
 

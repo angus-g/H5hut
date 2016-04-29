@@ -12,10 +12,9 @@
 
 #include <string.h>
 
-#include "h5core/h5_types.h"
-#include "h5core/h5.h"
+#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
-#include "h5core/h5_attribs.h"
+#include "h5core/h5_step_attribs.h"
 
 #ifdef __cplusplus
 extern "C" {

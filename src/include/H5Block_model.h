@@ -10,8 +10,7 @@
 #ifndef __H5BLOCK_MODEL
 #define __H5BLOCK_MODEL
 
-#include "h5core/h5_types.h"
-#include "h5core/h5.h"
+#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_model.h"
 
@@ -24,7 +23,15 @@
 extern "C" {
 #endif
 
-/********************** defining the layout **********************************/
+/*
+   !   _                   _          
+   !  (_)_ __   __ _ _   _(_)_ __ ___ 
+   !  | | '_ \ / _` | | | | | '__/ _ \
+   !  | | | | | (_| | |_| | | | |  __/
+   !  |_|_| |_|\__, |\__,_|_|_|  \___|
+   !              |_|
+   !
+*/
 
 /**
   Checks whether the current time-step has field data or not.
@@ -42,6 +49,124 @@ H5BlockHasFieldData (
                       (h5_file_p)f);
         H5_API_RETURN (h5b_has_field_data (f));
 }
+
+
+/**
+  Query number of fields in current time step.
+
+  \return \c number of fields
+  \return H5_FAILURE on error
+*/
+static inline h5_ssize_t
+H5BlockGetNumFields (
+	const h5_file_t f		///< [in]  file handle.
+	) {
+	H5_API_ENTER (h5_ssize_t,
+                      "f=%p",
+                      (h5_file_p)f);
+	H5_API_RETURN (h5b_get_num_fields(f));
+}
+
+/**
+  Get the name, rank and dimensions of the field specified by the
+  index \c idx.
+
+  \c elem_rank reports the rank of the elements in the field
+  (e.g. scalar or vector).
+
+  This function can be used to retrieve all fields bound to the
+  current time-step by looping from \c 0 to the number of fields
+  minus one.  The number of fields bound to the current time-step
+  can be queried by calling the function \ref H5BlockGetNumFields.
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+*/
+static inline h5_err_t
+H5BlockGetFieldInfo (
+	const h5_file_t f,		///< [in]  file handle
+	const h5_size_t idx,		///< [in]  index of field
+	char* name,			///< [out] field name
+	const h5_size_t len_name,	///< [in]  buffer size
+	h5_size_t* field_rank,		///< [out] field rank
+	h5_size_t* field_dims,		///< [out] field dimensions
+	h5_size_t* elem_rank,		///< [out] element rank
+	h5_int64_t* type		///< [out] datatype
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, idx=%llu, "
+		      "name=%p, len_name=%llu, "
+		      "field_rank=%p, field_dims=%p, elem_rank=%p, type=%p",
+		      (h5_file_p)f, (long long unsigned)idx,
+		      name, (long long unsigned)len_name, 
+		      field_rank, field_dims, elem_rank,
+		      type);
+	H5_API_RETURN (
+		h5b_get_field_info (
+			f,
+			idx,
+			name,
+			len_name,
+			field_rank,
+			field_dims,
+			elem_rank,
+			type));
+}
+
+/**
+   Determines whether a field with a given name exists.
+
+   \return      true (value \c >0) if atrribute exists
+   \return      false (\c 0) if attribute does not exist
+   \return      \c H5_FAILURE on error
+  */
+static inline h5_err_t
+H5BlockHasField (
+	const h5_file_t f,		///< [in]  file handle
+	const char* name		///< [in]  field name
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s'",
+		      (h5_file_p)f, name);
+	H5_API_RETURN (
+		h5b_has_field (
+			f,
+			name));
+}
+
+/**
+  Get the rank and dimensions of the field specified by its name.
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \see H5BlockGetFieldInfo.
+*/
+static inline h5_err_t
+H5BlockGetFieldInfoByName (
+	const h5_file_t f,		///< [in]  file handle
+	const char* name,		///< [in]  field name
+	h5_size_t* field_rank,		///< [out] field rank
+	h5_size_t* field_dims,		///< [out] field dimensions
+	h5_size_t* elem_rank,		///< [out] element rank
+	h5_int64_t* type		///< [out] datatype
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, name='%s', "
+		      "field_rank=%p, field_dims=%p, elem_rank=%p, type=%p",
+		      (h5_file_p)f, name, field_rank, field_dims,
+		      elem_rank, type);
+	H5_API_RETURN (
+		h5b_get_field_info_by_name (
+			f,
+			name,
+			field_rank,
+			field_dims,
+			elem_rank,
+			type));
+}
+
+/********************** defining the layout **********************************/
 
 /**
   Tests whether a view has been set, either directly with

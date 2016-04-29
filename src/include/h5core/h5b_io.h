@@ -11,6 +11,7 @@
 #define __H5CORE_H5B_IO_H
 
 #include "h5core/h5_types.h"
+#include <hdf5.h>
 
 #ifdef __cplusplus
 extern "C" {

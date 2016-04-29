@@ -1,6 +1,5 @@
 
 if ENABLE_C
-# Header files that I wish to install in $(prefix)/include
 include_HEADERS =					\
 	$(top_srcdir)/src/include/H5Block_attribs.h	\
 	$(top_srcdir)/src/include/H5Block_io.h		\
@@ -12,6 +11,7 @@ include_HEADERS =					\
 	$(top_srcdir)/src/include/H5Fed_tags.h		\
 	$(top_srcdir)/src/include/H5Part_io.h		\
 	$(top_srcdir)/src/include/H5Part_model.h	\
+	$(top_srcdir)/src/include/H5_attachments.h	\
 	$(top_srcdir)/src/include/H5_debug.h		\
 	$(top_srcdir)/src/include/H5_error.h		\
 	$(top_srcdir)/src/include/H5_file.h		\
@@ -21,7 +21,6 @@ include_HEADERS =					\
 	$(top_srcdir)/src/include/H5_step_attribs.h	\
 	$(top_srcdir)/src/include/H5hut.h
 
-# Listing of all possible headers that I may include
 EXTRA_HEADERS =
 endif
 

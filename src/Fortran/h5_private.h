@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "h5core/h5.h"
+#include "h5core/h5_init.h"
 
 #if defined(FC_MANGLING_LOWERCASE_NO_UNDERSCORE)
 #    define FC_MANGLING(a,b) a

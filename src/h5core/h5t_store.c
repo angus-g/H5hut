@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2015, The Regents of the University of California,
+  Copyright (c) 2006-2016, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -7,18 +7,19 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5_errorhandling_private.h"
-#include "h5t_types_private.h"
-#include "h5t_errorhandling_private.h"
-#include "h5t_access_private.h"
-#include "h5t_core_private.h"
-#include "h5t_map_private.h"
-#include "h5t_model_private.h"
-#include "h5t_store_private.h"
-#include "h5t_core_private.h"
-#include "h5t_readwrite_private.h"
-#include "h5_init_private.h"
-#include "h5_mpi_private.h"
+#include "private/h5_errorhandling.h"
+#include "private/h5t_types.h"
+#include "private/h5t_errorhandling.h"
+#include "private/h5t_access.h"
+#include "private/h5t_core.h"
+#include "private/h5t_map.h"
+#include "private/h5t_model.h"
+#include "private/h5t_store.h"
+#include "private/h5t_core.h"
+#include "private/h5t_io.h"
+#include "private/h5_init.h"
+#include "private/h5.h"
+#include "private/h5_mpi.h"
 
 #include "h5core/h5t_map.h"
 
@@ -415,17 +416,35 @@ h5tpriv_add_level (
 	m->leaf_level = m->num_leaf_levels++;
 	m->num_loaded_levels = m->num_leaf_levels;
 
-	TRY (m->num_glb_vertices = h5_alloc (m->num_glb_vertices, m->num_leaf_levels*sizeof (*m->num_glb_vertices)));
-	TRY (m->num_loc_vertices = h5_alloc (m->num_loc_vertices, m->num_leaf_levels*sizeof (*m->num_loc_vertices)));
+	TRY (m->num_glb_vertices = h5_alloc (
+		     m->num_glb_vertices,
+		     m->num_leaf_levels*sizeof (*m->num_glb_vertices)));
+	TRY (m->num_loc_vertices = h5_alloc (
+		     m->num_loc_vertices,
+		     m->num_leaf_levels*sizeof (*m->num_loc_vertices)));
 
-	TRY (m->num_b_vtx = h5_alloc (m->num_b_vtx, m->num_leaf_levels*sizeof (*m->num_b_vtx)));
-	TRY (m->first_b_vtx = h5_alloc (m->first_b_vtx, m->num_leaf_levels*sizeof (*m->first_b_vtx)));
+	TRY (m->num_b_vtx = h5_alloc (
+		     m->num_b_vtx,
+		     m->num_leaf_levels*sizeof (*m->num_b_vtx)));
+	TRY (m->first_b_vtx = h5_alloc (
+		     m->first_b_vtx,
+		     m->num_leaf_levels*sizeof (*m->first_b_vtx)));
 
-	TRY (m->num_glb_elems = h5_alloc (m->num_glb_elems, m->num_leaf_levels*sizeof (*m->num_glb_elems)));
-	TRY (m->num_glb_leaf_elems = h5_alloc (m->num_glb_leaf_elems, m->num_leaf_levels*sizeof (*m->num_glb_leaf_elems)));
-	TRY (m->num_interior_elems = h5_alloc (m->num_interior_elems, m->num_leaf_levels*sizeof (*m->num_interior_elems)));
-	TRY (m->num_interior_leaf_elems = h5_alloc (m->num_interior_leaf_elems, m->num_leaf_levels*sizeof (*m->num_interior_leaf_elems)));
-	TRY (m->num_ghost_elems = h5_alloc (m->num_ghost_elems, m->num_leaf_levels*sizeof (*m->num_ghost_elems)));
+	TRY (m->num_glb_elems = h5_alloc (
+		     m->num_glb_elems,
+		     m->num_leaf_levels*sizeof (*m->num_glb_elems)));
+	TRY (m->num_glb_leaf_elems = h5_alloc (
+		     m->num_glb_leaf_elems,
+		     m->num_leaf_levels*sizeof (*m->num_glb_leaf_elems)));
+	TRY (m->num_interior_elems = h5_alloc (
+		     m->num_interior_elems,
+		     m->num_leaf_levels*sizeof (*m->num_interior_elems)));
+	TRY (m->num_interior_leaf_elems = h5_alloc (
+		     m->num_interior_leaf_elems,
+		     m->num_leaf_levels*sizeof (*m->num_interior_leaf_elems)));
+	TRY (m->num_ghost_elems = h5_alloc (
+		     m->num_ghost_elems,
+		     m->num_leaf_levels*sizeof (*m->num_ghost_elems)));
 
 	m->num_glb_vertices[m->leaf_level] = -1;
 	m->num_loc_vertices[m->leaf_level] = -1;

@@ -10,6 +10,7 @@
 #include "h5_private.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5u_model.h"
+#include "h5core/h5u_io.h"
 
 #include "h5core/h5_syscall.h"
 

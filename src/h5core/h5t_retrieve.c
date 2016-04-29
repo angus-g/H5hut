@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2015, The Regents of the University of California,
+  Copyright (c) 2006-2016, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -7,16 +7,18 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5.h"
-#include "h5_private.h"
+#include "h5core/h5_init.h"
+#include "h5core/h5_debug.h"
 
-#include "h5t_types_private.h"
-#include "h5t_errorhandling_private.h"
-#include "h5t_map_private.h"
-#include "h5t_model_private.h"
-#include "h5t_access_private.h"
-#include "h5t_tags_private.h"
-#include "h5t_retrieve_private.h"
+#include "private/h5.h"
+
+#include "private/h5t_types.h"
+#include "private/h5t_errorhandling.h"
+#include "private/h5t_map.h"
+#include "private/h5t_model.h"
+#include "private/h5t_access.h"
+#include "private/h5t_tags.h"
+#include "private/h5t_retrieve.h"
 
 #include "h5core/h5t_map.h"
 

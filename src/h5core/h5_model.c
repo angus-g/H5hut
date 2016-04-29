@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2015, The Regents of the University of California,
+  Copyright (c) 2006-2016, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -9,13 +9,13 @@
 
 #include <string.h>
 
-#include "h5core/h5.h"
-#include "h5_types_private.h"
-#include "h5_hdf5_private.h"
-#include "h5_model_private.h"
-#include "h5_mpi_private.h"
-#include "h5_readwrite_private.h"
-#include "h5_va_macros.h"
+#include "h5core/h5_init.h"
+#include "private/h5_types.h"
+#include "private/h5_hdf5.h"
+#include "private/h5_model.h"
+#include "private/h5_mpi.h"
+#include "private/h5_io.h"
+#include "private/h5_va_macros.h"
 
 h5_err_t
 h5priv_close_step (

@@ -11,6 +11,7 @@
 #define __H5CORE_H5B_ATTRIBS_H
 
 #include "h5core/h5_types.h"
+#include <hdf5.h>
 
 /*
   :TODO: move macros to private include file
@@ -25,15 +26,16 @@
 extern "C" {
 #endif
 
-h5_err_t
-h5b_write_field_attrib (
+h5_ssize_t
+h5b_get_num_field_attribs (
 	const h5_file_t,
-        const char*, const char*, const hid_t, const void*, const h5_int64_t);
+        const char*);
 
 h5_err_t
-h5b_read_field_attrib (
+h5b_get_field_attrib_info_by_idx (
 	const h5_file_t,
-	const char*, const char*, const h5_int64_t, void* const);
+	const char*, const h5_size_t, char* const, const h5_size_t,
+        h5_int64_t* const, h5_size_t*);
 
 h5_err_t
 h5b_has_field_attrib (
@@ -49,16 +51,15 @@ h5b_get_field_attrib_info_by_name (
 	h5_int64_t*,
 	h5_size_t*);
 
-h5_ssize_t
-h5b_get_num_field_attribs (
+h5_err_t
+h5b_write_field_attrib (
 	const h5_file_t,
-        const char*);
+        const char*, const char*, const hid_t, const void*, const h5_int64_t);
 
 h5_err_t
-h5b_get_field_attrib_info_by_idx (
+h5b_read_field_attrib (
 	const h5_file_t,
-	const char*, const h5_size_t, char* const, const h5_size_t,
-        h5_int64_t* const, h5_size_t*);
+	const char*, const char*, const h5_int64_t, void* const);
 
 h5_err_t
 h5b_set_3d_field_coords (

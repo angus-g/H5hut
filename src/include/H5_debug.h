@@ -10,7 +10,8 @@
 #ifndef __H5_DEBUG_H
 #define __H5_DEBUG_H
 
-#include "h5core/h5_types.h"
+#include "h5core/h5_init.h"
+#include "h5core/h5_debug.h"
 
 /**
    \addtogroup h5_debug

@@ -7,8 +7,8 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#ifndef __H5CORE_H5_MODEL
-#define __H5CORE_H5_MODEL
+#ifndef __H5CORE_H5_MODEL_H
+#define __H5CORE_H5_MODEL_H
 
 #include "h5core/h5_types.h"
 
@@ -18,42 +18,35 @@ extern "C" {
 
 #define H5_MAX_NAME_LEN          64
 
+h5_err_t
+h5_set_stepname_fmt (
+	const h5_file_t, const char*, const int);
+
+h5_err_t
+h5_get_stepname_fmt (
+	const h5_file_t, char* const, const int, int* const);
+
+
 h5_int64_t
 h5_set_step (
 	const h5_file_t, const h5_int64_t);
 
-h5_err_t
-h5_add_attachment (
-	const h5_file_t, const char* const);
 
-h5_err_t
-h5_has_attachments (
+h5_int64_t
+h5_get_step (
 	const h5_file_t);
 
-h5_err_t
-h5_has_attachment (
-	const h5_file_t, const char* const);
-	
 h5_ssize_t
-h5_get_num_attachments (
+h5_get_num_steps (
 	const h5_file_t);
 
-h5_err_t
-h5_get_attachment_info_by_idx (
-	const h5_file_t, const h5_size_t, char* const, h5_size_t, h5_size_t* const);
+h5_int64_t
+h5_has_step (
+	const h5_file_t, const h5_int64_t);
 
-h5_err_t
-h5_get_attachment_info_by_name (
-	const h5_file_t, const char* const, h5_size_t* const);
-
-h5_err_t
-h5_get_attachment (
-	const h5_file_t, const char* const);
-
-h5_err_t
-h5_delete_attachment (
-	const h5_file_t, const char* const);
-
+int
+h5_get_num_procs (
+	const h5_file_t);
 
 #ifdef __cplusplus
 }

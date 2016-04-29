@@ -10,8 +10,7 @@
 #ifndef __H5_ERROR_H
 #define __H5_ERROR_H
 
-#include "h5core/h5_types.h"
-#include "h5core/h5.h"
+#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 
 /**

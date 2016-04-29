@@ -10,6 +10,7 @@
 #include "h5_private.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_model.h"
+#include "h5core/h5b_io.h"
 
 #define h5bl_hasfielddata FC_MANGLING (				  \
                 h5bl_hasfielddata,				  \

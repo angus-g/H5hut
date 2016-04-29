@@ -17,6 +17,30 @@ extern "C" {
 #endif
 
 h5_ssize_t
+h5u_get_num_datasets (
+	const h5_file_t);
+
+h5_err_t
+h5u_get_dataset_info (
+	const h5_file_t,
+	const h5_id_t, char* const, const h5_size_t, h5_int64_t* const,
+        h5_size_t* const);
+
+h5_err_t
+h5u_has_dataset (
+	const h5_file_t fh,
+	const char* const name
+	);
+
+h5_err_t
+h5u_get_dataset_info_by_name (
+        const h5_file_t f,
+        const char* const dataset_name,
+        h5_int64_t* const type,
+        h5_size_t* const nelem
+        );
+
+h5_ssize_t
 h5u_get_num_points (
 	const h5_file_t);
 
@@ -64,30 +88,6 @@ h5u_get_view (
 h5_err_t
 h5u_set_canonical_view (
 	const h5_file_t);
-
-h5_ssize_t
-h5u_get_num_datasets (
-	const h5_file_t);
-
-h5_err_t
-h5u_get_dataset_info (
-	const h5_file_t,
-	const h5_id_t, char* const, const h5_size_t, h5_int64_t* const,
-        h5_size_t* const);
-
-h5_err_t
-h5u_has_dataset (
-	const h5_file_t fh,
-	const char* const name
-	);
-
-h5_err_t
-h5u_get_dataset_info_by_name (
-        const h5_file_t f,
-        const char* const dataset_name,
-        h5_int64_t* const type,
-        h5_size_t* const nelem
-        );
 
 h5_err_t
 h5u_set_chunk (

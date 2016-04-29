@@ -1,23 +1,22 @@
 /*
-  Copyright (c) 2006-2015, The Regents of the University of California,
+  Copyright (c) 2006-2016, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
 
   License: see file COPYING in top level of source distribution.
 */
-#include "h5core/h5.h"
+#include "h5core/h5_init.h"
 
-#include "h5_debug_private.h"
-#include "h5_va_macros.h"
+#include "private/h5_debug.h"
 
-#include "h5_private.h"
-#include "h5_hdf5_private.h"
+#include "private/h5.h"
+#include "private/h5_hdf5.h"
 
-#include "h5_attribs_private.h"
-#include "h5_readwrite_private.h"
-#include "h5b_types_private.h"
-#include "h5b_model_private.h"
+#include "private/h5_attribs.h"
+#include "private/h5b_types.h"
+#include "private/h5b_model.h"
+
 h5_err_t
 h5b_write_field_attrib (
 	const h5_file_t fh,			/*!< IN: file handle */

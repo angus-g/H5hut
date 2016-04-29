@@ -9,7 +9,7 @@
 
 #include "h5_private.h"
 
-#include "h5core/h5.h"
+#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5_model.h"
 

@@ -20,6 +20,28 @@ h5_err_t
 h5b_has_field_data (
         const h5_file_t);
 
+h5_ssize_t
+h5b_get_num_fields (
+	const h5_file_t);
+
+h5_err_t
+h5b_get_field_info (
+	const h5_file_t,
+	const h5_size_t,
+	char* const, const h5_size_t,
+	h5_size_t* const, h5_size_t* const, h5_size_t* const, h5_int64_t* const);
+
+h5_err_t
+h5b_has_field (
+	const h5_file_t,
+	const char*);
+
+h5_err_t
+h5b_get_field_info_by_name (
+	const h5_file_t,
+	const char* name,
+	h5_size_t* const, h5_size_t* const, h5_size_t* const, h5_int64_t* const);
+
 h5_int64_t
 h5b_3d_has_view (
         const h5_file_t f);
@@ -77,28 +99,6 @@ h5b_3d_set_dims (
 h5_err_t
 h5b_3d_set_halo (
 	const h5_file_t, const h5_size_t, const h5_size_t, const h5_size_t);
-
-h5_ssize_t
-h5b_get_num_fields (
-	const h5_file_t);
-
-h5_err_t
-h5b_has_field (
-	const h5_file_t,
-	const char*);
-
-h5_err_t
-h5b_get_field_info_by_name (
-	const h5_file_t,
-	const char* name,
-	h5_size_t* const, h5_size_t* const, h5_size_t* const, h5_int64_t* const);
-
-h5_err_t
-h5b_get_field_info (
-	const h5_file_t,
-	const h5_size_t,
-	char* const, const h5_size_t,
-	h5_size_t* const, h5_size_t* const, h5_size_t* const, h5_int64_t* const);
 
 #ifdef __cplusplus
 }

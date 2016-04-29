@@ -9,9 +9,11 @@
 
 #include "h5_private.h"
 
-#include "h5core/h5.h"
+#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
-#include "h5core/h5_model.h"
+#include "h5core/h5_file.h"
+
+#include <hdf5.h>
 
 #define h5_createprop_file FC_MANGLING(    \
                 h5_createprop_file,	   \

@@ -14,7 +14,7 @@
 #define H5HUT_API_VERSION 2
 #endif
 
-
+#include "H5_attachments.h"
 #include "H5_file.h"
 #include "H5_model.h"
 #include "H5_file_attribs.h"

@@ -1,5 +1,5 @@
-#include "h5t_octree_private.h"
-#include "h5t_core_private.h"
+#include "private/h5t_octree.h"
+#include "private/h5t_core.h"
 
 #ifdef WITH_PARALLEL_H5GRID
 
@@ -7,7 +7,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "h5_mpi_private.h"
+#include "private/h5_mpi.h"
 
 static h5_err_t
 get_bounding_box_of_octant (
