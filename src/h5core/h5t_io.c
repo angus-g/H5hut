@@ -723,7 +723,9 @@ hid_t
 set_chk_memspace (
 		h5t_mesh_t* m,
 		hid_t dataspace_id) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, dataspace_id=%d", m, dataspace_id);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "m=%p, dataspace_id=%lld",
+			    m, (long long int)dataspace_id);
 	hid_t mspace_id;
 	TRY (mspace_id = hdf5_create_dataspace (1, m->dsinfo_chunks.dims, NULL));
 
@@ -752,7 +754,9 @@ set_chk_diskspace (
 		h5t_mesh_t* m,
 		hid_t dspace_id
 		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, dataspace_id=%d", m, dspace_id);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "m=%p, dataspace_id=%lld",
+			    m, (long long int)dspace_id);
 
 	H5Sset_extent_simple(dspace_id, 1,m->dsinfo_chunks.dims, NULL); //TODO WRITE WRAPPER
 
@@ -824,7 +828,9 @@ hid_t
 set_oct_memspace (
 		h5t_mesh_t* m,
 		hid_t dataspace_id) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, dataspace_id=%d", m, dataspace_id);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "m=%p, dataspace_id=%lld",
+			    m, (long long int)dataspace_id);
 	hid_t mspace_id;
 	TRY (mspace_id = hdf5_create_dataspace (1, m->dsinfo_octree.dims, NULL));
 
@@ -853,7 +859,9 @@ set_oct_diskspace (
 		h5t_mesh_t* m,
 		hid_t dspace_id
 		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, dataspace_id=%d", m, dspace_id);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "m=%p, dataspace_id=%lld",
+			    m, (long long int)dspace_id);
 
 	H5Sset_extent_simple(dspace_id, 1,m->dsinfo_octree.dims, NULL); //TODO WRITE WRAPPER
 
@@ -950,7 +958,9 @@ hid_t
 set_weight_memspace (
 		h5t_mesh_t* m,
 		hid_t dataspace_id) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, dataspace_id=%d", m, dataspace_id);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "m=%p, dataspace_id=%lld",
+			    m, (long long int)dataspace_id);
 	hid_t mspace_id;
 	TRY (mspace_id = hdf5_create_dataspace (1, m->dsinfo_weights.dims, NULL));
 
@@ -979,7 +989,9 @@ set_weight_diskspace (
 		h5t_mesh_t* m,
 		hid_t dspace_id
 		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, dataspace_id=%d", m, dspace_id);
+	H5_PRIV_FUNC_ENTER (h5_err_t,
+			    "m=%p, dataspace_id=%lld",
+			    m, (long long int)dspace_id);
 
 	H5Sset_extent_simple(dspace_id, 1,m->dsinfo_weights.dims, NULL); //TODO WRITE WRAPPER
 
@@ -1192,7 +1204,7 @@ read_elems (
 
 
 
-#if defined(WITH_PARALLEL_H5FED)
+#if defined(WITH_PARALLEL_H5GRID)
 // READ MESH PARALLEL
 /*
    Partition mesh via dual graph partitioning
@@ -1300,7 +1312,7 @@ part_kway  (
 	        options,
 	        &edgecut,
 	        part,
-	        &m->f->props.comm
+	        &m->f->props->comm
 	        );
 	if (rc != METIS_OK) {
 		H5_PRIV_FUNC_LEAVE(
@@ -1338,7 +1350,7 @@ part_kway  (
 	TRY (h5priv_mpi_alltoall (
 	             sendcounts, 1, MPI_INT,
 	             recvcounts, 1, MPI_INT,
-	             m->f->props.comm));
+	             m->f->props->comm));
 
 	for (i = 0; i < nparts; i++) {
 		h5_debug ("sendcounts[%d]: %d", i, sendcounts[i]);
@@ -1393,7 +1405,7 @@ part_kway  (
 	TRY (h5priv_mpi_alltoallv (
 	             sendbuf, sendcounts, senddispls, type,
 	             recvbuf, recvcounts, recvdispls, type,
-	             m->f->props.comm));
+	             m->f->props->comm));
 	for (i = 0; i < num_interior_elems; i++) {
 		h5_debug ("global cell ID[%d]: %lld",
 		          i, h5tpriv_get_glb_elem_idx (m, recvbuf, i));
@@ -1463,7 +1475,7 @@ exchange_ghost_cells (
 	int* num_ghostcells;
 	TRY (num_ghostcells = h5_calloc (nprocs, sizeof(num_ghostcells[0])));
 	TRY (mpi_allgather (&loc_ghostcell_ids->num_items, 1, MPI_INT,
-	                    num_ghostcells, 1, MPI_INT, m->f->props.comm));
+	                    num_ghostcells, 1, MPI_INT, m->f->props->comm));
 	for (int i = 0; i < nprocs; i++) {
 		h5_debug ("num_ghostcells[%d] = %d", i, num_ghostcells[i]);
 	}
@@ -1482,7 +1494,7 @@ exchange_ghost_cells (
 	             MPI_LONG_LONG,
 	             ghostcells, num_ghostcells, recvdispls,
 	             MPI_LONG_LONG,
-	             m->f->props.comm));
+	             m->f->props->comm));
 
 	for (int i = 0; i < num_ghostcells_total; i++) {
 		h5_debug ("ghostcells[%d] = %lld", i, ghostcells[i]);
@@ -1542,7 +1554,7 @@ exchange_ghost_cells (
 	TRY (h5priv_mpi_alltoall (
 	             sendcounts, 1, MPI_INT,
 	             recvcounts, 1, MPI_INT,
-	             m->f->props.comm));
+	             m->f->props->comm));
 
 	// compute receive displacements and number of local ghost cells
 	recvdispls[0] = 0;
@@ -1559,7 +1571,7 @@ exchange_ghost_cells (
 	TRY (h5priv_mpi_alltoallv (
 	             sendbuf, sendcounts, senddispls, type,
 	             recvbuf, recvcounts, recvdispls, type,
-	             m->f->props.comm));
+	             m->f->props->comm));
 
 	for (int i = 0; i < num_loc_ghost_elems; i++) {
 		h5_debug ("global ghost cell ID[%d]: %lld",
@@ -1653,9 +1665,9 @@ h5tpriv_read_mesh (
 	TRY (h5tpriv_alloc_loc_elems (m, 0, num_interior_elems+num_ghost_elems));
 	m->num_loaded_levels = 1;
 
-	TRY (h5tpriv_init_loc_elems_struct (m, glb_elems, 0, num_interior_elems, 0));
+	TRY (h5tpriv_init_loc_elems_struct (m, glb_elems, 0, num_interior_elems, 0, NULL));
 	TRY (h5tpriv_init_loc_elems_struct (
-		     m, ghost_elems, num_interior_elems, num_ghost_elems, H5_GHOST_ENTITY));
+		     m, ghost_elems, num_interior_elems, num_ghost_elems, H5_GHOST_ENTITY, NULL));
 
 	TRY (h5_free (glb_elems));
 	TRY (h5_free (ghost_elems));
@@ -1699,7 +1711,9 @@ h5tpriv_read_mesh (
 	H5_PRIV_API_RETURN (H5_SUCCESS);
 }
 #endif
-#ifdef WITH_PARALLEL_H5FED
+
+
+#ifdef WITH_PARALLEL_H5GRID
 static h5_err_t
 read_octree (
         h5t_mesh_t* m
@@ -2225,8 +2239,8 @@ distribute_octree_parmetis (
 		}
 
 	}
-
-	TRY (H5t_update_internal (m->octree)); //should not be necessary anymore but doesn't matter since it just checks if update is necessary
+	//should not be necessary anymore but doesn't matter since it just checks if update is necessary
+	TRY (H5t_update_internal (m->octree));
 	TRY (h5_free (vtxdist));
 
 	TRY (h5_free (glb_part));
@@ -2661,7 +2675,7 @@ h5tpriv_read_chunked_mesh (
         h5t_mesh_t* const m
         ) {
 	H5_PRIV_API_ENTER (h5_err_t, "m=%p", m);
-#ifdef WITH_PARALLEL_H5FED
+#ifdef WITH_PARALLEL_H5GRID
 
 	TRY (read_octree (m));
 	TRY (h5priv_mpi_barrier (m->f->props->comm));
