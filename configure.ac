@@ -16,6 +16,7 @@ ENABLE_DEBUG='no'
 ENABLE_C='yes'
 ENABLE_FORTRAN='no'
 ENABLE_PARALLEL='no'
+ENABLE_PYTHON='no'
 
 ###############################################################################
 # --enable-xxx and --with-xxx Arguments
@@ -38,6 +39,13 @@ AC_ARG_ENABLE(
 	[Compile the Fortran interface [default=no]])],
 	[ENABLE_FORTRAN=$enableval])
 AM_CONDITIONAL([ENABLE_FORTRAN], [test "$ENABLE_FORTRAN" = "yes"])
+
+AC_ARG_ENABLE(
+    [python],
+    [AS_HELP_STRING([--enable-python],
+    [Compile the Python interface [default=no]])],
+    [ENABLE_PYTHON=$enableval])
+AM_CONDITIONAL([ENABLE_PYTHON], [test "$ENABLE_PYTHON" = "yes"])
 
 AC_ARG_ENABLE(
 	[parallel],
@@ -280,6 +288,50 @@ else
 	AC_MSG_RESULT([no])
 fi
 
+# python enabled?
+if test "X$ENABLE_PYTHON" = "Xyes"; then
+
+    AM_PATH_PYTHON([2.5])
+    AX_PKG_SWIG([1.3], [], [ AC_MSG_ERROR([SWIG is required to build..]) ])
+    #SWIG_ENABLE_CXX
+    #SWIG_PYTHON
+
+    PYTHON_PREFIX=`python-config --prefix`
+    PYTHON_EXEC_PREFIX=`python-config --exec-prefix`
+
+    # make sure numpy is available..
+    AC_MSG_CHECKING([for numpy support])
+    NUMPY_INCLUDE=`${PYTHON} -c 'import numpy; print numpy.get_include()'`
+
+    if test "X$?" = "X0" ; then
+        AC_MSG_RESULT([$NUMPY_INCLUDE])
+    else
+        AC_MSG_RESULT([no])
+        exit 1
+    fi
+    AC_SUBST([NUMPY_INCLUDE])
+
+    #check for parallel support
+    if test "X$ENABLE_PARALLEL" = "Xyes"; then
+        AC_MSG_CHECKING([for mpi4py support])
+        MPI4PY_INCLUDE=`${PYTHON} -c 'import mpi4py; print mpi4py.get_include()'`
+
+        if test "X$?" = "X0" ; then
+            AC_MSG_RESULT([$MPI4PY_INCLUDE])
+        else
+            AC_MSG_RESULT([no])
+            exit 1
+        fi
+	AC_SUBST([MPI4PY_INCLUDE])
+    fi
+
+    AC_MSG_RESULT([ok])
+
+else
+    AC_MSG_CHECKING([if python interface is enabled])
+    AC_MSG_RESULT([no])
+fi
+
 ######################## large indices enabled ###########################
 AC_MSG_CHECKING([if large indices are enabled])
 if test "X$USE_LARGE_INDICES" = "Xyes"; then
@@ -403,6 +455,7 @@ AC_CONFIG_FILES([
 	src/include/h5core/Makefile
         src/C/Makefile
         src/Fortran/Makefile
+        src/Python/Makefile
 	test/Makefile
         doc/Makefile
 	tools/Makefile
@@ -434,4 +487,13 @@ AC_MSG_RESULT([AM_LDFLAGS =         $AM_LDFLAGS])
 AC_MSG_RESULT([LIBS =               $LIBS])
 AC_MSG_RESULT([HDF5_PREFIX =        $HDF5_PREFIX])
 AC_MSG_RESULT([LUSTREROOT =         $LUSTREROOT])
+
+if test "x$ENABLE_PYTHON" = "xyes"; then
+    AC_MSG_RESULT([PYTHON =             $PYTHON])
+    AC_MSG_RESULT([SWIG =               $SWIG])
+    AC_MSG_RESULT([NUMPY_INCLUDE =      $NUMPY_INCLUDE])
+    if test "x$ENABLE_PARALLEL" = "xyes"; then
+        AC_MSG_RESULT([MPI4PY_INCLUDE =     $MPI4PY_INCLUDE])
+    fi
+fi
 AC_MSG_RESULT([ ])

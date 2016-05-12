@@ -1,7 +1,7 @@
 #!/bin/sh
 # Run this to generate all the initial makefiles, etc.
 
-ACLOCAL_FLAGS="-I m4 $ACLOCAL_FLAGS"
+ACLOCAL_FLAGS="-I m4 -I . $ACLOCAL_FLAGS"
 LIBTOOLIZE_FLAGS="--force $LIBTOOLIZE_FLAGS"
 AUTOMAKE_FLAGS="--add-missing --copy --foreign $AUTOMAKE_FLAGS"
 
