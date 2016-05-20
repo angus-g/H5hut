@@ -1,2 +1,2 @@
 
-SUBDIRS = Fortran h5core C include
+SUBDIRS = Fortran h5core C include Python
