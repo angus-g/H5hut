@@ -1,12 +1,12 @@
 #
-#  Copyright (c) 2006-2015, The Regents of the University of California,
+#  Copyright (c) 2006-2016, The Regents of the University of California,
 #  through Lawrence Berkeley National Laboratory (subject to receipt of any
 #  required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
 #  Institut (Switzerland).  All rights reserved.
 #
 #  License: see file COPYING in top level of source distribution.
 #
-AC_INIT([H5hut], [1.99.15rc1], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [2.0.0rc1], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
@@ -41,10 +41,10 @@ AC_ARG_ENABLE(
 AM_CONDITIONAL([ENABLE_FORTRAN], [test "$ENABLE_FORTRAN" = "yes"])
 
 AC_ARG_ENABLE(
-    [python],
-    [AS_HELP_STRING([--enable-python],
-    [Compile the Python interface [default=no]])],
-    [ENABLE_PYTHON=$enableval])
+	[python],
+	[AS_HELP_STRING([--enable-python],
+	[Compile the Python interface [default=no]])],
+	[ENABLE_PYTHON=$enableval])
 AM_CONDITIONAL([ENABLE_PYTHON], [test "$ENABLE_PYTHON" = "yes"])
 
 AC_ARG_ENABLE(
@@ -291,45 +291,45 @@ fi
 # python enabled?
 if test "X$ENABLE_PYTHON" = "Xyes"; then
 
-    AM_PATH_PYTHON([2.5])
-    AX_PKG_SWIG([1.3], [], [ AC_MSG_ERROR([SWIG is required to build..]) ])
-    #SWIG_ENABLE_CXX
-    #SWIG_PYTHON
+    	AM_PATH_PYTHON([2.5])
+    	AX_PKG_SWIG([1.3], [], [ AC_MSG_ERROR([SWIG is required to build..]) ])
+    	#SWIG_ENABLE_CXX
+    	#SWIG_PYTHON
 
-    PYTHON_PREFIX=`python-config --prefix`
-    PYTHON_EXEC_PREFIX=`python-config --exec-prefix`
+    	PYTHON_PREFIX=`python-config --prefix`
+    	PYTHON_EXEC_PREFIX=`python-config --exec-prefix`
 
-    # make sure numpy is available..
-    AC_MSG_CHECKING([for numpy support])
-    NUMPY_INCLUDE=`${PYTHON} -c 'import numpy; print numpy.get_include()'`
+    	# make sure numpy is available..
+    	AC_MSG_CHECKING([for numpy support])
+    	NUMPY_INCLUDE=`${PYTHON} -c 'import numpy; print numpy.get_include()'`
 
-    if test "X$?" = "X0" ; then
-        AC_MSG_RESULT([$NUMPY_INCLUDE])
-    else
-        AC_MSG_RESULT([no])
-        exit 1
-    fi
-    AC_SUBST([NUMPY_INCLUDE])
+	if test "X$?" = "X0" ; then
+		AC_MSG_RESULT([$NUMPY_INCLUDE])
+    	else
+		AC_MSG_RESULT([no])
+ 		exit 1
+    	fi
+   	AC_SUBST([NUMPY_INCLUDE])
 
-    #check for parallel support
-    if test "X$ENABLE_PARALLEL" = "Xyes"; then
-        AC_MSG_CHECKING([for mpi4py support])
-        MPI4PY_INCLUDE=`${PYTHON} -c 'import mpi4py; print mpi4py.get_include()'`
+    	#check for parallel support
+    	if test "X$ENABLE_PARALLEL" = "Xyes"; then
+        	AC_MSG_CHECKING([for mpi4py support])
+        	MPI4PY_INCLUDE=`${PYTHON} -c 'import mpi4py; print mpi4py.get_include()'`
 
-        if test "X$?" = "X0" ; then
-            AC_MSG_RESULT([$MPI4PY_INCLUDE])
-        else
-            AC_MSG_RESULT([no])
-            exit 1
-        fi
-	AC_SUBST([MPI4PY_INCLUDE])
-    fi
+        	if test "X$?" = "X0" ; then
+			AC_MSG_RESULT([$MPI4PY_INCLUDE])
+        	else
+            		AC_MSG_RESULT([no])
+            		exit 1
+        	fi
+		AC_SUBST([MPI4PY_INCLUDE])
+    	fi
 
-    AC_MSG_RESULT([ok])
+	AC_MSG_RESULT([ok])
 
 else
-    AC_MSG_CHECKING([if python interface is enabled])
-    AC_MSG_RESULT([no])
+    	AC_MSG_CHECKING([if python interface is enabled])
+    	AC_MSG_RESULT([no])
 fi
 
 ######################## large indices enabled ###########################
@@ -489,11 +489,11 @@ AC_MSG_RESULT([HDF5_PREFIX =        $HDF5_PREFIX])
 AC_MSG_RESULT([LUSTREROOT =         $LUSTREROOT])
 
 if test "x$ENABLE_PYTHON" = "xyes"; then
-    AC_MSG_RESULT([PYTHON =             $PYTHON])
-    AC_MSG_RESULT([SWIG =               $SWIG])
-    AC_MSG_RESULT([NUMPY_INCLUDE =      $NUMPY_INCLUDE])
-    if test "x$ENABLE_PARALLEL" = "xyes"; then
-        AC_MSG_RESULT([MPI4PY_INCLUDE =     $MPI4PY_INCLUDE])
-    fi
+	AC_MSG_RESULT([PYTHON =             $PYTHON])
+	AC_MSG_RESULT([SWIG =               $SWIG])
+	AC_MSG_RESULT([NUMPY_INCLUDE =      $NUMPY_INCLUDE])
+	if test "x$ENABLE_PARALLEL" = "xyes"; then
+		AC_MSG_RESULT([MPI4PY_INCLUDE =     $MPI4PY_INCLUDE])
+	fi
 fi
 AC_MSG_RESULT([ ])
