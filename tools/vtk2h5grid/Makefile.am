@@ -1,6 +1,6 @@
 AM_CPPFLAGS = -I${abs_top_srcdir}/src/include -Wno-deprecated
 FFLAGS += -cpp $(AM_CPPFLAGS)
-LDFLAGS += -L${abs_top_builddir}/src/h5core
+AM_LDFLAGS += -L${abs_top_builddir}/src/h5core
 
 LDADD = 
 
