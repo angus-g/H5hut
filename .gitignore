@@ -8,6 +8,7 @@
 .deps
 .dirstamp
 .libs
+INSTALL
 Makefile
 Makefile.in
 aclocal.m4
@@ -23,6 +24,7 @@ config.status
 config.sub
 configure
 depcomp
+py-compile
 examples/H5/attach_file
 examples/H5/example_file_attribs.h5
 examples/H5/example_step_attribs.h5
