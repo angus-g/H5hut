@@ -113,8 +113,6 @@ typedef struct h5_oct_dtypes {
 	MPI_Datatype mpi_octant;
 } h5_oct_dta_types_t;
 
-h5_oct_dta_types_t h5_oct_dta_types;
-
 h5_err_t H5t_create_mpi_type_octant ( void );
 
 // Setter functions

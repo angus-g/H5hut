@@ -9,6 +9,9 @@
 
 #include "private/h5_mpi.h"
 
+h5_oct_dta_types_t h5_oct_dta_types;
+
+
 static h5_err_t
 get_bounding_box_of_octant (
 		h5t_octree_t* const octree,
