@@ -33,12 +33,11 @@
 #include "private/h5t_retrieve.h"
 #include "private/h5t_store.h"
 
-#include "private/h5t_errorhandling.h"
+#include "private/h5t_err.h"
 
 #include "private/h5t_octree.h"
 
 #include <assert.h>
-
 
 typedef struct h5t_te_entry_key {
 	h5_loc_idx_t vids[2];

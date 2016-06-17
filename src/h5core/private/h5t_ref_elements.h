@@ -31,10 +31,6 @@ typedef struct h5t_ref_elem h5t_ref_elem_t;
 extern const h5t_ref_elem_t h5t_tet_ref_elem;
 extern const h5t_ref_elem_t h5t_tri_ref_elem;
 
-#ifdef __cplusplus
-}
-#endif
-
 #define h5tpriv_ref_elem_get_num_vertices(this) (this->ref_elem->num_faces[0])
 
 #define h5tpriv_ref_elem_get_num_edges(this) (this->ref_elem->num_faces[1])

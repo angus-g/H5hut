@@ -6,7 +6,7 @@
 #include "private/h5t_map.h"
 #include "private/h5t_core.h"
 #include "private/h5t_access.h"
-#include "private/h5t_errorhandling.h"
+#include "private/h5t_err.h"
 
 h5_err_t
 h5tpriv_grow_te_htab (

@@ -7,7 +7,6 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
 #include "private/h5_types.h"
 
 #include <stdlib.h>
@@ -37,7 +36,6 @@ int dont_use_parmetis = 0;
 // 2 distribute geometrically with preferred direction
 
 
-#include "h5core/h5_init.h"
 #include "private/h5t_types.h"
 #include "private/h5t_model.h"
 #include "private/h5t_map.h"
@@ -422,7 +420,7 @@ write_vertices_chk (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	assert (m->num_leaf_levels > 0);
 	hid_t dset_id;
-	TRY (dset_id = hdf5_open_dataset (m->mesh_gid, m->dsinfo_vertices.name));
+	TRY (dset_id = hdf5_open_dataset_by_name (m->mesh_gid, m->dsinfo_vertices.name));
 	hid_t mspace_id;
 	hid_t dspace_id;
 
@@ -625,7 +623,7 @@ write_elems_chk (
 	// could check here that glb_elems are in correct order
 
 	hid_t dset_id;
-	TRY (dset_id = hdf5_open_dataset (m->mesh_gid, m->dsinfo_elems.name));
+	TRY (dset_id = hdf5_open_dataset_by_name (m->mesh_gid, m->dsinfo_elems.name));
 	hid_t dspace_id;
 	hid_t mspace_id;
 	hsize_t hstart = 0;
@@ -800,7 +798,7 @@ write_chunks (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_chunks__",
-	             H5_INT32_T,
+	             H5_INT32,
 	             &m->chunks->num_alloc,
 	             1,
 	             1));
@@ -808,7 +806,7 @@ write_chunks (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_chk_levels__",
-	             H5_INT16_T, 				// WARNING should maybe be uint
+	             H5_INT16, 				// WARNING should maybe be uint
 	             &m->chunks->num_levels,
 	             1,
 	             1));
@@ -816,7 +814,7 @@ write_chunks (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_chk_p_level__",
-	             H5_INT32_T,
+	             H5_INT32,
 	             m->chunks->num_chunks_p_level,
 	             m->chunks->num_levels,
 	             1));
@@ -908,7 +906,7 @@ write_octree (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__curr_oct_idx__",
-	             H5_INT32_T,
+	             H5_INT32,
 	             &m->octree->current_oct_idx,
 	             1,
 	             1));
@@ -916,21 +914,21 @@ write_octree (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__oct_maxpoints__",
-	             H5_INT32_T,
+	             H5_INT32,
 	             &m->octree->maxpoints,
 	             1,
 	             1));
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__oct_size_userdata__",
-	             H5_INT32_T,
+	             H5_INT32,
 	             &m->octree->size_userdata,
 	             1,
 	             1));
 	TRY (h5priv_write_attrib (
 				m->mesh_gid,
 				"__oct_bounding_box__",
-				H5_FLOAT64_T,
+				H5_FLOAT64,
 				m->octree->bounding_box,
 				6,
 				1));
@@ -1039,7 +1037,7 @@ write_weights (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_weights__",
-	             H5_INT32_T,
+	             H5_INT32,
 	             &m->num_weights,
 	             1,
 	             1));
@@ -1104,7 +1102,7 @@ read_vertices (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	hid_t dset_id;
-	TRY (dset_id = hdf5_open_dataset (m->mesh_gid, m->dsinfo_vertices.name));
+	TRY (dset_id = hdf5_open_dataset_by_name (m->mesh_gid, m->dsinfo_vertices.name));
 	hid_t mspace_id = H5S_ALL;
 	hid_t dspace_id = H5S_ALL;
 
@@ -1169,7 +1167,7 @@ read_elems (
 	                    m, (long long)start, (long long)count);
 
 	hid_t dset_id;
-	TRY (dset_id = hdf5_open_dataset (m->mesh_gid, m->dsinfo_elems.name));
+	TRY (dset_id = hdf5_open_dataset_by_name (m->mesh_gid, m->dsinfo_elems.name));
 	hid_t mspace_id;
 	hsize_t hcount = (hsize_t)count;
 	TRY (mspace_id = hdf5_create_dataspace (1, &hcount, NULL));
@@ -1720,7 +1718,7 @@ read_octree (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	hid_t dset_id, dset_id2;
-	TRY (dset_id = hdf5_open_dataset (m->mesh_gid, m->dsinfo_octree.name));
+	TRY (dset_id = hdf5_open_dataset_by_name (m->mesh_gid, m->dsinfo_octree.name));
 	hid_t mspace_id = H5S_ALL;
 	hid_t dspace_id = H5S_ALL;
 
@@ -1732,22 +1730,22 @@ read_octree (
 	TRY (h5priv_read_attrib (
 			             m->mesh_gid,
 			             "__curr_oct_idx__",
-			             H5_INT32_T,
+			             H5_INT32,
 			             &oct_size));
 	TRY (h5priv_read_attrib (
 			             m->mesh_gid,
 			             "__oct_maxpoints__",
-			             H5_INT32_T,
+			             H5_INT32,
 			             &maxpoints));
 	TRY (h5priv_read_attrib (
 			             m->mesh_gid,
 			             "__oct_size_userdata__",
-			             H5_INT32_T,
+			             H5_INT32,
 			             &size_userdata));
 	TRY (h5priv_read_attrib (
 						 m->mesh_gid,
 						 "__oct_bounding_box__",
-						 H5_FLOAT64_T,
+						 H5_FLOAT64,
 						 bounding_box))
 	h5t_octant_t*   octants;
 	h5t_oct_userdata_t*  userdata;
@@ -1771,7 +1769,8 @@ read_octree (
              octants));
 
 	if (size_userdata > 0) {
-		TRY (dset_id2 = hdf5_open_dataset (m->mesh_gid, m->dsinfo_userdata.name));
+		TRY (dset_id2 = hdf5_open_dataset_by_name (
+			     m->mesh_gid, m->dsinfo_userdata.name));
 		TRY (hdf5_read_dataset (
 	             dset_id2,
 	             m->dsinfo_userdata.type_id,
@@ -1798,7 +1797,7 @@ read_weights (
 		) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	hid_t dset_id;
-	TRY (dset_id = hdf5_open_dataset (m->mesh_gid, m->dsinfo_weights.name));
+	TRY (dset_id = hdf5_open_dataset_by_name (m->mesh_gid, m->dsinfo_weights.name));
 	hid_t mspace_id = H5S_ALL;
 	hid_t dspace_id = H5S_ALL;
 
@@ -1806,7 +1805,7 @@ read_weights (
 	TRY (h5priv_read_attrib (
 			             m->mesh_gid,
 			             "__num_weights__",
-			             H5_INT32_T,
+			             H5_INT32,
 			             &m->num_weights));
 	TRY (m->weights =
 	     h5_calloc (m->num_weights * m->num_glb_elems[m->num_leaf_levels-1], sizeof (*m->weights)));
@@ -1848,7 +1847,7 @@ read_chunks (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	hid_t dset_id;
-	TRY (dset_id = hdf5_open_dataset (m->mesh_gid, m->dsinfo_chunks.name));
+	TRY (dset_id = hdf5_open_dataset_by_name (m->mesh_gid, m->dsinfo_chunks.name));
 	hid_t mspace_id = H5S_ALL;
 	hid_t dspace_id = H5S_ALL;
 
@@ -1856,13 +1855,13 @@ read_chunks (
 	TRY (h5priv_read_attrib (
 			             m->mesh_gid,
 			             "__num_chunks__",
-			             H5_INT32_T,
+			             H5_INT32,
 			             &m->chunks->num_alloc));
 	m->chunks->curr_idx = m->chunks->num_alloc -1;
 	TRY (h5priv_read_attrib (
 			             m->mesh_gid,
 			             "__num_chk_levels__",
-			             H5_INT16_T,
+			             H5_INT16,
 			             &m->chunks->num_levels));
 
 	TRY (m->chunks->num_chunks_p_level =
@@ -1871,7 +1870,7 @@ read_chunks (
 	TRY (h5priv_read_attrib (
 			             m->mesh_gid,
 			             "__num_chk_p_level__",
-			             H5_INT32_T,
+			             H5_INT32,
 			             m->chunks->num_chunks_p_level));
 	TRY (m->chunks->chunks =
 	     h5_calloc (m->chunks->num_alloc, sizeof (*m->chunks->chunks)));
@@ -2587,7 +2586,7 @@ read_chunked_elements (
 	TRY (get_list_of_proc (m, *my_procs, list_of_chunks, num_interior_chunks));
 
 	hid_t dset_id;
-	TRY (dset_id = hdf5_open_dataset (m->mesh_gid, m->dsinfo_elems.name));
+	TRY (dset_id = hdf5_open_dataset_by_name (m->mesh_gid, m->dsinfo_elems.name));
 	hid_t mspace_id;
 
 	// create memspace
@@ -2838,7 +2837,7 @@ read_elems_part (
 		seloper = H5S_SELECT_OR;
 	}
 	hid_t dset_id;
-	TRY (dset_id = hdf5_open_dataset (m->mesh_gid, m->dsinfo_elems.name));
+	TRY (dset_id = hdf5_open_dataset_by_name (m->mesh_gid, m->dsinfo_elems.name));
 	TRY (hdf5_read_dataset (
 	             dset_id,
 	             m->dsinfo_elems.type_id,

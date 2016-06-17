@@ -7,10 +7,10 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
+#include "h5core/h5_syscall.h"
 
-#include "private/h5.h"
+#include "private/h5_file.h"
 #include "private/h5_init.h"
 #include "private/h5t_types.h"
 #include "private/h5t_model.h"

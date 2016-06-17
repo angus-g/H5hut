@@ -471,6 +471,7 @@ void h5u_test_read2(void)
 	RETURN(status, H5_SUCCESS, "H5CloseFile");
 }
 
+#if H5_VERSION_LE(1,8,12)
 void h5u_test_read3(void)
 {
 	h5_file_t file1;
@@ -478,7 +479,11 @@ void h5u_test_read3(void)
 	h5_int64_t status;
 
 	TEST("Opening file once, read-only, MPI-POSIX VFD");
-	file1 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIO_POSIX, H5_PROP_DEFAULT);
+	h5_prop_t props = H5CreateFileProp ();
+        status = H5SetPropFileMPIOPosix (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOPosix");
+
+	file1 = H5OpenFile(FILENAME, H5_O_RDONLY, prop);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
@@ -492,6 +497,7 @@ void h5u_test_read3(void)
 	status = H5CloseFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CloseFile");
 }
+#endif
 
 void h5u_test_read4(void)
 {
@@ -503,16 +509,14 @@ void h5u_test_read4(void)
 
 	TEST("Opening file twice, read-only, MPI-IO Independent VFD");
         h5_prop_t props = H5CreateFileProp ();
-        status = H5SetPropFileMPIOCollective (props, &comm);
-	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
-        status = H5SetPropFileThrottle (props, 2);
-	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
+        status = H5SetPropFileMPIOIndependent (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOIndependent");
 
-	file1 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIO_INDEPENDENT, props);
+	file1 = H5OpenFile(FILENAME, H5_O_RDONLY, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
-	file2 = H5OpenFile(FILENAME, H5_O_RDONLY | H5_VFD_MPIO_INDEPENDENT, props);
+	file2 = H5OpenFile(FILENAME, H5_O_RDONLY, props);
 	status = H5CheckFile(file2);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 

@@ -13,7 +13,7 @@
 #ifdef PARALLEL_IO
 
 #include "h5core/h5_types.h"
-#include "h5core/h5_errorhandling.h"
+#include "h5core/h5_err.h"
 #include "private/h5_debug.h"
 
 static inline h5_err_t

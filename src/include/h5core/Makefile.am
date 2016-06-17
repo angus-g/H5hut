@@ -3,11 +3,10 @@ otherincludedir = $(includedir)/h5core
 include_HEADERS =		\
 	h5_attachments.h	\
 	h5_debug.h		\
-	h5_errorhandling.h	\
+	h5_err.h		\
 	h5_file.h		\
 	h5_file_attribs.h	\
 	h5_step_attribs.h	\
-	h5_init.h		\
 	h5_model.h		\
 	h5_syscall.h		\
 	h5_types.h		\

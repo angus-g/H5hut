@@ -7,7 +7,9 @@
 /* from write.c */
 void h5u_test_write1(void);
 void h5u_test_write2(void);
+#if H5_VERSION_LE(1,8,12)
 void h5u_test_write3(void);
+#endif
 void h5u_test_write4(void);
 
 /* from read.c */
@@ -38,8 +40,10 @@ int main(int argc, char **argv)
 	AddTest("read1", h5u_test_read1, NULL, "Read 32-bit data", NULL);
 	AddTest("write2", h5u_test_write2, NULL, "Write 32-bit strided data", NULL);
 	AddTest("read2", h5u_test_read2, NULL, "Read 32-bit strided data", NULL);
+#if H5_VERSION_LE(1,8,12)
 	AddTest("write3", h5u_test_write3, NULL, "Write 64-bit strided data", NULL);
 	AddTest("read3", h5u_test_read3, NULL, "Read 64-bit strided data", NULL);
+#endif
 	AddTest("write4", h5u_test_write4, NULL, "Write 64-bit data", NULL);
 	AddTest("read4", h5u_test_read4, NULL, "Read 64-bit data", NULL);
 

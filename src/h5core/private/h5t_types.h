@@ -13,7 +13,7 @@
 #include "h5core/h5_types.h"
 #include "private/h5_types.h"
 #include "private/h5_hsearch.h"
-#include "private/h5_maps.h"
+//#include "private/h5_maps.h"
 
 #include "private/h5t_ref_elements.h"
 

@@ -1,7 +1,7 @@
-#ifndef __PRIVATE_H5_ERRORHANDLING_H
-#define __PRIVATE_H5_ERRORHANDLING_H
+#ifndef __PRIVATE_H5_ERROR_H
+#define __PRIVATE_H5_ERROR_H
 
-#include "h5core/h5_errorhandling.h"
+#include "h5core/h5_err.h"
 
 extern const char* const H5_O_MODES[];
 

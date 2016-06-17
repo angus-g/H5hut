@@ -12,15 +12,9 @@
 
 #include "private/h5_types.h"
 #include "h5core/h5_debug.h"
-#include "h5core/h5_errorhandling.h"
+#include "h5core/h5_err.h"
 #include "h5core/h5_syscall.h"
 #include "private/h5_debug.h"
-
-typedef struct {
-	size_t size;
-	size_t num_items;
-	char* items[1];
-} h5_strlist_t;
 
 // Allocate new list
 #define h5priv_alloc_xlist( type )                                      \

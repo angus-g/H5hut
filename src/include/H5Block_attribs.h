@@ -12,7 +12,6 @@
 
 #include <string.h>
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_attribs.h"
 
@@ -192,7 +191,7 @@ H5Block3dSetFieldOrigin (
 			       f,
 			       field_name,
 			       H5BLOCK_FIELD_ORIGIN_NAME,
-			       (hid_t)H5_FLOAT64_T, 
+			       (hid_t)H5_FLOAT64, 
 			       origin,
 			       3));
 }
@@ -220,7 +219,7 @@ H5Block3dGetFieldOrigin (
 		     f,
 		     field_name,
 		     H5BLOCK_FIELD_ORIGIN_NAME,
-		     H5_FLOAT64_T,
+		     H5_FLOAT64,
 		     origin));
 
 	*x_origin = origin[0];
@@ -254,7 +253,7 @@ H5Block3dSetFieldSpacing (
 			       f,
 			       field_name,
 			       H5BLOCK_FIELD_SPACING_NAME,
-			       (hid_t)H5_FLOAT64_T, 
+			       (hid_t)H5_FLOAT64, 
 			       spacing,
 			       3));
 }
@@ -282,7 +281,7 @@ H5Block3dGetFieldSpacing (
 		     f,
 		     field_name,
 		     H5BLOCK_FIELD_SPACING_NAME,
-		     H5_FLOAT64_T,
+		     H5_FLOAT64,
 		     spacing));
 	*x_spacing = spacing[0];
 	*y_spacing = spacing[1];
@@ -751,7 +750,7 @@ H5BlockReadFieldAttribString (
 			f,
 			field_name,
 			attrib_name,
-			H5_STRING_T,
+			H5_STRING,
 			(void*)buffer));
 }
 

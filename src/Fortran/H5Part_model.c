@@ -189,7 +189,7 @@ h5pt_getdatasetname (
 	H5_API_ENTER (h5_int64_t,
                       "fh=%p, index=%lld, name='%s', l_name=%d",
                       (h5_file_p)f, (long long)*index, name, l_name);
-	h5_int64_t herr =  h5u_get_dataset_info (
+	h5_int64_t herr =  h5u_get_dataset_info_by_idx (
 		f, *index - 1, name, l_name, NULL, NULL );
 	h5_strc2for (name, l_name);
 	H5_API_RETURN (herr);
@@ -217,7 +217,7 @@ h5pt_getdatasetinfo (
 		      (h5_file_p)f,
 		      (long long)*dataset_idx,
 		      dataset_name, dataset_type, dataset_nelem);
-        h5_int64_t h5err = h5u_get_dataset_info (
+        h5_int64_t h5err = h5u_get_dataset_info_by_idx (
                 f,
                 *dataset_idx - 1,
                 dataset_name, l_dataset_name,

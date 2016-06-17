@@ -75,4 +75,11 @@ struct h5_idxmap {
 	h5_size_t	num_items;	/* stored items	*/
 	h5_idxmap_el_t*  items;
 };
+
+typedef struct {
+	size_t size;
+	size_t num_items;
+	char* items[1];
+} h5_strlist_t;
+
 #endif

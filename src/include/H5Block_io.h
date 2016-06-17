@@ -10,7 +10,6 @@
 #ifndef __H5BLOCK_IO_H
 #define __H5BLOCK_IO_H
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_io.h"
 

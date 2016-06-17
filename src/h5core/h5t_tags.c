@@ -10,8 +10,6 @@
 #include "private/h5t_types.h"
 #include "h5core/h5t_map.h"
 
-#include "h5core/h5_init.h"
-
 #include "private/h5_va_macros.h"
 
 #include "private/h5_attribs.h"
@@ -117,10 +115,8 @@ get_tagset_info (
 	// open this tag
 	TRY (tag_id = hdf5_open_group (tags_id, name));
 	// determine type of dataset with values
-	TRY (dset_id = hdf5_open_dataset (tag_id, "values"));
-	hid_t type_;
-	TRY (type_ = hdf5_get_dataset_type (dset_id));
-	TRY (*type = h5priv_normalize_h5_type (type_));
+	TRY (dset_id = hdf5_open_dataset_by_name (tag_id, "values"));
+	TRY (*type = h5priv_get_native_dataset_type (dset_id));
 
 	TRY (hdf5_close_dataset (dset_id));
 	TRY (hdf5_close_group (tag_id));
@@ -145,9 +141,8 @@ h5t_get_mtagset_info (
 	                   "m=%p, idx=%llu, name=%p, len_name=%llu, type=%p",
 	                   m, (long long unsigned)idx, name,
 	                   (long long unsigned)len_name, type);
-
-
-	H5_CORE_API_RETURN (get_tagset_info(m->mesh_gid, idx, name, len_name, type));
+	TRY (ret_value = get_tagset_info(m->mesh_gid, idx, name, len_name, type));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 /*!
@@ -159,7 +154,8 @@ h5t_mtagset_exists (
         const char name[]
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p, name=%s", m, name);
-	H5_CORE_API_RETURN (h5priv_link_exists (m->mesh_gid, "Tags", name));
+	TRY (ret_value = h5priv_link_exists (m->mesh_gid, "Tags", name));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 static h5_err_t
@@ -212,7 +208,7 @@ h5t_create_mtagset (
 	}
 
 	// validate type
-	if (type != H5_INT64_T && type != H5_FLOAT64_T) {
+	if (type != H5_INT64 && type != H5_FLOAT64) {
 		H5_PRIV_FUNC_LEAVE (
 		        h5_error (H5_ERR_INVAL, "Unsupported data type." ));
 	}
@@ -225,9 +221,8 @@ h5t_create_mtagset (
 		        h5_error (
 		                H5_ERR_H5FED,
 		                "Cannot create tagset '%s': Tagset exists", name));
-
-
-	H5_CORE_API_RETURN (new_tagset (m, m->mesh_gid, name, type, set));
+	TRY (ret_value = new_tagset (m, m->mesh_gid, name, type, set));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 static int
@@ -414,7 +409,7 @@ read_tagset (
 	size_t num_interior_elems = 0;
 
 	hid_t dset_id;
-	TRY (dset_id = hdf5_open_dataset (loc_id, "elems"));
+	TRY (dset_id = hdf5_open_dataset_by_name (loc_id, "elems"));
 	TRY (num_interior_elems = hdf5_get_npoints_of_dataset (dset_id));
 	TRY (elems = h5_calloc (num_interior_elems, sizeof(*elems)));
 
@@ -436,7 +431,7 @@ read_tagset (
 	h5t_glb_tag_idx_t* entities;
 	size_t ent_idx = 0;
 	size_t num_entities = 0;
-	TRY (dset_id = hdf5_open_dataset (loc_id, "entities"));
+	TRY (dset_id = hdf5_open_dataset_by_name (loc_id, "entities"));
 	TRY (num_entities = hdf5_get_npoints_of_dataset (dset_id));
 	TRY (entities = h5_calloc (num_entities, sizeof(*entities)));
 	TRY (read_dataset (
@@ -452,10 +447,10 @@ read_tagset (
 	//  "values"
 	h5_int64_t* vals;
 	size_t num_vals = 0;
-	TRY (dset_id = hdf5_open_dataset (loc_id, "values"));
+	TRY (dset_id = hdf5_open_dataset_by_name (loc_id, "values"));
 	TRY (num_vals = hdf5_get_npoints_of_dataset (dset_id));
 	TRY (vals = h5_calloc (num_vals, sizeof (*vals)));
-	TRY (dsinfo.type_id = hdf5_get_dataset_type (dset_id));
+	TRY (dsinfo.type_id = h5priv_get_native_dataset_type (dset_id));
 	TRY (read_dataset (
 				 tagset->m,
 	             tagset->m->f,
@@ -464,16 +459,16 @@ read_tagset (
 	             open_space_all, open_space_all,
 	             vals));
 	TRY (hdf5_close_dataset (dset_id ));
-	tagset->type = h5priv_normalize_h5_type (dsinfo.type_id);
+	tagset->type = dsinfo.type_id;
 
 	/*
 	   add tagset and set values
 	 */
 
 	h5_int64_t scope;
-	TRY (h5priv_read_attrib (loc_id, "__scope_min__", H5_INT64_T, &scope));
+	TRY (h5priv_read_attrib (loc_id, "__scope_min__", H5_INT64, &scope));
 	tagset->scope.min_level = scope;
-	TRY (h5priv_read_attrib (loc_id, "__scope_max__", H5_INT64_T, &scope));
+	TRY (h5priv_read_attrib (loc_id, "__scope_max__", H5_INT64, &scope));
 	tagset->scope.max_level = scope;
 
 	for (ent_idx = 0; ent_idx < num_entities; ent_idx++) {
@@ -661,9 +656,9 @@ write_tagset (
 	             open_space_all, open_space_all,
 	             values));
 	h5_int64_t scope = tagset->scope.min_level;
-	TRY (h5priv_write_attrib (group_id, "__scope_min__", H5_INT64_T, &scope, 1, 1));
+	TRY (h5priv_write_attrib (group_id, "__scope_min__", H5_INT64, &scope, 1, 1));
 	scope = tagset->scope.max_level;
-	TRY (h5priv_write_attrib (group_id, "__scope_max__", H5_INT64_T, &scope, 1, 1));
+	TRY (h5priv_write_attrib (group_id, "__scope_max__", H5_INT64, &scope, 1, 1));
 
 	TRY (hdf5_close_group (group_id));
 	TRY (h5_free (elems));
@@ -891,6 +886,7 @@ h5t_remove_tag (
 	                   tagset, (long long)entity_id);
 	h5_loc_idx_t face_id = h5tpriv_get_face_id (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	H5_CORE_API_RETURN (remove_tag (tagset, face_id, elem_idx));
+	TRY (ret_value = remove_tag (tagset, face_id, elem_idx));
+	H5_CORE_API_RETURN (ret_value);
 }
 

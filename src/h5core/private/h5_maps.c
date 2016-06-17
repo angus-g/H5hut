@@ -7,9 +7,7 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
-
-#include "private/h5_errorhandling.h"
+#include "private/h5_err.h"
 #include "private/h5_maps.h"
 
 /*

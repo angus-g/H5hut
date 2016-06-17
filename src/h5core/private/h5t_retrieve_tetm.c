@@ -8,7 +8,7 @@
 */
 
 #include "private/h5t_types.h"
-#include "private/h5t_errorhandling.h"
+#include "private/h5t_err.h"
 #include "private/h5t_core.h"
 #include "private/h5t_map.h"
 #include "private/h5t_model.h"

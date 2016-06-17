@@ -7,8 +7,6 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
-
 #ifdef H5_USE_LUSTRE
 
 #include <stdio.h>

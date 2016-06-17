@@ -11,7 +11,6 @@
 #define __H5FED_STORE_H
 
 #include "h5core/h5_types.h"
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5t_store.h"
 

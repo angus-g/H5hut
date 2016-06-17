@@ -3,6 +3,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS = -I$(top_srcdir)/src/include @AM_CPPFLAGS@
 
 EXTRA_HEADERS =					\
+	private/h5_file.h			\
 	private/h5_hdf5.h			\
 	private/h5_hsearch.h			\
 	private/h5_init.h			\
@@ -10,7 +11,6 @@ EXTRA_HEADERS =					\
 	private/h5_maps.h			\
 	private/h5_model.h			\
 	private/h5_mpi.h			\
-	private/h5.h				\
 	private/h5_qsort.h			\
 	private/h5_io.h				\
 	private/h5_types.h			\
@@ -21,7 +21,7 @@ EXTRA_HEADERS =					\
 	private/h5t_access.h			\
 	private/h5t_adjacencies.h		\
 	private/h5t_core.h			\
-	private/h5t_errorhandling.h		\
+	private/h5t_err.h			\
 	private/h5t_map.h			\
 	private/h5t_model.h			\
 	private/h5t_octree.h			\
@@ -35,7 +35,7 @@ EXTRA_HEADERS =					\
 	private/h5u_types.h			\
 	private/h5_attribs.h			\
 	private/h5_debug.h			\
-	private/h5_errorhandling.h		\
+	private/h5_err.h			\
 	private/h5_fcmp.h
 
 # Extra files that I wish to include in the dist tar ball.

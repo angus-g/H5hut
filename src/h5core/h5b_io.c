@@ -7,7 +7,6 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
 #include "private/h5_types.h"
 #include "private/h5_hdf5.h"
 
@@ -209,17 +208,18 @@ _write_data (
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (b->field_gid, data_name));
 	if ( exists > 0 ) {
-		TRY (dataset = hdf5_open_dataset (b->field_gid, data_name));
+		TRY (dataset = hdf5_open_dataset_by_name (b->field_gid, data_name));
 		hid_t type_file;
 		TRY( type_file = hdf5_get_dataset_type (dataset) );
 		if ( type != type_file ) {
-			H5_PRIV_FUNC_LEAVE (h5_error(
-			                            H5_ERR_HDF5,
-			                            "Field '%s' already has type '%s' "
-			                            "but was written as '%s'.",
-			                            field_name,
-			                            hdf5_get_type_name (type_file),
-			                            hdf5_get_type_name (type)));
+			H5_PRIV_FUNC_LEAVE (
+				h5_error(
+					H5_ERR_HDF5,
+					"Field '%s' already has type '%s' "
+					"but was written as '%s'.",
+					field_name,
+					hdf5_get_type_name (type_file),
+					hdf5_get_type_name (type)));
 		}
 	} else {
 		TRY (dataset = hdf5_create_dataset(
@@ -388,7 +388,7 @@ read_data (
 	hid_t dataset;
 	h5b_fdata_t *b = f->b;
 
-	TRY (dataset = hdf5_open_dataset (b->field_gid, dataset_name));
+	TRY (dataset = hdf5_open_dataset_by_name (b->field_gid, dataset_name));
 	TRY (_select_hyperslab_for_reading (f, dataset) );
 	TRY (h5priv_start_throttle (f));
 	TRY (hdf5_read_dataset(

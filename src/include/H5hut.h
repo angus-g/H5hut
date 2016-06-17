@@ -21,7 +21,7 @@
 #include "H5_step_attribs.h"
 #include "H5_log.h"
 #include "H5_debug.h"
-#include "H5_error.h"
+#include "H5_err.h"
 
 #include "H5Part_io.h"
 #include "H5Part_model.h"

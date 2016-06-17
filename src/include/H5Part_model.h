@@ -10,7 +10,6 @@
 #ifndef H5PART_MODEL
 #define H5PART_MODEL
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5u_model.h"
 
@@ -71,7 +70,7 @@ H5PartGetDatasetName (
                       (h5_file_p)f,
 		       (long long)idx,
 		       name, (unsigned long long)len);
-	H5_API_RETURN (h5u_get_dataset_info(f, idx, name, len, NULL, NULL));
+	H5_API_RETURN (h5u_get_dataset_info_by_idx(f, idx, name, len, NULL, NULL));
 }
 
 /**
@@ -109,7 +108,7 @@ H5PartGetDatasetInfo (
 		      (long long)idx,
 		      name, (long long unsigned)len_name,
 		      type, nelems);
-	H5_API_RETURN (h5u_get_dataset_info (
+	H5_API_RETURN (h5u_get_dataset_info_by_idx (
 			       f, idx, name, len_name, type, nelems));
 }
 /**

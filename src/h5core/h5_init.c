@@ -14,14 +14,11 @@
 
 #include "config.h"
 
-#include "h5core/h5_init.h"
 #include "private/h5_hdf5.h"
 
 #include "private/h5_mpi.h"
 #include "private/h5t_types.h"
 #include "private/h5t_tags.h"
-
-
 
 int h5_initialized = 0;
 h5_dta_types_t h5_dta_types;            // type ids' for base & compound data types
@@ -39,33 +36,33 @@ create_array_types (
 	hsize_t dims[1] = { 3 };
 	TRY(
 	        h5_dta_types.h5_coord3d_t = hdf5_create_array_type (
-	                H5_FLOAT64_T,
+	                H5_FLOAT64,
 	                1,
 	                dims)
 	        );
 	TRY(
 	        h5_dta_types.h5_3glb_idx_t = hdf5_create_array_type (
-	                H5_ID_T,
+	                H5_ID,
 	                1,
 	                dims)
 	        );
 	dims[0] = 4;
 	TRY(
 	        h5_dta_types.h5_4glb_idx_t = hdf5_create_array_type (
-	                H5_ID_T,
+	                H5_ID,
 	                1,
 	                dims)
 	        );
 	TRY(
 	        h5_dta_types.h5_4chk_idx_t = hdf5_create_array_type (
-	                H5_INT32_T,
+	                H5_INT32,
 	                1,
 	                dims)
 	        );
 	dims[0] = 6;
 	TRY(
 	        h5_dta_types.h5_coord6d_t = hdf5_create_array_type (
-	                H5_FLOAT64_T,
+	                H5_FLOAT64,
 	                1,
 	                dims)
 	        );
@@ -80,14 +77,14 @@ create_vertex_type (
 
 	TRY(
 	        h5_dta_types.h5_vertex_t = hdf5_create_type (
-	                H5_COMPOUND_T,
+	                H5_COMPOUND,
 	                sizeof (h5_glb_vertex_t)) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_vertex_t,
 	                "idx",
 	                HOFFSET (h5_glb_vertex_t, idx),
-	                H5_ID_T) );
+	                H5_ID) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_vertex_t,
@@ -106,44 +103,44 @@ create_triangle_type (
 
 	TRY(
 	        h5_dta_types.h5_triangle_t = hdf5_create_type (
-	                H5_COMPOUND_T,
+	                H5_COMPOUND,
 	                sizeof (h5_glb_tri_t)) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_triangle_t,
 	                "idx",
 	                HOFFSET (h5_glb_tri_t, idx),
-	                H5_ID_T) );
+	                H5_ID) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_triangle_t,
 	                "parent_idx",
 	                HOFFSET (h5_glb_tri_t, parent_idx),
-	                H5_ID_T) );
+	                H5_ID) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_triangle_t,
 	                "child_idx",
 	                HOFFSET(h5_glb_tri_t, child_idx),
-	                H5_ID_T) );
+	                H5_ID) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_triangle_t,
 	                "level_idx",
 	                HOFFSET(h5_glb_tri_t, level_idx),
-	                H5_INT16_T) );
+	                H5_INT16) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_triangle_t,
 	                "refinement",
 	                HOFFSET(h5_glb_tri_t, refinement),
-	                H5_INT16_T) );
+	                H5_INT16) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_triangle_t,
 	                "flags",
 	                HOFFSET(h5_glb_tri_t, flags),
-	                H5_INT32_T) );
+	                H5_INT32) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_triangle_t,
@@ -168,20 +165,20 @@ create_tag_types (
 
 	TRY (
 	        h5_dta_types.h5t_glb_tag_idx_t = hdf5_create_type (
-	                H5_COMPOUND_T,
+	                H5_COMPOUND,
 	                sizeof (h5t_glb_tag_idx_t)) );
 	TRY (
 	        hdf5_insert_type (
 	                h5_dta_types.h5t_glb_tag_idx_t,
 	                "eid",
 	                HOFFSET (h5t_glb_tag_idx_t, eid),
-	                H5_ID_T) );
+	                H5_ID) );
 	TRY (
 	        hdf5_insert_type (
 	                h5_dta_types.h5t_glb_tag_idx_t,
 	                "idx",
 	                HOFFSET (h5t_glb_tag_idx_t, idx),
-	                H5_ID_T) );
+	                H5_ID) );
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
@@ -194,20 +191,20 @@ create_tet_type (
 
 	TRY(
 	        h5_dta_types.h5_tet_t = hdf5_create_type (
-	                H5_COMPOUND_T,
+	                H5_COMPOUND,
 	                sizeof (h5_glb_tet_t)) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_tet_t,
 	                "idx",
 	                HOFFSET (h5_glb_tet_t, idx),
-	                H5_ID_T) );
+	                H5_ID) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_tet_t,
 	                "parent_idx",
 	                HOFFSET (h5_glb_tet_t, parent_idx),
-	                H5_ID_T) );
+	                H5_ID) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_tet_t,
@@ -219,19 +216,19 @@ create_tet_type (
 	                h5_dta_types.h5_tet_t,
 	                "level_idx",
 	                HOFFSET(h5_glb_tet_t, level_idx),
-	                H5_INT16_T) );
+	                H5_INT16) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_tet_t,
 	                "refinement",
 	                HOFFSET(h5_glb_tet_t, refinement),
-	                H5_INT16_T) );
+	                H5_INT16) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_tet_t,
 	                "flags",
 	                HOFFSET(h5_glb_tet_t, flags),
-	                H5_INT32_T) );
+	                H5_INT32) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_tet_t,
@@ -257,50 +254,50 @@ create_chunk_type (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
 	TRY(
 	        h5_dta_types.h5_chunk_t = hdf5_create_type (
-	                H5_COMPOUND_T,
+	                H5_COMPOUND,
 	                sizeof (h5t_chunk_t)) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_chunk_t,
 	                "idx",
 	                HOFFSET (h5t_chunk_t, idx),
-	                H5_INT32_T) );
+	                H5_INT32) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_chunk_t,
 	                "oct_idx",
 	                HOFFSET (h5t_chunk_t, oct_idx),
-	                H5_INT32_T) );
+	                H5_INT32) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_chunk_t,
 	                "elem",
 	                HOFFSET (h5t_chunk_t, elem),
-	                H5_ID_T) );
+	                H5_ID) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_chunk_t,
 	                "weight",
 	                HOFFSET (h5t_chunk_t, weight),
-	                H5_ID_T) );
+	                H5_ID) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_chunk_t,
 	                "num_elems",
 	                HOFFSET (h5t_chunk_t, num_elems),
-	                H5_UINT16_T) );
+	                H5_UINT16) );
 //	TRY(
 //	        hdf5_insert_type (
 //	                h5_dta_types.h5_chunk_t,
 //	                "vtx",
 //	                HOFFSET (h5t_chunk_t, vtx),
-//	                H5_INT64_T) );
+//	                H5_INT64) );
 //	TRY(
 //	        hdf5_insert_type (
 //	                h5_dta_types.h5_chunk_t,
 //	                "num_vtx",
 //	                HOFFSET (h5t_chunk_t, num_vtx),
-//	                H5_INT64_T) );
+//	                H5_INT64) );
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
 
@@ -311,32 +308,32 @@ create_octree_type (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
 	TRY(
 	        h5_dta_types.h5_octree_t = hdf5_create_type (
-	                H5_COMPOUND_T,
+	                H5_COMPOUND,
 	                sizeof (h5t_octant_t)) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_octree_t,
 	                "idx",
 	                HOFFSET (h5t_octant_t, idx),
-	                H5_INT32_T) );
+	                H5_INT32) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_octree_t,
 	                "parent_idx",
 	                HOFFSET (h5t_octant_t, parent_idx),
-	                H5_INT32_T) );
+	                H5_INT32) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_octree_t,
 	                "child_idx",
 	                HOFFSET (h5t_octant_t, child_idx),
-	                H5_INT32_T) );
+	                H5_INT32) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_octree_t,
 	                "level_idx",
 	                HOFFSET (h5t_octant_t, level_idx),
-	                H5_INT16_T) );
+	                H5_INT16) );
 //	TRY(
 //	        hdf5_insert_type (
 //	                h5_dta_types.h5_octree_t,
@@ -348,7 +345,7 @@ create_octree_type (
 	                h5_dta_types.h5_octree_t,
 	                "userlevels",
 	                HOFFSET (h5t_octant_t, userlevels),
-	                H5_INT32_T) );
+	                H5_INT32) );
 
 	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
 }
@@ -360,7 +357,7 @@ create_userdata_type (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
 	TRY(
 		        h5_dta_types.h5_userdata_t = hdf5_create_type (
-		                H5_COMPOUND_T,
+		                H5_COMPOUND,
 		                sizeof (h5t_oct_userdata_t)) );
 	TRY(
 	        hdf5_insert_type (
@@ -678,10 +675,10 @@ h5_initialize (
 		exit (42);
 	}
 #endif
-	h5_dta_types.h5_glb_idx_t = H5_INT64_T;
-	h5_dta_types.h5_int64_t = H5_INT64_T;
-	h5_dta_types.h5_float64_t = H5_FLOAT64_T;
-	h5_dta_types.h5_int32_t = H5_INT32_T;
+	h5_dta_types.h5_glb_idx_t = H5_INT64;
+	h5_dta_types.h5_int64_t = H5_INT64;
+	h5_dta_types.h5_float64_t = H5_FLOAT64;
+	h5_dta_types.h5_int32_t = H5_INT32;
 
 	TRY (create_array_types ());
 	TRY (create_vertex_type ());

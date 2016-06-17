@@ -56,12 +56,6 @@ h5priv_read_dataset (
         hid_t (*)(h5t_mesh_t* const, const hid_t),
 	void* const);
 
-h5_int64_t
-h5priv_get_dataset_type(
-	const hid_t group_id,
-	const char *dataset_name
-	);
-
 h5_err_t
 h5priv_normalize_dataset_name (
 	const char *name,

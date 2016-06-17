@@ -10,10 +10,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_syscall.h"
 
-#include "private/h5.h"
+#include "private/h5_file.h"
 #include "private/h5_hdf5.h"
 
 #include "private/h5_model.h"
@@ -43,9 +42,8 @@ h5b_has_field_data (
         h5_file_p f = (h5_file_p)fh;
         H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
         CHECK_FILEHANDLE (f);
-        h5_err_t exists;
-        TRY (exists = hdf5_link_exists (f->step_gid, H5BLOCK_GROUPNAME_BLOCK));
-        H5_CORE_API_RETURN (exists);
+        TRY (ret_value = hdf5_link_exists (f->step_gid, H5BLOCK_GROUPNAME_BLOCK));
+        H5_CORE_API_RETURN (ret_value);
 }
 
 static void
@@ -729,7 +727,7 @@ h5b_3d_get_chunk (
 	hid_t plist_id;
 	hsize_t hdims[3];
 
-	TRY (dataset_id = hdf5_open_dataset (b->field_gid, H5_BLOCKNAME_X));
+	TRY (dataset_id = hdf5_open_dataset_by_name (b->field_gid, H5_BLOCKNAME_X));
 	TRY (plist_id = hdf5_get_dataset_create_plist (dataset_id));
 	TRY (hdf5_get_chunk_property (plist_id, 3, hdims));
 	TRY (hdf5_close_property (plist_id));
@@ -920,10 +918,11 @@ h5b_get_num_fields (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	CHECK_TIMEGROUP( f );
+	CHECK_TIMEGROUP (f);
 
 	TRY (h5bpriv_open_block_group(f));
-	H5_CORE_API_RETURN (hdf5_get_num_objs_in_group (f->b->block_gid));
+	TRY (ret_value = hdf5_get_num_objs_in_group (f->b->block_gid));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -936,10 +935,10 @@ h5b_has_field (
 	                   "f=%p, name='%s'",
 	                   f, name);
 	CHECK_TIMEGROUP (f);
-	CHECK_TIMEGROUP (f);
 
 	const char* path[] = { H5BLOCK_GROUPNAME_BLOCK, name };
-	H5_CORE_API_RETURN (h5priv_link_exists_(f->step_gid, path, 2));
+	TRY (ret_value = h5priv_link_exists_(f->step_gid, path, 2));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -956,37 +955,39 @@ h5b_get_field_info_by_name (
 	                   "f=%p, name='%s', "
 	                   "field_rank=%p, field_dims=%p, elem_rank=%p, type=%p",
 	                   f, name, field_rank, field_dims, elem_rank, type);
-	CHECK_TIMEGROUP( f );
+	CHECK_TIMEGROUP (f);
 
-	hsize_t dims[16]; /* give it plenty of space even though we don't expect rank > 3 */
-	hsize_t _field_rank, _elem_rank;
-	h5_size_t i, j;
+	/* give it plenty of space even though we don't expect rank > 3 */
+	hsize_t dims[16];
 
 	TRY( h5bpriv_open_field_group(f, name) );
 
 	hid_t dataset_id;
 	hid_t dataspace_id;
 
-	TRY (dataset_id = hdf5_open_dataset (f->b->field_gid, H5_BLOCKNAME_X));
+	TRY (dataset_id = hdf5_open_dataset_by_name (
+		     f->b->field_gid, H5_BLOCKNAME_X));
 	TRY (dataspace_id = hdf5_get_dataset_space (dataset_id) );
 
-	TRY (_field_rank = hdf5_get_dims_of_dataspace (dataspace_id, dims, NULL));
-	if (field_rank) *field_rank = (h5_size_t) _field_rank;
+	hsize_t rank;
+	TRY (rank = hdf5_get_dims_of_dataspace (dataspace_id, dims, NULL));
+	if (field_rank) *field_rank = (h5_size_t)rank;
 
 	if (field_dims) {
-		for ( i = 0, j = _field_rank-1; i < _field_rank; i++, j-- )
+		size_t i, j;
+		for (i = 0, j = rank-1; i < rank; i++, j-- )
 			field_dims[i] = (h5_size_t)dims[j];
 	}
 
-	TRY (_elem_rank = hdf5_get_num_objs_in_group (f->b->field_gid));
-	if (elem_rank) *elem_rank = (h5_size_t) _elem_rank;
-
-	hid_t h5type;
-	TRY (h5type = hdf5_get_dataset_type (dataset_id));
-
-	if ( type )
-		TRY( *type = h5priv_normalize_h5_type(h5type) );
-
+	if (elem_rank) {
+		hsize_t _elem_rank;
+		TRY (_elem_rank = hdf5_get_num_objs_in_group (f->b->field_gid));
+		*elem_rank = (h5_size_t) _elem_rank;
+	}
+	if (type) {
+		TRY (*type = h5priv_get_native_dataset_type (dataset_id));
+		TRY (*type = h5priv_map_hdf5_type_to_enum(*type));
+	}
 	TRY (hdf5_close_dataspace (dataspace_id));
 	TRY (hdf5_close_dataset (dataset_id));
 
@@ -1022,8 +1023,9 @@ h5b_get_field_info (
 	             name,
 	             (size_t)len_name) );
 
-	H5_CORE_API_RETURN (h5b_get_field_info_by_name (
-				    (h5_file_t)f,
-				    name, field_rank, field_dims, elem_rank, type));
+	TRY (h5b_get_field_info_by_name (
+		     (h5_file_t)f,
+		     name, field_rank, field_dims, elem_rank, type));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 

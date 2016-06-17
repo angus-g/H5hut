@@ -12,7 +12,6 @@
 
 #include <string.h>
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5_step_attribs.h"
 
@@ -366,7 +365,7 @@ H5ReadStepAttribString (
 	H5_API_RETURN (h5_read_step_attrib (
 			       f, 
 			       attrib_name,
-			       H5_STRING_T,
+			       H5_STRING,
 			       (void*)buffer));
 }
 
@@ -382,7 +381,7 @@ H5ReadStepAttribFloat64 (
 	H5_API_RETURN (h5_read_step_attrib (
 			       f,
 			       attrib_name,
-			       H5_FLOAT64_T,
+			       H5_FLOAT64,
 			       (void*)buffer));
 }
 
@@ -398,7 +397,7 @@ H5ReadStepAttribFloat32 (
 	H5_API_RETURN (h5_read_step_attrib (
 			       f,
 			       attrib_name,
-			       H5_FLOAT32_T,
+			       H5_FLOAT32,
 			       (void*)buffer));
 }
 
@@ -414,7 +413,7 @@ H5ReadStepAttribInt64 (
 	h5_err_t h5err = h5_read_step_attrib (
 		f,
 		attrib_name,
-		H5_INT64_T,
+		H5_INT64,
 		(void*)buffer);
 	H5_API_RETURN (h5err);
 }
@@ -431,7 +430,7 @@ H5ReadStepAttribInt32 (
 	H5_API_RETURN (h5_read_step_attrib (
 			       f,
 			       attrib_name,
-			       H5_INT32_T,
+			       H5_INT32,
 			       (void*)buffer));
 }
 ///< @}

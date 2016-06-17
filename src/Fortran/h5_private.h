@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2015, The Regents of the University of California,
+  Copyright (c) 2006-2016, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "h5core/h5_init.h"
+#include "h5core/h5_types.h"
 
 #if defined(FC_MANGLING_LOWERCASE_NO_UNDERSCORE)
 #    define FC_MANGLING(a,b) a
@@ -31,23 +31,23 @@
 #  error "Unknown Fortran symbol mangling"
 #endif
 
-#define convert_type2for(type)                  \
-        if (*type == H5_STRING_T) {             \
-                *type = 1;                      \
-        } else if (*type == H5_INT16_T) {       \
-                *type = 2;                      \
-        } else if (*type == H5_INT32_T) {       \
-                *type = 3;                      \
-        } else if (*type == H5_INT64_T) {       \
-                *type = 4;                      \
-        } else if (*type == H5_FLOAT32_T) {     \
-                *type = 5;                      \
-        } else if (*type == H5_FLOAT64_T) {     \
-                *type = 6;                      \
-        } else {                                \
-                H5_API_LEAVE (                  \
-                        h5_error (              \
-                                H5_ERR_H5,      \
+#define convert_type2for(type)				    \
+        if (*type == H5_STRING) {			    \
+                *type = 1;				    \
+        } else if (*type == H5_INT16) {			    \
+                *type = 2;				    \
+        } else if (*type == H5_INT32) {			    \
+                *type = 3;				    \
+        } else if (*type == H5_INT64) {			    \
+                *type = 4;				    \
+        } else if (*type == H5_FLOAT32) {		    \
+                *type = 5;				    \
+        } else if (*type == H5_FLOAT64) {		    \
+                *type = 6;				    \
+        } else {					    \
+                H5_API_LEAVE (				    \
+                        h5_error (			    \
+                                H5_ERR_H5,		    \
                                 "Unknown attribute type")); \
         }
 

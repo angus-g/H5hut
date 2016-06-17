@@ -7,18 +7,17 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 
-#include "private/h5.h"
+#include "private/h5_file.h"
 #include "private/h5_mpi.h"
-#include "private/h5_errorhandling.h"
+#include "private/h5_err.h"
 
 #include "private/h5_attribs.h"
 #include "private/h5_hdf5.h"
 
 #include "private/h5t_types.h"
-#include "private/h5t_errorhandling.h"
+#include "private/h5t_err.h"
 #include "private/h5t_model.h"
 #include "private/h5t_adjacencies.h"
 #include "private/h5t_io.h"
@@ -491,7 +490,8 @@ h5t_get_num_tetmeshes (
 	const h5_file_t fh
 	) {
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", (h5_file_p)fh);
-	H5_CORE_API_RETURN (get_num_meshes (fh, TETRAHEDRAL_MESHES_GRPNAME));
+	TRY (ret_value = get_num_meshes (fh, TETRAHEDRAL_MESHES_GRPNAME));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_ssize_t
@@ -499,7 +499,8 @@ h5t_get_num_trimeshes (
 	const h5_file_t fh
 	) {
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", (h5_file_p)fh);
-	H5_CORE_API_RETURN (get_num_meshes (fh, TRIANGLE_MESHES_GRPNAME));
+	TRY (ret_value = get_num_meshes (fh, TRIANGLE_MESHES_GRPNAME));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 /*!

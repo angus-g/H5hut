@@ -13,12 +13,10 @@
 #include <stdio.h>
 #include <stddef.h>
 
-#include "h5core/h5_types.h"
-#include "h5core/h5_errorhandling.h"
+extern const char* H5_VER_STRING;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "h5core/h5_types.h"
+#include "h5core/h5_err.h"
 
 #define H5_VERBOSE_NONE    	(0)
 #define H5_VERBOSE_ERROR   	(1)
@@ -78,6 +76,10 @@ struct call_stack {
 
 extern h5_int32_t h5_debug_level;
 extern struct call_stack h5_call_stack;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static inline void
 h5_call_stack_init (
@@ -305,7 +307,6 @@ h5_debug (
 	ret_value = expr;						\
 	goto done;							\
 done:									\
-	h5_call_stack_reset ();						\
 	return ret_value;
 
 #define __FUNC_RETURN(expr, mask)					\
@@ -347,9 +348,6 @@ done:									\
 //////////////////////////////////////////////////////////////////////////////
 
 #define H5_API_ENTER(type, fmt, ...)					\
-	if (!h5_initialized) {						\
-		h5_initialize();					\
-	}								\
 	__API_ENTER(type, H5_DEBUG_API, fmt, __VA_ARGS__)
 #define H5_API_LEAVE(expr)		__API_LEAVE(expr)
 #define H5_API_RETURN(expr)		__API_RETURN(expr, H5_DEBUG_API);
@@ -367,7 +365,6 @@ h5_set_debuglevel (
 h5_err_t
 h5_get_debuglevel (
 	void);
-
 
 #ifdef __cplusplus
 }

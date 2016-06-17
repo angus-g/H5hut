@@ -7,10 +7,8 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
 #include "private/h5_types.h"
-
-#include "private/h5_errorhandling.h"
+#include "private/h5_err.h"
 #include "private/h5_hdf5.h"
 #include "private/h5_model.h"
 #include "private/h5_io.h"
@@ -34,7 +32,8 @@ h5priv_write_dataset_by_name (
         const void* const data
         ) {
 	H5_PRIV_API_ENTER (h5_err_t,
-	                   "m=%p, f=%p, loc_id=%lld (%s), dsinfo=%p, set_memspace=%p, "
+	                   "m=%p, f=%p, loc_id=%lld (%s), dsinfo=%p, "
+			   "set_memspace=%p, "
 	                   "set_diskspace=%p, data=%p",
 	                   m, f, (long long int)loc_id, hdf5_get_objname(loc_id),
 	                   dsinfo,
@@ -61,7 +60,7 @@ h5priv_write_dataset_by_name (
 
 	if (exists) {
 		/* overwrite dataset */
-		TRY (dset_id = hdf5_open_dataset (loc_id, dsinfo->name));
+		TRY (dset_id = hdf5_open_dataset_by_name (loc_id, dsinfo->name));
 		TRY (dataspace_id = hdf5_get_dataset_space (dset_id));
 		TRY (hdf5_set_dataset_extent (dset_id, dsinfo->dims));
 		/* exten dataset? */
@@ -104,7 +103,8 @@ h5priv_write_dataset_by_name (
 
    - Check existance dataset
    - Write data
-	is needed if dset, mspace, dspace can't be set by the callback functions above
+	is needed if dset, mspace, dspace can't be set by the callback
+	functions above
  */
 h5_err_t
 h5priv_write_dataset_by_name_id (
@@ -117,12 +117,14 @@ h5priv_write_dataset_by_name_id (
         const void* const data
         ) {
 	H5_PRIV_API_ENTER (h5_err_t,
-	                   "f=%p, loc_id=%lld (%s), dsinfo=%p, dset_id=%lld, memspace_id=%lld, "
+	                   "f=%p, loc_id=%lld (%s), dsinfo=%p, dset_id=%lld, "
+			   "memspace_id=%lld, "
 	                   "diskspace_id=%lld, data=%p",
 	                   f, (long long int)loc_id, hdf5_get_objname(loc_id),
 	                   dsinfo,
 	                   (long long int)dset_id,
-	                   (long long int)memspace_id, (long long int)diskspace_id, data);
+	                   (long long int)memspace_id,
+			   (long long int)diskspace_id, data);
 	h5_info ("Writing dataset %s/%s.",
 	         hdf5_get_objname (loc_id), dsinfo->name);
 

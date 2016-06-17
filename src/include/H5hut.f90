@@ -15,7 +15,7 @@ MODULE H5hut
   include 'H5_step_attribs.f90'
   include 'H5_log.f90'
   include 'H5_debug.f90'
-  include 'H5_error.f90'
+  include 'H5_err.f90'
 
   include 'H5Part_model.f90'
   include 'H5Part_io.f90'

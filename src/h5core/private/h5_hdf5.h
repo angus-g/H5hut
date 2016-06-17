@@ -13,7 +13,7 @@
 #include <hdf5.h>
 
 #include "h5core/h5_types.h"
-#include "h5core/h5_errorhandling.h"
+#include "h5core/h5_err.h"
 #include "private/h5_debug.h"
 #include "private/h5_va_macros.h"
 
@@ -177,16 +177,12 @@ h5priv_link_exists_ (
         const char const* path[],
         size_t size
         );
-#define h5priv_link_exists(loc_id, ...)         \
-        (h5priv_link_exists_ (loc_id, (const char const*[]){__VA_ARGS__}, PP_NARG(__VA_ARGS__)))
+#define h5priv_link_exists(loc_id, ...)					\
+        (h5priv_link_exists_ (loc_id,					\
+			      (const char const*[]){__VA_ARGS__},	\
+			      PP_NARG(__VA_ARGS__)))
 
 
-/*!
-   Close group.
-
-   \param[in]	f		file handle
-   \param[in]	group_id        id of group to close
- */
 static inline h5_err_t
 hdf5_close_group (
         const hid_t group_id
@@ -228,10 +224,6 @@ hdf5_get_num_objs_in_group (
 }
 
 
-/*
-   Get name of object given by index \c idx in group \c loc_id. If name is \c NULL,
-   return size of name.
- */
 static inline h5_ssize_t
 hdf5_get_objname_by_idx (
         hid_t loc_id,
@@ -265,12 +257,7 @@ hdf5_get_objname_by_idx (
 
 /****** D a t a s p a c e ****************************************************/
 /*!
-   Create dataspace for dataset. H5Screate_simple wrapper.
-
-   \param[in]	rank		rank of dataspace
-   \param[in]	dims		dimensions of dataspace
-   \param[in]	maxdims		maximum dimensions of dataspace
-
+   H5Screate_simple wrapper.
  */
 static inline hid_t
 hdf5_create_dataspace (
@@ -426,10 +413,7 @@ hdf5_get_dims_of_dataspace (
 
 
 /*!
-   Close space.
-
-   \param[in]	f		file handle
-   \param[in]	dataspace_id	id of space to close
+   H5Sclose() wrapper
  */
 static inline h5_err_t
 hdf5_close_dataspace (
@@ -451,14 +435,10 @@ hdf5_close_dataspace (
 
 /****** D a t a s e t ********************************************************/
 /*!
-   Open dataset. H5Dopen wrapper.
-
-   \param[in]	f		file handle
-   \param[in]	loc_id		location id
-   \param[in]	dataset_name	name of dataset to open
+   H5Dopen wrapper.
  */
 static inline hid_t
-hdf5_open_dataset (
+hdf5_open_dataset_by_name (
         const hid_t loc_id,
         const char* const dataset_name
         ) {
@@ -482,15 +462,7 @@ hdf5_open_dataset (
 }
 
 /*!
-   Create new dataset
-
-   \param[in]	f		file handle
-   \param[in]	loc_id		id of group or file
-   \param[in]	dataset_name	name of dataset
-   \param[in]	type_id		type used in dataset
-   \param[in]	dataspace_id	dataspace of dataset
-   \param[in]	create_prop	property list for dataset creation
-
+   H5Dcreate() wrapper.
  */
 static inline hid_t
 hdf5_create_dataset (
@@ -528,10 +500,7 @@ hdf5_create_dataset (
 }
 
 /*!
-   Close dataset.
-
-   \param[in]	f		file handle
-   \param[in]	dataset_id	id of dataset to close
+   H5Dclose() wrapper.
  */
 static inline h5_err_t
 hdf5_close_dataset (
@@ -555,11 +524,7 @@ hdf5_close_dataset (
 }
 
 /*!
-   Get dataspace of existing dataset
-
-   \param[in]	f		file handle
-   \param[in]	dataset_id	id of dataset
-
+   H5Dget_space() wrapper.
  */
 static inline hid_t
 hdf5_get_dataset_space (
@@ -580,16 +545,7 @@ hdf5_get_dataset_space (
 }
 
 /*!
-   Wrapper for H5Dwrite.
-
-   \param[in]	f		file handle
-   \param[in]	dataset_id	id of dataset
-   \param[in]	type_id		type used in dataset
-   \param[in]	memspace_id	id of memory space
-   \param[in]	diskspace_id	id of disk space
-   \param[in]	xfer_prop	transfer property list
-   \param[in]	buf		buffer with date to write
-
+   H5Dwrite() wrapper
  */
 static inline h5_err_t
 hdf5_write_dataset (
@@ -624,7 +580,7 @@ hdf5_write_dataset (
 }
 
 /*
-   Wrapper for H5Dread
+   H5Dread() write
  */
 static inline h5_err_t
 hdf5_read_dataset (
@@ -722,34 +678,77 @@ hdf5_get_npoints_of_dataset_by_name (
 	                    name);
 	hid_t dset_id;
 	hsize_t size;
-	TRY (dset_id = hdf5_open_dataset (loc_id, name));
+	TRY (dset_id = hdf5_open_dataset_by_name (loc_id, name));
 	TRY (size = hdf5_get_npoints_of_dataset (dset_id));
 	TRY (hdf5_close_dataset (dset_id));
 	HDF5_WRAPPER_RETURN (size);
 }
 
 /****** D a t a t y p e ******************************************************/
-/*!
-   Create array type. Wrapper for "H5Tarray_create".
 
-   \param[in]	f		file handle
-   \param[in]	base_type_id	base type
-   \param[in]	rank		rank of array
-   \param[in]	dims		dimensions
+
+/*!
+   Map HDF5 type to native HDF5 type.
+*/
+static inline h5_int64_t
+hdf5_get_native_type (
+	hid_t type
+	) {
+	HDF5_WRAPPER_ENTER (h5_int64_t,
+			   "type=%lld",
+			   (long long int)type);
+	H5T_class_t tclass;
+	int size;
+	TRY (tclass = H5Tget_class (type));
+	TRY (size = H5Tget_size (type));
+
+	switch (tclass){
+	case H5T_INTEGER:
+		if (size==8) {
+			HDF5_WRAPPER_LEAVE (H5T_NATIVE_INT64);
+		} else if (size==4) {
+		        HDF5_WRAPPER_LEAVE (H5T_NATIVE_INT32);
+		} else if (size==2) {
+		        HDF5_WRAPPER_LEAVE (H5T_NATIVE_INT16);
+		}
+		break;
+	case H5T_FLOAT:
+		if (size==8) {
+			HDF5_WRAPPER_LEAVE (H5T_NATIVE_FLOAT);
+		}
+		else if (size==4) {
+			HDF5_WRAPPER_LEAVE (H5T_NATIVE_DOUBLE);
+		}
+		break;
+	case H5T_STRING:
+		HDF5_WRAPPER_LEAVE (H5T_NATIVE_CHAR);
+	default:
+		; /* NOP */
+	}
+	HDF5_WRAPPER_RETURN (
+		h5_error (
+			H5_ERR_INVAL,
+			"Unknown data type %lld",
+			(long long int)type));
+}
+
+
+/*!
+   H5Tarray_create() write
  */
 static inline char_p
 hdf5_get_type_name (
         hid_t type_id
         ) {
-	if (type_id == H5_INT32_T)
+	if (type_id == H5_INT32)
 		return "H5_INT32_T";
-	if (type_id == H5_INT64_T)
+	if (type_id == H5_INT64)
 		return "H5_INT64_T";
-	if (type_id == H5_FLOAT32_T)
+	if (type_id == H5_FLOAT32)
 		return "H5_FLOAT32_T";
-	if (type_id == H5_FLOAT64_T)
+	if (type_id == H5_FLOAT64)
 		return "H5_FLOAT64_T";
-	if (type_id == H5_STRING_T)
+	if (type_id == H5_STRING)
 		return "H5_STRING_T";
 
 	h5_warn ("Unknown type id %lld", (long long int)type_id);
@@ -933,11 +932,7 @@ hdf5_create_property (
 }
 
 /*!
-   Get create properties of existing dataset
-
-   \param[in]	f		file handle
-   \param[in]	dataset_id	id of dataset
-
+   H5Dget_create_plist() wrapper.
  */
 static inline hid_t
 hdf5_get_dataset_create_plist (
@@ -1131,7 +1126,8 @@ hdf5_set_alignment_property (
 		HDF5_WRAPPER_LEAVE (
 		        h5_error (
 		                H5_ERR_HDF5,
-		                "Cannot set alignment property to %llu and threshold %llu",
+		                "Cannot set alignment property to %llu "
+				"and threshold %llu",
 		                alignment, threshold));
 	HDF5_WRAPPER_RETURN (H5_SUCCESS);
 }
@@ -1261,7 +1257,8 @@ hdf5_attribute_exists (
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
 	                    "loc_id=%lld (%s), attr_name='%s'",
-	                    (long long int)loc_id, hdf5_get_objname (loc_id), attrib_name);
+	                    (long long int)loc_id,
+			    hdf5_get_objname (loc_id), attrib_name);
 	htri_t exists = H5Aexists (loc_id, attrib_name);
 	if (exists < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1274,13 +1271,14 @@ hdf5_attribute_exists (
 }
 
 static inline hid_t
-hdf5_open_attribute (
+hdf5_open_attribute_by_name (
         hid_t loc_id,
         const char* attrib_name
         ) {
 	HDF5_WRAPPER_ENTER (hid_t,
 	                    "loc_id=%lld (%s), attr_name='%s'",
-	                    (long long int)loc_id, hdf5_get_objname (loc_id), attrib_name);
+	                    (long long int)loc_id,
+			    hdf5_get_objname (loc_id), attrib_name);
 	hid_t attrib_id = H5Aopen (loc_id, attrib_name, H5P_DEFAULT);
 	if (attrib_id < 0)
 		HDF5_WRAPPER_LEAVE (
@@ -1293,7 +1291,7 @@ hdf5_open_attribute (
 }
 
 static inline hid_t
-hdf5_open_attribute_idx (
+hdf5_open_attribute_by_idx (
         hid_t loc_id,
         unsigned int idx
         ) {
@@ -1308,32 +1306,6 @@ hdf5_open_attribute_idx (
 		                "Cannot open attribute '%u' of '%s'.",
 		                idx,
 		                hdf5_get_objname (loc_id)));
-	HDF5_WRAPPER_RETURN (attr_id);
-}
-
-static inline hid_t
-hdf5_open_attribute_by_name (
-        hid_t loc_id,
-        const char* obj_name,
-        const char* attr_name
-        ) {
-	HDF5_WRAPPER_ENTER (hid_t,
-	                    "loc_id=%lld (%s), obj_name='%s', attr_name='%s'",
-	                    (long long int)loc_id, hdf5_get_objname (loc_id),
-	                    obj_name, attr_name);
-	hid_t attr_id = H5Aopen_by_name (
-	        loc_id,
-	        obj_name,
-	        attr_name,
-	        H5P_DEFAULT,
-	        H5P_DEFAULT);
-	if (attr_id < 0)
-		HDF5_WRAPPER_LEAVE (
-		        h5_error (
-		                H5_ERR_HDF5,
-		                "Cannot open attribute '%s' of '%s'.",
-		                attr_name,
-		                obj_name));
 	HDF5_WRAPPER_RETURN (attr_id);
 }
 

@@ -13,9 +13,27 @@
 #include "h5core/h5_types.h"
 #include "private/h5t_types.h"
 
+#define UNUSED_ARGUMENT(x) (void)x
+
+// dummy MPI calls for serial code
+#if !defined (PARALLEL_IO)
+typedef int MPI_Comm;
+#define MPI_Init(argc, argv)
+#define MPI_Comm_size(comm, nprocs) {(void)comm; *nprocs = 1; }
+#define MPI_Comm_rank(comm, myproc) {(void)comm; *myproc = 0; }
+#define MPI_Finalize()
+#define MPI_COMM_WORLD (0)
+#define MPI_COMM_SELF (1)
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern int h5_initialized;
+
+h5_err_t
+h5_initialize (void);
 
 extern h5_dta_types_t h5_dta_types;
 extern int h5_myproc;

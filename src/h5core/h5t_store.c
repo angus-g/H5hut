@@ -7,9 +7,9 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "private/h5_errorhandling.h"
+#include "private/h5_err.h"
 #include "private/h5t_types.h"
-#include "private/h5t_errorhandling.h"
+#include "private/h5t_err.h"
 #include "private/h5t_access.h"
 #include "private/h5t_core.h"
 #include "private/h5t_map.h"
@@ -18,7 +18,7 @@
 #include "private/h5t_core.h"
 #include "private/h5t_io.h"
 #include "private/h5_init.h"
-#include "private/h5.h"
+#include "private/h5_file.h"
 #include "private/h5_mpi.h"
 
 #include "h5core/h5t_map.h"
@@ -487,7 +487,8 @@ h5t_begin_store_vertices (
 	m->last_stored_vid_before_ref = m->last_stored_vid;
 	m->num_loc_vertices[m->leaf_level] = cur_num_loc_vertices+num;
 	m->dsinfo_vertices.dims[0] = cur_num_loc_vertices+num;
-	H5_CORE_API_RETURN (h5tpriv_alloc_loc_vertices (m, cur_num_loc_vertices+num));
+	TRY (ret_value = h5tpriv_alloc_loc_vertices (m, cur_num_loc_vertices+num));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_loc_idx_t
@@ -564,7 +565,8 @@ h5t_begin_store_elems (
 
 	m->last_stored_eid_before_ref = m->last_stored_eid;
 
-	H5_CORE_API_RETURN (h5tpriv_alloc_loc_elems (m, cur, new));
+	TRY (ret_value = h5tpriv_alloc_loc_elems (m, cur, new));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 
@@ -1228,7 +1230,9 @@ h5t_mark_entity (
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p, entity_id=%llu",
 	                   m, (long long unsigned)entity_id);
-	H5_CORE_API_RETURN (h5priv_insert_into_loc_idlist (&m->marked_entities, entity_id, -1));
+	TRY (ret_value = h5priv_insert_into_loc_idlist (
+		     &m->marked_entities, entity_id, -1));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -2784,7 +2788,7 @@ h5t_create_index_set (
 	int codim;
 	int dim = h5tpriv_ref_elem_get_dim (m);
 	// todo: check tagset already exist
-	TRY (h5t_add_mtagset (m, "__IndexSet__", H5_INT64_T));
+	TRY (h5t_add_mtagset (m, "__IndexSet__", H5_INT64));
 
 	for (codim = 0; codim <= dim; codim++) {
 		h5_glb_idx_t idx = 0;

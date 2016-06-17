@@ -7,14 +7,12 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
 #include "private/h5_types.h"
 #include "private/h5_hdf5.h"
 #include "private/h5_model.h"
 #include "private/h5_io.h"
 #include "private/h5u_types.h"
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_model.h"
 #include "h5core/h5_syscall.h"
 
@@ -103,7 +101,7 @@ h5u_read_data (
 	char name2[H5_DATANAME_LEN];
 	TRY (h5priv_normalize_dataset_name (name, name2));
 
-	TRY (dataset_id = hdf5_open_dataset (f->step_gid, name2));
+	TRY (dataset_id = hdf5_open_dataset_by_name (f->step_gid, name2));
 
 	/* default spaces, if not using a view selection */
 	memspace_id = H5S_ALL;
@@ -235,4 +233,3 @@ h5u_write_data (
 
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
-

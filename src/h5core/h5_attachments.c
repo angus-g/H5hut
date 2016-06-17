@@ -7,14 +7,15 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
 #include "private/h5_types.h"
 
-#include "private/h5_errorhandling.h"
+#include "private/h5_err.h"
 #include "private/h5_hdf5.h"
 #include "private/h5_model.h"
 #include "h5core/h5_syscall.h"
 #include "private/h5_va_macros.h"
+
+#include "h5core/h5_file.h"
 
 #include <string.h>
 #include <sys/stat.h>
@@ -133,9 +134,8 @@ h5_has_attachments (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	h5_err_t exists;
-	TRY  (exists = hdf5_link_exists (f->file, H5_ATTACHMENT));
-	H5_CORE_API_RETURN (exists);
+	TRY  (ret_value = hdf5_link_exists (f->file, H5_ATTACHMENT));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_ssize_t
@@ -151,10 +151,9 @@ h5_get_num_attachments (
 	}
 	hid_t group_id;
 	TRY (group_id = hdf5_open_group (f->file, H5_ATTACHMENT));
-	h5_ssize_t num = 0;
-	TRY (num = hdf5_get_num_datasets (group_id));
+	TRY (ret_value = hdf5_get_num_datasets (group_id));
 	TRY (hdf5_close_group (group_id));
-	H5_CORE_API_RETURN (num);
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -197,9 +196,8 @@ h5_has_attachment (
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
 	hid_t loc_id;
 	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
-	h5_err_t exists;
-        TRY (exists = hdf5_link_exists (f->file, fname));
-	H5_CORE_API_RETURN (exists);
+        TRY (ret_value = hdf5_link_exists (f->file, fname));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -243,7 +241,7 @@ h5_get_attachment (
 	// read dataset
 	hid_t dataset_id, diskspace_id;
 	h5_ssize_t fsize;
-	TRY (dataset_id = hdf5_open_dataset (loc_id, fname));
+	TRY (dataset_id = hdf5_open_dataset_by_name (loc_id, fname));
 	TRY (diskspace_id = hdf5_get_dataset_space (dataset_id));
 	TRY (fsize = hdf5_get_npoints_of_dataspace (diskspace_id));
 

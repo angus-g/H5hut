@@ -9,7 +9,6 @@
 
 #include <string.h>
 
-#include "h5core/h5_init.h"
 #include "private/h5_types.h"
 #include "private/h5_hdf5.h"
 #include "private/h5_model.h"
@@ -59,67 +58,6 @@ h5_set_step (
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
-/*!
-   Normalize HDF5 type
-*/
-h5_int64_t
-h5priv_normalize_h5_type (
-	hid_t type
-	) {
-	H5_CORE_API_ENTER (h5_int64_t,
-			   "type=%lld",
-			   (long long int)type);
-	H5T_class_t tclass;
-	int size;
-	TRY (tclass = H5Tget_class (type));
-	TRY (size = H5Tget_size (type));
-
-	switch (tclass){
-	case H5T_INTEGER:
-		if (size==8) {
-			H5_CORE_API_LEAVE (H5_INT64_T);
-		} else if (size==4) {
-		        H5_CORE_API_LEAVE (H5_INT32_T);
-		} else if (size==2) {
-		        H5_CORE_API_LEAVE (H5_INT16_T);
-		}
-		break;
-	case H5T_FLOAT:
-		if ( size==8 ) {
-			H5_CORE_API_LEAVE (H5_FLOAT64_T);
-		}
-		else if ( size==4 ) {
-			H5_CORE_API_LEAVE (H5_FLOAT32_T);
-		}
-		break;
-	case H5T_STRING:
-		H5_CORE_API_LEAVE (H5_STRING_T);
-	default:
-		; /* NOP */
-	}
-	H5_CORE_API_RETURN (h5_warn ("Unknown type %d", (int)type));
-}
-
-h5_int64_t
-h5priv_get_dataset_type(
-	const hid_t group_id,
-	const char* dset_name
-	) {
-	H5_CORE_API_ENTER (h5_int64_t,
-			   "group_id=%lld, dset_name='%s'",
-			   (long long int)group_id, dset_name);
-	hid_t dset_id;
-	hid_t hdf5_type;
-	h5_int64_t type;
-	TRY (dset_id = hdf5_open_dataset (group_id, dset_name));
-	TRY (hdf5_type = hdf5_get_dataset_type (dset_id));
-	TRY (type = h5priv_normalize_h5_type (hdf5_type));
-	TRY (hdf5_close_type (hdf5_type));
-	TRY (hdf5_close_dataset (dset_id));
-
-	H5_CORE_API_RETURN (type);
-}
-
 /*
   returns:
   TRUE (value > 0): if step exists
@@ -138,9 +76,8 @@ h5_has_step (
 		"%s#%0*lld",
 		f->props->prefix_step_name, f->props->width_step_idx,
 		 (long long)step_idx);
-        h5_err_t exists;
-        TRY (exists = hdf5_link_exists (f->file, name));
-	H5_CORE_API_RETURN (exists);
+        TRY (ret_value = hdf5_link_exists (f->file, name));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -154,7 +91,7 @@ h5priv_normalize_dataset_name (
 		name2[H5_DATANAME_LEN-1] = '\0';
 		h5_warn ("Truncated name '%s' to '%s'.", name, name2);
 	} else {
-		strcpy ( name2, name );
+		strcpy (name2, name);
 	}
 
 	if ( strcmp( name2, H5BLOCK_GROUPNAME_BLOCK ) == 0 ) {
@@ -167,4 +104,3 @@ h5priv_normalize_dataset_name (
 	}
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
-

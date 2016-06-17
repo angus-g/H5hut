@@ -20,7 +20,7 @@
 #include "private/h5t_retrieve.h"
 #include "private/h5t_store.h"
 
-#include "private/h5.h"
+#include "private/h5_file.h"
 #include "private/h5_init.h"
 #include "private/h5t_core.h"
 

@@ -10,9 +10,14 @@
 #ifndef __PRIVATE_H5_DEBUG_H
 #define __PRIVATE_H5_DEBUG_H
 
+#include "h5core/h5_types.h"
 #include "h5core/h5_debug.h"
+#include "private/h5_init.h"
 
 #define H5_CORE_API_ENTER(type, fmt, ...)				\
+	if (!h5_initialized) {						\
+		h5_initialize();					\
+	}								\
 	__FUNC_ENTER(type, H5_DEBUG_CORE_API, fmt, __VA_ARGS__)
 #define H5_CORE_API_LEAVE(value)	__FUNC_LEAVE(value)
 #define H5_CORE_API_RETURN(value)	__FUNC_RETURN(value, H5_DEBUG_CORE_API)

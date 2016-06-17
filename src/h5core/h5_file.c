@@ -11,10 +11,9 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 
-#include "private/h5.h"
+#include "private/h5_file.h"
 #include "private/h5_hdf5.h"
 
 #include "private/h5_model.h"
@@ -22,7 +21,7 @@
 #include "private/h5u_io.h"
 #include "private/h5b_io.h"
 
-#include "h5core/h5_errorhandling.h"
+#include "h5core/h5_err.h"
 #include "h5core/h5_syscall.h"
 
 /*!
@@ -60,7 +59,7 @@ h5_get_hdf5_file(
 }
 
 /*!
-  Initialize H5Part
+  Initialize H5hut
 */
 static herr_t
 hdf5_error_handler (
@@ -583,7 +582,8 @@ h5_close_hdf5 (
         void
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "%s", "");
-	H5_CORE_API_RETURN (hdf5_close ());
+	TRY (ret_value = hdf5_close ());
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -592,7 +592,8 @@ h5_flush_step (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
-	H5_CORE_API_RETURN (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
+	TRY (ret_value = hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -601,7 +602,8 @@ h5_flush_file (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
-	H5_CORE_API_RETURN (hdf5_flush (f->file, H5F_SCOPE_GLOBAL));
+	TRY (ret_value = hdf5_flush (f->file, H5F_SCOPE_GLOBAL));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 
@@ -703,9 +705,10 @@ h5_get_num_steps(
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (int, "f=%p", f);
-	H5_CORE_API_RETURN (hdf5_get_num_groups_matching_prefix (
-                                    f->root_gid,
-                                    f->props->prefix_step_name));
+	TRY (ret_value = hdf5_get_num_groups_matching_prefix (
+		     f->root_gid,
+		     f->props->prefix_step_name));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 /*!

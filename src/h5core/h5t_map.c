@@ -109,11 +109,15 @@ h5t_map_global_vertex_idx2local (
 	H5_CORE_API_ENTER (h5_loc_idx_t, "m=%p, glb_idx=%lld", m, (long long)glb_idx);
 	if (glb_idx < 0) return -1;
 
-	h5_loc_idx_t loc_idx = h5priv_search_idxmap (&m->map_vertex_g2l, glb_idx); // loc_idx is position in map
+	// loc_idx is position in map
+	h5_loc_idx_t loc_idx = h5priv_search_idxmap (&m->map_vertex_g2l, glb_idx);
 	if (loc_idx < 0) {
-		H5_CORE_API_LEAVE (h5tpriv_error_global_id_nexist ("vertex", glb_idx));
+		H5_CORE_API_LEAVE (
+			h5tpriv_error_global_id_nexist ("vertex", glb_idx));
 	}
-	H5_CORE_API_RETURN (m->map_vertex_g2l.items[loc_idx].loc_idx); // loc_idx is position in m->vertices!
+	// loc_idx is position in m->vertices!
+	TRY (ret_value = m->map_vertex_g2l.items[loc_idx].loc_idx);
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -315,8 +319,9 @@ h5tpriv_get_loc_vtx_idx_of_vtx (
 	                   (long long unsigned)*vertex_index);
 	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	H5_CORE_API_RETURN (h5tpriv_get_loc_vtx_idx_of_vtx2 (
-				    m, face_idx, elem_idx, vertex_index));
+	TRY (ret_value = h5tpriv_get_loc_vtx_idx_of_vtx2 (
+		     m, face_idx, elem_idx, vertex_index));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -352,8 +357,10 @@ h5t_get_loc_vertex_indices_of_edge (
 	                   vertex_indices);
 	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	H5_CORE_API_RETURN (h5t_get_loc_vertex_indices_of_edge2 (
-	                            m, face_idx, elem_idx, vertex_indices));
+	
+	TRY (ret_value = h5t_get_loc_vertex_indices_of_edge2 (
+		     m, face_idx, elem_idx, vertex_indices));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 /*!
@@ -399,8 +406,9 @@ h5t_get_loc_vertex_indices_of_triangle (
 	                   vertex_indices);
 	h5_loc_idx_t face_idx = h5tpriv_get_face_idx (entity_id);
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
-	H5_CORE_API_RETURN (h5t_get_loc_vertex_indices_of_triangle2 (
-	                            m, face_idx, elem_idx, vertex_indices));
+	TRY (ret_value = h5t_get_loc_vertex_indices_of_triangle2 (
+		     m, face_idx, elem_idx, vertex_indices));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t

@@ -10,7 +10,6 @@
 #ifndef __H5BLOCK_MODEL
 #define __H5BLOCK_MODEL
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_model.h"
 

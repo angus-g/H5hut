@@ -12,7 +12,6 @@
 
 #include <string.h>
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5_file_attribs.h"
 
@@ -369,7 +368,7 @@ H5ReadFileAttribString (
 	H5_API_RETURN (h5_read_file_attrib (
 			       f,
 			       attrib_name,
-			       H5_STRING_T,
+			       H5T_C_S1,
 			       (void*)buffer));
 }
 
@@ -385,7 +384,7 @@ H5ReadFileAttribFloat64 (
 	H5_API_RETURN (h5_read_file_attrib (
 			       f,
 			       attrib_name,
-			       H5_FLOAT64_T,
+			       H5_FLOAT64,
 			       (void*)buffer));
 }
 
@@ -401,7 +400,7 @@ H5ReadFileAttribFloat32 (
 	H5_API_RETURN (h5_read_file_attrib (
 			       f,
 			       attrib_name,
-			       H5_FLOAT32_T,
+			       H5_FLOAT32,
 			       (void*)buffer));
 }
 
@@ -417,7 +416,7 @@ H5ReadFileAttribInt64 (
 	H5_API_RETURN (h5_read_file_attrib (
 			       f,
 			       attrib_name,
-			       H5_INT64_T,
+			       H5_INT64,
 			       (void*)buffer));
 }
 
@@ -433,7 +432,7 @@ H5ReadFileAttribInt32 (
 	H5_API_RETURN (h5_read_file_attrib (
 			       f,
 			       attrib_name,
-			       H5_INT32_T,
+			       H5_INT32,
 			       (void*)buffer));
 }
 ///< @}

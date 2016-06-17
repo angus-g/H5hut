@@ -10,49 +10,35 @@
 #ifndef __H5CORE_H5_TYPES_H
 #define __H5CORE_H5_TYPES_H
 
-//#include <hdf5.h>
 #include <stdarg.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define H5_STRING               H5T_C_S1
+#define H5_INT16                H5T_NATIVE_INT16
+#define H5_UINT16		H5T_NATIVE_UINT16
+#define H5_INT32                H5T_NATIVE_INT32
+#define H5_UINT32               H5T_NATIVE_UINT32
+#define H5_INT64                H5T_NATIVE_INT64
+#define H5_UINT64               H5T_NATIVE_UINT64
+#define H5_FLOAT32              H5T_NATIVE_FLOAT
+#define H5_FLOAT64              H5T_NATIVE_DOUBLE
+#define H5_ID                   H5T_NATIVE_INT64
+#define H5_COMPOUND             H5T_COMPOUND
 
-/*
-   file modes:
-   H5_O_RDONLY: read data from existing file
-   H5_O_WRONLY: create new file, if file not exists; write new or overwrite existing data
-   H5_O_APPENDONLY: allows to append new data to an existing file
-   H5_O_RDWR: create new file, if file not exists; read and (over-)write data
- */
-#define H5_O_RDWR		0x00000001
-#define H5_O_RDONLY		0x00000002
-#define H5_O_WRONLY		0x00000004
-#define H5_O_APPENDONLY		0x00000008
-
-#define H5_VFD_MPIO_POSIX       0x00000010
-#define H5_VFD_MPIO_INDEPENDENT 0x00000020
-#define H5_VFD_MPIO_COLLECTIVE  0x00000040
-#define H5_VFD_CORE		0x00000080
-
-#define H5_FLUSH_FILE		0x00001000
-#define H5_FLUSH_STEP		0x00002000
-#define H5_FLUSH_DATASET	0x00004000
-
-#define H5_FS_LUSTRE		0x00010000
-
-#define H5_ID_T                 H5T_NATIVE_INT64
-#define H5_FLOAT64_T            H5T_NATIVE_DOUBLE
-#define H5_FLOAT32_T            H5T_NATIVE_FLOAT
-#define H5_INT64_T              H5T_NATIVE_INT64
-#define H5_INT32_T              H5T_NATIVE_INT32
-#define H5_INT16_T              H5T_NATIVE_INT16
-#define H5_UINT16_T		H5T_NATIVE_UINT16
-#define H5_STRING_T             H5T_NATIVE_CHAR
-#define H5_COMPOUND_T           H5T_COMPOUND
-
-extern const char* H5_VER_STRING;
-
+typedef enum  {
+	H5_STRING_T,
+	H5_INT16_T,
+	H5_UINT16_T,
+	H5_INT32_T,
+	H5_UINT32_T,
+	H5_INT64_T,
+	H5_UINT64_T,
+	H5_FLOAT32_T,
+	H5_FLOAT64_T,
+	H5_ID_T,
+	H5_COMPOUND_T
+} h5_types_t;
+	
 #ifdef   WIN32
 typedef __int64                 int64_t;
 #endif /* WIN32 */
@@ -155,14 +141,7 @@ typedef struct {
 struct h5_idxmap;
 typedef struct h5_idxmap h5_idxmap_t;
 
-#define H5_TRIANGLE_MESH	 (H5_OID_TRIANGLE)
-#define H5_TETRAHEDRAL_MESH	 (H5_OID_TETRAHEDRON)
-
 #define H5_PROP_DEFAULT (0)
 #define H5_PROP_FILE    (1)
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

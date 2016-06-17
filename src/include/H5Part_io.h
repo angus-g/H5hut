@@ -10,7 +10,6 @@
 #ifndef H5PART_IO
 #define H5PART_IO
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5u_io.h"
 

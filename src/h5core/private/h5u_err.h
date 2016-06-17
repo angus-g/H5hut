@@ -1,5 +1,5 @@
-#ifndef __PRIVATE_H5U_ERRORHANDLING_H
-#define __PRIVATE_H5U_ERRORHANDLING_H
+#ifndef __PRIVATE_H5U_ERR_H
+#define __PRIVATE_H5U_ERR_H
 
 #define HANDLE_H5_SET_VIEW_ERR( f, rc, start, end )     \
         h5_error(                                       \

@@ -7,8 +7,8 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#ifndef __H5CORE_H5_ERRORHANDLING_H
-#define __H5CORE_H5_ERRORHANDLING_H
+#ifndef __H5CORE_H5_ERROR_H
+#define __H5CORE_H5_ERROR_H
 
 #include <stdarg.h>
 #include <stdio.h>

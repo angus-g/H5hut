@@ -7,12 +7,11 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 #include "h5core/h5u_model.h"
 #include "h5core/h5u_io.h"
 
-#include "private/h5.h"
+#include "private/h5_file.h"
 #include "private/h5_hdf5.h"
 
 #include "private/h5_model.h"
@@ -20,6 +19,7 @@
 #include "private/h5_io.h"
 #include "private/h5u_types.h"
 
+#include <string.h>
 
 h5_ssize_t
 h5u_get_num_points (
@@ -62,15 +62,18 @@ h5u_get_num_points_in_view (
 
 h5_ssize_t
 h5u_get_totalnum_particles_by_name (
-	const h5_file_t fh,     ///< [in] Handle to open file
-        const char* const name  ///< [in] Index of dataset to query
+	const h5_file_t fh,		///< [in] Handle to open file
+        const char* const dataset_name	///< [in] dataset to query
 	) {
         h5_file_p f = (h5_file_p)fh;
-	H5_CORE_API_ENTER (h5_ssize_t, "f=%p, name=%s", f, name);
+	H5_CORE_API_ENTER (h5_ssize_t,
+			   "f=%p, dataset_name=%s",
+			   f, dataset_name);
 	h5_ssize_t nparticles;
-
-        TRY (nparticles = hdf5_get_npoints_of_dataset_by_name (f->step_gid, name));
-        h5_debug ("Found %lld particles in dataset %s.", (long long)nparticles, name);
+        TRY (nparticles = hdf5_get_npoints_of_dataset_by_name (
+		     f->step_gid, dataset_name));
+        h5_debug ("Found %lld particles in dataset %s.",
+		  (long long)nparticles, dataset_name);
 	H5_CORE_API_RETURN (nparticles);
 }
 
@@ -91,7 +94,12 @@ h5u_get_totalnum_particles_by_idx (
                     H5_DATANAME_LEN));
 	if (h5err == H5_NOK)
 		H5_CORE_API_LEAVE (H5_NOK);
-        H5_CORE_API_RETURN (h5u_get_totalnum_particles_by_name (fh, dataset_name));
+	h5_ssize_t nparticles;
+        TRY (nparticles = hdf5_get_npoints_of_dataset_by_name (
+		     f->step_gid, dataset_name));
+        h5_debug ("Found %lld particles in dataset %s.",
+		  (long long)nparticles, dataset_name);
+	H5_CORE_API_RETURN (nparticles);
 }
 
 h5_err_t
@@ -280,7 +288,8 @@ h5u_set_view (
 			H5_CORE_API_LEAVE (
 				h5_error(
 					H5_ERR_INVAL,
-					"Start of selection '%lld' out of range: must be >= 0",
+					"Start of selection '%lld' out of range: "
+					"must be >= 0",
 					(long long)start)
 				);
 		}
@@ -288,7 +297,8 @@ h5u_set_view (
 			H5_CORE_API_LEAVE (
 				h5_error(
 					H5_ERR_INVAL,
-					"End of selection '%lld' out of range: must be >= %lld",
+					"End of selection '%lld' out of range: "
+					"must be >= %lld",
 					(long long)end,
 					(long long)start)
 				);
@@ -315,13 +325,15 @@ h5u_set_view (
 			H5_CORE_API_LEAVE (
 				h5_error(
 					H5_ERR_INVAL,
-					"Start of selection '%lld' out of range: must be in [0..%lld]",
+					"Start of selection '%lld' out of range: "
+					"must be in [0..%lld]",
 					(long long)start, (long long)total-1));
 		} else if (end < 0 || end >= total) {
 			H5_CORE_API_LEAVE (
 				h5_error(
 					H5_ERR_INVAL,
-					"End of selection '%lld' out of range: must be in [0..%lld]",
+					"End of selection '%lld' out of range: "
+					"must be in [0..%lld]",
 					(long long)end, (long long)total-1));
 		} else if (end+1 < start) {
 			H5_CORE_API_LEAVE (
@@ -400,7 +412,8 @@ h5u_set_view_length (
 		        h5_error(
 		                H5_ERR_INVAL,
 		                "Invalid view: start=%lld, length=%lld, total=%lld",
-		                (long long)start, (long long)length, (long long)total));
+		                (long long)start, (long long)length,
+				(long long)total));
 
 	/* setting up the new view */
 	u->viewstart =  start;
@@ -530,7 +543,7 @@ h5u_get_view (
 	H5_CORE_API_RETURN (viewend - viewstart + 1); // view range is *inclusive*
 }
 
-h5_int64_t
+h5_err_t
 h5u_set_canonical_view (
 	const h5_file_t fh
 	) {
@@ -562,7 +575,8 @@ h5u_set_canonical_view (
 #endif // PARALLEL_IO
 
 	h5_int64_t length = u->nparticles;
-	H5_CORE_API_RETURN (h5u_set_view_length (fh, start, length));
+	TRY (h5u_set_view_length (fh, start, length));
+	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
 h5_ssize_t
@@ -570,41 +584,9 @@ h5u_get_num_datasets (
 	const h5_file_t fh		/*!< [in]  Handle to open file */
 	) {
         h5_file_p f = (h5_file_p)fh;
-	H5_CORE_API_ENTER (h5_int64_t, "f=%p", f);
-	H5_CORE_API_RETURN (hdf5_get_num_datasets (f->step_gid));
-}
-
-/*!
-   Get information about dataset in current index given by its index
- */
-h5_err_t
-h5u_get_dataset_info (
-	const h5_file_t fh,	/*!< [in] Handle to open file */
-	const h5_id_t idx,	/*!< [in] Index of the dataset */
-	char *dataset_name,	/*!< [out] Name of dataset */
-	const h5_size_t len_dataset_name,
-				/*!< [in] Size of buffer \c dataset_name */
- 	h5_int64_t *type,	/*!< [out] Type of data in dataset */
-	h5_size_t *nelem	/*!< [out] Number of elements. */
-	) {
-        h5_file_p f = (h5_file_p)fh;
-	H5_CORE_API_ENTER (h5_err_t, 
-			   "f=%p, "
-			   "idx=%lld, "
-			   "dataset_name='%s', len_dataset_name=%llu, "
-			   "type=%p, nelem=%p",
-			   f,
-			   (long long)idx,
-			   dataset_name,
-			   (long long unsigned)len_dataset_name,
-			   type, nelem);
-	TRY (hdf5_get_name_of_dataset_by_idx (
-	             f->step_gid,
-	             idx,
-	             dataset_name, len_dataset_name) );
-
-	H5_CORE_API_RETURN (
-	        h5u_get_dataset_info_by_name(fh, dataset_name, type, nelem));
+	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
+	TRY (ret_value = hdf5_get_num_datasets (f->step_gid));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_err_t
@@ -616,44 +598,138 @@ h5u_has_dataset (
 	H5_CORE_API_ENTER (h5_err_t, 
 			   "f=%p, name='%s'",
 			   f, name);
-        h5_err_t exists;
-        TRY (exists = hdf5_link_exists (f->step_gid, name));
-	H5_CORE_API_RETURN (exists);
+        TRY (ret_value = hdf5_link_exists (f->step_gid, name));
+	H5_CORE_API_RETURN (ret_value);
 }
-	
+
+static inline h5_err_t
+get_dataset_info (
+	hid_t dataset_id,
+	h5_int64_t* dataset_type,
+	h5_size_t* dataset_nelem
+	) {
+        H5_INLINE_FUNC_ENTER (h5_err_t);
+	if (dataset_type) {
+		h5_int64_t type_;
+		TRY (type_ = h5priv_get_native_dataset_type (dataset_id));
+		TRY (*dataset_type = h5priv_map_hdf5_type_to_enum (type_));
+	}
+	if (dataset_nelem) {
+		h5_ssize_t nelem_;
+		TRY (nelem_ = hdf5_get_npoints_of_dataset (dataset_id));
+		*dataset_nelem = nelem_;
+	}
+	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
+}
+
+h5_err_t
+h5priv_get_dataset_info_by_idx (
+	const hid_t id,			/*!< [in] group ID */
+	const h5_id_t dataset_idx,	/*!< [in] Index of the dataset */
+	char* dataset_name,		/*!< [out] Name of dataset */
+	const h5_size_t len_dataset_name,/*!<[in] Size of buffer */
+ 	h5_int64_t* dataset_type,	/*!< [out] Type of data in dataset */
+	h5_size_t* dataset_nelem	/*!< [out] Number of elements. */
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, 
+			   "id=%lld, "
+			   "dataset_idx=%lld, "
+			   "dataset_name='%s', len_dataset_name=%llu, "
+			   "dataset_type=%p, dataset_nelem=%p",
+			   (long long)id,
+			   (long long)dataset_idx,
+			   dataset_name,
+			   (long long unsigned)len_dataset_name,
+			   dataset_type, dataset_nelem);
+	char dataset_name_[H5_DATANAME_LEN];
+	TRY (hdf5_get_name_of_dataset_by_idx (
+	             id,
+	             dataset_idx,
+	             dataset_name_, sizeof(dataset_name_)));
+	hid_t dataset_id;
+	TRY (dataset_id = hdf5_open_dataset_by_name (id, dataset_name_));
+	if (dataset_name) {
+		strncpy (dataset_name, dataset_name_, len_dataset_name);
+	}
+	TRY (get_dataset_info (dataset_id, dataset_type, dataset_nelem));
+	H5_PRIV_API_RETURN (H5_SUCCESS);
+}
+
+/*!
+   Get information about dataset in current index given by its index
+ */
+h5_err_t
+h5u_get_dataset_info_by_idx (
+	const h5_file_t fh,		/*!< [in] Handle to open file */
+	const h5_id_t idx,		/*!< [in] Index of the dataset */
+	char *dataset_name,		/*!< [out] Name of dataset */
+	const h5_size_t len_dataset_name,/*!< [in] Size of buffer */
+ 	h5_int64_t *dataset_type,	/*!< [out] Type of data in dataset */
+	h5_size_t *dataset_nelem	/*!< [out] Number of elements. */
+	) {
+        h5_file_p f = (h5_file_p)fh;
+	H5_CORE_API_ENTER (h5_err_t, 
+			   "f=%p, "
+			   "idx=%lld, "
+			   "dataset_name='%s', len_dataset_name=%llu, "
+			   "dataset_type=%p, dataset_nelem=%p",
+			   f,
+			   (long long)idx,
+			   dataset_name,
+			   (long long unsigned)len_dataset_name,
+			   dataset_type, dataset_nelem);
+	CHECK_FILEHANDLE (f);
+	TRY (h5priv_get_dataset_info_by_idx (
+	             f->step_gid,
+	             idx,
+	             dataset_name, len_dataset_name,
+		     dataset_type, dataset_nelem));
+	H5_CORE_API_RETURN (H5_SUCCESS);
+}
+
+h5_err_t
+h5priv_get_dataset_info_by_name (
+	const hid_t id,			/*!< [in] group ID */
+	const char* const dataset_name,	/*!< [out] Name of dataset */
+ 	h5_int64_t* dataset_type,	/*!< [out] Type of data in dataset */
+	h5_size_t* dataset_nelem	/*!< [out] Number of elements. */
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, 
+			   "id=%lld, "
+			   "dataset_name='%s' "
+			   "dataset_type=%p, dataset_nelem=%p",
+			   (long long)id,
+			   dataset_name,
+			   dataset_type, dataset_nelem);
+	hid_t dataset_id;
+	TRY (dataset_id = hdf5_open_dataset_by_name (id, dataset_name));
+	TRY (get_dataset_info (dataset_id, dataset_type, dataset_nelem));
+	H5_PRIV_API_RETURN (H5_SUCCESS);
+}
+
 /*!
    Get information about dataset in current index given by its index
  */
 h5_err_t
 h5u_get_dataset_info_by_name (
-        const h5_file_t fh,            /*!< [in] Handle to open file */
+        const h5_file_t fh,             /*!< [in] Handle to open file */
         const char* const dataset_name, /*!< [in] Name of dataset */
-        h5_int64_t* const type,         /*!< [out] Type of data in dataset */
-        h5_size_t* const nelem          /*!< [out] Number of elements. */
+        h5_int64_t* const dataset_type, /*!< [out] Type of data in dataset */
+        h5_size_t* const dataset_nelem  /*!< [out] Number of elements. */
         ) {
 	h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, "
 	                   "dataset_name='%s', "
-	                   "type=%p, nelem=%p",
+	                   "dataset_type=%p, dataset_nelem=%p",
 	                   f,
 	                   dataset_name,
-	                   type, nelem);
-
-	if (nelem) {
-		h5_ssize_t nelem_;
-		TRY (nelem_ = hdf5_get_npoints_of_dataset_by_name (
-		             f->step_gid,
-		             dataset_name) );
-		if ( nelem_ < 0 ) H5_CORE_API_LEAVE (nelem_);
-		*nelem = nelem_;
-	}
-
-	if (type) {
-		*type = h5priv_get_dataset_type (f->step_gid, dataset_name);
-		if (*type < 0) H5_CORE_API_LEAVE (*type);
-	}
-
+	                   dataset_type, dataset_nelem);
+	CHECK_FILEHANDLE (f);
+	TRY (h5priv_get_dataset_info_by_name (
+	             f->step_gid,
+		     dataset_name,
+		     dataset_type, dataset_nelem));
 	H5_CORE_API_RETURN (H5_SUCCESS);
 }
 
@@ -663,14 +739,15 @@ h5u_set_chunk (
         const h5_size_t size
         ) {
         h5_file_p f = (h5_file_p)fh;
-	H5_CORE_API_ENTER (h5_int64_t, "f=%p, size=%llu", f, (long long unsigned)size);
-	if ( size == 0 )
-	{
+	H5_CORE_API_ENTER (
+		h5_int64_t,
+		"f=%p, size=%llu",
+		f, (long long unsigned)size);
+	if (size == 0) {
 		h5_info ("Disabling chunking" );
 		TRY (hdf5_set_layout_property (
 		             f->u->dcreate_prop, H5D_CONTIGUOUS));
-	} else
-	{
+	} else {
 		h5_info ("Setting chunk size to %lld particles", (long long)size);
 		TRY (hdf5_set_chunk_property(
 		             f->u->dcreate_prop, 1, (hsize_t*)&size));
@@ -690,7 +767,7 @@ h5u_get_chunk (
 	hid_t plist_id;
 	hsize_t hsize;
 
-	TRY (dataset_id = hdf5_open_dataset (f->step_gid, name) );
+	TRY (dataset_id = hdf5_open_dataset_by_name (f->step_gid, name) );
 	TRY (plist_id = hdf5_get_dataset_create_plist (dataset_id) );
 	TRY (hdf5_get_chunk_property (plist_id, 1, &hsize) );
 	TRY (hdf5_close_property ( plist_id) );

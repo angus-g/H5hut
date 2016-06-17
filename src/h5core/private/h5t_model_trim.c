@@ -8,7 +8,7 @@
 */
 #include "private/h5t_types.h"
 
-#include "private/h5.h"
+#include "private/h5_file.h"
 #include "private/h5_hdf5.h"
 #include "private/h5_mpi.h"
 #include "private/h5_va_macros.h"

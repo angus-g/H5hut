@@ -1,11 +1,21 @@
-#ifndef __PRIVATE_H5_H
-#define __PRIVATE_H5_H
+#ifndef __PRIVATE_H5_FILE_H
+#define __PRIVATE_H5_FILE_H
 
 #include "private/h5_types.h"
 #include "private/h5_debug.h"
-#include "private/h5_errorhandling.h"
+#include "private/h5_err.h"
+#include "h5core/h5_file.h"
 
-#define UNUSED_ARGUMENT(x) (void)x
+#define H5_VFD_MPIO_POSIX       0x00000010
+#define H5_VFD_MPIO_INDEPENDENT 0x00000020
+#define H5_VFD_MPIO_COLLECTIVE  0x00000040
+#define H5_VFD_CORE		0x00000080
+
+#define H5_FLUSH_FILE		0x00001000
+#define H5_FLUSH_STEP		0x00002000
+#define H5_FLUSH_DATASET	0x00004000
+
+#define H5_FS_LUSTRE		0x00010000
 
 static inline h5_err_t
 check_filehandle (

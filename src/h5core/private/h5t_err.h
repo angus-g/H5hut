@@ -7,11 +7,11 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#ifndef __PRIVATE_H5T_ERRORHANDLING_H
-#define __PRIVATE_H5T_ERRORHANDLING_H
+#ifndef __PRIVATE_H5T_ERR_H
+#define __PRIVATE_H5T_ERR_H
 
 #include "h5core/h5_types.h"
-#include "h5core/h5_errorhandling.h"
+#include "h5core/h5_err.h"
 #include "private/h5_debug.h"
 
 #define ERR_ELEM_NEXIST  "Element with local vertex IDs (%s) doesn't exist!"

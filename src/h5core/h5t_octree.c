@@ -2079,8 +2079,10 @@ get_sibling(
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, oct_idx=%d", octree, oct_idx);
 	assert (oct_idx >0);
-	H5_PRIV_FUNC_RETURN (octree->octants[octree->octants[oct_idx].parent_idx].child_idx);
+	H5_PRIV_FUNC_RETURN (
+		octree->octants[octree->octants[oct_idx].parent_idx].child_idx);
 }
+
 h5_oct_idx_t H5t_get_sibling(h5t_octree_t* octree, h5_oct_idx_t oct_idx) {
 	return get_sibling(octree, oct_idx);
 }

@@ -7,13 +7,12 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
 #include "h5core/h5_debug.h"
 
-#include "private/h5.h"
+#include "private/h5_file.h"
 
 #include "private/h5t_types.h"
-#include "private/h5t_errorhandling.h"
+#include "private/h5t_err.h"
 #include "private/h5t_map.h"
 #include "private/h5t_model.h"
 #include "private/h5t_access.h"
@@ -93,7 +92,8 @@ iterate_boundary_facets (
 		}
 	} while (!h5tpriv_is_boundary_facet (it->mesh, it->elem_idx, it->face_idx));
 	int type = h5tpriv_ref_elem_get_entity_type (it, dim);
-	H5_PRIV_FUNC_RETURN (h5tpriv_build_entity_id (type, it->face_idx, it->elem_idx));
+	TRY (ret_value = h5tpriv_build_entity_id (type, it->face_idx, it->elem_idx));
+	H5_PRIV_FUNC_RETURN (ret_value);
 }
 
 /*!
@@ -271,7 +271,8 @@ h5t_release_entity_iterator (
         h5t_iterator_t* iter
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "iter=%p", iter);
-	H5_CORE_API_RETURN (h5_free (iter));
+	TRY (ret_value = h5_free (iter));
+	H5_CORE_API_RETURN (ret_value);
 }
 
 h5_loc_id_t

@@ -11,10 +11,10 @@
 #include "h5core/h5_debug.h"
 #include "h5core/h5b_attribs.h"
 
-#define H5_R8_T H5_FLOAT64_T
-#define H5_R4_T H5_FLOAT32_T
-#define H5_I8_T H5_INT64_T
-#define H5_I4_T H5_INT32_T
+#define H5_R8_T H5_FLOAT64
+#define H5_R4_T H5_FLOAT32
+#define H5_I8_T H5_INT64
+#define H5_I4_T H5_INT32
 
 /*
    __ _ _   _  ___ _ __ _   _ 
@@ -163,7 +163,7 @@ h5bl_writefieldattrib_string (
                 f,
                 field_name, l_field_name,
                 attrib_name, l_attrib_name,
-                H5_STRING_T,
+                H5_STRING,
                 attrib_value2, strlen(attrib_value2)+1 );
 	free (attrib_value2);
 	H5_API_RETURN (h5err);
@@ -193,7 +193,7 @@ h5bl_readfieldattrib_string (
                 f,
 		field_name, l_field_name,
                 attrib_name, l_attrib_name,
-		H5_STRING_T, attrib_value);
+		H5_STRING, attrib_value);
 
 	h5_strc2for (attrib_value, l_attrib_value);
 	H5_API_RETURN (h5err);

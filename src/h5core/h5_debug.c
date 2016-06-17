@@ -7,7 +7,7 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_init.h"
+#include "h5core/h5_debug.h"
 #include "private/h5_init.h"
 
 h5_int32_t			h5_debug_level = H5_VERBOSE_ERROR;
