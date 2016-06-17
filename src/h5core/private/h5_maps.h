@@ -11,10 +11,10 @@
 #define __PRIVATE_H5_MAPS_H
 
 #include "private/h5_types.h"
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5_err.h"
 #include "h5core/h5_syscall.h"
-#include "private/h5_debug.h"
+#include "private/h5_log.h"
 
 // Allocate new list
 #define h5priv_alloc_xlist( type )                                      \

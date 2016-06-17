@@ -203,7 +203,7 @@ compute_neighbor_of_face (
 			}
 			if (elem_idx < -1) { // this should only happen if we are on the boarder
 				// of a loaded chunk and the parent is on a different chunk
-				if (h5_debug_level >= 6) {
+				if (h5_log_level >= 6) {
 					h5_debug ("Elem %d is on different proc than its parent %d \n"
 						"therefore neighborhood idx is not correct resolved", old_elem_idx, elem_idx);
 				}

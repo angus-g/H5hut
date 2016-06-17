@@ -7,7 +7,7 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5u_model.h"
 #include "h5core/h5u_io.h"
 

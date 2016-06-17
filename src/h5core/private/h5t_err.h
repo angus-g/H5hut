@@ -12,7 +12,7 @@
 
 #include "h5core/h5_types.h"
 #include "h5core/h5_err.h"
-#include "private/h5_debug.h"
+#include "private/h5_log.h"
 
 #define ERR_ELEM_NEXIST  "Element with local vertex IDs (%s) doesn't exist!"
 

@@ -8,7 +8,7 @@
 */
 
 #include "h5_private.h"
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5b_io.h"
 
 #define h5bl_3d_write_scalar_field_r8 FC_MANGLING (	\

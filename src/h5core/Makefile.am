@@ -34,7 +34,7 @@ EXTRA_HEADERS =					\
 	private/h5u_io.h			\
 	private/h5u_types.h			\
 	private/h5_attribs.h			\
-	private/h5_debug.h			\
+	private/h5_log.h			\
 	private/h5_err.h			\
 	private/h5_fcmp.h
 
@@ -48,8 +48,8 @@ lib_LTLIBRARIES = libH5hut.la
 libH5hut_la_SOURCES =				\
 	h5_attachments.c			\
 	h5_attribs.c				\
-	h5_debug.c				\
-	h5_errorhandling.c			\
+	h5_log.c				\
+	h5_err.c				\
 	h5_init.c				\
 	h5_model.c				\
 	h5_file.c				\

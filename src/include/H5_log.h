@@ -11,7 +11,7 @@
 #define __H5_LOG_H
 
 #include "h5core/h5_types.h"
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 
 #if H5HUT_API_VERSION == 2
 #define H5SetVerbosityLevel2 H5SetVerbosityLevel
@@ -52,7 +52,7 @@ static inline h5_err_t
 H5SetVerbosityLevel2 (
 	const h5_id_t level     ///< [in] verbosity level.
 	) {
-	return h5_set_debuglevel (level & 0x03);
+	return h5_set_loglevel (level & 0x03);
 }
 
 /**
@@ -74,7 +74,7 @@ static inline h5_err_t
 H5SetVerbosityLevel1 (
 	const h5_id_t level     ///< [in] verbosity level.
 	) {
-	return h5_set_debuglevel (level);
+	return h5_set_loglevel (level);
 }
 
 /**
@@ -88,7 +88,62 @@ static inline h5_id_t
 H5GetVerbosityLevel (
 	void
 	) {
-	return h5_get_debuglevel () & 0x03;
+	return h5_get_loglevel () & 0x03;
+}
+
+///< @}
+
+
+/**
+   \addtogroup h5_debug
+   @{
+*/
+
+/**
+  Set debug mask. The debug mask is an or'ed value of
+
+  - \c H5_DEBUG_API:	    C-API calls
+  - \c H5_DEBUG_CORE_API:   core API calls.
+  - \c H5_DEBUG_PRIV_API:   private API calls
+  - \c H5_DEBUG_PRIV_FUNC:  static functions
+  - \c H5_DEBUG_HDF5:	    HDF5 wrapper calls
+  - \c H5_DEBUG_MPI:	    MPI wrapper calls
+  - \c H5_DEBUG_MALLOC:	    memory allocation
+  - \c H5_DEBUG_ALL:	    enable all
+
+  \return \c H5_SUCCESS
+
+  \see H5GetDebugMask()
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----			  	      |
+  | \c 1.99.15 | Function introduced in this release. |
+*/
+static inline h5_err_t
+H5SetDebugMask (
+	const h5_id_t mask     ///< [in] debug mask
+	) {
+	return h5_set_loglevel (mask & ~0x03);
+}
+
+/**
+  Get debug mask.
+
+  \return   debug mask
+
+  \see H5SetDebugMask()
+
+  \note 
+  | Release    | Change                               |
+  | :------    | :-----			  	      |
+  | \c 1.99.15 | Function introduced in this release. |
+*/
+static inline h5_id_t
+H5GetDebugMask (
+	void
+	) {
+	return (h5_get_loglevel () & ~0x03);
 }
 
 #ifdef __cplusplus
@@ -96,5 +151,7 @@ H5GetVerbosityLevel (
 #endif
 
 ///< @}
+
+
 #endif
 

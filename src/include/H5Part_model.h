@@ -10,7 +10,7 @@
 #ifndef H5PART_MODEL
 #define H5PART_MODEL
 
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5u_model.h"
 
 /**

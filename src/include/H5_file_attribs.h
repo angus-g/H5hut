@@ -12,7 +12,7 @@
 
 #include <string.h>
 
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5_file_attribs.h"
 
 #ifdef __cplusplus

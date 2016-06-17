@@ -9,7 +9,7 @@
 
 #include "h5_private.h"
 
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5_file.h"
 
 #include <hdf5.h>
@@ -248,7 +248,7 @@ h5_set_verbosity_level (
 	) {
 
 	H5_API_ENTER (h5_int64_t, "level=%lld", (long long)*level);
-	H5_API_RETURN(h5_set_debuglevel (*level));
+	H5_API_RETURN(h5_set_loglevel (*level));
 }
 
 #define h5_abort_on_error FC_MANGLING( \
@@ -259,7 +259,7 @@ h5_abort_on_error (
         void
         ) {
 	H5_API_ENTER (h5_int64_t, "%s", "");
-        h5_set_debuglevel (1);
+        h5_set_loglevel (1);
         H5_API_RETURN (h5_set_errorhandler (h5_abort_errorhandler));
 }
 

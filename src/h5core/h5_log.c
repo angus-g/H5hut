@@ -7,10 +7,10 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "private/h5_init.h"
 
-h5_int32_t			h5_debug_level = H5_VERBOSE_ERROR;
+h5_int32_t			h5_log_level = H5_VERBOSE_ERROR;
 struct call_stack		h5_call_stack;
 
 char *h5_rfmts[] = {
@@ -54,13 +54,13 @@ char *h5_rfmts[] = {
    \return \c H5_ERR_INVAL if debug level is invalid.
  */
 h5_err_t
-h5_set_debuglevel (
+h5_set_loglevel (
         const h5_id_t level     /*!< debug level */
         ) {
 	if (level < 0)
-		h5_debug_level = ((1 << 20) - 1) & ~0x7;
+		h5_log_level = ((1 << 20) - 1) & ~0x7;
 	else
-		h5_debug_level = level;
+		h5_log_level = level;
 	return H5_SUCCESS;
 }
 
@@ -72,8 +72,8 @@ h5_set_debuglevel (
    \return current debug level
  */
 h5_err_t
-h5_get_debuglevel (
+h5_get_loglevel (
         void
         ) {
-	return h5_debug_level;
+	return h5_log_level;
 }

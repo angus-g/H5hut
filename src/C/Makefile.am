@@ -12,7 +12,6 @@ include_HEADERS =					\
 	$(top_srcdir)/src/include/H5Part_io.h		\
 	$(top_srcdir)/src/include/H5Part_model.h	\
 	$(top_srcdir)/src/include/H5_attachments.h	\
-	$(top_srcdir)/src/include/H5_debug.h		\
 	$(top_srcdir)/src/include/H5_err.h		\
 	$(top_srcdir)/src/include/H5_file.h		\
 	$(top_srcdir)/src/include/H5_file_attribs.h	\

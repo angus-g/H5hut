@@ -11,7 +11,7 @@
 #define __H5FED_MODEL_H
 
 #include "h5core/h5_types.h"
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5t_model.h"
 
 #ifdef __cplusplus

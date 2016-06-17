@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "h5core/h5_types.h"
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 
 #define MALLOC_WRAPPER_ENTER(type, fmt, ...)				\
 	__FUNC_ENTER(type, H5_DEBUG_MALLOC, fmt, __VA_ARGS__)

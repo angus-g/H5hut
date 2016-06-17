@@ -10,7 +10,7 @@
 #ifndef __H5_FILE_H
 #define __H5_FILE_H
 
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5_file.h"
 
 #include <hdf5.h>

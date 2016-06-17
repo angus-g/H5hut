@@ -7,7 +7,7 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5_err.h"
 #include "private/h5_init.h"
 
@@ -103,7 +103,7 @@ h5_report_errorhandler (
         const char* fmt,
         va_list ap
         ) {
-	if (h5_debug_level > 0) {
+	if (h5_log_level > 0) {
 		h5_verror (fmt, ap);
 	}
 	return h5_errno;
@@ -120,7 +120,7 @@ h5_abort_errorhandler (
         const char* fmt,
         va_list ap
         ) {
-	if (h5_debug_level > 0) {
+	if (h5_log_level > 0) {
 		h5_verror (fmt, ap);
 	}
 #ifdef PARALLEL_IO
@@ -178,6 +178,6 @@ h5_verror (
         const char* fmt,
         va_list ap
         ) {
-	if (h5_debug_level == 0) return;
+	if (h5_log_level == 0) return;
 	h5priv_vprintf (stderr, "E", h5_call_stack.entry[0].name, fmt, ap);
 }

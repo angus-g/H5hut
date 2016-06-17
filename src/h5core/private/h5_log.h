@@ -11,7 +11,7 @@
 #define __PRIVATE_H5_DEBUG_H
 
 #include "h5core/h5_types.h"
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "private/h5_init.h"
 
 #define H5_CORE_API_ENTER(type, fmt, ...)				\

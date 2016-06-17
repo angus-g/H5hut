@@ -11,10 +11,10 @@
 #define __PRIVATE_H5T_MAP_H
 
 #include "private/h5_types.h"
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5_err.h"
 #include "h5core/h5_syscall.h"
-#include "private/h5_debug.h"
+#include "private/h5_log.h"
 #include "private/h5_maps.h"
 #include "private/h5t_model.h"
 

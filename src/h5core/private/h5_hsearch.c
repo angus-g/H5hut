@@ -32,7 +32,7 @@
 #include <assert.h>
 #include <stddef.h>
 
-#include "private/h5_debug.h"
+#include "private/h5_log.h"
 #include "private/h5_hsearch.h"
 
 #include "h5core/h5_types.h"

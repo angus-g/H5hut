@@ -2,7 +2,7 @@
 #define __PRIVATE_H5_FILE_H
 
 #include "private/h5_types.h"
-#include "private/h5_debug.h"
+#include "private/h5_log.h"
 #include "private/h5_err.h"
 #include "h5core/h5_file.h"
 

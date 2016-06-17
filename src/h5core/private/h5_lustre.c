@@ -92,7 +92,7 @@ _get_lustre_stripe_size(h5_file_t *const f,  const char *path )
 
 	close(fd);
 
-	if ( f->myproc == 0 && h5_get_debuglevel() >= 5 )
+	if ( f->myproc == 0 && h5_get_loglevel() >= 5 )
 		_print_stripe_info(lum);
 
 	ssize_t stripe_size = (ssize_t)lum->lmm_stripe_size;

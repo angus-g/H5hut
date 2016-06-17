@@ -8,7 +8,7 @@
 */
 
 #include "h5_private.h"
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5b_attribs.h"
 
 #define H5_R8_T H5_FLOAT64

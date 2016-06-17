@@ -11,7 +11,7 @@
 #define __H5FED_RETRIEVE_H
 
 #include "h5core/h5_types.h"
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 #include "h5core/h5_syscall.h"
 #include "h5core/h5t_map.h"
 #include "h5core/h5t_retrieve.h"

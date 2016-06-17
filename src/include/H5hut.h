@@ -20,7 +20,6 @@
 #include "H5_file_attribs.h"
 #include "H5_step_attribs.h"
 #include "H5_log.h"
-#include "H5_debug.h"
 #include "H5_err.h"
 
 #include "H5Part_io.h"

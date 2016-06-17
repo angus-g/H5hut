@@ -12,7 +12,7 @@
 
 #include "h5core/h5_types.h"
 #include "private/h5t_types.h"
-#include "private/h5_debug.h"
+#include "private/h5_log.h"
 
 struct h5t_adjacency_methods {
 	h5_err_t (*get_adjacencies)(

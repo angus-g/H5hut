@@ -11,7 +11,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#include "h5core/h5_debug.h"
+#include "h5core/h5_log.h"
 
 #include "private/h5_file.h"
 #include "private/h5_hdf5.h"
@@ -67,7 +67,7 @@ hdf5_error_handler (
 	void* __f
 	) {
 	UNUSED_ARGUMENT (__f);
-	if (h5_get_debuglevel() >= 5) {
+	if (h5_get_loglevel() >= 5) {
 		H5Eprint (estack_id, stderr);
 	}
 	return 0;

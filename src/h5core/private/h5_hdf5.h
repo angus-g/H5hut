@@ -14,7 +14,7 @@
 
 #include "h5core/h5_types.h"
 #include "h5core/h5_err.h"
-#include "private/h5_debug.h"
+#include "private/h5_log.h"
 #include "private/h5_va_macros.h"
 
 ssize_t

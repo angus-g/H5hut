@@ -7,8 +7,8 @@
   License: see file COPYING in top level of source distribution.
 */
 
-#ifndef __H5CORE_H5_DEBUG_H
-#define __H5CORE_H5_DEBUG_H
+#ifndef __H5CORE_H5_LOG_H
+#define __H5CORE_H5_LOG_H
 
 #include <stdio.h>
 #include <stddef.h>
@@ -74,7 +74,7 @@ struct call_stack {
 	struct call_stack_entry entry[1024];
 };
 
-extern h5_int32_t h5_debug_level;
+extern h5_int32_t h5_log_level;
 extern struct call_stack h5_call_stack;
 
 #ifdef __cplusplus
@@ -190,7 +190,7 @@ h5_warn (
         const char* fmt,
         ...
         ) {
-	if (h5_debug_level >= 2) {
+	if (h5_log_level >= 2) {
 		va_list ap;
 		va_start (ap, fmt);
 		h5priv_vprintf (stderr, "W", h5_get_funcname(), fmt, ap);
@@ -218,7 +218,7 @@ h5_info (
         const char* fmt,
         ...
         ) {
-	if (h5_debug_level >= 3) {
+	if (h5_log_level >= 3) {
 		va_list ap;
 		va_start (ap, fmt);
 		h5priv_vprintf (stdout, "I", h5_get_funcname(), fmt, ap);
@@ -246,7 +246,7 @@ h5_debug (
         const char *fmt,
         ...
         ) {
-	if (h5_debug_level >= 4) {
+	if (h5_log_level >= 4) {
 		char prefix[1024];
 		snprintf (prefix, sizeof(prefix), "%*s %s",
 		          h5_call_stack_get_level(), "",
@@ -274,13 +274,13 @@ h5_debug (
 #define __API_ENTER(type, mask, fmt, ...)				\
 	h5_call_stack_push (__func__,e_##type);				\
 	type ret_value = (type)H5_ERR;					\
-	if (h5_debug_level & mask ) {					\
+	if (h5_log_level & mask ) {					\
 		h5_debug ("(" fmt ")", __VA_ARGS__);			\
 	}
 
 #define __FUNC_ENTER(type, mask, fmt, ...)				\
 	type ret_value = (type)H5_ERR;					\
-	if (h5_debug_level & mask ) {					\
+	if (h5_log_level & mask ) {					\
 		h5_call_stack_push (__func__,e_##type);			\
 		h5_debug ("(" fmt ")", __VA_ARGS__);			\
 	}								\
@@ -321,7 +321,7 @@ done:									\
 	ret_value = expr;						\
 	goto done;							\
 done:									\
-	if (h5_debug_level & mask ) {					\
+	if (h5_log_level & mask ) {					\
 		char fmt[256];						\
 		snprintf (fmt, sizeof(fmt), "return: %s",		\
 			  h5_rfmts[h5_call_stack_get_type()]);		\
@@ -334,7 +334,7 @@ done:									\
 	ret_value = expr;						\
 	goto done;							\
 done:									\
-	if (h5_debug_level & mask ) {					\
+	if (h5_log_level & mask ) {					\
 		char fmt[256];						\
 		snprintf (fmt, sizeof(fmt), "return: %s",		\
 			  h5_rfmts[h5_call_stack_get_type()]);		\
@@ -359,11 +359,11 @@ done:									\
 	}
 
 h5_err_t
-h5_set_debuglevel (
+h5_set_loglevel (
 	const h5_id_t);
 
 h5_err_t
-h5_get_debuglevel (
+h5_get_loglevel (
 	void);
 
 #ifdef __cplusplus
