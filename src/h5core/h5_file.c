@@ -64,7 +64,7 @@ h5_get_hdf5_file(
 static herr_t
 hdf5_error_handler (
 	hid_t estack_id,
-	void* __f
+	void*  __f
 	) {
 	UNUSED_ARGUMENT (__f);
 	if (h5_get_loglevel() >= 5) {
@@ -167,10 +167,10 @@ set_alignment (
 
 static inline h5_err_t
 set_default_file_props (
-        h5_prop_file_t* _props
+        h5_prop_file_t* const _props
         ) {
         H5_INLINE_FUNC_ENTER (h5_err_t);
-        h5_prop_file_p props = (h5_prop_file_p)_props;
+        h5_prop_file_t* props = (h5_prop_file_t*)_props;
         bzero (props, sizeof (*props));
         props->class = H5_PROP_FILE;
         TRY (props->prefix_step_name = h5_calloc (1, H5_STEPNAME_LEN));
@@ -188,7 +188,7 @@ h5_set_prop_file_mpio_collective (
         h5_prop_t _props,
         MPI_Comm* comm
         ) {
-        h5_prop_file_p props = (h5_prop_file_p)_props;
+        h5_prop_file_t* props = (h5_prop_file_t*)_props;
         H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
         
         if (props->class != H5_PROP_FILE) {
@@ -214,7 +214,7 @@ h5_set_prop_file_mpio_independent (
         h5_prop_t _props,
         MPI_Comm* comm
         ) {
-        h5_prop_file_p props = (h5_prop_file_p)_props;
+        h5_prop_file_t* props = (h5_prop_file_t*)_props;
         H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
         
         if (props->class != H5_PROP_FILE) {
@@ -236,7 +236,7 @@ h5_set_prop_file_mpio_posix (
         h5_prop_t _props,
         MPI_Comm* comm
         ) {
-        h5_prop_file_p props = (h5_prop_file_p)_props;
+        h5_prop_file_t* props = (h5_prop_file_t*)_props;
         H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
         
         if (props->class != H5_PROP_FILE) {
@@ -256,9 +256,9 @@ h5_set_prop_file_mpio_posix (
 h5_err_t
 h5_set_prop_file_core_vfd (
         h5_prop_t _props,
-	h5_int64_t increment
+	const h5_int64_t increment
         ) {
-        h5_prop_file_p props = (h5_prop_file_p)_props;
+        h5_prop_file_t* props = (h5_prop_file_t*)_props;
         H5_CORE_API_ENTER (h5_err_t, "props=%p, increment=%lld", props, (long long int)increment);
         
         if (props->class != H5_PROP_FILE) {
@@ -283,9 +283,9 @@ h5_set_prop_file_core_vfd (
 h5_err_t
 h5_set_prop_file_align (
         h5_prop_t _props,
-        h5_int64_t align
+        const h5_int64_t align
         ) {
-        h5_prop_file_p props = (h5_prop_file_p)_props;
+        h5_prop_file_t* props = (h5_prop_file_t*)_props;
         H5_CORE_API_ENTER (
 		h5_err_t,
 		"props=%p, align=%lld",
@@ -304,9 +304,9 @@ h5_set_prop_file_align (
 h5_err_t
 h5_set_prop_file_throttle (
         h5_prop_t _props,
-        h5_int64_t throttle
+        const h5_int64_t throttle
         ) {
-        h5_prop_file_p props = (h5_prop_file_p)_props;
+        h5_prop_file_t* props = (h5_prop_file_t*)_props;
         H5_CORE_API_ENTER (
 		h5_err_t,
 		"props=%p, throttle=%lld",
@@ -343,7 +343,7 @@ h5_set_prop_file_throttle (
 
 h5_prop_t
 h5_create_prop (
-        h5_int64_t class
+        const h5_int64_t class
         ) {
         H5_CORE_API_ENTER (
 		h5_prop_t,
@@ -391,7 +391,7 @@ static inline h5_err_t
 open_file (
 	const h5_file_p f,
 	const char* const filename,
-	h5_int32_t mode
+	const h5_int32_t mode
 	) {
 	H5_INLINE_FUNC_ENTER (h5_err_t);
         h5_info ("Opening file %s.", filename);
@@ -463,11 +463,11 @@ open_file (
 
 h5_file_t
 h5_open_file2 (
-	const char* filename,
-	h5_int32_t mode,
-        h5_prop_t props_
+	const char* const filename,
+	const h5_int32_t mode,
+        const h5_prop_t props_
 	) {
-        h5_prop_file_t* props = (h5_prop_file_t*)props_;
+        h5_prop_file_t* const props = (h5_prop_file_t*)props_;
 	H5_CORE_API_ENTER (h5_file_t,
 			   "filename='%s', mode=%d, props=%p",
 			   filename, mode, props);
@@ -525,7 +525,7 @@ h5_open_file1 (
 	const char* filename,
 	h5_int32_t mode,
 	MPI_Comm comm,
-	h5_size_t align
+	const h5_size_t align
 	) {
 	H5_CORE_API_ENTER (
 		h5_file_p,
@@ -648,9 +648,9 @@ h5_set_stepname_fmt (
 h5_err_t
 h5_get_stepname_fmt (
 	const h5_file_t f_,		/*!< Handle to file		*/
-	char* name,			/*!< OUT: Prefix		*/
-	int l_name,			/*!< length of buffer name	*/
-	int* width			/*!< OUT: Width of the number	*/
+	char* const name,			/*!< OUT: Prefix		*/
+	const int l_name,			/*!< length of buffer name	*/
+	int* const width			/*!< OUT: Width of the number	*/
 	) {
         h5_file_p f = (h5_file_p)f_;
 	UNUSED_ARGUMENT (f);

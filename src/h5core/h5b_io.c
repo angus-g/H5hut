@@ -17,6 +17,7 @@
 #include "private/h5b_model.h"
 
 #include "h5core/h5_syscall.h"
+#include "h5core/h5b_io.h"
 
 /*!
   \ingroup h5_private
@@ -246,9 +247,9 @@ _write_data (
 h5_err_t
 h5b_write_scalar_data (
 	const h5_file_t fh,		/*!< IN: file handle */
-	const char *field_name,		/*!< IN: name of field */
-	const void *data,		/*!< IN: data to write */
-	const hid_t type		/*!< IN: data type */
+	const char* const field_name,	/*!< IN: name of field */
+	const void* const data,		/*!< IN: data to write */
+	const h5_types_t type		/*!< IN: data type */
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
@@ -268,11 +269,11 @@ h5b_write_scalar_data (
 h5_err_t
 h5b_write_vector3d_data (
 	const h5_file_t fh,		/*!< IN: file handle */
-	const char *field_name,		/*!< IN: name of field */
-	const void *xdata,		/*!< IN: x data to write */
-	const void *ydata,		/*!< IN: y data to write */
-	const void *zdata,		/*!< IN: z data to write */
-	const hid_t type		/*!< IN: data type */
+	const char* const field_name,	/*!< IN: name of field */
+	const void* const xdata,	/*!< IN: x data to write */
+	const void* const ydata,	/*!< IN: y data to write */
+	const void* const zdata,	/*!< IN: z data to write */
+	const h5_types_t type		/*!< IN: data type */
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
@@ -378,8 +379,8 @@ _select_hyperslab_for_reading (
 static h5_err_t
 read_data (
 	const h5_file_p f,		/*!< IN: file handle */
-	const char *dataset_name,	/*!< IN: name of dataset */
-	void *data,			/*!< OUT: ptr to read buffer */
+	const char* const dataset_name,	/*!< IN: name of dataset */
+	void* const data,		/*!< OUT: ptr to read buffer */
 	const hid_t type      		/*!< IN: data type */
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
@@ -406,10 +407,10 @@ read_data (
 
 h5_err_t
 h5b_read_scalar_data (
-	const h5_file_p fh,		/*!< IN: file handle */
-	const char *field_name,		/*!< IN: name of field */
-	void *data,			/*!< OUT: read bufer */
-	const hid_t type		/*!< IN: data type */
+	const h5_file_t fh,		/*!< IN: file handle */
+	const char* const field_name,	/*!< IN: name of field */
+	void* const data,		/*!< OUT: read bufer */
+	const h5_types_t type		/*!< IN: data type */
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
@@ -426,12 +427,12 @@ h5b_read_scalar_data (
 
 h5_err_t
 h5b_read_vector3d_data (
-	const h5_file_p fh,		/*!< IN: file handle */
-	const char *field_name,		/*!< IN: name of field */
-	void *xdata,			/*!< IN: x data to write */
-	void *ydata,			/*!< IN: y data to write */
-	void *zdata,			/*!< IN: z data to write */
-	const hid_t type		/*!< IN: data type */
+	const h5_file_t fh,		/*!< IN: file handle */
+	const char* const field_name,	/*!< IN: name of field */
+	void* const xdata,		/*!< IN: x data to write */
+	void* const ydata,		/*!< IN: y data to write */
+	void* const zdata,		/*!< IN: z data to write */
+	const h5_types_t type		/*!< IN: data type */
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
