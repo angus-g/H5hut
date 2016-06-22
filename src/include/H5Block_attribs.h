@@ -49,7 +49,9 @@ H5BlockGetNumFieldAttribs (
 	H5_API_ENTER (h5_ssize_t,
                       "f=%p, field_name='%s'",
                       (h5_file_p)f, field_name);
-	H5_API_RETURN (h5b_get_num_field_attribs (f, field_name));
+	H5_API_RETURN (
+		h5b_get_num_field_attribs (
+			f, field_name));
 }
 
 /**
@@ -187,13 +189,14 @@ H5Block3dSetFieldOrigin (
 		      (h5_file_p)f, field_name,
 		      x_origin, y_origin, z_origin);
 	h5_float64_t origin[3] = { x_origin, y_origin, z_origin };
-	H5_API_RETURN (h5b_write_field_attrib (
-			       f,
-			       field_name,
-			       H5BLOCK_FIELD_ORIGIN_NAME,
-			       (hid_t)H5_FLOAT64, 
-			       origin,
-			       3));
+	H5_API_RETURN (
+		h5b_write_field_attrib (
+			f,
+			field_name,
+			H5BLOCK_FIELD_ORIGIN_NAME,
+			H5_FLOAT64_T, 
+			origin,
+			3));
 }
 
 /**
@@ -219,7 +222,7 @@ H5Block3dGetFieldOrigin (
 		     f,
 		     field_name,
 		     H5BLOCK_FIELD_ORIGIN_NAME,
-		     H5_FLOAT64,
+		     H5_FLOAT64_T,
 		     origin));
 
 	*x_origin = origin[0];
@@ -249,13 +252,14 @@ H5Block3dSetFieldSpacing (
 		      (h5_file_p)f, field_name,
 		      x_spacing, y_spacing, z_spacing);
 	h5_float64_t spacing[3] = { x_spacing, y_spacing, z_spacing };
-	H5_API_RETURN (h5b_write_field_attrib (
-			       f,
-			       field_name,
-			       H5BLOCK_FIELD_SPACING_NAME,
-			       (hid_t)H5_FLOAT64, 
-			       spacing,
-			       3));
+	H5_API_RETURN (
+		h5b_write_field_attrib (
+			f,
+			field_name,
+			H5BLOCK_FIELD_SPACING_NAME,
+			H5_FLOAT64_T, 
+			spacing,
+			3));
 }
 
 /**
@@ -281,7 +285,7 @@ H5Block3dGetFieldSpacing (
 		     f,
 		     field_name,
 		     H5BLOCK_FIELD_SPACING_NAME,
-		     H5_FLOAT64,
+		     H5_FLOAT64_T,
 		     spacing));
 	*x_spacing = spacing[0];
 	*y_spacing = spacing[1];
@@ -341,9 +345,10 @@ H5Block3dSetFieldXCoords (
                       (h5_file_p)f,
                       field_name,
                       coords, (long long unsigned)n_coords);
-        H5_API_RETURN (h5b_set_3d_field_coords (
-                               f, 0, field_name, H5BLOCK_FIELD_XCOORD_NAME,
-                               coords, n_coords));
+        H5_API_RETURN (
+		h5b_set_3d_field_coords (
+			f, 0, field_name, H5BLOCK_FIELD_XCOORD_NAME,
+			coords, n_coords));
 }
 
 static inline h5_err_t
@@ -360,11 +365,12 @@ H5Block3dSetFieldYCoords (
                       (h5_file_p)f,
                       field_name,
                       coords, (long long unsigned)n_coords);
-        H5_API_RETURN (h5b_set_3d_field_coords (
-                               f, 1, field_name, H5BLOCK_FIELD_YCOORD_NAME,
-                               coords, n_coords));
+        H5_API_RETURN (
+		h5b_set_3d_field_coords (
+			f, 1, field_name, H5BLOCK_FIELD_YCOORD_NAME,
+			coords, n_coords));
 }
-
+	
 static inline h5_err_t
 H5Block3dSetFieldZCoords (
 	const h5_file_t f,
@@ -379,9 +385,10 @@ H5Block3dSetFieldZCoords (
                       (h5_file_p)f,
                       field_name,
                       coords, (long long unsigned)n_coords);
-        H5_API_RETURN (h5b_set_3d_field_coords (
-                               f, 2, field_name, H5BLOCK_FIELD_ZCOORD_NAME,
-                               coords, n_coords));
+        H5_API_RETURN (
+		h5b_set_3d_field_coords (
+			f, 2, field_name, H5BLOCK_FIELD_ZCOORD_NAME,
+			coords, n_coords));
 }
 
 /**
@@ -436,9 +443,10 @@ H5Block3dGetFieldXCoords (
                       (h5_file_p)f,
                       field_name,
                       coords, (long long unsigned)n_coords);
-        H5_API_RETURN (h5b_get_3d_field_coords (
-                               f, 0, field_name, H5BLOCK_FIELD_XCOORD_NAME,
-                               coords, n_coords));
+        H5_API_RETURN (
+		h5b_get_3d_field_coords (
+			f, 0, field_name, H5BLOCK_FIELD_XCOORD_NAME,
+			coords, n_coords));
 }
 
 static inline h5_err_t
@@ -455,9 +463,10 @@ H5Block3dGetFieldYCoords (
                       (h5_file_p)f,
                       field_name,
                       coords, (long long unsigned)n_coords);
-        H5_API_RETURN (h5b_get_3d_field_coords (
-                               f, 1, field_name, H5BLOCK_FIELD_YCOORD_NAME,
-                               coords, n_coords));
+        H5_API_RETURN (
+		h5b_get_3d_field_coords (
+			f, 1, field_name, H5BLOCK_FIELD_YCOORD_NAME,
+			coords, n_coords));
 }
 
 static inline h5_err_t
@@ -474,9 +483,10 @@ H5Block3dGetFieldZCoords (
                       (h5_file_p)f,
                       field_name,
                       coords, (long long unsigned)n_coords);
-        H5_API_RETURN (h5b_get_3d_field_coords (
-                               f, 2, field_name, H5BLOCK_FIELD_ZCOORD_NAME,
-                               coords, n_coords));
+        H5_API_RETURN (
+		h5b_get_3d_field_coords (
+			f, 2, field_name, H5BLOCK_FIELD_ZCOORD_NAME,
+			coords, n_coords));
 }
 
 /*
@@ -572,7 +582,7 @@ H5BlockWriteFieldAttribString (
 			f,
 			field_name,
 			attrib_name,
-			H5T_NATIVE_CHAR,
+			H5_STRING_T,
 			buffer,
 			strlen(buffer) + 1));
 }
@@ -590,13 +600,14 @@ H5BlockWriteFieldAttribFloat64 (
 		      "f=%p, field_name='%s', attrib_name='%s', "
 		      "buffer=%p, nelems=%lld",
 		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
-	H5_API_RETURN (h5b_write_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_DOUBLE,
-			       buffer,
-			       nelems ));
+	H5_API_RETURN (
+		h5b_write_field_attrib (
+			f,
+			field_name,
+			attrib_name,
+			H5_FLOAT64_T,
+			buffer,
+			nelems));
 }
 
 static inline h5_err_t
@@ -612,13 +623,14 @@ H5BlockWriteFieldAttribFloat32 (
 		      "f=%p, field_name='%s', attrib_name='%s', "
 		      "buffer=%p, nelems=%lld",
 		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
-	H5_API_RETURN (h5b_write_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_FLOAT,
-			       buffer,
-			       nelems ));
+	H5_API_RETURN (
+		h5b_write_field_attrib (
+			f,
+			field_name,
+			attrib_name,
+			H5_FLOAT32_T,
+			buffer,
+			nelems));
 }
 
 static inline h5_err_t
@@ -633,13 +645,14 @@ H5BlockWriteFieldAttribInt64 (
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, field_name='%s', attrib_name='%s', buffer=%p, nelems=%lld",
 		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
-	H5_API_RETURN (h5b_write_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_INT64,
-			       buffer,
-			       nelems ));
+	H5_API_RETURN (
+		h5b_write_field_attrib (
+			f,
+			field_name,
+			attrib_name,
+			H5_INT64_T,
+			buffer,
+			nelems));
 }
 
 static inline h5_err_t
@@ -655,13 +668,14 @@ H5BlockWriteFieldAttribInt32 (
 		      "f=%p, field_name='%s', attrib_name='%s', "
 		      "buffer=%p, nelems=%lld",
 		      (h5_file_p)f, field_name, attrib_name, buffer, (long long)nelems);
-	H5_API_RETURN (h5b_write_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_INT32,
-			       buffer,
-			       nelems ));
+	H5_API_RETURN (
+		h5b_write_field_attrib (
+			f,
+			field_name,
+			attrib_name,
+			H5_INT32_T,
+			buffer,
+			nelems));
 }
 
 /*
@@ -750,7 +764,7 @@ H5BlockReadFieldAttribString (
 			f,
 			field_name,
 			attrib_name,
-			H5_STRING,
+			H5_STRING_T,
 			(void*)buffer));
 }
 
@@ -765,12 +779,13 @@ H5BlockReadFieldAttribFloat64 (
         H5_API_ENTER (h5_err_t,
                       "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, field_name, attrib_name, buffer);
-	H5_API_RETURN (h5b_read_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_DOUBLE,
-			       (void*)buffer ));
+	H5_API_RETURN (
+		h5b_read_field_attrib (
+			f,
+			field_name,
+			attrib_name,
+			H5_FLOAT64_T,
+			(void*)buffer));
 }
 
 static inline h5_err_t
@@ -784,12 +799,13 @@ H5BlockReadFieldAttribFloat32 (
         H5_API_ENTER (h5_err_t,
                       "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, field_name, attrib_name, buffer);
-	H5_API_RETURN (h5b_read_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_FLOAT,
-			       buffer ));
+	H5_API_RETURN (
+		h5b_read_field_attrib (
+			f,
+			field_name,
+			attrib_name,
+			H5_FLOAT32_T,
+			buffer));
 }
 
 static inline h5_err_t
@@ -803,12 +819,13 @@ H5BlockReadFieldAttribInt64 (
         H5_API_ENTER (h5_err_t,
                       "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, field_name, attrib_name, buffer);
-	H5_API_RETURN (h5b_read_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_INT64,
-			       buffer ));
+	H5_API_RETURN (
+		h5b_read_field_attrib (
+			f,
+			field_name,
+			attrib_name,
+			H5_INT64_T,
+			buffer));
 }
 
 static inline h5_err_t
@@ -821,12 +838,13 @@ H5BlockReadFieldAttribInt32 (
         H5_API_ENTER (h5_err_t,
                       "f=%p, field_name='%s', attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, field_name, attrib_name, buffer);
-	H5_API_RETURN (h5b_read_field_attrib (
-			       f,
-			       field_name,
-			       attrib_name,
-			       H5T_NATIVE_INT32,
-			       (void*)buffer ));
+	H5_API_RETURN (
+		h5b_read_field_attrib (
+			f,
+			field_name,
+			attrib_name,
+			H5_INT32_T,
+			(void*)buffer));
 }
 ///<   @}
 

@@ -80,13 +80,14 @@ H5GetStepAttribInfo (
                       (long long unsigned)len_attrib_name,
                       attrib_type,
                       nelems);
-	H5_API_RETURN (h5_get_step_attrib_info_by_idx (
-			       f,
-			       idx,
-			       attrib_name,
-			       len_attrib_name,
-			       attrib_type,
-			       nelems));
+	H5_API_RETURN (
+		h5_get_step_attrib_info_by_idx (
+			f,
+			idx,
+			attrib_name,
+			len_attrib_name,
+			attrib_type,
+			nelems));
 }
 
 /**
@@ -132,10 +133,11 @@ H5GetStepAttribInfoByName (
                       (h5_file_p)f,
                       attrib_name,
                       attrib_type, nelems);
-	H5_API_RETURN (h5_get_step_attrib_info_by_name (
-			       f,
-			       attrib_name,
-			       attrib_type, nelems));
+	H5_API_RETURN (
+		h5_get_step_attrib_info_by_name (
+			f,
+			attrib_name,
+			attrib_type, nelems));
 }
 
 /*
@@ -214,12 +216,13 @@ H5WriteStepAttribString (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer='%s'",
                       (h5_file_p)f, attrib_name, buffer);
-	H5_API_RETURN (h5_write_step_attrib (
-			       f, 
-			       attrib_name,
-			       H5T_NATIVE_CHAR,
-			       buffer,
-			       strlen(buffer) + 1 ));
+	H5_API_RETURN (
+		h5_write_step_attrib (
+			f, 
+			attrib_name,
+			H5_STRING_T,
+			buffer,
+			strlen(buffer) + 1 ));
 }
 
 static inline h5_err_t
@@ -232,12 +235,13 @@ H5WriteStepAttribFloat64 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
 		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_step_attrib (
-			       f,
-			       attrib_name,
-			       H5T_NATIVE_DOUBLE,
-			       buffer,
-			       nelems));
+	H5_API_RETURN (
+		h5_write_step_attrib (
+			f,
+			attrib_name,
+			H5_FLOAT64_T,
+			buffer,
+			nelems));
 }
 
 static inline h5_err_t
@@ -250,12 +254,13 @@ H5WriteStepAttribFloat32 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
 		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_step_attrib (
-			       f,
-			       attrib_name,
-			       H5T_NATIVE_FLOAT,
-			       buffer,
-			       nelems ));
+	H5_API_RETURN (
+		h5_write_step_attrib (
+			f,
+			attrib_name,
+			H5_FLOAT32_T,
+			buffer,
+			nelems ));
 }
 
 static inline h5_err_t
@@ -268,12 +273,13 @@ H5WriteStepAttribInt64 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
 		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_step_attrib (
-			       f,
-			       attrib_name,
-			       H5T_NATIVE_INT64,
-			       buffer,
-			       nelems));
+	H5_API_RETURN (
+		h5_write_step_attrib (
+			f,
+			attrib_name,
+			H5_INT64_T,
+			buffer,
+			nelems));
 }
 
 static inline h5_err_t
@@ -286,12 +292,13 @@ H5WriteStepAttribInt32 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
 		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
-	H5_API_RETURN (h5_write_step_attrib (
-			       f,
-			       attrib_name,
-			       H5T_NATIVE_INT32,
-			       buffer,
-			       nelems));
+	H5_API_RETURN (
+		h5_write_step_attrib (
+			f,
+			attrib_name,
+			H5_INT32_T,
+			buffer,
+			nelems));
 }
 
 /*
@@ -362,11 +369,12 @@ H5ReadStepAttribString (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, attrib_name, buffer);
-	H5_API_RETURN (h5_read_step_attrib (
-			       f, 
-			       attrib_name,
-			       H5_STRING,
-			       (void*)buffer));
+	H5_API_RETURN (
+		h5_read_step_attrib (
+			f, 
+			attrib_name,
+			H5_STRING_T,
+			(void*)buffer));
 }
 
 static inline h5_err_t
@@ -378,11 +386,12 @@ H5ReadStepAttribFloat64 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, attrib_name, buffer);
-	H5_API_RETURN (h5_read_step_attrib (
-			       f,
-			       attrib_name,
-			       H5_FLOAT64,
-			       (void*)buffer));
+	H5_API_RETURN (
+		h5_read_step_attrib (
+			f,
+			attrib_name,
+			H5_FLOAT64_T,
+			(void*)buffer));
 }
 
 static inline h5_err_t
@@ -394,11 +403,12 @@ H5ReadStepAttribFloat32 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, attrib_name, buffer);
-	H5_API_RETURN (h5_read_step_attrib (
-			       f,
-			       attrib_name,
-			       H5_FLOAT32,
-			       (void*)buffer));
+	H5_API_RETURN (
+		h5_read_step_attrib (
+			f,
+			attrib_name,
+			H5_FLOAT32_T,
+			(void*)buffer));
 }
 
 static inline h5_err_t
@@ -410,12 +420,12 @@ H5ReadStepAttribInt64 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, attrib_name, buffer);
-	h5_err_t h5err = h5_read_step_attrib (
-		f,
-		attrib_name,
-		H5_INT64,
-		(void*)buffer);
-	H5_API_RETURN (h5err);
+	H5_API_RETURN (
+		h5_read_step_attrib (
+			f,
+			attrib_name,
+			H5_INT64_T,
+			(void*)buffer));
 }
 
 static inline h5_err_t
@@ -427,11 +437,12 @@ H5ReadStepAttribInt32 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, attrib_name, buffer);
-	H5_API_RETURN (h5_read_step_attrib (
-			       f,
-			       attrib_name,
-			       H5_INT32,
-			       (void*)buffer));
+	H5_API_RETURN (
+		h5_read_step_attrib (
+			f,
+			attrib_name,
+			H5_INT32_T,
+			(void*)buffer));
 }
 ///< @}
 

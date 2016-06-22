@@ -96,7 +96,10 @@ H5PartWriteDataFloat64 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
-	H5_API_RETURN (h5u_write_data (f, name, (void*)data, H5T_NATIVE_DOUBLE));
+	H5_API_RETURN (
+		h5u_write_data (
+			f, name, (void*)data,
+			H5_FLOAT64_T));
 }
 
 static inline h5_err_t
@@ -108,7 +111,10 @@ H5PartWriteDataFloat32 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
-	H5_API_RETURN (h5u_write_data(f, name, (void*)data, H5T_NATIVE_FLOAT));
+	H5_API_RETURN (
+		h5u_write_data(
+			f, name, (void*)data,
+			H5_FLOAT32_T));
 }
 
 static inline h5_err_t
@@ -120,7 +126,10 @@ H5PartWriteDataInt64 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
-	H5_API_RETURN (h5u_write_data (f, name, (void*)data, H5T_NATIVE_INT64));
+	H5_API_RETURN (
+		h5u_write_data (
+			f, name, (void*)data,
+			H5_INT64_T));
 }
 
 static inline h5_err_t
@@ -132,7 +141,10 @@ H5PartWriteDataInt32 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
-	H5_API_RETURN (h5u_write_data (f, name, (void*)data, H5T_NATIVE_INT32));
+	H5_API_RETURN (
+		h5u_write_data (
+			f, name, (void*)data,
+			H5_INT32_T));
 }
 
 /**
@@ -185,7 +197,9 @@ H5PartReadDataFloat64 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
-	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_DOUBLE));
+	H5_API_RETURN (
+		h5u_read_data (
+			f, name, data, H5_FLOAT64_T));
 }
 
 static inline h5_err_t
@@ -197,7 +211,9 @@ H5PartReadDataFloat32 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
-	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_FLOAT));
+	H5_API_RETURN (
+		h5u_read_data (
+			f, name, data, H5_FLOAT32_T));
 }
 
 static inline h5_err_t
@@ -209,7 +225,10 @@ H5PartReadDataInt64 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
-	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_INT64));
+	H5_API_RETURN (
+		h5u_read_data (
+			f, name, data,
+			H5_INT64_T));
 }
 
 static inline h5_err_t
@@ -221,7 +240,10 @@ H5PartReadDataInt32 (
 	H5_API_ENTER (h5_err_t,
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
-	H5_API_RETURN (h5u_read_data (f, name, data, H5T_NATIVE_INT32));
+	H5_API_RETURN (
+		h5u_read_data (
+			f, name, data,
+			H5_INT32_T));
 }
 
 #ifdef __cplusplus

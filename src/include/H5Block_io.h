@@ -92,7 +92,8 @@ H5Block3dWriteScalarFieldFloat64 (
                       (h5_file_p)f, name, buffer);
 	H5_API_RETURN (
 		h5b_write_scalar_data (
-			f, name, (void*)buffer, H5T_NATIVE_DOUBLE ));
+			f, name, (void*)buffer,
+			H5_FLOAT64_T));
 }
 
 static inline h5_err_t
@@ -107,7 +108,8 @@ H5Block3dWriteScalarFieldFloat32 (
                       (h5_file_p)f, name, buffer);
 	H5_API_RETURN (
 		h5b_write_scalar_data (
-			f, name, buffer, H5T_NATIVE_FLOAT ));
+			f, name, buffer,
+			H5_FLOAT32_T));
 }
 
 static inline h5_err_t
@@ -122,7 +124,7 @@ H5Block3dWriteScalarFieldInt64 (
                       (h5_file_p)f, name, buffer);
 	H5_API_RETURN (
 		h5b_write_scalar_data (
-			f, name, buffer, H5T_NATIVE_INT64 ));
+			f, name, buffer, H5_INT64_T));
 }
 
 static inline h5_err_t
@@ -137,7 +139,8 @@ H5Block3dWriteScalarFieldInt32 (
                       (h5_file_p)f, name, buffer);
 	H5_API_RETURN (
 		h5b_write_scalar_data (
-			f, name, buffer, H5T_NATIVE_INT32 ));
+			f, name, buffer,
+			H5_INT32_T));
 }
 
 /*
@@ -200,7 +203,8 @@ H5Block3dReadScalarFieldFloat64 (
                       (h5_file_p)f, name, buffer);
 	H5_API_RETURN (
 		h5b_read_scalar_data (
-			f, name, (void*)buffer, H5T_NATIVE_DOUBLE));
+			f, name, (void*)buffer,
+			H5_FLOAT64_T));
 }
 
 static inline h5_err_t
@@ -215,7 +219,8 @@ H5Block3dReadScalarFieldFloat32 (
                       (h5_file_p)f, name, buffer);
 	H5_API_RETURN (
 		h5b_read_scalar_data (
-			f, name, buffer, H5T_NATIVE_FLOAT));
+			f, name, buffer,
+			H5_FLOAT32_T));
 }
 
 static inline h5_err_t
@@ -230,7 +235,7 @@ H5Block3dReadScalarFieldInt64 (
                       (h5_file_p)f, name, buffer);
 	H5_API_RETURN (
 		h5b_read_scalar_data (
-			f, name, buffer, H5T_NATIVE_INT64));
+			f, name, buffer, H5_INT64_T));
 }
 
 static inline h5_err_t
@@ -245,7 +250,8 @@ H5Block3dReadScalarFieldInt32 (
                       (h5_file_p)f, name, buffer);
 	H5_API_RETURN (
 		h5b_read_scalar_data (
-			f, name, buffer, H5T_NATIVE_INT32));
+			f, name, buffer,
+			H5_INT32_T));
 }
 
 /*
@@ -332,7 +338,7 @@ H5Block3dWriteVector3dFieldFloat64 (
 		h5b_write_vector3d_data(
 			f, name,
 			(void*)x_buf, (void*)y_buf, (void*)z_buf,
-			H5T_NATIVE_DOUBLE));
+			H5_FLOAT64_T));
 }
 
 static inline h5_err_t
@@ -351,7 +357,7 @@ H5Block3dWriteVector3dFieldFloat32 (
 		h5b_write_vector3d_data (
 			f, name,
 			x_buf, y_buf, z_buf,
-			H5T_NATIVE_FLOAT));
+			H5_FLOAT32_T));
 }
 
 static inline h5_err_t
@@ -370,7 +376,7 @@ H5Block3dWriteVector3dFieldInt64 (
 		h5b_write_vector3d_data (
 			f, name,
 			x_buf, y_buf, z_buf,
-			H5T_NATIVE_INT64));
+			H5_INT64_T));
 }
 
 static inline h5_err_t
@@ -389,7 +395,7 @@ H5Block3dWriteVector3dFieldInt32 (
 		h5b_write_vector3d_data(
 			f, name,
 			x_buf, y_buf, z_buf,
-			H5T_NATIVE_INT32));
+			H5_INT32_T));
 }
 
 /*
@@ -470,7 +476,7 @@ H5Block3dReadVector3dFieldFloat64 (
 		h5b_read_vector3d_data (
 			f, name,
 			x_buf, y_buf, z_buf,
-			H5T_NATIVE_DOUBLE));
+			H5_FLOAT64_T));
 }
 
 static inline h5_err_t
@@ -489,7 +495,7 @@ H5Block3dReadVector3dFieldFloat32 (
 		h5b_read_vector3d_data (
 			f, name,
 			x_buf, y_buf, z_buf,
-			H5T_NATIVE_FLOAT));
+			H5_FLOAT32_T));
 }
 
 static inline h5_err_t
@@ -508,7 +514,7 @@ H5Block3dReadVector3dFieldInt64 (
 		h5b_read_vector3d_data (
 			f, name,
 			x_buf, y_buf, z_buf,
-			H5T_NATIVE_INT64));
+			H5_INT64_T));
 }
 
 static inline h5_err_t
@@ -527,7 +533,7 @@ H5Block3dReadVector3dFieldInt32 (
 		h5b_read_vector3d_data (
 			f, name,
 			x_buf, y_buf, z_buf,
-			H5T_NATIVE_INT32));
+			H5_INT32_T));
 }
 ///< @}
 
