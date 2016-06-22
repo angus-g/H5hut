@@ -93,27 +93,6 @@ h5priv_vprintf (
 	vfprintf (f, fmt2, ap);
 }
 
-/*!
-   \ingroup h5_core_errorhandling
-
-   Print error message to \c stderr. For use in error handlers only.
- */
-void
-h5_verror (
-        const char* const fmt,
-        va_list ap
-        ) {
-	if (h5_log_level == 0) return;
-	char fmt2[2048];
-	snprintf (fmt2,
-		  sizeof(fmt2), "[proc %d] E: %s: %s\n",
-		  h5_myproc,
-		  h5_call_stack.entry[0].name,
-		  fmt);
-	vfprintf (stderr, fmt2, ap);
-	
-}
-
 h5_err_t
 h5_warn (
         const char* fmt,

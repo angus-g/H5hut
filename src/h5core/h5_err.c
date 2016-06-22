@@ -89,6 +89,26 @@ h5_set_errno (
 	h5_errno = errno;
 }
 
+/*!
+   \ingroup h5_core_errorhandling
+
+   Print error message to \c stderr. For use in error handlers only.
+ */
+void
+h5_verror (
+        const char* const fmt,
+        va_list ap
+        ) {
+	if (h5_log_level == 0) return;
+	char fmt2[2048];
+	snprintf (fmt2,
+		  sizeof(fmt2), "[proc %d] E: %s: %s\n",
+		  h5_myproc,
+		  h5_call_stack.entry[0].name,
+		  fmt);
+	vfprintf (stderr, fmt2, ap);
+	
+}
 
 /*!
    \ingroup h5_core_errorhandling
@@ -100,7 +120,7 @@ h5_set_errno (
  */
 h5_err_t
 h5_report_errorhandler (
-        const char* fmt,
+        const char* const fmt,
         va_list ap
         ) {
 	if (h5_log_level > 0) {
@@ -117,7 +137,7 @@ h5_report_errorhandler (
  */
 h5_err_t
 h5_abort_errorhandler (
-        const char* fmt,
+        const char* const fmt,
         va_list ap
         ) {
 	if (h5_log_level > 0) {
@@ -131,20 +151,6 @@ h5_abort_errorhandler (
 	return -(int)h5_errno; // never executed, just to supress a warning
 }
 
-void
-h5priv_vprintf (
-        FILE* f,
-        const char* prefix,
-        const char* __funcname,
-        const char* fmt,
-        va_list ap
-        ) {
-	char fmt2[2048];
-	snprintf (fmt2, sizeof(fmt2), "[proc %d] %s: %s: %s\n", h5_myproc, prefix,
-	          __funcname, fmt);
-	vfprintf (f, fmt2, ap);
-}
-
 /*!
    \ingroup h5_core_errorhandling
 
@@ -155,7 +161,7 @@ h5priv_vprintf (
 h5_err_t
 h5_error (
         const h5_err_t errno_,
-        const char* fmt,
+        const char* const fmt,
         ...
         ) {
 	h5_errno = errno_;
@@ -166,18 +172,4 @@ h5_error (
 
 	va_end (ap);
 	return h5_errno;
-}
-
-/*!
-   \ingroup h5_core_errorhandling
-
-   Print error message to \c stderr. For use in error handlers only.
- */
-void
-h5_verror (
-        const char* fmt,
-        va_list ap
-        ) {
-	if (h5_log_level == 0) return;
-	h5priv_vprintf (stderr, "E", h5_call_stack.entry[0].name, fmt, ap);
 }
