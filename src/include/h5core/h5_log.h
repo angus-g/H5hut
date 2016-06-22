@@ -144,39 +144,27 @@ h5_call_stack_reset (
 	return h5_call_stack.entry[0].name;
 }
 
-void
-h5priv_vprintf (
-        FILE* f,
-        const char* prefix,
-        const char* __funcname,
-        const char* fmt,
-        va_list ap
-        );
+/*!
+   \ingroup h5_core_errorhandling
 
-h5_err_t
-h5_error (
-        const h5_err_t error_no,
+   Print a debug message to \c stdout.
+ */
+void
+h5_debug (
         const char *fmt,
         ...
         )
 #ifdef __GNUC__
-__attribute__ ((format (printf, 2, 3)))
+__attribute__ ((format (printf, 1, 2)))
 #endif
 ;
-
-void
-h5_verror (
-        const char* fmt,
-        va_list ap
-        );
 
 /*!
    \ingroup h5_core_errorhandling
 
    Print a warning message to \c stderr.
  */
-
-static inline h5_err_t
+h5_err_t
 h5_warn (
         const char *fmt,
         ...
@@ -185,26 +173,13 @@ h5_warn (
 __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
-static inline h5_err_t
-h5_warn (
-        const char* fmt,
-        ...
-        ) {
-	if (h5_log_level >= 2) {
-		va_list ap;
-		va_start (ap, fmt);
-		h5priv_vprintf (stderr, "W", h5_get_funcname(), fmt, ap);
-		va_end (ap);
-	}
-	return H5_NOK;
-}
 
 /*!
    \ingroup h5_core_errorhandling
 
    Print an informational message to \c stdout.
  */
-static inline void
+void
 h5_info (
         const char *fmt,
         ...
@@ -213,50 +188,6 @@ h5_info (
 __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
-static inline void
-h5_info (
-        const char* fmt,
-        ...
-        ) {
-	if (h5_log_level >= 3) {
-		va_list ap;
-		va_start (ap, fmt);
-		h5priv_vprintf (stdout, "I", h5_get_funcname(), fmt, ap);
-		va_end (ap);
-	}
-}
-
-/*!
-   \ingroup h5_core_errorhandling
-
-   Print a debug message to \c stdout.
- */
-static inline void
-h5_debug (
-        const char *fmt,
-        ...
-        )
-#ifdef __GNUC__
-__attribute__ ((format (printf, 1, 2)))
-#endif
-;
-
-static inline void
-h5_debug (
-        const char *fmt,
-        ...
-        ) {
-	if (h5_log_level >= 4) {
-		char prefix[1024];
-		snprintf (prefix, sizeof(prefix), "%*s %s",
-		          h5_call_stack_get_level(), "",
-		          h5_call_stack_get_name());
-		va_list ap;
-		va_start (ap, fmt);
-		h5priv_vprintf (stdout, "D", prefix, fmt, ap);
-		va_end (ap);
-	}
-}
 
 //////////////////////////////////////////////////////////////////////////////
 // function enter macro
