@@ -92,6 +92,17 @@ h5_abort_errorhandler (
         va_list ap
         );
 
+h5_err_t
+h5_error (
+        const h5_err_t error_no,
+        const char *fmt,
+        ...
+        )
+#ifdef __GNUC__
+__attribute__ ((format (printf, 2, 3)))
+#endif
+;
+
 #ifdef __cplusplus
 }
 #endif
