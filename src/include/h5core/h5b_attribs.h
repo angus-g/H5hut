@@ -13,9 +13,6 @@
 #include "h5core/h5_types.h"
 #include <hdf5.h>
 
-/*
-  :TODO: move macros to private include file
-*/
 #define H5BLOCK_FIELD_ORIGIN_NAME	"__Origin__"
 #define H5BLOCK_FIELD_SPACING_NAME	"__Spacing__"
 #define H5BLOCK_FIELD_XCOORD_NAME	"__X_Coordinates__"
@@ -54,7 +51,7 @@ h5b_get_field_attrib_info_by_name (
 h5_err_t
 h5b_write_field_attrib (
 	const h5_file_t,
-        const char*, const char*, const hid_t, const void*, const h5_int64_t);
+        const char*, const char*, const h5_int64_t, const void*, const h5_int64_t);
 
 h5_err_t
 h5b_read_field_attrib (

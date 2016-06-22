@@ -23,7 +23,8 @@ h5_has_step_attrib (
 
 h5_err_t
 h5_get_step_attrib_info_by_name (
-	const h5_file_t, const char* const, h5_int64_t*, h5_size_t*);
+	const h5_file_t, const char* const,
+	h5_int64_t* const, h5_size_t* const);
 
 h5_ssize_t
 h5_get_num_step_attribs (
@@ -31,16 +32,18 @@ h5_get_num_step_attribs (
 
 h5_err_t
 h5_get_step_attrib_info_by_idx (
-	const h5_file_t, const h5_size_t, char*, const h5_size_t, h5_int64_t*,
-	h5_size_t*);
+	const h5_file_t, const h5_size_t, char* const, const h5_size_t,
+	h5_int64_t* const, h5_size_t* const);
 
 h5_err_t
 h5_read_step_attrib (
-	const h5_file_t, const char*, const hid_t, void*);
+	const h5_file_t, const char* const, const h5_types_t,
+	void* const);
 
 h5_err_t
 h5_write_step_attrib (
-	const h5_file_t, const char*, const hid_t, const void*, const hsize_t);
+	const h5_file_t, const char* const, const h5_types_t,
+	const void* const, const h5_size_t);
 
 #ifdef __cplusplus
 }
