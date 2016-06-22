@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2015, The Regents of the University of California,
+  Copyright (c) 2006-2016, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -23,10 +23,11 @@ main (
 	int argc,
 	char** argv
 	) {
+	MPI_Init (&argc, &argv);
         H5AbortOnError ();
         H5SetVerbosityLevel (VERBOSITY);
+	H5SetDebugMask (H5_DEBUG_ALL);
 
-	MPI_Init (&argc, &argv);
 
         // if file properties is set to default, MPI_COMM_WORLD will be used
         h5_file_t f = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
