@@ -50,7 +50,6 @@ libH5hut_la_SOURCES =				\
 	h5_attribs.c				\
 	h5_log.c				\
 	h5_err.c				\
-	h5_init.c				\
 	h5_model.c				\
 	h5_file.c				\
 	h5u_io.c		                \
@@ -59,6 +58,7 @@ libH5hut_la_SOURCES =				\
         h5b_model.c				\
         h5b_attribs.c				\
 	private/h5_hdf5.c			\
+	private/h5_init.c			\
 	private/h5_hsearch.c			\
 	private/h5_maps.c			\
 	private/h5_fcmp.c			\
