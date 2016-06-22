@@ -13,18 +13,6 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-#define H5_STRING               H5T_C_S1
-#define H5_INT16                H5T_NATIVE_INT16
-#define H5_UINT16		H5T_NATIVE_UINT16
-#define H5_INT32                H5T_NATIVE_INT32
-#define H5_UINT32               H5T_NATIVE_UINT32
-#define H5_INT64                H5T_NATIVE_INT64
-#define H5_UINT64               H5T_NATIVE_UINT64
-#define H5_FLOAT32              H5T_NATIVE_FLOAT
-#define H5_FLOAT64              H5T_NATIVE_DOUBLE
-#define H5_ID                   H5T_NATIVE_INT64
-#define H5_COMPOUND             H5T_COMPOUND
-
 typedef enum  {
 	H5_STRING_T,
 	H5_INT16_T,
@@ -36,9 +24,8 @@ typedef enum  {
 	H5_FLOAT32_T,
 	H5_FLOAT64_T,
 	H5_ID_T,
-	H5_COMPOUND_T
 } h5_types_t;
-	
+
 #ifdef   WIN32
 typedef __int64                 int64_t;
 #endif /* WIN32 */

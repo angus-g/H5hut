@@ -77,7 +77,7 @@ create_vertex_type (
 
 	TRY(
 	        h5_dta_types.h5_vertex_t = hdf5_create_type (
-	                H5_COMPOUND,
+	                H5T_COMPOUND,
 	                sizeof (h5_glb_vertex_t)) );
 	TRY(
 	        hdf5_insert_type (
@@ -103,7 +103,7 @@ create_triangle_type (
 
 	TRY(
 	        h5_dta_types.h5_triangle_t = hdf5_create_type (
-	                H5_COMPOUND,
+	                H5T_COMPOUND,
 	                sizeof (h5_glb_tri_t)) );
 	TRY(
 	        hdf5_insert_type (
@@ -165,7 +165,7 @@ create_tag_types (
 
 	TRY (
 	        h5_dta_types.h5t_glb_tag_idx_t = hdf5_create_type (
-	                H5_COMPOUND,
+	                H5T_COMPOUND,
 	                sizeof (h5t_glb_tag_idx_t)) );
 	TRY (
 	        hdf5_insert_type (
@@ -191,7 +191,7 @@ create_tet_type (
 
 	TRY(
 	        h5_dta_types.h5_tet_t = hdf5_create_type (
-	                H5_COMPOUND,
+	                H5T_COMPOUND,
 	                sizeof (h5_glb_tet_t)) );
 	TRY(
 	        hdf5_insert_type (
@@ -254,7 +254,7 @@ create_chunk_type (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
 	TRY(
 	        h5_dta_types.h5_chunk_t = hdf5_create_type (
-	                H5_COMPOUND,
+	                H5T_COMPOUND,
 	                sizeof (h5t_chunk_t)) );
 	TRY(
 	        hdf5_insert_type (
@@ -308,7 +308,7 @@ create_octree_type (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
 	TRY(
 	        h5_dta_types.h5_octree_t = hdf5_create_type (
-	                H5_COMPOUND,
+	                H5T_COMPOUND,
 	                sizeof (h5t_octant_t)) );
 	TRY(
 	        hdf5_insert_type (
@@ -357,7 +357,7 @@ create_userdata_type (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
 	TRY(
 		        h5_dta_types.h5_userdata_t = hdf5_create_type (
-		                H5_COMPOUND,
+		                H5T_COMPOUND,
 		                sizeof (h5t_oct_userdata_t)) );
 	TRY(
 	        hdf5_insert_type (
@@ -663,7 +663,7 @@ _h5_exit (int status) {
 }
 
 h5_err_t
-h5_initialize (
+h5priv_initialize (
         void
         ) {
 	h5_initialized = 1;
