@@ -27,7 +27,7 @@ h5bl_3d_write_scalar_field_r8 (
 		      (h5_file_p)f, l_name, name, buffer);
 	char *name2 =  h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5b_write_scalar_data (
-		f, name2, (void*)buffer, H5T_NATIVE_DOUBLE );
+		f, name2, (void*)buffer, H5_FLOAT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -48,7 +48,7 @@ h5bl_3d_read_scalar_field_r8 (
 		      (h5_file_p)f, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_scalar_data (
-		f, name2, buffer, H5T_NATIVE_DOUBLE );
+		f, name2, buffer, H5_FLOAT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -72,7 +72,7 @@ h5bl_3d_write_vector3d_field_r8 (
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_write_vector3d_data (
 		f, name2,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_DOUBLE );
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5_FLOAT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -96,7 +96,7 @@ h5bl_3d_read_vector3d_field_r8 (
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_vector3d_data (
 		f, name2,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_DOUBLE );
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5_FLOAT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -117,7 +117,7 @@ h5bl_3d_write_scalar_field_r4 (
 		      (h5_file_p)f, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5b_write_scalar_data (
-		f, name2, (void*)buffer, H5T_NATIVE_FLOAT );
+		f, name2, (void*)buffer, H5_FLOAT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -138,7 +138,7 @@ h5bl_3d_read_scalar_field_r4 (
 		      (h5_file_p)f, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_scalar_data (
-		f, name2, buffer, H5T_NATIVE_FLOAT );
+		f, name2, buffer, H5_FLOAT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -162,7 +162,7 @@ h5bl_3d_write_vector3d_field_r4 (
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_write_vector3d_data (
 		f, name2,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_FLOAT );
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5_FLOAT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -186,7 +186,7 @@ h5bl_3d_read_vector3d_field_r4 (
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_vector3d_data (
 		f, name2,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_FLOAT );
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5_FLOAT32_T );
 	free ( name2 );
 	H5_API_RETURN (herr);
 }
@@ -207,7 +207,7 @@ h5bl_3d_write_scalar_field_i8 (
 		      (h5_file_p)f, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5b_write_scalar_data (
-		f, name2, (void*)buffer, H5T_NATIVE_INT64 );
+		f, name2, (void*)buffer, H5_INT64_T );
 	free ( name2 );
 	H5_API_RETURN (herr);
 }
@@ -228,7 +228,7 @@ h5bl_3d_read_scalar_field_i8 (
 		      (h5_file_p)f, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_scalar_data (
-		f, name2, buffer, H5T_NATIVE_INT64 );
+		f, name2, buffer, H5_INT64_T );
 	free (name2);
 	H5_API_RETURN (herr);
 }
@@ -252,7 +252,7 @@ h5bl_3d_write_vector3d_field_i8 (
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_write_vector3d_data (
 		f, name2,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_INT64 );
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5_INT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -276,7 +276,7 @@ h5bl_3d_read_vector3d_field_i8 (
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_vector3d_data (
 		f, name2,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_INT64 );
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5_INT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -297,7 +297,7 @@ h5bl_3d_write_scalar_field_i4 (
 		      (h5_file_p)f, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name, l_name );
 	h5_err_t herr = h5b_write_scalar_data (
-		f, name2, (void*)buffer, H5T_NATIVE_INT32 );
+		f, name2, (void*)buffer, H5_INT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -318,7 +318,7 @@ h5bl_3d_read_scalar_field_i4 (
 		      (h5_file_p)f, name, buffer, l_name);
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_scalar_data (
-		f, name2, buffer, H5T_NATIVE_INT32 );
+		f, name2, buffer, H5_INT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -342,7 +342,7 @@ h5bl_3d_write_vector3d_field_i4 (
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_write_vector3d_data (
 		f, name2,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_INT32 );
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5_INT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -366,7 +366,7 @@ h5bl_3d_read_vector3d_field_i4 (
 	char *name2 =  h5_strdupfor2c ( name,  l_name );
 	h5_err_t herr = h5b_read_vector3d_data (
 		f, name2,
-		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5T_NATIVE_INT32 );
+		(void*)x_buf, (void*)y_buf, (void*)z_buf, H5_INT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }

@@ -31,26 +31,6 @@
 #  error "Unknown Fortran symbol mangling"
 #endif
 
-#define convert_type2for(type)				    \
-        if (*type == H5_STRING) {			    \
-                *type = 1;				    \
-        } else if (*type == H5_INT16) {			    \
-                *type = 2;				    \
-        } else if (*type == H5_INT32) {			    \
-                *type = 3;				    \
-        } else if (*type == H5_INT64) {			    \
-                *type = 4;				    \
-        } else if (*type == H5_FLOAT32) {		    \
-                *type = 5;				    \
-        } else if (*type == H5_FLOAT64) {		    \
-                *type = 6;				    \
-        } else {					    \
-                H5_API_LEAVE (				    \
-                        h5_error (			    \
-                                H5_ERR_H5,		    \
-                                "Unknown attribute type")); \
-        }
-
 static inline char*
 h5_strdupfor2c (
 	const char* s,

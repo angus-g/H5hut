@@ -224,7 +224,6 @@ h5pt_getdatasetinfo (
                 dataset_type,
                 (h5_size_t*)dataset_nelem);
 	h5_strc2for (dataset_name, l_dataset_name);
-        convert_type2for (dataset_type);
 	H5_API_RETURN (h5err);
 }
 

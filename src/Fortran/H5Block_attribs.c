@@ -11,11 +11,6 @@
 #include "h5core/h5_log.h"
 #include "h5core/h5b_attribs.h"
 
-#define H5_R8_T H5_FLOAT64
-#define H5_R4_T H5_FLOAT32
-#define H5_I8_T H5_INT64
-#define H5_I4_T H5_INT32
-
 /*
    __ _ _   _  ___ _ __ _   _ 
   / _` | | | |/ _ \ '__| | | |
@@ -163,7 +158,7 @@ h5bl_writefieldattrib_string (
                 f,
                 field_name, l_field_name,
                 attrib_name, l_attrib_name,
-                H5_STRING,
+                H5_STRING_T,
                 attrib_value2, strlen(attrib_value2)+1 );
 	free (attrib_value2);
 	H5_API_RETURN (h5err);
@@ -193,7 +188,7 @@ h5bl_readfieldattrib_string (
                 f,
 		field_name, l_field_name,
                 attrib_name, l_attrib_name,
-		H5_STRING, attrib_value);
+		H5_STRING_T, attrib_value);
 
 	h5_strc2for (attrib_value, l_attrib_value);
 	H5_API_RETURN (h5err);
@@ -231,7 +226,7 @@ h5bl_writefieldattrib_r8 (
                                f,
                                field_name, l_field_name,
                                attrib_name, l_attrib_name,
-                               H5_R8_T,
+                               H5_FLOAT64_T,
                                attrib_value, *attrib_nelems));
 }
 
@@ -259,7 +254,7 @@ h5bl_readfieldattrib_r8 (
                                f,
                                field_name, l_field_name,
                                attrib_name, l_attrib_name,
-                               H5_R8_T,
+                               H5_FLOAT64_T,
                                attrib_value));
 }
 
@@ -288,7 +283,7 @@ h5bl_writefieldattrib_r4 (
                                f,
                                field_name, l_field_name,
                                attrib_name, l_attrib_name,
-                               H5_R4_T,
+                               H5_FLOAT32_T,
                                attrib_value, *attrib_nelems));
 }
 
@@ -316,7 +311,7 @@ h5bl_readfieldattrib_r4 (
                                f,
                                field_name, l_field_name,
                                attrib_name, l_attrib_name,
-                               H5_R4_T,
+                               H5_FLOAT32_T,
                                attrib_value));
 }
 
@@ -353,7 +348,7 @@ h5bl_writefieldattrib_i8 (
                                f,
                                field_name, l_field_name,
                                attrib_name, l_attrib_name,
-                               H5_I8_T,
+                               H5_INT64_T,
                                attrib_value, *attrib_nelems));
 }
 
@@ -382,7 +377,7 @@ h5bl_readfieldattrib_i8 (
                                f,
                                field_name, l_field_name,
                                attrib_name, l_attrib_name,
-                               H5_I8_T,
+                               H5_INT64_T,
                                attrib_value));
 }
 
@@ -411,7 +406,7 @@ h5bl_writefieldattrib_i4 (
                                f,
                                field_name, l_field_name,
                                attrib_name, l_attrib_name,
-                               H5_I4_T,
+                               H5_INT32_T,
                                attrib_value, *attrib_nelems));
 }
 
@@ -439,7 +434,7 @@ h5bl_readfieldattrib_i4 (
                                f,
                                field_name, l_field_name,
                                attrib_name, l_attrib_name,
-                               H5_I4_T,
+                               H5_INT32_T,
                                attrib_value));
 }
 
@@ -470,7 +465,7 @@ h5bl_get_fieldorigin (
 		     f,
 		     field_name, l_field_name,
 		     H5BLOCK_FIELD_ORIGIN_NAME, sizeof (H5BLOCK_FIELD_ORIGIN_NAME),
-		     H5_R8_T,
+		     H5_FLOAT64_T,
 		     origin));
 	*x_origin = origin[0];
 	*y_origin = origin[1];
@@ -506,7 +501,7 @@ h5bl_set_fieldorigin (
 		     f,
 		     field_name, l_field_name,
 		     H5BLOCK_FIELD_ORIGIN_NAME, sizeof (H5BLOCK_FIELD_ORIGIN_NAME),
-		     H5_R8_T,
+		     H5_FLOAT64_T,
 		     origin, 3));
 
 	H5_API_RETURN (H5_SUCCESS);
@@ -539,7 +534,7 @@ h5bl_get_fieldspacing (
 		     f,
 		     field_name, l_field_name,
 		     H5BLOCK_FIELD_ORIGIN_NAME, sizeof (H5BLOCK_FIELD_ORIGIN_NAME),
-		     H5_R8_T,
+		     H5_FLOAT64_T,
 		     spacing));
 	*x_spacing = spacing[0];
 	*y_spacing = spacing[1];
@@ -575,7 +570,7 @@ h5bl_set_fieldspacing (
 		     f,
 		     field_name, l_field_name,
 		     H5BLOCK_FIELD_ORIGIN_NAME, sizeof (H5BLOCK_FIELD_SPACING_NAME),
-		     H5_R8_T,
+		     H5_FLOAT64_T,
 		     spacing));
 
 	H5_API_RETURN (H5_SUCCESS);
