@@ -216,10 +216,11 @@ H5Block3dSetView (
 		      (long long)i_start, (long long)i_end,
 		      (long long)j_start, (long long)j_end,
 		      (long long)k_start, (long long)k_end);
-	H5_API_RETURN (h5b_3d_set_view (f,
-                                        i_start, i_end,
-                                        j_start, j_end,
-                                        k_start, k_end));
+	H5_API_RETURN (
+		h5b_3d_set_view (f,
+				 i_start, i_end,
+				 j_start, j_end,
+				 k_start, k_end));
 }
 
 /**
@@ -247,7 +248,12 @@ H5Block3dGetView (
 		      i_start, i_end,
 		      j_start, j_end,
 		      k_start, k_end);
-	H5_API_RETURN (h5b_3d_get_view (f, i_start, i_end, j_start, j_end, k_start, k_end));
+	H5_API_RETURN (
+		h5b_3d_get_view (
+			f,
+			i_start, i_end,
+			j_start, j_end,
+			k_start, k_end));
 }
 
 /**
@@ -275,7 +281,12 @@ H5Block3dGetReducedView (
 		      i_start, i_end,
 		      j_start, j_end,
 		      k_start, k_end);
-	H5_API_RETURN (h5b_3d_get_reduced_view(f, i_start, i_end, j_start, j_end, k_start, k_end));
+	H5_API_RETURN (
+		h5b_3d_get_reduced_view (
+			f,
+			i_start, i_end,
+			j_start, j_end,
+			k_start, k_end));
 }
 
 /**
@@ -318,7 +329,11 @@ H5Block3dGetChunkSize (
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, i=%p, j=%p, k=%p",
 		      (h5_file_p)f, i, j, k);
-	H5_API_RETURN (h5b_3d_get_chunk(f, field_name, i, j, k));
+	H5_API_RETURN (
+		h5b_3d_get_chunk (
+			f,
+			field_name,
+			i, j, k));
 }
 
 #ifdef PARALLEL_IO
@@ -348,7 +363,10 @@ H5Block3dSetGrid (
 		      (long long unsigned)i,
 		      (long long unsigned)j,
 		      (long long unsigned)k);
-	H5_API_RETURN (h5b_3d_set_grid(f, i, j, k));
+	H5_API_RETURN (
+		h5b_3d_set_grid (
+			f,
+			i, j, k));
 }
 
 /**
@@ -369,7 +387,11 @@ H5Block3dGetGridCoords (
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, proc=%d, i=%p, j=%p, k=%p",
 		      (h5_file_p)f, proc, i, j, k);
-	H5_API_RETURN (h5b_3d_get_grid_coords(f, proc, i, j, k));
+	H5_API_RETURN (
+		h5b_3d_get_grid_coords (
+			f,
+			proc,
+			i, j, k));
 }
 
 /**
@@ -395,7 +417,10 @@ H5Block3dSetDims (
 		      (long long unsigned)i,
 		      (long long unsigned)j,
 		      (long long unsigned)k);
-	H5_API_RETURN (h5b_3d_set_dims(f, i, j, k));
+	H5_API_RETURN (
+		h5b_3d_set_dims (
+			f,
+			i, j, k));
 }
 #endif
 
@@ -423,7 +448,10 @@ H5Block3dSetHalo (
 		      (long long unsigned)i,
 		      (long long unsigned)j,
 		      (long long unsigned)k);
-	H5_API_RETURN (h5b_3d_set_halo(f, i, j, k));
+	H5_API_RETURN (
+		h5b_3d_set_halo (
+			f,
+			i, j, k));
 }
 
 
