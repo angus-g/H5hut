@@ -8,6 +8,8 @@
 */
 
 #include "h5core/h5_log.h"
+#include "h5core/h5_file_attribs.h"
+#include "h5core/h5_step_attribs.h"
 
 #include "private/h5_hdf5.h"
 #include "private/h5_attribs.h"
@@ -72,10 +74,10 @@ h5_err_t
 h5_get_file_attrib_info_by_idx (
 	const h5_file_t f_,			/*!< handle to open file */
 	const h5_size_t attrib_idx,		/*!< index of attribute */
-	char* attrib_name,			/*!< OUT: name of attribute */
+	char* const attrib_name,		/*!< OUT: name of attribute */
 	const h5_size_t len_attrib_name,	/*!< buffer length */
-	h5_int64_t* attrib_type,		/*!< OUT: H5 type of attribute */
-	h5_size_t* attrib_nelem			/*!< OUT: number of elements */
+	h5_int64_t* const attrib_type,		/*!< OUT: H5 type of attribute */
+	h5_size_t* const attrib_nelem		/*!< OUT: number of elements */
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
@@ -99,7 +101,7 @@ h5_get_file_attrib_info_by_idx (
 h5_err_t
 h5_get_file_attrib_info_by_name (
 	const h5_file_t f_,			/*!< IN: handle to open file */
-	char* attrib_name,			/*!< IN: name of attribute */
+	const char* const attrib_name,		/*!< IN: name of attribute */
 	h5_int64_t* attrib_type,		/*!< OUT: H5 type of attribute */
 	h5_size_t* attrib_nelem			/*!< OUT: number of elements */
 	) {
@@ -152,9 +154,9 @@ h5_get_step_attrib_info_by_idx (
 h5_err_t
 h5_get_step_attrib_info_by_name (
 	const h5_file_t f_,			/*!< handle to open file */
-	char* attrib_name,			/*!< OUT: name of attribute */
-	h5_int64_t* attrib_type,		/*!< OUT: H5 type of attribute */
-	h5_size_t* attrib_nelem			/*!< OUT: number of elements */
+	const char* const attrib_name,		/*!< OUT: name of attribute */
+	h5_int64_t* const attrib_type,		/*!< OUT: H5 type of attribute */
+	h5_size_t* const attrib_nelem		/*!< OUT: number of elements */
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
@@ -177,8 +179,8 @@ h5_err_t
 h5_read_file_attrib (
 	const h5_file_t f_,
 	const char* const attrib_name,
-	const hid_t attrib_type,
-	void* attrib_value
+	const h5_types_t attrib_type,
+	void* const attrib_value
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
@@ -200,9 +202,9 @@ h5_read_file_attrib (
 h5_err_t
 h5_read_step_attrib (
 	const h5_file_t f_,
-	const char *attrib_name,
-	const hid_t attrib_type,
-	void *attrib_value
+	const char* const attrib_name,
+	const h5_types_t attrib_type,
+	void* const attrib_value
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
@@ -227,9 +229,9 @@ h5_read_step_attrib (
 h5_err_t
 h5_write_file_attrib (
 	const h5_file_t f_,
-	const char *attrib_name,
-	const hid_t attrib_type,
-	const void *attrib_value,
+	const char* const attrib_name,
+	const h5_types_t attrib_type,
+	const void* const attrib_value,
 	const hsize_t attrib_nelem
 	) {
         h5_file_p f = (h5_file_p)f_;
@@ -256,10 +258,10 @@ h5_write_file_attrib (
 h5_err_t
 h5_write_step_attrib (
 	const h5_file_t f_,
-	const char *attrib_name,
-	const hid_t attrib_type,
-	const void *attrib_value,
-	const hsize_t attrib_nelem
+	const char* const attrib_name,
+	const h5_types_t attrib_type,
+	const void* const attrib_value,
+	const h5_size_t attrib_nelem
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
