@@ -20,22 +20,22 @@ extern "C" {
 h5_err_t
 h5b_write_scalar_data (
 	const h5_file_t,
-	const char*, const void*, const hid_t);
+	const char* const, const void* const, const h5_types_t);
 
 h5_err_t
 h5b_write_vector3d_data (
 	const h5_file_t,
-	const char*, const void*, const void*, const void*, const hid_t);
+	const char*, const void*, const void*, const void*, const h5_types_t);
 
 h5_err_t
 h5b_read_scalar_data (
 	const h5_file_t,
-	const char*, void*, const hid_t);
+	const char* const, void* const, const h5_types_t);
 
 h5_err_t
 h5b_read_vector3d_data (
 	const h5_file_t,
-	const char*, void*, void*, void*, const hid_t);
+	const char*, void*, void*, void*, const h5_types_t);
 
 #ifdef __cplusplus
 }

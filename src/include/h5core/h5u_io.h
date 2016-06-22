@@ -20,12 +20,12 @@ extern "C" {
 h5_int64_t
 h5u_read_data (
 	const h5_file_t,
-	const char* const, void* const, const hid_t);
+	const char* const, void* const, const h5_types_t);
 
 h5_int64_t
 h5u_write_data (
 	const h5_file_t,
-	const char* const, const void* const, const hid_t);
+	const char* const, const void* const, const h5_types_t);
 
 #ifdef __cplusplus
 }
