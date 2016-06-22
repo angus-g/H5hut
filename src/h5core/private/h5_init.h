@@ -33,7 +33,7 @@ extern "C" {
 extern int h5_initialized;
 
 h5_err_t
-h5_initialize (void);
+h5priv_initialize (void);
 
 extern h5_dta_types_t h5_dta_types;
 extern int h5_myproc;

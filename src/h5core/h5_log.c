@@ -8,6 +8,7 @@
 */
 
 #include "h5core/h5_log.h"
+#include "h5core/h5_err.h"
 #include "private/h5_init.h"
 
 h5_int32_t			h5_log_level = H5_VERBOSE_ERROR;
@@ -76,4 +77,83 @@ h5_get_loglevel (
         void
         ) {
 	return h5_log_level;
+}
+
+void
+h5priv_vprintf (
+        FILE* f,
+        const char* prefix,
+        const char* __funcname,
+        const char* fmt,
+        va_list ap
+        ) {
+	char fmt2[2048];
+	snprintf (fmt2, sizeof(fmt2), "[proc %d] %s: %s: %s\n", h5_myproc, prefix,
+	          __funcname, fmt);
+	vfprintf (f, fmt2, ap);
+}
+
+/*!
+   \ingroup h5_core_errorhandling
+
+   Print error message to \c stderr. For use in error handlers only.
+ */
+void
+h5_verror (
+        const char* const fmt,
+        va_list ap
+        ) {
+	if (h5_log_level == 0) return;
+	char fmt2[2048];
+	snprintf (fmt2,
+		  sizeof(fmt2), "[proc %d] E: %s: %s\n",
+		  h5_myproc,
+		  h5_call_stack.entry[0].name,
+		  fmt);
+	vfprintf (stderr, fmt2, ap);
+	
+}
+
+h5_err_t
+h5_warn (
+        const char* fmt,
+        ...
+        ) {
+	if (h5_log_level >= 2) {
+		va_list ap;
+		va_start (ap, fmt);
+		h5priv_vprintf (stderr, "W", h5_get_funcname(), fmt, ap);
+		va_end (ap);
+	}
+	return H5_NOK;
+}
+
+void
+h5_info (
+        const char* fmt,
+        ...
+        ) {
+	if (h5_log_level >= 3) {
+		va_list ap;
+		va_start (ap, fmt);
+		h5priv_vprintf (stdout, "I", h5_get_funcname(), fmt, ap);
+		va_end (ap);
+	}
+}
+
+void
+h5_debug (
+        const char* const fmt,
+        ...
+        ) {
+	if (h5_log_level >= 4) {
+		char prefix[1024];
+		snprintf (prefix, sizeof(prefix), "%*s %s",
+		          h5_call_stack_get_level(), "",
+		          h5_call_stack_get_name());
+		va_list ap;
+		va_start (ap, fmt);
+		h5priv_vprintf (stdout, "D", prefix, fmt, ap);
+		va_end (ap);
+	}
 }

@@ -16,7 +16,7 @@
 
 #define H5_CORE_API_ENTER(type, fmt, ...)				\
 	if (!h5_initialized) {						\
-		h5_initialize();					\
+		h5priv_initialize();					\
 	}								\
 	__FUNC_ENTER(type, H5_DEBUG_CORE_API, fmt, __VA_ARGS__)
 #define H5_CORE_API_LEAVE(value)	__FUNC_LEAVE(value)
@@ -49,5 +49,8 @@
 #define H5_INLINE_FUNC_ENTER(type)	type ret_value = (type)H5_ERR;
 #define H5_INLINE_FUNC_LEAVE(expr)	__FUNC_LEAVE(expr)
 #define H5_INLINE_FUNC_RETURN(expr)	__FUNC_RETURN(expr, 0)
+
+
+
 
 #endif
