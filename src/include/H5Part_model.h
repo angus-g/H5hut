@@ -60,7 +60,7 @@ static inline h5_err_t
 H5PartGetDatasetName (
 	const h5_file_t f,           	///< [in]  file handle
 	const h5_id_t idx,      	///< [in]  index of the dataset
-	char* name,             	///< [out] name of dataset
+	char* const name,             	///< [out] name of dataset
 	const h5_size_t len     	///< [in]  size of buffer \c name
 	) {
 	H5_API_ENTER (h5_err_t, 
@@ -70,7 +70,12 @@ H5PartGetDatasetName (
                       (h5_file_p)f,
 		       (long long)idx,
 		       name, (unsigned long long)len);
-	H5_API_RETURN (h5u_get_dataset_info_by_idx(f, idx, name, len, NULL, NULL));
+	H5_API_RETURN (
+		h5u_get_dataset_info_by_idx(
+			f,
+			idx,
+			name, len,
+			NULL, NULL));
 }
 
 /**
@@ -108,8 +113,12 @@ H5PartGetDatasetInfo (
 		      (long long)idx,
 		      name, (long long unsigned)len_name,
 		      type, nelems);
-	H5_API_RETURN (h5u_get_dataset_info_by_idx (
-			       f, idx, name, len_name, type, nelems));
+	H5_API_RETURN (
+		h5u_get_dataset_info_by_idx (
+			f,
+			idx,
+			name, len_name,
+			type, nelems));
 }
 /**
   Determines whether a dataset with given name exists in current step.
@@ -160,8 +169,11 @@ H5PartGetDatasetInfoByName (
 		      (h5_file_p)f,
 		      name,
 		      type, nelems);
-	H5_API_RETURN (h5u_get_dataset_info_by_name (
-			       f, name, type, nelems));
+	H5_API_RETURN (
+		h5u_get_dataset_info_by_name (
+			f,
+			name,
+			type, nelems));
 }
 
 /**
