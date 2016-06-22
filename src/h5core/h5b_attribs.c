@@ -8,9 +8,7 @@
 */
 #include "private/h5_log.h"
 
-#include "private/h5_file.h"
 #include "private/h5_hdf5.h"
-
 #include "private/h5_attribs.h"
 #include "private/h5b_types.h"
 #include "private/h5b_model.h"

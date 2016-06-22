@@ -9,12 +9,10 @@
 
 #include <string.h>
 
+#include "h5core/h5_model.h"
 #include "private/h5_types.h"
 #include "private/h5_hdf5.h"
 #include "private/h5_model.h"
-#include "private/h5_mpi.h"
-#include "private/h5_io.h"
-#include "private/h5_va_macros.h"
 
 h5_err_t
 h5priv_close_step (
