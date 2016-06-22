@@ -985,7 +985,7 @@ h5b_get_field_info_by_name (
 		*elem_rank = (h5_size_t) _elem_rank;
 	}
 	if (type) {
-		TRY (*type = h5priv_get_native_dataset_type (dataset_id));
+		TRY (*type = h5priv_get_normalized_dataset_type (dataset_id));
 		TRY (*type = h5priv_map_hdf5_type_to_enum(*type));
 	}
 	TRY (hdf5_close_dataspace (dataspace_id));

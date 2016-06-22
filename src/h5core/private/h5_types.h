@@ -13,6 +13,16 @@
 #include <hdf5.h>
 #include "h5core/h5_types.h"
 
+#define H5_INT16                H5T_NATIVE_INT16
+#define H5_UINT16		H5T_NATIVE_UINT16
+#define H5_INT32                H5T_NATIVE_INT32
+#define H5_UINT32               H5T_NATIVE_UINT32
+#define H5_INT64                H5T_NATIVE_INT64
+#define H5_UINT64               H5T_NATIVE_UINT64
+#define H5_FLOAT32              H5T_NATIVE_FLOAT
+#define H5_FLOAT64              H5T_NATIVE_DOUBLE
+#define H5_ID                   H5T_NATIVE_INT64
+
 struct h5_prop {                        // generic property class
         h5_int64_t class;               // property class
         char pad[248];                  // sizeof (struct h5_prop) == 256
@@ -44,7 +54,7 @@ typedef h5_prop_file_t* h5_prop_file_p;
 */
 struct h5_file {
 	hid_t		file;		// HDF5 file id
-        h5_prop_file_p  props;           // file properties
+        h5_prop_file_t* props;          // file properties
 	char		empty;          // flag (should be int?!)
 
 	/* MPI */

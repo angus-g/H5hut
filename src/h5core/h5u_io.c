@@ -80,7 +80,7 @@ h5u_read_data (
 	const h5_file_t fh,	/*!< [in] Handle to open file */
 	const char* name,	/*!< [in] Name to associate dataset with */
 	void* data,		/*!< [out] Array of data */
-	const hid_t type
+	const h5_types_t type
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
@@ -88,6 +88,9 @@ h5u_read_data (
 	                   f, name, data, (long long int)type);
 	CHECK_TIMEGROUP (f);
 
+	hid_t hdf5_type;
+	TRY (hdf5_type = h5priv_map_enum_to_normalized_type (type));
+	
 	struct h5u_fdata *u = f->u;
 	hid_t dataset_id;
 	hid_t space_id;
@@ -157,7 +160,7 @@ h5u_read_data (
 	TRY (h5priv_start_throttle (f));
 	TRY (hdf5_read_dataset (
 	             dataset_id,
-	             type,
+	             hdf5_type,
 	             memspace_id,
 	             space_id,
 	             f->props->xfer_prop,
@@ -177,7 +180,7 @@ h5u_write_data (
 	const h5_file_t fh,	/*!< IN: Handle to open file */
 	const char *name,	/*!< IN: Name to associate array with */
 	const void *data,	/*!< IN: Array to commit to disk */
-	const hid_t type	/*!< IN: Type of data */
+	const h5_types_t type	/*!< IN: Type of data */
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
@@ -185,7 +188,9 @@ h5u_write_data (
 	                   f, name, data, (long long int)type);
 	CHECK_TIMEGROUP( f );
 	CHECK_WRITABLE_MODE( f );
-
+	hid_t hdf5_type;
+	TRY (hdf5_type = h5priv_map_enum_to_normalized_type (type));
+	
 	struct h5u_fdata *u = f->u;
 	hid_t dset_id;
 
@@ -207,7 +212,7 @@ h5u_write_data (
 		TRY (dset_id = hdf5_create_dataset (
 		             f->step_gid,
 		             name2,
-		             type,
+		             hdf5_type,
 		             u->shape,
 		             H5P_DEFAULT));
 	}
@@ -217,7 +222,7 @@ h5u_write_data (
 	         hdf5_get_objname(f->step_gid), name2);
 	TRY (hdf5_write_dataset (
 	             dset_id,
-	             type,
+	             hdf5_type,
 	             u->memshape,
 	             u->diskshape,
 	             f->props->xfer_prop,

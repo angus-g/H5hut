@@ -119,38 +119,69 @@ h5priv_close_step (
 	const h5_file_p f
 	);
 
-static inline h5_int64_t
-h5priv_map_hdf5_type_to_enum (
-	hid_t hdf5_type_id
+#define H5_STRING   H5T_NATIVE_CHAR
+#define H5_INT16    H5T_NATIVE_INT16
+#define H5_UINT16   H5T_NATIVE_UINT16
+#define H5_INT32    H5T_NATIVE_INT32
+#define H5_UINT32   H5T_NATIVE_UINT32
+#define H5_INT64    H5T_NATIVE_INT64
+#define H5_UINT64   H5T_NATIVE_UINT64
+#define H5_FLOAT32  H5T_NATIVE_FLOAT
+#define H5_FLOAT64  H5T_NATIVE_DOUBLE
+
+/*
+  Map given enumeration type to corresponding HDF5 type. We use this HDF5
+  type for reading and writing datasets and attributes.
+ */
+static inline hid_t
+h5priv_map_enum_to_normalized_type (
+	h5_types_t type
 	) {
-	if (hdf5_type_id == H5_STRING) {
-		return H5_STRING_T;
-	} else if (hdf5_type_id == H5_INT16) {
-		return H5_INT16_T;
-	} else if (hdf5_type_id == H5_UINT16) {
-		return H5_UINT16_T;
-	} else if (hdf5_type_id == H5_INT32) {
-		return H5_INT32_T;
-	} else if (hdf5_type_id == H5_UINT32) {
-		return H5_UINT32_T;
-	} else if (hdf5_type_id == H5_INT64) {
-		return H5_INT64_T;
-	} else if (hdf5_type_id == H5_UINT64) {
-		return H5_UINT64_T;
-	} else if (hdf5_type_id == H5_FLOAT32) {
-		return H5_FLOAT32_T;
-	} else if (hdf5_type_id == H5_FLOAT64) {
-		return H5_FLOAT64_T;
-	} else if (hdf5_type_id == H5_ID) {
-		return H5_ID_T;
-	} else if (hdf5_type_id == H5_COMPOUND) {
-		return H5_COMPOUND_T;
+	H5_PRIV_API_ENTER (hid_t,
+			   "type=%lld",
+			   (long long int)type);
+	switch (type) {
+	case H5_STRING_T:
+		ret_value = H5_STRING;
+		break;
+	case H5_INT16_T:
+		ret_value = H5_INT16;
+		break;
+	case H5_UINT16_T:
+		ret_value = H5_UINT16;
+		break;
+	case H5_INT32_T:
+		ret_value = H5_INT32;
+		break;
+	case H5_UINT32_T:
+		ret_value = H5_UINT32;
+		break;
+	case H5_INT64_T:
+		ret_value = H5_INT64;
+		break;
+	case H5_UINT64_T:
+		ret_value = H5_UINT64;
+		break;
+	case H5_FLOAT32_T:
+		ret_value = H5_FLOAT32;
+		break;
+	case H5_FLOAT64_T:
+		ret_value = H5_FLOAT64;
+		break;
+	default:
+		H5_PRIV_API_LEAVE (
+			h5_error (
+				H5_ERR_INVAL,
+				"Unknown type %d", (int)type));
 	}
-	return H5_FAILURE;
+	H5_PRIV_API_RETURN (ret_value);
 }
 
+/*
+  Get H5hut type from corresponding HDF5 type.
+ */
 static inline hid_t
-h5priv_get_native_type (
+h5priv_normalize_type (
 	hid_t type
 	) {
 	H5_PRIV_API_ENTER (h5_int64_t,
@@ -166,55 +197,112 @@ h5priv_get_native_type (
 	case H5T_INTEGER:
 		if (tsize==8) {
 			if (tsign == H5T_SGN_2) {
-				ret_value = H5T_NATIVE_INT64;
+				ret_value = H5_INT64;
 			} else {
-				ret_value = H5T_NATIVE_UINT64;
+				ret_value = H5_UINT64;
 			}
 		} else if (tsize==4) {
 			if (tsign == H5T_SGN_2) {
-				ret_value = H5T_NATIVE_INT32;
+				ret_value = H5_INT32;
 			} else {
-				ret_value = H5T_NATIVE_UINT32;
+				ret_value = H5_UINT32;
 			}
 		} else if (tsize==2) {
 			if (tsign == H5T_SGN_2) {
-				ret_value = H5T_NATIVE_INT16;
+				ret_value = H5_INT16;
 			} else {
-				ret_value = H5T_NATIVE_UINT16;
+				ret_value = H5_UINT16;
 			}
 		}
 		break;
 	case H5T_FLOAT:
 		if (tsize==8) {
-			ret_value = H5T_NATIVE_DOUBLE;
+			ret_value = H5_FLOAT64;
 		}
 		else if (tsize==4) {
-			ret_value = H5T_NATIVE_FLOAT;
+			ret_value = H5_FLOAT32;
 		}
 		break;
 	case H5T_STRING:
-		ret_value = H5T_C_S1;
+		ret_value = H5_STRING;
 		break;
 	default:
-		break;
-	}
-	if (ret_value < 0)
 		H5_PRIV_API_LEAVE (
 			h5_error (
 				H5_ERR_INVAL,
 				"Unknown type %d", (int)type));
+	}
 	H5_CORE_API_RETURN (ret_value);
 }
 
+/*
+  Map HDF5 type to H5hut type enumeration.
+ */
+static inline h5_int64_t
+h5priv_map_hdf5_type_to_enum (
+	hid_t type
+	) {
+	H5_PRIV_API_ENTER (h5_int64_t,
+			   "type=%lld",
+			   (long long int)type);
+	H5T_class_t tclass;
+	TRY (tclass = H5Tget_class (type));
+	int tsize;
+	TRY (tsize = H5Tget_size (type));
+	H5T_sign_t tsign;
+	TRY (tsign = H5Tget_sign (type));
+	switch (tclass){
+	case H5T_INTEGER:
+		if (tsize==8) {
+			if (tsign == H5T_SGN_2) {
+				ret_value = H5_INT64_T;
+			} else {
+				ret_value = H5_UINT64_T;
+			}
+		} else if (tsize==4) {
+			if (tsign == H5T_SGN_2) {
+				ret_value = H5_INT32_T;
+			} else {
+				ret_value = H5_UINT32_T;
+			}
+		} else if (tsize==2) {
+			if (tsign == H5T_SGN_2) {
+				ret_value = H5_INT16_T;
+			} else {
+				ret_value = H5_UINT16_T;
+			}
+		}
+		break;
+	case H5T_FLOAT:
+		if (tsize==8) {
+			ret_value = H5_FLOAT64_T;
+		}
+		else if (tsize==4) {
+			ret_value = H5_FLOAT32_T;
+		}
+		break;
+	case H5T_STRING:
+		ret_value = H5_STRING_T;
+		break;
+	default:
+		H5_PRIV_API_LEAVE (
+			h5_error (
+				H5_ERR_INVAL,
+				"Unknown type %d", (int)type));
+	}
+	H5_CORE_API_RETURN (ret_value);
+}
+
+
 static inline hid_t
-h5priv_get_native_dataset_type (
+h5priv_get_normalized_dataset_type (
 	hid_t dataset
 	) {
 	H5_PRIV_API_ENTER (hid_t,
 			   "dataset=%lld",
 			   (long long)dataset);
 	TRY (ret_value = hdf5_get_dataset_type (dataset));
-	TRY (ret_value = h5priv_get_native_type (ret_value));
+	TRY (ret_value = h5priv_normalize_type (ret_value));
 	H5_PRIV_API_RETURN (ret_value);
 }
 

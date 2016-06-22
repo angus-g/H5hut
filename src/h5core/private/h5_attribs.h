@@ -16,7 +16,7 @@
 
 
 static inline hid_t
-h5priv_get_native_attribute_type (
+h5priv_get_normalized_attribute_type (
 	hid_t attr_id
 	) {
 	H5_PRIV_FUNC_ENTER (
@@ -24,7 +24,7 @@ h5priv_get_native_attribute_type (
 		"attr_id=%lld (%s)",
 		(long long int)attr_id, hdf5_get_objname (attr_id));
 	TRY (ret_value = hdf5_get_attribute_type (attr_id));
-	TRY (ret_value = h5priv_get_native_type (ret_value));
+	TRY (ret_value = h5priv_normalize_type (ret_value));
 	H5_PRIV_FUNC_RETURN (ret_value);
 }
 
@@ -32,7 +32,7 @@ static inline h5_err_t
 h5priv_read_attrib (
 	const hid_t id,			/*!< HDF5 object ID */
 	const char* attrib_name,	/*!< name of HDF5 attribute to read */
-	const hid_t attrib_type,	/*!< HDF5 type of attribute */
+	const h5_int64_t attrib_type,	/*!< H5hut enum type of attribute */
 	void* const attrib_value	/*!< OUT: attribute value */
 	) {
 	H5_PRIV_API_ENTER (h5_err_t,
@@ -43,20 +43,41 @@ h5priv_read_attrib (
 			   (long long int)attrib_type,
 			   attrib_value);
 	hid_t attrib_id;
+	TRY (attrib_id = hdf5_open_attribute_by_name (id, attrib_name));
 	hid_t mem_type;
 	hid_t space_id;
-	TRY (attrib_id = hdf5_open_attribute_by_name (id, attrib_name));
-	TRY (mem_type = h5priv_get_native_attribute_type (attrib_id));
-	if (mem_type != attrib_type)
+	/*
+	  attrib_type -> normalized HDF5 type
+	  determine file type of attribute
+	  compare normalized types
+	  if not equal:
+		error
+	  if attribute type is string:
+		set mem type to file type
+	  else
+		set mem type to normalized attrib_type
+
+	 */	
+	hid_t normalized_type;
+	TRY (normalized_type = h5priv_map_enum_to_normalized_type (attrib_type));
+	hid_t file_type;
+	TRY (file_type = hdf5_get_attribute_type (attrib_id));
+	hid_t normalized_file_type;
+	TRY (normalized_file_type = h5priv_normalize_type (file_type));
+	if (normalized_file_type != normalized_type)
 		H5_PRIV_API_LEAVE (
 			h5_error (
 				H5_ERR_HDF5,
 				"Attribute '%s' has type '%s' but "
 				"was requested as '%s'.",
 				attrib_name,
-				hdf5_get_type_name (mem_type),
-				hdf5_get_type_name (attrib_type)));
-
+				hdf5_get_type_name (normalized_file_type),
+				hdf5_get_type_name (normalized_type)));
+	if (normalized_type == H5_STRING) {
+		mem_type = file_type;
+	} else {
+		mem_type = normalized_type;
+	}
 	TRY (space_id = hdf5_get_attribute_dataspace (attrib_id));
 	TRY (hdf5_read_attribute (attrib_id, mem_type, attrib_value));
 	TRY (hdf5_close_dataspace(space_id));
@@ -68,7 +89,7 @@ static inline h5_err_t
 h5priv_write_attrib (
         const hid_t id,                 /*!< HDF5 object ID */
         const char* attrib_name,        /*!< name of HDF5 attribute to write */
-        const hid_t attrib_type,        /*!< HDF5 type of attribute */
+        const h5_types_t attrib_type,   /*!< type of attribute */
         const void* attrib_value,       /*!< value of attribute */
         const hsize_t attrib_nelem,     /*!< number of elements (dimension) */
         const int overwrite
@@ -84,12 +105,13 @@ h5priv_write_attrib (
 	                   overwrite);
 	hid_t space_id;
 	hid_t attrib_id;
-	hid_t type_id;
-	if ( attrib_type == H5T_NATIVE_CHAR ) {
-		TRY (type_id = hdf5_create_string_type (attrib_nelem));
+	hid_t hdf5_type;
+	if (attrib_type == H5_STRING_T) {
+		// :FIXME: we have to close this new type!
+		TRY (hdf5_type = hdf5_create_string_type (attrib_nelem));
 		TRY (space_id = hdf5_create_dataspace_scalar ());
 	} else {
-		type_id = attrib_type;
+		hdf5_type = h5priv_map_enum_to_normalized_type (attrib_type);
 		TRY (space_id = hdf5_create_dataspace (1, &attrib_nelem, NULL));
 	}
 	h5_err_t exists;
@@ -107,11 +129,11 @@ h5priv_write_attrib (
 	TRY (attrib_id = hdf5_create_attribute (
 	             id,
 	             attrib_name,
-	             type_id,
+	             hdf5_type,
 	             space_id,
 	             H5P_DEFAULT, H5P_DEFAULT));
 
-	TRY (hdf5_write_attribute (attrib_id, type_id, attrib_value));
+	TRY (hdf5_write_attribute (attrib_id, hdf5_type, attrib_value));
 	TRY (hdf5_close_attribute (attrib_id));
 	TRY (hdf5_close_dataspace (space_id));
 
@@ -132,8 +154,7 @@ get_attrib_info (
 	) {
         H5_INLINE_FUNC_ENTER (h5_err_t);
 	hid_t datatype_id;
-        TRY (datatype_id = h5priv_get_native_attribute_type (attrib_id));
-
+        TRY (datatype_id = h5priv_get_normalized_attribute_type (attrib_id));
 	if (attrib_nelem) {
                 if (datatype_id == H5_STRING) {
                         *attrib_nelem = H5Tget_size (datatype_id);

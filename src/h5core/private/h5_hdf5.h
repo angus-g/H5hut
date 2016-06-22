@@ -738,21 +738,40 @@ hdf5_get_native_type (
  */
 static inline char_p
 hdf5_get_type_name (
-        hid_t type_id
+        hid_t type
         ) {
-	if (type_id == H5_INT32)
-		return "H5_INT32_T";
-	if (type_id == H5_INT64)
-		return "H5_INT64_T";
-	if (type_id == H5_FLOAT32)
-		return "H5_FLOAT32_T";
-	if (type_id == H5_FLOAT64)
-		return "H5_FLOAT64_T";
-	if (type_id == H5_STRING)
-		return "H5_STRING_T";
+	HDF5_WRAPPER_ENTER (char_p,
+			   "type=%lld",
+			   (long long int)type);
+	H5T_class_t tclass;
+	int size;
+	TRY (tclass = H5Tget_class (type));
+	TRY (size = H5Tget_size (type));
 
-	h5_warn ("Unknown type id %lld", (long long int)type_id);
-	return "[unknown]";
+	switch (tclass){
+	case H5T_INTEGER:
+		if (size==8) {
+			ret_value = "H5_INT64_T";
+		} else if (size==4) {
+		        ret_value = "H5_INT32_T";
+		} else if (size==2) {
+		        ret_value = "H5_INT16_T";
+		}
+		break;
+	case H5T_FLOAT:
+		if (size==8) {
+			ret_value = "H5_FLOAT64_T";
+		} else if (size==4) {
+			ret_value = "H5_FLOAT32_T";
+		}
+		break;
+	case H5T_STRING:
+		ret_value = "H5_STRING_T";
+		break;
+	default:
+		ret_value = "unknown";
+	}
+	HDF5_WRAPPER_RETURN (ret_value);
 }
 
 static inline const char*
@@ -827,14 +846,14 @@ hdf5_create_string_type(
         const hsize_t len
         ) {
 	HDF5_WRAPPER_ENTER (hid_t, "len = %llu", len);
-	hid_t type_id = H5Tcopy ( H5T_C_S1 );
+	hid_t type_id = H5Tcopy (H5T_C_S1);
 	if (type_id < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error(
 		                H5_ERR_HDF5,
 		                "Can't duplicate C string type."));
 
-	herr_t herr = H5Tset_size ( type_id, len );
+	herr_t herr = H5Tset_size (type_id, len);
 	if (herr < 0)
 		HDF5_WRAPPER_LEAVE (
 		        h5_error(

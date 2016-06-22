@@ -116,7 +116,7 @@ get_tagset_info (
 	TRY (tag_id = hdf5_open_group (tags_id, name));
 	// determine type of dataset with values
 	TRY (dset_id = hdf5_open_dataset_by_name (tag_id, "values"));
-	TRY (*type = h5priv_get_native_dataset_type (dset_id));
+	TRY (*type = h5priv_get_normalized_dataset_type (dset_id));
 
 	TRY (hdf5_close_dataset (dset_id));
 	TRY (hdf5_close_group (tag_id));
@@ -450,7 +450,7 @@ read_tagset (
 	TRY (dset_id = hdf5_open_dataset_by_name (loc_id, "values"));
 	TRY (num_vals = hdf5_get_npoints_of_dataset (dset_id));
 	TRY (vals = h5_calloc (num_vals, sizeof (*vals)));
-	TRY (dsinfo.type_id = h5priv_get_native_dataset_type (dset_id));
+	TRY (dsinfo.type_id = h5priv_get_normalized_dataset_type (dset_id));
 	TRY (read_dataset (
 				 tagset->m,
 	             tagset->m->f,
@@ -656,9 +656,9 @@ write_tagset (
 	             open_space_all, open_space_all,
 	             values));
 	h5_int64_t scope = tagset->scope.min_level;
-	TRY (h5priv_write_attrib (group_id, "__scope_min__", H5_INT64, &scope, 1, 1));
+	TRY (h5priv_write_attrib (group_id, "__scope_min__", H5_INT64_T, &scope, 1, 1));
 	scope = tagset->scope.max_level;
-	TRY (h5priv_write_attrib (group_id, "__scope_max__", H5_INT64, &scope, 1, 1));
+	TRY (h5priv_write_attrib (group_id, "__scope_max__", H5_INT64_T, &scope, 1, 1));
 
 	TRY (hdf5_close_group (group_id));
 	TRY (h5_free (elems));

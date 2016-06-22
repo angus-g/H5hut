@@ -611,7 +611,7 @@ get_dataset_info (
         H5_INLINE_FUNC_ENTER (h5_err_t);
 	if (dataset_type) {
 		h5_int64_t type_;
-		TRY (type_ = h5priv_get_native_dataset_type (dataset_id));
+		TRY (type_ = h5priv_get_normalized_dataset_type (dataset_id));
 		TRY (*dataset_type = h5priv_map_hdf5_type_to_enum (type_));
 	}
 	if (dataset_nelem) {
