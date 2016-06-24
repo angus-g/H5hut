@@ -25,7 +25,7 @@ h5priv_get_normalized_attribute_type (
 		(long long int)attr_id, hdf5_get_objname (attr_id));
 	TRY (ret_value = hdf5_get_attribute_type (attr_id));
 	TRY (ret_value = h5priv_normalize_type (ret_value));
-	H5_PRIV_FUNC_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 static inline h5_err_t
@@ -65,7 +65,7 @@ h5priv_read_attrib (
 	hid_t normalized_file_type;
 	TRY (normalized_file_type = h5priv_normalize_type (file_type));
 	if (normalized_file_type != normalized_type)
-		H5_PRIV_API_LEAVE (
+		H5_LEAVE (
 			h5_error (
 				H5_ERR_HDF5,
 				"Attribute '%s' has type '%s' but "
@@ -82,7 +82,7 @@ h5priv_read_attrib (
 	TRY (hdf5_read_attribute (attrib_id, mem_type, attrib_value));
 	TRY (hdf5_close_dataspace(space_id));
 	TRY (hdf5_close_attribute (attrib_id));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -120,7 +120,7 @@ h5priv_write_attrib (
 		if (overwrite) {
 			TRY (hdf5_delete_attribute (id, attrib_name));
 		} else {
-			H5_PRIV_API_LEAVE (
+			H5_LEAVE (
 			        h5_error (H5_ERR_H5,
 					  "Cannot overwrite attribute %s/%s",
 			                  hdf5_get_objname (id), attrib_name));
@@ -137,7 +137,7 @@ h5priv_write_attrib (
 	TRY (hdf5_close_attribute (attrib_id));
 	TRY (hdf5_close_dataspace (space_id));
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -170,7 +170,7 @@ get_attrib_info (
 		TRY (*attrib_type = h5priv_map_hdf5_type_to_enum (datatype_id));
 	}
 	TRY (hdf5_close_attribute (attrib_id));
-	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -189,7 +189,7 @@ h5priv_get_attrib_info_by_name (
 			   attrib_type, attrib_nelem);
 	hid_t attrib_id;
         TRY (attrib_id = hdf5_open_attribute_by_name (id, attrib_name));
-        H5_PRIV_API_RETURN (
+        H5_RETURN (
 		get_attrib_info (
 			attrib_id, attrib_type, attrib_nelem));
 }
@@ -224,7 +224,7 @@ h5priv_get_attrib_info_by_idx (
 			     (size_t)len_attrib_name,
 			     attrib_name));
 	}
-        H5_PRIV_API_RETURN (
+        H5_RETURN (
 		get_attrib_info (
 			attrib_id, attrib_type, attrib_nelem));
 }

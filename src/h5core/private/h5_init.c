@@ -66,7 +66,7 @@ create_array_types (
 	                1,
 	                dims)
 	        );
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -92,7 +92,7 @@ create_vertex_type (
 	                HOFFSET (h5_glb_vertex_t, P),
 	                h5_dta_types.h5_coord3d_t) );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -154,7 +154,7 @@ create_triangle_type (
 	                HOFFSET(h5_glb_tri_t, neighbor_indices),
 	                h5_dta_types.h5_3glb_idx_t) );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -180,7 +180,7 @@ create_tag_types (
 	                HOFFSET (h5t_glb_tag_idx_t, idx),
 	                H5_ID) );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -242,7 +242,7 @@ create_tet_type (
 	                HOFFSET (h5_glb_tet_t, neighbor_indices),
 	                h5_dta_types.h5_4glb_idx_t) );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #if defined(WITH_PARALLEL_H5GRID)
@@ -298,7 +298,7 @@ create_chunk_type (
 //	                "num_vtx",
 //	                HOFFSET (h5t_chunk_t, num_vtx),
 //	                H5_INT64) );
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -347,7 +347,7 @@ create_octree_type (
 	                HOFFSET (h5t_octant_t, userlevels),
 	                H5_INT32) );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -366,7 +366,7 @@ create_userdata_type (
 	                HOFFSET (h5t_oct_userdata_t, idx),
 	                h5_dta_types.h5_4chk_idx_t) );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -439,7 +439,7 @@ create_mpi_type_glb_tet (
 	// commit new type
 	TRY (h5priv_mpi_type_commit (&h5_dta_types.mpi_glb_tet));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -512,7 +512,7 @@ create_mpi_type_glb_tri (
 	// commit new type
 	TRY (h5priv_mpi_type_commit (&h5_dta_types.mpi_glb_triangle));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 static inline h5_err_t
 create_mpi_type_glb_vtx (
@@ -548,7 +548,7 @@ create_mpi_type_glb_vtx (
 	// commit new type
 	TRY (h5priv_mpi_type_commit (&h5_dta_types.mpi_glb_vtx));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -597,7 +597,7 @@ create_mpi_type_edge_list_elem (
 	// commit new type
 	TRY (h5priv_mpi_type_commit (&h5_dta_types.mpi_edge_list_elem));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 static inline h5_err_t
 create_mpi_type_chunk (
@@ -652,7 +652,7 @@ create_mpi_type_chunk (
 	// commit new type
 	TRY (h5priv_mpi_type_commit (&h5_dta_types.mpi_chunk));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -697,5 +697,5 @@ h5priv_initialize (
 	TRY (create_mpi_type_chunk ());
 	TRY (create_mpi_type_edge_list_elem());
 #endif
-	H5_CORE_API_RETURN ((ret_value != H5_SUCCESS) ? _h5_exit (42) : H5_SUCCESS);
+	H5_RETURN ((ret_value != H5_SUCCESS) ? _h5_exit (42) : H5_SUCCESS);
 }

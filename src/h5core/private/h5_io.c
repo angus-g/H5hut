@@ -46,7 +46,7 @@ h5priv_write_dataset_by_name (
 	if ((exists > 0) && (f->props->flags & H5_O_APPENDONLY)) {
 		h5_warn ("Dataset %s/%s already exist.",
 		         hdf5_get_objname (loc_id), dsinfo->name);
-		H5_PRIV_API_LEAVE (h5priv_handle_file_mode_error(f->props->flags));
+		H5_LEAVE (h5priv_handle_file_mode_error(f->props->flags));
 	}
 
 	/*
@@ -93,7 +93,7 @@ h5priv_write_dataset_by_name (
 	TRY (hdf5_close_dataset (dset_id));
 	f->empty = 0;
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -133,7 +133,7 @@ h5priv_write_dataset_by_name_id (
 	if ((exists > 0) && (f->props->flags & H5_O_APPENDONLY)) {
 		h5_warn ("Dataset %s/%s already exist.",
 		         hdf5_get_objname (loc_id), dsinfo->name);
-		H5_PRIV_API_LEAVE (h5priv_handle_file_mode_error(f->props->flags));
+		H5_LEAVE (h5priv_handle_file_mode_error(f->props->flags));
 	}
 
 	TRY (h5priv_start_throttle (f));
@@ -146,5 +146,5 @@ h5priv_write_dataset_by_name_id (
 	             data));
 	TRY (h5priv_end_throttle (f));
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }

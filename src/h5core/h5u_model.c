@@ -38,7 +38,7 @@ h5u_get_num_points (
                 TRY (nparticles = h5u_get_totalnum_particles_by_idx (fh, 0));
 	}
 
-	H5_CORE_API_RETURN (nparticles);
+	H5_RETURN (nparticles);
 }
 
 h5_ssize_t
@@ -50,14 +50,14 @@ h5u_get_num_points_in_view (
 	h5_ssize_t nparticles;
 
 	if (!h5u_has_view (fh)) {
-                H5_CORE_API_LEAVE (
+                H5_LEAVE (
                         h5_error (
                                 H5_ERR_H5PART,
                                 "No view has been set."));
         }
         TRY (nparticles = hdf5_get_selected_npoints_of_dataspace(f->u->diskshape));
         h5_debug ("Found %lld particles in view.", (long long)nparticles );
-	H5_CORE_API_RETURN (nparticles);
+	H5_RETURN (nparticles);
 }
 
 h5_ssize_t
@@ -74,7 +74,7 @@ h5u_get_totalnum_particles_by_name (
 		     f->step_gid, dataset_name));
         h5_debug ("Found %lld particles in dataset %s.",
 		  (long long)nparticles, dataset_name);
-	H5_CORE_API_RETURN (nparticles);
+	H5_RETURN (nparticles);
 }
 
 h5_ssize_t
@@ -93,13 +93,13 @@ h5u_get_totalnum_particles_by_idx (
                     dataset_name,
                     H5_DATANAME_LEN));
 	if (h5err == H5_NOK)
-		H5_CORE_API_LEAVE (H5_NOK);
+		H5_LEAVE (H5_NOK);
 	h5_ssize_t nparticles;
         TRY (nparticles = hdf5_get_npoints_of_dataset_by_name (
 		     f->step_gid, dataset_name));
         h5_debug ("Found %lld particles in dataset %s.",
 		  (long long)nparticles, dataset_name);
-	H5_CORE_API_RETURN (nparticles);
+	H5_RETURN (nparticles);
 }
 
 h5_err_t
@@ -118,7 +118,7 @@ h5u_set_num_points (
 	hsize_t dmax = H5S_UNLIMITED;
 
 	if (nparticles < 0)
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error(
 		                H5_ERR_INVAL,
 		                "Invalid number of particles: %lld!\n",
@@ -132,7 +132,7 @@ h5u_set_num_points (
 	   we don't know if things have changed globally
 	 */
 	if ( u->nparticles == nparticles && stride == 1 ) {
-		H5_CORE_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 #endif
 
@@ -214,7 +214,7 @@ h5u_set_num_points (
 		TRY (hdf5_select_none (u->diskshape));
 	}
 #endif
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -223,7 +223,7 @@ h5u_has_view (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	H5_CORE_API_RETURN (f->u->viewindexed || f->u->viewstart >= 0);
+	H5_RETURN (f->u->viewindexed || f->u->viewstart >= 0);
 }
 
 h5_err_t
@@ -242,7 +242,7 @@ h5u_reset_view (
 	TRY (hdf5_close_dataspace (u->memshape));
 	u->memshape = H5S_ALL;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -267,7 +267,7 @@ h5u_set_view (
 	TRY (h5u_reset_view (fh));
 
 	if (start == -1 && end == -1)   // we are already done
-		H5_CORE_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 
 	if (f->u->shape > 0) {
 		TRY (total = hdf5_get_npoints_of_dataspace (f->u->shape) );
@@ -285,7 +285,7 @@ h5u_set_view (
 		  :FIXME: why not gather total size?
 		*/
 		if (start < 0) {
-			H5_CORE_API_LEAVE (
+			H5_LEAVE (
 				h5_error(
 					H5_ERR_INVAL,
 					"Start of selection '%lld' out of range: "
@@ -294,7 +294,7 @@ h5u_set_view (
 				);
 		}
 		if (end < start) {
-			H5_CORE_API_LEAVE (
+			H5_LEAVE (
 				h5_error(
 					H5_ERR_INVAL,
 					"End of selection '%lld' out of range: "
@@ -322,21 +322,21 @@ h5u_set_view (
 		}
 	
 		if (start < 0 || start >= total) {
-			H5_CORE_API_LEAVE (
+			H5_LEAVE (
 				h5_error(
 					H5_ERR_INVAL,
 					"Start of selection '%lld' out of range: "
 					"must be in [0..%lld]",
 					(long long)start, (long long)total-1));
 		} else if (end < 0 || end >= total) {
-			H5_CORE_API_LEAVE (
+			H5_LEAVE (
 				h5_error(
 					H5_ERR_INVAL,
 					"End of selection '%lld' out of range: "
 					"must be in [0..%lld]",
 					(long long)end, (long long)total-1));
 		} else if (end+1 < start) {
-			H5_CORE_API_LEAVE (
+			H5_LEAVE (
 				h5_error(
 					H5_ERR_INVAL,
 					"Invalid selection: start=%lld > end=%lld!\n",
@@ -371,7 +371,7 @@ h5u_set_view (
 
 	/* declare local memory datasize */
 	TRY (u->memshape = hdf5_create_dataspace (1, &hcount, &dmax));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -389,7 +389,7 @@ h5u_set_view_length (
 	TRY (h5u_reset_view (fh));
 
 	if (start == -1 && length == -1)
-		H5_CORE_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 
 	hsize_t total = 0;
 	if (u->shape > 0) {
@@ -404,11 +404,11 @@ h5u_set_view_length (
 		/* No datasets have been created yet and no views are set.
 		 * We have to leave the view empty because we don't know how
 		 * many particles there should be! */
-		H5_CORE_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 
 	if (start < 0 || length < 0 || start+length > total) 
-                H5_CORE_API_LEAVE (
+                H5_LEAVE (
 		        h5_error(
 		                H5_ERR_INVAL,
 		                "Invalid view: start=%lld, length=%lld, total=%lld",
@@ -440,7 +440,7 @@ h5u_set_view_length (
 	/* declare local memory datasize */
 	hsize_t dmax = H5S_UNLIMITED;
 	TRY (u->memshape = hdf5_create_dataspace (1, &hcount, &dmax));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -466,7 +466,7 @@ h5u_set_view_indices (
 
 	if ( indices == NULL ) {
 		h5_warn ("View indices array is null: reseting view.");
-		H5_CORE_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 	if (f->u->shape > 0) {
 		TRY (total = hdf5_get_npoints_of_dataspace (f->u->shape) );
@@ -480,7 +480,7 @@ h5u_set_view_indices (
 		/* No datasets have been created yet and no views are set.
 		 * We have to leave the view empty because we don't know how
 		 * many particles there should be! */
-		H5_CORE_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 
 	u->nparticles = nelems;
@@ -501,7 +501,7 @@ h5u_set_view_indices (
 	}
 	u->viewindexed = 1;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_int64_t
@@ -517,7 +517,7 @@ h5u_get_view (
 	struct h5u_fdata *u = f->u;
 
 	if ( u->viewindexed ) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_INVAL,
 		                "The current view has an index selection, but "
@@ -540,7 +540,7 @@ h5u_get_view (
 	if ( start ) *start = viewstart;
 	if ( end ) *end = viewend;
 
-	H5_CORE_API_RETURN (viewend - viewstart + 1); // view range is *inclusive*
+	H5_RETURN (viewend - viewstart + 1); // view range is *inclusive*
 }
 
 h5_err_t
@@ -576,7 +576,7 @@ h5u_set_canonical_view (
 
 	h5_int64_t length = u->nparticles;
 	TRY (h5u_set_view_length (fh, start, length));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_ssize_t
@@ -586,7 +586,7 @@ h5u_get_num_datasets (
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	TRY (ret_value = hdf5_get_num_datasets (f->step_gid));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -599,7 +599,7 @@ h5u_has_dataset (
 			   "f=%p, name='%s'",
 			   f, name);
         TRY (ret_value = hdf5_link_exists (f->step_gid, name));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 static inline h5_err_t
@@ -619,7 +619,7 @@ get_dataset_info (
 		TRY (nelem_ = hdf5_get_npoints_of_dataset (dataset_id));
 		*dataset_nelem = nelem_;
 	}
-	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -652,7 +652,8 @@ h5priv_get_dataset_info_by_idx (
 		strncpy (dataset_name, dataset_name_, len_dataset_name);
 	}
 	TRY (get_dataset_info (dataset_id, dataset_type, dataset_nelem));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	TRY (hdf5_close_dataset (dataset_id));
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -684,7 +685,7 @@ h5u_get_dataset_info_by_idx (
 	             idx,
 	             dataset_name, len_dataset_name,
 		     dataset_type, dataset_nelem));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -704,7 +705,8 @@ h5priv_get_dataset_info_by_name (
 	hid_t dataset_id;
 	TRY (dataset_id = hdf5_open_dataset_by_name (id, dataset_name));
 	TRY (get_dataset_info (dataset_id, dataset_type, dataset_nelem));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	TRY (hdf5_close_dataset (dataset_id));
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -730,7 +732,7 @@ h5u_get_dataset_info_by_name (
 	             f->step_gid,
 		     dataset_name,
 		     dataset_type, dataset_nelem));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -752,7 +754,7 @@ h5u_set_chunk (
 		TRY (hdf5_set_chunk_property(
 		             f->u->dcreate_prop, 1, (hsize_t*)&size));
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -776,6 +778,6 @@ h5u_get_chunk (
 	*size = (h5_size_t)hsize;
 
 	h5_info ("Found chunk size of %lld particles", (long long)*size);
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 

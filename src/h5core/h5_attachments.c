@@ -32,13 +32,13 @@ h5_add_attachment (
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
 	// allowed file modes: O_RDWR, O_WRONLY; O_APPEND
 	if (f->props->flags & H5_O_RDONLY) {
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 			h5priv_handle_file_mode_error (f->props->flags));
 	}
 
 	struct stat st;
         if (stat (fname, &st) < 0) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 			h5_error (
 				H5_ERR_HDF5,
 				"Cannot stat file '%s'",
@@ -52,7 +52,7 @@ h5_add_attachment (
 		write_length = fsize;
 		int fd;
 		if ((fd = open (fname, O_RDONLY)) < 0) {
-			H5_CORE_API_LEAVE (
+			H5_LEAVE (
 				h5_error (
 					H5_ERR_HDF5,
 					"Cannot open file '%s' for reading",
@@ -63,7 +63,7 @@ h5_add_attachment (
 			if (errno == EINTR) {
 				goto again;
 			} else {
-				H5_CORE_API_LEAVE (
+				H5_LEAVE (
 					h5_error (
 						H5_ERR_HDF5,
 						"Cannot read file '%s'",
@@ -71,7 +71,7 @@ h5_add_attachment (
 			}
 		}
 		if (close (fd) < 0) {
-			H5_CORE_API_LEAVE (
+			H5_LEAVE (
 				h5_error (
 					H5_ERR_HDF5,
 					"Cannot close file '%s'",
@@ -88,7 +88,7 @@ h5_add_attachment (
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (loc_id, fname));
         if (exists && (f->props->flags & H5_O_APPENDONLY)) {
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 			h5priv_handle_file_mode_error (f->props->flags));
 	}
 	hid_t diskspace_id;
@@ -125,7 +125,7 @@ h5_add_attachment (
 
 	TRY (h5_free (buf));
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -135,7 +135,7 @@ h5_has_attachments (
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	TRY  (ret_value = hdf5_link_exists (f->file, H5_ATTACHMENT));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_ssize_t
@@ -153,7 +153,7 @@ h5_get_num_attachments (
 	TRY (group_id = hdf5_open_group (f->file, H5_ATTACHMENT));
 	TRY (ret_value = hdf5_get_num_datasets (group_id));
 	TRY (hdf5_close_group (group_id));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -184,7 +184,7 @@ h5_get_attachment_info_by_idx (
 		*fsize = ssize;
 	}
 	TRY (hdf5_close_group (loc_id));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -197,7 +197,7 @@ h5_has_attachment (
 	hid_t loc_id;
 	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
         TRY (ret_value = hdf5_link_exists (f->file, fname));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -218,7 +218,7 @@ h5_get_attachment_info_by_name (
 		*fsize = ssize;
 	}
 	TRY (hdf5_close_group (loc_id));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -231,7 +231,7 @@ h5_get_attachment (
 	// allowed modes: O_RDWR, O_RDONLY; O_APPEND
 	// forbidden modes: O_WRONLY
 	if (f->props->flags & H5_O_WRONLY) {
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 			h5priv_handle_file_mode_error (f->props->flags));
 	}
 
@@ -248,11 +248,11 @@ h5_get_attachment (
 	hsize_t read_length;
 	char* buf = NULL;
 	if (f->myproc == 0) {
-		buf = malloc (fsize);
+		buf = h5_calloc (1, fsize);
 		read_length = fsize;
 
 	} else {
-		buf = malloc (1);
+		buf = h5_calloc (1, 1);
 		read_length = 0;
 	}
 
@@ -284,21 +284,21 @@ h5_get_attachment (
 	if (f->myproc == 0) {
 		int fd;
 		if ((fd = open (fname, O_WRONLY|O_CREAT|O_TRUNC, 0600)) < 0) {
-			H5_CORE_API_LEAVE (
+			H5_LEAVE (
 				h5_error (
 					H5_ERR_H5,
 					"Error opening file '%s': %s",
 					fname, strerror(errno)));
 		}
 		if (write (fd, buf, fsize) != fsize) {
-			H5_CORE_API_LEAVE (
+			H5_LEAVE (
 				h5_error (
 					H5_ERR_H5,
 					"Error writing to file '%s': %s",
 					fname, strerror(errno)));
 		}
 		if (close (fd) < 0) {
-			H5_CORE_API_LEAVE (
+			H5_LEAVE (
 				h5_error (
 					H5_ERR_H5,
 					"Error closing file '%s': %s",
@@ -307,7 +307,7 @@ h5_get_attachment (
 	}
 	TRY (h5_free (buf));
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -317,10 +317,15 @@ h5_delete_attachment (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
+	// allowed file modes: O_RDWR, O_WRONLY; O_APPEND
+	if (f->props->flags & H5_O_RDONLY) {
+		H5_LEAVE (
+			h5priv_handle_file_mode_error (f->props->flags));
+	}
 
 	hid_t loc_id;
 	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
 	TRY (hdf5_delete_link (loc_id, fname, H5P_DEFAULT));
 	TRY (hdf5_close_group (loc_id));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }

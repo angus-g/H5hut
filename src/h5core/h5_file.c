@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include "h5core/h5_log.h"
 
@@ -55,7 +56,7 @@ h5_get_hdf5_file(
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (hid_t, "f=%p", f);
-	H5_CORE_API_RETURN (f->file);
+	H5_RETURN (f->file);
 }
 
 /*!
@@ -140,7 +141,7 @@ mpi_init (
 	}
 #endif
 #endif /* PARALLEL_IO */
-	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -162,7 +163,7 @@ set_alignment (
 			(long long int)f->props->align);
 		TRY (H5Pset_meta_block_size (f->props->access_prop, f->props->align));
 	}
-	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -180,7 +181,7 @@ set_default_file_props (
                 H5_STEPNAME_LEN - 1);
         props->width_step_idx = H5_STEPWIDTH;
         props->comm = MPI_COMM_WORLD;
-        H5_INLINE_FUNC_RETURN (H5_SUCCESS);
+        H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -192,7 +193,7 @@ h5_set_prop_file_mpio_collective (
         H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
         
         if (props->class != H5_PROP_FILE) {
-                H5_INLINE_FUNC_LEAVE (
+                H5_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
@@ -206,7 +207,7 @@ h5_set_prop_file_mpio_collective (
 		props->throttle = 0;
 	}
 
-        H5_CORE_API_RETURN (H5_SUCCESS);
+        H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -218,7 +219,7 @@ h5_set_prop_file_mpio_independent (
         H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
         
         if (props->class != H5_PROP_FILE) {
-                H5_INLINE_FUNC_LEAVE (
+                H5_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
@@ -227,7 +228,7 @@ h5_set_prop_file_mpio_independent (
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_POSIX | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = *comm;
-        H5_CORE_API_RETURN (H5_SUCCESS);
+        H5_RETURN (H5_SUCCESS);
 }
 
 #if H5_VERSION_LE(1,8,12)
@@ -240,7 +241,7 @@ h5_set_prop_file_mpio_posix (
         H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
         
         if (props->class != H5_PROP_FILE) {
-                H5_INLINE_FUNC_LEAVE (
+                H5_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
@@ -249,7 +250,7 @@ h5_set_prop_file_mpio_posix (
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_POSIX | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = *comm;
-        H5_CORE_API_RETURN (H5_SUCCESS);
+        H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -262,7 +263,7 @@ h5_set_prop_file_core_vfd (
         H5_CORE_API_ENTER (h5_err_t, "props=%p, increment=%lld", props, (long long int)increment);
         
         if (props->class != H5_PROP_FILE) {
-                H5_INLINE_FUNC_LEAVE (
+                H5_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
@@ -276,7 +277,7 @@ h5_set_prop_file_core_vfd (
 		h5_warn ("Throttling is not permitted with core VFD. Reset throttling.");
 		props->throttle = 0;
 	}
-        H5_CORE_API_RETURN (H5_SUCCESS);
+        H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -291,14 +292,14 @@ h5_set_prop_file_align (
 		"props=%p, align=%lld",
 		props, (long long int)align);
         if (props->class != H5_PROP_FILE) {
-                H5_INLINE_FUNC_LEAVE (
+                H5_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
 				(long long int)props->class));
         }
         props->align = align;
-        H5_CORE_API_RETURN (H5_SUCCESS);
+        H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -312,7 +313,7 @@ h5_set_prop_file_throttle (
 		"props=%p, throttle=%lld",
 		props, (long long int)throttle);
         if (props->class != H5_PROP_FILE) {
-                H5_CORE_API_LEAVE (
+                H5_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
@@ -337,7 +338,7 @@ h5_set_prop_file_throttle (
 	}
 
         props->throttle = throttle;
-        H5_CORE_API_RETURN (H5_SUCCESS);
+        H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -356,13 +357,13 @@ h5_create_prop (
                 set_default_file_props ((h5_prop_file_t*)prop);
                 break;
         default:
-                H5_CORE_API_LEAVE (
+                H5_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
 				(long long int)class));
         }
-        H5_CORE_API_RETURN ((h5_prop_t)prop);
+        H5_RETURN ((h5_prop_t)prop);
 }
 
 h5_err_t
@@ -378,13 +379,13 @@ h5_close_prop (
                 break;
         }
         default:
-                H5_CORE_API_LEAVE (
+                H5_LEAVE (
                         h5_error (
                                 H5_ERR_INVAL,
                                 "Invalid property class: %lld",
 				(long long int)prop->class));
         }
-        H5_CORE_API_RETURN (h5_free (prop));
+        H5_RETURN (h5_free (prop));
 }
 
 static inline h5_err_t
@@ -440,7 +441,7 @@ open_file (
 		}
 	}
 	else {
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 			h5_error (
 				H5_ERR_INVAL,
 				"Invalid file access mode '%lld'.",
@@ -448,7 +449,7 @@ open_file (
 	}
 	
 	if (f->file < 0)
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 			h5_error (
 				H5_ERR_HDF5,
 				"Cannot open file '%s' with mode '%s'",
@@ -458,7 +459,7 @@ open_file (
 	TRY (h5upriv_open_file (f));
 	TRY (h5bpriv_open_file (f));
 
-	H5_INLINE_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_file_t
@@ -481,7 +482,7 @@ h5_open_file2 (
                 
         if (props != H5_PROP_DEFAULT) {
                 if (props->class != H5_PROP_FILE) {
-                        H5_CORE_API_LEAVE (
+                        H5_LEAVE (
                                 h5_error (
                                         H5_ERR_INVAL,
                                         "Invalid property class: %lld.",
@@ -501,7 +502,7 @@ h5_open_file2 (
 
 	TRY (open_file (f, filename, mode));
 
-	H5_CORE_API_RETURN ((h5_file_t)f);
+	H5_RETURN ((h5_file_t)f);
 }
 
 /*!
@@ -539,7 +540,7 @@ h5_open_file1 (
         TRY (f = h5_open_file2 (filename, mode, (h5_prop_t)props));
         TRY (h5_close_prop ((h5_prop_t)props));
 	h5_file_p _f = (h5_file_p)f;
-        H5_CORE_API_RETURN (_f);
+        H5_RETURN (_f);
 
 }
 
@@ -574,7 +575,7 @@ h5_close_file (
 	TRY (hdf5_close_file (f->file));
         TRY (h5_free (f->step_name));
  	TRY (h5_free (f));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -583,7 +584,7 @@ h5_close_hdf5 (
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "%s", "");
 	TRY (ret_value = hdf5_close ());
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -593,7 +594,7 @@ h5_flush_step (
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
 	TRY (ret_value = hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -603,7 +604,7 @@ h5_flush_file (
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
 	TRY (ret_value = hdf5_flush (f->file, H5F_SCOPE_GLOBAL));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 
@@ -635,7 +636,7 @@ h5_set_stepname_fmt (
 		H5_STEPNAME_LEN - 1);
 	f->props->width_step_idx = width;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -673,7 +674,7 @@ h5_get_step (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_id_t, "f=%p", f);
-	H5_CORE_API_RETURN (f->step_idx);
+	H5_RETURN (f->step_idx);
 }
 
 /*!
@@ -689,7 +690,7 @@ h5_get_num_procs (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (int, "f=%p", f);
-	H5_CORE_API_RETURN (f->nprocs);
+	H5_RETURN (f->nprocs);
 }
 
 /*!
@@ -708,7 +709,7 @@ h5_get_num_steps(
 	TRY (ret_value = hdf5_get_num_groups_matching_prefix (
 		     f->root_gid,
 		     f->props->prefix_step_name));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 /*!
@@ -731,7 +732,7 @@ h5_start_traverse_steps (
 	  loop over all steps and get smallest step number
 	 */
 	
-	H5_CORE_API_RETURN (h5_error_not_implemented ());
+	H5_RETURN (h5_error_not_implemented ());
 }
 
 /*!

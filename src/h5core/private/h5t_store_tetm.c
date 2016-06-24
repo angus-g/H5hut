@@ -36,7 +36,7 @@ alloc_loc_elems (
 	        -1,
 	        (new-cur) * sizeof (h5_loc_tet_t) );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -75,9 +75,9 @@ bisect_edge (
 			TRY( h5t_get_loc_vertex_indices_of_edge (m, kids[0], edge0) );
 			TRY( h5t_get_loc_vertex_indices_of_edge (m, kids[1], edge1) );
 			if ((edge0[0] == edge1[0]) || (edge0[0] == edge1[1])) {
-				H5_PRIV_FUNC_LEAVE (edge0[0]); // return first vertex
+				H5_LEAVE (edge0[0]); // return first vertex
 			} else {
-				H5_PRIV_FUNC_LEAVE (edge0[1]); // return second vertex
+				H5_LEAVE (edge0[1]); // return second vertex
 			}
 		}
 	}
@@ -94,7 +94,7 @@ bisect_edge (
 	P[1] = (P0[1] + P1[1]) / 2.0;
 	P[2] = (P0[2] + P1[2]) / 2.0;
 
-	H5_PRIV_FUNC_RETURN (h5t_store_vertex (m, -1, P));  // return idx of new vertex
+	H5_RETURN (h5t_store_vertex (m, -1, P));  // return idx of new vertex
 }
 
 /*
@@ -128,7 +128,7 @@ pre_refine_tet (
 	unsigned int num_interior_elems_to_refine = m->marked_entities->num_items;
 	TRY (h5t_begin_store_vertices (m, num_interior_elems_to_refine*3 + 192));
 	TRY (h5t_begin_store_elems (m, num_interior_elems_to_refine*8));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -151,7 +151,7 @@ refine_tet (
 	h5_loc_tet_t* el = (h5_loc_tet_t*)m->loc_elems + elem_idx;
 
 	if ( el->child_idx >= 0 )
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_INVAL,
 		                "Tetrahedron %lld already refined.",
@@ -256,7 +256,7 @@ refine_tet (
 	((h5_loc_tet_t*)m->loc_elems)[elem_idx].child_idx = elem_idx_of_first_child;
 	m->num_interior_leaf_elems[m->leaf_level]--;
 
-	H5_PRIV_FUNC_RETURN (elem_idx_of_first_child);
+	H5_RETURN (elem_idx_of_first_child);
 }
 
 static inline h5_loc_idx_t
@@ -278,7 +278,7 @@ compute_neighbor_of_face (
 		             elem_idx,
 		             &td) );
 		if (td == NULL) {
-			H5_PRIV_FUNC_LEAVE (h5_error_internal ());
+			H5_LEAVE (h5_error_internal ());
 		}
 		if (td->num_items == 1) {
 			// neighbor is coarser or face is on the boundary
@@ -296,10 +296,10 @@ compute_neighbor_of_face (
 			}
 
 		} else {
-			H5_PRIV_FUNC_LEAVE (h5_error_internal ());
+			H5_LEAVE (h5_error_internal ());
 		}
 	} while (neighbor_idx < -1);
-	H5_PRIV_FUNC_RETURN (neighbor_idx);
+	H5_RETURN (neighbor_idx);
 }
 
 /*
@@ -312,7 +312,7 @@ compute_neighbors_of_elems (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, level=%d", m, level);
 	if (level < 0 || level >= m->num_leaf_levels) {
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_INVAL,
 		                "level idx %lld out of bound, must be in [%lld,%lld]",
@@ -333,7 +333,7 @@ compute_neighbors_of_elems (
 		el++;
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * returns number of newly created tetrahedra when refining a tetrahedral
@@ -357,7 +357,7 @@ end_store_elems (
 	TRY( h5tpriv_update_internal_structs (m, m->leaf_level) );
 	TRY( compute_neighbors_of_elems (m, m->leaf_level) );
 	TRY( h5tpriv_init_elem_flags (m, start_idx, count) );
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 struct h5t_store_methods h5tpriv_tetm_store_methods = {

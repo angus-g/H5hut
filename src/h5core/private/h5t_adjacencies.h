@@ -34,9 +34,9 @@ h5tpriv_get_adjacencies (
 	                   "m=%p, entity_id=%lld, dim=%d, list=%p",
 	                   m, (long long)entity_id, dim, list);
 	if (m->methods->adjacency == NULL) {
-		H5_PRIV_API_LEAVE (h5_error_internal ());
+		H5_LEAVE (h5_error_internal ());
 	}
-	H5_PRIV_API_RETURN (m->methods->adjacency->get_adjacencies(
+	H5_RETURN (m->methods->adjacency->get_adjacencies(
 	                            m, entity_id, dim, list));
 }
 

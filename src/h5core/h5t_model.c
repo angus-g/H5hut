@@ -264,7 +264,7 @@ h5tpriv_init_mesh (
 
 
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -283,7 +283,7 @@ release_elems (
 	TRY (h5_free (m->num_interior_leaf_elems));     m->num_interior_leaf_elems = NULL;
 	TRY (h5_free (m->num_ghost_elems));             m->num_ghost_elems = NULL;
 	TRY (h5_free (m->map_elem_g2l.items));          m->map_elem_g2l.items = NULL;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -297,7 +297,7 @@ release_vertices (
 	TRY (h5_free (m->map_vertex_g2l.items));        m->map_vertex_g2l.items = NULL;
 	TRY (h5_free (m->first_b_vtx)); 				m->first_b_vtx = NULL;
 	TRY (h5_free (m->num_b_vtx)); 					m->num_b_vtx = NULL;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -316,7 +316,7 @@ release_memory (
 	}
 #endif
 	TRY (h5_free (m));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -364,7 +364,7 @@ write_timing (
 				m->timing.measure[26] - m->timing.measure[25]);
 		fclose (file);
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t
 set_timing_file (
@@ -373,7 +373,7 @@ set_timing_file (
 		) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
 	m->timing.f = time_f;
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t
 h5t_close_mesh (
@@ -386,7 +386,7 @@ h5t_close_mesh (
 #endif
 	// check if tagsets are still open
 	if (m->mtagsets && m->mtagsets->num_items > 0)
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_H5FED,
 		                "Mesh cannot be closed: Mesh is referenced by open tagsets"));
@@ -399,7 +399,7 @@ h5t_close_mesh (
 	TRY (write_timing (m));
 #endif
 	TRY (release_memory (m));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -410,7 +410,7 @@ h5t_set_level (
 	H5_CORE_API_ENTER (h5_err_t, "m=%p, level_id=%d", m, level_id);
 
 	if ((level_id < 0) || (level_id >= m->num_leaf_levels))
-		H5_CORE_API_LEAVE (HANDLE_H5_OUT_OF_RANGE_ERR ("Level", level_id));
+		H5_LEAVE (HANDLE_H5_OUT_OF_RANGE_ERR ("Level", level_id));
 
 	h5_lvl_idx_t prev_level = m->leaf_level;
 	m->leaf_level = level_id;
@@ -418,7 +418,7 @@ h5t_set_level (
 	if (level_id >= m->num_loaded_levels) {
 		TRY (h5tpriv_update_internal_structs (m, ++prev_level));
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -427,7 +427,7 @@ h5t_set_mesh_changed (
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p",m);
 	m->mesh_changed = 1;
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -438,14 +438,14 @@ h5tpriv_alloc_loc_vertices (
         h5t_mesh_t* const m,
         const h5_size_t num
         ) {
-	H5_PRIV_FUNC_ENTER (h5_err_t,
+	H5_PRIV_API_ENTER (h5_err_t,
 	                    "m=%p, num=%llu",
 	                    m,
 	                    (long long unsigned)num);
 	ssize_t size = num * sizeof (m->vertices[0]);
 	TRY (m->vertices = h5_alloc (m->vertices, size));
 	TRY (h5priv_grow_idxmap (&m->map_vertex_g2l, num));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -469,12 +469,12 @@ get_num_meshes (
 
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (f->root_gid, H5T_CONTAINER_GRPNAME));
-	if (!exists) H5_CORE_API_LEAVE (0);
+	if (!exists) H5_LEAVE (0);
 
 	TRY (topo_gid = hdf5_open_group (f->root_gid, H5T_CONTAINER_GRPNAME));
 
 	TRY (exists = hdf5_link_exists (topo_gid, grpname));
-	if (!exists) H5_CORE_API_LEAVE (0);
+	if (!exists) H5_LEAVE (0);
 
 	TRY (meshes_gid = hdf5_open_group (topo_gid, grpname));
 	h5_ssize_t num_meshes;
@@ -482,7 +482,7 @@ get_num_meshes (
 	TRY (hdf5_close_group (meshes_gid) );
 	TRY (hdf5_close_group (topo_gid) );
 
-	H5_CORE_API_RETURN (num_meshes);
+	H5_RETURN (num_meshes);
 }
 
 h5_ssize_t
@@ -491,7 +491,7 @@ h5t_get_num_tetmeshes (
 	) {
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", (h5_file_p)fh);
 	TRY (ret_value = get_num_meshes (fh, TETRAHEDRAL_MESHES_GRPNAME));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_ssize_t
@@ -500,7 +500,7 @@ h5t_get_num_trimeshes (
 	) {
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", (h5_file_p)fh);
 	TRY (ret_value = get_num_meshes (fh, TRIANGLE_MESHES_GRPNAME));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 /*!
@@ -515,7 +515,7 @@ h5t_get_num_leaf_levels (
 	h5t_mesh_t* const m
 	) {
 	H5_CORE_API_ENTER (h5_ssize_t, "m=%p", m);
-	H5_CORE_API_RETURN (m->num_leaf_levels);
+	H5_RETURN (m->num_leaf_levels);
 }
 
 /*!
@@ -530,7 +530,7 @@ h5t_get_level (
 	h5t_mesh_t* const m
 	) {
 	H5_CORE_API_ENTER (h5_lvl_idx_t, "m=%p", m);
-	H5_CORE_API_RETURN (m->leaf_level);
+	H5_RETURN (m->leaf_level);
 }
 
 /*!
@@ -557,9 +557,9 @@ h5t_get_num_leaf_elems (
 	UNUSED_ARGUMENT (cnode);
 
 	if (m->leaf_level < 0) {
-		H5_CORE_API_LEAVE (h5tpriv_error_undef_level ());
+		H5_LEAVE (h5tpriv_error_undef_level ());
 	}
-	H5_CORE_API_RETURN (m->num_interior_leaf_elems[m->leaf_level]);
+	H5_RETURN (m->num_interior_leaf_elems[m->leaf_level]);
 }
 /*!
   Return number of vertices on compute node \c cnode_id
@@ -585,9 +585,9 @@ h5t_get_num_vertices (
 	UNUSED_ARGUMENT (cnode);
 
 	if (m->leaf_level < 0) {
-		H5_CORE_API_LEAVE (h5tpriv_error_undef_level ());
+		H5_LEAVE (h5tpriv_error_undef_level ());
 	}
-	H5_CORE_API_RETURN (m->num_loc_vertices[m->leaf_level]);
+	H5_RETURN (m->num_loc_vertices[m->leaf_level]);
 }
 
 /*!
@@ -602,6 +602,6 @@ h5t_is_chunked (
         h5t_mesh_t* const m
         ) {
 	H5_CORE_API_ENTER (h5_lvl_idx_t, "m=%p", m);
-	H5_CORE_API_RETURN (m->is_chunked);
+	H5_RETURN (m->is_chunked);
 }
 

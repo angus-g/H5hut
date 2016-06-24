@@ -19,6 +19,8 @@
 #include "h5core/h5_syscall.h"
 #include "h5core/h5b_io.h"
 
+#include <string.h>
+
 /*!
   \ingroup h5_private
 
@@ -38,7 +40,7 @@ h5bpriv_open_file (
 	h5b_fdata_t* b; 
 
 	if (f->b)
-		H5_PRIV_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 
 	TRY (f->b = (h5b_fdata_t*)h5_calloc (1, sizeof (*f->b)));
 
@@ -61,7 +63,7 @@ h5bpriv_open_file (
 
 	TRY (b->dcreate_prop = hdf5_create_property (H5P_DATASET_CREATE));
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -92,7 +94,7 @@ h5bpriv_close_file (
 	TRY (h5_free (f->b));
 	f->b = NULL;
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -104,7 +106,7 @@ _select_hyperslab_for_writing (
 	   re-use existing hyperslab
 	 */
 	if ( f->b->shape >= 0 )
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 
 	h5b_fdata_t *b = f->b;
 	h5b_partition_t *p = b->write_layout;
@@ -189,7 +191,7 @@ _select_hyperslab_for_writing (
 	             part_dims,
 	             NULL));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -213,7 +215,7 @@ _write_data (
 		hid_t type_file;
 		TRY( type_file = hdf5_get_dataset_type (dataset) );
 		if ( type != type_file ) {
-			H5_PRIV_FUNC_LEAVE (
+			H5_LEAVE (
 				h5_error(
 					H5_ERR_HDF5,
 					"Field '%s' already has type '%s' "
@@ -241,7 +243,7 @@ _write_data (
 	TRY (h5priv_end_throttle (f));
 	TRY (hdf5_close_dataset (dataset));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -263,7 +265,7 @@ h5b_write_scalar_data (
 	TRY( _select_hyperslab_for_writing(f) );
 	TRY( _write_data(f, field_name, H5_BLOCKNAME_X, data, type) );
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -293,7 +295,7 @@ h5b_write_vector3d_data (
 	TRY( _write_data(f, field_name, H5_BLOCKNAME_Y, ydata, type) );
 	TRY( _write_data(f, field_name, H5_BLOCKNAME_Z, zdata, type) );
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -326,7 +328,7 @@ _select_hyperslab_for_reading (
 
 	TRY (rank = hdf5_get_dims_of_dataspace(b->diskshape, field_dims, NULL));
 	if (rank != 3)
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 		        h5_error(
 		                H5_ERR_INVAL,
 		                "H5Block dataset has bad rank '%d' instead"
@@ -336,7 +338,7 @@ _select_hyperslab_for_reading (
 	if ( (field_dims[0] < (hsize_t)b->k_max) ||
 	     (field_dims[1] < (hsize_t)b->j_max) ||
 	     (field_dims[2] < (hsize_t)b->i_max) )
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 			h5_error(
 				H5_ERR_VIEW,
 				"H5Block dataset has invalid view. "
@@ -373,7 +375,7 @@ _select_hyperslab_for_reading (
 		(long long)part_dims[1],
 		(long long)part_dims[0]  );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -402,7 +404,7 @@ read_data (
 	TRY (h5priv_end_throttle (f));
 	TRY (hdf5_close_dataset(dataset));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -422,7 +424,7 @@ h5b_read_scalar_data (
 	TRY( h5bpriv_open_field_group(f, field_name) );
 	TRY( read_data(f, H5_BLOCKNAME_X, data, type) );
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -450,6 +452,6 @@ h5b_read_vector3d_data (
 	TRY( read_data(f, H5_BLOCKNAME_Y, ydata, type) );
 	TRY( read_data(f, H5_BLOCKNAME_Z, zdata, type) );
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 

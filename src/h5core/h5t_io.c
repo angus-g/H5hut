@@ -47,17 +47,6 @@ int dont_use_parmetis = 0;
 
 #include <assert.h>
 
-//TODO this is a bugfix remove after xfer_prop fix has been done!
-void
-set_xfer_prop_to (const h5_file_p  file, hid_t prop) {
-	file->props->xfer_prop = prop;
-}
-
-void
-set_xfer_prop_to2 (h5t_mesh_t* const m, hid_t prop) {
-	m->f->props->xfer_prop = prop;
-}
-
 static hid_t
 open_space_all (
 		h5t_mesh_t* const m,
@@ -147,16 +136,16 @@ write_vertices (
 	             m->first_b_vtx,
 	             m->num_leaf_levels,
 	             1));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #ifdef WITH_PARALLEL_H5GRID
 
-h5_err_t
+static h5_err_t
 add_chunk_to_list (
-		h5t_mesh_t* const m,
-		h5_loc_idxlist_t** list,
-		h5_oct_idx_t oct_idx
-		) {
+	h5t_mesh_t* const m,
+	h5_loc_idxlist_t** list,
+	h5_oct_idx_t oct_idx
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, list=%p, oct_idx=%d", m, list, oct_idx);
 	h5t_oct_userdata_t* userdata;
 	TRY (H5t_get_userdata_r (m->octree, oct_idx,(void **) &userdata));
@@ -165,20 +154,26 @@ add_chunk_to_list (
 				h5priv_search_in_loc_idxlist(list, (h5_loc_idx_t)userdata->idx[i]);
 			}
 		}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
-int compare_chk_idx(const void *p_a, const void *p_b)
-{
-return ((*(h5_chk_idx_t*)p_a) - (*(h5_chk_idx_t*)p_b));
+
+#if 0
+static int
+compare_chk_idx (
+	const void *p_a,
+	const void *p_b
+	) {
+	return ((*(h5_chk_idx_t*)p_a) - (*(h5_chk_idx_t*)p_b));
 }
+#endif
 
 h5_err_t
 h5tpriv_get_list_of_chunks_to_write (
-		h5t_mesh_t* const m,
-		h5_chk_idx_t** list,
-		int* counter
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p list=%p, counter=%p", m, list, counter);
+	h5t_mesh_t* const m,
+	h5_chk_idx_t** list,
+	int* counter
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p list=%p, counter=%p", m, list, counter);
 	h5_chk_idx_t num_chunks = m->chunks->curr_idx + 1; // Is that ok? yes if update is correct
 
 	int rank = m->f->myproc;
@@ -203,18 +198,18 @@ h5tpriv_get_list_of_chunks_to_write (
 
 	if (size_list < *counter) {
 		h5_debug ("Overflow of list_of_chunks");
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+		H5_LEAVE (H5_ERR_INTERNAL);
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
 exchange_g2l_vtx_map (
-		h5t_mesh_t* const m,
-		h5_idxmap_t* map,
-		h5_glb_idx_t** range,
-		h5_glb_idx_t** glb_vtx
-		) {
+	h5t_mesh_t* const m,
+	h5_idxmap_t* map,
+	h5_glb_idx_t** range,
+	h5_glb_idx_t** glb_vtx
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p map=%p, range=%p, glb_vtx=%p", m, map, range, glb_vtx);
 	// alloc/get range
 	TRY (*range = h5_calloc (m->f->nprocs + 1, sizeof (**range)));
@@ -245,21 +240,30 @@ exchange_g2l_vtx_map (
 				recvdisp,
 				MPI_LONG,
 				m->f->props->comm));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
-int sort_glb_idx(const void *p_a, const void *p_b)
-{
- return (*(h5_glb_idx_t*)p_a) - (*(h5_glb_idx_t*)p_b);
+static int
+sort_glb_idx (
+	const void *p_a,
+	const void *p_b
+	) {
+	return (*(h5_glb_idx_t*)p_a) - (*(h5_glb_idx_t*)p_b);
 }
 
 /*
  * instead of bsearch it returns the first element that fulfills compare(key,element) == 0 in an unsorted array
  * we don't want to sort array since it's also containing a permutation
  */
-void * linsearch (const void *key, void *array, size_t count, size_t size,
- comparison_fn_t compare) {
+void*
+linsearch (
+	const void *key,
+	void *array,
+	size_t count,
+	size_t size,
+	comparison_fn_t compare
+	) {
 	void* pointer = array;
 	for (int i = 0; i < count; i++) {
 		if (compare.compare(key,pointer) == 0) {
@@ -271,17 +275,17 @@ void * linsearch (const void *key, void *array, size_t count, size_t size,
 	return NULL;
 }
 
-h5_err_t
+static h5_err_t
 remove_item_from_idxmap (
-		h5_idxmap_t* map,
-		int item_idx
-		) {
+	h5_idxmap_t* map,
+	int item_idx
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "map=%p, item_idx=%d", map, item_idx);
 	assert(item_idx < map->num_items);
 
 	memmove(&map->items[item_idx], &map->items[item_idx + 1], (map->num_items - 1 - item_idx) * sizeof (*map->items));
 	map->num_items--;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #if defined(WITH_PARALLEL_H5GRID)
@@ -291,14 +295,14 @@ remove_item_from_idxmap (
  */
 static h5_err_t
 check_multiple_vtx_writes (
-		h5t_mesh_t* const m,
-		h5_idxmap_t* map,
-		h5_glb_idx_t* range,
-		h5_glb_idx_t* glb_vtx
-		) {
+	h5t_mesh_t* const m,
+	h5_idxmap_t* map,
+	h5_glb_idx_t* range,
+	h5_glb_idx_t* glb_vtx
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p map=%p, range=%p, glb_vtx=%p", m, map, range, glb_vtx);
 	if (m->f->myproc == 0) {
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 	h5_glb_idx_t num_glb_vtx = range[m->f->myproc];
 	// sort glb_vtx up to my vtx
@@ -318,26 +322,26 @@ check_multiple_vtx_writes (
 			i--; // same position should be check again
 		}
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
 h5_int32_t
-find_proc_to_write (
-		h5t_mesh_t* const m,
-		h5_loc_idx_t elem_idx
-		) {
-	H5_PRIV_FUNC_ENTER (int, "m=%p ", m);
+h5priv_find_proc_to_write (
+	h5t_mesh_t* const m,
+	h5_loc_idx_t elem_idx
+	) {
+	H5_PRIV_API_ENTER (int, "m=%p ", m);
 #ifdef WITH_PARALLEL_H5GRID
 	h5_glb_idx_t glb_idx = h5tpriv_get_loc_elem_glb_idx (m, elem_idx);
 	for (int i = 0; i < m->chunks->num_alloc; i++) {
 		if ( glb_idx >= m->chunks->chunks[i].elem &&
 				glb_idx < m->chunks->chunks[i].elem + m->chunks->chunks[i].num_elems) {
-			H5_PRIV_FUNC_LEAVE (H5t_get_proc (m->octree, m->chunks->chunks[i].oct_idx));
+			H5_LEAVE (H5t_get_proc (m->octree, m->chunks->chunks[i].oct_idx));
 		}
 	}
 #endif
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #ifdef WITH_PARALLEL_H5GRID
@@ -350,9 +354,9 @@ find_proc_to_write (
  */
 static h5_err_t
 get_map_vertices_write (
-		h5t_mesh_t* const m,
-		h5_idxmap_t* map
-		) {
+	h5t_mesh_t* const m,
+	h5_idxmap_t* map
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, map=%p", m, map);
 	h5_chk_idx_t* list_of_chunks;
 	int num_chunks = 0;
@@ -409,7 +413,7 @@ get_map_vertices_write (
 	TRY (h5_free (range));
 	TRY (h5_free (glb_vtx));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 //TODO maybe use ifdef to have name without _chk
@@ -451,7 +455,6 @@ write_vertices_chk (
 			             NULL));
 		seloper = H5S_SELECT_OR;
 	}
-
 
 	// create diskspace and select subset
 	hsize_t num_glb_vertices = m->num_glb_vertices[m->num_leaf_levels-1];
@@ -517,7 +520,7 @@ write_vertices_chk (
 	TRY (hdf5_close_dataset (dset_id));
 	m->f->empty = 0;
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -525,7 +528,7 @@ write_elems (
         h5t_mesh_t* const m
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
-	H5_PRIV_FUNC_RETURN (h5_error_not_implemented ());
+	H5_RETURN (h5_error_not_implemented ());
 }
 
 #else
@@ -594,7 +597,7 @@ write_elems (
 	             1));
 	// release mem
 	TRY (h5_free (glb_elems));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 #ifdef WITH_PARALLEL_H5GRID
@@ -714,13 +717,13 @@ write_elems_chk (
 	TRY (hdf5_close_dataspace (dspace_id));
 	TRY (hdf5_close_dataspace (mspace_id));
 	TRY (hdf5_close_dataset (dset_id));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
-hid_t
+static hid_t
 set_chk_memspace (
-		h5t_mesh_t* m,
-		hid_t dataspace_id) {
+	h5t_mesh_t* m,
+	hid_t dataspace_id) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 			    "m=%p, dataspace_id=%lld",
 			    m, (long long int)dataspace_id);
@@ -744,14 +747,14 @@ set_chk_memspace (
 						        &hstart, &hstride, &hcount,
 						        NULL));
 	}
-	H5_PRIV_FUNC_RETURN (mspace_id);
+	H5_RETURN (mspace_id);
 }
 
-hid_t
+static hid_t
 set_chk_diskspace (
-		h5t_mesh_t* m,
-		hid_t dspace_id
-		) {
+	h5t_mesh_t* m,
+	hid_t dspace_id
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 			    "m=%p, dataspace_id=%lld",
 			    m, (long long int)dspace_id);
@@ -775,12 +778,12 @@ set_chk_diskspace (
 						        &hstart, &hstride, &hcount,
 						        NULL));
 	}
-	H5_PRIV_FUNC_RETURN (dspace_id);
+	H5_RETURN (dspace_id);
 }
 
-h5_err_t
+static h5_err_t
 write_chunks (
-		h5t_mesh_t* const m
+	h5t_mesh_t* const m
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	m->dsinfo_chunks.dims[0] = m->chunks->num_alloc;
@@ -819,13 +822,14 @@ write_chunks (
 	             m->chunks->num_levels,
 	             1));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
-hid_t
+static hid_t
 set_oct_memspace (
-		h5t_mesh_t* m,
-		hid_t dataspace_id) {
+	h5t_mesh_t* m,
+	hid_t dataspace_id
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 			    "m=%p, dataspace_id=%lld",
 			    m, (long long int)dataspace_id);
@@ -849,14 +853,14 @@ set_oct_memspace (
 						        &hstart, &hstride, &hcount,
 						        NULL));
 	}
-	H5_PRIV_FUNC_RETURN (mspace_id);
+	H5_RETURN (mspace_id);
 }
 
-hid_t
+static hid_t
 set_oct_diskspace (
-		h5t_mesh_t* m,
-		hid_t dspace_id
-		) {
+	h5t_mesh_t* m,
+	hid_t dspace_id
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 			    "m=%p, dataspace_id=%lld",
 			    m, (long long int)dspace_id);
@@ -880,12 +884,12 @@ set_oct_diskspace (
 						        &hstart, &hstride, &hcount,
 						        NULL));
 	}
-	H5_PRIV_FUNC_RETURN (dspace_id);
+	H5_RETURN (dspace_id);
 }
 
-h5_err_t
+static h5_err_t
 write_octree (
-		h5t_mesh_t* const m
+	h5t_mesh_t* const m
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 
@@ -948,14 +952,13 @@ write_octree (
 
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
-
-hid_t
+static hid_t
 set_weight_memspace (
-		h5t_mesh_t* m,
-		hid_t dataspace_id) {
+	h5t_mesh_t* m,
+	hid_t dataspace_id) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 			    "m=%p, dataspace_id=%lld",
 			    m, (long long int)dataspace_id);
@@ -979,14 +982,14 @@ set_weight_memspace (
 						        &hstart, &hstride, &hcount,
 						        NULL));
 	}
-	H5_PRIV_FUNC_RETURN (mspace_id);
+	H5_RETURN (mspace_id);
 }
 
-hid_t
+static hid_t
 set_weight_diskspace (
-		h5t_mesh_t* m,
-		hid_t dspace_id
-		) {
+	h5t_mesh_t* m,
+	hid_t dspace_id
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 			    "m=%p, dataspace_id=%lld",
 			    m, (long long int)dspace_id);
@@ -1010,16 +1013,16 @@ set_weight_diskspace (
 						        &hstart, &hstride, &hcount,
 						        NULL));
 	}
-	H5_PRIV_FUNC_RETURN (dspace_id);
+	H5_RETURN (dspace_id);
 }
 
 /*
  * weights is an array that stores the element weights. c weights per element with n elements, gives a size of c*n.
  * where the weights of an element are stored contiguosly. i.e. first weight of second elem is at weights[c*1].
  */
-h5_err_t
+static h5_err_t
 write_weights (
-		h5t_mesh_t* const m
+	h5t_mesh_t* const m
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 
@@ -1042,9 +1045,10 @@ write_weights (
 	             1,
 	             1));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
+
 h5_err_t
 h5tpriv_write_mesh (
         h5t_mesh_t* const m
@@ -1088,7 +1092,7 @@ h5tpriv_write_mesh (
 
 
 	}
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 // ANCHOR WRITE
 /*
@@ -1153,7 +1157,7 @@ read_vertices (
 	TRY (hdf5_close_dataspace (mspace_id));
 	TRY (hdf5_close_dataset (dset_id));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -1197,7 +1201,7 @@ read_elems (
 	TRY (hdf5_close_dataspace (mspace_id));
 	TRY (hdf5_close_dataset (dset_id));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -1212,7 +1216,7 @@ read_elems (
    Step 2: Handle ghost- and border cells
    Step 3: Read vertices
  */
-h5_err_t
+static h5_err_t
 part_kway  (
         h5t_mesh_t* const m,
         h5_glb_elem_t** glb_elems
@@ -1313,7 +1317,7 @@ part_kway  (
 	        &m->f->props->comm
 	        );
 	if (rc != METIS_OK) {
-		H5_PRIV_FUNC_LEAVE(
+		H5_LEAVE(
 		        h5_error (H5_ERR, "ParMETIS failed"));
 	}
 	TRY (h5_free (vtxdist));
@@ -1417,7 +1421,7 @@ part_kway  (
 	TRY (h5_free (elems));
 	*glb_elems = recvbuf;
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -1432,14 +1436,14 @@ part_kway  (
      the same cell to multiple procs)
    6. scatter border cells with alltoallv
  */
-h5_err_t
+static h5_err_t
 exchange_ghost_cells (
         h5t_mesh_t* const m,
         h5_glb_elem_t* glb_elems,
         h5_glb_elem_t** ghost_elems,
         size_t* num_ghost_elems
         ) {
-	H5_PRIV_API_ENTER (h5_err_t, "m=%p, ghost_elems=%p", m, ghost_elems);
+	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, ghost_elems=%p", m, ghost_elems);
 	int* sendcounts;
 	int* senddispls;
 	int* recvcounts;
@@ -1584,7 +1588,7 @@ exchange_ghost_cells (
 
 	*ghost_elems = recvbuf;
 	*num_ghost_elems = num_loc_ghost_elems;
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -1593,7 +1597,7 @@ h5tpriv_read_mesh (
         h5t_mesh_t* const m
         ) {
 	H5_PRIV_API_ENTER (h5_err_t, "m=%p", m);
-	h5_glb_elem_t* glb_elems;
+	h5_glb_elem_t* glb_elems = NULL;
 	TRY (part_kway (m, &glb_elems));
 	h5_loc_idx_t num_interior_elems = m->num_interior_elems[0];
 
@@ -1673,7 +1677,7 @@ h5tpriv_read_mesh (
 	TRY (h5tpriv_init_elem_flags (m, 0, num_interior_elems+num_ghost_elems));
 
 	TRY (h5tpriv_update_internal_structs (m, 0));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #else
 
@@ -1706,7 +1710,7 @@ h5tpriv_read_mesh (
 	TRY (h5tpriv_init_elem_flags (m, 0, num_interior_elems));
 	TRY (h5_free (glb_elems));
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -1789,12 +1793,12 @@ read_octree (
 
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 static h5_err_t
 read_weights (
-		h5t_mesh_t* m
-		) {
+	h5t_mesh_t* m
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	hid_t dset_id;
 	TRY (dset_id = hdf5_open_dataset_by_name (m->mesh_gid, m->dsinfo_weights.name));
@@ -1838,7 +1842,7 @@ read_weights (
 	TRY (hdf5_close_dataspace (dspace_id));
 	TRY (hdf5_close_dataspace (mspace_id));
 	TRY (hdf5_close_dataset (dset_id));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -1891,7 +1895,7 @@ read_chunks (
 	TRY (hdf5_close_dataspace (mspace_id));
 	TRY (hdf5_close_dataset (dset_id));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -1902,12 +1906,12 @@ read_chunks (
 
 static h5_err_t
 get_weights_of_octant (
-		h5t_mesh_t* const m,
-		h5t_octree_t* octree,
-		h5_oct_idx_t oct_idx,
-		double factor,
-		idx_t* weights
-		) {
+	h5t_mesh_t* const m,
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx,
+	double factor,
+	idx_t* weights
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, octree=%p, oct_idx=%d, factor=%4.4f, weights=%p",
 			m, octree, oct_idx, factor, weights);
 
@@ -1931,16 +1935,16 @@ get_weights_of_octant (
 	while ((oct_idx = H5t_get_parent (octree, oct_idx)) != -1) {
 		TRY (get_weights_of_octant (m, octree, oct_idx, factor/((double) NUM_OCTANTS), weights));
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
-h5_err_t
+static h5_err_t
 calc_weights_oct_leaflevel (
-		h5t_mesh_t* const m,
-		idx_t** weights,
-		h5_oct_idx_t** new_numbering,
-		h5_oct_idx_t* num_tot_leaf_oct
-		) {
+	h5t_mesh_t* const m,
+	idx_t** weights,
+	h5_oct_idx_t** new_numbering,
+	h5_oct_idx_t* num_tot_leaf_oct
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, weights=%p, new_numbering=%p", m, weights, new_numbering);
 	int size = m->f->nprocs;
 	int rank = m->f->myproc;
@@ -1993,15 +1997,16 @@ calc_weights_oct_leaflevel (
 	H5t_end_iterate_oct (iter);
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
-h5_err_t
+
+static h5_err_t
 distribute_octree_parmetis (
-		h5t_mesh_t* const m,
-		idx_t* weights,
-		h5_oct_idx_t* new_numbering,
-		h5_oct_idx_t num_tot_leaf_oct
-		) {
+	h5t_mesh_t* const m,
+	idx_t* weights,
+	h5_oct_idx_t* new_numbering,
+	h5_oct_idx_t num_tot_leaf_oct
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, weights=%p, new_numbering=%p", m, weights, new_numbering);
 
 	if (num_tot_leaf_oct < m->f->nprocs) {
@@ -2057,13 +2062,23 @@ distribute_octree_parmetis (
 		h5_oct_idx_t* ancestor_of_neigh = NULL;
 		h5_oct_idx_t num_anc_of_neigh;
 
-		//	plot_octants (m->octree);
+		//	h5priv_plot_octants (m->octree);
 		idx_t i;
 		idx_t counter = 0;
 		for (i = 0; i < num_interior_oct; i++) {
-			TRY (H5t_get_neighbors (m->octree, new_numbering[start + i], &neighbors, &num_neigh, &ancestor_of_neigh, &num_anc_of_neigh, 1, m->leaf_level));
+			TRY (
+				H5t_get_neighbors (
+					m->octree,
+					new_numbering[start + i],
+					&neighbors,
+					&num_neigh,
+					&ancestor_of_neigh,
+					&num_anc_of_neigh,
+					1,
+					m->leaf_level));
 			if (counter + num_neigh >= num_alloc_adj) {
-				adjncy = realloc (adjncy, (num_alloc_adj + counter + num_neigh) * sizeof(*adjncy)); // WARNING may alloc too much mem (minimal would be counter + num_neigh)
+				 // WARNING may alloc too much mem (minimal would be counter + num_neigh)
+				adjncy = realloc (adjncy, (num_alloc_adj + counter + num_neigh) * sizeof(*adjncy));
 			}
 			xadj[i+1] = xadj[i] + num_neigh;
 #if !defined(NDEBUG)
@@ -2086,7 +2101,7 @@ distribute_octree_parmetis (
 					}
 				}
 				if (found == 0) {
-					H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+					H5_LEAVE (H5_ERR_INTERNAL);
 				}
 			}
 		}
@@ -2135,7 +2150,7 @@ distribute_octree_parmetis (
 				&m->f->props->comm
 		);
 		if (rc != METIS_OK) {
-			H5_PRIV_FUNC_LEAVE(
+			H5_LEAVE(
 					h5_error (H5_ERR, "ParMETIS failed"));
 		}
 
@@ -2198,26 +2213,6 @@ distribute_octree_parmetis (
 			h5_float64_t loc_max = newbb[preferred_direction + 3];
 			h5_float64_t loc_mid = (loc_min + loc_max) / 2.0;
 			glb_part[i] = (int) ((loc_mid - glb_min)/slice_length);
-
-//			int lower_slice = (int) ((loc_min-glb_min)/slice_length);
-//			int higher_slice = (int) ((loc_max-glb_min)/slice_length);
-//			if (!(lower_slice == higher_slice || lower_slice + 1 == higher_slice)) {
-//				printf (" glb_min %4.4f glb_max %4.4f slice_length %4.4f loc_min %4.4f loc_max %4.4f lower_slice %d higher_slice %d",
-//						glb_min, glb_max, slice_length, loc_min, loc_max, lower_slice, higher_slice);
-//
-//				assert (lower_slice == higher_slice || lower_slice + 1 == higher_slice);
-//
-//			}
-//			if (lower_slice == higher_slice) {
-//				glb_part[i] = lower_slice;
-//			} else if ( higher_slice *slice_length - (loc_min - glb_min) >= (loc_max-glb_min) - higher_slice *slice_length) {
-//				// belongs to lower_slice
-//				glb_part[i] = lower_slice;
-//
-//			} else {// belongs to higher_slice
-//				glb_part[i] = higher_slice;
-//			}
-
 		}
 	}
 	assert (dont_use_parmetis > -1 && dont_use_parmetis <3);
@@ -2228,7 +2223,9 @@ distribute_octree_parmetis (
 		h5_oct_idx_t parent = oct_idx;
 		while ((parent = H5t_get_parent (m->octree, parent)) != -1) {
 			if (H5t_get_children(m->octree, parent) == oct_idx) {
-				// oct_idx is the first children - so set the proc of the parent to the same as the oct_idx
+				// oct_idx is the first children - so set
+				// the proc of the parent to the same as
+				// the oct_idx
 				TRY (H5t_set_proc_int (m->octree, parent, glb_part[i]));
 				oct_idx = parent;
 			} else {
@@ -2243,93 +2240,35 @@ distribute_octree_parmetis (
 	TRY (h5_free (vtxdist));
 
 	TRY (h5_free (glb_part));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
-h5_err_t
+static h5_err_t
 add_oct_children_to_list (
-		h5t_mesh_t* const m,
-		h5_loc_idxlist_t** oct_list,
-		h5_oct_idx_t oct_idx) {
+	h5t_mesh_t* const m,
+	h5_loc_idxlist_t** oct_list,
+	h5_oct_idx_t oct_idx
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p list=%p, oct_idx=%d", m, oct_list, oct_idx);
 	assert (oct_idx > 0); // otherwise we add the whole octree!
 	h5_oct_idx_t children = H5t_get_children (m->octree, oct_idx);
 	if (children == -1 ) {
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 	// get siblings
 	h5_oct_idx_t sibling_idx = H5t_get_sibling (m->octree, children);
 	for (int i = 0; i < NUM_OCTANTS; i++) {
 		h5priv_search_in_loc_idxlist(oct_list,(h5_loc_idx_t) sibling_idx + i);
-		TRY (add_oct_children_to_list (m, oct_list,(h5_loc_idx_t) sibling_idx + i)); // TODO it may could be faster to do this
+		TRY (add_oct_children_to_list (m, oct_list,(h5_loc_idx_t) sibling_idx + i));
+		// TODO it may could be faster to do this
 		// is a second loop because adding elems just after each other could be beneficial -> maybe extend
 		// insert to multiple insert...
 	}
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
-
-//h5_err_t
-//h5tpriv_get_list_of_chunks_to_read (
-//		h5t_mesh_t* const m,
-//		h5_chk_idx_t** list,
-//		int* counter
-//		) {
-//	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p list=%p, counter=%p", m, list, counter);
-//
-//	int rank = m->f->myproc;
-//	int size_list = m->chunks->curr_idx + 1;
-//	TRY ( *list = h5_calloc (size_list + 1, sizeof (**list))); // +1 to be on save side for accesses
-//	*counter = 0;
-//
-//	// go through octree level, get own chunks and parent chunks
-//	h5t_oct_iterator_t* iter = NULL;
-//	TRY (H5t_init_oct_iterator (m->octree, &iter, m->leaf_level));
-//
-//	h5_oct_idx_t oct_idx = -1;
-//	while ((oct_idx = H5t_iterate_oct (iter)) != -1) {
-//		if (H5t_get_proc (m->octree, oct_idx) == rank) {
-//			add_chunk_to_list (m, *list, counter, oct_idx);
-//			h5_oct_idx_t parent = oct_idx;
-//			// add parent chunks
-//			while ((parent = H5t_get_parent (m->octree, parent)) != -1) {
-//				add_chunk_to_list (m, *list, counter, parent);
-//			}
-//			h5_oct_idx_t* neigh = NULL;
-//			h5_oct_idx_t* anc = NULL;
-//			h5_oct_idx_t  num_neigh = 0;
-//			h5_oct_idx_t  num_anc = 0;
-//
-//			// get neighboring chunks as well
-//			TRY (H5t_get_neighbors (
-//					m->octree,
-//					oct_idx,
-//					&neigh,
-//					&num_neigh,
-//					&anc,
-//					&num_anc,
-//					3,
-//					m->leaf_level));
-//			for (int i = 0; i < num_neigh; i++) {
-//				add_chunk_to_list (m, *list, counter, neigh[i]);
-//			}
-//			for (int i = 0; i < num_anc; i++) {
-//				add_chunk_to_list (m, *list, counter, anc[i]);
-//				// TODO get all children of ancestor on level 1 and ad them as well
-//			}
-//		}
-//	}
-//
-//	TRY (H5t_end_iterate_oct (iter));
-//	if (size_list < *counter) {
-//		h5_debug ("Overflow of list_of_chunks");
-//		H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
-//	}
-//	qsort (*list, *counter, sizeof (**list), compare_chk_idx);
-//	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
-//}
 /*
   Idea: we need to get all octants that belong to this proc including all their parent and children.
   (octants that dont have a userlevel should not be added)
@@ -2338,11 +2277,11 @@ add_oct_children_to_list (
  */
 h5_err_t
 h5tpriv_get_list_of_chunks_to_read (
-		h5t_mesh_t* const m,
-		h5_chk_idx_t** list,
-		int* counter
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p list=%p, counter=%p", m, list, counter);
+	h5t_mesh_t* const m,
+	h5_chk_idx_t** list,
+	int* counter
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p list=%p, counter=%p", m, list, counter);
 	int rank = m->f->myproc;
 	int size_list = m->chunks->curr_idx + 1;
 	TRY ( *list = h5_calloc (size_list + 1, sizeof (**list))); // +1 to be on save side for accesses
@@ -2372,11 +2311,15 @@ h5tpriv_get_list_of_chunks_to_read (
 						parent_idx = parent;
 						while ((parent_idx = H5t_get_parent (m->octree, parent_idx)) != -1) {
 							if (H5t_get_userlevel(m->octree, parent) != 0) {
-								break; // parent_idx still has a level -> so need parent needs to be added
+								// parent_idx still has a level ->
+								//so need parent needs to be added
+								break;
 							}
 						}
 						if (parent_idx == -1) {
-							break; // parent_idx is -1 so all parents don't have a level anymore -> don't add
+							// parent_idx is -1 so all parents don't
+							// have a level anymore -> don't add
+							break;
 						}
 					}
 					if (parent_idx != -1) {
@@ -2419,11 +2362,6 @@ h5tpriv_get_list_of_chunks_to_read (
 			// add children
 			TRY (add_oct_children_to_list (m, &neigh_oct_list, (h5_loc_idx_t)neigh[i]));
 		}
-//		for (int i = 0; i < num_anc; i++) {
-//			h5priv_search_in_loc_idxlist(&neigh_oct_list, anc[i]);
-//			// add children
-//			TRY (add_oct_children_to_list (m, &neigh_oct_list, anc[i]));
-//		}
 		// add octants to chunk_list
 		add_chunk_to_list (m, &loc_list,(h5_oct_idx_t) oct_list->items[i]);
 	}
@@ -2444,23 +2382,22 @@ h5tpriv_get_list_of_chunks_to_read (
 	TRY (h5priv_free_loc_idxlist (&neigh_oct_list));
 	if (size_list < *counter) {
 		h5_debug ("Overflow of list_of_chunks");
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+		H5_LEAVE (H5_ERR_INTERNAL);
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
  * returns a list of processors for assigning proc to each element
  */
-
-h5_err_t
+static h5_err_t
 get_list_of_proc (
-		h5t_mesh_t* const m,
-		h5_int32_t* my_procs,
-		h5_chk_idx_t* list,
-		int num_chunks
-		) {
+	h5t_mesh_t* const m,
+	h5_int32_t* my_procs,
+	h5_chk_idx_t* list,
+	int num_chunks
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, my_procs=%p, list=%p", m, my_procs, list);
 	int counter = 0;
 	for (int i = 0; i < num_chunks; i++) {
@@ -2473,87 +2410,35 @@ get_list_of_proc (
 	}
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
-//	for (hsize_t i = 0; i < map->num_items; i++) {
-//		hsize_t hstart = map->items[i].glb_idx;
-//		hsize_t hcount = 1;
-//		while (map->items[i].glb_idx+1 == map->items[i+1].glb_idx &&
-//		       i < map->num_items) {
-//			i++; hcount++;
-//		}
-//		TRY (hdf5_select_hyperslab_of_dataspace (
-//		             dspace_id,
-//		             seloper,
-//		             &hstart, &hstride, &hcount,
-//		             NULL));
-//		seloper = H5S_SELECT_OR;
-//	}
-h5_lvl_idx_t
+
+static h5_lvl_idx_t
 get_level_of_chk_idx (
-		h5t_mesh_t* const m,
-		h5_chk_idx_t chk_idx
-		) {
+	h5t_mesh_t* const m,
+	h5_chk_idx_t chk_idx
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, chk_idx=%d", m, chk_idx);
 	assert (chk_idx > -1);
 	int nbr_chunks = m->chunks->num_chunks_p_level[0];
 	for (int i = 0; i < m->chunks->num_levels; i++) {
 		if (chk_idx < nbr_chunks) {
-			H5_PRIV_FUNC_LEAVE (i);
+			H5_LEAVE (i);
 		} else {
 			if (i+1 < m->chunks->num_levels) {
 				nbr_chunks += m->chunks->num_chunks_p_level[i + 1];
 			}
 		}
 	}
-	H5_PRIV_FUNC_RETURN (-2);
-	// should be much simpler then that!
-//	// get oct_idx
-//	h5_oct_idx_t oct_idx = m->chunks->chunks[chk_idx].oct_idx;
-//	void* pointer;
-//
-//	TRY (H5t_get_userdata_r (m->octree, oct_idx, &pointer)); //TRY gives unresolved??
-//	h5t_oct_userdata_t* userdata = (h5t_oct_userdata_t*)pointer;
-//	int i = 0;
-//	for (; i < OCT_USERDATA_SIZE; i++) {
-//		if (userdata->idx[i] == chk_idx) {
-//			break;
-//		}
-//	}
-//	if (i >= OCT_USERDATA_SIZE) {
-//		H5_PRIV_FUNC_LEAVE (
-//				h5_error (H5_ERR_INTERNAL, "Chunk %d should be in octant %d but it was not found", chk_idx, oct_idx));
-//	}
-//
-//	int position = 0;
-//	h5_oct_level_t usr_lvl = H5t_get_userlevel (m->octree, oct_idx);
-//	h5_lvl_idx_t level = -1;
-//	while (i >= 0) {
-//		while (position < OCT_USERLEV_LENGTH) {
-//			if ((usr_lvl & (1 << position)) == (1 << position)) {
-//				i--;
-//				break;
-//			}
-//		}
-//		position++;
-//	}
-//
-//	if (i != -1 || position ==  OCT_USERLEV_LENGTH) {
-//		H5_PRIV_FUNC_LEAVE (
-//				h5_error (H5_ERR_INTERNAL, "Userlevel in octant %d are not set correctly. Userlevel: %d", oct_idx, usr_lvl));
-//	} else {
-//		level = position - 1;
-//	}
-
-
+	H5_RETURN (-2);
 }
 
-h5_err_t
+static h5_err_t
 read_chunked_elements (
-		h5t_mesh_t* const m,
-		h5_glb_elem_t** glb_elems,
-		h5_int32_t** my_procs
-		) {
+	h5t_mesh_t* const m,
+	h5_glb_elem_t** glb_elems,
+	h5_int32_t** my_procs
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	// find chunks to read
 	h5_chk_idx_t* list_of_chunks = NULL;
@@ -2606,7 +2491,8 @@ read_chunked_elements (
 		hstart = (hsize_t)m->chunks->chunks[list_of_chunks[i]].elem;
 		hcount = (hsize_t)m->chunks->chunks[list_of_chunks[i]].num_elems;
 		while (i + 1 < num_interior_chunks &&
-				hstart + hcount  == m->chunks->chunks[list_of_chunks[i+1]].elem) { // WARNING make sure list has one free element in the back otherwise seg fault
+				hstart + hcount  == m->chunks->chunks[list_of_chunks[i+1]].elem) {
+			// WARNING make sure list has one free element in the back otherwise seg fault
 			hcount += (hsize_t)m->chunks->chunks[list_of_chunks[i+1]].num_elems;
 			i++;
 		}
@@ -2664,7 +2550,7 @@ read_chunked_elements (
 #endif
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #endif
@@ -2700,8 +2586,8 @@ h5tpriv_read_chunked_mesh (
 	TRY (h5priv_mpi_barrier (m->f->props->comm));
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 
-	h5_glb_elem_t* glb_elems;
-	h5_int32_t* my_procs;
+	h5_glb_elem_t* glb_elems = NULL;
+	h5_int32_t* my_procs = NULL;
 	TRY (read_chunked_elements (m, &glb_elems, &my_procs));
 
 	TRY (h5priv_mpi_barrier (m->f->props->comm));
@@ -2771,7 +2657,7 @@ h5tpriv_read_chunked_mesh (
 	TRY (h5priv_mpi_barrier (m->f->props->comm));
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 #endif	
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -2823,7 +2709,7 @@ read_elems_part (
 			i++; hcount++;
 		}
 		if (hstart+hcount > num_glb_elems) {
-			H5_PRIV_FUNC_LEAVE (
+			H5_LEAVE (
 			        h5_error (
 			                H5_ERR_H5FED,
 			                "invalid selection: start=%lld, count=%lld",
@@ -2850,7 +2736,7 @@ read_elems_part (
 	TRY (hdf5_close_dataset (dset_id));
 
 	*glb_elems = elems;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -2930,7 +2816,6 @@ h5tpriv_read_mesh_part (
 	TRY (h5priv_mpi_barrier (m->f->props->comm)); // init update
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
 #endif
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
-
 

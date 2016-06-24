@@ -162,7 +162,7 @@ h5_optimize_for_lustre (
 	config.flash_incr_mode = H5C_flash_incr__off;
 	TRY( H5Pset_mdc_config( f->access_prop, &config ) );
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #endif // H5_USE_LUSTRE

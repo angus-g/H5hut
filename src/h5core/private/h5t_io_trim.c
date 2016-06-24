@@ -83,7 +83,7 @@ init_loc_elems_struct (
 
 	}
 	m->last_stored_eid = from_idx + count -1;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -124,7 +124,7 @@ init_elem_flags (
 		}
 		elem++;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -151,7 +151,7 @@ init_map_elem_g2l (
 	}
 	h5priv_sort_idxmap (map);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -184,7 +184,7 @@ init_glb_elems_struct (
 		loc_elem++;
 		glb_elem++;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 //TODO maybe use ifdef to have name without _chk
@@ -239,7 +239,7 @@ init_glb_elems_struct_chk (
 
 	}
 #endif
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 

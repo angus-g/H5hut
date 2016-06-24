@@ -48,7 +48,7 @@ get_descendant_of_edge (
 		}
 	} while (++edge_idp < end);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -79,7 +79,7 @@ get_sections_of_edge (
 	if (!refined) {
 		TRY (h5priv_insert_into_loc_idlist (children, te->items[0], -1));
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -100,7 +100,7 @@ add_vertex2 (
 	h5_loc_idlist_t* tv;
 	TRY( h5tpriv_find_tv2 (m, face_idx, elem_idx, &tv) );
 	TRY( h5priv_search_in_loc_idlist (list, tv->items[0]) );
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -119,7 +119,7 @@ add_edge (
 	h5_loc_idlist_t* te;
 	TRY( h5tpriv_find_te (m, entity_id, &te) );
 	TRY( h5priv_search_in_loc_idlist (list, te->items[0]) );
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -137,7 +137,7 @@ add_edge2 (
 	h5_loc_idlist_t *te;
 	TRY( h5tpriv_find_te2 (m, face_idx, elem_idx, &te) );
 	TRY( h5priv_search_in_loc_idlist (list, te->items[0]) );
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -152,7 +152,7 @@ add_elem2 (
 	h5_loc_id_t elem_id = h5tpriv_build_triangle_id ((h5_loc_idx_t)0, elem_idx);
 	TRY( h5priv_search_in_loc_idlist (list, elem_id) );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -191,7 +191,7 @@ get_edges_uadj_to_vertex (
 		                        m, 0, face_idx, 1),
 		                elem_idx) );
 	} while (++vertex_idp < end);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -219,7 +219,7 @@ get_triangles_uadj_to_vertex (
 		}
 		TRY (add_elem2 (list, elem_idx));
 	} while (++vertex_idp < end);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -243,7 +243,7 @@ get_triangles_uadj_to_edge (
 	} while (++edge_idp < end);
 	TRY( h5priv_free_loc_idlist (&children) );
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -267,7 +267,7 @@ get_edges_adj_to_edge (
 		TRY( add_edge (m, list, *edge_idp) );
 	} while (++edge_idp < end);
 	TRY( h5priv_free_loc_idlist(&children) );
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -299,7 +299,7 @@ get_vertices_dadj_to_edge (
 		                  elem_idx) );
 	} while (++edge_idp < end);
 	TRY( h5priv_free_loc_idlist (&children) );
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -344,7 +344,7 @@ get_vertices_dadj_to_triangle (
 		                  elem_idx) );
 	} while (++edge_idp < end);
 	TRY (h5priv_free_loc_idlist(&children));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -374,7 +374,7 @@ get_edges_dadj_to_triangle (
 		TRY( add_edge (m, list, *edge_idp) );
 	} while (++edge_idp < end);
 	TRY (h5priv_free_loc_idlist(&children));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t

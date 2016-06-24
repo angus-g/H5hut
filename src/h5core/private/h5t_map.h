@@ -32,7 +32,7 @@
                                    "list=%p, item=%llu",                \
                                    list, (long long unsigned)item);     \
                 if (!list) {                                            \
-                        H5_PRIV_API_LEAVE (-1);                         \
+                        H5_LEAVE (-1);                         \
                 }                                                       \
                 register ssize_t low = 0;                               \
                 register ssize_t mid;                                   \
@@ -51,9 +51,9 @@
                         else if ( diff < 0 )                            \
                                 low = mid + 1;                          \
                         else                                            \
-                                H5_PRIV_API_LEAVE (mid);                \
+                                H5_LEAVE (mid);                \
                 }                                                       \
-                H5_PRIV_API_RETURN (-(low+1));                          \
+                H5_RETURN (-(low+1));                          \
         }
 
 

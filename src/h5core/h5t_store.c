@@ -23,6 +23,8 @@
 
 #include "h5core/h5t_map.h"
 
+#include <stdlib.h>
+
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 /*
@@ -36,8 +38,8 @@ int max_num_elems_p_chunk = 120;
 // that probably doesn't belong here... //TODO put in right place + print variables
 h5_edge_list_t*
 h5tpriv_init_edge_list (
-		h5_int32_t num_alloc
-		) {
+	h5_int32_t num_alloc
+	) {
 
 	h5_edge_list_t* list = NULL;
 	list = h5_calloc (1, sizeof (*list));
@@ -48,21 +50,21 @@ h5tpriv_init_edge_list (
 }
 h5_err_t
 h5tpriv_free_edge_list (
-		h5_edge_list_t* list
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "list=%p", list);
+	h5_edge_list_t* list
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "list=%p", list);
 	TRY (h5_free (list->items));
 	list->items = NULL;
 	TRY (h5_free(list));
 	list = NULL;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t
 h5tpriv_grow_edge_list (
-		h5_edge_list_t* list,
-		h5_int32_t size
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "list=%p", list);
+	h5_edge_list_t* list,
+	h5_int32_t size
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "list=%p", list);
 	assert (list->num_alloc + size >= 0);
 	if (size < 0) {
 		h5_debug ("Warning: you are shrinking the edge_list!");
@@ -71,7 +73,7 @@ h5tpriv_grow_edge_list (
 		h5_debug ("Warning: you are not growing the edge_list!");
 	}
 	TRY ( list->items = h5_alloc(list->items, (list->num_alloc + size) * sizeof (*list->items)));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -92,11 +94,11 @@ int compare_edge_list_elem(const void *p_a, const void *p_b) {
 }
 h5_err_t
 h5tpriv_uniquify_edge_list (
-		h5_edge_list_t* list
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "list=%p", list);
+	h5_edge_list_t* list
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "list=%p", list);
 	if (list->num_items == 0) {
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 	h5t_edge_list_elem_t* old_elem = list->items;
 	int num_old_elems = list->num_items;
@@ -106,7 +108,7 @@ h5tpriv_uniquify_edge_list (
 	for (int i = 1; i < num_old_elems; i++) {
 		int comp = compare_edge_list_elem (&list->items[list->num_items-1], &old_elem[i] );
 		if (comp > 0) { // element in old_elem is smaller then last elem in list
-			H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL); // probably list wasn't sorted
+			H5_LEAVE (H5_ERR_INVAL); // probably list wasn't sorted
 		}
 		if (comp < 0) {
 			memcpy (&list->items[list->num_items++], &old_elem[i], sizeof (*list->items));
@@ -114,44 +116,44 @@ h5tpriv_uniquify_edge_list (
 	}
 	TRY (h5_free (old_elem));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
 h5tpriv_sort_edge_list (
-		h5_edge_list_t* list
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "list=%p", list);
+	h5_edge_list_t* list
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "list=%p", list);
 	qsort(list->items,list->num_items, sizeof (*list->items), compare_edge_list_elem);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
 h5_int32_t
 h5tpriv_find_edge_list (
-		h5_edge_list_t* list,
-		h5t_edge_list_elem_t* elem
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "list=%p", list);
+	h5_edge_list_t* list,
+	h5t_edge_list_elem_t* elem
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "list=%p", list);
 
 	comparison_fn_t comp_func;
 	comp_func.compare = compare_edge_list_elem;
 	// need linear search because we want to know first elem that hits.
 	h5t_edge_list_elem_t* retval = linsearch (elem, list->items ,list->num_items, sizeof (*list->items), comp_func);
 	if (retval == NULL) {
-		H5_PRIV_FUNC_LEAVE (list->num_items);
+		H5_LEAVE (list->num_items);
 	}
-	H5_PRIV_FUNC_RETURN (retval - list->items); // TODO check if that works
+	H5_RETURN (retval - list->items); // TODO check if that works
 }
 h5_err_t
 h5tpriv_add_edge_list (
-		h5_edge_list_t* list,
-		h5_glb_idx_t vtx1,
-		h5_glb_idx_t vtx2,
-		h5_loc_idx_t new_vtx,
-		h5_int32_t proc
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "list=%p", list);
+	h5_edge_list_t* list,
+	h5_glb_idx_t vtx1,
+	h5_glb_idx_t vtx2,
+	h5_loc_idx_t new_vtx,
+	h5_int32_t proc
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "list=%p", list);
 	h5t_edge_list_elem_t elem;
 	elem.vtx1 = vtx1 < vtx2 ? vtx1 : vtx2; // vtx1 < vtx2 always!
 	elem.vtx2 = vtx1 > vtx2 ? vtx1 : vtx2;
@@ -161,26 +163,26 @@ h5tpriv_add_edge_list (
 
 	// add edge
 	if (list->num_alloc == list->num_items) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+		H5_LEAVE (H5_ERR_INVAL);
 	}
 	list->items[list->num_items].vtx1	= elem.vtx1;
 	list->items[list->num_items].vtx2	= elem.vtx2;
 	list->items[list->num_items].new_vtx	= elem.new_vtx;
 	list->items[list->num_items++].proc	= proc;
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 //END TODO put in right place + print variables
 
 h5_err_t
 h5tpriv_calc_chunk_statistic (
-		h5t_mesh_t* const m,
-		FILE* file
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
+	h5t_mesh_t* const m,
+	FILE* file
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p", m);
 	if (file == NULL || m->chunks == NULL) {
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 	fprintf (file, "# printing chunk statistics of file \n");
 	fprintf (file,
@@ -241,7 +243,7 @@ h5tpriv_calc_chunk_statistic (
 
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -251,10 +253,10 @@ h5tpriv_calc_chunk_statistic (
  */
 h5_err_t
 h5tpriv_get_vtx_ranges (
-		h5t_mesh_t* const m,
-		h5_glb_idx_t* range
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, range=%p", m, range);
+	h5t_mesh_t* const m,
+	h5_glb_idx_t* range
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p, range=%p", m, range);
 	h5_glb_idx_t sendbuf = m->last_stored_vid - m->last_stored_vid_before_ref;
 
 	TRY (h5priv_mpi_allgather (
@@ -282,7 +284,7 @@ h5tpriv_get_vtx_ranges (
 	} else {
 		m->num_glb_vertices[m->leaf_level-1] = range[m->f->myproc];
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 /*
@@ -309,7 +311,7 @@ assign_global_vertex_indices (
                         m->vertices[local_idx].idx = range[m->f->myproc] + counter;
                 }
                 if (counter + range[m->f->myproc] != range[m->f->myproc + 1]) {
-                        H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+                        H5_LEAVE (H5_ERR_INTERNAL);
                 }
                 TRY (h5_free (range));
         } else
@@ -323,7 +325,7 @@ assign_global_vertex_indices (
                         m->vertices[local_idx].idx = local_idx;
                 }
         }
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #if defined(WITH_PARALLEL_H5GRID)
@@ -354,10 +356,10 @@ assign_global_vertex_indices_chk (
 		}
 	}
 	if (counter + vtx_range[m->f->myproc] != vtx_range[m->f->myproc + 1]) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+		H5_LEAVE (H5_ERR_INTERNAL);
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -368,7 +370,6 @@ assign_glb_elem_indices_chk ( //TODO use ifdef instead of new func name
         h5t_mesh_t* const m,
         h5_glb_idx_t* range
         ) {
-
 	H5_PRIV_FUNC_ENTER 	(h5_err_t, "m=%p, range=%p", m, range);
 
 	h5_loc_idx_t loc_idx = (m->leaf_level == 0) ? 0 : m->num_interior_elems[m->leaf_level-1];
@@ -378,9 +379,9 @@ assign_glb_elem_indices_chk ( //TODO use ifdef instead of new func name
 	}
 
 	if (counter + range[m->f->myproc] != range[m->f->myproc + 1]) {
-			H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+			H5_LEAVE (H5_ERR_INTERNAL);
 		}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 
 }
 
@@ -466,7 +467,7 @@ h5tpriv_add_level (
 		assert (m->last_stored_eid == m->num_interior_elems[m->leaf_level - 1] - 1);
 	}
 
-	H5_CORE_API_RETURN (m->leaf_level);
+	H5_RETURN (m->leaf_level);
 }
 
 /*!
@@ -479,7 +480,7 @@ h5t_begin_store_vertices (
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p, num=%llu", m, (long long unsigned)num);
 	if (m->leaf_level < 0) {
-		H5_CORE_API_LEAVE (h5tpriv_error_undef_level());
+		H5_LEAVE (h5tpriv_error_undef_level());
 	}
 	h5_size_t cur_num_loc_vertices = (m->leaf_level > 0 ?
 	                                  m->num_loc_vertices[m->leaf_level-1] : 0);
@@ -488,7 +489,7 @@ h5t_begin_store_vertices (
 	m->num_loc_vertices[m->leaf_level] = cur_num_loc_vertices+num;
 	m->dsinfo_vertices.dims[0] = cur_num_loc_vertices+num;
 	TRY (ret_value = h5tpriv_alloc_loc_vertices (m, cur_num_loc_vertices+num));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_loc_idx_t
@@ -505,14 +506,14 @@ h5t_store_vertex (
 
 	// more than allocated
 	if (m->last_stored_vid+1 >= m->num_loc_vertices[m->leaf_level])
-		H5_CORE_API_LEAVE (HANDLE_H5_OVERFLOW_ERR(
+		H5_LEAVE (HANDLE_H5_OVERFLOW_ERR(
 		                           m->num_loc_vertices[m->leaf_level]));
 
 	h5_loc_idx_t local_idx = ++m->last_stored_vid;
 	h5_loc_vertex_t *vertex = &m->vertices[local_idx];
 	vertex->idx = glb_id;     /* ID from mesher, replaced later!*/
 	memcpy (&vertex->P, P, sizeof (vertex->P));
-	H5_CORE_API_RETURN (local_idx);
+	H5_RETURN (local_idx);
 }
 
 h5_err_t
@@ -525,7 +526,7 @@ h5t_end_store_vertices (
 	TRY (assign_global_vertex_indices (m));
 	TRY (h5tpriv_rebuild_map_vertex_g2l_partial (m));
 	m->last_stored_vid_before_ref = -1;
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -566,7 +567,7 @@ h5t_begin_store_elems (
 	m->last_stored_eid_before_ref = m->last_stored_eid;
 
 	TRY (ret_value = h5tpriv_alloc_loc_elems (m, cur, new));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 
@@ -586,7 +587,7 @@ h5tpriv_add_cell (
         const h5_loc_idx_t* vertex_indices,
         const h5_weight_t* weights
         ) {
-	H5_PRIV_FUNC_ENTER (h5_loc_idx_t,
+	H5_PRIV_API_ENTER (h5_loc_idx_t,
 	                   "m=%p, parent_idx=%lld, vertex_indices=%p, weights=%p",
 	                   m,
 	                   (long long)parent_idx,
@@ -595,7 +596,7 @@ h5tpriv_add_cell (
 
 	/*  more than allocated? */
 	if ( m->last_stored_eid+1 >= m->num_interior_elems[m->leaf_level] )
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        HANDLE_H5_OVERFLOW_ERR (m->num_interior_elems[m->leaf_level]));
 
 	/* check parent id */
@@ -604,7 +605,7 @@ h5tpriv_add_cell (
 	    (m->leaf_level >  0
 	     && parent_idx >= m->num_interior_elems[m->leaf_level-1])
 	    ) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        HANDLE_H5_PARENT_ID_ERR (parent_idx));
 	}
 
@@ -639,7 +640,7 @@ h5tpriv_add_cell (
 			}
 		}
 	}
-	H5_CORE_API_RETURN (elem_idx);
+	H5_RETURN (elem_idx);
 }
 
 h5_loc_idx_t
@@ -658,17 +659,17 @@ h5t_add_lvl0_cell (
 	        m, m->last_stored_eid);
 	int num_vertices = h5tpriv_ref_elem_get_num_vertices (m);
 	TRY (h5tpriv_sort_local_vertex_indices (m, loc_vertex_indices, num_vertices));
-	H5_CORE_API_RETURN (m->last_stored_eid);
+	H5_RETURN (m->last_stored_eid);
 }
 /*
    Rebuild mapping of global element indices to their local indices.
  */
-h5_err_t
+static h5_err_t
 rebuild_map_elem_g2l (
         h5t_mesh_t* const m
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
-	if (m->num_leaf_levels <= 0) H5_PRIV_API_LEAVE (H5_SUCCESS);
+	if (m->num_leaf_levels <= 0) H5_LEAVE (H5_SUCCESS);
 
 	h5_idxmap_t* map = &m->map_elem_g2l;
 	h5_loc_idx_t loc_idx = m->leaf_level > 0 ? m->num_interior_elems[m->leaf_level-1] : 0;
@@ -684,18 +685,18 @@ rebuild_map_elem_g2l (
 		map->num_items++;
 	}
 	h5priv_sort_idxmap (map);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
    Rebuild mapping of global element indices to their local indices.
  */
-h5_err_t
+static h5_err_t
 rebuild_map_elem_g2l_partial ( // we need that to update map for the refined elems before we have the
 		// refined elements from the other proces
         h5t_mesh_t* const m
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
-	if (m->num_leaf_levels <= 0) H5_PRIV_API_LEAVE (H5_SUCCESS);
+	if (m->num_leaf_levels <= 0) H5_LEAVE (H5_SUCCESS);
 
 	h5_idxmap_t* map = &m->map_elem_g2l;
 	h5_loc_idx_t loc_idx = m->last_stored_eid_before_ref +1;
@@ -712,7 +713,7 @@ rebuild_map_elem_g2l_partial ( // we need that to update map for the refined ele
 	}
 	assert (map->size >= map->num_items);
 	h5priv_sort_idxmap (map);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -739,19 +740,21 @@ h5t_end_store_elems (
 	/* mesh specific finalize */
 	TRY (m->methods->store->end_store_elems (m));
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #if defined(WITH_PARALLEL_H5GRID)
+
+#if 0
 /*
  * linear search trough chunks to find chk_idx which contains element
  */
 static h5_err_t
-h5tpriv_find_chk_of_elem (
-		h5t_mesh_t* m,
-		h5_loc_id_t id,
-		h5_chk_idx_t* chk_idx
-		) {
+find_chk_of_elem (
+	h5t_mesh_t* m,
+	h5_loc_id_t id,
+	h5_chk_idx_t* chk_idx
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, id=%lld, chk_idx=%p", m, (long long int)id, chk_idx);
 	h5_glb_idx_t glb_idx = h5tpriv_get_loc_elem_glb_idx (m, h5tpriv_get_elem_idx (id));
 
@@ -765,25 +768,32 @@ h5tpriv_find_chk_of_elem (
 			glb_idx < m->chunks->chunks[i].elem + m->chunks->chunks[i].num_elems) {
 			// elem is contained in chunk
 			*chk_idx = i;
-			H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+			H5_LEAVE (H5_SUCCESS);
 		}
-
 	}
-	H5_PRIV_FUNC_RETURN (H5_ERR_INVAL);
+	H5_RETURN (H5_ERR_INVAL);
 }
+#endif
+
+#if 0
 /*
- * compare chk_idx
+ * compare chk_idx used passed to qsort
  */
-int compare_vtx_chk_list(const void *p_a, const void *p_b) {
+static int
+compare_vtx_chk_list (
+	const void *p_a,
+	const void *p_b
+	) {
 	return ((h5t_vtx_chk_list_t*) p_a)->chk - ((h5t_vtx_chk_list_t*) p_b)->chk;
 }
+#endif
 
 #ifdef CHUNKING_OF_VTX
 static h5_err_t
 h5tpriv_calc_vtx_permutation (
-		h5t_mesh_t* m,
-		h5t_vtx_chk_list_t* permut
-		) {
+	h5t_mesh_t* m,
+	h5t_vtx_chk_list_t* permut
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, permut=%p", m, permut);
 	h5t_vtx_chk_list_t* b_vtx = NULL; // boundary vertices
 	TRY (b_vtx = h5_calloc (m->num_loc_vertices[m->leaf_level], sizeof (*b_vtx)));
@@ -803,7 +813,7 @@ h5tpriv_calc_vtx_permutation (
 		h5_chk_idx_t chk_idx = -1;
 		int done = 0;
 		for (int j = 0; j < list->num_items; j++) {
-			TRY ( h5tpriv_find_chk_of_elem (m, list->items[j], &chk_idx));
+			TRY (find_chk_of_elem (m, list->items[j], &chk_idx));
 			if (j == 0) {
 				old_chk_idx = chk_idx;
 			}
@@ -822,7 +832,7 @@ h5tpriv_calc_vtx_permutation (
 		}
 	}
 	if (counter + b_counter != m->num_loc_vertices[m->leaf_level]) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+		H5_LEAVE (H5_ERR_INTERNAL);
 	}
 	// sort vtx acc to chunk
 	qsort (permut, counter, sizeof (*permut), compare_vtx_chk_list);
@@ -833,7 +843,7 @@ h5tpriv_calc_vtx_permutation (
 	m->first_b_vtx[0] = counter;
 
 	TRY (h5_free (b_vtx));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -841,45 +851,19 @@ h5tpriv_calc_vtx_permutation (
  */
 static h5_err_t
 h5tpriv_calc_vtx_revpermutation (
-		h5t_mesh_t* m,
-		h5t_vtx_chk_list_t* permut,
-		h5t_vtx_chk_list_t* rev_permut
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, permut=%p, rev_permut=%p", m, permut, rev_permut);
+	h5t_mesh_t* m,
+	h5t_vtx_chk_list_t* permut,
+	h5t_vtx_chk_list_t* rev_permut
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p, permut=%p, rev_permut=%p", m, permut, rev_permut);
 	for (int i = 0; i < m->num_loc_vertices[m->leaf_level]; i++) {
 		h5_loc_idx_t vtx = permut[i].vtx;
 		rev_permut[vtx].vtx = i;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif // CHUNKING_OF_VTX
 #endif // WITH_PARALLEL_H5GRID
-// used to chunk vtx
-//static h5_err_t
-//h5tpriv_store_vtx_range_to_chk (
-//		h5t_mesh_t* m,
-//		h5t_vtx_chk_list_t* permut
-//		) {
-//	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, permut=%p", m, permut);
-//	assert (m->f->nprocs == 1);
-//	int counter = 0;
-//	h5_chk_idx_t chk_idx = -1;
-//	h5_glb_idx_t first_vtx = -1;
-//	for (int i = 0; i < m->num_loc_vertices[m->leaf_level]; i++) {
-//		first_vtx = i;
-//		chk_idx = permut[i].chk;
-//		counter = 1;
-//		while (i + 1 < m->num_loc_vertices[m->leaf_level] && chk_idx == permut[i+1].chk) {
-//			counter++;
-//			i++;
-//		}
-//		if (chk_idx != -1) {
-//			m->chunks->chunks[chk_idx].vtx = first_vtx;
-//			m->chunks->chunks[chk_idx].num_vtx = counter;
-//		}
-//	}
-//	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
-//}
 
 h5_err_t
 h5t_end_store_ckd_elems (
@@ -1131,7 +1115,7 @@ h5t_end_store_ckd_elems (
 	}
 #endif
 #endif
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #ifdef WITH_PARALLEL_H5GRID
@@ -1142,7 +1126,7 @@ h5tpriv_find_oct_proc_of_point (
 		h5_oct_point_t* point,
 		h5_int32_t* proc
 		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, loc_idx=%lld, point=%p, proc=%d", m,  (long long int)loc_idx, point,*proc);
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p, loc_idx=%lld, point=%p, proc=%d", m,  (long long int)loc_idx, point,*proc);
 	h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (m, loc_idx);
 	h5_float64_t midpoint[3] = {0, 0, 0};
 	h5_float64_t P[3];
@@ -1164,10 +1148,14 @@ h5tpriv_find_oct_proc_of_point (
 	// get proc of octant
 	*proc = H5t_get_proc (m->octree, point->oct);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
-int compare_midpoint_oct (const void *p_a, const void *p_b) {
+static int
+compare_midpoint_oct (
+	const void *p_a,
+	const void *p_b
+	) {
 	return ((h5_oct_point_t*) p_a)->oct - ((h5_oct_point_t*) p_b)->oct;
 }
 /*
@@ -1176,11 +1164,11 @@ int compare_midpoint_oct (const void *p_a, const void *p_b) {
  */
 h5_err_t
 h5tpriv_mark_chk_elems_to_refine (
-		h5t_mesh_t* const m,
-		h5_glb_idxlist_t* glb_list,
-		h5_oct_point_t* midpoint_list
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, glb_list=%p", m, glb_list);
+	h5t_mesh_t* const m,
+	h5_glb_idxlist_t* glb_list,
+	h5_oct_point_t* midpoint_list
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p, glb_list=%p", m, glb_list);
 	// clear marked_entities list
 	TRY (h5priv_free_loc_idlist (&m->marked_entities));
 	TRY (h5priv_alloc_loc_idlist (&m->marked_entities, MAX_NUM_ELEMS_TO_REFINE_LOCALLY));
@@ -1217,7 +1205,7 @@ h5tpriv_mark_chk_elems_to_refine (
 	}
 	// sort midpoint list such that they are aligned according to octants
 	qsort (midpoint_list, counter, sizeof (*midpoint_list), compare_midpoint_oct);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 /*
@@ -1232,7 +1220,7 @@ h5t_mark_entity (
 	                   m, (long long unsigned)entity_id);
 	TRY (ret_value = h5priv_insert_into_loc_idlist (
 		     &m->marked_entities, entity_id, -1));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -1240,7 +1228,7 @@ h5t_pre_refine (
         h5t_mesh_t* const m
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
-	H5_CORE_API_RETURN (m->methods->store->pre_refine (m));
+	H5_RETURN (m->methods->store->pre_refine (m));
 }
 #ifdef WITH_PARALLEL_H5GRID
 //TODO maybe use ifdef to have name without _chk
@@ -1267,7 +1255,7 @@ h5t_pre_refine_chk (
 	  all proc is equal to glb_marked_entities->num_items this would
 	  find out if there is a problem with loading neighboring chunks...
 	*/
-	  H5_CORE_API_RETURN (m->methods->store->pre_refine (m));
+	  H5_RETURN (m->methods->store->pre_refine (m));
 }
 #endif
 
@@ -1283,7 +1271,7 @@ h5t_refine_marked_elems (
 	for (i = 0; i < m->marked_entities->num_items; i++) {
 		TRY (h5tpriv_refine_elem (m, m->marked_entities->items[i]));
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #ifdef WITH_PARALLEL_H5GRID
@@ -1294,12 +1282,12 @@ h5t_refine_marked_elems (
  */
 h5_err_t
 h5tpriv_get_ranges (
-		h5t_mesh_t* const m,
-		h5_glb_idx_t* range,
-		h5_glb_idx_t mycount,
-		h5_glb_idx_t glb_start
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t,
+	h5t_mesh_t* const m,
+	h5_glb_idx_t* range,
+	h5_glb_idx_t mycount,
+	h5_glb_idx_t glb_start
+	) {
+	H5_PRIV_API_ENTER (h5_err_t,
 			    "m=%p, range=%p, mycount=%lld, glb_start=%lld",
 			    m, range, (long long int) mycount, (long long int) glb_start);
 
@@ -1317,7 +1305,7 @@ h5tpriv_get_ranges (
 	for (int i = 1; i <= m->f->nprocs; i++) {
 		range[i] += range[i-1];
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -1327,10 +1315,10 @@ h5tpriv_get_ranges (
  */
 h5_err_t
 h5tpriv_get_elem_ranges (
-		h5t_mesh_t* const m,
-		h5_glb_idx_t* range
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, range=%p", m, range);
+	h5t_mesh_t* const m,
+	h5_glb_idx_t* range
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p, range=%p", m, range);
 	h5_glb_idx_t sendbuf = m->marked_entities->num_items * h5tpriv_get_num_new_elems (m);
 	TRY (h5priv_mpi_allgather (
 			&sendbuf,
@@ -1346,19 +1334,21 @@ h5tpriv_get_elem_ranges (
 	for (int i = 1; i <= m->f->nprocs; i++) {
 		range[i] += range[i-1];
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
+
+#if 0
 /*
  * Check if edge is on proc border. If yes also check that it hasn't been refined yet and the other proc
  * is also refining his element.
  */
-int
+static int
 check_edge (
-		h5t_mesh_t* const m,
-		const h5_loc_idx_t face_idx,
-		const h5_loc_idx_t elem_idx,
-		h5_glb_idxlist_t* glb_elems
-		) {
+	h5t_mesh_t* const m,
+	const h5_loc_idx_t face_idx,
+	const h5_loc_idx_t elem_idx,
+	h5_glb_idxlist_t* glb_elems
+	) {
 	H5_PRIV_FUNC_ENTER (h5_loc_idx_t,
 			    "m=%p, face_idx=%lld, elem_idx=%lld, glb_elems=%p",
 			    m, (long long)face_idx, (long long)elem_idx, glb_elems);
@@ -1373,7 +1363,7 @@ check_edge (
 			TRY (h5tpriv_get_loc_entity_children (m, retval->items[i], kids));
 			if (kids[0] >= 0) {
 				// element has been refined
-				H5_PRIV_FUNC_LEAVE (0);
+				H5_LEAVE (0);
 			}
 			h5_loc_id_t el_id1 = retval->items[i];
 			h5_chk_idx_t chk_idx1 = -1;
@@ -1382,10 +1372,10 @@ check_edge (
 					face_idx,
 					elem_idx );
 			h5_chk_idx_t chk_idx2 = -2;
-			TRY (h5tpriv_find_chk_of_elem (m, el_id1, &chk_idx1));
-			TRY (h5tpriv_find_chk_of_elem (m, el_id2, &chk_idx2));
+			TRY (find_chk_of_elem (m, el_id1, &chk_idx1));
+			TRY (find_chk_of_elem (m, el_id2, &chk_idx2));
 			if (chk_idx1 == chk_idx2) {
-				H5_PRIV_FUNC_LEAVE (0);
+				H5_LEAVE (0);
 			}
 //			// BUG this works depending on what is my_proc interior elems or interior_chunks
 ////			// check weather the found element is owned by the same proc
@@ -1396,23 +1386,23 @@ check_edge (
 //			// check if it is going to be refined
 //			if (h5priv_find_in_glb_idxlist(glb_elems, m->loc_elems[h5tpriv_get_elem_idx(retval->items[i])].glb_idx) < 0 ) {
 //				// element is not going to be refined
-//				H5_PRIV_FUNC_LEAVE (0);
+//				H5_LEAVE (0);
 //			}
 //			// check if it is on this proc
 //			if (h5priv_find_in_loc_idlist(m->marked_entities, retval->items[i]) >= 0  ) {
 //				// element is on same proc
-//				H5_PRIV_FUNC_LEAVE (0);
+//				H5_LEAVE (0);
 //			}
 		}
-
-
-	H5_PRIV_FUNC_RETURN (1);
+	H5_RETURN (1);
 }
-h5_loc_idx_t
+#endif
+
+static h5_loc_idx_t
 get_new_vtx_of_edge(
-		h5t_mesh_t* const m,
-		h5_loc_id_t loc_id
-		) {
+	h5t_mesh_t* const m,
+	h5_loc_id_t loc_id
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, loc_id=%lld",
 				m,  (long long int)loc_id);
 
@@ -1424,12 +1414,12 @@ get_new_vtx_of_edge(
 		TRY (h5t_get_loc_vertex_indices_of_edge (m, kids[0], edge0));
 		TRY (h5t_get_loc_vertex_indices_of_edge (m, kids[1], edge1));
 		if ((edge0[0] == edge1[0]) || (edge0[0] == edge1[1])) {
-			H5_PRIV_FUNC_LEAVE (edge0[0]);
+			H5_LEAVE (edge0[0]);
 		} else {
-			H5_PRIV_FUNC_LEAVE (edge0[1]);
+			H5_LEAVE (edge0[1]);
 		}
 	}
-	H5_PRIV_FUNC_RETURN (H5_ERR_INTERNAL); //edge that should be refined in not refined
+	H5_RETURN (H5_ERR_INTERNAL); //edge that should be refined in not refined
 }
 
 /*
@@ -1439,11 +1429,11 @@ get_new_vtx_of_edge(
  */
 h5_err_t
 h5tpriv_find_boundary_edges ( // todo maybe put some part into another function...
-		 h5t_mesh_t* const m,
-		 h5_glb_idxlist_t* glb_elems,
-		 h5_edge_list_t* list
-		 ) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, glb_elems=%p, list=%p",
+	h5t_mesh_t* const m,
+	h5_glb_idxlist_t* glb_elems,
+	h5_edge_list_t* list
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p, glb_elems=%p, list=%p",
 			m, glb_elems, list);
 	// go through marked elements
 		h5_loc_idx_t elem_idx = -1;
@@ -1527,18 +1517,18 @@ h5tpriv_find_boundary_edges ( // todo maybe put some part into another function.
 	TRY (h5tpriv_sort_edge_list (list));
 	TRY (h5tpriv_uniquify_edge_list (list));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
  * exchange boundary edges info
  */
-h5_err_t
+static h5_err_t
 exchange_boundary_edge_list (
-		h5t_mesh_t* const m,
-		h5_edge_list_t* b_edges,
-		h5_edge_list_t* glb_b_edges
-		) {
+	h5t_mesh_t* const m,
+	h5_edge_list_t* b_edges,
+	h5_edge_list_t* glb_b_edges
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m); // TODO
 
 	int* recvcounts = NULL;
@@ -1578,14 +1568,14 @@ exchange_boundary_edge_list (
 	TRY (h5_free(recvcounts));
 	TRY (h5_free(recvdisp));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
-h5_err_t
+static h5_err_t
 set_exchanged_glb_idx (
-		h5t_mesh_t* const m,
-		h5_edge_list_t* list,
-		h5_edge_list_t* glb_list
-		) {
+	h5t_mesh_t* const m,
+	h5_edge_list_t* list,
+	h5_edge_list_t* glb_list
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m); // TODO
 
 	for (int i = 0; i < list->num_items; i++) {
@@ -1595,12 +1585,12 @@ set_exchanged_glb_idx (
 			m->vertices[list->items[i].new_vtx].idx = glb_list->items[retval].new_vtx;
 		}
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * find local edges in glb list and find out which proc sets glb_idx
  */
-h5_err_t
+static h5_err_t
 find_edges_in_boundary_edge_list (
 		h5_edge_list_t* list,
 		h5_edge_list_t* glb_list
@@ -1624,12 +1614,12 @@ find_edges_in_boundary_edge_list (
 		}
 		list->items[i].proc = glb_list->items[idx].proc;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * set glb_idx of new vertex into edge list -> will be exchanged to other procs
  */
-h5_err_t
+static h5_err_t
 set_glb_idx_edge_list (
 		h5t_mesh_t* m,
 		h5_edge_list_t* list
@@ -1641,7 +1631,7 @@ set_glb_idx_edge_list (
 			assert (list->items[i].new_vtx != -1);
 		}
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * at the moment either split weights equally to children or assign equal as parent
@@ -1666,17 +1656,17 @@ update_weight_children (
 		}
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
  * function to set weights after refinement automatically
  */
 static h5_err_t
-h5tpriv_set_local_weights (
-		h5t_mesh_t* m,
-		h5_glb_idx_t* range
-		) {
+set_local_weights (
+	h5t_mesh_t* m,
+	h5_glb_idx_t* range
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, range=%p",m ,range);
 
 	for (h5_glb_idx_t idx = range[m->f->myproc]; idx < range[m->f->myproc + 1]; idx++) {
@@ -1693,16 +1683,16 @@ h5tpriv_set_local_weights (
 	}
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * function to update weights after refinement
  */
 static h5_err_t
-h5tpriv_exchange_weights (
-		h5t_mesh_t* m,
-		h5_glb_idx_t* range
-		) {
+exchange_weights (
+	h5t_mesh_t* m,
+	h5_glb_idx_t* range
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, range=%p",m ,range);
 
 	int* recvcounts = h5_calloc (m->f->nprocs, sizeof (* recvcounts));
@@ -1731,7 +1721,7 @@ h5tpriv_exchange_weights (
 	for (h5_glb_idx_t i = 0; i < range[m->f->nprocs] * m->num_weights; i++ ) {
 		assert (m->weights[i] > 0);
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -1836,7 +1826,7 @@ h5t_refine_marked_elems_chk (
 		} else if (userdata->idx[3] == -1) {
 			userdata->idx[3] = (h5_chk_idx_t) j;
 		} else {
-			H5_CORE_API_LEAVE (H5_ERR_INTERNAL);
+			H5_LEAVE (H5_ERR_INTERNAL);
 		}
 	}
 
@@ -1851,23 +1841,23 @@ h5t_refine_marked_elems_chk (
 	TRY (h5_free (oct_c_list.items));
 	TRY (h5_free (elem_range));
 	TRY (h5_free (chk_range));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * This function checks if there is the possibility to add another chunk to an octant
  */
 int
 h5tpriv_octant_is_full (
-		h5t_octree_t* octree,
-		h5_oct_idx_t oct_idx
-		) {
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, oct_idx=%d", octree, oct_idx);
 	h5t_oct_userdata_t* userdata = NULL;
 	TRY (H5t_get_userdata_r (octree, oct_idx,(void **) &userdata));
 	if (userdata->idx[3] == -1) {
-		H5_PRIV_FUNC_LEAVE (0)
+		H5_LEAVE (0)
 	}
-	H5_PRIV_FUNC_RETURN (1);
+	H5_RETURN (1);
 }
 
 /*
@@ -1931,7 +1921,7 @@ int comp_vtx_coord (void* p_a, void* p_b) {
 }
 
 static h5_err_t
-h5tpriv_add_glb_vertex_to_list (
+add_glb_vertex_to_list (
         h5t_mesh_t* const m,
         h5_glb_idx_t  vtx_idx,
         h5_glb_vertex_t* glb_vtx,
@@ -1945,12 +1935,12 @@ h5tpriv_add_glb_vertex_to_list (
 	assert (loc_idx < num_glb_vtx);
 	memcpy (&vtx_list[*num_vtx], &glb_vtx[loc_idx], sizeof (*vtx_list));
 	(*num_vtx)++;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
 static h5_err_t
-h5tpriv_init_glb_vtx_struct_chk (
+init_glb_vtx_struct_chk (
         h5t_mesh_t* const m,
         h5_glb_elem_t*  glb_elems,
         int num_glb_elems,
@@ -1994,11 +1984,11 @@ h5tpriv_init_glb_vtx_struct_chk (
 	TRY (h5priv_hdestroy (&htab));
 	TRY (h5_free (map->items));
 	TRY (h5tpriv_sort_vertex_list (vtx_list, *num_vtx));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 // little bit different funtion since it's used to store and not to load...
 static h5_err_t
-h5tpriv_init_glb_vtx_struct_chk2 (
+init_glb_vtx_struct_chk2 (
         h5t_mesh_t* const m,
         h5_glb_elem_t*  glb_elems,
         int num_glb_elems,
@@ -2033,14 +2023,14 @@ h5tpriv_init_glb_vtx_struct_chk2 (
 
 			if (retval == &map->items[map->num_items]) { // not in list
 				// new entry in hash table
-				h5tpriv_add_glb_vertex_to_list(m, vtx_idx[j], glb_vtx, num_glb_vtx, vtx_list, num_vtx);
+				add_glb_vertex_to_list(m, vtx_idx[j], glb_vtx, num_glb_vtx, vtx_list, num_vtx);
 
 			}
 		}
 	}
 	TRY (h5priv_hdestroy (&htab));
 	TRY (h5tpriv_sort_vertex_list (vtx_list, *num_vtx));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -2067,7 +2057,7 @@ get_list_of_chunks_to_retrieve (
 		}
 	}
 	*num_list = tmp_counter;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 static h5_err_t
 exchange_glb_elem_glb_vtx (
@@ -2139,7 +2129,7 @@ exchange_glb_elem_glb_vtx (
 	TRY (h5_free (e_range));
 	TRY (h5_free (v_range));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -2213,9 +2203,9 @@ store_exchanged_elems (
 
 
 	// TODO maybe this function could be extended and used instead of the stuff below
-	//TRY (h5tpriv_init_glb_vtx_struct_chk (m, new_elems, new_elems_c, new_vtx, &new_vtx_c));
+	//TRY (init_glb_vtx_struct_chk (m, new_elems, new_elems_c, new_vtx, &new_vtx_c));
 	// extract glb vertices that should be stored
-	TRY (h5tpriv_init_glb_vtx_struct_chk2 (m, new_elems, new_elems_c,
+	TRY (init_glb_vtx_struct_chk2 (m, new_elems, new_elems_c,
 			glb_vtx, num_glb_vtx, new_vtx, &new_vtx_c));
 //	int num_vertices = h5tpriv_ref_elem_get_num_vertices(m);
 //	for (int i = 0; i < new_elems_c; i++) {
@@ -2226,7 +2216,7 @@ store_exchanged_elems (
 //			TRY (idx = h5tpriv_find_glb_idx_in_map (&m->map_vertex_g2l, vertices[j]));
 //			if (idx == m->map_vertex_g2l.num_items) { // locally not available
 //				// add at end and sort later
-//				h5tpriv_add_glb_vertex_to_list(m, vertices[j], glb_vtx, num_glb_vtx, new_vtx, &new_vtx_c);
+//				add_glb_vertex_to_list(m, vertices[j], glb_vtx, num_glb_vtx, new_vtx, &new_vtx_c);
 //			}
 //		}
 //	}
@@ -2257,7 +2247,7 @@ store_exchanged_elems (
 	TRY (h5_free (new_elems));
 	TRY (h5_free (new_vtx));
 	TRY (h5_free (proc));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -2268,7 +2258,7 @@ h5t_post_refine (
 	H5_CORE_API_ENTER (h5_err_t, "m=%p", m);
 	TRY (h5t_end_store_vertices (m));
 	TRY (h5t_end_store_elems (m));
-	H5_CORE_API_RETURN (h5priv_free_loc_idlist (&m->marked_entities));
+	H5_RETURN (h5priv_free_loc_idlist (&m->marked_entities));
 }
 
 
@@ -2368,10 +2358,10 @@ h5t_post_refine_chk (
 		TRY ( m->weights = h5_alloc (m->weights, elem_range[m->f->nprocs] * m->num_weights * sizeof (*m->weights)));
 
 		// set local weights
-		TRY (h5tpriv_set_local_weights (m, elem_range));
+		TRY (set_local_weights (m, elem_range));
 
 		// exchange weights
-		TRY (h5tpriv_exchange_weights (m, elem_range));
+		TRY (exchange_weights (m, elem_range));
 	}
 	TRY (h5priv_mpi_barrier (m->f->props->comm));
 	m->timing.measure[m->timing.next_time++] = MPI_Wtime();
@@ -2403,7 +2393,7 @@ h5t_post_refine_chk (
 	h5_glb_vertex_t* glb_vtx = NULL;
 	h5_int32_t num_glb_vtx = 0;
 	TRY (glb_vtx = h5_calloc (4 * num_glb_elems, sizeof (*glb_vtx))); // TODO should be by far enough -> could be optimzed
-	TRY (h5tpriv_init_glb_vtx_struct_chk (m, glb_elems, num_glb_elems, glb_vtx, &num_glb_vtx));
+	TRY (init_glb_vtx_struct_chk (m, glb_elems, num_glb_elems, glb_vtx, &num_glb_vtx));
 
 	// get list of chunks to retrieve
 	h5_chk_idx_t* chk_list_read = NULL;
@@ -2487,7 +2477,7 @@ h5t_post_refine_chk (
 
 
 	marked_glb_elems = NULL;
-	H5_CORE_API_RETURN (h5priv_free_loc_idlist (&m->marked_entities));
+	H5_RETURN (h5priv_free_loc_idlist (&m->marked_entities));
 
 }
 
@@ -2504,7 +2494,7 @@ h5t_begin_refine_elems (
 	   memory.
 	 */
 	TRY (h5priv_alloc_loc_idlist (&m->marked_entities, MAX_NUM_ELEMS_TO_REFINE_LOCALLY));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -2538,7 +2528,7 @@ h5t_end_refine_elems (
 		m->mesh_changed = 1;
 	}
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #if defined(WITH_PARALLEL_H5GRID)
@@ -2549,7 +2539,7 @@ h5tpriv_init_chunks (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 
 	if (m->chunks != NULL) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+		H5_LEAVE (H5_ERR_INVAL);
 	}
 	TRY (m->chunks = h5_calloc (1, sizeof (*m->chunks)));
 	m->chunks->curr_idx = -1;
@@ -2558,7 +2548,7 @@ h5tpriv_init_chunks (
 	m->chunks->num_chunks_p_level = NULL;
 	m->chunks->chunks = NULL;
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -2584,7 +2574,7 @@ h5tpriv_grow_chunks (
 				m->chunks->num_levels * sizeof (*m->chunks->num_chunks_p_level)));
 		m->chunks->num_chunks_p_level[m->chunks->num_levels - 1] = size;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -2602,7 +2592,7 @@ h5tpriv_store_chunks (
 		assert (chk_range[m->f->myproc+1] - chk_range[m->f->myproc] == 0);
 		assert (elem_range[m->f->myproc+1] - elem_range[m->f->myproc] == 0);
 		assert (num_chunks == 0);
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 	int counter = 0;
 	h5_chk_weight_t weight = 0;
@@ -2622,10 +2612,10 @@ h5tpriv_store_chunks (
 
 	if ((m->chunks->curr_idx + 1 != chk_range[m->f->myproc + 1]) ||
 		(tot_loc_elem != elem_range[m->f->myproc + 1] - elem_range[m->f->myproc])) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+		H5_LEAVE (H5_ERR_INTERNAL);
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t
 h5tpriv_create_chunk (
@@ -2640,7 +2630,7 @@ h5tpriv_create_chunk (
 			m, oct_idx,(long long) first_elem, (long long) weight, num_elems);
 
 	if (m->chunks->curr_idx + 1 > m->chunks->num_alloc) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+		H5_LEAVE (H5_ERR_INTERNAL);
 	}
 	if (chk_range == NULL) {
 	m->chunks->curr_idx++;
@@ -2667,7 +2657,7 @@ h5tpriv_create_chunk (
 //	m->chunks->chunks[m->chunks->curr_idx].num_vtx = -2; // TODO remove from chunks
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -2716,7 +2706,7 @@ h5tpriv_update_chunks (
 	TRY (h5_free (recvdisp));
 	TRY (h5_free (recvcount));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -2731,7 +2721,7 @@ h5tpriv_free_chunks (
 		TRY (h5_free (m->chunks->num_chunks_p_level));
 		TRY (h5_free (m->chunks));
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -2754,7 +2744,7 @@ h5tpriv_print_chunks (
 	}
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -2775,7 +2765,7 @@ h5tpriv_print_oct_userdata (
 	}
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 #if 0
@@ -2799,6 +2789,6 @@ h5t_create_index_set (
 			TRY (h5t_set_mtag_by_name (f, "__IndexSet__", entity_id, 1, &idx));
 		}
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif

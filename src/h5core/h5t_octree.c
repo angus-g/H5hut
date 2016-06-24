@@ -166,7 +166,7 @@ create_mpi_type_octant (
 	// commit new type
 	TRY (h5priv_mpi_type_commit (&h5_oct_dta_types.mpi_octant));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t H5t_create_mpi_type_octant (void) {
 	return create_mpi_type_octant ();
@@ -194,7 +194,7 @@ get_maxpoints (
 		h5t_octree_t* const octree
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p,", octree);
-	H5_PRIV_FUNC_RETURN (octree->maxpoints);
+	H5_RETURN (octree->maxpoints);
 }
 int  H5t_get_maxpoints (h5t_octree_t* const octree) {
 	return get_maxpoints (octree);
@@ -208,7 +208,7 @@ set_maxpoints (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, maxpoints=%d", octree, maxpoints);
 	assert (maxpoints > 0);
 	octree->maxpoints = maxpoints;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t H5t_set_maxpoints (h5t_octree_t* const octree, int maxpoints) {
@@ -242,7 +242,7 @@ set_intdata_chg (
 
 	octree->octants[oct_idx].level_idx |= ( 1 << OCT_CHG_INTERNAL);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * get new proc
@@ -274,7 +274,7 @@ set_proc (
 		octree->octants[oct_idx].processor = proc;
 		TRY (set_intdata_chg (octree, oct_idx));
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t
 H5t_set_proc (h5t_octree_t* octree, h5_oct_idx_t oct_idx, h5_int32_t proc) {
@@ -294,7 +294,7 @@ set_proc_int (
 
 	octree->octants[oct_idx].processor = proc;
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t
 H5t_set_proc_int (h5t_octree_t* octree, h5_oct_idx_t oct_idx, h5_int32_t proc) {
@@ -316,7 +316,7 @@ set_userlevel (
 
 	TRY (set_intdata_chg (octree, oct_idx));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t H5t_set_userlevel (h5t_octree_t* octree, h5_oct_idx_t oct_idx, h5_oct_level_t level) {
 	return set_userlevel (octree, oct_idx, level);
@@ -334,7 +334,7 @@ get_userlevel (
 	level = octree->octants[oct_idx].userlevels ;
 	level = ((level | 1 << (OCT_USERLEV_LENGTH - 1)) ^ (1 << (OCT_USERLEV_LENGTH - 1))); // remove leave level bit
 
-	H5_PRIV_FUNC_RETURN (level);
+	H5_RETURN (level);
 }
 h5_oct_level_t H5t_get_userlevel (h5t_octree_t* octree, h5_oct_idx_t oct_idx) {
 	return get_userlevel (octree, oct_idx);
@@ -353,7 +353,7 @@ set_userlevel_int (
 
 	octree->octants[oct_idx].userlevels |=  ( 1 << level);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 // is an internal function - maybe if there is a usecase one could make it API but is dangerous
 // to use since it could create a missmatch in level definitions an different procs
@@ -376,7 +376,7 @@ remove_userlevel (
 	octree->octants[oct_idx].userlevels ^=  ( 1 << level);
 	TRY (set_intdata_chg (octree, oct_idx));
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -391,7 +391,7 @@ remove_userlevel_int (
 	octree->octants[oct_idx].userlevels ^=  ( 1 << level);
 
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * set leave level
@@ -413,7 +413,7 @@ set_leave_level (
 		}
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #if 0
@@ -432,7 +432,7 @@ clear_all_levels (
 	}
 	set_leave_level (octree);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -446,7 +446,7 @@ clear_level_internal (
 			octree->octants[i].level_idx ^= (1 << OCT_CHG_INTERNAL);
 		}
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -591,7 +591,7 @@ update_userdata (
 		for (int j = i + 1; j < nbr_glb_oct_changed; j++) {
 			if (oct_idx_to_check == changed_oct_idx[j]) {
 				/*** an octant was changed twice! ***/
-				H5_PRIV_FUNC_LEAVE( h5_error (
+				H5_LEAVE( h5_error (
 						H5_ERR_INVAL,
 						"Multiple cores tried to update the same userdata with idx: %d",
 						oct_idx_to_check));
@@ -658,7 +658,7 @@ update_userdata (
 	TRY (h5_free (changed_oct_idx));
 	//MPI_Type_free(&userdata_type);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 };
 h5_err_t
 H5t_update_userdata (h5t_octree_t* const octree) {
@@ -728,7 +728,7 @@ update_internal (
 		TRY (h5_free (oct_idx));
 		TRY (h5_free (nbr_oct_changed));
 		TRY (h5_free (recv_displs));
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 	TRY (changed_oct_idx = h5_calloc (nbr_glb_oct_changed, sizeof (*changed_oct_idx)));
 	TRY (mpi_allgatherv (oct_idx,
@@ -748,7 +748,7 @@ update_internal (
 		for (int j = i + 1; j < nbr_glb_oct_changed; j++) {
 			if (oct_idx_to_check == changed_oct_idx[j]) {
 				/*** an octant was changed twice! ***/
-				H5_PRIV_FUNC_LEAVE(H5_ERR_INVAL)
+				H5_LEAVE(H5_ERR_INVAL)
 			};
 		};
 	};
@@ -802,7 +802,7 @@ update_internal (
 	TRY (h5_free (changed_oct_idx));
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 };
 h5_err_t
 H5t_update_internal (h5t_octree_t* const octree) {
@@ -838,7 +838,7 @@ get_userdata_r (
 	char* userdata_int = (char*) octree->userdata;
 	*userdata = &userdata_int[oct_idx * octree->size_userdata];
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t
 H5t_get_userdata_r (h5t_octree_t* octree, h5_oct_idx_t oct_idx, void** userdata) {
@@ -863,7 +863,7 @@ get_userdata_rw (
 	userdata_int = octree->userdata;
 	*userdata = &userdata_int[oct_idx * octree->size_userdata];
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t
 H5t_get_userdata_rw (h5t_octree_t* octree, h5_oct_idx_t oct_idx, void** userdata) {
@@ -905,7 +905,7 @@ grow_octree (
 		}
 		octree->nbr_alloc_oct += additional_size;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 
 }
 
@@ -938,7 +938,7 @@ reset_userdata (
 		octree->octants[i].level_idx &= ~(1 << OCT_CHG_USERDATA);
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 /*
@@ -979,7 +979,7 @@ create_octant (
 		current_octant->processor = 0;
 	}
 	current_octant->userlevels = 0;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 };
 
 /*
@@ -991,12 +991,12 @@ create_root_octant (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p", octree);
 	if (octree->octants == NULL || octree->nbr_alloc_oct < 1) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+		H5_LEAVE (H5_ERR_INTERNAL);
 	}
 	TRY (create_octant (octree,-1));
 	octree->octants[0].level_idx = 0;
 	TRY (set_leave_level(octree));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 };
 /*
  * Initialize an octree
@@ -1011,8 +1011,8 @@ init_octree (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 	                    "octree=%p, size_userdata=%d, "
-						"bounding_box=%p, "
-						"maxpoints=%d, comm=?",
+			    "bounding_box=%p, "
+			    "maxpoints=%d, comm=?",
 	                    octree,
 	                    size_userdata,
 	                    bounding_box,
@@ -1025,7 +1025,7 @@ init_octree (
 	if (bounding_box != NULL && (bounding_box[0] >= bounding_box[3] ||
 		bounding_box[1] >= bounding_box[4] ||
 		bounding_box[2] >= bounding_box[5])) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+		H5_LEAVE (H5_ERR_INVAL);
 	};
 
 	/*** allocate octree ***/
@@ -1051,7 +1051,7 @@ init_octree (
 	}
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 };
 
 h5_err_t H5t_init_octree (h5t_octree_t** octree, h5_int32_t size_userdata, h5_float64_t* const bounding_box, h5_int32_t maxpoints, const MPI_Comm comm) {
@@ -1060,23 +1060,23 @@ h5_err_t H5t_init_octree (h5t_octree_t** octree, h5_int32_t size_userdata, h5_fl
 
 static h5_err_t
 read_octree (
-		h5t_octree_t** octree,
-		h5_oct_idx_t current_oct_idx,
-		h5_int32_t size_userdata,
-		h5_int32_t maxpoints,
-		h5t_octant_t** octants,
-		void** userdata,
-		const MPI_Comm comm
-		) {
+	h5t_octree_t** octree,
+	h5_oct_idx_t current_oct_idx,
+	h5_int32_t size_userdata,
+	h5_int32_t maxpoints,
+	h5t_octant_t** octants,
+	void** userdata,
+	const MPI_Comm comm
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
-		                    "octree=%p, current_oct_idx=%d, size_userdata=%d, "
-							"maxpoints=%d, octants=%p, userdata=%p, comm=?",
-		                    octree,
-		                    current_oct_idx,
-		                    size_userdata,
-		                    maxpoints,
-		                    octants,
-		                    userdata);
+			    "octree=%p, current_oct_idx=%d, size_userdata=%d, "
+			    "maxpoints=%d, octants=%p, userdata=%p, comm=?",
+			    octree,
+			    current_oct_idx,
+			    size_userdata,
+			    maxpoints,
+			    octants,
+			    userdata);
 
 	TRY (h5priv_mpi_barrier (comm)); // delete for speed up?
 
@@ -1097,7 +1097,7 @@ read_octree (
 	(*octree)->current_oct_idx = current_oct_idx;
 	(*octants) = (*octree)->octants;
 	(*userdata) = (*octree)->userdata;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t H5t_read_octree (h5t_octree_t** octree, h5_oct_idx_t current_oct_idx, h5_int32_t size_userdata, h5_int32_t maxpoints, h5t_octant_t** octants, void** userdata, const MPI_Comm comm) {
 	return read_octree (octree, current_oct_idx, size_userdata, maxpoints, octants, userdata, comm);
@@ -1107,7 +1107,7 @@ h5_err_t H5t_read_octree (h5t_octree_t** octree, h5_oct_idx_t current_oct_idx, h
  */
 static h5_err_t
 free_oct (
-		h5t_octree_t* octree) {
+	h5t_octree_t* octree) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p", octree);
 	if (octree != NULL) {
 		if (octree->userdata != NULL) {
@@ -1118,19 +1118,19 @@ free_oct (
 		TRY (h5_free (octree));
 		octree = NULL;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t H5t_free_octree (h5t_octree_t* octree) {
 	return free_oct (octree);
 }
 static h5_err_t
 write_octree (
-		h5t_mesh_t* const m
-		) {
+	h5t_mesh_t* const m
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 
 
-	H5_PRIV_FUNC_RETURN (h5_error_not_implemented ());
+	H5_RETURN (h5_error_not_implemented ());
 }
 h5_err_t H5t_write_octree ( h5t_mesh_t* const m) {
 	return write_octree (m);
@@ -1155,7 +1155,7 @@ print_octree_dbg (
 			octree->current_oct_idx,
 			rank,
 			octree->nbr_alloc_oct);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * Print octree in human readable form
@@ -1175,7 +1175,7 @@ print_octree (
 			octree->current_oct_idx,
 			rank,
 			octree->nbr_alloc_oct);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * Traverse through octants and print them in human readable form
@@ -1215,7 +1215,7 @@ print_octants (
 
 	}
 #endif
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -1255,7 +1255,7 @@ print_octants_arr (
 
 	}
 #endif
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 ///*
@@ -1318,10 +1318,10 @@ int print_octant_for_gnuplot (
 }
 
 h5_err_t
-plot_octants (
+h5priv_plot_octants (
         h5t_octree_t* octree
         ) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p", octree);
+	H5_PRIV_API_ENTER (h5_err_t, "octree=%p", octree);
 //	h5_debug ("# start plot octants","");
 	h5_float64_t bounding_box[6];
 	int i;
@@ -1336,7 +1336,7 @@ plot_octants (
 				"set label \" %d \"  at first  %4.4f, first %4.4f  font \"Helvetica,7\"\n",octree->octants[i].idx, bounding_box[0] + 0.02 + 0.6 * bounding_box[1], bounding_box[2] + 0.02 + 0.4 * bounding_box[1]);
 	}
 //	h5_debug ("# end plot octants","");
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -1347,11 +1347,11 @@ get_siblings(
         );
 
 h5_err_t
-plot_octant_anc (
+h5priv_plot_octant_anc (
         h5t_octree_t* octree,
         h5_oct_idx_t oct_idx
         ) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p", octree);
+	H5_PRIV_API_ENTER (h5_err_t, "octree=%p", octree);
 //	h5_debug ("# start plot octants","");
 	h5_float64_t bounding_box[6];
 	do {
@@ -1365,13 +1365,14 @@ plot_octant_anc (
 		}
 	} while ((oct_idx = get_parent(octree, oct_idx)) != -1);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
+
 h5_err_t
-plot_leaf_octants (
+h5priv_plot_leaf_octants (
         h5t_octree_t* octree
         ) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p", octree);
+	H5_PRIV_API_ENTER (h5_err_t, "octree=%p", octree);
 
 	h5_float64_t bounding_box[6];
 	h5t_oct_iterator_t* iter;
@@ -1400,7 +1401,7 @@ plot_leaf_octants (
 				counter++, bounding_box[0] + 0.02 + 0.6 * bounding_box[1], bounding_box[2] + 0.02 + 0.4 * bounding_box[1]);
 	}
 	TRY (H5t_end_iterate_oct(iter));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 void print_array (
@@ -1429,7 +1430,7 @@ begin_refine_octants(
 	TRY (h5priv_mpi_barrier (octree->comm));
 	update_internal (octree);
 	octree->ref_oct_idx = octree->current_oct_idx;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * Refine an octant
@@ -1445,12 +1446,12 @@ refine_octant(
 
 	if (octree->octants[oct_idx].processor != rank ) {
 		h5_debug ("Trying to refine an octant that doesn't belong to proc");
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+		H5_LEAVE (H5_ERR_INVAL);
 	}
 
 	if (octree->octants[oct_idx].child_idx != -1 || octree->ref_oct_idx == -1) {
 		h5_debug ("Either octant is already refined or begin_refine_octants() was not invoked");
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+		H5_LEAVE (H5_ERR_INVAL);
 	}
 	if( octree->current_oct_idx + 1 + 8 >= octree->nbr_alloc_oct) {
 		/*** need to allocate more memory for octants ***/
@@ -1477,7 +1478,7 @@ refine_octant(
 
 	set_leave_level (octree);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * end refine octants
@@ -1490,7 +1491,7 @@ end_refine_octants(
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p", octree);
 	if (octree->ref_oct_idx == -1) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+		H5_LEAVE (H5_ERR_INVAL);
 	}
 
 	// exchange how many new octants per proc where created
@@ -1580,7 +1581,7 @@ end_refine_octants(
 	for (int i = octree->current_oct_idx; i > octree->ref_oct_idx ; i--) {
 		h5_oct_idx_t parent_idx = get_parent (octree, i);
 		if (parent_idx < 0 || parent_idx > octree->current_oct_idx) {
-			H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+			H5_LEAVE (H5_ERR_INTERNAL);
 		}
 		octree->octants[parent_idx].child_idx = i;
 
@@ -1597,7 +1598,7 @@ end_refine_octants(
 	update_userdata (octree);
 	clear_level_internal (octree);
 	update_internal (octree); // maybe update leave level would be enough
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -1653,12 +1654,12 @@ int sort_points_z(const void *p_a, const void *p_b)
  */
 static h5_err_t
 sort_array (
-		h5_oct_point_t* key,
-		h5_oct_point_t* points,
-		h5_int32_t nbr_points,
-		h5_oct_point_t** split,
-		h5_int32_t* nbr_in_split
-		) {
+	h5_oct_point_t* key,
+	h5_oct_point_t* points,
+	h5_int32_t nbr_points,
+	h5_oct_point_t** split,
+	h5_int32_t* nbr_in_split
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "key=%p, points=%p, nbr_points=%d, split=%p, nbr_in_split=%p",
 			key, points, nbr_points, split, nbr_in_split);
 
@@ -1735,7 +1736,7 @@ sort_array (
 	}
 	nbr_in_split[6] -= nbr_in_split[7];
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * get_midpoint
@@ -1749,7 +1750,7 @@ get_midpoint (
 	midpoint->x = (bounding_box[3] + bounding_box[0]) / 2.0;
 	midpoint->y = (bounding_box[4] + bounding_box[1]) / 2.0;
 	midpoint->z = (bounding_box[5] + bounding_box[2]) / 2.0;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * function to calculate bounding box of child with orientation orient
@@ -1757,10 +1758,10 @@ get_midpoint (
 
 static h5_err_t
 get_new_bounding_box (
-		h5_float64_t* bb,
-		h5_float64_t* new_bb,
-		h5_oct_orient_t orient
-		) {
+	h5_float64_t* bb,
+	h5_float64_t* new_bb,
+	h5_oct_orient_t orient
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "midpoint=%p, bounding_box=%p, orient=%d", bb, new_bb, orient);
 	h5_float64_t xmin, xmid, xmax, ymin, ymid, ymax, zmin, zmid, zmax;
 
@@ -1801,7 +1802,7 @@ get_new_bounding_box (
 		new_bb[2] = zmin;
 		new_bb[5] = zmid;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 void print_array_p (
 			h5_oct_point_t* neigh,
@@ -1820,13 +1821,13 @@ void print_array_p (
  */
 static h5_err_t
 recursive_ref_points (
-		h5t_octree_t* octree,
-		h5_oct_idx_t oct_idx,
-		h5_float64_t* bounding_box,
-		h5_oct_point_t* points,
-		h5_int32_t nbr_points,
-		h5_int32_t max_points
-		) {
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx,
+	h5_float64_t* bounding_box,
+	h5_oct_point_t* points,
+	h5_int32_t nbr_points,
+	h5_int32_t max_points
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 			"octree=%p, oct_idx=%d points=%p, bounding_box=%p, nbr_points=%d, max_points=%d",
 			octree,
@@ -1869,7 +1870,7 @@ recursive_ref_points (
 		}
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -1877,16 +1878,19 @@ recursive_ref_points (
  */
 static h5_err_t
 refine_w_points (
-		h5t_octree_t* octree,
-		h5_oct_point_t* points,
-		h5_int32_t nbr_points,
-		h5_int32_t max_points
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, points=%p, nbr_points=%d, max_points=%d", octree, points, nbr_points, max_points);
+	h5t_octree_t* octree,
+	h5_oct_point_t* points,
+	h5_int32_t nbr_points,
+	h5_int32_t max_points
+	) {
+	H5_PRIV_FUNC_ENTER (
+		h5_err_t,
+		"octree=%p, points=%p, nbr_points=%d, max_points=%d",
+		octree, points, nbr_points, max_points);
 	if (nbr_points < 1) {
 		TRY (begin_refine_octants (octree));
 		TRY (end_refine_octants (octree, points, nbr_points));
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 
 	TRY (begin_refine_octants (octree));
@@ -1927,16 +1931,16 @@ refine_w_points (
 	}
 	TRY (end_refine_octants (octree, points, nbr_points));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t H5t_refine_w_points (h5t_octree_t* octree, h5_oct_point_t* points, h5_int32_t nbr_points,	h5_int32_t max_points) {
 	return refine_w_points (octree, points, nbr_points,	max_points);
 }
 static int
 bounding_box_contains_point (
-		h5_float64_t* bounding_box,
-		h5_oct_point_t* point
-		) {
+	h5_float64_t* bounding_box,
+	h5_oct_point_t* point
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "bounding_box=%p, point=%p", bounding_box, point);
 	if ( 	bounding_box[0] <= point->x &&
 			bounding_box[3] > point->x &&
@@ -1945,18 +1949,18 @@ bounding_box_contains_point (
 			bounding_box[2] <= point->z &&
 			bounding_box[5] > point->z
 			) {
-		H5_PRIV_FUNC_LEAVE (1);
+		H5_LEAVE (1);
 	} else {
-		H5_PRIV_FUNC_LEAVE (0);
+		H5_LEAVE (0);
 	}
-	H5_PRIV_FUNC_RETURN (H5_ERR);
+	H5_RETURN (H5_ERR);
 }
 static h5_err_t
 get_bounding_box_of_octant (
-		h5t_octree_t* const octree,
-		h5_oct_idx_t oct_idx,
-		h5_float64_t* bounding_box
-		) {
+	h5t_octree_t* const octree,
+	h5_oct_idx_t oct_idx,
+	h5_float64_t* bounding_box
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, oct_idx=%d, bounding_box=%p", octree, oct_idx, bounding_box);
 
 	// get level and allocate memory to store all ancestors
@@ -1983,7 +1987,7 @@ get_bounding_box_of_octant (
 		TRY (get_new_bounding_box(bounding_box, bounding_box, direction));
 	}
 	TRY (h5_free (ancestors));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t
 H5t_get_bounding_box_of_octant (h5t_octree_t* const octree, h5_oct_idx_t oct_idx, h5_float64_t* bounding_box) {
@@ -1992,16 +1996,16 @@ H5t_get_bounding_box_of_octant (h5t_octree_t* const octree, h5_oct_idx_t oct_idx
 
 static h5_oct_idx_t
 find_leafoctant_of_point (
-		h5t_octree_t* octree,
-		h5_oct_idx_t oct_idx,
-		h5_float64_t* bounding_box,
-		h5_oct_point_t* point
-		) {
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx,
+	h5_float64_t* bounding_box,
+	h5_oct_point_t* point
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, oct_idx=%d, point=%p", octree, oct_idx, point);
 
 	// if point is not contained in octree return error
 	if (!bounding_box_contains_point (bounding_box, point)) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+		H5_LEAVE (H5_ERR_INVAL);
 	}
 	h5_oct_idx_t ret_oct_idx = oct_idx;
 	// if octant has children find the child that contains it and search -> recursively
@@ -2017,7 +2021,7 @@ find_leafoctant_of_point (
 		}
 	}
 
-	H5_PRIV_FUNC_RETURN (ret_oct_idx);
+	H5_RETURN (ret_oct_idx);
 }
 h5_oct_idx_t
 H5t_find_leafoctant_of_point (h5t_octree_t* octree, h5_oct_idx_t oct_idx, h5_float64_t* bounding_box, h5_oct_point_t* point) {
@@ -2030,9 +2034,10 @@ H5t_find_leafoctant_of_point (h5t_octree_t* octree, h5_oct_idx_t oct_idx, h5_flo
  */
 static h5_err_t
 add_points_to_leaf (
-		h5t_octree_t* octree,
-		h5_oct_point_t* points,
-		h5_int32_t nbr_points) {
+	h5t_octree_t* octree,
+	h5_oct_point_t* points,
+	h5_int32_t nbr_points
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, points=%p, nbr_points=%d", octree, points, nbr_points);
 	h5_float64_t bounding_box[6];
 	for (int i = 0; i < nbr_points; i++) {
@@ -2040,7 +2045,7 @@ add_points_to_leaf (
 		TRY (points[i].oct = find_leafoctant_of_point (octree, points[i].oct, bounding_box, &points[i]));
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t H5t_add_points_to_leaf (h5t_octree_t* octree, h5_oct_point_t* points, h5_int32_t nbr_points) {
@@ -2060,13 +2065,13 @@ get_siblings(
 
 	if (oct_idx == 0) {
 		/*** root node has no siblings***/
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+		H5_LEAVE (H5_ERR_INVAL);
 	} else {
 		h5_oct_idx_t parent_idx = octree->octants[oct_idx].parent_idx;
 		*siblings_idx = octree->octants[parent_idx].child_idx;
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -2079,7 +2084,7 @@ get_sibling(
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, oct_idx=%d", octree, oct_idx);
 	assert (oct_idx >0);
-	H5_PRIV_FUNC_RETURN (
+	H5_RETURN (
 		octree->octants[octree->octants[oct_idx].parent_idx].child_idx);
 }
 
@@ -2098,7 +2103,7 @@ mem_usage (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, mem_use=%p", octree, mem_use);
 	*mem_use = sizeof (*octree) + (sizeof (*(octree->octants)) + octree->size_userdata) * octree->nbr_alloc_oct;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -2114,7 +2119,7 @@ free_neigh (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "neighbors=%p, ancestor_of_neigh=%p", neighbors, ancestor_of_neigh);
 	TRY (h5_free (neighbors));
 	TRY (h5_free (ancestor_of_neigh));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -2130,11 +2135,11 @@ return *(h5_oct_idx_t*)p_a - *(h5_oct_idx_t*)p_b;
  */
 static h5_err_t
 add_neigh (
-		h5t_octree_t* octree,
-		h5_oct_idx_t oct_idx,
-		h5_oct_idx_t* neigh,
-		h5_oct_idx_t* num_neigh
-		) {
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx,
+	h5_oct_idx_t* neigh,
+	h5_oct_idx_t* num_neigh
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 			"octree=%p, oct_idx=%d, ancestor_of_neigh=%p, nbr_anc_of_neigh=%d",
 			octree, oct_idx,
@@ -2142,25 +2147,25 @@ add_neigh (
 	int i = 0;
 	for (; i < *num_neigh; i++) {
 		if (oct_idx == neigh[i]) {
-			H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+			H5_LEAVE (H5_SUCCESS);
 		}
 	}
 
 	neigh[*num_neigh] = oct_idx;
 	(*num_neigh)++;
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * add ancestor to array if it doesn't exists yet (sort ancestors)
  */
 static h5_err_t
 add_ancestor (
-		h5t_octree_t* octree,
-		h5_oct_idx_t oct_idx,
-		h5_oct_idx_t* ancestor_of_neigh,
-		h5_oct_idx_t* nbr_anc_of_neigh
-		) {
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx,
+	h5_oct_idx_t* ancestor_of_neigh,
+	h5_oct_idx_t* nbr_anc_of_neigh
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 			"octree=%p, oct_idx=%d, ancestor_of_neigh=%p, nbr_anc_of_neigh=%d",
 			octree, oct_idx,
@@ -2172,18 +2177,18 @@ add_ancestor (
 		 (*nbr_anc_of_neigh)++;
 		 qsort(ancestor_of_neigh, (size_t) *nbr_anc_of_neigh, sizeof (*nbr_anc_of_neigh), compare_oct_idx);
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * get ancestors of octant
  */
 static h5_err_t
 get_ancestors (
-		h5t_octree_t* octree,
-		h5_oct_idx_t oct_idx,
-		h5_oct_idx_t* ancestor_of_neigh,
-		h5_oct_idx_t* nbr_anc_of_neigh
-		) {
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx,
+	h5_oct_idx_t* ancestor_of_neigh,
+	h5_oct_idx_t* nbr_anc_of_neigh
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 			"octree=%p, oct_idx=%d, ancestor_of_neigh=%p, nbr_anc_of_neigh=%d",
 			octree, oct_idx,
@@ -2192,7 +2197,7 @@ get_ancestors (
 	while ((parent_idx = get_parent (octree, parent_idx)) != -1 ) {
 			TRY (add_ancestor (octree, parent_idx, ancestor_of_neigh, nbr_anc_of_neigh));
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * get children with given orientation on certain level
@@ -2248,7 +2253,7 @@ get_kids_with_orient (
 		// add octant as ancestor and go to children
 		h5_oct_idx_t children_oct_idx = get_children (octree, oct_idx);
 		if (children_oct_idx == -1) {
-			H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+			H5_LEAVE (H5_ERR_INTERNAL);
 		}
 		for (int i = 0; i < 8; i++) {
 			if ( (ifsibling && (i & direction) == (orient & direction)) ||
@@ -2271,7 +2276,7 @@ get_kids_with_orient (
 	}
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -2310,7 +2315,7 @@ get_nca (
 		parent_idx = get_parent (octree, parent_idx);
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * get the child with given orientation, return -1 if no children
@@ -2361,20 +2366,20 @@ get_equal_sized_neigh (
 
 		child_orient = sibling_orient[orient_idx--] ^ direction;
 		if ( (child = get_child_with_orient (octree, child, child_orient)) == -1 ) {
-			H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+			H5_LEAVE (H5_ERR_INVAL);
 		}
 	}
 	*neigh = child;
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 static h5_err_t
 check_neigh_cand (
-		h5t_octree_t* octree,
-		h5_oct_idx_t oct_idx,
-		h5_oct_idx_t* neig,
-		h5_oct_idx_t* num_neigh
-		) {
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx,
+	h5_oct_idx_t* neig,
+	h5_oct_idx_t* num_neigh
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, oct_idx=%d, neig=%p, num_neigh=%p, ",
 			octree, oct_idx, neig, num_neigh);
 	int if_check_fails_is_int_error = 0;
@@ -2392,7 +2397,7 @@ check_neigh_cand (
 			bb[2] > n_bb[5] || bb[5] < n_bb[2] 	) {
 			// should be deleted
 			if (if_check_fails_is_int_error) {
-				H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL);
+				H5_LEAVE (H5_ERR_INTERNAL);
 			} else {
 				*num_neigh = 0;
 			}
@@ -2401,20 +2406,20 @@ check_neigh_cand (
 	}
 
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
 static h5_err_t
 add_common_neigh (
-		h5t_octree_t* octree,
-		h5_oct_idx_t oct_idx,
-		h5_oct_idx_t* neigh,
-		h5_oct_idx_t* num_neigh,
-		h5_oct_idx_t* x_neigh,
-		h5_oct_idx_t num_x_neigh,
-		h5_oct_idx_t* y_neigh,
-		h5_oct_idx_t num_y_neigh
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx,
+	h5_oct_idx_t* neigh,
+	h5_oct_idx_t* num_neigh,
+	h5_oct_idx_t* x_neigh,
+	h5_oct_idx_t num_x_neigh,
+	h5_oct_idx_t* y_neigh,
+	h5_oct_idx_t num_y_neigh
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, oct_idx=%d, neig=%p, num_neigh=%p, ",
 				octree, oct_idx, neigh, num_neigh);
@@ -2434,7 +2439,7 @@ add_common_neigh (
 				}
 			}
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 //		// TODO put in separate function
 //		h5_oct_idx_t num_cand = 0;
@@ -2444,7 +2449,7 @@ add_common_neigh (
 
 
 h5_err_t
-get_tmp_dir_neigh (
+static get_tmp_dir_neigh (
 		h5t_octree_t* octree,
 		h5_oct_idx_t size,
 		h5_oct_idx_t* oct_idxs,
@@ -2456,7 +2461,8 @@ get_tmp_dir_neigh (
 		h5_oct_level_t userlevel
 		);
 
-h5_err_t
+#if 0
+static h5_err_t
 get_edge_dir_neigh (
 		h5t_octree_t* octree,
 		h5_oct_idx_t oct_idx,
@@ -2468,6 +2474,7 @@ get_edge_dir_neigh (
 		h5_oct_idx_t* num_anc,
 		h5_oct_level_t userlevel
 	);
+#endif
 
 /*
  * get face neighbors of octant
@@ -2493,7 +2500,7 @@ get_neighbors (
 	assert (kind_of_neigh < 4);
 	// check if oct_idx has userlevel
 	if (oct_has_level (octree, oct_idx, userlevel) == 0 ) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+		H5_LEAVE (H5_ERR_INVAL);
 	}
 
 	h5_oct_orient_t orient = get_orient (octree, oct_idx);
@@ -2835,30 +2842,46 @@ get_neighbors (
 		TRY (h5_free (y_anc));
 		TRY (h5_free (z_anc));
 	}
-
-
-
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
-}
-h5_err_t H5t_get_neighbors ( h5t_octree_t* octree, h5_oct_idx_t oct_idx, h5_oct_idx_t** neighbors, h5_oct_idx_t* nbr_neigh, h5_oct_idx_t** ancestor_of_neigh, h5_oct_idx_t* nbr_anc_of_neigh, h5_oct_idx_t kind_of_neigh,  h5_oct_level_t userlevel) {
-	return get_neighbors (octree, oct_idx, neighbors, nbr_neigh, ancestor_of_neigh, nbr_anc_of_neigh, kind_of_neigh, userlevel);
+	H5_RETURN (H5_SUCCESS);
 }
 
+h5_err_t
+H5t_get_neighbors (
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx,
+	h5_oct_idx_t** neighbors,
+	h5_oct_idx_t* nbr_neigh,
+	h5_oct_idx_t** ancestor_of_neigh,
+	h5_oct_idx_t* nbr_anc_of_neigh,
+	h5_oct_idx_t kind_of_neigh,
+	h5_oct_level_t userlevel
+	) {
+	return get_neighbors (
+		octree,
+		oct_idx,
+		neighbors,
+		nbr_neigh,
+		ancestor_of_neigh,
+		nbr_anc_of_neigh,
+		kind_of_neigh,
+		userlevel);
+}
+
+#if 0
 /*
  * function used to get edge neighbors
  */
-
-h5_err_t
+static h5_err_t
 get_edge_dir_neigh (
-		h5t_octree_t* octree,
-		h5_oct_idx_t oct_idx,
-		h5_oct_idx_t tmp_oct_idx,
-		h5_oct_dir_t tmp_dir,
-		h5_oct_idx_t* neighbors,
-		h5_oct_idx_t* num_neigh,
-		h5_oct_idx_t* anc,
-		h5_oct_idx_t* num_anc,
-		h5_oct_level_t userlevel
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx,
+	h5_oct_idx_t tmp_oct_idx,
+	h5_oct_dir_t tmp_dir,
+	h5_oct_idx_t* neighbors,
+	h5_oct_idx_t* num_neigh,
+	h5_oct_idx_t* anc,
+	h5_oct_idx_t* num_anc,
+	h5_oct_level_t userlevel
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p", octree);
 
@@ -2874,7 +2897,6 @@ get_edge_dir_neigh (
 	h5_int32_t ifsibling =0; // WARNING is not set properly below
 	h5_oct_orient_t* orient_child_nca = NULL;
 	TRY (orient_child_nca = h5_calloc (get_oct_level(octree, oct_idx) + 1, sizeof (*orient_child_nca)));
-
 
 	h5_oct_idx_t nearest_common_anc = -1;
 
@@ -2893,9 +2915,19 @@ get_edge_dir_neigh (
 	TRY (get_nca (octree, oct_idx, tmp_dir, orient_child_nca, &nearest_common_anc));
 	if (nearest_common_anc != -1) {
 
-		TRY (get_equal_sized_neigh (octree, oct_idx, tmp_dir, orient_child_nca, nearest_common_anc, &tmp_oct_idx, userlevel));
+		TRY (
+			get_equal_sized_neigh (
+				octree,
+				oct_idx,
+				tmp_dir,
+				orient_child_nca,
+				nearest_common_anc,
+				&tmp_oct_idx,
+				userlevel));
 
-		TRY (get_kids_with_orient (octree,
+		TRY (
+			get_kids_with_orient (
+				octree,
 				tmp_oct_idx,
 				neig_candidates,
 				&num_cand,
@@ -2920,22 +2952,22 @@ get_edge_dir_neigh (
 	TRY (h5_free (orient_child_nca));
 	TRY (h5_free (neig_candidates));
 	TRY (h5_free (anc_neig_cand));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
+#endif
 
-
-h5_err_t
+static h5_err_t
 get_tmp_dir_neigh (
-		h5t_octree_t* octree,
-		h5_oct_idx_t size,
-		h5_oct_idx_t* oct_idxs,
-		h5_oct_idx_t** neigh,
-		h5_oct_idx_t* num_neigh,
-		h5_oct_idx_t** anc,
-		h5_oct_idx_t* num_anc,
-		h5_oct_idx_t* num_alloc,
-		h5_oct_level_t userlevel
-		) {
+	h5t_octree_t* octree,
+	h5_oct_idx_t size,
+	h5_oct_idx_t* oct_idxs,
+	h5_oct_idx_t** neigh,
+	h5_oct_idx_t* num_neigh,
+	h5_oct_idx_t** anc,
+	h5_oct_idx_t* num_anc,
+	h5_oct_idx_t* num_alloc,
+	h5_oct_level_t userlevel
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p", octree);
 	h5_oct_idx_t* tmp_neigh = NULL;
 	h5_oct_idx_t num_tmp_neigh = 0;
@@ -2966,7 +2998,7 @@ get_tmp_dir_neigh (
 	}
 	TRY (h5_free (tmp_neigh));
 	TRY (h5_free (tmp_anc));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -2976,8 +3008,8 @@ get_tmp_dir_neigh (
  */
 static h5_oct_idx_t
 iterate_oct (
-		h5t_oct_iterator_t* iter
-		) {
+	h5t_oct_iterator_t* iter
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "iter=%p", iter);
 	h5_oct_userlev_t userlevels = 0;
 	h5_int32_t found = 0;
@@ -3001,18 +3033,22 @@ iterate_oct (
 			it->current_octant = -1;
 		}
 	}
-	H5_PRIV_FUNC_RETURN (it->current_octant);
+	H5_RETURN (it->current_octant);
 }
-h5_oct_idx_t H5t_iterate_oct (h5t_oct_iterator_t* iter) {
+
+h5_oct_idx_t
+H5t_iterate_oct (
+	h5t_oct_iterator_t* iter
+	) {
 	return iterate_oct (iter);
 }
 
 static h5_err_t
 init_oct_iterator (
-		h5t_octree_t* octree,
-		h5t_oct_iterator_t** iter,
-		h5_oct_level_t level
-		) {
+	h5t_octree_t* octree,
+	h5t_oct_iterator_t** iter,
+	h5_oct_level_t level
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, iter=%p, level=%d", octree, iter, level);
 	if (*iter != NULL) {
 		TRY (h5_free (*iter));
@@ -3023,41 +3059,54 @@ init_oct_iterator (
 	it->current_octant = -2;
 	it->octree = octree;
 	it->level = level;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
-h5_err_t H5t_init_oct_iterator (h5t_octree_t* octree, h5t_oct_iterator_t** iter, h5_oct_level_t level) {
+
+h5_err_t
+H5t_init_oct_iterator (
+	h5t_octree_t* octree,
+	h5t_oct_iterator_t** iter,
+	h5_oct_level_t level
+	) {
 	return init_oct_iterator (octree, iter, level);
 }
 
 static h5_err_t
 init_leafoct_iterator (
-		h5t_octree_t* octree,
-		h5t_oct_iterator_t** iter
-		) {
+	h5t_octree_t* octree,
+	h5t_oct_iterator_t** iter
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, iter=%p", octree, iter);
 	init_oct_iterator (octree, iter, OCT_USERLEV_LENGTH - 1);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
-h5_err_t H5t_init_leafoct_iterator (h5t_octree_t* octree, h5t_oct_iterator_t** iter) {
+h5_err_t
+H5t_init_leafoct_iterator (
+	h5t_octree_t* octree,
+	h5t_oct_iterator_t** iter
+	) {
 	return init_leafoct_iterator (octree, iter);
 }
 
 static h5_err_t
 end_iterate_oct (
-		h5t_oct_iterator_t* iter
-		) {
+	h5t_oct_iterator_t* iter
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "iter=%p", iter);
 	TRY (h5_free (iter));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
-h5_err_t H5t_end_iterate_oct (h5t_oct_iterator_t* iter) {
+h5_err_t
+H5t_end_iterate_oct (
+	h5t_oct_iterator_t* iter
+	) {
 	return end_iterate_oct (iter);
 }
 
 static h5_oct_idx_t
 get_num_oct_leaflevel (
-		h5t_octree_t* octree
-		) {
+	h5t_octree_t* octree
+	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p", octree);
 	h5t_oct_iterator_t* iter = NULL;
 	TRY (init_leafoct_iterator (octree, &iter));
@@ -3066,7 +3115,7 @@ get_num_oct_leaflevel (
 		counter++;
 	}
 	end_iterate_oct (iter);
-	H5_PRIV_FUNC_RETURN (counter);
+	H5_RETURN (counter);
 }
 h5_oct_idx_t H5t_get_num_oct_leaflevel (h5t_octree_t* octree) {
 	return get_num_oct_leaflevel (octree);
@@ -3146,7 +3195,7 @@ complete_level(
 			parent = get_parent(octree, parent);
 		}
 		if (parent == -1){
-			H5_PRIV_FUNC_LEAVE (H5_ERR_INTERNAL );
+			H5_LEAVE (H5_ERR_INTERNAL );
 		}
 		done = 0;
 		// mark all parents of parent as not on level
@@ -3160,7 +3209,7 @@ complete_level(
 	end_iterate_oct (iterator);
 
 	clear_level_internal (octree);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -3196,11 +3245,11 @@ check_level (
 					}
 		}
 		if (counter != 1){
-			H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+			H5_LEAVE (H5_ERR_INVAL);
 		}
 	}
 	end_iterate_oct (iterator);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -3217,12 +3266,12 @@ set_bounding_box (
 		(bounding_box[1] >= bounding_box[4]) ||
 		(bounding_box[2] >= bounding_box[5])
 		) {
-		H5_PRIV_FUNC_LEAVE (H5_ERR_INVAL);
+		H5_LEAVE (H5_ERR_INVAL);
 	}
 
 	memcpy(octree->bounding_box, bounding_box, 6 * sizeof (*bounding_box));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 h5_err_t H5t_set_bounding_box ( h5t_octree_t* octree, h5_float64_t* bounding_box) {
 	return set_bounding_box (octree, bounding_box);
@@ -3247,9 +3296,14 @@ func_name (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "octree=%p, oct_idx=%d", octree, oct_idx);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
-h5_err_t H5t_func_name (h5t_octree_t* octree, h5_oct_idx_t oct_idx) {
+
+h5_err_t
+H5t_func_name (
+	h5t_octree_t* octree,
+	h5_oct_idx_t oct_idx
+	) {
 	return func_name (octree, oct_idx);
 }
 

@@ -14,43 +14,39 @@
 #include "h5core/h5_log.h"
 #include "private/h5_init.h"
 
+#if defined(NDEBUG)
+
+#define __FUNC_ENTER(type, mask, fmt, ...)	\
+	type ret_value = (type)H5_ERR;
+
+#else   // NDEBUG not defined
+
+#define __FUNC_ENTER(type, mask, fmt, ...)				\
+	type ret_value = (type)H5_ERR;					\
+	int __log__ = h5_log_level & mask;				\
+	if (__log__ ) {							\
+		h5_call_stack_push (__func__,e_##type);			\
+		h5_debug ("(" fmt ")", __VA_ARGS__);			\
+	}
+
+#endif
+
 #define H5_CORE_API_ENTER(type, fmt, ...)				\
 	if (!h5_initialized) {						\
 		h5priv_initialize();					\
 	}								\
 	__FUNC_ENTER(type, H5_DEBUG_CORE_API, fmt, __VA_ARGS__)
-#define H5_CORE_API_LEAVE(value)	__FUNC_LEAVE(value)
-#define H5_CORE_API_RETURN(value)	__FUNC_RETURN(value, H5_DEBUG_CORE_API)
-
 
 #define H5_PRIV_API_ENTER(type, fmt, ...)				\
 	__FUNC_ENTER(type, H5_DEBUG_PRIV_API, fmt, __VA_ARGS__)
-#define H5_PRIV_API_LEAVE(value)	__FUNC_LEAVE(value)
-#define H5_PRIV_API_RETURN(value)	__FUNC_RETURN(value, H5_DEBUG_PRIV_API)
-
 
 #define H5_PRIV_FUNC_ENTER(type, fmt, ...)				\
 	__FUNC_ENTER(type, H5_DEBUG_PRIV_FUNC, fmt, __VA_ARGS__ )
-#define H5_PRIV_FUNC_LEAVE(value)	__FUNC_LEAVE(value)
-#define H5_PRIV_FUNC_RETURN(value)	__FUNC_RETURN(value, H5_DEBUG_PRIV_FUNC)
 
+#define H5_INLINE_FUNC_ENTER(type)			\
+	type ret_value = (type)H5_ERR; int __log__ = 0;
 
-#define HDF5_WRAPPER_ENTER(type, fmt, ...)				\
+#define HDF5_WRAPPER_ENTER(type, fmt, ...)			\
 	__FUNC_ENTER(type, H5_DEBUG_HDF5, fmt, __VA_ARGS__ )
-#define HDF5_WRAPPER_LEAVE(value)	__FUNC_LEAVE(value)
-#define HDF5_WRAPPER_RETURN(value)	__FUNC_RETURN(value, H5_DEBUG_HDF5)
-
-
-#define MPI_WRAPPER_ENTER(type, fmt, ...)				\
-	__FUNC_ENTER(type, H5_DEBUG_MPI, fmt, __VA_ARGS__ )
-#define MPI_WRAPPER_LEAVE(value)	__FUNC_LEAVE(value)
-#define MPI_WRAPPER_RETURN(value)	__FUNC_RETURN(value, H5_DEBUG_MPI)
-
-#define H5_INLINE_FUNC_ENTER(type)	type ret_value = (type)H5_ERR;
-#define H5_INLINE_FUNC_LEAVE(expr)	__FUNC_LEAVE(expr)
-#define H5_INLINE_FUNC_RETURN(expr)	__FUNC_RETURN(expr, 0)
-
-
-
 
 #endif

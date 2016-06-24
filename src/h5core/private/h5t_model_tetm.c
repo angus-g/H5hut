@@ -55,7 +55,7 @@ h5t_open_tetrahedral_mesh_by_idx (
 	TRY (hdf5_get_name_of_group_by_idx (ctn_hid, idx, name, sizeof (name)));
 	TRY (hdf5_close_group (ctn_hid));
 
-	H5_CORE_API_RETURN (h5t_open_tetrahedral_mesh ((h5_file_t)f, name, mesh));
+	H5_RETURN (h5t_open_tetrahedral_mesh ((h5_file_t)f, name, mesh));
 }
 
 h5_err_t
@@ -92,7 +92,7 @@ h5t_open_tetrahedral_mesh (
 #else
 	TRY (h5tpriv_read_mesh (m));
 #endif
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -126,7 +126,7 @@ h5t_open_tetrahedral_mesh_part (
 	             0));
 	TRY (h5tpriv_read_mesh_part (m, elem_indices, dim));
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -151,7 +151,7 @@ h5t_add_tetrahedral_mesh (
 	             TETRAHEDRAL_MESHES_GRPNAME,
 	             name));
 	if (exists) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR,
 		                "Tetrahedral mesh '%s' already exists!",
@@ -183,7 +183,7 @@ h5t_add_tetrahedral_mesh (
 	TRY (h5tpriv_add_level (m));
 	m->mesh_changed = 1;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -209,7 +209,7 @@ h5t_add_chunked_tetrahedral_mesh (
 	             TETRAHEDRAL_MESHES_GRPNAME,
 	             name));
 	if (exists) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR,
 		                "Tetrahedral mesh '%s' already exists!",
@@ -241,5 +241,5 @@ h5t_add_chunked_tetrahedral_mesh (
 	TRY (h5tpriv_add_level (m));
 	m->mesh_changed = 1;
 #endif
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }

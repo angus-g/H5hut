@@ -20,12 +20,12 @@ h5priv_close_step (
 	) {
 	H5_PRIV_API_ENTER (h5_err_t, "f=%p", f);
 	if (f->step_gid <= 0)
-		H5_PRIV_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	TRY (hdf5_close_group (f->step_gid));
 
 	f->step_gid = -1;
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -53,7 +53,7 @@ h5_set_step (
 	TRY (f->step_gid = h5priv_open_group (is_writable(f),
                                               f->file,
                                               f->step_name));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -75,7 +75,7 @@ h5_has_step (
 		f->props->prefix_step_name, f->props->width_step_idx,
 		 (long long)step_idx);
         TRY (ret_value = hdf5_link_exists (f->file, name));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -93,12 +93,12 @@ h5priv_normalize_dataset_name (
 	}
 
 	if ( strcmp( name2, H5BLOCK_GROUPNAME_BLOCK ) == 0 ) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 			h5_error (
 				H5_ERR_INVAL,
 				"Can't create dataset or field with name '%s'"
 				" because it is reserved by H5Block.",
 				H5BLOCK_GROUPNAME_BLOCK));
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }

@@ -114,16 +114,10 @@ h5tpriv_get_list_of_chunks_to_read (
 		);
 
 h5_int32_t
-find_proc_to_write (
+h5priv_find_proc_to_write (
 		h5t_mesh_t* const m,
 		h5_loc_idx_t elem_idx
 		);
-
-//TODO this is a bugfix remove after xfer_prop fix has been done!
-void
-set_xfer_prop_to (const h5_file_p  file, hid_t prop);
-void
-set_xfer_prop_to2 (h5t_mesh_t* const m, hid_t prop);
 
 // TODO move this to appropriate place
 typedef struct {

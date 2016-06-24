@@ -16,6 +16,8 @@
 #include "h5core/h5_syscall.h"
 #include "private/h5_log.h"
 
+#include <string.h>
+
 // Allocate new list
 #define h5priv_alloc_xlist( type )                                      \
         static inline h5_err_t                                          \
@@ -27,7 +29,7 @@
 		TRY (*list = h5_calloc (                                \
 		             1, sizeof (**list)+size*sizeof ((*list)->items[0]))); \
                 (*list)->size = size;                                   \
-                H5_PRIV_API_RETURN (H5_SUCCESS);                        \
+                H5_RETURN (H5_SUCCESS);                        \
 	}
 
 // Free list
@@ -37,10 +39,10 @@
                 h5_ ## type ## list_t**list                             \
                 ) {                                                     \
 		H5_PRIV_API_ENTER (h5_err_t, "list=%p", list);          \
-		if (*list == NULL) H5_PRIV_API_LEAVE (H5_SUCCESS);      \
+		if (*list == NULL) H5_LEAVE (H5_SUCCESS);      \
 		TRY (h5_free (*list));                                  \
 		*list = NULL;                                           \
-		H5_PRIV_API_RETURN (H5_SUCCESS);                        \
+		H5_RETURN (H5_SUCCESS);                        \
 	}
 
 // Insert item
@@ -80,7 +82,7 @@
                }                                                        \
                l->items[idx] = id;                                      \
                l->num_items++;                                          \
-               H5_PRIV_API_RETURN (idx);                                \
+               H5_RETURN (idx);                                \
         }
 
 /*
@@ -100,7 +102,7 @@
                                    "list=%p, item=%llu",                \
                                    list, (long long unsigned)item);     \
                 if (!list) {						\
-                        H5_PRIV_API_LEAVE (-1);                         \
+                        H5_LEAVE (-1);                         \
                 }                                                       \
                 register ssize_t low = 0;                               \
                 register ssize_t mid;                                   \
@@ -112,9 +114,9 @@
                         else if (list->items[mid] < item)               \
                                 low = mid + 1;                          \
                         else                                            \
-                                H5_PRIV_API_LEAVE (mid);                \
+                                H5_LEAVE (mid);                \
                 }                                                       \
-                H5_PRIV_API_RETURN (-(low+1));                          \
+                H5_RETURN (-(low+1));                          \
 	}
 
 
@@ -134,7 +136,7 @@
 			idx = -(idx+1);					\
 			TRY (idx = h5priv_insert_into_ ## type ## list (list, item, idx)); \
 		}							\
-		H5_PRIV_API_RETURN (idx);				\
+		H5_RETURN (idx);				\
         }
 
 
@@ -184,13 +186,13 @@ h5priv_grow_idxmap (
 	                   "map=%p, size=%llu",
 	                   map, (long long unsigned)size);
 	if (map->num_items >= size)
-		H5_PRIV_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	int new = (map->items == NULL);
 	size_t size_in_bytes = size * sizeof (map->items[0]);
 	TRY (map->items = h5_alloc (map->items, size_in_bytes));
 	map->size = size;
 	if (new) map->num_items = 0;
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t

@@ -10,10 +10,12 @@
 #include <string.h>
 #include <hdf5.h>
 
+#include "private/h5_log.h"
 #include "private/h5_hdf5.h"
 
 #include "h5core/h5_types.h"
 #include "h5core/h5_syscall.h"
+
 
 /*
    Test whether given path exists.
@@ -38,16 +40,16 @@ h5priv_link_exists_ (
 			*s++ = '/';
 			*s = '\0';
 		}
-		if (s+strlen(path[i])+1 >= end) H5_PRIV_API_LEAVE (
+		if (s+strlen(path[i])+1 >= end) H5_LEAVE (
 			        h5_error (
 			                H5_ERR_HDF5,
 			                "path %s... to long", name));
 		s = stpcpy (s, path[i]);  // return ptr to end!!!
 		h5_err_t exists;
 		TRY (exists = hdf5_link_exists (loc_id, name));
-		if (!exists) H5_PRIV_FUNC_LEAVE (0);
+		if (!exists) H5_LEAVE (0);
 	}
-	H5_PRIV_FUNC_RETURN (1);
+	H5_RETURN (1);
 }
 
 h5_err_t
@@ -71,7 +73,7 @@ h5priv_open_group_ (
 		} else if (create_intermediate) {
 			TRY (hid2 = hdf5_create_group (hid, path[i]));
 		} else {
-			H5_PRIV_FUNC_LEAVE (
+			H5_LEAVE (
 			        h5_error (
 			                H5_ERR_HDF5,
 			                "No such group '%s/%s'.",
@@ -84,7 +86,7 @@ h5priv_open_group_ (
 		}
 		hid = hid2;
 	}
-	H5_PRIV_FUNC_RETURN (hid);
+	H5_RETURN (hid);
 }
 
 typedef struct op_data {
@@ -212,12 +214,12 @@ iter_op_count_match (
 	H5O_type_t type;
 	TRY (type = iter_op_get_obj_type (g_id, name, info));
 	if (type != op_data->type)
-		H5_PRIV_FUNC_LEAVE (0);
+		H5_LEAVE (0);
 	/* count if prefix matches */
 	if (strncmp (name, op_data->prefix, strlen(op_data->prefix)) == 0) {
 		op_data->cnt++;
 	}
-	H5_PRIV_FUNC_RETURN (0);
+	H5_RETURN (0);
 }
 
 ssize_t
@@ -235,13 +237,13 @@ hdf5_get_num_groups (
 	                          &start_idx,
 	                          iter_op_count, &op_data);
 	if (herr < 0) {
-		HDF5_WRAPPER_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_HDF5,
 		                "Cannot get number of groups in '%s'.",
 		                hdf5_get_objname (loc_id)));
 	}
-	HDF5_WRAPPER_RETURN (op_data.cnt);
+	H5_RETURN (op_data.cnt);
 }
 
 ssize_t
@@ -261,14 +263,14 @@ hdf5_get_num_groups_matching_prefix (
 	                          &start_idx,
 	                          iter_op_count_match, &op_data);
 	if (herr < 0) {
-		HDF5_WRAPPER_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_HDF5,
 		                "Cannot get number of groups with prefix"
 		                " '%s' in '%s'.",
 		                prefix, hdf5_get_objname (loc_id)));
 	}
-	HDF5_WRAPPER_RETURN (op_data.cnt);
+	H5_RETURN (op_data.cnt);
 }
 
 h5_err_t
@@ -294,7 +296,7 @@ hdf5_get_name_of_group_by_idx (
 	                          &start_idx,
 	                          iter_op_idx, &op_data);
 	if (herr < 0) {
-		HDF5_WRAPPER_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_HDF5,
 		                "Cannot get name of group with index"
@@ -302,7 +304,7 @@ hdf5_get_name_of_group_by_idx (
 		                (long unsigned int)idx,
 		                hdf5_get_objname (loc_id)));
 	}
-	HDF5_WRAPPER_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 ssize_t
@@ -320,13 +322,13 @@ hdf5_get_num_datasets (
 	                          &start_idx,
 	                          iter_op_count, &op_data);
 	if (herr < 0) {
-		HDF5_WRAPPER_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_HDF5,
 		                "Cannot get number of datasets in '%s'.",
 		                hdf5_get_objname (loc_id)));
 	}
-	HDF5_WRAPPER_RETURN (op_data.cnt);
+	H5_RETURN (op_data.cnt);
 }
 
 /*
@@ -355,7 +357,7 @@ hdf5_get_name_of_dataset_by_idx (
 	                          &start_idx,
 	                          iter_op_idx, &op_data);
 	if (herr < 0) {
-		HDF5_WRAPPER_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_HDF5,
 		                "Cannot get name of dataset with index"
@@ -364,8 +366,8 @@ hdf5_get_name_of_dataset_by_idx (
 		                hdf5_get_objname (loc_id)));
 	}
 	if (op_data.cnt < 0)
-		HDF5_WRAPPER_LEAVE (H5_NOK);
-	HDF5_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (H5_NOK);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /****** I d e n t i f i e r **************************************************/

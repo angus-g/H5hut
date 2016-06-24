@@ -83,7 +83,7 @@ iterate_boundary_facets (
 			h5_loc_id_t elem_id;
 			TRY( elem_id = iterate_geom_boundary_elems (iter) );
 			if (elem_id == H5_NOK) {
-				H5_PRIV_FUNC_LEAVE (H5_NOK);    // done!
+				H5_LEAVE (H5_NOK);    // done!
 			}
 			it->elem_idx = h5tpriv_get_elem_idx (elem_id);
 			it->face_idx = 0;
@@ -93,7 +93,7 @@ iterate_boundary_facets (
 	} while (!h5tpriv_is_boundary_facet (it->mesh, it->elem_idx, it->face_idx));
 	int type = h5tpriv_ref_elem_get_entity_type (it, dim);
 	TRY (ret_value = h5tpriv_build_entity_id (type, it->face_idx, it->elem_idx));
-	H5_PRIV_FUNC_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 /*!
@@ -112,7 +112,7 @@ iterate_leaf_faces (
 	do {
 		if (it->face_idx >= num_faces) {
 			if (iter_leaf_elem_idx (it) == H5_NOK) {
-				H5_PRIV_FUNC_LEAVE (H5_NOK);    // done!
+				H5_LEAVE (H5_NOK);    // done!
 			}
 			it->face_idx = 0;
 		} else {
@@ -141,7 +141,7 @@ iterate_leaf_faces (
 	   current level and the element index of entry->items[i] is the smallest
 	   element index with the given face on the current level.
 	 */
-	H5_PRIV_FUNC_RETURN (entry->items[i]);
+	H5_RETURN (entry->items[i]);
 }
 
 /*
@@ -165,7 +165,7 @@ iterate_boundary_faces (
 				h5_loc_id_t elem_id;
 				TRY( elem_id = iterate_geom_boundary_elems (iter) );
 				if (elem_id == H5_NOK) {
-					H5_PRIV_FUNC_LEAVE (H5_NOK);    // done!
+					H5_LEAVE (H5_NOK);    // done!
 				}
 				it->face_idx = 0;
 			} else {
@@ -175,7 +175,7 @@ iterate_boundary_faces (
 		                 it->mesh, dim, it->elem_idx, it->face_idx));
 		// Skip already visited faces
 	} while (0);
-	H5_PRIV_FUNC_RETURN (h5_error_internal ());
+	H5_RETURN (h5_error_internal ());
 }
 
 static h5_loc_id_t
@@ -196,7 +196,7 @@ iterate_tags (
 		tags = iter->tagset->elems[iter->elem_idx];
 	} while ((tags == NULL) || (tags->idx[iter->subentity_idx]));
 #endif
-	H5_PRIV_FUNC_RETURN (h5_error_internal ());
+	H5_RETURN (h5_error_internal ());
 }
 
 h5_err_t
@@ -220,7 +220,7 @@ h5t_init_leaf_iterator (
 		it->iter = iterate_leaf_elems;
 	}
 	TRY (h5tpriv_init_entity_iterator (m, iter, codim));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -239,14 +239,14 @@ h5t_init_boundary_face_iterator (
 	it->ref_elem = m->ref_elem;
 
 	if (it->codim <= 0 || it->codim > it->ref_elem->dim) {
-		H5_CORE_API_LEAVE (h5tpriv_inval_codim (codim, 1, it->ref_elem->dim));
+		H5_LEAVE (h5tpriv_inval_codim (codim, 1, it->ref_elem->dim));
 	} else if (it->codim == 1) {
 		it->iter = iterate_boundary_facets;
 	}
 	else if (it->codim > 1) {
 		it->iter = iterate_boundary_faces;
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -263,7 +263,7 @@ h5t_init_mtag_iterator (
 	it->subentity_idx = 999;
 	it->level_idx = m->leaf_level;
 	it->iter = iterate_tags;
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -272,7 +272,7 @@ h5t_release_entity_iterator (
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "iter=%p", iter);
 	TRY (ret_value = h5_free (iter));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_loc_id_t
@@ -280,7 +280,7 @@ h5t_iterate_entities (
         h5t_iterator_t* iter
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "iter=%p", iter);
-	H5_CORE_API_RETURN (iter->iter (iter));
+	H5_RETURN (iter->iter (iter));
 }
 
 h5_err_t
@@ -293,7 +293,7 @@ h5t_end_iterate_entities (
 	it->face_idx = -1;
 	it->elem_idx = -1;
 	it->codim = -1;
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -309,7 +309,7 @@ h5t_get_vertex_coords_by_index (
 	                   P);
 	h5_loc_vertex_t *vertex = &m->vertices[vertex_index];
 	memcpy ( P, &vertex->P, sizeof ( vertex->P ) );
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -326,7 +326,7 @@ h5t_get_vertex_coords_by_id (
 	h5_loc_idx_t vertex_index;
 	TRY (h5tpriv_get_loc_vtx_idx_of_vtx (m, vertex_id, &vertex_index));
 	TRY (h5t_get_vertex_coords_by_index (m, vertex_index, P));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -344,7 +344,7 @@ h5t_get_vertex_by_id (
 	TRY (h5tpriv_get_loc_vtx_idx_of_vtx (m, vertex_id, &idx));
 	*glb_idx = m->vertices[idx].idx;
 	*P = m->vertices[idx].P;
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -365,5 +365,5 @@ h5t_get_neighbor_indices (
 	for (int i = 0; i < num_facets; i++) {
 		neighbor_indices[i] = indices[i];
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }

@@ -167,8 +167,8 @@ h5_oct_idx_t H5t_find_leafoctant_of_point (h5t_octree_t* octree, h5_oct_idx_t oc
 h5_oct_level_t H5t_oct_has_level (h5t_octree_t* octree, h5_oct_idx_t oct_idx, h5_oct_level_t level);
 
 // for debug purposes only
-h5_err_t plot_octants (h5t_octree_t* octree);
-h5_err_t plot_octant_anc (h5t_octree_t* octree, h5_oct_idx_t oct_idx);
+h5_err_t h5priv_plot_octants (h5t_octree_t* octree);
+h5_err_t h5priv_plot_octant_anc (h5t_octree_t* octree, h5_oct_idx_t oct_idx);
 
 h5_err_t plot_leaf_octants (h5t_octree_t* octree);
 void print_array (h5_int32_t* neigh, h5_oct_idx_t nbr_neigh, int rank);

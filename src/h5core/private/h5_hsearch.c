@@ -90,7 +90,7 @@ h5priv_hcreate (
 
 	/* Test for correct arguments.  */
 	if (htab == NULL) {
-		H5_PRIV_API_LEAVE (h5_error_internal ());
+		H5_LEAVE (h5_error_internal ());
 	}
 	/* Change nel to the first prime number not smaller as nel. */
 	nel |= 1;      /* make odd */
@@ -108,7 +108,7 @@ h5priv_hcreate (
 	             htab->size + 1, sizeof (_ENTRY)));
 
 	/* everything went alright */
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -157,7 +157,7 @@ h5priv_hgrow (
 		h5_debug ("Old hash table removed");
 	}
 	*htab = __htab;
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -172,7 +172,7 @@ hwalk (
 			TRY ((*visit)(&htab->table[idx].entry));
 		}
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 void*
@@ -201,7 +201,7 @@ h5priv_hdestroy (
 	H5_PRIV_API_ENTER (h5_err_t, "htab=%p", htab);
 	/* Test for correct arguments.  */
 	if (htab == NULL) {
-		H5_PRIV_API_LEAVE (h5_error_internal ());
+		H5_LEAVE (h5_error_internal ());
 	}
 	/* Free used memory.  */
 	if (htab->free_entry) {
@@ -211,7 +211,7 @@ h5priv_hdestroy (
 
 	/* the sign for an existing table is an value != NULL in htable */
 	htab->table = NULL;
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -256,7 +256,7 @@ h5priv_hsearch (
 			if (retval) {
 				*retval = htab->table[idx].entry;
 			}
-			H5_PRIV_API_LEAVE (H5_SUCCESS);
+			H5_LEAVE (H5_SUCCESS);
 		}
 
 		/* Second hash function, as suggested in [Knuth] */
@@ -283,7 +283,7 @@ h5priv_hsearch (
 				if (retval) {
 					*retval = htab->table[idx].entry;
 				}
-				H5_PRIV_API_LEAVE (H5_SUCCESS);
+				H5_LEAVE (H5_SUCCESS);
 			}
 		} while (htab->table[idx].used);
 	}
@@ -296,7 +296,7 @@ h5priv_hsearch (
 			if (retval) {
 				*retval = NULL;
 			}
-			H5_PRIV_API_LEAVE (h5_error_internal ());
+			H5_LEAVE (h5_error_internal ());
 		}
 
 		htab->table[idx].used  = hval;
@@ -307,15 +307,15 @@ h5priv_hsearch (
 		if (retval) {
 			*retval = htab->table[idx].entry;
 		}
-		H5_PRIV_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	} else if (action == H5_REMOVE) {
 		htab->table[idx].used = 0;              /* mark as unused, but */
 		*retval = htab->table[idx].entry;       /* return ptr to entry */
-		H5_PRIV_API_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 	}
 	if (retval) *retval = NULL;
 	h5_debug ("Key not found in hash table.");
-	H5_PRIV_API_RETURN (H5_NOK);
+	H5_RETURN (H5_NOK);
 }
 
 typedef struct {
@@ -355,7 +355,7 @@ free_string_keyed (
 	h5_hitem_string_keyed_t* entry = (h5_hitem_string_keyed_t*) __entry;
 	TRY (h5_free (entry->key));
 	TRY (h5_free (entry));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -376,5 +376,5 @@ h5priv_hcreate_string_keyed (
 		                     compute_string_keyed,
 		                     free_entry));
 	}
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }

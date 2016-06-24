@@ -36,7 +36,7 @@ alloc_loc_elems (
 	        -1,
 	        (new-cur) * sizeof (h5_loc_tri_t));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -63,7 +63,7 @@ bisect_edge (
 //			for (int j = 0; j < num_b_edges; j++) {
 //				if (b_edges[j].idx == my_glb_idx &&
 //						b_edges[j].face_idx == face_idx) {
-//					H5_PRIV_FUNC_LEAVE (b_edges[j].vtx);
+//					H5_LEAVE (b_edges[j].vtx);
 //				}
 //			}
 //		}
@@ -75,9 +75,9 @@ bisect_edge (
 			TRY (h5t_get_loc_vertex_indices_of_edge (m, kids[0], edge0));
 			TRY (h5t_get_loc_vertex_indices_of_edge (m, kids[1], edge1));
 			if ((edge0[0] == edge1[0]) || (edge0[0] == edge1[1])) {
-				H5_PRIV_FUNC_LEAVE (edge0[0]);
+				H5_LEAVE (edge0[0]);
 			} else {
-				H5_PRIV_FUNC_LEAVE (edge0[1]);
+				H5_LEAVE (edge0[1]);
 			}
 		}
 	}
@@ -94,7 +94,7 @@ bisect_edge (
 	P[1] = (P0[1] + P1[1]) / 2.0;
 	P[2] = (P0[2] + P1[2]) / 2.0;
 
-	H5_PRIV_FUNC_RETURN (h5t_store_vertex (m, -1, P));
+	H5_RETURN (h5t_store_vertex (m, -1, P));
 }
 
 /*
@@ -109,7 +109,7 @@ pre_refine_triangle (
 	unsigned int num_interior_elems_to_refine = m->marked_entities->num_items;
 	TRY (h5t_begin_store_vertices (m, num_interior_elems_to_refine*3 + 64));
 	TRY (h5t_begin_store_elems (m, num_interior_elems_to_refine*4));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -130,7 +130,7 @@ refine_triangle (
 	h5_loc_tri_t* el = (h5_loc_tri_t*)m->loc_elems + elem_idx;
 
 	if (el->child_idx >= 0)
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_INVAL,
 		                "Element %lld already refined.",
@@ -169,7 +169,7 @@ refine_triangle (
 	((h5_loc_tri_t*)m->loc_elems)[elem_idx].child_idx = elem_idx_of_first_child;
 	m->num_interior_leaf_elems[m->leaf_level]--;
 
-	H5_PRIV_FUNC_RETURN (elem_idx_of_first_child);
+	H5_RETURN (elem_idx_of_first_child);
 }
 
 static inline h5_loc_idx_t
@@ -191,7 +191,7 @@ compute_neighbor_of_face (
 		             elem_idx,
 		             &te) );
 		if (te == NULL) {
-			H5_PRIV_FUNC_LEAVE (h5_error_internal ());
+			H5_LEAVE (h5_error_internal ());
 		}
 		if (te->num_items == 1) {
 			h5_loc_idx_t old_elem_idx = elem_idx;
@@ -207,8 +207,8 @@ compute_neighbor_of_face (
 					h5_debug ("Elem %d is on different proc than its parent %d \n"
 						"therefore neighborhood idx is not correct resolved", old_elem_idx, elem_idx);
 				}
-				assert (m->f->myproc != find_proc_to_write (m, old_elem_idx));
-				H5_PRIV_FUNC_LEAVE (~0); //TODO what is a resonable output here?
+				assert (m->f->myproc != h5priv_find_proc_to_write (m, old_elem_idx));
+				H5_LEAVE (~0); //TODO what is a resonable output here?
 			}
 		} else if (te->num_items == 2) {
 			// neighbor has same level of coarsness
@@ -220,10 +220,10 @@ compute_neighbor_of_face (
 
 		} else {
 			printf ("elem %d face %d num_items %d", elem_idx, face_idx, te->num_items);
-			H5_PRIV_FUNC_LEAVE (h5_error_internal ());
+			H5_LEAVE (h5_error_internal ());
 		}
 	} while (neighbor_idx < -1);
-	H5_PRIV_FUNC_RETURN (neighbor_idx);
+	H5_RETURN (neighbor_idx);
 }
 
 /*
@@ -236,7 +236,7 @@ compute_neighbors_of_elems (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, level=%d", m, level);
 	if (level < 0 || level >= m->num_leaf_levels) {
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_INVAL,
 		                "level idx %lld out of bound, must be in [%lld,%lld]",
@@ -257,7 +257,7 @@ compute_neighbors_of_elems (
 		el++;
 	}
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
  * returns number of newly created triangles when refining a triangle
@@ -280,7 +280,7 @@ end_store_elems (
 	TRY( h5tpriv_update_internal_structs (m, m->leaf_level) );
 	TRY( compute_neighbors_of_elems (m, m->leaf_level) );
 	TRY( h5tpriv_init_elem_flags (m, start_idx, count) );
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 struct h5t_store_methods h5tpriv_trim_store_methods = {

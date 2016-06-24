@@ -179,7 +179,7 @@ alloc_tv (
 	size_t i = from_lvl <= 0 ? 0 : m->num_loc_vertices[from_lvl-1];
 	memset (adj->tv.v+i, 0, (num_loc_vertices-i)*sizeof(*adj->tv.v));
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -246,7 +246,7 @@ update_internal_structs (
 			TRY (h5tpriv_enter_td2 (m, face_idx, elem_idx, NULL));
 		}
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -259,7 +259,7 @@ release_tv (
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
 	h5t_adjacencies_t* adj = &m->adjacencies;
 	if (adj->tv.v == NULL)
-		H5_PRIV_FUNC_LEAVE (H5_SUCCESS);
+		H5_LEAVE (H5_SUCCESS);
 
 	h5_loc_idx_t vertex_idx = 0;
 	h5_loc_idx_t last = m->num_loc_vertices[m->num_loaded_levels-1];
@@ -268,7 +268,7 @@ release_tv (
 	}
 	TRY( h5_free (adj->tv.v) );
 	adj->tv.v = NULL;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -280,7 +280,7 @@ release_internal_structs (
 	TRY( h5priv_hdestroy (&m->adjacencies.te_hash) );
 	TRY( h5priv_hdestroy (&m->adjacencies.td_hash) );
 	memset (&m->adjacencies, 0, sizeof (m->adjacencies));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 struct h5t_core_methods h5tpriv_tetm_core_methods = {

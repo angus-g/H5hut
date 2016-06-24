@@ -17,6 +17,9 @@
 #include "private/h5t_model.h"
 #include "private/h5t_access.h"
 
+#include <string.h>
+#include <stdlib.h>
+
 /*** op's on local elements ***/
 
 #if defined(WITH_PARALLEL_H5GRID)
@@ -182,7 +185,7 @@ alloc_glb_elems (
 	H5_PRIV_FUNC_ENTER (h5_glb_elem_p, "m=%p, size=%zu", m, size);
 	h5_glb_elem_p buf;
 	TRY (buf = h5_calloc (size, sizeof(h5_glb_tet_t)));
-	H5_PRIV_FUNC_RETURN (buf);
+	H5_RETURN (buf);
 }
 
 static h5_glb_elem_t*
@@ -664,27 +667,27 @@ get_loc_entity_children (
 	const h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 
 	if (h5tpriv_is_leaf_elem (m, &((h5_loc_tet_t*)m->loc_elems)[elem_idx])) {
-		H5_PRIV_FUNC_LEAVE (H5_NOK);            // not refined
+		H5_LEAVE (H5_NOK);            // not refined
 	}
 	switch (type_id) {
 	case H5T_TYPE_TET: {
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 		        get_children_of_loc_elem (m, face_idx, elem_idx, children));
 		break;
 	}
 	case H5T_TYPE_TRIANGLE: {
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 		        get_children_of_loc_triangle (m, face_idx, elem_idx, children));
 		break;
 	}
 	case H5T_TYPE_EDGE: {
-		H5_PRIV_FUNC_LEAVE (
+		H5_LEAVE (
 		        get_children_of_loc_edge (m, face_idx, elem_idx, children));
 	}
 	default:
-		H5_PRIV_FUNC_LEAVE (h5_error_internal ());
+		H5_LEAVE (h5_error_internal ());
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 struct h5t_access_methods h5tpriv_access_tetm_methods = {

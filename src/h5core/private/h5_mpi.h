@@ -16,6 +16,9 @@
 #include "h5core/h5_err.h"
 #include "private/h5_log.h"
 
+#define MPI_WRAPPER_ENTER(type, fmt, ...)				\
+	__FUNC_ENTER(type, H5_DEBUG_MPI, fmt, __VA_ARGS__ )
+
 static inline h5_err_t
 h5priv_mpi_alltoall (
         void* sendbuf,
@@ -39,11 +42,11 @@ h5priv_mpi_alltoall (
 	        recvtype,
 	        comm);
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_MPI,
 		                "Cannot perform all to all communication"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -75,11 +78,11 @@ h5priv_mpi_alltoallv (
 	        recvtype,
 	        comm);
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_MPI,
 		                "Cannot perform all to all communication"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 // barrier
@@ -90,11 +93,11 @@ h5priv_mpi_barrier (
 	MPI_WRAPPER_ENTER (h5_err_t, "comm=%p",&comm);
 	int err = MPI_Barrier(comm);
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_MPI,
 		                "MPI Barrier was not successful"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 // communication routines
@@ -120,8 +123,8 @@ h5priv_mpi_recv(
 	        MPI_STATUS_IGNORE
 	        );
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot receive data"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot receive data"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -145,8 +148,8 @@ h5priv_mpi_send(
 	        comm
 	        );
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot send data"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot send data"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -168,8 +171,8 @@ h5priv_mpi_bcast (
 	        comm
 	        );
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot perform broadcast"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot perform broadcast"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -192,8 +195,8 @@ h5priv_mpi_sum (
 	        comm
 	        );
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot perform MPI_SUM reduction"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot perform MPI_SUM reduction"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -215,9 +218,9 @@ h5priv_mpi_allreduce_max (
 		    MPI_MAX,
 		    comm
 		    ) != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI,
+		H5_LEAVE (h5_error (H5_ERR_MPI,
 					     "Cannot perform MPI_MAX reduction"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -240,8 +243,8 @@ h5priv_mpi_prefix_sum (
 	        comm
 	        );
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot perform prefix sum"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot perform prefix sum"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 #define h5priv_mpi_allgather mpi_allgather
@@ -268,8 +271,8 @@ mpi_allgather (
 	        recvtype,
 	        comm);
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot gather data"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot gather data"));
+	H5_RETURN (H5_SUCCESS);
 }
 #define h5priv_mpi_allgatherv mpi_allgatherv
 static inline h5_err_t
@@ -298,8 +301,8 @@ mpi_allgatherv (
 	        recvtype,
 	        comm);
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot gather data"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot gather data"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 ///
@@ -311,8 +314,8 @@ h5priv_mpi_comm_size (
 	MPI_WRAPPER_ENTER (h5_err_t, "comm=?, size=%p", size);
 	int err = MPI_Comm_size (comm, size);
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot get communicator size"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot get communicator size"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -323,8 +326,8 @@ h5priv_mpi_comm_rank (
 	MPI_WRAPPER_ENTER (h5_err_t, "comm=?, rank=%p", rank);
 	int err = MPI_Comm_rank (comm, rank);
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot get this task's rank"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot get this task's rank"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -339,11 +342,11 @@ h5priv_mpi_type_contiguous (
 	int err;
 	err = MPI_Type_contiguous ( nelems, oldtype, newtype );
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot create new MPI type"));
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot create new MPI type"));
 	err = MPI_Type_commit ( newtype );
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error (H5_ERR_MPI, "Cannot commit new MPI type"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error (H5_ERR_MPI, "Cannot commit new MPI type"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 #define h5priv_mpi_get_address mpi_get_address
@@ -355,12 +358,12 @@ mpi_get_address (
 	MPI_WRAPPER_ENTER (h5_err_t, "location=%p, address=%p", location, address);
 	int err = MPI_Get_address (location, address);
 	if (err != MPI_SUCCESS) {
-		MPI_WRAPPER_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_MPI,
 		                "Cannot get MPI address of location=%p", location));
 	}
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #define h5priv_mpi_create_type_struct  mpi_create_type_struct
@@ -377,12 +380,12 @@ mpi_create_type_struct (
 	                   count, blocklens, indices, old_types, new_type);
 	int err = MPI_Type_create_struct (count, blocklens, indices, old_types, new_type);
 	if (err != MPI_SUCCESS) {
-		MPI_WRAPPER_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_MPI,
 		                "Cannot create new MPI struct"));
 	}
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -392,12 +395,12 @@ h5priv_mpi_type_commit (
 	MPI_WRAPPER_ENTER (h5_err_t, "type=%p", type);
 	int err = MPI_Type_commit (type);
 		if (err != MPI_SUCCESS) {
-			MPI_WRAPPER_LEAVE (
+			H5_LEAVE (
 			        h5_error (
 			                H5_ERR_MPI,
 			                "Cannot commit MPI datatype"));
 		}
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -408,8 +411,8 @@ h5priv_mpi_type_free (
 	MPI_WRAPPER_ENTER (h5_err_t, "type=%p", type);
 	int err = MPI_Type_free( type );
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error(H5_ERR_MPI, "Cannot free MPI type"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error(H5_ERR_MPI, "Cannot free MPI type"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -427,8 +430,8 @@ h5priv_mpi_cart_create (
 	int err = MPI_Cart_create(
 	        old_comm, ndims, dims, period, reorder, new_comm);
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error(H5_ERR_MPI, "Cannot create cartesian grid"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error(H5_ERR_MPI, "Cannot create cartesian grid"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -442,8 +445,8 @@ h5priv_mpi_cart_coords (
 	                   rank, maxdim, coords);
 	int err = MPI_Cart_coords( comm, rank, maxdim, coords );
 	if (err != MPI_SUCCESS)
-		MPI_WRAPPER_LEAVE (h5_error(H5_ERR_MPI, "Cannot create cartesian grid"));
-	MPI_WRAPPER_RETURN (H5_SUCCESS);
+		H5_LEAVE (h5_error(H5_ERR_MPI, "Cannot create cartesian grid"));
+	H5_RETURN (H5_SUCCESS);
 }
 
 #endif

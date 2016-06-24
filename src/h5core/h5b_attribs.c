@@ -47,7 +47,7 @@ h5b_write_field_attrib (
 		attrib_nelem,
 		!is_appendonly (f)) );
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -79,7 +79,7 @@ h5b_read_field_attrib (
 		     attrib_type,
 		     buffer));
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -104,7 +104,7 @@ h5b_has_field_attrib (
 	TRY (ret_value = hdf5_attribute_exists (
 		     f->b->field_gid,
 		     attrib_name));	       
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_ssize_t
@@ -120,7 +120,7 @@ h5b_get_num_field_attribs (
 	TRY (h5bpriv_open_field_group(f, field_name));
 
 	TRY (ret_value = hdf5_get_num_attribute (f->b->field_gid));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -153,7 +153,7 @@ h5b_get_field_attrib_info_by_idx (
 		     attrib_idx,
 		     attrib_name, len_attrib_name,
 		     attrib_type, attrib_nelem));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -181,7 +181,7 @@ h5b_get_field_attrib_info_by_name (
 		     f->b->field_gid,
 		     attrib_name,
 		     attrib_type, attrib_nelem));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 static inline h5_err_t
@@ -254,7 +254,7 @@ h5b_set_3d_field_coords (
                      coords,
                      n_coords));
 
-        H5_CORE_API_RETURN (H5_SUCCESS);
+        H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -289,7 +289,7 @@ h5b_get_3d_field_coords (
                      H5_FLOAT64,
                      coords));
 
-        H5_CORE_API_RETURN (H5_SUCCESS);
+        H5_RETURN (H5_SUCCESS);
 }
 
 

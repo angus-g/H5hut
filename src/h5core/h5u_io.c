@@ -44,7 +44,7 @@ h5upriv_open_file (
 
 	TRY (u->dcreate_prop = hdf5_create_property (H5P_DATASET_CREATE));
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -72,7 +72,7 @@ h5upriv_close_file (
 	TRY (h5_free (f->u));
 	f->u = NULL;
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -172,7 +172,7 @@ h5u_read_data (
 
 	TRY (hdf5_close_dataset (dataset_id));
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -236,5 +236,5 @@ h5u_write_data (
 	f->empty = 0;
 	TRY (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }

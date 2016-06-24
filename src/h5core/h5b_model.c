@@ -43,7 +43,7 @@ h5b_has_field_data (
         H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
         CHECK_FILEHANDLE (f);
         TRY (ret_value = hdf5_link_exists (f->step_gid, H5BLOCK_GROUPNAME_BLOCK));
-        H5_CORE_API_RETURN (ret_value);
+        H5_RETURN (ret_value);
 }
 
 static void
@@ -420,7 +420,7 @@ _dissolve_ghostzones (
 
 	}
 	h5_free (p_begin);
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -441,7 +441,7 @@ h5bpriv_release_hyperslab (
 		TRY (hdf5_close_dataspace(f->b->memshape));
 		f->b->memshape = -1;
 	}
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -454,11 +454,11 @@ h5bpriv_open_block_group (
 	TRY (hdf5_close_group (b->block_gid));
 	b->block_gid = hdf5_open_group (f->step_gid, H5BLOCK_GROUPNAME_BLOCK);
 	if (f->b->block_gid < 0)
-		H5_PRIV_API_LEAVE (h5_error(
+		H5_LEAVE (h5_error(
 		                           H5_ERR_INVAL,
 		                           "Time step does not contain H5Block data!"));
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -476,7 +476,7 @@ _create_block_group (
 		TRY (f->b->block_gid = hdf5_create_group(
 			     f->step_gid, H5BLOCK_GROUPNAME_BLOCK) );
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -496,7 +496,7 @@ h5bpriv_open_field_group (
 		               H5_ERR_INVAL,
 		               "Field '%s' does not exist!", name2);
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -522,7 +522,7 @@ h5bpriv_create_field_group (
 		TRY (b->field_gid = hdf5_create_group (b->block_gid, name2));
 	}
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_int64_t
@@ -609,7 +609,7 @@ h5b_3d_set_view (
 	TRY( h5bpriv_release_hyperslab(f) );
 	b->have_layout = 1;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -641,7 +641,7 @@ h5b_3d_get_view (
 	*k_start = p->k_start;
 	*k_end =   p->k_end;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -673,7 +673,7 @@ h5b_3d_get_reduced_view (
 	*k_start = p->k_start;
 	*k_end =   p->k_end;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -702,7 +702,7 @@ h5b_3d_set_chunk (
 		TRY (hdf5_set_chunk_property (f->b->dcreate_prop, 1, dims));
 	}
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -742,7 +742,7 @@ h5b_3d_get_chunk (
 	        (long long)hdims[1],
 	        (long long)hdims[2] );
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #ifdef PARALLEL_IO
@@ -761,7 +761,7 @@ h5b_3d_set_grid (
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
 	if (i*j*k != f->nprocs) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error(H5_ERR_INVAL,
 		                 "Grid dimensions (%lld,%lld,%lld) do not multiply "
 		                 "out to %d MPI processors!",
@@ -782,7 +782,7 @@ h5b_3d_set_grid (
 
 	f->b->have_grid = 1;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -798,7 +798,7 @@ h5b_3d_get_grid_coords (
 	                   "f=%p, proc=%d, i=%p, j=%p, k=%p",
 	                   f, proc, i, j, k);
 	if ( !f->b->have_grid )
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error(H5_ERR_INVAL,
 		                 "Grid dimensions have not been set!"));
 
@@ -807,7 +807,7 @@ h5b_3d_get_grid_coords (
 	*k = coords[0];
 	*j = coords[1];
 	*i = coords[2];
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -825,7 +825,7 @@ h5b_3d_set_dims (
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
 	if ( !f->b->have_grid )
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error(H5_ERR_INVAL,
 		                 "Grid dimensions have not been set!"));
 
@@ -839,7 +839,7 @@ h5b_3d_set_dims (
 	        dims[1] != check_dims[1] ||
 	        dims[2] != check_dims[2]
 	        ) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error(H5_ERR_INVAL,
 		                 "[%d] Block dimensions do not agree: "
 		                 "(%lld,%lld,%lld) != (%lld,%lld,%lld)!",
@@ -872,7 +872,7 @@ h5b_3d_set_dims (
 
 	b->have_layout = 1;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -892,11 +892,11 @@ h5b_3d_set_halo (
 	                   (long long unsigned)k);
 
 	if ( !f->b->have_grid ) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error(H5_ERR_INVAL,
 		                 "Grid dimensions have not been set!"));
 	} else if ( !f->b->have_layout ) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error(H5_ERR_INVAL,
 		                 "Block dimensions for grid have not been set!"));
 	}
@@ -909,7 +909,7 @@ h5b_3d_set_halo (
 	b->user_layout->k_start -= k;
 	b->user_layout->k_end   += k;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_ssize_t
@@ -922,7 +922,7 @@ h5b_get_num_fields (
 
 	TRY (h5bpriv_open_block_group(f));
 	TRY (ret_value = hdf5_get_num_objs_in_group (f->b->block_gid));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -938,7 +938,7 @@ h5b_has_field (
 
 	const char* path[] = { H5BLOCK_GROUPNAME_BLOCK, name };
 	TRY (ret_value = h5priv_link_exists_(f->step_gid, path, 2));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -991,7 +991,7 @@ h5b_get_field_info_by_name (
 	TRY (hdf5_close_dataspace (dataspace_id));
 	TRY (hdf5_close_dataset (dataset_id));
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -1026,6 +1026,6 @@ h5b_get_field_info (
 	TRY (h5b_get_field_info_by_name (
 		     (h5_file_t)f,
 		     name, field_rank, field_dims, elem_rank, type));
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 

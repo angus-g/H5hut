@@ -28,7 +28,7 @@ h5_has_file_attrib (
 			   attrib_name);
 	CHECK_FILEHANDLE (f);
 	TRY (ret_value = hdf5_attribute_exists(f->root_gid, attrib_name));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 	
 h5_err_t
@@ -44,7 +44,7 @@ h5_has_step_attrib (
 			   attrib_name);
 	CHECK_FILEHANDLE (f);
 	TRY (ret_value = hdf5_attribute_exists (f->step_gid, attrib_name));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_ssize_t
@@ -55,7 +55,7 @@ h5_get_num_file_attribs (
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
 	CHECK_FILEHANDLE (f);
 	TRY (ret_value = hdf5_get_num_attribute (f->root_gid));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_ssize_t
@@ -67,7 +67,7 @@ h5_get_num_step_attribs (
 	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
 	TRY (ret_value = hdf5_get_num_attribute (f->step_gid));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -95,7 +95,7 @@ h5_get_file_attrib_info_by_idx (
 			attrib_idx,
 			attrib_name, len_attrib_name,
 			attrib_type, attrib_nelem));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -118,7 +118,7 @@ h5_get_file_attrib_info_by_name (
 		     f->root_gid,
 		     attrib_name,
 		     attrib_type, attrib_nelem));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 
@@ -148,7 +148,7 @@ h5_get_step_attrib_info_by_idx (
 		     attrib_idx,
 		     attrib_name, len_attrib_name,
 		     attrib_type, attrib_nelem));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -172,7 +172,7 @@ h5_get_step_attrib_info_by_name (
 		     f->step_gid,
 		     attrib_name,
 		     attrib_type, attrib_nelem));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -196,7 +196,7 @@ h5_read_file_attrib (
 		     attrib_name,
 		     attrib_type,
 		     attrib_value));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -222,7 +222,7 @@ h5_read_step_attrib (
 		     attrib_name,
 		     attrib_type,
 		     attrib_value));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 
@@ -252,7 +252,7 @@ h5_write_file_attrib (
 		     attrib_value,
 		     attrib_nelem,
 		     !is_appendonly (f)));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -282,7 +282,7 @@ h5_write_step_attrib (
 		     attrib_value,
 		     attrib_nelem,
 		     !is_appendonly (f)));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 

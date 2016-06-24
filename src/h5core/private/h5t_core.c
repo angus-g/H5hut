@@ -46,7 +46,7 @@ h5tpriv_enter_tv2 (
 		*idlist = m->adjacencies.tv.v[vertex_idx];
 	}
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -92,7 +92,7 @@ h5tpriv_enter_te2 (
 	if (idlist) {
 		*idlist = te_entry->value;
 	}
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -138,7 +138,7 @@ h5tpriv_enter_td2 (
 	if (idlist) {
 		*idlist = td_entry->value;
 	}
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static int
@@ -178,7 +178,7 @@ release_te_entry (
 	h5_loc_idlist_t* list = entry->value;
 	TRY (h5priv_free_loc_idlist (&list));
 	TRY (h5_free (entry));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -199,7 +199,7 @@ h5tpriv_grow_te_htab (
 	} else {
 		TRY (h5priv_hgrow (nel, &a->te_hash));
 	}
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -223,12 +223,12 @@ find_te (
 	             &m->adjacencies.te_hash));
 	h5t_te_entry_t* entry = (h5t_te_entry_t*)__entry;
 	if (entry == NULL) {
-		H5_PRIV_FUNC_LEAVE (H5_NOK);    // not found
+		H5_LEAVE (H5_NOK);    // not found
 	}
 	if (idlist) {
 		*idlist = entry->value;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -252,7 +252,7 @@ h5tpriv_find_te (
 	             item.key.vids));
 
 	TRY (find_te (m, &item, idlist));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -272,7 +272,7 @@ h5tpriv_find_te2 (
 	             elem_idx,
 	             item.key.vids));
 	TRY (find_te (m, &item, idlist));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static int
@@ -312,7 +312,7 @@ release_td_entry (
 	h5_loc_idlist_t* list = entry->value;
 	TRY (h5priv_free_loc_idlist (&list));
 	TRY (h5_free (entry));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -334,7 +334,7 @@ h5tpriv_grow_td_htab (
 	} else {
 		TRY (h5priv_hgrow (nel, &a->td_hash));
 	}
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -372,7 +372,7 @@ h5tpriv_find_td (
 	             triangle_id,
 	             item.key.vids));
 	TRY (find_td (m, &item, idlist));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -392,7 +392,7 @@ h5tpriv_find_td2 (
 	             elem_idx,
 	             item.key.vids));
 	TRY (find_td (m, &item, idlist));
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -411,7 +411,7 @@ h5tpriv_find_tv2 (
 	h5_loc_idx_t idx;
 	TRY (idx = h5tpriv_get_loc_elem_vertex_idx (m, elem_idx, face_idx));
 	*idlist = m->adjacencies.tv.v[idx];
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -427,5 +427,5 @@ h5tpriv_find_tv3 (
 	                   "m=%p, vtx_idx=%lld, idlist=%p",
 	                   m, (long long)vtx_idx, idlist);
 	*idlist = m->adjacencies.tv.v[vtx_idx];
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }

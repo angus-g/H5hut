@@ -192,9 +192,9 @@ h5tpriv_release_adjacency_structs (
         ) {
 	H5_PRIV_API_ENTER (h5_err_t, "m=%p", m);
 	if (m->methods->adjacency == NULL) {
-		H5_PRIV_API_LEAVE (H5_OK);
+		H5_LEAVE (H5_OK);
 	}
-	H5_PRIV_API_RETURN (m->methods->core->release_internal_structs(m));
+	H5_RETURN (m->methods->core->release_internal_structs(m));
 }
 
 static inline h5_err_t
@@ -204,9 +204,9 @@ h5tpriv_update_internal_structs (
         ) {
 	H5_PRIV_API_ENTER (h5_err_t, "m=%p, level_id=%d", m, level_id);
 	if (m->methods->adjacency == NULL) {
-		H5_PRIV_API_LEAVE (H5_OK);
+		H5_LEAVE (H5_OK);
 	}
-	H5_PRIV_API_RETURN (m->methods->core->update_internal_structs(m, level_id));
+	H5_RETURN (m->methods->core->update_internal_structs(m, level_id));
 }
 
 #endif

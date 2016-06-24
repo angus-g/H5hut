@@ -82,16 +82,6 @@ extern "C" {
 #endif
 
 static inline void
-h5_call_stack_init (
-        const char* fname,
-        enum h5_rtypes type
-        ) {
-	h5_call_stack.level = 0;
-	h5_call_stack.entry[0].name = (char *)fname;
-	h5_call_stack.entry[0].type = type;
-}
-
-static inline void
 h5_call_stack_push (
         const char* fname,
         enum h5_rtypes type
@@ -189,43 +179,41 @@ __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
+h5_err_t
+h5_set_loglevel (
+	const h5_id_t);
+
+h5_err_t
+h5_get_loglevel (
+	void);
+
+#ifdef __cplusplus
+}
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 // function enter macro
 #if defined(NDEBUG)
 
-#define __API_ENTER(type, mask, fmt, ...)				\
-	h5_call_stack_init (__func__,e_##type);				\
-	type ret_value = (type)H5_ERR;
-
-#define __FUNC_ENTER(type, mask, fmt, ...)				\
+#define H5_API_ENTER(type, fmt, ...)		\
 	type ret_value = (type)H5_ERR;
 
 #else   // NDEBUG not defined
 
-#define __API_ENTER(type, mask, fmt, ...)				\
-	h5_call_stack_push (__func__,e_##type);				\
+#define H5_API_ENTER(type, fmt, ...)					\
+	h5_call_stack_reset ();						\
 	type ret_value = (type)H5_ERR;					\
-	if (h5_log_level & mask ) {					\
-		h5_debug ("(" fmt ")", __VA_ARGS__);			\
-	}
-
-#define __FUNC_ENTER(type, mask, fmt, ...)				\
-	type ret_value = (type)H5_ERR;					\
-	if (h5_log_level & mask ) {					\
+	int __log__ = h5_log_level & H5_DEBUG_API;			\
+	if (__log__) {							\
 		h5_call_stack_push (__func__,e_##type);			\
 		h5_debug ("(" fmt ")", __VA_ARGS__);			\
-	}								\
+	}
 
 #endif
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#define __API_LEAVE(expr) {						\
-	ret_value = expr;						\
-	goto done;							\
-	}
-
-#define __FUNC_LEAVE(expr) {						\
+#define H5_LEAVE(expr) {						\
 	ret_value = expr;						\
 	goto done;							\
 }
@@ -234,13 +222,7 @@ __attribute__ ((format (printf, 1, 2)))
 // function return macro
 #if defined(NDEBUG)
 
-#define __API_RETURN(expr, mask)					\
-	ret_value = expr;						\
-	goto done;							\
-done:									\
-	return ret_value;
-
-#define __FUNC_RETURN(expr, mask)					\
+#define H5_RETURN(expr)							\
 	ret_value = expr;						\
 	goto done;							\
 done:									\
@@ -248,24 +230,11 @@ done:									\
 
 #else  // NDEBUG not defined
 
-#define __API_RETURN(expr, mask)					\
+#define H5_RETURN(expr)							\
 	ret_value = expr;						\
 	goto done;							\
 done:									\
-	if (h5_log_level & mask ) {					\
-		char fmt[256];						\
-		snprintf (fmt, sizeof(fmt), "return: %s",		\
-			  h5_rfmts[h5_call_stack_get_type()]);		\
-		h5_debug (fmt, ret_value);				\
-	}								\
-	h5_call_stack_reset ();						\
-	return ret_value;
-
-#define __FUNC_RETURN(expr, mask)					\
-	ret_value = expr;						\
-	goto done;							\
-done:									\
-	if (h5_log_level & mask ) {					\
+if (__log__ ) {								\
 		char fmt[256];						\
 		snprintf (fmt, sizeof(fmt), "return: %s",		\
 			  h5_rfmts[h5_call_stack_get_type()]);		\
@@ -278,10 +247,8 @@ done:									\
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#define H5_API_ENTER(type, fmt, ...)					\
-	__API_ENTER(type, H5_DEBUG_API, fmt, __VA_ARGS__)
-#define H5_API_LEAVE(expr)		__API_LEAVE(expr)
-#define H5_API_RETURN(expr)		__API_RETURN(expr, H5_DEBUG_API);
+#define H5_API_LEAVE(expr)		H5_LEAVE(expr)
+#define H5_API_RETURN(expr)		H5_RETURN(expr);
 
 
 #define TRY( func )							\
@@ -289,16 +256,5 @@ done:									\
 		goto done;						\
 	}
 
-h5_err_t
-h5_set_loglevel (
-	const h5_id_t);
-
-h5_err_t
-h5_get_loglevel (
-	void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

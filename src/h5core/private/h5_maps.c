@@ -10,6 +10,8 @@
 #include "private/h5_err.h"
 #include "private/h5_maps.h"
 
+#include <stdlib.h>
+
 /*
    Allocate new/empty string-list
  */
@@ -24,7 +26,7 @@ h5priv_alloc_strlist (
 	TRY (*list = h5_calloc (
 	             1, sizeof (**list)+size*sizeof ((*list)->items[0])));
 	(*list)->size = size;
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -32,14 +34,14 @@ h5priv_free_strlist (
         h5_strlist_t** list
         ) {
 	H5_PRIV_API_ENTER (h5_err_t, "list=%p", list);
-	if (list == NULL || *list == NULL) H5_PRIV_API_LEAVE (H5_SUCCESS);
+	if (list == NULL || *list == NULL) H5_LEAVE (H5_SUCCESS);
 	h5_strlist_t* l = *list;
 	for (size_t i = 0; i < l->size; i++) {
 		TRY (h5_free(l->items[i]));
 	}
 	TRY (h5_free (l));
 	l = NULL;
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -47,11 +49,11 @@ grow_strlist (
         h5_strlist_t** list,
         size_t new_size
         ) {
-	H5_PRIV_API_ENTER (h5_err_t, "list=%p, new_size=%zu", list, new_size);
+	H5_PRIV_FUNC_ENTER (h5_err_t, "list=%p, new_size=%zu", list, new_size);
 	size_t num_bytes = sizeof (**list) + (new_size-1)*sizeof((*list)->items[0]);
 	TRY (*list = h5_alloc (*list, num_bytes));
 	(*list)->size = new_size;
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -88,7 +90,7 @@ h5priv_insert_strlist (
 	}
 	TRY (l->items[idx] = h5_strdup(item));
 	l->num_items++;
-	H5_PRIV_API_RETURN (idx);
+	H5_RETURN (idx);
 }
 
 /*
@@ -101,7 +103,7 @@ h5priv_find_strlist (
         ) {
 	H5_PRIV_API_ENTER (ssize_t, "list=%p, item=%s", list, item);
 	if (!list) {
-		H5_PRIV_API_LEAVE (-1);
+		H5_LEAVE (-1);
 	}
 	register h5_loc_idx_t low = 0;
 	register h5_loc_idx_t high = list->num_items - 1;
@@ -115,9 +117,9 @@ h5priv_find_strlist (
 		else if ( diff < 0 )
 			low = mid + 1;
 		else
-			H5_PRIV_API_LEAVE (mid);  // found
+			H5_LEAVE (mid);  // found
 	}
-	H5_PRIV_API_RETURN (-(low+1));  // not found
+	H5_RETURN (-(low+1));  // not found
 }
 
 /*
@@ -134,7 +136,7 @@ h5priv_search_strlist (
 		idx = -(idx+1);
 		TRY (idx = h5priv_insert_strlist (list, item, idx));
 	}
-	H5_PRIV_API_RETURN (idx);
+	H5_RETURN (idx);
 }
 
 h5_err_t
@@ -144,14 +146,14 @@ h5priv_remove_strlist (
         ) {
 	H5_PRIV_API_ENTER (h5_err_t, "list=%p, item=%s", list, item);
 	ssize_t idx = h5priv_find_strlist (list, item);
-	if (idx < 0) H5_PRIV_API_LEAVE (-1);
+	if (idx < 0) H5_LEAVE (-1);
 
 	list->num_items--;
 	memmove (
 	        &list->items[idx],
 	        &list->items[idx+1],
 	        (list->num_items - idx) * sizeof (list->items[0]));
-	H5_PRIV_API_RETURN (idx);
+	H5_RETURN (idx);
 }
 
 
@@ -168,7 +170,7 @@ h5priv_new_idxmap (
 	TRY (map->items = h5_calloc (size, sizeof (map->items[0])));
 	map->size = size;
 	map->num_items = 0;
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -183,13 +185,13 @@ h5priv_insert_idxmap (
 	                   (long long unsigned)glb_idx,
 	                   (long long unsigned)loc_idx);
 	if (map->num_items == map->size)
-		H5_PRIV_API_LEAVE (
+		H5_LEAVE (
 		        HANDLE_H5_OVERFLOW_ERR (
 		                (long long)map->size));
 
 	h5_loc_idx_t i = h5priv_search_idxmap (map, glb_idx);
 	if (i >= 0)                     /* global id already in use ? */
-		H5_PRIV_API_LEAVE (-1);
+		H5_LEAVE (-1);
 
 	i = -(i+1);
 
@@ -201,7 +203,7 @@ h5priv_insert_idxmap (
 	map->items[i].loc_idx = loc_idx;
 	map->num_items++;
 
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -232,9 +234,9 @@ h5priv_search_idxmap (
 		else if ( diff < 0 )
 			low = mid + 1;
 		else
-			H5_PRIV_API_LEAVE (mid);  // found
+			H5_LEAVE (mid);  // found
 	}
-	H5_PRIV_API_RETURN (-(low+1));  // not found
+	H5_RETURN (-(low+1));  // not found
 }
 
 //static int
@@ -265,5 +267,5 @@ h5priv_sort_idxmap (
 	H5_PRIV_API_ENTER (h5_err_t, "map=%p", map);
 	qsort ( map->items, map->num_items, sizeof (map->items[0]),
 	        cmp_idxmap_items);
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }

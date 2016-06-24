@@ -54,7 +54,7 @@ h5t_open_triangle_mesh_by_idx (
 	TRY (hdf5_get_name_of_group_by_idx (ctn_hid, idx, name, sizeof (name)));
 	TRY (hdf5_close_group (ctn_hid));
 
-	H5_CORE_API_RETURN (h5t_open_triangle_mesh ((h5_file_t)f, name, mesh));
+	H5_RETURN (h5t_open_triangle_mesh ((h5_file_t)f, name, mesh));
 }
 
 h5_err_t
@@ -100,7 +100,7 @@ h5t_open_triangle_mesh (
                 m->is_chunked && m->f->nprocs > 1 ?
                 h5tpriv_read_chunked_mesh (m) : h5tpriv_read_mesh (m)
                 );
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -145,7 +145,7 @@ h5t_open_triangle_mesh_part (
 
 	TRY (h5tpriv_read_mesh_part (m, elem_indices, dim));
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -170,7 +170,7 @@ h5t_add_triangle_mesh (
 	             TRIANGLE_MESHES_GRPNAME,
 	             name));
 	if (exists) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR,
 		                "Tetrahedral mesh '%s' already exists!",
@@ -201,7 +201,7 @@ h5t_add_triangle_mesh (
 	TRY (h5tpriv_add_level (m));
 	m->mesh_changed = 1;
 
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*!
    Add new chunked mesh
@@ -221,7 +221,7 @@ h5t_add_chunked_triangle_mesh(
 	int size = -1;
 	TRY (h5priv_mpi_comm_size (f->props->comm, &size));
 	if (size != 1) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 				h5_error (
 						H5_ERR,
 				        "Trying to create a chunked mesh with '%d' procs instead of 1!",
@@ -236,7 +236,7 @@ h5t_add_chunked_triangle_mesh(
 	             TRIANGLE_MESHES_GRPNAME,
 	             name));
 	if (exists) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 		        h5_error (
 		                H5_ERR,
 		                "Triangle mesh '%s' already exists!",
@@ -268,5 +268,5 @@ h5t_add_chunked_triangle_mesh(
 	TRY (h5tpriv_add_level (m));
 	m->mesh_changed = 1;
 #endif
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }

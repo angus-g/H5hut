@@ -76,7 +76,7 @@ init_loc_elems_struct (
 		        num_facets,
 		        loc_elem->neighbor_indices);
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #define H5_LOC_ELEM_T   h5_loc_tet_t
@@ -126,7 +126,7 @@ init_elem_flags (
 		}
 		elem++;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -156,7 +156,7 @@ init_map_elem_g2l (
 	}
 	h5priv_sort_idxmap (map);
 
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -189,7 +189,7 @@ init_glb_elems_struct (
 		loc_elem++;
 		glb_elem++;
 	}
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
@@ -200,9 +200,9 @@ init_glb_elems_struct_chk (
         int num_chk
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
-	H5_PRIV_FUNC_LEAVE (H5_ERR_NOT_IMPLEMENTED);
+	H5_LEAVE (H5_ERR_NOT_IMPLEMENTED);
 	// TODO just copy from readwrite_trim and replace 3 indices with 4...
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 struct h5t_read_methods h5tpriv_read_tetm_methods = {

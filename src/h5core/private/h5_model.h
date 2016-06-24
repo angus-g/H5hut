@@ -48,7 +48,7 @@ h5priv_start_throttle (
 			h5_warn (
 				"Throttling is only permitted with the MPI-POSIX "
 				"or MPI-IO Independent VFD." );
-			H5_CORE_API_LEAVE (H5_SUCCESS);
+			H5_LEAVE (H5_SUCCESS);
 		}
 
 		int token = 1;
@@ -71,7 +71,7 @@ h5priv_start_throttle (
 		}
 		h5_debug ("throttle: received token");
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 static inline h5_err_t
@@ -96,7 +96,7 @@ h5priv_end_throttle (
 				     ));
 		}
 	}
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #else // PARALLEL_IO
 static inline h5_err_t
@@ -169,12 +169,12 @@ h5priv_map_enum_to_normalized_type (
 		ret_value = H5_FLOAT64;
 		break;
 	default:
-		H5_PRIV_API_LEAVE (
+		H5_LEAVE (
 			h5_error (
 				H5_ERR_INVAL,
 				"Unknown type %d", (int)type));
 	}
-	H5_PRIV_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 /*
@@ -227,12 +227,15 @@ h5priv_normalize_type (
 		ret_value = H5_STRING;
 		break;
 	default:
-		H5_PRIV_API_LEAVE (
+		break;
+	}
+	if (ret_value < 0) {
+		H5_LEAVE (
 			h5_error (
 				H5_ERR_INVAL,
 				"Unknown type %d", (int)type));
 	}
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 /*
@@ -271,6 +274,8 @@ h5priv_map_hdf5_type_to_enum (
 			} else {
 				ret_value = H5_UINT16_T;
 			}
+		} else {
+			ret_value = H5_STRING_T;
 		}
 		break;
 	case H5T_FLOAT:
@@ -285,12 +290,12 @@ h5priv_map_hdf5_type_to_enum (
 		ret_value = H5_STRING_T;
 		break;
 	default:
-		H5_PRIV_API_LEAVE (
+		H5_LEAVE (
 			h5_error (
 				H5_ERR_INVAL,
 				"Unknown type %d", (int)type));
 	}
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 
@@ -303,7 +308,7 @@ h5priv_get_normalized_dataset_type (
 			   (long long)dataset);
 	TRY (ret_value = hdf5_get_dataset_type (dataset));
 	TRY (ret_value = h5priv_normalize_type (ret_value));
-	H5_PRIV_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 #endif

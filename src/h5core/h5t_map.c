@@ -17,6 +17,8 @@
 #include "private/h5t_model.h"
 #include "private/h5_mpi.h"
 
+#include <stdlib.h>
+
 /*
    Mapping of global to local id's:
 
@@ -70,7 +72,7 @@ h5tpriv_sort_local_vertex_indices (
 		}
 		indices[j] = idx;
 	}
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -95,7 +97,7 @@ h5tpriv_find_glb_idx_in_map (
 	if (loc_idx < 0) { // set to next position
 		loc_idx = map->num_items;
 	}
-	H5_CORE_API_RETURN (loc_idx);
+	H5_RETURN (loc_idx);
 }
 
 /*!
@@ -112,12 +114,12 @@ h5t_map_global_vertex_idx2local (
 	// loc_idx is position in map
 	h5_loc_idx_t loc_idx = h5priv_search_idxmap (&m->map_vertex_g2l, glb_idx);
 	if (loc_idx < 0) {
-		H5_CORE_API_LEAVE (
+		H5_LEAVE (
 			h5tpriv_error_global_id_nexist ("vertex", glb_idx));
 	}
 	// loc_idx is position in m->vertices!
 	TRY (ret_value = m->map_vertex_g2l.items[loc_idx].loc_idx);
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -135,7 +137,7 @@ h5t_map_global_vertex_indices2local (
 		TRY (loc_indices[i] =
 		             h5t_map_global_vertex_idx2local (m, glb_indices[i]));
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*!
@@ -158,13 +160,13 @@ h5t_map_glb_elem_idx2loc (
 	                   m, (long long)glb_idx);
 
 	// global index is -1, if the cell is at the geometric border
-	if (glb_idx < 0) H5_CORE_API_LEAVE (-1);
+	if (glb_idx < 0) H5_LEAVE (-1);
 
 	h5_loc_idx_t i = h5priv_search_idxmap (&m->map_elem_g2l, glb_idx);
 	// global index >= 0 && negative result means: element is on other proc
-	if (i < 0) H5_CORE_API_LEAVE (-glb_idx-2);
+	if (i < 0) H5_LEAVE (-glb_idx-2);
 
-	H5_CORE_API_RETURN (m->map_elem_g2l.items[i].loc_idx);
+	H5_RETURN (m->map_elem_g2l.items[i].loc_idx);
 }
 
 
@@ -185,7 +187,7 @@ h5t_map_glb_elem_indices2loc (
 		loc_indices++;
 		glb_indices++;
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 
@@ -211,7 +213,7 @@ h5tpriv_rebuild_map_vertex_g2l (
 		m->map_vertex_g2l.num_items++;
 	}
 	h5priv_sort_idxmap (&m->map_vertex_g2l);
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
    rebuild mapping of global vertex indices to their local indices
@@ -234,7 +236,7 @@ h5tpriv_rebuild_map_vertex_g2l_partial (
 		m->map_vertex_g2l.num_items++;
 	}
 	h5priv_sort_idxmap (&m->map_vertex_g2l);
-	H5_PRIV_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 /*
    Get local vertex indices of entity given by it's local ID.
@@ -260,7 +262,7 @@ h5t_get_loc_vertex_indices_of_entity (
 	case H5T_TYPE_TRIANGLE: dim = 2; break;
 	case H5T_TYPE_TET:      dim = 3; break;
 	default:
-		H5_CORE_API_LEAVE (h5_error_internal ());
+		H5_LEAVE (h5_error_internal ());
 	}
 	h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (m, elem_idx);
 	const h5t_ref_elem_t* ref_elem = m->ref_elem;
@@ -269,7 +271,7 @@ h5t_get_loc_vertex_indices_of_entity (
 		int idx = h5tpriv_ref_elem_get_vertex_idx(m, dim, face_idx, i);
 		vertex_indices[i] = indices[idx];
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -293,7 +295,7 @@ h5t_get_glb_vertex_indices_of_entity (
 	case H5T_TYPE_TRIANGLE: dim = 2; break;
 	case H5T_TYPE_TET:      dim = 3; break;
 	default:
-		H5_CORE_API_LEAVE (h5_error_internal ());
+		H5_LEAVE (h5_error_internal ());
 	}
 	h5_loc_idx_t* indices = h5tpriv_get_loc_elem_vertex_indices (m, elem_idx);
 	const h5t_ref_elem_t* ref_elem = m->ref_elem;
@@ -303,7 +305,7 @@ h5t_get_glb_vertex_indices_of_entity (
 		h5_loc_idx_t loc_idx = indices[idx];
 		vertex_indices[i] = m->vertices[loc_idx].idx;
 	}
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -321,7 +323,7 @@ h5tpriv_get_loc_vtx_idx_of_vtx (
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	TRY (ret_value = h5tpriv_get_loc_vtx_idx_of_vtx2 (
 		     m, face_idx, elem_idx, vertex_index));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -338,7 +340,7 @@ h5tpriv_get_loc_vtx_idx_of_vtx2 (
 	                   (long long unsigned)elem_idx,
 	                   vertex_indices);
 	vertex_indices[0] = h5tpriv_get_loc_elem_vertex_idx (m, elem_idx, face_idx);
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 /*
@@ -360,7 +362,7 @@ h5t_get_loc_vertex_indices_of_edge (
 	
 	TRY (ret_value = h5t_get_loc_vertex_indices_of_edge2 (
 		     m, face_idx, elem_idx, vertex_indices));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 /*!
@@ -390,7 +392,7 @@ h5t_get_loc_vertex_indices_of_edge2 (
 	vertex_indices[0] = indices[idx];
 	idx = h5tpriv_ref_elem_get_vertex_idx (m, 1, face_idx, 1);
 	vertex_indices[1] = indices[idx];
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -408,7 +410,7 @@ h5t_get_loc_vertex_indices_of_triangle (
 	h5_loc_idx_t elem_idx = h5tpriv_get_elem_idx (entity_id);
 	TRY (ret_value = h5t_get_loc_vertex_indices_of_triangle2 (
 		     m, face_idx, elem_idx, vertex_indices));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -433,7 +435,7 @@ h5t_get_loc_vertex_indices_of_triangle2 (
 	vertex_indices[1] = indices[idx];
 	idx = h5tpriv_ref_elem_get_vertex_idx (m, 2, face_idx, 2);
 	vertex_indices[2] = indices[idx];
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -461,7 +463,7 @@ h5t_get_loc_vertex_indices_of_tet (
 	vertex_indices[2] = indices[idx];
 	idx = h5tpriv_ref_elem_get_vertex_idx (m, 3, 0, 3);
 	vertex_indices[3] = indices[idx];
-	H5_CORE_API_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 
 #ifdef WITH_PARALLEL_H5GRID
@@ -476,10 +478,10 @@ compare_glb_idx_oct (const void *  p_a,const void*  p_b) {
  */
 h5_err_t
 h5priv_exchange_loc_list_to_glb (
-		h5t_mesh_t* const m,
-		h5_glb_idxlist_t** glb_list
-		) {
-	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, glb_list=%p", m, glb_list);
+	h5t_mesh_t* const m,
+	h5_glb_idxlist_t** glb_list
+	) {
+	H5_PRIV_API_ENTER (h5_err_t, "m=%p, glb_list=%p", m, glb_list);
 	int* num_elems = NULL;
 	TRY (num_elems = h5_calloc (m->f->nprocs, sizeof (*num_elems)));
 
@@ -498,7 +500,8 @@ h5priv_exchange_loc_list_to_glb (
 	// loc -> glb
 	for (int i = 0; i < m->marked_entities->num_items; i++) {
 		if (m->marked_entities->items[i] > m->last_stored_eid) {
-			H5_PRIV_FUNC_LEAVE (h5_error (
+			H5_LEAVE (
+				h5_error (
 					H5_ERR_INVAL,
 					"Element chosen to be refined is %d but there are only %d elements",
 					m->marked_entities->items[i],
@@ -536,7 +539,7 @@ h5priv_exchange_loc_list_to_glb (
 	TRY (h5_free (num_elems));
 	TRY (h5_free (sendbuf));
 	TRY (h5_free (recvdispls));
-	H5_PRIV_FUNC_RETURN (H5_SUCCESS);
+	H5_RETURN (H5_SUCCESS);
 }
 #endif
 
@@ -552,7 +555,7 @@ h5priv_find_idlist (
 			   "list=%p, item=%llu",
 			   list, (long long unsigned)item);
 	if (!list) {
-		H5_PRIV_API_LEAVE (-1);
+		H5_LEAVE (-1);
 	}
 	register size_t low = 0;
 	register size_t mid;
@@ -572,8 +575,8 @@ h5priv_find_idlist (
            	else if ( diff < 0 )
                		low = mid + 1;
            	else
-               		H5_PRIV_API_LEAVE (mid); // found
+               		H5_LEAVE (mid); // found
        	}
-       	H5_PRIV_API_RETURN (-(low+1));  // not found
+       	H5_RETURN (-(low+1));  // not found
 }
 

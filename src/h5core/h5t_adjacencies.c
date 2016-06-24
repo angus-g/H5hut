@@ -27,7 +27,7 @@ h5t_get_adjacencies (
 	                   "m=%p, entity_id=%llu, dim=%d, list=%p",
 	                   m, (long long unsigned)entity_id, dim, list);
 	TRY (ret_value = h5tpriv_get_adjacencies (m, entity_id, dim, list));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -38,7 +38,7 @@ h5t_release_list_of_adjacencies (
 	H5_CORE_API_ENTER (h5_err_t, "m=%p, list=%p", m, list);
 	UNUSED_ARGUMENT (m);
 	TRY (ret_value = h5priv_free_loc_idlist (list));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
 
 h5_err_t
@@ -55,5 +55,5 @@ h5t_find_te2 (
 	                   (long long)elem_idx,
 	                   retval);
 	TRY (ret_value = h5tpriv_find_te2 (m,face_idx,elem_idx,retval));
-	H5_CORE_API_RETURN (ret_value);
+	H5_RETURN (ret_value);
 }
