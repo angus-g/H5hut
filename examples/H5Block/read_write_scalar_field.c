@@ -9,6 +9,8 @@
 
 #include "H5hut.h"
 
+#include <stdlib.h>
+
 #define NPROCS  8
 #define DEFAULT_VERBOSITY       H5_VERBOSE_DEFAULT
 
