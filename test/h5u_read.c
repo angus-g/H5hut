@@ -477,13 +477,14 @@ void h5u_test_read3(void)
 	h5_file_t file1;
 
 	h5_int64_t status;
-
+        MPI_Comm comm = MPI_COMM_WORLD;
+	
 	TEST("Opening file once, read-only, MPI-POSIX VFD");
 	h5_prop_t props = H5CreateFileProp ();
         status = H5SetPropFileMPIOPosix (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOPosix");
 
-	file1 = H5OpenFile(FILENAME, H5_O_RDONLY, prop);
+	file1 = H5OpenFile(FILENAME, H5_O_RDONLY, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
