@@ -29,6 +29,7 @@ noinst_PROGRAMS =
 
 if ENABLE_C
 noinst_PROGRAMS +=		\
+	query			\
 	read_core_vfd		\
 	read_canonicalview	\
 	read_setnparticles	\
@@ -73,6 +74,6 @@ endif
 	$(FC)  $(FFLAGS) -c $<
 
 clean-local:
-	$(RM) *~
+	$(RM) -f *~
 
 
