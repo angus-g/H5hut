@@ -9,6 +9,8 @@
 
 #include "H5hut.h"
 
+#include <stdlib.h>
+
 // name of input file
 const char* fname = "example_setview.h5";
 

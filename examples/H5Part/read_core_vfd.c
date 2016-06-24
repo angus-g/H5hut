@@ -15,6 +15,8 @@
 */
 #include "H5hut.h"
 
+#include <stdlib.h>
+
 // name of input file
 const char* fname = "example_core_vfd.h5";
 
