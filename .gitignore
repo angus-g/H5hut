@@ -5,6 +5,7 @@
 *.so
 *.dSYM
 *~
+*.h5
 .deps
 .dirstamp
 .libs
@@ -26,8 +27,6 @@ configure
 depcomp
 py-compile
 examples/H5/attach_file
-examples/H5/example_file_attribs.h5
-examples/H5/example_step_attribs.h5
 examples/H5/examples.h
 examples/H5/h5hut.mod
 examples/H5/openclose
@@ -43,14 +42,12 @@ examples/H5/write_file_attribsf
 examples/H5/write_step_attribs
 examples/H5/write_step_attribsf
 examples/H5Block/H5BlockExampleF
-examples/H5Block/*.h5
 examples/H5Block/fields
 examples/H5Block/read_write
 examples/H5Part/Bench
 examples/H5Part/H5test
 examples/H5Part/H5testF
 examples/H5Part/core_vfd
-examples/H5Part/*.h5
 examples/H5Part/examples.h
 examples/H5Part/h5hut.mod
 examples/H5Part/particles
@@ -78,11 +75,7 @@ stamp-h1
 test/h5b_test
 test/h5u_test
 test/h5_attach_test
-test/test.h5
 tools/h5hutcc
-large_tet.h5
-simple_tet.h5
-simple_triangle.h5
 tetmesh_adjacencies
 tetmesh_read
 tetmesh_read_tags
