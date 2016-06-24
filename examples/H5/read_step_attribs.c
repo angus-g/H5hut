@@ -9,6 +9,8 @@
 
 #include "H5hut.h"
 
+#include <stdlib.h>
+
 #define FNAME           "example_step_attribs.h5"
 
 #define ATTR_STRING     "StepAttrString"
