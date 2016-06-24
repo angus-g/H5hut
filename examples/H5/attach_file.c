@@ -14,6 +14,9 @@
 
 #define FNAME           "attach_file.h5"
 #define ATTACHMENT      "attach_file"
+#define VERBOSITY       H5_VERBOSE_ERROR
+#define DEBUG_MSK	H5_DEBUG_ALL
+
 
 int
 main (
@@ -23,11 +26,13 @@ main (
 	MPI_Init (&argc, &argv);
 
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (255);
+        H5SetVerbosityLevel (VERBOSITY);
+	H5SetDebugMask (DEBUG_MSK);
+
 	h5_file_t f = H5OpenFile (FNAME, H5_O_WRONLY, H5_PROP_DEFAULT);
 	H5AddAttachment (f, ATTACHMENT);
 	H5CloseFile (f);
-	f = H5OpenFile (FNAME, H5_O_RDONLY, H5_PROP_DEFAULT);
+	f = H5OpenFile (FNAME, H5_O_RDWR, H5_PROP_DEFAULT);
 	h5_ssize_t num_attachments = H5GetNumAttachments (f);
 	printf ("Number of attachments: %lld\n", (long long int)num_attachments);
 	int i;
