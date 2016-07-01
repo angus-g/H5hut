@@ -29,7 +29,7 @@ h5pt_writedata_r8 (
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_int64_t herr = h5u_write_data (
-		f, name2, (void*)data, H5T_NATIVE_DOUBLE );
+		f, name2, (void*)data, H5_FLOAT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -50,7 +50,7 @@ h5pt_writedata_r4 (
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_int64_t herr = h5u_write_data (
-		f, name2, (void*)data, H5T_NATIVE_FLOAT );
+		f, name2, (void*)data, H5_FLOAT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -71,7 +71,7 @@ h5pt_writedata_i8 (
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_int64_t herr = h5u_write_data (
-		f, name2, (void*)data, H5T_NATIVE_INT64 );
+		f, name2, (void*)data, H5_INT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -92,7 +92,7 @@ h5pt_writedata_i4 (
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_int64_t herr = h5u_write_data (
-		f, name2, (void*)data, H5T_NATIVE_INT32 );
+		f, name2, (void*)data, H5_INT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -115,7 +115,7 @@ h5pt_readdata_r8 (
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_int64_t herr = h5u_read_data (
-		f, name2, data, H5T_NATIVE_DOUBLE );
+		f, name2, data, H5_FLOAT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -136,7 +136,7 @@ h5pt_readdata_r4 (
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_int64_t herr = h5u_read_data (
-		f, name2, data, H5T_NATIVE_FLOAT );
+		f, name2, data, H5_FLOAT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
@@ -157,7 +157,7 @@ h5pt_readdata_i8 (
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_int64_t herr = h5u_read_data (
-		f, name2, data, H5T_NATIVE_INT64 );
+		f, name2, data, H5_INT64_T );
 
 	free ( name2 );
 	H5_API_RETURN(herr);
@@ -179,7 +179,7 @@ h5pt_readdata_i4 (
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
 	h5_int64_t herr = h5u_read_data (
-		f, name2, data, H5T_NATIVE_INT32 );
+		f, name2, data, H5_INT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
 }
