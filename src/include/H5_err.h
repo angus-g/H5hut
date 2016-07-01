@@ -49,8 +49,7 @@ static inline h5_err_t
 H5AbortOnError (
         void
         ) {
-	H5_API_ENTER (h5_err_t, "%s", "");
-	H5_API_RETURN (h5_set_errorhandler (h5_abort_errorhandler));
+	return h5_set_errorhandler (h5_abort_errorhandler);
 }
 
 /**
