@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2006-2015, The Regents of the University of California,
+# Copyright (c) 2006-2016, The Regents of the University of California,
 # through Lawrence Berkeley National Laboratory (subject to receipt of any
 # required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
 # Institut (Switzerland).  All rights reserved.!
@@ -10,6 +10,9 @@
 AM_CPPFLAGS += -I${abs_top_srcdir}/src/include
 FFLAGS += -cpp $(AM_CPPFLAGS)
 AM_LDFLAGS += -L${abs_top_builddir}/src/h5core/.libs
+if ENABLE_DEBUG
+AM_LDFLAGS += -static
+endif
 
 LDADD =
 LDADD += -lH5hut
@@ -46,10 +49,11 @@ EXTRA_DIST =					\
 		trimesh_write.c			\
 		trimesh_2gnuplot.c		\
 		trimesh_write_dunetest.c
-endif
 #		map_tet2globalid.c \
 #		map_triangle2globalid.c \
 #		$(bin_SCRIPTS)
+
+endif
 
 clean-local:
 	$(RM) *.h5 *~
