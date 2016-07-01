@@ -2778,7 +2778,7 @@ h5t_create_index_set (
 	int codim;
 	int dim = h5tpriv_ref_elem_get_dim (m);
 	// todo: check tagset already exist
-	TRY (h5t_add_mtagset (m, "__IndexSet__", H5_INT64));
+	TRY (h5t_add_mtagset (m, "__IndexSet__", H5_INT64_T);
 
 	for (codim = 0; codim <= dim; codim++) {
 		h5_glb_idx_t idx = 0;

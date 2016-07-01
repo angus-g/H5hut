@@ -30,7 +30,7 @@ h5_err_t
 h5t_mtagset_exists (h5t_mesh_t* const, const char* const);
 
 h5_err_t
-h5t_create_mtagset (h5t_mesh_t* const, const char[], const h5_id_t, h5t_tagset_t**);
+h5t_create_mtagset (h5t_mesh_t* const, const char[], const h5_types_t, h5t_tagset_t**);
 
 h5_err_t
 h5t_open_mtagset (h5t_mesh_t* const, const char* const, h5t_tagset_t**);

@@ -119,16 +119,6 @@ h5priv_close_step (
 	const h5_file_p f
 	);
 
-#define H5_STRING   H5T_NATIVE_CHAR
-#define H5_INT16    H5T_NATIVE_INT16
-#define H5_UINT16   H5T_NATIVE_UINT16
-#define H5_INT32    H5T_NATIVE_INT32
-#define H5_UINT32   H5T_NATIVE_UINT32
-#define H5_INT64    H5T_NATIVE_INT64
-#define H5_UINT64   H5T_NATIVE_UINT64
-#define H5_FLOAT32  H5T_NATIVE_FLOAT
-#define H5_FLOAT64  H5T_NATIVE_DOUBLE
-
 /*
   Map given enumeration type to corresponding HDF5 type. We use this HDF5
   type for reading and writing datasets and attributes.

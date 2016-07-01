@@ -84,7 +84,7 @@ static inline h5_err_t
 H5FedAddMTagset (
         h5t_mesh_t* const m,
         const char name[],
-        const h5_id_t type,
+        const h5_types_t type,
         h5t_tagset_t** tagset
         ) {
 	H5_API_ENTER (h5_err_t,

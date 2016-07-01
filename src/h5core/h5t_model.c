@@ -195,7 +195,7 @@ h5tpriv_init_mesh (
 		TRY (h5priv_read_attrib (
 		             m->mesh_gid,
 		             "__num_leaf_levels__",
-		             H5T_NATIVE_INT16,
+		             H5_INT16_T,
 		             &m->num_leaf_levels));
                 //seems not to be set otherwise but for reading vtx it should be...
 		m->leaf_level = m->num_leaf_levels-1;
@@ -214,19 +214,19 @@ h5tpriv_init_mesh (
 		TRY (h5priv_read_attrib (
 		             m->mesh_gid,
 		             "__num_elems__",
-		             H5T_NATIVE_INT64,
+		             H5_INT64_T,
 		             m->num_glb_elems));
 
 		TRY (h5priv_read_attrib (
 		             m->mesh_gid,
 		             "__num_leaf_elems__",
-		             H5T_NATIVE_INT64,
+		             H5_INT64_T,
 		             m->num_glb_leaf_elems));
 
 		TRY (h5priv_read_attrib (
 		             m->mesh_gid,
 		             "__num_vertices__",
-		             H5T_NATIVE_INT64,
+		             H5_INT64_T,
 		             m->num_glb_vertices));
 		// if the file version is lower the following attributes are missing:
 		hid_t exists;
@@ -238,22 +238,22 @@ h5tpriv_init_mesh (
 			TRY (h5priv_read_attrib (
 		             m->mesh_gid,
 		             "__num_b_vertices__",
-		             H5T_NATIVE_INT64,
+		             H5_INT64_T,
 		             m->num_b_vtx));
 			TRY (h5priv_read_attrib (
 		             m->mesh_gid,
 		             "__first_b_vertices__",
-		             H5T_NATIVE_INT64,
+		             H5_INT64_T,
 		             m->first_b_vtx));
 			TRY (h5priv_read_attrib (
 		             m->mesh_gid,
 		             "__is_chunked__",
-		             H5T_NATIVE_INT16,
+		             H5_INT16_T,
 		             &m->is_chunked));
 			TRY (h5priv_read_attrib (
 		             m->mesh_gid,
 		             "__num_weights__",
-		             H5T_NATIVE_INT32,
+		             H5_INT32_T,
 		             &m->num_weights));
 		} else {
 			memset (m->num_b_vtx, -1, m->num_leaf_levels * sizeof (m->num_b_vtx));

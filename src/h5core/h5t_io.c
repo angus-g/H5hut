@@ -244,14 +244,6 @@ exchange_g2l_vtx_map (
 }
 #endif
 
-static int
-sort_glb_idx (
-	const void *p_a,
-	const void *p_b
-	) {
-	return (*(h5_glb_idx_t*)p_a) - (*(h5_glb_idx_t*)p_b);
-}
-
 /*
  * instead of bsearch it returns the first element that fulfills compare(key,element) == 0 in an unsorted array
  * we don't want to sort array since it's also containing a permutation
@@ -275,6 +267,15 @@ linsearch (
 	return NULL;
 }
 
+#if defined(WITH_PARALLEL_H5GRID)
+static int
+sort_glb_idx (
+	const void *p_a,
+	const void *p_b
+	) {
+	return (*(h5_glb_idx_t*)p_a) - (*(h5_glb_idx_t*)p_b);
+}
+
 static h5_err_t
 remove_item_from_idxmap (
 	h5_idxmap_t* map,
@@ -288,7 +289,6 @@ remove_item_from_idxmap (
 	H5_RETURN (H5_SUCCESS);
 }
 
-#if defined(WITH_PARALLEL_H5GRID)
 /*
  * Check if any proc with lower rank already writes a vtx that this proc has planed to write
  * if so remove it from the map. Only the proc with the lowest rank writes the vertex
@@ -801,7 +801,7 @@ write_chunks (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_chunks__",
-	             H5_INT32,
+	             H5_INT32_T,
 	             &m->chunks->num_alloc,
 	             1,
 	             1));
@@ -809,7 +809,7 @@ write_chunks (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_chk_levels__",
-	             H5_INT16, 				// WARNING should maybe be uint
+	             H5_INT16_T, 	// note: better uint16?
 	             &m->chunks->num_levels,
 	             1,
 	             1));
@@ -817,7 +817,7 @@ write_chunks (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_chk_p_level__",
-	             H5_INT32,
+	             H5_INT32_T,
 	             m->chunks->num_chunks_p_level,
 	             m->chunks->num_levels,
 	             1));
@@ -899,18 +899,18 @@ write_octree (
 	m->dsinfo_octree.dims[0] = m->octree->current_oct_idx + 1;
 
 	TRY (h5priv_write_dataset_by_name (
-			m,
-			m->f,
-			m->mesh_gid,
-			&m->dsinfo_octree,
-			set_oct_memspace,
-			set_oct_diskspace,
-			m->octree->octants));
+		     m,
+		     m->f,
+		     m->mesh_gid,
+		     &m->dsinfo_octree,
+		     set_oct_memspace,
+		     set_oct_diskspace,
+		     m->octree->octants));
 
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__curr_oct_idx__",
-	             H5_INT32,
+	             H5_INT32_T,
 	             &m->octree->current_oct_idx,
 	             1,
 	             1));
@@ -918,24 +918,24 @@ write_octree (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__oct_maxpoints__",
-	             H5_INT32,
+	             H5_INT32_T,
 	             &m->octree->maxpoints,
 	             1,
 	             1));
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__oct_size_userdata__",
-	             H5_INT32,
+	             H5_INT32_T,
 	             &m->octree->size_userdata,
 	             1,
 	             1));
 	TRY (h5priv_write_attrib (
-				m->mesh_gid,
-				"__oct_bounding_box__",
-				H5_FLOAT64,
-				m->octree->bounding_box,
-				6,
-				1));
+		     m->mesh_gid,
+		     "__oct_bounding_box__",
+		     H5_FLOAT64_T,
+		     m->octree->bounding_box,
+		     6,
+		     1));
 
 	if (m->octree->size_userdata > 0) {
 		m->dsinfo_userdata.dims[0] = m->octree->current_oct_idx + 1;
@@ -1040,7 +1040,7 @@ write_weights (
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_weights__",
-	             H5_INT32,
+	             H5_INT32_T,
 	             &m->num_weights,
 	             1,
 	             1));
@@ -1732,25 +1732,25 @@ read_octree (
 	int size_userdata = -1;
 	h5_float64_t bounding_box[6];
 	TRY (h5priv_read_attrib (
-			             m->mesh_gid,
-			             "__curr_oct_idx__",
-			             H5_INT32,
-			             &oct_size));
+		     m->mesh_gid,
+		     "__curr_oct_idx__",
+		     H5_INT32_T,
+		     &oct_size));
 	TRY (h5priv_read_attrib (
-			             m->mesh_gid,
-			             "__oct_maxpoints__",
-			             H5_INT32,
-			             &maxpoints));
+		     m->mesh_gid,
+		     "__oct_maxpoints__",
+		     H5_INT32_T,
+		     &maxpoints));
 	TRY (h5priv_read_attrib (
-			             m->mesh_gid,
-			             "__oct_size_userdata__",
-			             H5_INT32,
-			             &size_userdata));
+		     m->mesh_gid,
+		     "__oct_size_userdata__",
+		     H5_INT32_T,
+		     &size_userdata));
 	TRY (h5priv_read_attrib (
-						 m->mesh_gid,
-						 "__oct_bounding_box__",
-						 H5_FLOAT64,
-						 bounding_box))
+		     m->mesh_gid,
+		     "__oct_bounding_box__",
+		     H5_FLOAT64_T,
+		     bounding_box))
 	h5t_octant_t*   octants;
 	h5t_oct_userdata_t*  userdata;
 	TRY (H5t_read_octree (
@@ -1807,10 +1807,10 @@ read_weights (
 
 
 	TRY (h5priv_read_attrib (
-			             m->mesh_gid,
-			             "__num_weights__",
-			             H5_INT32,
-			             &m->num_weights));
+		     m->mesh_gid,
+		     "__num_weights__",
+		     H5_INT32_T,
+		     &m->num_weights));
 	TRY (m->weights =
 	     h5_calloc (m->num_weights * m->num_glb_elems[m->num_leaf_levels-1], sizeof (*m->weights)));
 	if (m->num_weights < 1) {
@@ -1857,25 +1857,25 @@ read_chunks (
 
 	TRY (m->chunks = h5_calloc (1, sizeof (*m->chunks)));
 	TRY (h5priv_read_attrib (
-			             m->mesh_gid,
-			             "__num_chunks__",
-			             H5_INT32,
-			             &m->chunks->num_alloc));
+		     m->mesh_gid,
+		     "__num_chunks__",
+		     H5_INT32_T,
+		     &m->chunks->num_alloc));
 	m->chunks->curr_idx = m->chunks->num_alloc -1;
 	TRY (h5priv_read_attrib (
-			             m->mesh_gid,
-			             "__num_chk_levels__",
-			             H5_INT16,
-			             &m->chunks->num_levels));
+		     m->mesh_gid,
+		     "__num_chk_levels__",
+		     H5_INT16_T,
+		     &m->chunks->num_levels));
 
 	TRY (m->chunks->num_chunks_p_level =
 	     h5_calloc (m->chunks->num_levels, sizeof (*m->chunks->num_chunks_p_level)));
 
 	TRY (h5priv_read_attrib (
-			             m->mesh_gid,
-			             "__num_chk_p_level__",
-			             H5_INT32,
-			             m->chunks->num_chunks_p_level));
+		     m->mesh_gid,
+		     "__num_chk_p_level__",
+		     H5_INT32_T,
+		     m->chunks->num_chunks_p_level));
 	TRY (m->chunks->chunks =
 	     h5_calloc (m->chunks->num_alloc, sizeof (*m->chunks->chunks)));
 

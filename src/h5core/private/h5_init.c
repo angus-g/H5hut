@@ -210,7 +210,7 @@ create_tet_type (
 	                h5_dta_types.h5_tet_t,
 	                "child_idx",
 	                HOFFSET (h5_glb_tet_t, child_idx),
-	                H5T_NATIVE_INT32) );
+	                H5_INT32) );
 	TRY(
 	        hdf5_insert_type (
 	                h5_dta_types.h5_tet_t,

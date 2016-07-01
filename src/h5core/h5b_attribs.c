@@ -55,7 +55,7 @@ h5b_read_field_attrib (
 	const h5_file_t fh,			/*!< IN: file handle */
 	const char *field_name,			/*!< IN: field name */
 	const char *attrib_name,		/*!< IN: attribute name */
-	const h5_int64_t attrib_type,		/*!< IN: attribute type */
+	const h5_types_t attrib_type,		/*!< IN: attribute type */
 	void *buffer		                /*!< OUT: attribute value */
 	) {
         h5_file_p f = (h5_file_p)fh;
@@ -250,7 +250,7 @@ h5b_set_3d_field_coords (
                      (h5_file_t)f,
                      field_name,
                      attrib_name,
-                     H5_FLOAT64,
+                     H5_FLOAT64_T,
                      coords,
                      n_coords));
 
@@ -286,7 +286,7 @@ h5b_get_3d_field_coords (
                      (h5_file_t)f,
                      field_name,
                      attrib_name,
-                     H5_FLOAT64,
+                     H5_FLOAT64_T,
                      coords));
 
         H5_RETURN (H5_SUCCESS);

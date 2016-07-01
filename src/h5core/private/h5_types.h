@@ -22,6 +22,7 @@
 #define H5_FLOAT32              H5T_NATIVE_FLOAT
 #define H5_FLOAT64              H5T_NATIVE_DOUBLE
 #define H5_ID                   H5T_NATIVE_INT64
+#define H5_STRING		H5T_NATIVE_CHAR
 
 struct h5_prop {                        // generic property class
         h5_int64_t class;               // property class

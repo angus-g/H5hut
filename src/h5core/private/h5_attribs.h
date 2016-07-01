@@ -32,7 +32,7 @@ static inline h5_err_t
 h5priv_read_attrib (
 	const hid_t id,			/*!< HDF5 object ID */
 	const char* attrib_name,	/*!< name of HDF5 attribute to read */
-	const h5_int64_t attrib_type,	/*!< H5hut enum type of attribute */
+	const h5_types_t attrib_type,	/*!< H5hut enum type of attribute */
 	void* const attrib_value	/*!< OUT: attribute value */
 	) {
 	H5_PRIV_API_ENTER (h5_err_t,

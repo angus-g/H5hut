@@ -195,7 +195,7 @@ h5_err_t
 h5t_create_mtagset (
         h5t_mesh_t* const m,
         const char name[],
-        const h5_id_t type,
+        const h5_types_t type,
         h5t_tagset_t** set
         ) {
 	H5_CORE_API_ENTER (h5_err_t,
@@ -208,7 +208,7 @@ h5t_create_mtagset (
 	}
 
 	// validate type
-	if (type != H5_INT64 && type != H5_FLOAT64) {
+	if (type != H5_INT64_T && type != H5_FLOAT64_T) {
 		H5_LEAVE (
 		        h5_error (H5_ERR_INVAL, "Unsupported data type." ));
 	}
@@ -458,7 +458,7 @@ read_tagset (
 	             &dsinfo,
 	             open_space_all, open_space_all,
 	             vals));
-	TRY (hdf5_close_dataset (dset_id ));
+	TRY (hdf5_close_dataset (dset_id));
 	tagset->type = dsinfo.type_id;
 
 	/*
@@ -466,9 +466,9 @@ read_tagset (
 	 */
 
 	h5_int64_t scope;
-	TRY (h5priv_read_attrib (loc_id, "__scope_min__", H5_INT64, &scope));
+	TRY (h5priv_read_attrib (loc_id, "__scope_min__", H5_INT64_T, &scope));
 	tagset->scope.min_level = scope;
-	TRY (h5priv_read_attrib (loc_id, "__scope_max__", H5_INT64, &scope));
+	TRY (h5priv_read_attrib (loc_id, "__scope_max__", H5_INT64_T, &scope));
 	tagset->scope.max_level = scope;
 
 	for (ent_idx = 0; ent_idx < num_entities; ent_idx++) {
@@ -488,6 +488,7 @@ read_tagset (
 		             dim,
 		             &vals[entity->idx]));
 	}
+	TRY (hdf5_close_group (loc_id));
 	TRY (h5_free (elems));
 	TRY (h5_free (entities));
 	TRY (h5_free (vals));
