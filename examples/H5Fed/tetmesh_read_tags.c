@@ -4,13 +4,12 @@
 
 #include "H5hut.h"
 
+// name of input file
 const char* FNAME = "simple_tet.h5";
 
-#ifndef PARALLEL_IO
-#ifndef MPI_COMM_WORLD
-#define MPI_COMM_WORLD 0
-#endif
-#endif
+// H5hut verbosity/debug level
+const h5_int64_t h5_verbosity = H5_VERBOSE_DEFAULT;
+const h5_int64_t h5_debugmsk = H5_DEBUG_ALL;
 
 typedef struct timer {
 	clock_t _start;
@@ -378,10 +377,12 @@ main (
 	int argc,
 	char* argv[]
 	) {
+	
 	/* abort program on error, so we don't have to handle them */
 	H5SetErrorHandler (H5AbortErrorhandler);
-	H5SetVerbosityLevel (2);
-
+	H5SetVerbosityLevel (h5_verbosity);
+	H5SetDebugMask (h5_debugmsk);
+	
 	/* open file and get number of meshes */
 	h5_file_t f = H5OpenFile (FNAME, H5_O_RDONLY, 0);
 	h5_size_t num_meshes = H5FedGetNumTetrahedralMeshes (f);

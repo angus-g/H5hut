@@ -4,9 +4,6 @@
 
 #include "H5hut.h"
 
-#define PRINT_UPADJACENCIES 1
-#define PRINT_DOWNADJACENCIES 0
-
 const char* FNAME = "simple_tet.h5";
 
 typedef struct timer {
