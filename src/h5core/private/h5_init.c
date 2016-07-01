@@ -666,11 +666,17 @@ h5_err_t
 h5priv_initialize (
         void
         ) {
-	h5_initialized = 1;
 	memset (&h5_call_stack, 0, sizeof (h5_call_stack));
+	// must be set here, otherwise next statement will fail!
+	h5_initialized = 1;
 	H5_CORE_API_ENTER (h5_err_t, "%s", "void");
 	ret_value = H5_SUCCESS;
 #ifdef PARALLEL_IO
+	int mpi_is_initialized;
+	MPI_Initialized (&mpi_is_initialized);
+	if (!mpi_is_initialized) {
+		MPI_Init (NULL, NULL);
+	}
 	if (h5priv_mpi_comm_rank (MPI_COMM_WORLD, &h5_myproc) < 0) {
 		exit (42);
 	}

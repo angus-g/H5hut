@@ -19,6 +19,7 @@
 #if !defined (PARALLEL_IO)
 typedef int MPI_Comm;
 #define MPI_Init(argc, argv)
+#define MPI_Initialized () (1)
 #define MPI_Comm_size(comm, nprocs) {(void)comm; *nprocs = 1; }
 #define MPI_Comm_rank(comm, myproc) {(void)comm; *myproc = 0; }
 #define MPI_Finalize()
