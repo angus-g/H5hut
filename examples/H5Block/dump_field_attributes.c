@@ -103,13 +103,22 @@ dump_float32_attrib (
 	printf ("\n");
 }
 
-inline void
+static inline void
 dump_string_attrib (
 	h5_file_t file,
 	const char* const field_name,
 	const char* const attrib_name,
 	h5_size_t attrib_nelems
 	) {
+	char* attrib_data[attrib_nelems];
+	H5BlockReadFieldAttribString (
+		file,
+		field_name,
+		attrib_name,
+		attrib_data);
+	printf ("Attribute: '%s'\n", attrib_name);
+	printf ("    Type: H5_FLOAT32_T\n");
+	printf ("    Data: %2f", attrib_data[0]);
 }
 
 void

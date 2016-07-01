@@ -21,7 +21,7 @@ const ssize_t dim_y = 8;
 const ssize_t dim_z = 32;
 
 
-inline ssize_t idx (
+static inline ssize_t idx (
 	ssize_t i, ssize_t i_dim,
 	ssize_t j, ssize_t j_dim,
 	ssize_t k
