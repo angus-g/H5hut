@@ -1317,8 +1317,9 @@ part_kway  (
 	        &m->f->props->comm
 	        );
 	if (rc != METIS_OK) {
-		H5_LEAVE(
-		        h5_error (H5_ERR, "ParMETIS failed"));
+		H5_RETURN_ERROR (
+		        H5_ERR,
+			"ParMETIS failed");
 	}
 	TRY (h5_free (vtxdist));
 	TRY (h5_free (xadj));
@@ -2150,8 +2151,9 @@ distribute_octree_parmetis (
 				&m->f->props->comm
 		);
 		if (rc != METIS_OK) {
-			H5_LEAVE(
-					h5_error (H5_ERR, "ParMETIS failed"));
+			H5_RETURN_ERROR (
+				H5_ERR,
+				"ParMETIS failed");
 		}
 
 		TRY (h5_free (xadj));
@@ -2709,11 +2711,10 @@ read_elems_part (
 			i++; hcount++;
 		}
 		if (hstart+hcount > num_glb_elems) {
-			H5_LEAVE (
-			        h5_error (
-			                H5_ERR_H5FED,
-			                "invalid selection: start=%lld, count=%lld",
-			                (long long)hstart, (long long)hcount));
+			H5_RETURN_ERROR (
+				H5_ERR_H5FED,
+				"invalid selection: start=%lld, count=%lld",
+				(long long)hstart, (long long)hcount);
 		}
 		TRY (hdf5_select_hyperslab_of_dataspace (
 		             dspace_id,

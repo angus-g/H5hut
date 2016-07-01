@@ -203,24 +203,27 @@ h5t_create_mtagset (
 	                   m, name, (long long unsigned)type, set);
 	// validate name
 	if (name == NULL || name[0] == '\0') {
-		H5_LEAVE (
-		        h5_error (H5_ERR_INVAL, "Invalid name" ));
+		H5_RETURN_ERROR (
+		        H5_ERR_INVAL,
+			"%s",
+			"Invalid name");
 	}
 
 	// validate type
 	if (type != H5_INT64_T && type != H5_FLOAT64_T) {
-		H5_LEAVE (
-		        h5_error (H5_ERR_INVAL, "Unsupported data type." ));
+		H5_RETURN_ERROR (
+		        H5_ERR_INVAL,
+			"%s",
+			"Unsupported data type.");
 	}
 
 	// check if a tagset with given name already exists
 	h5_err_t exists;
 	TRY (exists = h5priv_link_exists (m->mesh_gid, "Tags", name));
 	if (exists || h5priv_find_strlist (m->mtagsets, name) >= 0)
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_H5FED,
-		                "Cannot create tagset '%s': Tagset exists", name));
+		H5_RETURN_ERROR (
+			H5_ERR_H5FED,
+			"Cannot create tagset '%s': Tagset exists", name);
 	TRY (ret_value = new_tagset (m, m->mesh_gid, name, type, set));
 	H5_RETURN (ret_value);
 }
@@ -509,23 +512,27 @@ h5t_open_mtagset (
 	                   m, name, set);
 	// validate name
 	if (name == NULL || name[0] == '\0') {
-		H5_LEAVE (
-		        h5_error (H5_ERR_INVAL, "Invalid name" ));
+		H5_RETURN_ERROR (
+		        H5_ERR_INVAL,
+			"%s",
+			"Invalid name");
 	}
 
 	// check if a tagset with given name exists
 	h5_err_t exists;
 	TRY (exists = h5priv_link_exists (m->mesh_gid, "Tags", name));
-	if (!exists) H5_LEAVE (
-		        h5_error (
-		                H5_ERR_INVAL,
-		                "Cannot open tagset '%s': No such tagset ", name));
+	if (!exists)
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Cannot open tagset '%s': No such tagset ",
+			name);
 
 	// check if tagset has already been opened
-	if (h5priv_find_strlist (m->mtagsets, name) >= 0) H5_LEAVE (
-		        h5_error (
-		                H5_ERR_INVAL,
-		                "Cannot open tagset '%s': Already open ", name));
+	if (h5priv_find_strlist (m->mtagsets, name) >= 0)
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Cannot open tagset '%s': Already open ",
+			name);
 
 
 	TRY (new_tagset (m, m->mesh_gid, name, -1, set));
@@ -765,10 +772,11 @@ h5t_remove_mtagset (
 	H5_CORE_API_ENTER (h5_err_t, "m=%p, name='%s'", m, name);
 
 	// check if tagset has a copy in memory
-	if (h5priv_find_strlist (m->mtagsets, name) >= 0) H5_LEAVE (
-		        h5_error (
-		                H5_ERR_INVAL,
-		                "Cannot remove tagset '%s': Still open ", name));
+	if (h5priv_find_strlist (m->mtagsets, name) >= 0)
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Cannot remove tagset '%s': Still open ",
+			name);
 
 	hid_t loc_id;
 	TRY (loc_id = hdf5_open_group (m->mesh_gid, "Tags"));

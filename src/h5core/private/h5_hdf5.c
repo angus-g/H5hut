@@ -40,10 +40,10 @@ h5priv_link_exists_ (
 			*s++ = '/';
 			*s = '\0';
 		}
-		if (s+strlen(path[i])+1 >= end) H5_LEAVE (
-			        h5_error (
-			                H5_ERR_HDF5,
-			                "path %s... to long", name));
+		if (s+strlen(path[i])+1 >= end)
+			H5_RETURN_ERROR (
+				H5_ERR_HDF5,
+				"path %s... to long", name);
 		s = stpcpy (s, path[i]);  // return ptr to end!!!
 		h5_err_t exists;
 		TRY (exists = hdf5_link_exists (loc_id, name));
@@ -73,12 +73,11 @@ h5priv_open_group_ (
 		} else if (create_intermediate) {
 			TRY (hid2 = hdf5_create_group (hid, path[i]));
 		} else {
-			H5_LEAVE (
-			        h5_error (
-			                H5_ERR_HDF5,
-			                "No such group '%s/%s'.",
-			                hdf5_get_objname (hid),
-			                path[i]));
+			H5_RETURN_ERROR (
+				H5_ERR_HDF5,
+				"No such group '%s/%s'.",
+				hdf5_get_objname (hid),
+				path[i]);
 
 		}
 		if (hid != loc_id) {
@@ -237,11 +236,10 @@ hdf5_get_num_groups (
 	                          &start_idx,
 	                          iter_op_count, &op_data);
 	if (herr < 0) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_HDF5,
-		                "Cannot get number of groups in '%s'.",
-		                hdf5_get_objname (loc_id)));
+		H5_RETURN_ERROR (
+			H5_ERR_HDF5,
+			"Cannot get number of groups in '%s'.",
+			hdf5_get_objname (loc_id));
 	}
 	H5_RETURN (op_data.cnt);
 }
@@ -263,12 +261,11 @@ hdf5_get_num_groups_matching_prefix (
 	                          &start_idx,
 	                          iter_op_count_match, &op_data);
 	if (herr < 0) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_HDF5,
-		                "Cannot get number of groups with prefix"
-		                " '%s' in '%s'.",
-		                prefix, hdf5_get_objname (loc_id)));
+		H5_RETURN_ERROR (
+			H5_ERR_HDF5,
+			"Cannot get number of groups with prefix"
+			" '%s' in '%s'.",
+			prefix, hdf5_get_objname (loc_id));
 	}
 	H5_RETURN (op_data.cnt);
 }
@@ -296,13 +293,12 @@ hdf5_get_name_of_group_by_idx (
 	                          &start_idx,
 	                          iter_op_idx, &op_data);
 	if (herr < 0) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_HDF5,
-		                "Cannot get name of group with index"
-		                " '%lu' in '%s'.",
-		                (long unsigned int)idx,
-		                hdf5_get_objname (loc_id)));
+		H5_RETURN_ERROR (
+			H5_ERR_HDF5,
+			"Cannot get name of group with index"
+			" '%lu' in '%s'.",
+			(long unsigned int)idx,
+			hdf5_get_objname (loc_id));
 	}
 	H5_RETURN (H5_SUCCESS);
 }
@@ -322,11 +318,10 @@ hdf5_get_num_datasets (
 	                          &start_idx,
 	                          iter_op_count, &op_data);
 	if (herr < 0) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_HDF5,
-		                "Cannot get number of datasets in '%s'.",
-		                hdf5_get_objname (loc_id)));
+		H5_RETURN_ERROR (
+			H5_ERR_HDF5,
+			"Cannot get number of datasets in '%s'.",
+			hdf5_get_objname (loc_id));
 	}
 	H5_RETURN (op_data.cnt);
 }
@@ -357,13 +352,12 @@ hdf5_get_name_of_dataset_by_idx (
 	                          &start_idx,
 	                          iter_op_idx, &op_data);
 	if (herr < 0) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_HDF5,
-		                "Cannot get name of dataset with index"
-		                " '%lu' in '%s'.",
-		                (long unsigned int)idx,
-		                hdf5_get_objname (loc_id)));
+		H5_RETURN_ERROR (
+			H5_ERR_HDF5,
+			"Cannot get name of dataset with index"
+			" '%lu' in '%s'.",
+			(long unsigned int)idx,
+			hdf5_get_objname (loc_id));
 	}
 	if (op_data.cnt < 0)
 		H5_LEAVE (H5_NOK);

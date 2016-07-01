@@ -50,10 +50,10 @@ h5u_get_num_points_in_view (
 	h5_ssize_t nparticles;
 
 	if (!h5u_has_view (fh)) {
-                H5_LEAVE (
-                        h5_error (
-                                H5_ERR_H5PART,
-                                "No view has been set."));
+                H5_RETURN_ERROR (
+			H5_ERR_H5PART,
+			"%s",
+			"No view has been set.");
         }
         TRY (nparticles = hdf5_get_selected_npoints_of_dataspace(f->u->diskshape));
         h5_debug ("Found %lld particles in view.", (long long)nparticles );
@@ -118,11 +118,10 @@ h5u_set_num_points (
 	hsize_t dmax = H5S_UNLIMITED;
 
 	if (nparticles < 0)
-		H5_LEAVE (
-		        h5_error(
-		                H5_ERR_INVAL,
-		                "Invalid number of particles: %lld!\n",
-		                (long long)nparticles));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid number of particles: %lld!\n",
+			(long long)nparticles);
 
 #ifndef PARALLEL_IO
 	/*
@@ -285,23 +284,19 @@ h5u_set_view (
 		  :FIXME: why not gather total size?
 		*/
 		if (start < 0) {
-			H5_LEAVE (
-				h5_error(
-					H5_ERR_INVAL,
-					"Start of selection '%lld' out of range: "
-					"must be >= 0",
-					(long long)start)
-				);
+			H5_RETURN_ERROR (
+				H5_ERR_INVAL,
+				"Start of selection '%lld' out of range: "
+				"must be >= 0",
+				(long long)start);
 		}
 		if (end < start) {
-			H5_LEAVE (
-				h5_error(
-					H5_ERR_INVAL,
-					"End of selection '%lld' out of range: "
-					"must be >= %lld",
-					(long long)end,
-					(long long)start)
-				);
+			H5_RETURN_ERROR (
+				H5_ERR_INVAL,
+				"End of selection '%lld' out of range: "
+				"must be >= %lld",
+				(long long)end,
+				(long long)start);
 		}
 #if PARALLEL_IO
 		TRY (
@@ -322,25 +317,22 @@ h5u_set_view (
 		}
 	
 		if (start < 0 || start >= total) {
-			H5_LEAVE (
-				h5_error(
-					H5_ERR_INVAL,
-					"Start of selection '%lld' out of range: "
-					"must be in [0..%lld]",
-					(long long)start, (long long)total-1));
+			H5_RETURN_ERROR (
+				H5_ERR_INVAL,
+				"Start of selection '%lld' out of range: "
+				"must be in [0..%lld]",
+				(long long)start, (long long)total-1);
 		} else if (end < 0 || end >= total) {
-			H5_LEAVE (
-				h5_error(
-					H5_ERR_INVAL,
-					"End of selection '%lld' out of range: "
-					"must be in [0..%lld]",
-					(long long)end, (long long)total-1));
+			H5_RETURN_ERROR (
+				H5_ERR_INVAL,
+				"End of selection '%lld' out of range: "
+				"must be in [0..%lld]",
+				(long long)end, (long long)total-1);
 		} else if (end+1 < start) {
-			H5_LEAVE (
-				h5_error(
-					H5_ERR_INVAL,
-					"Invalid selection: start=%lld > end=%lld!\n",
-					(long long)start, (long long)end));
+			H5_RETURN_ERROR (
+				H5_ERR_INVAL,
+				"Invalid selection: start=%lld > end=%lld!\n",
+				(long long)start, (long long)end);
 		}
 	}
 	
@@ -408,12 +400,11 @@ h5u_set_view_length (
 	}
 
 	if (start < 0 || length < 0 || start+length > total) 
-                H5_LEAVE (
-		        h5_error(
-		                H5_ERR_INVAL,
-		                "Invalid view: start=%lld, length=%lld, total=%lld",
-		                (long long)start, (long long)length,
-				(long long)total));
+                H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid view: start=%lld, length=%lld, total=%lld",
+			(long long)start, (long long)length,
+			(long long)total);
 
 	/* setting up the new view */
 	u->viewstart =  start;
@@ -517,11 +508,11 @@ h5u_get_view (
 	struct h5u_fdata *u = f->u;
 
 	if ( u->viewindexed ) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_INVAL,
-		                "The current view has an index selection, but "
-		                "this function only works for ranged views." ));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"%s",
+			"The current view has an index selection, but "
+			"this function only works for ranged views." );
 	}
 
 	h5_int64_t viewstart = 0;

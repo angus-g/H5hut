@@ -215,14 +215,13 @@ _write_data (
 		hid_t type_file;
 		TRY( type_file = hdf5_get_dataset_type (dataset) );
 		if ( type != type_file ) {
-			H5_LEAVE (
-				h5_error(
-					H5_ERR_HDF5,
-					"Field '%s' already has type '%s' "
-					"but was written as '%s'.",
-					field_name,
-					hdf5_get_type_name (type_file),
-					hdf5_get_type_name (type)));
+			H5_RETURN_ERROR (
+				H5_ERR_HDF5,
+				"Field '%s' already has type '%s' "
+				"but was written as '%s'.",
+				field_name,
+				hdf5_get_type_name (type_file),
+				hdf5_get_type_name (type));
 		}
 	} else {
 		TRY (dataset = hdf5_create_dataset(
@@ -328,21 +327,20 @@ _select_hyperslab_for_reading (
 
 	TRY (rank = hdf5_get_dims_of_dataspace(b->diskshape, field_dims, NULL));
 	if (rank != 3)
-		H5_LEAVE (
-		        h5_error(
-		                H5_ERR_INVAL,
-		                "H5Block dataset has bad rank '%d' instead"
-		                " of rank 3! Is the file corrupt?",
-		                rank));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"H5Block dataset has bad rank '%d' instead"
+			" of rank 3! Is the file corrupt?",
+			rank);
 
 	if ( (field_dims[0] < (hsize_t)b->k_max) ||
 	     (field_dims[1] < (hsize_t)b->j_max) ||
 	     (field_dims[2] < (hsize_t)b->i_max) )
-		H5_LEAVE (
-			h5_error(
-				H5_ERR_VIEW,
-				"H5Block dataset has invalid view. "
-				"Is the file corrupt?"));
+		H5_RETURN_ERROR (
+			H5_ERR_VIEW,
+			"%s",
+			"H5Block dataset has invalid view. "
+			"Is the file corrupt?");
 
 	h5_debug (
 		"field_dims: (%lld,%lld,%lld)",

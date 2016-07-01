@@ -170,11 +170,10 @@ h5t_add_triangle_mesh (
 	             TRIANGLE_MESHES_GRPNAME,
 	             name));
 	if (exists) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR,
-		                "Tetrahedral mesh '%s' already exists!",
-		                name));
+		H5_RETURN_ERROR (
+			H5_ERR,
+			"Tetrahedral mesh '%s' already exists!",
+			name);
 	}
 	hid_t mesh_hid;
 	TRY (mesh_hid = h5priv_open_group (
@@ -221,11 +220,10 @@ h5t_add_chunked_triangle_mesh(
 	int size = -1;
 	TRY (h5priv_mpi_comm_size (f->props->comm, &size));
 	if (size != 1) {
-		H5_LEAVE (
-				h5_error (
-						H5_ERR,
-				        "Trying to create a chunked mesh with '%d' procs instead of 1!",
-				        size));
+		H5_RETURN_ERROR (
+			H5_ERR,
+			"Trying to create a chunked mesh with '%d' procs instead of 1!",
+			size);
 	}
 
 	CHECK_WRITABLE_MODE (f);
@@ -236,11 +234,10 @@ h5t_add_chunked_triangle_mesh(
 	             TRIANGLE_MESHES_GRPNAME,
 	             name));
 	if (exists) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR,
-		                "Triangle mesh '%s' already exists!",
-		                name));
+		H5_RETURN_ERROR (
+			H5_ERR,
+			"Triangle mesh '%s' already exists!",
+			name);
 	}
 	hid_t mesh_hid;
 	TRY (mesh_hid = h5priv_open_group (

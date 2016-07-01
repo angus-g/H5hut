@@ -38,11 +38,10 @@ h5_add_attachment (
 
 	struct stat st;
         if (stat (fname, &st) < 0) {
-		H5_LEAVE (
-			h5_error (
-				H5_ERR_HDF5,
-				"Cannot stat file '%s'",
-				fname));
+		H5_RETURN_ERROR (
+			H5_ERR_HDF5,
+			"Cannot stat file '%s'",
+			fname);
 	}
 	hsize_t fsize = st.st_size;
 	hsize_t write_length;
@@ -52,30 +51,27 @@ h5_add_attachment (
 		write_length = fsize;
 		int fd;
 		if ((fd = open (fname, O_RDONLY)) < 0) {
-			H5_LEAVE (
-				h5_error (
-					H5_ERR_HDF5,
-					"Cannot open file '%s' for reading",
-					fname));
+			H5_RETURN_ERROR (
+				H5_ERR_HDF5,
+				"Cannot open file '%s' for reading",
+				fname);
 		}
 	again:
 		if (read (fd, buf, fsize) < 0) {
 			if (errno == EINTR) {
 				goto again;
 			} else {
-				H5_LEAVE (
-					h5_error (
-						H5_ERR_HDF5,
-						"Cannot read file '%s'",
-						fname));
+				H5_RETURN_ERROR (
+					H5_ERR_HDF5,
+					"Cannot read file '%s'",
+					fname);
 			}
 		}
 		if (close (fd) < 0) {
-			H5_LEAVE (
-				h5_error (
-					H5_ERR_HDF5,
-					"Cannot close file '%s'",
-					fname));
+			H5_RETURN_ERROR (
+				H5_ERR_HDF5,
+				"Cannot close file '%s'",
+				fname);
 		}
 
 	} else {
@@ -284,25 +280,22 @@ h5_get_attachment (
 	if (f->myproc == 0) {
 		int fd;
 		if ((fd = open (fname, O_WRONLY|O_CREAT|O_TRUNC, 0600)) < 0) {
-			H5_LEAVE (
-				h5_error (
-					H5_ERR_H5,
-					"Error opening file '%s': %s",
-					fname, strerror(errno)));
+			H5_RETURN_ERROR (
+				H5_ERR_H5,
+				"Error opening file '%s': %s",
+				fname, strerror(errno));
 		}
 		if (write (fd, buf, fsize) != fsize) {
-			H5_LEAVE (
-				h5_error (
-					H5_ERR_H5,
-					"Error writing to file '%s': %s",
-					fname, strerror(errno)));
+			H5_RETURN_ERROR (
+				H5_ERR_H5,
+				"Error writing to file '%s': %s",
+				fname, strerror(errno));
 		}
 		if (close (fd) < 0) {
-			H5_LEAVE (
-				h5_error (
-					H5_ERR_H5,
-					"Error closing file '%s': %s",
-					fname, strerror(errno)));
+			H5_RETURN_ERROR (
+				H5_ERR_H5,
+				"Error closing file '%s': %s",
+				fname, strerror(errno));
 		}
 	}
 	TRY (h5_free (buf));

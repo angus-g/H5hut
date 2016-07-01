@@ -130,11 +130,10 @@ refine_triangle (
 	h5_loc_tri_t* el = (h5_loc_tri_t*)m->loc_elems + elem_idx;
 
 	if (el->child_idx >= 0)
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_INVAL,
-		                "Element %lld already refined.",
-		                (long long)elem_idx));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Element %lld already refined.",
+			(long long)elem_idx);
 
 	vertices[0] = el->vertex_indices[0];
 	vertices[1] = el->vertex_indices[1];
@@ -236,13 +235,12 @@ compute_neighbors_of_elems (
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p, level=%d", m, level);
 	if (level < 0 || level >= m->num_leaf_levels) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_INVAL,
-		                "level idx %lld out of bound, must be in [%lld,%lld]",
-		                (long long)level,
-		                (long long)0,
-		                (long long)m->num_leaf_levels));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"level idx %lld out of bound, must be in [%lld,%lld]",
+			(long long)level,
+			(long long)0,
+			(long long)m->num_leaf_levels);
 	}
 	h5_loc_idx_t elem_idx = level == 0 ? 0 : m->num_interior_elems[level-1];
 	const h5_loc_idx_t last_idx = m->num_interior_elems[level] - 1;

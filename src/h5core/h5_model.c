@@ -93,12 +93,11 @@ h5priv_normalize_dataset_name (
 	}
 
 	if ( strcmp( name2, H5BLOCK_GROUPNAME_BLOCK ) == 0 ) {
-		H5_LEAVE (
-			h5_error (
-				H5_ERR_INVAL,
-				"Can't create dataset or field with name '%s'"
-				" because it is reserved by H5Block.",
-				H5BLOCK_GROUPNAME_BLOCK));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Can't create dataset or field with name '%s'"
+			" because it is reserved by H5Block.",
+			H5BLOCK_GROUPNAME_BLOCK);
 	}
 	H5_RETURN (H5_SUCCESS);
 }

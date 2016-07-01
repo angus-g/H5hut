@@ -386,10 +386,10 @@ h5t_close_mesh (
 #endif
 	// check if tagsets are still open
 	if (m->mtagsets && m->mtagsets->num_items > 0)
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_H5FED,
-		                "Mesh cannot be closed: Mesh is referenced by open tagsets"));
+		H5_RETURN_ERROR (
+			H5_ERR_H5FED,
+			"%s",
+			"Mesh cannot be closed: Mesh is referenced by open tagsets");
 
 	if (!(m->f->props->flags & H5_O_RDONLY)) {
 		TRY (h5tpriv_write_mesh (m));

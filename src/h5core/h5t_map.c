@@ -500,12 +500,11 @@ h5priv_exchange_loc_list_to_glb (
 	// loc -> glb
 	for (int i = 0; i < m->marked_entities->num_items; i++) {
 		if (m->marked_entities->items[i] > m->last_stored_eid) {
-			H5_LEAVE (
-				h5_error (
-					H5_ERR_INVAL,
-					"Element chosen to be refined is %d but there are only %d elements",
-					m->marked_entities->items[i],
-					m->last_stored_eid + 1 ));
+			H5_RETURN_ERROR (
+				H5_ERR_INVAL,
+				"Element chosen to be refined is %d but there are only %d elements",
+				m->marked_entities->items[i],
+				m->last_stored_eid + 1);
 		}
 
 		sendbuf[i] = h5tpriv_get_loc_elem_glb_idx (m, m->marked_entities->items[i]);

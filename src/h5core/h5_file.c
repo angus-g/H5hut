@@ -193,11 +193,10 @@ h5_set_prop_file_mpio_collective (
         H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
         
         if (props->class != H5_PROP_FILE) {
-                H5_LEAVE (
-                        h5_error (
-                                H5_ERR_INVAL,
-                                "Invalid property class: %lld",
-				(long long int)props->class));
+                H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid property class: %lld",
+			(long long int)props->class);
         }
         props->flags &= ~(H5_VFD_MPIO_POSIX | H5_VFD_MPIO_INDEPENDENT | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_COLLECTIVE;
@@ -219,11 +218,10 @@ h5_set_prop_file_mpio_independent (
         H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
         
         if (props->class != H5_PROP_FILE) {
-                H5_LEAVE (
-                        h5_error (
-                                H5_ERR_INVAL,
-                                "Invalid property class: %lld",
-				(long long int)props->class));
+                H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid property class: %lld",
+			(long long int)props->class);
         }
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_POSIX | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
@@ -241,11 +239,10 @@ h5_set_prop_file_mpio_posix (
         H5_CORE_API_ENTER (h5_err_t, "props=%p, comm=%p", props, comm);
         
         if (props->class != H5_PROP_FILE) {
-                H5_LEAVE (
-                        h5_error (
-                                H5_ERR_INVAL,
-                                "Invalid property class: %lld",
-				(long long int)props->class));
+                H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid property class: %lld",
+			(long long int)props->class);
         }
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_POSIX | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
@@ -263,11 +260,10 @@ h5_set_prop_file_core_vfd (
         H5_CORE_API_ENTER (h5_err_t, "props=%p, increment=%lld", props, (long long int)increment);
         
         if (props->class != H5_PROP_FILE) {
-                H5_LEAVE (
-                        h5_error (
-                                H5_ERR_INVAL,
-                                "Invalid property class: %lld",
-				(long long int)props->class));
+                H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid property class: %lld",
+			(long long int)props->class);
         }
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_INDEPENDENT | H5_VFD_MPIO_POSIX);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
@@ -292,11 +288,10 @@ h5_set_prop_file_align (
 		"props=%p, align=%lld",
 		props, (long long int)align);
         if (props->class != H5_PROP_FILE) {
-                H5_LEAVE (
-                        h5_error (
-                                H5_ERR_INVAL,
-                                "Invalid property class: %lld",
-				(long long int)props->class));
+                H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid property class: %lld",
+			(long long int)props->class);
         }
         props->align = align;
         H5_RETURN (H5_SUCCESS);
@@ -313,11 +308,10 @@ h5_set_prop_file_throttle (
 		"props=%p, throttle=%lld",
 		props, (long long int)throttle);
         if (props->class != H5_PROP_FILE) {
-                H5_LEAVE (
-                        h5_error (
-                                H5_ERR_INVAL,
-                                "Invalid property class: %lld",
-				(long long int)props->class));
+                H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid property class: %lld",
+			(long long int)props->class);
         }
 	// throttle only if VFD is MPIO independent od POSIX
 	h5_int64_t mask = H5_VFD_MPIO_INDEPENDENT;
@@ -357,11 +351,10 @@ h5_create_prop (
                 set_default_file_props ((h5_prop_file_t*)prop);
                 break;
         default:
-                H5_LEAVE (
-                        h5_error (
-                                H5_ERR_INVAL,
-                                "Invalid property class: %lld",
-				(long long int)class));
+                H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid property class: %lld",
+			(long long int)class);
         }
         H5_RETURN ((h5_prop_t)prop);
 }
@@ -379,11 +372,10 @@ h5_close_prop (
                 break;
         }
         default:
-                H5_LEAVE (
-                        h5_error (
-                                H5_ERR_INVAL,
-                                "Invalid property class: %lld",
-				(long long int)prop->class));
+                H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid property class: %lld",
+			(long long int)prop->class);
         }
         H5_RETURN (h5_free (prop));
 }
@@ -441,19 +433,17 @@ open_file (
 		}
 	}
 	else {
-		H5_LEAVE (
-			h5_error (
-				H5_ERR_INVAL,
-				"Invalid file access mode '%lld'.",
-				(long long int)f->props->flags & 0xff));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid file access mode '%lld'.",
+			(long long int)f->props->flags & 0xff);
 	}
 	
 	if (f->file < 0)
-		H5_LEAVE (
-			h5_error (
-				H5_ERR_HDF5,
-				"Cannot open file '%s' with mode '%s'",
-				filename, H5_O_MODES[f->props->flags & 0xff]));
+		H5_RETURN_ERROR (
+			H5_ERR_HDF5,
+			"Cannot open file '%s' with mode '%s'",
+			filename, H5_O_MODES[f->props->flags & 0xff]);
 	TRY (f->root_gid = hdf5_open_group (f->file, "/" ));
 
 	TRY (h5upriv_open_file (f));
@@ -482,11 +472,10 @@ h5_open_file2 (
                 
         if (props != H5_PROP_DEFAULT) {
                 if (props->class != H5_PROP_FILE) {
-                        H5_LEAVE (
-                                h5_error (
-                                        H5_ERR_INVAL,
-                                        "Invalid property class: %lld.",
-                                        (long long int)props->class));
+                        H5_RETURN_ERROR (
+				H5_ERR_INVAL,
+				"Invalid property class: %lld.",
+				(long long int)props->class);
                 }
                 f->props->comm = props->comm;
                 f->props->flags = props->flags;

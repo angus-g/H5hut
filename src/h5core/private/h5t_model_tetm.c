@@ -151,11 +151,10 @@ h5t_add_tetrahedral_mesh (
 	             TETRAHEDRAL_MESHES_GRPNAME,
 	             name));
 	if (exists) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR,
-		                "Tetrahedral mesh '%s' already exists!",
-		                name));
+		H5_RETURN_ERROR (
+			H5_ERR,
+			"Tetrahedral mesh '%s' already exists!",
+			name);
 	}
 	hid_t mesh_hid;
 	TRY (mesh_hid = h5priv_open_group (
@@ -209,11 +208,10 @@ h5t_add_chunked_tetrahedral_mesh (
 	             TETRAHEDRAL_MESHES_GRPNAME,
 	             name));
 	if (exists) {
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR,
-		                "Tetrahedral mesh '%s' already exists!",
-		                name));
+		H5_RETURN_ERROR (
+			H5_ERR,
+			"Tetrahedral mesh '%s' already exists!",
+			name);
 	}
 	hid_t mesh_hid;
 	TRY (mesh_hid = h5priv_open_group (

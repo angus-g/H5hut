@@ -591,10 +591,10 @@ update_userdata (
 		for (int j = i + 1; j < nbr_glb_oct_changed; j++) {
 			if (oct_idx_to_check == changed_oct_idx[j]) {
 				/*** an octant was changed twice! ***/
-				H5_LEAVE( h5_error (
-						H5_ERR_INVAL,
-						"Multiple cores tried to update the same userdata with idx: %d",
-						oct_idx_to_check));
+				H5_RETURN_ERROR (
+					H5_ERR_INVAL,
+					"Multiple cores tried to update the same userdata with idx: %d",
+					oct_idx_to_check);
 			};
 		};
 	};
@@ -3195,7 +3195,7 @@ complete_level(
 			parent = get_parent(octree, parent);
 		}
 		if (parent == -1){
-			H5_LEAVE (H5_ERR_INTERNAL );
+			H5_LEAVE (H5_ERR_INTERNAL);
 		}
 		done = 0;
 		// mark all parents of parent as not on level

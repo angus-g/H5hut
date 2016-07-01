@@ -159,10 +159,9 @@ h5priv_map_enum_to_normalized_type (
 		ret_value = H5_FLOAT64;
 		break;
 	default:
-		H5_LEAVE (
-			h5_error (
-				H5_ERR_INVAL,
-				"Unknown type %d", (int)type));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Unknown type %d", (int)type);
 	}
 	H5_RETURN (ret_value);
 }
@@ -220,10 +219,9 @@ h5priv_normalize_type (
 		break;
 	}
 	if (ret_value < 0) {
-		H5_LEAVE (
-			h5_error (
-				H5_ERR_INVAL,
-				"Unknown type %d", (int)type));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Unknown type %d", (int)type);
 	}
 	H5_RETURN (ret_value);
 }
@@ -280,10 +278,9 @@ h5priv_map_hdf5_type_to_enum (
 		ret_value = H5_STRING_T;
 		break;
 	default:
-		H5_LEAVE (
-			h5_error (
-				H5_ERR_INVAL,
-				"Unknown type %d", (int)type));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Unknown type %d", (int)type);
 	}
 	H5_RETURN (ret_value);
 }

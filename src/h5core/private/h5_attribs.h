@@ -65,14 +65,13 @@ h5priv_read_attrib (
 	hid_t normalized_file_type;
 	TRY (normalized_file_type = h5priv_normalize_type (file_type));
 	if (normalized_file_type != normalized_type)
-		H5_LEAVE (
-			h5_error (
-				H5_ERR_HDF5,
-				"Attribute '%s' has type '%s' but "
-				"was requested as '%s'.",
-				attrib_name,
-				hdf5_get_type_name (normalized_file_type),
-				hdf5_get_type_name (normalized_type)));
+		H5_RETURN_ERROR (
+			H5_ERR_HDF5,
+			"Attribute '%s' has type '%s' but "
+			"was requested as '%s'.",
+			attrib_name,
+			hdf5_get_type_name (normalized_file_type),
+			hdf5_get_type_name (normalized_type));
 	if (normalized_type == H5_STRING) {
 		mem_type = file_type;
 	} else {
@@ -120,10 +119,10 @@ h5priv_write_attrib (
 		if (overwrite) {
 			TRY (hdf5_delete_attribute (id, attrib_name));
 		} else {
-			H5_LEAVE (
-			        h5_error (H5_ERR_H5,
-					  "Cannot overwrite attribute %s/%s",
-			                  hdf5_get_objname (id), attrib_name));
+			H5_RETURN_ERROR (
+				H5_ERR,
+				"Cannot overwrite attribute %s/%s",
+				hdf5_get_objname (id), attrib_name);
 		}
 	}
 	TRY (attrib_id = hdf5_create_attribute (

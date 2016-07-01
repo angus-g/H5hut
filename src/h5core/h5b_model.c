@@ -454,9 +454,10 @@ h5bpriv_open_block_group (
 	TRY (hdf5_close_group (b->block_gid));
 	b->block_gid = hdf5_open_group (f->step_gid, H5BLOCK_GROUPNAME_BLOCK);
 	if (f->b->block_gid < 0)
-		H5_LEAVE (h5_error(
-		                           H5_ERR_INVAL,
-		                           "Time step does not contain H5Block data!"));
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"%s",
+			"Time step does not contain H5Block data!");
 
 	H5_RETURN (H5_SUCCESS);
 }
@@ -761,14 +762,14 @@ h5b_3d_set_grid (
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
 	if (i*j*k != f->nprocs) {
-		H5_LEAVE (
-		        h5_error(H5_ERR_INVAL,
-		                 "Grid dimensions (%lld,%lld,%lld) do not multiply "
-		                 "out to %d MPI processors!",
-		                 (long long)i,
-		                 (long long)j,
-		                 (long long)k,
-		                 f->nprocs));
+		H5_RETURN_ERROR (
+		        H5_ERR_INVAL,
+			"Grid dimensions (%lld,%lld,%lld) do not multiply "
+			"out to %d MPI processors!",
+			(long long)i,
+			(long long)j,
+			(long long)k,
+			f->nprocs);
 	}
 
 	f->b->k_grid = i;
@@ -798,9 +799,10 @@ h5b_3d_get_grid_coords (
 	                   "f=%p, proc=%d, i=%p, j=%p, k=%p",
 	                   f, proc, i, j, k);
 	if ( !f->b->have_grid )
-		H5_LEAVE (
-		        h5_error(H5_ERR_INVAL,
-		                 "Grid dimensions have not been set!"));
+		H5_RETURN_ERROR (
+		        H5_ERR_INVAL,
+			"%s",
+			"Grid dimensions have not been set!");
 
 	int coords[3];
 	TRY( h5priv_mpi_cart_coords(f->b->cart_comm, proc, 3, coords) );
@@ -825,9 +827,10 @@ h5b_3d_set_dims (
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
 	if ( !f->b->have_grid )
-		H5_LEAVE (
-		        h5_error(H5_ERR_INVAL,
-		                 "Grid dimensions have not been set!"));
+		H5_RETURN_ERROR (
+		        H5_ERR_INVAL,
+			"%s",
+			"Grid dimensions have not been set!");
 
 	h5_size_t dims[3] = { k, j, i };
 	h5_size_t check_dims[3] = { k, j, i };
@@ -839,17 +842,17 @@ h5b_3d_set_dims (
 	        dims[1] != check_dims[1] ||
 	        dims[2] != check_dims[2]
 	        ) {
-		H5_LEAVE (
-		        h5_error(H5_ERR_INVAL,
-		                 "[%d] Block dimensions do not agree: "
-		                 "(%lld,%lld,%lld) != (%lld,%lld,%lld)!",
-		                 f->myproc,
-		                 (long long)dims[0],
-		                 (long long)dims[1],
-		                 (long long)dims[2],
-		                 (long long)check_dims[0],
-		                 (long long)check_dims[1],
-		                 (long long)check_dims[2]));
+		H5_RETURN_ERROR (
+		        H5_ERR_INVAL,
+			"[%d] Block dimensions do not agree: "
+			"(%lld,%lld,%lld) != (%lld,%lld,%lld)!",
+			f->myproc,
+			(long long)dims[0],
+			(long long)dims[1],
+			(long long)dims[2],
+			(long long)check_dims[0],
+			(long long)check_dims[1],
+			(long long)check_dims[2]);
 	}
 	h5_int64_t coords[3];
 	TRY( h5b_3d_get_grid_coords((h5_file_t)f,
@@ -892,13 +895,15 @@ h5b_3d_set_halo (
 	                   (long long unsigned)k);
 
 	if ( !f->b->have_grid ) {
-		H5_LEAVE (
-		        h5_error(H5_ERR_INVAL,
-		                 "Grid dimensions have not been set!"));
+		H5_RETURN_ERROR (
+		        H5_ERR_INVAL,
+			"%s",
+			"Grid dimensions have not been set!");
 	} else if ( !f->b->have_layout ) {
-		H5_LEAVE (
-		        h5_error(H5_ERR_INVAL,
-		                 "Block dimensions for grid have not been set!"));
+		H5_RETURN_ERROR (
+		        H5_ERR_INVAL,
+			"%s",
+			"Block dimensions for grid have not been set!");
 	}
 	h5b_fdata_t *b = f->b;
 

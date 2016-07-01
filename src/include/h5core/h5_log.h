@@ -214,9 +214,14 @@ h5_get_loglevel (
 //////////////////////////////////////////////////////////////////////////////
 
 #define H5_LEAVE(expr) {						\
-	ret_value = expr;						\
-	goto done;							\
-}
+		ret_value = expr;					\
+		goto done;						\
+	}
+
+#define H5_RETURN_ERROR(errno, fmt, ...) {				\
+		ret_value = h5_error (errno, "(" fmt ")", __VA_ARGS__);	\
+		goto done;						\
+	}
 
 //////////////////////////////////////////////////////////////////////////////
 // function return macro
@@ -234,7 +239,7 @@ done:									\
 	ret_value = expr;						\
 	goto done;							\
 done:									\
-if (__log__ ) {								\
+	if (__log__ ) {							\
 		char fmt[256];						\
 		snprintf (fmt, sizeof(fmt), "return: %s",		\
 			  h5_rfmts[h5_call_stack_get_type()]);		\
