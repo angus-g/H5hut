@@ -110,15 +110,15 @@ dump_string_attrib (
 	const char* const attrib_name,
 	h5_size_t attrib_nelems
 	) {
-	char* attrib_data[attrib_nelems];
+	char attrib_data[attrib_nelems];
 	H5BlockReadFieldAttribString (
 		file,
 		field_name,
 		attrib_name,
 		attrib_data);
 	printf ("Attribute: '%s'\n", attrib_name);
-	printf ("    Type: H5_FLOAT32_T\n");
-	printf ("    Data: %2f", attrib_data[0]);
+	printf ("    Type: H5_STRING_T\n");
+	printf ("    Data: %s", attrib_data);
 }
 
 void
