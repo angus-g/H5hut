@@ -687,54 +687,6 @@ hdf5_get_npoints_of_dataset_by_name (
 }
 
 /****** D a t a t y p e ******************************************************/
-
-
-/*!
-   Map HDF5 type to native HDF5 type.
-*/
-static inline h5_int64_t
-hdf5_get_native_type (
-	hid_t type
-	) {
-	HDF5_WRAPPER_ENTER (h5_int64_t,
-			   "type=%lld",
-			   (long long int)type);
-	H5T_class_t tclass;
-	int size;
-	TRY (tclass = H5Tget_class (type));
-	TRY (size = H5Tget_size (type));
-
-	switch (tclass){
-	case H5T_INTEGER:
-		if (size==8) {
-			H5_LEAVE (H5T_NATIVE_INT64);
-		} else if (size==4) {
-		        H5_LEAVE (H5T_NATIVE_INT32);
-		} else if (size==2) {
-		        H5_LEAVE (H5T_NATIVE_INT16);
-		}
-		break;
-	case H5T_FLOAT:
-		if (size==8) {
-			H5_LEAVE (H5T_NATIVE_FLOAT);
-		}
-		else if (size==4) {
-			H5_LEAVE (H5T_NATIVE_DOUBLE);
-		}
-		break;
-	case H5T_STRING:
-		H5_LEAVE (H5T_NATIVE_CHAR);
-	default:
-		; /* NOP */
-	}
-	H5_RETURN (
-		h5_error (
-			H5_ERR_INVAL,
-			"Unknown data type %lld",
-			(long long int)type));
-}
-
-
 /*!
    H5Tarray_create() write
  */
@@ -1198,12 +1150,67 @@ hdf5_close_property (
 		H5_LEAVE (
 		        h5_error (
 		                H5_ERR_HDF5,
-		                "Cannot close property."));
+				"Cannot close property %lld.", (long long)prop));
 	H5_RETURN (H5_SUCCESS);
 }
 
 /****** F i l e **************************************************************/
+static inline h5_err_t
+hdf5_close_object (
+        hid_t object_id
+        ) {
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "object_id=%lld",
+			    (long long int)object_id);
+	if (H5Oclose (object_id) < 0)
+		H5_LEAVE (
+		        h5_error (
+		                H5_ERR_HDF5,
+		                "Cannot close object %lld.", (long long)object_id));
+	H5_RETURN (H5_SUCCESS);
+}
 
+static inline ssize_t
+hdf5_get_object_count (
+	hid_t file_id,
+	unsigned int types
+	) {
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "file_id=%lld (%s), types=%u",
+	                    (long long int)file_id, hdf5_get_objname (file_id),
+			    types);
+	if ((ret_value = H5Fget_obj_count (file_id, types)) < 0)
+		H5_LEAVE (
+		        h5_error (
+		                H5_ERR_HDF5,
+		                "Cannot get open object count for file %lld.",
+				(long long)file_id));
+	H5_RETURN (ret_value);
+	
+}
+
+static inline ssize_t
+hdf5_get_object_ids (
+	hid_t file_id,
+	unsigned int types,
+	size_t max_objs,
+	hid_t *obj_id_list
+	) {
+	HDF5_WRAPPER_ENTER (h5_err_t,
+			    "file_id=%lld (%s), "
+			    "type=%u, max_objs=%zd, "
+			    "obj_id_list=%p",
+	                    (long long int)file_id, hdf5_get_objname (file_id),
+			    types, max_objs, obj_id_list);
+	if ((ret_value = H5Fget_obj_ids (file_id, types, max_objs, obj_id_list)) < 0)
+		H5_LEAVE (
+		        h5_error (
+		                H5_ERR_HDF5,
+		                "Cannot get object id list for file %lld.",
+				(long long)file_id));
+	H5_RETURN (ret_value);
+}
+	
 static inline h5_err_t
 hdf5_close_file (
         hid_t file_id
@@ -1212,19 +1219,40 @@ hdf5_close_file (
 			    "file_id=%lld (%s)",
 	                    (long long int)file_id, hdf5_get_objname (file_id));
 	if (H5Fclose (file_id) < 0) {
-		ssize_t max_objs = H5Fget_obj_count (file_id, H5F_OBJ_ALL);
-		hid_t* obj_id_list = h5_calloc (max_objs, sizeof (hid_t));
-		H5Fget_obj_ids (file_id, H5F_OBJ_ALL, max_objs, obj_id_list);
+		// close open objects used by file
+		ssize_t max_objs;
+		unsigned int types = H5F_OBJ_DATASET|H5F_OBJ_GROUP|H5F_OBJ_DATATYPE;
+		TRY (max_objs = hdf5_get_object_count (file_id, types));
+		hid_t obj_id_list[max_objs];
+		TRY (hdf5_get_object_ids (file_id, types, max_objs, obj_id_list));
 		for (ssize_t i = 0; i < max_objs; i++) {
-			h5_debug ("Open object: %lld", (long long)obj_id_list[i]);
+			hid_t object_id = obj_id_list [i];
+			h5_debug ("Open object: %lld", (long long)object_id);
+			H5O_info_t object_info;
+			if (H5Oget_info (object_id, &object_info) < 0)
+				continue;
+			switch (object_info.type) {
+			case H5O_TYPE_GROUP:
+			case H5O_TYPE_DATASET:
+			case H5O_TYPE_NAMED_DATATYPE:
+				TRY (hdf5_close_object (object_id));
+			default:
+				// we cannot close other objects
+				break;
+			}
 		}
-		H5_LEAVE (
-		        h5_error (
-		                H5_ERR_HDF5,
-		                "Cannot close file '%s'.",
-		                hdf5_get_objname (file_id)));
+		// try again
+		if (H5Fclose (file_id) < 0)
+			goto return_with_error;
 	}
 	H5_RETURN (H5_SUCCESS);
+
+return_with_error:
+	H5_LEAVE (
+		h5_error (
+			H5_ERR_HDF5,
+			"Cannot close file '%s'.",
+			hdf5_get_objname (file_id)));
 }
 
 static inline h5_err_t
