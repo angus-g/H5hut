@@ -42,6 +42,7 @@ h5b_has_field_data (
         h5_file_p f = (h5_file_p)fh;
         H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
         CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
         TRY (ret_value = hdf5_link_exists (f->step_gid, H5BLOCK_GROUPNAME_BLOCK));
         H5_RETURN (ret_value);
 }
@@ -530,7 +531,13 @@ h5_int64_t
 h5b_3d_has_view (
 	const h5_file_t fh		/*!< IN: File handle		*/
 	) {
-	return (((h5_file_p)fh)->b->have_layout > 0);
+	h5_file_p f = (h5_file_p)fh;
+	H5_CORE_API_ENTER (h5_err_t,
+	                   "f=%p, ",
+	                   f);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
+	H5_RETURN (((h5_file_p)fh)->b->have_layout > 0);
 }
 
 h5_err_t
@@ -544,7 +551,6 @@ h5b_3d_set_view (
 	const h5_size_t k_end		/*!< IN: end index of \c k	*/
 	) {
         h5_file_p f = (h5_file_p)fh;
-	h5b_fdata_t *b = f->b;
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, "
 	                   "i_start=%llu, i_end=%llu, "
@@ -554,6 +560,9 @@ h5b_3d_set_view (
 	                   (long long unsigned)i_start, (long long unsigned)i_end,
 	                   (long long unsigned)j_start, (long long unsigned)j_end,
 	                   (long long unsigned)k_start, (long long unsigned)k_end);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
+	h5b_fdata_t *b = f->b;
 	b->user_layout[0].i_start = i_start;
 	b->user_layout[0].i_end =   i_end;
 	b->user_layout[0].j_start = j_start;
@@ -633,6 +642,8 @@ h5b_3d_get_view (
 	                   i_start, i_end,
 	                   j_start, j_end,
 	                   k_start, k_end);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 	h5b_partition_t *p = f->b->user_layout;
 
 	*i_start = p->i_start;
@@ -665,6 +676,8 @@ h5b_3d_get_reduced_view (
 	                   i_start, i_end,
 	                   j_start, j_end,
 	                   k_start, k_end);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 	h5b_partition_t *p = f->b->write_layout;
 
 	*i_start = p->i_start;
@@ -691,6 +704,8 @@ h5b_3d_set_chunk (
 	                   (long long unsigned)i,
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 	if ( i == 0 || j == 0 || k == 0 )
 	{
 		h5_info ("Disabling chunking" );
@@ -718,7 +733,8 @@ h5b_3d_get_chunk (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, i=%p, j=%p, k=%p",
 	                   f, i, j, k);
-	CHECK_TIMEGROUP ( f );
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 
 	h5b_fdata_t *b = f->b;
 
@@ -761,6 +777,8 @@ h5b_3d_set_grid (
 	                   (long long unsigned)i,
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 	if (i*j*k != f->nprocs) {
 		H5_RETURN_ERROR (
 		        H5_ERR_INVAL,
@@ -798,6 +816,8 @@ h5b_3d_get_grid_coords (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, proc=%d, i=%p, j=%p, k=%p",
 	                   f, proc, i, j, k);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 	if ( !f->b->have_grid )
 		H5_RETURN_ERROR (
 		        H5_ERR_INVAL,
@@ -826,6 +846,8 @@ h5b_3d_set_dims (
 	                   (long long unsigned)i,
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 	if ( !f->b->have_grid )
 		H5_RETURN_ERROR (
 		        H5_ERR_INVAL,
@@ -894,6 +916,8 @@ h5b_3d_set_halo (
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
 
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 	if ( !f->b->have_grid ) {
 		H5_RETURN_ERROR (
 		        H5_ERR_INVAL,
@@ -923,6 +947,7 @@ h5b_get_num_fields (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
+	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
 
 	TRY (h5bpriv_open_block_group(f));
@@ -939,6 +964,7 @@ h5b_has_field (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, name='%s'",
 	                   f, name);
+	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
 
 	const char* path[] = { H5BLOCK_GROUPNAME_BLOCK, name };
@@ -960,6 +986,7 @@ h5b_get_field_info_by_name (
 	                   "f=%p, name='%s', "
 	                   "field_rank=%p, field_dims=%p, elem_rank=%p, type=%p",
 	                   f, name, field_rank, field_dims, elem_rank, type);
+	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
 
 	/* give it plenty of space even though we don't expect rank > 3 */
@@ -1019,7 +1046,8 @@ h5b_get_field_info (
 	                   (long long unsigned)idx,
 	                   name, (long long unsigned)len_name,
 	                   field_rank, field_dims, elem_rank, type);
-	CHECK_TIMEGROUP( f );
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 
 	TRY (h5bpriv_open_block_group(f));
 	TRY (hdf5_get_objname_by_idx(
