@@ -68,10 +68,10 @@ static inline h5_err_t
 H5GetFileAttribInfo (
 	const h5_file_t f,		///< [in]  file handle
 	const h5_size_t idx,    	///< [in]  index of attribute to query
-	char* attrib_name,     		///< [out] name of attribute
+	char* const attrib_name,	///< [out] name of attribute
 	const h5_size_t len_attrib_name,///< [in]  size of buffer \c attrib_name
-	h5_int64_t* attrib_type,        ///< [out] type of value
-	h5_size_t* nelems               ///< [out] number of elements
+	h5_int64_t* const attrib_type,  ///< [out] type of value
+	h5_size_t* const nelems         ///< [out] number of elements
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, "
@@ -90,6 +90,29 @@ H5GetFileAttribInfo (
 			attrib_name, len_attrib_name,
 			attrib_type,
 			nelems));
+}
+
+static inline h5_err_t
+H5GetFileAttribName (
+	const h5_file_t f,		///< [in]  file handle
+	const h5_size_t idx,    	///< [in]  index of attribute to query
+	char* const attrib_name,	///< [out] name of attribute
+	const h5_size_t len_attrib_name ///< [in]  size of buffer \c attrib_name
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "idx=%llu, attrib_name=%p, len_attrib_name=%llu, ",
+                      (h5_file_p)f,
+                      (long long unsigned)idx,
+                      attrib_name,
+                      (long long unsigned)len_attrib_name);
+	H5_API_RETURN (
+		h5_get_file_attrib_info_by_idx (
+			f,
+			idx,
+			attrib_name, len_attrib_name,
+			NULL,
+			NULL));
 }
 
 /**
@@ -126,8 +149,8 @@ static inline h5_err_t
 H5GetFileAttribInfoByName (
 	const h5_file_t f,		///< [in]  file handle.
 	const char* const attrib_name,  ///< [in]  name of attribute.
-	h5_int64_t* attrib_type,        ///< [out] type of value..
-	h5_size_t* nelems               ///< [out] number of elements.
+	h5_int64_t* const attrib_type,  ///< [out] type of value..
+	h5_size_t* const nelems         ///< [out] number of elements.
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, "
@@ -213,8 +236,8 @@ H5GetFileAttribInfoByName (
 static inline h5_err_t
 H5WriteFileAttribString (
 	const h5_file_t f,
-	const char* attrib_name,
-	const char* buffer
+	const char* const attrib_name,
+	const char* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer='%s'",
@@ -230,10 +253,10 @@ H5WriteFileAttribString (
 
 static inline h5_err_t
 H5WriteFileAttribFloat64 (
-	const h5_file_t f,		///< [in]  file handle.
-	const char *attrib_name,		///< [in]  name of attribute to create.
-	const h5_float64_t *buffers,	///< [in]  buffers of attribute.
-	const h5_size_t nelems		///< [in]  number of buffers.
+	const h5_file_t f,
+	const char* const attrib_name,
+	const h5_float64_t* const buffers,
+	const h5_size_t nelems
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffers=%p, nelems=%llu",
@@ -250,8 +273,8 @@ H5WriteFileAttribFloat64 (
 static inline h5_err_t
 H5WriteFileAttribFloat32 (
 	const h5_file_t f,
-	const char* attrib_name,
-	const h5_float32_t* buffers,
+	const char* const attrib_name,
+	const h5_float32_t* const buffers,
 	const h5_size_t nelems
 	) {
 	H5_API_ENTER (h5_err_t,
@@ -269,8 +292,8 @@ H5WriteFileAttribFloat32 (
 static inline h5_err_t
 H5WriteFileAttribInt64 (
 	const h5_file_t f,
-	const char* attrib_name,
-	const h5_int64_t* buffers,
+	const char* const attrib_name,
+	const h5_int64_t* const buffers,
 	const h5_size_t nelems	
 	) {
 	H5_API_ENTER (h5_err_t,
@@ -288,8 +311,8 @@ H5WriteFileAttribInt64 (
 static inline h5_err_t
 H5WriteFileAttribInt32 (
 	const h5_file_t f,
-	const char* attrib_name,
-	const h5_int32_t* buffers,
+	const char* const attrib_name,
+	const h5_int32_t* const buffers,
 	const h5_size_t nelems
 	) {
 	H5_API_ENTER (h5_err_t,
@@ -366,8 +389,8 @@ H5WriteFileAttribInt32 (
 static inline h5_err_t
 H5ReadFileAttribString (
 	const h5_file_t f,
-	const char* attrib_name,
-	char* buffer
+	const char* const attrib_name,
+	char* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer='%s'",
@@ -383,8 +406,8 @@ H5ReadFileAttribString (
 static inline h5_err_t
 H5ReadFileAttribFloat64 (
 	const h5_file_t f,
-	const char* attrib_name,
-	h5_float64_t* buffer
+	const char* const attrib_name,
+	h5_float64_t* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, attrib_name='%s', buffer=%p",
@@ -400,8 +423,8 @@ H5ReadFileAttribFloat64 (
 static inline h5_err_t
 H5ReadFileAttribFloat32 (
 	const h5_file_t f,
-	const char* attrib_name,
-	h5_float32_t* buffer
+	const char* const attrib_name,
+	h5_float32_t* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
@@ -417,8 +440,8 @@ H5ReadFileAttribFloat32 (
 static inline h5_err_t
 H5ReadFileAttribInt64 (
 	const h5_file_t f,
-	const char* attrib_name,
-	h5_int64_t* buffer
+	const char* const attrib_name,
+	h5_int64_t* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
@@ -434,8 +457,8 @@ H5ReadFileAttribInt64 (
 static inline h5_err_t
 H5ReadFileAttribInt32 (
 	const h5_file_t f,
-	const char* attrib_name,
-	h5_int32_t* buffer
+	const char* const attrib_name,
+	h5_int32_t* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",

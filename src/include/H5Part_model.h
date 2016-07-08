@@ -99,7 +99,7 @@ static inline h5_err_t
 H5PartGetDatasetInfo (
 	const h5_file_t f,           	///< [in]  file handle
 	const h5_id_t idx,      	///< [in]  index of the dataset
-	char* name,             	///< [out] name of dataset
+	char* const name,             	///< [out] name of dataset
 	const h5_size_t len_name,       ///< [in]  size of buffer \c name
 	h5_int64_t* type,       	///< [out] type of data in dataset
 	h5_size_t* nelems        	///< [out] number of elements

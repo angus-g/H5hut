@@ -161,8 +161,8 @@ H5SetPropFileMPIOPosix (
 */
 static inline h5_err_t
 H5SetPropFileCoreVFD (
-        h5_prop_t prop,		///< [in,out] identifier for file property list
-	h5_int64_t increment	///< [in] size, in bytes, of memory increments.
+        h5_prop_t prop,			///< [in,out] identifier for file property list
+	const h5_int64_t increment	///< [in] size, in bytes, of memory increments.
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p", (void*)prop);
         H5_API_RETURN (h5_set_prop_file_core_vfd (prop, increment));
@@ -195,8 +195,8 @@ H5SetPropFileCoreVFD (
 */
 static inline h5_err_t
 H5SetPropFileAlign (
-        h5_prop_t prop,	    ///< [in,out] identifier for file property list
-        h5_int64_t align    ///< [in] alignment 
+        h5_prop_t prop,			///< [in,out] identifier for file property list
+        const h5_int64_t align		///< [in] alignment 
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p, align=%lld",
 		      (void*)prop, (long long int)align);
@@ -225,8 +225,8 @@ H5SetPropFileAlign (
 */
 static inline h5_err_t
 H5SetPropFileThrottle (
-        h5_prop_t prop,	    ///< [in,out] identifier for file property list
-        h5_int64_t throttle ///< [in] throttle factor
+        h5_prop_t prop,			///< [in,out] identifier for file property list
+        const h5_int64_t throttle	///< [in] throttle factor
         ) {
         H5_API_ENTER (h5_err_t, "prop=%p, throttle=%lld",
 		      (void*)prop, (long long int)throttle);
@@ -279,9 +279,9 @@ H5CloseProp (
 */
 static inline h5_file_t
 H5OpenFile2 (
-	const char* filename,	///< [in] name of file
-	h5_int64_t mode,	///< [in] file mode 
-        h5_prop_t props		///< [in] identifier for file property list
+	const char* const filename,	///< [in] name of file
+	const h5_int64_t mode,		///< [in] file mode 
+        const h5_prop_t props		///< [in] identifier for file property list
 	) {
 	H5_API_ENTER (h5_file_t,
                       "filename='%s', mode=%lld, props=%p",
@@ -316,9 +316,9 @@ H5OpenFile2 (
 */
 static inline h5_file_p
 H5OpenFile1 (
-	const char* filename,	///< [in] file name
-	h5_int32_t flags,	///< [in] file open flags
-	MPI_Comm comm		///< [in] MPI communicator
+	const char* filename,		///< [in] file name
+	const h5_int32_t flags,		///< [in] file open flags
+	MPI_Comm comm			///< [in] MPI communicator
 	) {
 	H5_API_ENTER (h5_file_p, "filename='%s', flags=%d, ...",filename,flags);
 	H5_API_RETURN (h5_open_file1 (filename, flags, comm, 0));
@@ -332,7 +332,7 @@ H5OpenFile1 (
 */
 static inline h5_err_t
 H5CloseFile (
-	const h5_file_t f	///< [in] file handle.
+	const h5_file_t f		///< [in] file handle.
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p",
@@ -348,7 +348,7 @@ H5CloseFile (
 */
 static inline h5_err_t
 H5CheckFile (
-	const h5_file_t f	///< [in] file handle.
+	const h5_file_t f		///< [in] file handle.
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p",
@@ -364,7 +364,7 @@ H5CheckFile (
  */
 static inline h5_err_t
 H5FlushStep (
-	const h5_file_t f	///< [in] file handle.
+	const h5_file_t f		///< [in] file handle.
 	) {
 	H5_API_ENTER (h5_err_t, 
                       "f=%p",
@@ -380,7 +380,7 @@ H5FlushStep (
  */
 static inline h5_err_t
 H5FlushFile (
-	const h5_file_t f	///< [in] file handle.
+	const h5_file_t f		///< [in] file handle.
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p",
