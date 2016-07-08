@@ -18,27 +18,6 @@
 
 #include "h5core/h5_types.h"
 
-/*
-   file modes:
-
-   H5_O_RDONLY:
-	read data from existing file
-
-   H5_O_WRONLY:
-	create new file, if file not exists; write new or overwrite
-        existing data
-
-   H5_O_APPENDONLY:
-	allows to append new data to an existing file
-
-   H5_O_RDWR:
-	create new file, if file not exists; read and (over-)write data
- */
-#define H5_O_RDWR		0x00000001
-#define H5_O_RDONLY		0x00000002
-#define H5_O_WRONLY		0x00000004
-#define H5_O_APPENDONLY		0x00000008
-
 #ifdef __cplusplus
 extern "C" {
 #endif

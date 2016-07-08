@@ -26,6 +26,29 @@ typedef enum  {
 	H5_ID_T,
 } h5_types_t;
 
+/*
+   file modes:
+
+   H5_O_RDONLY:
+	read data from existing file
+
+   H5_O_WRONLY:
+	create new file, if file not exists; write new or overwrite
+        existing data
+
+   H5_O_APPENDONLY:
+	allows to append new data to an existing file
+
+   H5_O_RDWR:
+	create new file, if file not exists; read and (over-)write data
+ */
+typedef enum {
+	H5_O_RDWR =	    0x01,
+	H5_O_RDONLY =	    0x02,
+	H5_O_WRONLY =	    0x04,
+	H5_O_APPENDONLY =   0x08
+} h5_file_modes_t;
+
 #ifdef   WIN32
 typedef __int64                 int64_t;
 #endif /* WIN32 */
