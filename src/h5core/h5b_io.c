@@ -256,8 +256,9 @@ h5b_write_scalar_data (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, field_name='%s', data=%p, type=%lld",
 	                   f, field_name, data, (long long int)type);
-	CHECK_TIMEGROUP (f);
+	CHECK_FILEHANDLE (f);
 	CHECK_WRITABLE_MODE (f);
+	CHECK_TIMEGROUP (f);
 	CHECK_LAYOUT (f);
 
 	TRY( h5bpriv_create_field_group(f, field_name) );
@@ -284,9 +285,10 @@ h5b_write_vector3d_data (
 	                   "zdata=%p, "
 	                   "type=%lld",
 	                   f, field_name, xdata, ydata, zdata, (long long int)type);
-	CHECK_TIMEGROUP( f );
-	CHECK_WRITABLE_MODE( f );
-	CHECK_LAYOUT( f );
+	CHECK_FILEHANDLE (f);
+	CHECK_WRITABLE_MODE (f);
+	CHECK_TIMEGROUP (f);
+	CHECK_LAYOUT (f);
 
 	TRY( h5bpriv_create_field_group(f, field_name) );
 	TRY( _select_hyperslab_for_writing(f) );
@@ -416,8 +418,9 @@ h5b_read_scalar_data (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, field_name='%s', data=%p, type=%lld",
 	                   f, field_name, data, (long long int)type);
-	CHECK_TIMEGROUP( f );
-	CHECK_LAYOUT( f );
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
+	CHECK_LAYOUT (f);
 
 	TRY( h5bpriv_open_field_group(f, field_name) );
 	TRY( read_data(f, H5_BLOCKNAME_X, data, type) );
@@ -442,8 +445,9 @@ h5b_read_vector3d_data (
 	                   "zdata=%p, "
 	                   "type=%lld",
 	                   f, field_name, xdata, ydata, zdata, (long long int)type);
-	CHECK_TIMEGROUP( f );
-	CHECK_LAYOUT( f );
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
+	CHECK_LAYOUT (f);
 
 	TRY( h5bpriv_open_field_group(f, field_name) );
 	TRY( read_data(f, H5_BLOCKNAME_X, xdata, type) );

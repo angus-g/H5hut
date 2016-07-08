@@ -86,6 +86,7 @@ h5u_read_data (
 	H5_CORE_API_ENTER (h5_err_t,
 			   "f=%p, name='%s', data=%p, type=%lld",
 	                   f, name, data, (long long int)type);
+	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
 
 	hid_t hdf5_type;
@@ -186,8 +187,9 @@ h5u_write_data (
 	H5_CORE_API_ENTER (h5_err_t,
 			   "f=%p, name='%s', data=%p, type=%lld",
 	                   f, name, data, (long long int)type);
-	CHECK_TIMEGROUP( f );
-	CHECK_WRITABLE_MODE( f );
+	CHECK_FILEHANDLE (f);
+	CHECK_WRITABLE_MODE (f);
+	CHECK_TIMEGROUP (f);
 	hid_t hdf5_type;
 	TRY (hdf5_type = h5priv_map_enum_to_normalized_type (type));
 	

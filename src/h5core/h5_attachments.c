@@ -30,6 +30,7 @@ h5_add_attachment (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
+	CHECK_FILEHANDLE (f);
 	// allowed file modes: O_RDWR, O_WRONLY; O_APPEND
 	if (f->props->flags & H5_O_RDONLY) {
 		H5_LEAVE (
@@ -130,6 +131,7 @@ h5_has_attachments (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
+	CHECK_FILEHANDLE (f);
 	TRY  (ret_value = hdf5_link_exists (f->file, H5_ATTACHMENT));
 	H5_RETURN (ret_value);
 }
@@ -140,6 +142,7 @@ h5_get_num_attachments (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
+	CHECK_FILEHANDLE (f);
 	h5_err_t exists;
 	TRY  (exists = hdf5_link_exists (f->file, H5_ATTACHMENT));
 	if (exists == 0) {
@@ -166,6 +169,7 @@ h5_get_attachment_info_by_idx (
 			   f, (unsigned long long)idx,
 			   fname, (unsigned long long)len_fname,
 			   fsize);
+	CHECK_FILEHANDLE (f);
 	hid_t loc_id;
 	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
 	TRY (hdf5_get_name_of_dataset_by_idx (
@@ -190,6 +194,7 @@ h5_has_attachment (
 	) {
 	h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
+	CHECK_FILEHANDLE (f);
 	hid_t loc_id;
 	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
         TRY (ret_value = hdf5_link_exists (f->file, fname));
@@ -204,7 +209,8 @@ h5_get_attachment_info_by_name (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s', fsize=%p", f, fname, fsize);
-
+	CHECK_FILEHANDLE (f);
+	
 	hid_t loc_id;
 	TRY (loc_id = hdf5_open_group (f->file, H5_ATTACHMENT));
 	if (fsize) {
@@ -224,6 +230,7 @@ h5_get_attachment (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
+	CHECK_FILEHANDLE (f);
 	// allowed modes: O_RDWR, O_RDONLY; O_APPEND
 	// forbidden modes: O_WRONLY
 	if (f->props->flags & H5_O_WRONLY) {
@@ -310,6 +317,7 @@ h5_delete_attachment (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
+	CHECK_FILEHANDLE (f);
 	// allowed file modes: O_RDWR, O_WRONLY; O_APPEND
 	if (f->props->flags & H5_O_RDONLY) {
 		H5_LEAVE (

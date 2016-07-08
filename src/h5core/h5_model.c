@@ -37,6 +37,7 @@ h5_set_step (
 	H5_CORE_API_ENTER (h5_err_t,
                            "f=%p, step_idx=%lld",
                            f, (long long)step_idx);
+	CHECK_FILEHANDLE (f);
 	TRY (h5priv_close_step (f));
 	f->step_idx = step_idx;
 
@@ -69,6 +70,7 @@ h5_has_step (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, step_idx=%lld", f, (long long)step_idx);
+	CHECK_FILEHANDLE (f);
 	char name[2*H5_STEPNAME_LEN];
 	sprintf (name,
 		"%s#%0*lld",

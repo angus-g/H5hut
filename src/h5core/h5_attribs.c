@@ -43,6 +43,7 @@ h5_has_step_attrib (
 			   f,
 			   attrib_name);
 	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 	TRY (ret_value = hdf5_attribute_exists (f->step_gid, attrib_name));
 	H5_RETURN (ret_value);
 }
