@@ -13,10 +13,71 @@
 %import <stdint.i>
 
 %include numpy.i
+%include cstring.i
 
 %apply unsigned long int { h5_prop_t };
 %apply unsigned long int { h5_file_t };
 
+///////////////////////////////////////////////////////////////////////////////
+%typemap(out) h5_err_t H5HasFileAttrib {
+    if($1)
+        $result = (PyObject *)Py_True;
+    else
+        $result = (PyObject *)Py_False;
+}
+
+
+%cstring_bounded_output(char* const attrib_name, 256);
+extern h5_err_t H5GetFileAttribInfo (
+	const h5_file_t,
+	const h5_id_t,
+	char* const attrib_name, const h5_size_t l_attrib_name=256,
+	h5_int64_t *OUTPUT, h5_size_t *OUTPUT);
+
+extern h5_err_t H5GetFileAttribInfoByName (
+	const h5_file_t,
+	const char* const name,
+	h5_int64_t *OUTPUT, h5_size_t *OUTPUT);
+
+extern h5_err_t H5GetFileAttribName (
+	const h5_file_t,
+	const h5_id_t,
+	char* const attrib_name,
+	const h5_size_t l_attrib_name=256);
+
+
+///////////////////////////////////////////////////////////////////////////////
+%cstring_bounded_output(char* const dataset_name, 256);
+extern h5_err_t H5PartGetDatasetInfo (
+	const h5_file_t,
+	const h5_id_t,
+	char* const dataset_name, const h5_size_t l_dataset_name=256,
+	h5_int64_t *OUTPUT, h5_size_t *OUTPUT);
+
+extern h5_err_t H5PartGetDatasetInfoByName (
+	const h5_file_t,
+	const char* const name,
+	h5_int64_t *OUTPUT, h5_size_t *OUTPUT);
+
+extern h5_err_t H5PartGetDatasetName (
+	const h5_file_t,
+	const h5_id_t,
+	char* const dataset_name,
+	const h5_size_t l_dataset_name=256);
+
+%typemap(out) h5_err_t H5PartHasDataset {
+    if($1)
+        $result = (PyObject *)Py_True;
+    else
+        $result = (PyObject *)Py_False;
+}
+
+%typemap(out) h5_err_t H5PartHasView {
+    if($1)
+        $result = (PyObject *)Py_True;
+    else
+        $result = (PyObject *)Py_False;
+}
 
 %apply (unsigned long long* IN_ARRAY1) { h5_size_t* };
 %apply (unsigned int* IN_ARRAY1) { h5_uint32_t* }; //uint32_t
@@ -38,7 +99,8 @@ import_array();
     MPI_Comm *ptr = (MPI_Comm *)0;
     int res = SWIG_AsPtr_MPI_Comm($input, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "$symname" "', argument " "$argnum"" of type '" "MPI_Comm""'");
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)),
+			  "in method '" "$symname" "', argument " "$argnum"" of type '" "MPI_Comm""'");
     }
     $1 = ptr;
     if (SWIG_IsNewObj(res)) free((char*)ptr);
@@ -55,7 +117,10 @@ import_array();
 %include "h5core/h5_types.h"
 
 %include "H5_attachments.h"
+
+%rename(H5OpenFile) H5OpenFile2 (const char* const, const h5_int64_t, const h5_prop_t);
 %include "H5_file.h"
+
 %include "H5_model.h"
 %include "H5_file_attribs.h"
 %include "H5_step_attribs.h"
@@ -67,3 +132,6 @@ import_array();
 
 %include "H5Part_io.h"
 %include "H5Part_model.h"
+
+%clear  h5_size_t*;
+%clear  h5_int64_t*;
