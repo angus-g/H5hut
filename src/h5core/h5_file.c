@@ -56,6 +56,7 @@ h5_get_hdf5_file(
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (hid_t, "f=%p", f);
+	CHECK_FILEHANDLE (f);
 	H5_RETURN (f->file);
 }
 
@@ -468,7 +469,6 @@ h5_open_file2 (
 	
         TRY (f->props = (h5_prop_file_t*)h5_create_prop (H5_PROP_FILE));
         TRY (set_default_file_props (f->props));
-        TRY (h5_set_stepname_fmt ((uintptr_t)f, H5_STEPNAME, H5_STEPWIDTH));
                 
         if (props != H5_PROP_DEFAULT) {
                 if (props->class != H5_PROP_FILE) {
@@ -490,6 +490,8 @@ h5_open_file2 (
         }
 
 	TRY (open_file (f, filename, mode));
+
+        TRY (h5_set_stepname_fmt ((uintptr_t)f, H5_STEPNAME, H5_STEPWIDTH));
 
 	H5_RETURN ((h5_file_t)f);
 }
@@ -582,7 +584,12 @@ h5_flush_step (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
-	TRY (ret_value = hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
+	ret_value = H5_SUCCESS;
+	if (f->step_gid >= 0) {
+		TRY (ret_value = hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
+	}
 	H5_RETURN (ret_value);
 }
 
@@ -592,6 +599,7 @@ h5_flush_file (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
+	CHECK_FILEHANDLE (f);
 	TRY (ret_value = hdf5_flush (f->file, H5F_SCOPE_GLOBAL));
 	H5_RETURN (ret_value);
 }
@@ -617,6 +625,7 @@ h5_set_stepname_fmt (
 	H5_CORE_API_ENTER (h5_err_t,
                            "f=%p, name='%s', width=%d",
                            f, name, width);
+	CHECK_FILEHANDLE (f);
 	if (width < 0) width = 0;
 	else if (width > H5_STEPNAME_LEN - 1) width = H5_STEPNAME_LEN - 1;
 	strncpy (
@@ -663,6 +672,8 @@ h5_get_step (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_id_t, "f=%p", f);
+	CHECK_FILEHANDLE (f);
+	CHECK_TIMEGROUP (f);
 	H5_RETURN (f->step_idx);
 }
 
@@ -679,6 +690,7 @@ h5_get_num_procs (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (int, "f=%p", f);
+	CHECK_FILEHANDLE (f);
 	H5_RETURN (f->nprocs);
 }
 
@@ -695,6 +707,7 @@ h5_get_num_steps(
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (int, "f=%p", f);
+	CHECK_FILEHANDLE (f);
 	TRY (ret_value = hdf5_get_num_groups_matching_prefix (
 		     f->root_gid,
 		     f->props->prefix_step_name));
