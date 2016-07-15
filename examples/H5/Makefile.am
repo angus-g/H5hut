@@ -18,6 +18,10 @@ LDADD += -lH5hutF
 AM_LDFLAGS += -L${abs_top_builddir}/src/Fortran/.libs
 endif
 
+if ENABLE_DEBUG
+AM_LDFLAGS += -static
+endif
+
 LDADD += -lH5hut
 
 noinst_PROGRAMS = 
