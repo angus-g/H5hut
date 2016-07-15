@@ -153,9 +153,9 @@ get_attrib_info (
 	) {
         H5_INLINE_FUNC_ENTER (h5_err_t);
 	hid_t datatype_id;
-        TRY (datatype_id = h5priv_get_normalized_attribute_type (attrib_id));
+	TRY (datatype_id = hdf5_get_attribute_type (attrib_id));
 	if (attrib_nelem) {
-                if (datatype_id == H5_STRING) {
+                if (h5priv_normalize_type (datatype_id) == H5_STRING) {
                         *attrib_nelem = H5Tget_size (datatype_id);
                 } else {
                         hid_t space_id;
