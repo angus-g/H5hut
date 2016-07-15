@@ -45,6 +45,11 @@ extern h5_err_t H5GetFileAttribName (
 	char* const attrib_name,
 	const h5_size_t l_attrib_name=256);
 
+extern h5_err_t H5ReadFileAttribString (
+	const h5_file_t f,
+	const char* const name,
+	char* const buffer);
+%clear char* const attrib_name;
 
 ///////////////////////////////////////////////////////////////////////////////
 %cstring_bounded_output(char* const dataset_name, 256);
@@ -64,6 +69,7 @@ extern h5_err_t H5PartGetDatasetName (
 	const h5_id_t,
 	char* const dataset_name,
 	const h5_size_t l_dataset_name=256);
+%clear char* const dataset_name;
 
 %typemap(out) h5_err_t H5PartHasDataset {
     if($1)
