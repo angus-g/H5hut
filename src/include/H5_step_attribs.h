@@ -65,10 +65,10 @@ static inline h5_err_t
 H5GetStepAttribInfo (
 	const h5_file_t f,		///< [in]  file handle
 	const h5_size_t idx,    	///< [in]  index of attribute to query
-	char* attrib_name,     		///< [out] name of attribute
+	char* const attrib_name,     	///< [out] name of attribute
 	const h5_size_t len_attrib_name,///< [in]  size of buffer \c name
-	h5_int64_t* attrib_type,        ///< [out] type of attribute
-	h5_size_t* nelems               ///< [out] number of elements
+	h5_int64_t* const attrib_type,  ///< [out] type of attribute
+	h5_size_t* const nelems         ///< [out] number of elements
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, "
@@ -88,6 +88,29 @@ H5GetStepAttribInfo (
 			len_attrib_name,
 			attrib_type,
 			nelems));
+}
+
+static inline h5_err_t
+H5GetStepAttribName (
+	const h5_file_t f,		///< [in]  file handle
+	const h5_size_t idx,    	///< [in]  index of attribute to query
+	char* const attrib_name,	///< [out] name of attribute
+	const h5_size_t len_attrib_name ///< [in]  size of buffer \c attrib_name
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "idx=%llu, attrib_name=%p, len_attrib_name=%llu, ",
+                      (h5_file_p)f,
+                      (long long unsigned)idx,
+                      attrib_name,
+                      (long long unsigned)len_attrib_name);
+	H5_API_RETURN (
+		h5_get_step_attrib_info_by_idx (
+			f,
+			idx,
+			attrib_name, len_attrib_name,
+			NULL,
+			NULL));
 }
 
 /**
@@ -123,8 +146,8 @@ static inline h5_err_t
 H5GetStepAttribInfoByName (
 	const h5_file_t f,		///< [in]  file handle
 	const char* const attrib_name,  ///< [in]  name of attribute to query
-	h5_int64_t* attrib_type,        ///< [out] type of attribute
-	h5_size_t* nelems               ///< [out] number of elements
+	h5_int64_t* const attrib_type,        ///< [out] type of attribute
+	h5_size_t* const nelems               ///< [out] number of elements
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, "
@@ -228,8 +251,8 @@ H5WriteStepAttribString (
 static inline h5_err_t
 H5WriteStepAttribFloat64 (
 	const h5_file_t f,
-	const char* attrib_name,
-	const h5_float64_t* buffer,
+	const char* const attrib_name,
+	const h5_float64_t* const buffer,
 	const h5_size_t nelems
 	) {
 	H5_API_ENTER (h5_err_t,
@@ -247,8 +270,8 @@ H5WriteStepAttribFloat64 (
 static inline h5_err_t
 H5WriteStepAttribFloat32 (
 	const h5_file_t f,
-	const char* attrib_name,
-	const h5_float32_t* buffer,
+	const char* const attrib_name,
+	const h5_float32_t* const buffer,
 	const h5_size_t nelems
 	) {
 	H5_API_ENTER (h5_err_t,
@@ -266,8 +289,8 @@ H5WriteStepAttribFloat32 (
 static inline h5_err_t
 H5WriteStepAttribInt64 (
 	const h5_file_t f,
-	const char* attrib_name,
-	const h5_int64_t* buffer,
+	const char* const attrib_name,
+	const h5_int64_t* const buffer,
 	const h5_size_t nelems
 	) {
 	H5_API_ENTER (h5_err_t,
@@ -285,8 +308,8 @@ H5WriteStepAttribInt64 (
 static inline h5_err_t
 H5WriteStepAttribInt32 (
 	const h5_file_t f,
-	const char* attrib_name,
-	const h5_int32_t* buffer,
+	const char* const attrib_name,
+	const h5_int32_t* const buffer,
 	const h5_size_t nelems
 	) {
 	H5_API_ENTER (h5_err_t,
@@ -363,8 +386,8 @@ H5WriteStepAttribInt32 (
 static inline h5_err_t
 H5ReadStepAttribString (
 	const h5_file_t f,
-	const char* attrib_name,
-	char* buffer
+	const char* const attrib_name,
+	char* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
@@ -380,8 +403,8 @@ H5ReadStepAttribString (
 static inline h5_err_t
 H5ReadStepAttribFloat64 (
 	const h5_file_t f,
-	const char* attrib_name,
-	h5_float64_t* buffer
+	const char* const attrib_name,
+	h5_float64_t* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
@@ -397,8 +420,8 @@ H5ReadStepAttribFloat64 (
 static inline h5_err_t
 H5ReadStepAttribFloat32 (
 	const h5_file_t f,
-	const char* attrib_name,
-	h5_float32_t* buffer
+	const char* const attrib_name,
+	h5_float32_t* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
@@ -414,8 +437,8 @@ H5ReadStepAttribFloat32 (
 static inline h5_err_t
 H5ReadStepAttribInt64 (
 	const h5_file_t f,
-	const char* attrib_name,
-	h5_int64_t* buffer
+	const char* const attrib_name,
+	h5_int64_t* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
@@ -431,8 +454,8 @@ H5ReadStepAttribInt64 (
 static inline h5_err_t
 H5ReadStepAttribInt32 (
 	const h5_file_t f,
-	const char* attrib_name,
-	h5_int32_t* buffer
+	const char* const attrib_name,
+	h5_int32_t* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, attrib_name='%s', buffer=%p",
