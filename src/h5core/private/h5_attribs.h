@@ -90,23 +90,20 @@ h5priv_write_attrib (
         const char* attrib_name,        /*!< name of HDF5 attribute to write */
         const h5_types_t attrib_type,   /*!< type of attribute */
         const void* attrib_value,       /*!< value of attribute */
-        const hsize_t attrib_nelem,     /*!< number of elements (dimension) */
-        const int overwrite
+        const hsize_t attrib_nelem      /*!< number of elements (dimension) */
         ) {
 	H5_PRIV_API_ENTER (h5_err_t,
 	                   "id=%lld, attrib_name='%s', attrib_type=%lld, "
-	                   "attrib_value=%p, attrib_nelem=%llu, overwrite=%d",
+	                   "attrib_value=%p, attrib_nelem=%llu",
 	                   (long long int)id,
 	                   attrib_name,
 	                   (long long int)attrib_type,
 	                   attrib_value,
-	                   attrib_nelem,
-	                   overwrite);
+	                   attrib_nelem);
 	hid_t space_id;
 	hid_t attrib_id;
 	hid_t hdf5_type;
 	if (attrib_type == H5_STRING_T) {
-		// :FIXME: we have to close this new type!
 		TRY (hdf5_type = hdf5_create_string_type (attrib_nelem));
 		TRY (space_id = hdf5_create_dataspace_scalar ());
 	} else {
@@ -116,14 +113,7 @@ h5priv_write_attrib (
 	h5_err_t exists;
 	TRY (exists = hdf5_attribute_exists (id, attrib_name));
 	if (exists) {
-		if (overwrite) {
-			TRY (hdf5_delete_attribute (id, attrib_name));
-		} else {
-			H5_RETURN_ERROR (
-				H5_ERR,
-				"Cannot overwrite attribute %s/%s",
-				hdf5_get_objname (id), attrib_name);
-		}
+		TRY (hdf5_delete_attribute (id, attrib_name));
 	}
 	TRY (attrib_id = hdf5_create_attribute (
 	             id,
@@ -131,13 +121,50 @@ h5priv_write_attrib (
 	             hdf5_type,
 	             space_id,
 	             H5P_DEFAULT, H5P_DEFAULT));
-
 	TRY (hdf5_write_attribute (attrib_id, hdf5_type, attrib_value));
+
+	if (attrib_type == H5_STRING_T) {
+		TRY (hdf5_close_type (hdf5_type));
+	}
 	TRY (hdf5_close_attribute (attrib_id));
 	TRY (hdf5_close_dataspace (space_id));
 
 	H5_RETURN (H5_SUCCESS);
 }
+
+static inline h5_err_t
+h5priv_append_attrib (
+        const hid_t id,                 /*!< HDF5 object ID */
+        const char* attrib_name,        /*!< name of HDF5 attribute to write */
+        const h5_types_t attrib_type,   /*!< type of attribute */
+        const void* attrib_value,       /*!< value of attribute */
+        const hsize_t attrib_nelem      /*!< number of elements (dimension) */
+        ) {
+	H5_PRIV_API_ENTER (h5_err_t,
+	                   "id=%lld, attrib_name='%s', attrib_type=%lld, "
+	                   "attrib_value=%p, attrib_nelem=%llu",
+	                   (long long int)id,
+	                   attrib_name,
+	                   (long long int)attrib_type,
+	                   attrib_value,
+	                   attrib_nelem);
+	h5_err_t exists;
+	TRY (exists = hdf5_attribute_exists (id, attrib_name));
+	if (exists) {
+		H5_RETURN_ERROR (
+			H5_ERR,
+			"Cannot overwrite attribute %s/%s",
+			hdf5_get_objname (id), attrib_name);
+	}
+	H5_RETURN (
+		h5priv_write_attrib (
+			id,
+			attrib_name,
+			attrib_type,
+			attrib_value,
+			attrib_nelem));
+}
+
 
 /*
   This is a helper function for 

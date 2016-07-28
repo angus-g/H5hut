@@ -14,7 +14,6 @@
 #include "private/h5_hdf5.h"
 #include "private/h5_attribs.h"
 
-
 h5_err_t
 h5_has_file_attrib (
 	const h5_file_t f_,
@@ -122,7 +121,6 @@ h5_get_file_attrib_info_by_name (
 	H5_RETURN (ret_value);
 }
 
-
 h5_err_t
 h5_get_step_attrib_info_by_idx (
 	const h5_file_t f_,			/*!< handle to open file */
@@ -217,6 +215,7 @@ h5_read_step_attrib (
 			   attrib_value);
 	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
+	CHECK_READABLE_MODE (f);
 	
 	TRY (ret_value = h5priv_read_attrib (
 		     f->step_gid,
@@ -225,7 +224,6 @@ h5_read_step_attrib (
 		     attrib_value));
 	H5_RETURN (ret_value);
 }
-
 
 h5_err_t
 h5_write_file_attrib (
@@ -246,14 +244,22 @@ h5_write_file_attrib (
 			   attrib_nelem);
 	CHECK_FILEHANDLE (f);
 	CHECK_WRITABLE_MODE (f);
-	TRY (ret_value = h5priv_write_attrib (
-		     f->root_gid,
-		     attrib_name,
-		     attrib_type,
-		     attrib_value,
-		     attrib_nelem,
-		     !is_appendonly (f)));
-	H5_RETURN (ret_value);
+	if (is_appendonly (f)) {
+		TRY (h5priv_append_attrib (
+			     f->root_gid,
+			     attrib_name,
+			     attrib_type,
+			     attrib_value,
+			     attrib_nelem));
+	} else {
+		TRY (h5priv_write_attrib (
+			     f->root_gid,
+			     attrib_name,
+			     attrib_type,
+			     attrib_value,
+			     attrib_nelem));
+	}
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t
@@ -276,14 +282,20 @@ h5_write_step_attrib (
 	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
 	CHECK_WRITABLE_MODE (f);
-	TRY (ret_value = h5priv_write_attrib (
-		     f->step_gid,
-		     attrib_name,
-		     attrib_type,
-		     attrib_value,
-		     attrib_nelem,
-		     !is_appendonly (f)));
-	H5_RETURN (ret_value);
+	if (is_appendonly (f)) {
+		TRY (h5priv_append_attrib (
+			     f->step_gid,
+			     attrib_name,
+			     attrib_type,
+			     attrib_value,
+			     attrib_nelem));
+	} else {
+		TRY (h5priv_write_attrib (
+			     f->step_gid,
+			     attrib_name,
+			     attrib_type,
+			     attrib_value,
+			     attrib_nelem));
+	}
+	H5_RETURN (H5_SUCCESS);
 }
-
-

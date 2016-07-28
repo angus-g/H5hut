@@ -38,15 +38,21 @@ h5b_write_field_attrib (
 	CHECK_TIMEGROUP (f);
 
 	TRY( h5bpriv_create_field_group(f, field_name) );
-
-	TRY( h5priv_write_attrib (
-		f->b->field_gid,
-		attrib_name,
-		attrib_type,
-		attrib_value,
-		attrib_nelem,
-		!is_appendonly (f)) );
-
+	if (is_appendonly (f)) {
+		TRY (h5priv_append_attrib (
+			     f->b->field_gid,
+			     attrib_name,
+			     attrib_type,
+			     attrib_value,
+			     attrib_nelem));
+	} else {
+		TRY( h5priv_write_attrib (
+			     f->b->field_gid,
+			     attrib_name,
+			     attrib_type,
+			     attrib_value,
+			     attrib_nelem));
+	}
 	H5_RETURN (H5_SUCCESS);
 }
 
