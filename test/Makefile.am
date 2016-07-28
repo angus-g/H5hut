@@ -1,6 +1,10 @@
 AM_CPPFLAGS += -I$(top_srcdir)/src/include
 AM_LDFLAGS += -L${abs_top_builddir}/src/h5core/.libs
 
+if ENABLE_DEBUG
+AM_LDFLAGS += -static
+endif
+
 LDADD =
 LDADD += -lH5hut
 
