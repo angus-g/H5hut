@@ -112,9 +112,13 @@ AC_ARG_WITH(
 	[VTK_PREFIX=$withval], [])
 
 # Determine a C/C++ compiler to use. 
-CC=''
-CXX=''
 if test "x$ENABLE_PARALLEL" = "xyes"; then
+   	if test "x$MPICC" != "x"; then
+	   	CC=$MPICC
+	fi
+   	if test "x$MPICXX" != "x"; then
+	   	CXX=$MPICXX
+	fi
    	c_compilers="mpicc cc"
 	cxx_compilers="mpic++ CC"
 else
