@@ -32,7 +32,9 @@ check_filehandle (
 #define CHECK_FILEHANDLE(f)   \
         TRY (check_filehandle (f));
 
-#define is_writable(f) (f->props->flags & (H5_O_RDWR | H5_O_WRONLY | H5_O_APPENDONLY))
+static inline int is_writable(h5_file_p f) {
+	return (f->props->flags & (H5_O_RDWR | H5_O_WRONLY | H5_O_APPENDONLY));
+}
 #define is_readable(f) (f->props->flags & (H5_O_RDWR | H5_O_RDONLY))
 #define is_readonly(f) (f->props->flags & H5_O_RDONLY)
 #define is_appendonly(f) (f->props->flags & H5_O_APPENDONLY)
@@ -40,7 +42,12 @@ check_filehandle (
 #define CHECK_WRITABLE_MODE(f)                                          \
 	TRY (is_writable (f) ? H5_SUCCESS : h5_error (                  \
                      H5_ERR_INVAL,                                      \
-                     "Attempting to write to read-only file"));
+                     "Attempting to write to read-only file handle"));
+
+#define CHECK_READABLE_MODE(f)                                          \
+	TRY (is_readable (f) ? H5_SUCCESS : h5_error (                  \
+                     H5_ERR_INVAL,                                      \
+                     "Attempting to read from write-only file handle"));
 
 #define CHECK_TIMEGROUP(f)                                             \
 	TRY ((f->step_gid > 0) ? H5_SUCCESS : h5_error (               \
