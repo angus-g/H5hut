@@ -235,17 +235,17 @@ test_read_data32(h5_file_t file, int step)
 void h5b_test_read1(void)
 {
 	h5_file_t file1;
-
 	h5_err_t status;
-        MPI_Comm comm = MPI_COMM_WORLD;
 
 	TEST("Opening file once, read-only");
         h5_prop_t props = H5CreateFileProp ();
+#if defined(PARALLEL_IO)
+        MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOCollective (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
         status = H5SetPropFileThrottle (props, 2);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileThrottle");
-
+#endif
 	file1 = H5OpenFile(FILENAME, H5_O_RDONLY, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");

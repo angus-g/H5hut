@@ -41,7 +41,7 @@ test_write_step_attribs(h5_file_t file, int position)
 	h5_err_t status;
 	char name[ATTR_NAME_SIZE];
 
-	TEST("Writing file attributes");
+	TEST("Writing step attributes");
 
 	get_attr_name(name, "str", position);
 	status = H5WriteStepAttribString(file, name, ATTR_STR_VAL);
@@ -354,13 +354,15 @@ void h5u_test_write1(void)
 {
 	h5_file_t file1;
 	h5_err_t status;
-        MPI_Comm comm = MPI_COMM_WORLD;
 
 	TEST("Opening file once, write-truncate");
         h5_prop_t props = H5CreateFileProp ();
+
+#if defined(PARALLEL_IO)
+        MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOCollective (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
-
+#endif
 	file1 = H5OpenFile(FILENAME, H5_O_WRONLY, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
@@ -380,13 +382,15 @@ void h5u_test_write2(void)
 	h5_file_t file1;
 	h5_file_t file2;
 	h5_err_t status;
-        MPI_Comm comm = MPI_COMM_WORLD;
 
 	TEST("Opening file twice, write-append + read-only");
         h5_prop_t props = H5CreateFileProp ();
+
+#if defined(PARALLEL_IO)
+        MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOCollective (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
-
+#endif
 	file1 = H5OpenFile(FILENAME, H5_O_APPENDONLY, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
@@ -411,15 +415,17 @@ void h5u_test_write2(void)
 void h5u_test_write3(void)
 {
 	h5_file_t file1;
-
 	h5_err_t status;
-        MPI_Comm comm = MPI_COMM_WORLD;
 
 	TEST("Opening file once, write-truncate, MPI-POSIX VFD");
+
         h5_prop_t props = H5CreateFileProp ();
+
+#if defined(PARALLEL_IO)
+        MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOPosix (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOPosix");
-
+#endif
 	file1 = H5OpenFile(FILENAME, H5_O_WRONLY, props);
 
 	status = H5CheckFile(file1);
@@ -447,13 +453,15 @@ void h5u_test_write4(void)
 
 	h5_err_t status;
         h5_prop_t props;
-        MPI_Comm comm = MPI_COMM_WORLD;
 
 	TEST("Opening file twice, write-append + read-only, MPI-IO Independent VFD");
+
         props = H5CreateFileProp ();
+#if defined(PARALLEL_IO)
+        MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOIndependent (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOIndependent");
-
+#endif
 	file1 = H5OpenFile(FILENAME, H5_O_APPENDONLY, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
@@ -476,7 +484,7 @@ void h5u_test_write4(void)
 	RETURN(status, H5_SUCCESS, "H5PartSetChunk");
 
 	test_write_data64(file1, NPARTICLES, NTIMESTEPS-2);
-	test_write_file_attribs(file1, 1);
+	test_write_file_attribs(file1, 2);
 
 	status = H5CloseFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CloseFile");
