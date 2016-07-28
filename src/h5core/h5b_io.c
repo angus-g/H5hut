@@ -98,7 +98,7 @@ h5bpriv_close_file (
 }
 
 static h5_err_t
-_select_hyperslab_for_writing (
+select_hyperslab_for_writing (
 	const h5_file_p f		/*!< IN: file handle */
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "f=%p", f);
@@ -195,46 +195,46 @@ _select_hyperslab_for_writing (
 }
 
 static h5_err_t
-_write_data (
+write_data (
 	const h5_file_p f,		/*!< IN: file handle */
-	const char *field_name,		/*!< IN: name of field */
 	const char *data_name,		/*!< IN: name of dataset */
 	const void *data,		/*!< IN: data to write */
-	const hid_t type		/*!< IN: data type */
+	const h5_types_t type		/*!< IN: data type */
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,
-	                    "f=%p, field_name=%s, data_name=%s, data=%p type=%lld",
-	                    f, field_name, data_name, data, (long long int)type);
+	                    "f=%p, data_name=%s, data=%p type=%lld",
+	                    f, data_name, data, (long long int)type);
 	hid_t dataset;
 	h5b_fdata_t *b = f->b;
-
+	hid_t hdf5_data_type;
+	TRY (hdf5_data_type = h5priv_map_enum_to_normalized_type (type));
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (b->field_gid, data_name));
 	if ( exists > 0 ) {
 		TRY (dataset = hdf5_open_dataset_by_name (b->field_gid, data_name));
-		hid_t type_file;
-		TRY( type_file = hdf5_get_dataset_type (dataset) );
-		if ( type != type_file ) {
+		hid_t type_of_dataset;
+		TRY (type_of_dataset = h5priv_get_normalized_dataset_type (dataset));
+		if (hdf5_data_type != type_of_dataset) {
 			H5_RETURN_ERROR (
 				H5_ERR_HDF5,
 				"Field '%s' already has type '%s' "
 				"but was written as '%s'.",
-				field_name,
-				hdf5_get_type_name (type_file),
-				hdf5_get_type_name (type));
+				hdf5_get_objname (b->field_gid),
+				hdf5_get_type_name (type_of_dataset),
+				hdf5_get_type_name (hdf5_data_type));
 		}
 	} else {
 		TRY (dataset = hdf5_create_dataset(
 		             b->field_gid,
 		             data_name,
-		             type,
+		             hdf5_data_type,
 		             b->shape,
 		             b->dcreate_prop));
 	}
 	TRY (h5priv_start_throttle (f));
 	TRY (hdf5_write_dataset(
 	             dataset,
-	             type,
+	             hdf5_data_type,
 	             b->memshape,
 	             b->diskshape,
 	             f->props->xfer_prop,
@@ -261,9 +261,9 @@ h5b_write_scalar_data (
 	CHECK_TIMEGROUP (f);
 	CHECK_LAYOUT (f);
 
-	TRY( h5bpriv_create_field_group(f, field_name) );
-	TRY( _select_hyperslab_for_writing(f) );
-	TRY( _write_data(f, field_name, H5_BLOCKNAME_X, data, type) );
+	TRY (h5bpriv_create_field_group (f, field_name));
+	TRY (select_hyperslab_for_writing (f));
+	TRY (write_data (f, H5_BLOCKNAME_X, data, type));
 
 	H5_RETURN (H5_SUCCESS);
 }
@@ -290,17 +290,17 @@ h5b_write_vector3d_data (
 	CHECK_TIMEGROUP (f);
 	CHECK_LAYOUT (f);
 
-	TRY( h5bpriv_create_field_group(f, field_name) );
-	TRY( _select_hyperslab_for_writing(f) );
-	TRY( _write_data(f, field_name, H5_BLOCKNAME_X, xdata, type) );
-	TRY( _write_data(f, field_name, H5_BLOCKNAME_Y, ydata, type) );
-	TRY( _write_data(f, field_name, H5_BLOCKNAME_Z, zdata, type) );
+	TRY (h5bpriv_create_field_group(f, field_name));
+	TRY (select_hyperslab_for_writing(f));
+	TRY (write_data (f, H5_BLOCKNAME_X, xdata, type));
+	TRY (write_data (f, H5_BLOCKNAME_Y, ydata, type));
+	TRY (write_data (f, H5_BLOCKNAME_Z, zdata, type));
 
 	H5_RETURN (H5_SUCCESS);
 }
 
 static h5_err_t
-_select_hyperslab_for_reading (
+select_hyperslab_for_reading (
 	const h5_file_p f,			/*!< IN: file handle */
 	const hid_t dataset
 	) {
@@ -388,15 +388,27 @@ read_data (
 	H5_PRIV_FUNC_ENTER (h5_err_t,
 	                    "f=%p, dataset_name=%s, data=%p, type=%lld",
 	                    f, dataset_name, data, (long long int)type);
-	hid_t dataset;
 	h5b_fdata_t *b = f->b;
-
+	hid_t hdf5_data_type;
+	TRY (hdf5_data_type = h5priv_map_enum_to_normalized_type (type));
+	hid_t dataset;
 	TRY (dataset = hdf5_open_dataset_by_name (b->field_gid, dataset_name));
-	TRY (_select_hyperslab_for_reading (f, dataset) );
+	hid_t type_of_dataset;
+	TRY (type_of_dataset = h5priv_get_normalized_dataset_type (dataset));
+	if (hdf5_data_type != type_of_dataset) {
+		H5_RETURN_ERROR (
+			H5_ERR_HDF5,
+			"Field '%s' has type '%s', but requested type is '%s'.",
+			hdf5_get_objname (b->field_gid),
+			hdf5_get_type_name (type_of_dataset),
+			hdf5_get_type_name (hdf5_data_type));
+	}
+
+	TRY (select_hyperslab_for_reading (f, dataset) );
 	TRY (h5priv_start_throttle (f));
 	TRY (hdf5_read_dataset(
 	             dataset,
-	             type,
+	             hdf5_data_type,
 	             f->b->memshape,
 	             f->b->diskshape,
 	             f->props->xfer_prop,
@@ -422,8 +434,8 @@ h5b_read_scalar_data (
 	CHECK_TIMEGROUP (f);
 	CHECK_LAYOUT (f);
 
-	TRY( h5bpriv_open_field_group(f, field_name) );
-	TRY( read_data(f, H5_BLOCKNAME_X, data, type) );
+	TRY (h5bpriv_open_field_group(f, field_name));
+	TRY (read_data(f, H5_BLOCKNAME_X, data, type));
 
 	H5_RETURN (H5_SUCCESS);
 }
@@ -449,10 +461,10 @@ h5b_read_vector3d_data (
 	CHECK_TIMEGROUP (f);
 	CHECK_LAYOUT (f);
 
-	TRY( h5bpriv_open_field_group(f, field_name) );
-	TRY( read_data(f, H5_BLOCKNAME_X, xdata, type) );
-	TRY( read_data(f, H5_BLOCKNAME_Y, ydata, type) );
-	TRY( read_data(f, H5_BLOCKNAME_Z, zdata, type) );
+	TRY (h5bpriv_open_field_group(f, field_name));
+	TRY (read_data(f, H5_BLOCKNAME_X, xdata, type));
+	TRY (read_data(f, H5_BLOCKNAME_Y, ydata, type));
+	TRY (read_data(f, H5_BLOCKNAME_Z, zdata, type));
 
 	H5_RETURN (H5_SUCCESS);
 }
