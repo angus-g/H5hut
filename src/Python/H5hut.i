@@ -14,6 +14,7 @@
 
 %include numpy.i
 %include cstring.i
+%include cpointer.i
 
 %apply unsigned long int { h5_prop_t };
 %apply unsigned long int { h5_file_t };
@@ -30,9 +31,11 @@
 %cstring_bounded_output(char* const attrib_name, 256);
 extern h5_err_t H5GetFileAttribInfo (
 	const h5_file_t,
-	const h5_id_t,
-	char* const attrib_name, const h5_size_t l_attrib_name=256,
-	h5_int64_t *OUTPUT, h5_size_t *OUTPUT);
+	const h5_size_t,
+	char* const attrib_name,
+	const h5_size_t l_attrib_name=256,
+	h5_int64_t *OUTPUT,
+	h5_size_t *OUTPUT);
 
 extern h5_err_t H5GetFileAttribInfoByName (
 	const h5_file_t,
@@ -49,6 +52,26 @@ extern h5_err_t H5ReadFileAttribString (
 	const h5_file_t f,
 	const char* const name,
 	char* const buffer);
+
+extern h5_err_t H5GetStepAttribInfo (
+	const h5_file_t,
+	const h5_size_t,
+	char* const attrib_name,
+	const h5_size_t l_attrib_name=256,
+	h5_int64_t *OUTPUT,
+	h5_size_t *OUTPUT);
+
+extern h5_err_t H5GetStepAttribInfoByName (
+	const h5_file_t,
+	const char* const name,
+	h5_int64_t *OUTPUT, h5_size_t *OUTPUT);
+
+extern h5_err_t H5GetStepAttribName (
+	const h5_file_t,
+	const h5_id_t,
+	char* const attrib_name,
+	const h5_size_t l_attrib_name=256);
+
 %clear char* const attrib_name;
 
 ///////////////////////////////////////////////////////////////////////////////

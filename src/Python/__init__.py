@@ -1,6 +1,7 @@
 #TODO: use the rewrite to swap depending whether mpi is there are not..
 
 import numpy
+import sys
 
 import H5hut as H5hut_rewrite
 from H5hut import *
@@ -95,8 +96,3 @@ def __update_types__():
         sys.modules["H5hut"].__dict__[__new_func__] = locals()[__new_func__]
 
 __update_types__()
-        
-
-
-
-
