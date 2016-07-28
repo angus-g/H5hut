@@ -393,7 +393,7 @@ H5ReadFileAttribString (
 	char* const buffer
 	) {
 	H5_API_ENTER (h5_err_t,
-                      "f=%p, attrib_name='%s', buffer='%s'",
+                      "f=%p, attrib_name='%s', buffer='%p'",
                       (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (
 		h5_read_file_attrib (
