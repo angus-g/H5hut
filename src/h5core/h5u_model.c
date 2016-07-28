@@ -122,6 +122,9 @@ h5u_set_num_points (
 	                   f, (long long unsigned)nparticles,
 	                   (long long unsigned)stride);
 	CHECK_FILEHANDLE (f);
+	if (f->step_gid < 0) {
+                TRY (h5_set_step (fh, 0));
+        }
 	CHECK_TIMEGROUP (f);
 	struct h5u_fdata *u = f->u;
 	hsize_t start;
@@ -765,7 +768,6 @@ h5u_set_chunk (
 		"f=%p, size=%llu",
 		f, (long long unsigned)size);
 	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
 	if (size == 0) {
 		h5_info ("Disabling chunking" );
 		TRY (hdf5_set_layout_property (
