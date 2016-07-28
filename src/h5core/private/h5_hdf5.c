@@ -52,41 +52,6 @@ h5priv_link_exists_ (
 	H5_RETURN (1);
 }
 
-h5_err_t
-h5priv_open_group_ (
-        int create_intermediate,
-        const hid_t loc_id,
-        const char const* path[],
-        size_t size
-        ) {
-	H5_PRIV_FUNC_ENTER (h5_err_t,
-	                    "create_intermediate=%d, loc_id=%lld, (%s), path=%s, ...",
-	                    create_intermediate, (long long int)loc_id, hdf5_get_objname (loc_id),
-	                    path[0]);
-	hid_t hid = loc_id;
-	hid_t hid2 = 0;
-	h5_err_t exists;
-	for (size_t i=0; i < size; i++) {
-		TRY (exists = hdf5_link_exists (hid, path[i]));
-		if (exists) {
-			TRY (hid2 = hdf5_open_group (hid, path[i]));
-		} else if (create_intermediate) {
-			TRY (hid2 = hdf5_create_group (hid, path[i]));
-		} else {
-			H5_RETURN_ERROR (
-				H5_ERR_HDF5,
-				"No such group '%s/%s'.",
-				hdf5_get_objname (hid),
-				path[i]);
-
-		}
-		if (hid != loc_id) {
-			TRY (hdf5_close_group (hid));
-		}
-		hid = hid2;
-	}
-	H5_RETURN (hid);
-}
 
 typedef struct op_data {
 	int queried_idx;

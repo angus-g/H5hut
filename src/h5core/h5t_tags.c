@@ -86,7 +86,7 @@ h5t_get_num_mtagsets (
 	if (!exists) H5_LEAVE (0);
 
 	hid_t loc_id;
-	TRY (loc_id = h5priv_open_group (0, m->mesh_gid, "Tags"));
+	TRY (loc_id = h5priv_open_group (m->mesh_gid, "Tags"));
 	TRY (num_mtagsets = hdf5_get_num_groups (loc_id));
 	TRY (hdf5_close_group (loc_id));
 
@@ -402,8 +402,9 @@ read_tagset (
 	hid_t loc_id = 0;
 
 	// open HDF5 group
-
-	TRY (loc_id = h5priv_open_group (0, tagset->parent_gid, "Tags", tagset->name));
+	TRY (loc_id = h5priv_open_group_with_intermediates (
+		     tagset->parent_gid,
+		     "Tags", tagset->name, NULL));
 
 	// read datasets:
 
@@ -614,11 +615,9 @@ write_tagset (
 	tagset->num_values = entity->idx = val_idx;
 
 	// write data
-	TRY (group_id = h5priv_open_group (
-	             1,
+	TRY (group_id = h5priv_create_group_with_intermediates (
 	             tagset->parent_gid,
-	             "Tags",
-	             tagset->name));
+		     "Tags", tagset->name, NULL));
 	h5_dsinfo_t dsinfo;
 	memset (&dsinfo, 0, sizeof(dsinfo));
 	dsinfo.rank = 1;
@@ -664,9 +663,9 @@ write_tagset (
 	             open_space_all, open_space_all,
 	             values));
 	h5_int64_t scope = tagset->scope.min_level;
-	TRY (h5priv_write_attrib (group_id, "__scope_min__", H5_INT64_T, &scope, 1, 1));
+	TRY (h5priv_write_attrib (group_id, "__scope_min__", H5_INT64_T, &scope, 1));
 	scope = tagset->scope.max_level;
-	TRY (h5priv_write_attrib (group_id, "__scope_max__", H5_INT64_T, &scope, 1, 1));
+	TRY (h5priv_write_attrib (group_id, "__scope_max__", H5_INT64_T, &scope, 1));
 
 	TRY (hdf5_close_group (group_id));
 	TRY (h5_free (elems));

@@ -50,10 +50,18 @@ h5_set_step (
 		"Open step #%lld for file %lld",
 		(long long)f->step_idx,
 		(long long)(size_t) f);
-	
-	TRY (f->step_gid = h5priv_open_group (is_writable(f),
-                                              f->file,
-                                              f->step_name));
+
+	h5_err_t exists;
+	TRY (exists = hdf5_link_exists (f->file, f->step_name));
+	if (exists) {
+		TRY (f->step_gid = h5priv_open_group (
+			     f->file,
+			     f->step_name));
+	} else if (is_writable (f)) {
+		TRY (f->step_gid = h5priv_create_group (
+			     f->file,
+			     f->step_name));
+	}
 	H5_RETURN (H5_SUCCESS);
 }
 

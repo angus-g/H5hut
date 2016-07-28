@@ -161,15 +161,6 @@ hdf5_create_group (
 }
 
 h5_err_t
-h5priv_open_group_ (int, hid_t, const char const*[], size_t);
-
-#define h5priv_open_group(create_intermediate, loc_id, ...)             \
-        (h5priv_open_group_ (create_intermediate,                       \
-                             loc_id,                                     \
-                             (const char const*[]) {__VA_ARGS__},                        \
-                             PP_NARG(__VA_ARGS__)))
-
-h5_err_t
 h5priv_link_exists_ (
         const hid_t loc_id,
         const char const* path[],
@@ -199,6 +190,106 @@ hdf5_close_group (
 			hdf5_get_objname (group_id));
 	}
 	H5_RETURN (H5_SUCCESS);
+}
+
+static inline hid_t
+h5priv_create_group (
+        const hid_t loc_id,
+        const char const* group_name
+        ) {
+	H5_PRIV_FUNC_ENTER (hid_t,
+	                    "loc_id=%lld, (%s), group_name=%s",
+			    (long long int)loc_id, hdf5_get_objname (loc_id),
+	                    group_name);
+	h5_err_t exists;
+	TRY (exists = hdf5_link_exists (loc_id, group_name));
+	if (exists) {
+		TRY (ret_value = hdf5_open_group (loc_id, group_name));
+	} else {
+		TRY (ret_value = hdf5_create_group (loc_id, group_name));
+	}
+	H5_RETURN (ret_value);
+}
+
+static inline hid_t
+h5priv_open_group (
+        const hid_t loc_id,
+        const char const* group_name
+        ) {
+	H5_PRIV_FUNC_ENTER (hid_t,
+	                    "loc_id=%lld, (%s), group_name=%s",
+			    (long long int)loc_id, hdf5_get_objname (loc_id),
+	                    group_name);
+	h5_err_t exists;
+	TRY (exists = hdf5_link_exists (loc_id, group_name));
+	if (exists) {
+		TRY (ret_value = hdf5_open_group (loc_id, group_name));
+	} else {
+		H5_RETURN_ERROR (
+			H5_ERR_HDF5,
+			"Group does not exist: '%s/%s'.",
+			hdf5_get_objname (loc_id),
+			group_name);
+	}
+	H5_RETURN (ret_value);
+}
+
+static inline hid_t
+h5priv_create_group_with_intermediates (
+        const hid_t loc_id,
+	...
+        ) {
+	va_list ap;
+	va_start(ap, loc_id);
+	char* group_name = va_arg(ap, char*);
+	H5_PRIV_FUNC_ENTER (hid_t,
+	                    "loc_id=%lld (%s), "
+			    "group_name=%s, ...",
+			    (long long int)loc_id, hdf5_get_objname (loc_id),
+			    group_name);
+	hid_t parent_id = loc_id;
+	while (group_name != NULL) {
+		TRY (ret_value = h5priv_create_group (
+			     parent_id,
+			     group_name));
+		if (parent_id != loc_id) {
+			// close intermediate groups
+			TRY (hdf5_close_group (parent_id));
+		}
+		group_name = va_arg(ap, char*);
+		parent_id = ret_value;
+	}
+	va_end (ap);
+	H5_RETURN (ret_value);
+}
+
+static inline hid_t
+h5priv_open_group_with_intermediates (
+        const hid_t loc_id,
+	...
+        ) {
+	va_list ap;
+	va_start(ap, loc_id);
+	char* group_name = va_arg(ap, char*);
+	H5_PRIV_FUNC_ENTER (hid_t,
+	                    "loc_id=%lld (%s), "
+			    "group_name=%s, ...",
+			    (long long int)loc_id, hdf5_get_objname (loc_id),
+			    group_name);
+	hid_t parent_id = loc_id;
+	while (group_name != NULL) {
+		TRY (ret_value = h5priv_open_group (
+			     parent_id,
+			     group_name));
+		if (parent_id != loc_id) {
+			// close intermediate groups
+			TRY (hdf5_close_group (parent_id));
+		}
+		group_name = va_arg(ap, char*);
+		parent_id = ret_value;
+	}
+	va_end(ap);
+	H5_RETURN (ret_value);
 }
 
 static inline h5_ssize_t

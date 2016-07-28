@@ -47,11 +47,9 @@ h5t_open_tetrahedral_mesh_by_idx (
 	hid_t ctn_hid;
 	char name[1024];
 
-	TRY (ctn_hid = h5priv_open_group (
-	             0,
+	TRY (ctn_hid = h5priv_open_group_with_intermediates (
 	             f->root_gid,
-	             H5T_CONTAINER_GRPNAME,
-	             TETRAHEDRAL_MESHES_GRPNAME));
+		     H5T_CONTAINER_GRPNAME, TETRAHEDRAL_MESHES_GRPNAME, NULL));
 	TRY (hdf5_get_name_of_group_by_idx (ctn_hid, idx, name, sizeof (name)));
 	TRY (hdf5_close_group (ctn_hid));
 
@@ -68,12 +66,11 @@ h5t_open_tetrahedral_mesh (
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", f, name, mesh);
 	hid_t mesh_hid;
 
-	TRY (mesh_hid = h5priv_open_group (
-	             0,         // do not create intermediate groups
+	TRY (mesh_hid = h5priv_open_group_with_intermediates (
 	             f->root_gid,
 	             H5T_CONTAINER_GRPNAME,
 	             TETRAHEDRAL_MESHES_GRPNAME,
-	             name));
+	             name, NULL));
 
 	TRY (*mesh = h5_calloc (1, sizeof(**mesh)));
 	h5t_mesh_t* m = *mesh;
@@ -106,12 +103,11 @@ h5t_open_tetrahedral_mesh_part (
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", f, name, mesh);
 	hid_t mesh_hid;
 
-	TRY (mesh_hid = h5priv_open_group (
-	             0,
+	TRY (mesh_hid = h5priv_open_group_with_intermediates (
 	             f->root_gid,
 	             H5T_CONTAINER_GRPNAME,
 	             TRIANGLE_MESHES_GRPNAME,
-	             name));
+	             name, NULL));
 
 	TRY (*mesh = h5_calloc (1, sizeof(**mesh)));
 	h5t_mesh_t* m = *mesh;
@@ -157,12 +153,11 @@ h5t_add_tetrahedral_mesh (
 			name);
 	}
 	hid_t mesh_hid;
-	TRY (mesh_hid = h5priv_open_group (
-	             1,         // create intermediate groups in path
+	TRY (mesh_hid = h5priv_create_group_with_intermediates (
 	             f->root_gid,
 	             H5T_CONTAINER_GRPNAME,
 	             TETRAHEDRAL_MESHES_GRPNAME,
-	             name));
+	             name, NULL));
 
 	TRY (*mesh = h5_calloc (1, sizeof(**mesh)));
 	h5t_mesh_t* m = *mesh;
@@ -214,12 +209,11 @@ h5t_add_chunked_tetrahedral_mesh (
 			name);
 	}
 	hid_t mesh_hid;
-	TRY (mesh_hid = h5priv_open_group (
-	             1,         // create intermediate groups in path
+	TRY (mesh_hid = h5priv_create_group_with_intermediates (
 	             f->root_gid,
 	             H5T_CONTAINER_GRPNAME,
 	             TETRAHEDRAL_MESHES_GRPNAME,
-	             name));
+	             name, NULL));
 
 	TRY (*mesh = h5_calloc (1, sizeof(**mesh)));
 	h5t_mesh_t* m = *mesh;
