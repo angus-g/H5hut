@@ -31,11 +31,7 @@ h5_add_attachment (
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p, fname='%s'", f, fname);
 	CHECK_FILEHANDLE (f);
-	// allowed file modes: O_RDWR, O_WRONLY; O_APPEND
-	if (f->props->flags & H5_O_RDONLY) {
-		H5_LEAVE (
-			h5priv_handle_file_mode_error (f->props->flags));
-	}
+	CHECK_WRITABLE_MODE (f);
 
 	struct stat st;
         if (stat (fname, &st) < 0) {
@@ -81,7 +77,7 @@ h5_add_attachment (
 	}
 
 	hid_t loc_id;
-	TRY (loc_id = h5priv_open_group (1, f->file, H5_ATTACHMENT));
+	TRY (loc_id = h5priv_create_group (f->file, H5_ATTACHMENT));
 	h5_err_t exists;
 	TRY (exists = hdf5_link_exists (loc_id, fname));
         if (exists && (f->props->flags & H5_O_APPENDONLY)) {
