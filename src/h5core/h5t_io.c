@@ -120,22 +120,19 @@ write_vertices (
 	             "__num_vertices__",
 	             H5_INT64_T,
 	             m->num_glb_vertices,
-	             m->num_leaf_levels,
-	             1));
+	             m->num_leaf_levels));
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_b_vertices__",
 	             H5_INT64_T,
 	             m->num_b_vtx,
-	             m->num_leaf_levels,
-	             1));
+	             m->num_leaf_levels));
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__first_b_vertices__",
 	             H5_INT64_T,
 	             m->first_b_vtx,
-	             m->num_leaf_levels,
-	             1));
+	             m->num_leaf_levels));
 	H5_RETURN (H5_SUCCESS);
 }
 #ifdef WITH_PARALLEL_H5GRID
@@ -497,22 +494,19 @@ write_vertices_chk (
 	             "__num_vertices__",
 	             H5_INT64_T,
 	             m->num_glb_vertices,
-	             m->num_leaf_levels,
-	             1));
+	             m->num_leaf_levels));
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_b_vertices__",
 	             H5_INT64_T,
 	             m->num_b_vtx,
-	             m->num_leaf_levels,
-	             1));
+	             m->num_leaf_levels));
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__first_b_vertices__",
 	             H5_INT64_T,
 	             m->first_b_vtx,
-	             m->num_leaf_levels,
-	             1));
+	             m->num_leaf_levels));
 
 	TRY (h5priv_end_throttle (m->f));
 	TRY (hdf5_close_dataspace (dspace_id));
@@ -562,23 +556,20 @@ write_elems (
 	             "__num_elems__",
 	             H5_INT64_T,
 	             m->num_glb_elems,
-	             m->num_leaf_levels,
-	             1));
+	             m->num_leaf_levels));
 
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_leaf_elems__",
 	             H5_INT64_T,
 	             m->num_glb_leaf_elems,
-	             m->num_leaf_levels,
-	             1));
+	             m->num_leaf_levels));
 
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_leaf_levels__",
 	             H5_INT16_T,
 	             &m->num_leaf_levels,
-	             1,
 	             1));
 
 	TRY (h5priv_write_attrib (
@@ -586,14 +577,12 @@ write_elems (
 	             "__is_chunked__",
 	             H5_INT16_T,
 	             &m->is_chunked,
-	             1,
 	             1));
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_weights__",
 	             H5_INT32_T,
 	             &m->num_weights,
-	             1,
 	             1));
 	// release mem
 	TRY (h5_free (glb_elems));
@@ -683,23 +672,20 @@ write_elems_chk (
 	             "__num_elems__",
 	             H5_INT64_T,
 	             m->num_glb_elems,
-	             m->num_leaf_levels,
-	             1));
+	             m->num_leaf_levels));
 
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_leaf_elems__",
 	             H5_INT64_T,
 	             m->num_glb_leaf_elems,
-	             m->num_leaf_levels,
-	             1));
+	             m->num_leaf_levels));
 
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__num_leaf_levels__",
 	             H5_INT16_T,
 	             &m->num_leaf_levels,
-	             1,
 	             1));
 
 	TRY (h5priv_write_attrib (
@@ -707,7 +693,6 @@ write_elems_chk (
 	             "__is_chunked__",
 	             H5_INT16_T,
 	             &m->is_chunked,
-	             1,
 	             1));
 
 	// release mem
@@ -803,7 +788,6 @@ write_chunks (
 	             "__num_chunks__",
 	             H5_INT32_T,
 	             &m->chunks->num_alloc,
-	             1,
 	             1));
 
 	TRY (h5priv_write_attrib (
@@ -811,7 +795,6 @@ write_chunks (
 	             "__num_chk_levels__",
 	             H5_INT16_T, 	// note: better uint16?
 	             &m->chunks->num_levels,
-	             1,
 	             1));
 
 	TRY (h5priv_write_attrib (
@@ -819,8 +802,7 @@ write_chunks (
 	             "__num_chk_p_level__",
 	             H5_INT32_T,
 	             m->chunks->num_chunks_p_level,
-	             m->chunks->num_levels,
-	             1));
+	             m->chunks->num_levels));
 
 	H5_RETURN (H5_SUCCESS);
 }
@@ -912,7 +894,6 @@ write_octree (
 	             "__curr_oct_idx__",
 	             H5_INT32_T,
 	             &m->octree->current_oct_idx,
-	             1,
 	             1));
 
 	TRY (h5priv_write_attrib (
@@ -920,22 +901,19 @@ write_octree (
 	             "__oct_maxpoints__",
 	             H5_INT32_T,
 	             &m->octree->maxpoints,
-	             1,
 	             1));
 	TRY (h5priv_write_attrib (
 	             m->mesh_gid,
 	             "__oct_size_userdata__",
 	             H5_INT32_T,
 	             &m->octree->size_userdata,
-	             1,
 	             1));
 	TRY (h5priv_write_attrib (
 		     m->mesh_gid,
 		     "__oct_bounding_box__",
 		     H5_FLOAT64_T,
 		     m->octree->bounding_box,
-		     6,
-		     1));
+		     6));
 
 	if (m->octree->size_userdata > 0) {
 		m->dsinfo_userdata.dims[0] = m->octree->current_oct_idx + 1;
@@ -1042,7 +1020,6 @@ write_weights (
 	             "__num_weights__",
 	             H5_INT32_T,
 	             &m->num_weights,
-	             1,
 	             1));
 
 	H5_RETURN (H5_SUCCESS);
