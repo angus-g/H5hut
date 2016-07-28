@@ -167,13 +167,13 @@ h5priv_map_enum_to_normalized_type (
 }
 
 /*
-  Get H5hut type from corresponding HDF5 type.
+  Normaize a given HDF5 data type.
  */
 static inline hid_t
 h5priv_normalize_type (
 	hid_t type
 	) {
-	H5_PRIV_API_ENTER (h5_int64_t,
+	H5_PRIV_API_ENTER (hid_t,
 			   "type=%lld",
 			   (long long int)type);
 	H5T_class_t tclass;
