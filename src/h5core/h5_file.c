@@ -298,6 +298,27 @@ h5_set_prop_file_align (
         H5_RETURN (H5_SUCCESS);
 }
 
+#if 0
+h5_err_t
+h5_set_prop_file_flush_step (
+        h5_prop_t _props
+        ) {
+        h5_prop_file_t* props = (h5_prop_file_t*)_props;
+        H5_CORE_API_ENTER (
+		h5_err_t,
+		"props=%p, align=%lld",
+		props, (long long int)align);
+        if (props->class != H5_PROP_FILE) {
+                H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid property class: %lld",
+			(long long int)props->class);
+        }
+        props-> = align;
+        H5_RETURN (H5_SUCCESS);
+}
+#endif
+
 h5_err_t
 h5_set_prop_file_throttle (
         h5_prop_t _props,
