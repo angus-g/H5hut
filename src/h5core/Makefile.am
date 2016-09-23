@@ -3,6 +3,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS = -I$(top_srcdir)/src/include @AM_CPPFLAGS@
 
 EXTRA_HEADERS =					\
+	private/h5_const.h			\
 	private/h5_file.h			\
 	private/h5_hdf5.h			\
 	private/h5_hsearch.h			\
