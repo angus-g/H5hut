@@ -6,7 +6,7 @@
 #
 #  License: see file COPYING in top level of source distribution.
 #
-AC_INIT([H5hut], [2.0.0rc1], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [2.0.0rc2], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
