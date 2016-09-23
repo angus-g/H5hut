@@ -230,9 +230,6 @@ h5u_write_data (
 	             f->props->xfer_prop,
 	             data));
 	TRY (h5priv_end_throttle (f));
-	if (f->props->flags & H5_FLUSH_STEP)
-		TRY (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
-
 	TRY (hdf5_close_dataset (dset_id));
 
 	f->empty = 0;
