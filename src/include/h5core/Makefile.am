@@ -1,6 +1,6 @@
 otherincludedir = $(includedir)/h5core
 
-include_HEADERS =		\
+otherinclude_HEADERS =		\
 	h5_attachments.h	\
 	h5_err.h		\
 	h5_file.h		\
