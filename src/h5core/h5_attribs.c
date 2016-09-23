@@ -231,17 +231,17 @@ h5_write_file_attrib (
 	const char* const attrib_name,
 	const h5_types_t attrib_type,
 	const void* const attrib_value,
-	const hsize_t attrib_nelem
+	const h5_size_t attrib_nelem
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
 			   "f=%p, attrib_name='%s', attrib_type=%lld, "
-			   "attrib_value=%p, attrib_nelem=%llu",
+			   "attrib_value=%p, attrib_nelem=%lld",
 			   f,
 			   attrib_name,
 			   (long long int)attrib_type,
 			   attrib_value,
-			   attrib_nelem);
+			   (long long)attrib_nelem);
 	CHECK_FILEHANDLE (f);
 	CHECK_WRITABLE_MODE (f);
 	if (is_appendonly (f)) {
@@ -273,12 +273,12 @@ h5_write_step_attrib (
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t,
 			   "f=%p, attrib_name='%s', attrib_type=%lld, "
-			   "attrib_value=%p, attrib_nelem=%llu",
+			   "attrib_value=%p, attrib_nelem=%lld",
 			   f,
 			   attrib_name,
 			   (long long int)attrib_type,
 			   attrib_value,
-			   attrib_nelem);
+			   (long long)attrib_nelem);
 	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
 	CHECK_WRITABLE_MODE (f);
