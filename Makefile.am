@@ -1,5 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = autogen.sh
+EXTRA_DIST =			\
+	autogen.sh 		\
+	ax_pkg_swig.m4
 
 SUBDIRS =			\
 	src			\
