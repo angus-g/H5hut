@@ -1,12 +1,12 @@
 #
-#  Copyright (c) 2006-2016, The Regents of the University of California,
+#  Copyright (c) 2006-2017, The Regents of the University of California,
 #  through Lawrence Berkeley National Laboratory (subject to receipt of any
 #  required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
 #  Institut (Switzerland).  All rights reserved.
 #
 #  License: see file COPYING in top level of source distribution.
 #
-AC_INIT([H5hut], [2.0.0rc2], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [2.0.0rc3], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
