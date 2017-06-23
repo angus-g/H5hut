@@ -9,6 +9,8 @@
 
 #include "H5hut.h"
 
+#include "examples.h"
+
 int
 main (
 	int argc,
@@ -16,11 +18,7 @@ main (
 	) {
 	MPI_Comm comm = MPI_COMM_WORLD;
 
-	int myproc;
-	int nprocs;
 	MPI_Init (&argc, &argv);
-	MPI_Comm_size (comm, &nprocs);
-	MPI_Comm_rank (comm, &myproc);
 
         h5_prop_t prop = H5CreateFileProp ();
         H5SetPropFileMPIOCollective (prop, &comm);

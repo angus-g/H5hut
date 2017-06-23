@@ -17,6 +17,7 @@
 #define VERBOSITY       H5_VERBOSE_ERROR
 #define DEBUG_MSK	H5_DEBUG_ALL
 
+#include "examples.h"
 
 int
 main (

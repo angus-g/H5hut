@@ -8,6 +8,7 @@
 */
 
 #include "H5hut.h"
+#include "examples.h"
 
 // name of output file
 const char* fname = "example_field.h5";

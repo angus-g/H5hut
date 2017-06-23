@@ -8,6 +8,7 @@
 */
 
 #include "H5hut.h"
+#include "examples.h"
 
 #define FNAME           "example_step_attribs.h5"
 

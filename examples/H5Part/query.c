@@ -8,6 +8,7 @@
 */
 
 #include "H5hut.h"
+#include "examples.h"
 
 #define FNAME		"example_setview.h5"
 #define VERBOSITY       H5_VERBOSE_ERROR

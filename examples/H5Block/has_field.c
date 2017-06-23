@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2015, The Regents of the University of California,
+  Copyright (c) 2006-2017, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -8,6 +8,9 @@
 */
 
 #include "H5hut.h"
+#include "examples.h"
+
+#include <inttypes.h>
 
 // name of output file
 const char* fname = "example_write_field.h5";
@@ -69,10 +72,10 @@ main (
 	} else if (type == H5_STRING_T) {
 		stype = "H5_STRING_T";
 	}
-	printf ("rank of field:       %lld\n", field_rank);
-	printf ("dims of field:      [%lld, %lld, %lld]\n",
+	printf ("rank of field:       %" PRId64 "\n", field_rank);
+	printf ("dims of field:      [%" PRId64 ", %" PRId64 ", %" PRId64"]\n",
 		field_dims[0], field_dims[1], field_dims[2]);
-	printf ("rank of field data: %lld\n", elem_rank);
+	printf ("rank of field data: %" PRId64 "\n", elem_rank);
 	printf ("type of field data: '%s'\n", stype);
 done:
         // done

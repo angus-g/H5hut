@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2015, The Regents of the University of California,
+  Copyright (c) 2006-2017, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -8,6 +8,9 @@
 */
 
 #include "H5hut.h"
+#include "examples.h"
+
+#include <inttypes.h>
 
 // name of output file
 const char* fname = "example_field.h5";
@@ -30,9 +33,9 @@ dump_int64_attrib (
 		attrib_data);
 	printf ("Attribute: '%s'\n", attrib_name);
 	printf ("    Type: H5_INT64_T\n");
-	printf ("    Data: %lld", attrib_data[0]);
+	printf ("    Data: %" PRId64, attrib_data[0]);
 	for (size_t i = 1; i < attrib_nelems; i++) {
-		printf (", %lld", attrib_data[i]);
+		printf (", %" PRId64, attrib_data[i]);
 	}
 	printf ("\n");
 }
@@ -174,7 +177,7 @@ main (
 	h5_ssize_t n_attribs = H5BlockGetNumFieldAttribs (
 		file,
 		field_name);
-	printf ("Field has %lld attributes attached.\n",
+	printf ("Field has %" PRId64 " attributes attached.\n",
 		n_attribs);
 
 	// dump all attached attributes

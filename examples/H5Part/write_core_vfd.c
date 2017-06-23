@@ -14,6 +14,7 @@
   the VFD core driver.
 */
 #include "H5hut.h"
+#include "examples.h"
 
 // name of output file
 const char* fname = "example_core_vfd.h5";
@@ -33,8 +34,6 @@ main (
         // initialize MPI & H5hut
         MPI_Init (&argc, &argv);
         MPI_Comm comm = MPI_COMM_WORLD;
-        int comm_size = 1;
-        MPI_Comm_size (comm, &comm_size);
         int comm_rank = 0;
         MPI_Comm_rank (comm, &comm_rank);
         H5AbortOnError ();
