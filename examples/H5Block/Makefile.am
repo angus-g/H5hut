@@ -8,6 +8,7 @@
 #
 
 AM_CPPFLAGS += -I${abs_top_srcdir}/src/include
+AM_CPPFLAGS += -I${abs_top_srcdir}/examples/include
 FFLAGS += -cpp $(AM_CPPFLAGS)
 AM_LDFLAGS += -L${abs_top_builddir}/src/h5core/.libs
 
@@ -34,9 +35,7 @@ noinst_PROGRAMS +=		\
 endif
 
 if ENABLE_FORTRAN
-if ENABLE_PARALLEL
 noinst_PROGRAMS += read_write_scalar_fieldf
-endif
 endif
 
 attach_field_attributes_SOURCES = attach_field_attributes.c

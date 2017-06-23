@@ -11,8 +11,11 @@ include 'H5hut.f90'
 program write_setview
   use H5hut
   implicit none
-  include 'mpif.h'
 
+#if defined(PARALLEL_IO)
+  include 'mpif.h'
+#endif
+  
   ! name of output file
   character (len=*), parameter :: fname = "example_setview.h5"
 
@@ -23,16 +26,19 @@ program write_setview
   integer*8, parameter :: num_blocks = 4;
   integer*8, parameter :: num_particles_per_block = 32
 
-  integer   :: comm, comm_size, comm_rank, mpi_ierror
+  integer   :: comm_rank = 0
   integer*8 :: file, h5_ierror
   integer*8 :: i, j, offset
   integer*4, allocatable :: data(:)
 
   ! initialize MPI & H5hut
+#if defined(PARALLEL_IO)
+  integer   :: comm, mpi_ierror
   comm = MPI_COMM_WORLD
   call mpi_init (mpi_ierror)
-  call mpi_comm_size (comm, comm_size, mpi_ierror)
   call mpi_comm_rank (comm, comm_rank, mpi_ierror)
+#endif
+  
   call h5_abort_on_error ()
   call h5_set_verbosity_level (h5_verbosity)
 
@@ -61,6 +67,9 @@ program write_setview
   ! cleanup
   deallocate (data)
   h5_ierror = h5_closefile (file)
-  call mpi_finalize (mpi_ierror)
 
+#if defined(PARALLEL_IO)
+  call mpi_finalize (mpi_ierror)
+#endif
+  
 end program write_setview

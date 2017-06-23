@@ -11,7 +11,10 @@ include 'H5hut.f90'
 program read_setnparticles
   use H5hut
   implicit none
+
+#if defined(PARALLEL_IO)
   include 'mpif.h'
+#endif
 
   ! name of input file
   character (len=*), parameter :: fname =       "example_setnparticles.h5"
@@ -19,17 +22,21 @@ program read_setnparticles
   ! H5hut verbosity level
   integer*8, parameter         :: h5_verbosity = H5_VERBOSE_DEFAULT
   
-  integer   :: comm, comm_size, comm_rank, mpi_ierror
+  integer   :: comm_size = 1
+  integer   :: comm_rank = 0
   integer*8 :: file, h5_ierror
   integer*8 :: num_particles, num_particles_total
   integer*8 :: i
   integer*4, allocatable :: data(:)
 
   ! initialize MPI & H5hut
+#if defined(PARALLEL_IO)
+  integer   :: comm, mpi_ierror
   comm = MPI_COMM_WORLD
   call mpi_init (mpi_ierror)
   call mpi_comm_size (comm, comm_size, mpi_ierror)
   call mpi_comm_rank (comm, comm_rank, mpi_ierror)
+#endif
   call h5_abort_on_error ()
   call h5_set_verbosity_level (h5_verbosity)
 
@@ -61,6 +68,9 @@ program read_setnparticles
   ! cleanup
   deallocate (data)
   h5_ierror = h5_closefile (file)
+
+#if defined(PARALLEL_IO)
   call mpi_finalize (mpi_ierror)
+#endif
 
 end program read_setnparticles

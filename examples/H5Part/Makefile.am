@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2006-2015, The Regents of the University of California,
+# Copyright (c) 2006-2017, The Regents of the University of California,
 # through Lawrence Berkeley National Laboratory (subject to receipt of any
 # required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
 # Institut (Switzerland).  All rights reserved.!
@@ -8,6 +8,7 @@
 #
 
 AM_CPPFLAGS += -I${abs_top_srcdir}/src/include
+AM_CPPFLAGS += -I${abs_top_srcdir}/examples/include
 FFLAGS += -cpp $(AM_CPPFLAGS)
 AM_LDFLAGS += -L${abs_top_builddir}/src/h5core/.libs
 
@@ -42,7 +43,6 @@ noinst_PROGRAMS +=		\
 endif
 
 if ENABLE_FORTRAN
-if ENABLE_PARALLEL
 noinst_PROGRAMS +=		\
 	read_core_vfdf		\
 	read_canonicalviewf	\
@@ -53,7 +53,6 @@ noinst_PROGRAMS +=		\
 	write_setnparticlesf	\
 	write_setviewf		\
 	write_stridedf
-endif
 endif
 
 EXTRA_PROGRAMS = 

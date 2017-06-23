@@ -1,5 +1,5 @@
   !
-  !  Copyright (c) 2006-2013, The Regents of the University of California,
+  !  Copyright (c) 2006-2017, The Regents of the University of California,
   !  through Lawrence Berkeley National Laboratory (subject to receipt of any
   !  required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   !  Institut (Switzerland).  All rights reserved.!
@@ -7,15 +7,17 @@
   !  License: see file COPYING in top level of source distribution.
   !
   include 'H5hut.f90'
-
+  
   program query
     use H5hut
     implicit none
+#if defined(PARALLEL_IO)
     include 'mpif.h'
+#endif
 
     ! the file name we want to read
-    character (len=*), parameter :: FNAME1 =               "example_file_attribs.h5"
-    character (len=*), parameter :: FNAME2 =               "example_step_attribs.h5"
+    character (len=*), parameter :: FNAME1 = "example_file_attribs.h5"
+    character (len=*), parameter :: FNAME2 = "example_step_attribs.h5"
 
     ! verbosity level: set it to a power of 2 minus one or zero
     integer*8, parameter :: verbosity_level =             1
@@ -23,7 +25,9 @@
     ! used for mpi error return
     integer :: ierr
 
+#if defined(PARALLEL_IO)
     call mpi_init (ierr)
+#endif
 
     ! abort program on any H5hut error
     call h5_abort_on_error ()
@@ -33,8 +37,9 @@
     call query_file (FNAME1);
     call query_file (FNAME2);
 
+#if defined(PARALLEL_IO)
     call mpi_finalize(ierr)
-
+#endif
     call exit (ierr)
 
   contains

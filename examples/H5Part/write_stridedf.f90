@@ -11,22 +11,29 @@ include 'H5hut.f90'
 program write_stridedf
   use H5hut
   implicit none
-  include 'mpif.h'
 
+#if defined(PARALLEL_IO)
+  include 'mpif.h'
+#endif
+  
   ! the file name we want to read
   character (len=*), parameter :: FNAME =       "example_strided.h5"
   integer*8, parameter :: NPOINTS =             99
 
-  integer :: comm, rank, ierr
+  integer :: rank = 0
   integer*8 :: file, status
   integer*4 :: i
   real*8, allocatable :: particles(:)
   integer*8, allocatable :: id(:)
 
   ! init MPI & H5hut
+#if defined(PARALLEL_IO)
+  integer :: comm, ierr
   comm = MPI_COMM_WORLD
   call mpi_init(ierr)
   call mpi_comm_rank(comm, rank, ierr)
+#endif
+
   call h5_abort_on_error ()
 
   ! create fake data
@@ -66,6 +73,8 @@ program write_stridedf
 
   deallocate(particles, id)
 
+#if defined(PARALLEL_IO)
   call mpi_finalize(ierr)
+#endif
 
 end program write_stridedf

@@ -11,8 +11,11 @@
   program write_step_attribs
     use H5hut
     implicit none
-    include 'mpif.h'
 
+#if defined(PARALLEL_IO)
+    include 'mpif.h'
+#endif
+    
     integer*8, parameter :: verbosity_level =          1
     character (len=*), parameter :: FNAME =            "example_step_attribs.h5"
 
@@ -29,11 +32,13 @@
     real*4, parameter, dimension(*) ::    r4_value =   (/2.71828/)
     real*8, parameter, dimension(*) ::    r8_value =   (/3.141592653589793238462643383279502884197169/)
 
-    integer :: ierr
     integer*8 :: file_id, status
 
+#if defined(PARALLEL_IO)
+    integer :: ierr
     call mpi_init(ierr)
-
+#endif
+    
     ! abort program on any H5hut error
     call h5_abort_on_error()
 
@@ -54,6 +59,8 @@
 
     ! cleanup
     status = h5_closefile (file_id)
-    call mpi_finalize(ierr)
 
+#if defined(PARALLEL_IO)
+    call mpi_finalize(ierr)
+#endif
   end program write_step_attribs

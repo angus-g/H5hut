@@ -11,8 +11,11 @@
   program read_step_attribs
     use H5hut
     implicit none
-    include 'mpif.h'
 
+#if defined(PARALLEL_IO)
+    include 'mpif.h'
+#endif
+    
     ! the file name we want to read
     character (len=*), parameter :: FNAME =               "example_file_attribs.h5"
 
@@ -36,9 +39,6 @@
     real*4, allocatable ::    r4_value (:)
     real*8, allocatable ::    r8_value (:)
 
-    ! used for mpi error return
-    integer :: ierr
-
     ! H5hut file id
     integer*8 :: file_id
 
@@ -54,8 +54,13 @@
     ! loop index
     integer*8 i
 
-    call mpi_init (ierr)
+#if defined(PARALLEL_IO)
+    ! used for mpi error return
+    integer :: ierr
 
+    call mpi_init (ierr)
+#endif
+    
     ! abort program on any H5hut error
     call h5_abort_on_error ()
 
@@ -108,6 +113,7 @@
 
     ! cleanup
     status = h5_closefile (file_id)
+#if defined(PARALLEL_IO)
     call mpi_finalize(ierr)
-
+#endif
   end program read_step_attribs

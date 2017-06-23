@@ -11,13 +11,17 @@ include 'H5hut.f90'
 program read_write_scalar_field
   use H5hut
   implicit   none
+
+#if defined(PARALLEL_IO)
   include 'mpif.h'
 
+  integer :: comm = 0
+  integer :: mpi_err
+#endif
+  
   integer :: nargs = 0
   integer :: comm_rank = 0
   integer :: comm_size = 1
-  integer :: comm = 0
-  integer :: mpi_err
   integer*8 :: h5_err
   integer :: i
   character(len=32) :: arg_str
@@ -174,10 +178,15 @@ program read_write_scalar_field
   end do
   
   ! init MPI & H5hut
+#if defined(PARALLEL_IO)
   comm = MPI_COMM_WORLD
   call mpi_init(mpi_err)
   call mpi_comm_rank(comm, comm_rank, mpi_err)
   call mpi_comm_size (comm, comm_size, mpi_err)
+#else
+  comm_size = 1
+  comm_rank = 0
+#endif
   call h5_abort_on_error ()
   call h5_set_verbosity_level (511_8)
 
@@ -215,7 +224,9 @@ program read_write_scalar_field
 
   case default
      print *, "Run this test on 1, 8, 16 or 32 cores!"
+#if defined(PARALLEL_IO)
      call mpi_finalize
+#endif
      call exit (1)
   end select
 
@@ -233,7 +244,9 @@ program read_write_scalar_field
      
   endif
   print "('[proc ', I3, ']: Cleanup.')", comm_rank
+#if defined(PARALLEL_IO)
   call mpi_finalize
+#endif
   print "('[proc ', I3, ']: Done.')", comm_rank
   call exit (0)
 
