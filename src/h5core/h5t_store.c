@@ -691,8 +691,9 @@ rebuild_map_elem_g2l (
    Rebuild mapping of global element indices to their local indices.
  */
 static h5_err_t
-rebuild_map_elem_g2l_partial ( // we need that to update map for the refined elems before we have the
-		// refined elements from the other proces
+rebuild_map_elem_g2l_partial (
+	// we need that to update map for the refined elems before we have the
+	// refined elements from the other proces
         h5t_mesh_t* const m
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "m=%p", m);
