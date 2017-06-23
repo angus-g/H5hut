@@ -119,18 +119,25 @@ if test "x$ENABLE_PARALLEL" = "xyes"; then
    	if test "x$MPICXX" != "x"; then
 	   	CXX=$MPICXX
 	fi
+   	if test "x$MPIFC" != "x"; then
+	   	FC=$MPIFC
+	fi
    	c_compilers="mpicc cc"
 	cxx_compilers="mpic++ CC"
+	fc_compiler="mpifort"
 else
 	c_compilers="pgcc pathcc icc gcc cc_r cc"
 	cxx_compilers="pgcc pathcc icc g++ cc_r c++"
+	fc_compiler="ifort gfortran g95"
 fi
 
 AC_PROG_CC($c_compilers)
 AC_PROG_CXX($cxx_compilers)
+AC_PROG_FC($fc_compiler)
 
 CC=`which $CC`
 CXX=`which $CXX`
+FC=`which $FC`
 
 AC_PROG_CC_C99
 if test "x$ac_cv_prog_cc_c99" = "xno"; then
