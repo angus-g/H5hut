@@ -11,6 +11,8 @@
 #include "h5core/h5_err.h"
 #include "private/h5_init.h"
 
+#include <stdlib.h>
+
 static h5_errorhandler_t	h5_errhandler = h5_report_errorhandler;
 h5_err_t			h5_errno;
 
