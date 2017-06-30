@@ -9,6 +9,7 @@
 .deps
 .dirstamp
 .libs
+CMakeFiles
 INSTALL
 Makefile
 Makefile.in
