@@ -121,24 +121,41 @@ if test "x$ENABLE_PARALLEL" = "xyes"; then
 	fi
    	if test "x$MPIFC" != "x"; then
 	   	FC=$MPIFC
+	else
+		FC=''
+		F77=''
+		F90=''
 	fi
    	c_compilers="mpicc cc"
 	cxx_compilers="mpic++ CC"
-	fc_compiler="mpifort"
+	fc_compiler="mpif90 mpif77 mpifort"
 else
 	c_compilers="pgcc pathcc icc gcc cc_r cc"
 	cxx_compilers="pgcc pathcc icc g++ cc_r c++"
-	fc_compiler="ifort gfortran g95"
+	fc_compiler="pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran"
 fi
 
 AC_PROG_CC($c_compilers)
+if test "x$ac_cv_prog_cc_c89" = "xno"; then
+	AC_MSG_ERROR([C compiler not found!])
+	exit 1
+fi
+
 AC_PROG_CXX($cxx_compilers)
-AC_PROG_FC($fc_compiler)
+
+if test "X$ENABLE_FORTRAN" = "Xyes"; then
+   	AC_PROG_FC($fc_compiler)
+	if test "x$FC" = "x"; then
+	   	AC_MSG_ERROR([Fortran compiler not found!])
+		exit 1
+	fi
+fi
 
 CC=`which $CC`
 CXX=`which $CXX`
 FC=`which $FC`
 
+AX_CXX_COMPILE_STDCXX_11
 AC_PROG_CC_C99
 if test "x$ac_cv_prog_cc_c99" = "xno"; then
 	AC_MSG_ERROR([Cannot set C compiler to use C99 standard!])
@@ -259,15 +276,6 @@ AC_MSG_CHECKING([if fortran interface enabled])
 if test "X$ENABLE_FORTRAN" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 	AC_LANG_PUSH(Fortran)
-	FC=''
-	F77=''
-	F90=''
-	if test "X$ENABLE_PARALLEL" = "Xyes"; then
-		AC_PROG_FC(mpif90 mpif77)
-	else
-		AC_PROG_FC(pgf90 ifort xlf_r pathf90 g95 g90 ftn gfortran)
-	fi
-	FC=`which $FC`
 	
 	# Query Fortran symbol mangling. __AC_FC_NAME_MANGLING sets
 	# ac_cv_{f77,fc}_mangling. The value contains three fields, separated
@@ -356,6 +364,10 @@ fi
 AC_MSG_CHECKING([if parallel interface enabled])
 if test "X$ENABLE_PARALLEL" = "Xyes"; then
 	AC_MSG_RESULT([yes])
+	if test "X$ENABLE_VTKCONVERTER" = "Xyes"; then
+	   	AC_MSG_ERROR([VTK to H5hut grid converter cannot be compiled parallel!])
+		exit 1
+	fi
 	CPPFLAGS="${CPPFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
 
         if test "X$ENABLE_EXPERIMENTAL" = "Xyes"; then
@@ -433,7 +445,33 @@ LIBS="$LIBS -lm"
 AC_MSG_CHECKING([if we have to compile the VTK to H5hut grid converter])
 if test "X$ENABLE_VTKCONVERTER" = "Xyes"; then
 	AC_MSG_RESULT([yes])
-        # :TODO: add test whether we can compile/link a prog with vtk
+	if test -n "$VTK_PREFIX"; then
+		SAVE_C_INCLUDE_PATH="$C_INCLUDE_PATH"
+		SAVE_CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH"
+		SAVE_LIBRARY_PATH="$LIBRARY_PATH"
+		C_INCLUDE_PATH="$C_INCLUDE_PATH $VTK_PREFIX/include"
+		CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH $VTK_PREFIX/include"
+		LIBRARY_PATH="$LIBRARY_PATH $VTK_PREFIX/lib"
+	fi
+	AC_MSG_CHECKING([VTK inlcude files])
+	VTK_INCLUDES=`cmake --find-package -DNAME=VTK -DCOMPILER_ID=GNU -DLANGUAGE=C -DMODE=COMPILE 2>/dev/null`
+	if test "X$?" != "X0"; then
+		AC_MSG_RESULT([no])
+	        AC_MSG_ERROR([Cannot compile VTK to H5hut converter])
+        	exit 1
+	else
+		AC_MSG_RESULT([yes])
+	fi
+	AC_MSG_CHECKING([VTK libraries])
+	VTK_LIBS=`cmake --find-package -DNAME=VTK -DCOMPILER_ID=GNU -DLANGUAGE=C -DMODE=LINK 2>/dev/null`
+	if test "X$?" != "X0"; then
+		AC_MSG_RESULT([no])
+	        AC_MSG_ERROR([Cannot compile VTK to H5hut converter]); 
+        	exit 1
+	else
+		AC_MSG_RESULT([yes])
+	fi
+
 else
 	AC_MSG_RESULT([no])
 fi
@@ -457,7 +495,8 @@ AC_SUBST(CFLAGS)
 AC_SUBST(FFLAGS)
 AC_SUBST(AM_CPPFLAGS)
 AC_SUBST(AM_LDFLAGS)
-
+AC_SUBST(VTK_INCLUDES)
+AC_SUBST(VTK_LIBS)
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
