@@ -181,7 +181,9 @@ set_default_file_props (
                 H5_STEPNAME,
                 H5_STEPNAME_LEN - 1);
         props->width_step_idx = H5_STEPWIDTH;
+#ifdef PARALLEL_IO
         props->comm = MPI_COMM_WORLD;
+#endif
         H5_RETURN (H5_SUCCESS);
 }
 
@@ -199,6 +201,7 @@ h5_set_prop_file_mpio_collective (
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
+#ifdef PARALLEL_IO
         props->flags &= ~(H5_VFD_MPIO_POSIX | H5_VFD_MPIO_INDEPENDENT | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_COLLECTIVE;
         props->comm = *comm;
@@ -206,7 +209,9 @@ h5_set_prop_file_mpio_collective (
 		h5_warn ("Throttling is not permitted with collective VFD. Reset throttling.");
 		props->throttle = 0;
 	}
-
+#else
+	h5_info ("Setting MPIO collective property ignored in serial H5hut");
+#endif
         H5_RETURN (H5_SUCCESS);
 }
 
@@ -224,9 +229,13 @@ h5_set_prop_file_mpio_independent (
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
+#ifdef PARALLEL_IO
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_POSIX | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = *comm;
+#else
+	h5_info ("Setting MPIO independent property ignored in serial H5hut");
+#endif
         H5_RETURN (H5_SUCCESS);
 }
 
@@ -245,9 +254,13 @@ h5_set_prop_file_mpio_posix (
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
+#ifdef PARALLEL_IO
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_POSIX | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = *comm;
+#else
+	h5_info ("Setting MPIO POSIX property ignored in serial H5hut");
+#endif
         H5_RETURN (H5_SUCCESS);
 }
 #endif
@@ -266,6 +279,7 @@ h5_set_prop_file_core_vfd (
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
+#ifdef PARALLEL_IO
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_INDEPENDENT | H5_VFD_MPIO_POSIX);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = MPI_COMM_SELF;
@@ -274,6 +288,9 @@ h5_set_prop_file_core_vfd (
 		h5_warn ("Throttling is not permitted with core VFD. Reset throttling.");
 		props->throttle = 0;
 	}
+#else
+	h5_info ("Setting MPIO core property ignored in serial H5hut");
+#endif
         H5_RETURN (H5_SUCCESS);
 }
 
@@ -335,6 +352,7 @@ h5_set_prop_file_throttle (
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
+#ifdef PARALLEL_IO
 	// throttle only if VFD is MPIO independent od POSIX
 	h5_int64_t mask = H5_VFD_MPIO_INDEPENDENT;
 #if H5_VERSION_LE(1,8,12)
@@ -354,6 +372,9 @@ h5_set_prop_file_throttle (
 	}
 
         props->throttle = throttle;
+#else
+	h5_info ("Setting the throttle property in serial H5hut");
+#endif
         H5_RETURN (H5_SUCCESS);
 }
 
@@ -498,7 +519,9 @@ h5_open_file2 (
 				"Invalid property class: %lld.",
 				(long long int)props->class);
                 }
+#ifdef PARALLEL_IO
                 f->props->comm = props->comm;
+#endif
                 f->props->flags = props->flags;
                 f->props->throttle = props->throttle;
                 f->props->align = props->align;

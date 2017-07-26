@@ -35,7 +35,9 @@ struct h5_prop_file {                   // file property
         h5_int64_t align;               // HDF5 alignment
 	h5_int64_t increment;		// increment for core vfd
         h5_int64_t throttle;
+#ifdef PARALLEL_IO
         MPI_Comm comm;
+#endif
 	hid_t	xfer_prop;		// dataset transfer properties
 	hid_t	access_prop;		// file access properties
 	hid_t	create_prop;		// file create properties
