@@ -21,8 +21,6 @@ program read_stridedf
   ! H5hut verbosity level
   integer*8, parameter :: h5_verbosity = H5_VERBOSE_DEFAULT
   
-  integer   :: comm_size = 1
-  integer   :: comm_rank = 0
   integer*8 :: file, h5_ierror
   integer*8 :: num_particles, num_particles_total
   real*8, allocatable :: data(:)
@@ -35,6 +33,9 @@ program read_stridedf
   call mpi_init (mpi_error)
   call mpi_comm_size (comm, comm_size, mpi_ierror)
   call mpi_comm_rank (comm, comm_rank, mpi_ierror)
+#else
+  integer   :: comm_size = 1
+  integer   :: comm_rank = 0
 #endif
   
   call h5_abort_on_error ()
