@@ -211,7 +211,7 @@ test_write_data32(h5_file_t file, int nparticles, int step)
 	status = H5PartSetNumParticles(file, nparticles);
 	RETURN(status, H5_SUCCESS, "H5PartSetNumParticles");
 
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
 	int rank, nprocs;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -358,7 +358,7 @@ void h5u_test_write1(void)
 	TEST("Opening file once, write-truncate");
         h5_prop_t props = H5CreateFileProp ();
 
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
         MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOCollective (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
@@ -386,7 +386,7 @@ void h5u_test_write2(void)
 	TEST("Opening file twice, write-append + read-only");
         h5_prop_t props = H5CreateFileProp ();
 
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
         MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOCollective (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");
@@ -421,7 +421,7 @@ void h5u_test_write3(void)
 
         h5_prop_t props = H5CreateFileProp ();
 
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
         MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOPosix (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOPosix");
@@ -457,7 +457,7 @@ void h5u_test_write4(void)
 	TEST("Opening file twice, write-append + read-only, MPI-IO Independent VFD");
 
         props = H5CreateFileProp ();
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
         MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOIndependent (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOIndependent");

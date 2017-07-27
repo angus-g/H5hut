@@ -47,7 +47,7 @@ h5bpriv_open_file (
 	b = f->b;
 	memset (b, 0, sizeof (*b));
 
-#if defined(PARALLEL_IO)
+#ifdef H5_HAVE_PARALLEL
 	size_t n = sizeof (struct h5b_partition) / sizeof (h5_int64_t);
 	TRY (h5priv_mpi_type_contiguous(n, MPI_LONG_LONG, &b->partition_mpi_t));
 #endif
@@ -88,7 +88,7 @@ h5bpriv_close_file (
 	TRY (hdf5_close_dataspace (b->diskshape));
 	TRY (hdf5_close_dataspace (b->memshape));
 	TRY (hdf5_close_property (b->dcreate_prop));
-#if defined(PARALLEL_IO)
+#ifdef H5_HAVE_PARALLEL
 	TRY (h5priv_mpi_type_free (&b->partition_mpi_t));
 #endif
 	TRY (h5_free (f->b));

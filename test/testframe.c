@@ -530,7 +530,7 @@ TestPrintf(const char *format, ...)
 	va_list arglist;
 	int ret_value = -1;
 
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
 	int nproc;
 	MPI_Comm_rank(MPI_COMM_WORLD, &nproc);
 	if ( nproc == 0 || VERBOSE_HI ) {
@@ -564,7 +564,7 @@ TestErrPrintf(const char *format, ...)
 	/* Increment the error count */
 	num_errs++;
 
-#if PARALLEL_IO
+#if H5_HAVE_PARALLEL
 	int nproc;
 	MPI_Comm_rank(MPI_COMM_WORLD, &nproc);
 	if ( nproc == 0 || VERBOSE_HI ) {

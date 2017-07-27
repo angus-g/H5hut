@@ -80,7 +80,7 @@ mpi_init (
 	const h5_file_p f
 	) {
 	H5_INLINE_FUNC_ENTER (h5_err_t);
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	TRY (h5priv_mpi_comm_size (f->props->comm, &f->nprocs));
 	TRY (h5priv_mpi_comm_rank (f->props->comm, &f->myproc));
 	
@@ -141,7 +141,7 @@ mpi_init (
 		TRY (h5_optimize_for_lustre(f, filename));
 	}
 #endif
-#endif /* PARALLEL_IO */
+#endif /* H5_HAVE_PARALLEL */
 	H5_RETURN (H5_SUCCESS);
 }
 
@@ -181,7 +181,7 @@ set_default_file_props (
                 H5_STEPNAME,
                 H5_STEPNAME_LEN - 1);
         props->width_step_idx = H5_STEPWIDTH;
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
         props->comm = MPI_COMM_WORLD;
 #endif
         H5_RETURN (H5_SUCCESS);
@@ -201,7 +201,7 @@ h5_set_prop_file_mpio_collective (
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
         props->flags &= ~(H5_VFD_MPIO_POSIX | H5_VFD_MPIO_INDEPENDENT | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_COLLECTIVE;
         props->comm = *comm;
@@ -229,7 +229,7 @@ h5_set_prop_file_mpio_independent (
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_POSIX | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = *comm;
@@ -254,7 +254,7 @@ h5_set_prop_file_mpio_posix (
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_POSIX | H5_VFD_CORE);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = *comm;
@@ -279,7 +279,7 @@ h5_set_prop_file_core_vfd (
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
         props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_INDEPENDENT | H5_VFD_MPIO_POSIX);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = MPI_COMM_SELF;
@@ -352,7 +352,7 @@ h5_set_prop_file_throttle (
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	// throttle only if VFD is MPIO independent od POSIX
 	h5_int64_t mask = H5_VFD_MPIO_INDEPENDENT;
 #if H5_VERSION_LE(1,8,12)
@@ -519,7 +519,7 @@ h5_open_file2 (
 				"Invalid property class: %lld.",
 				(long long int)props->class);
                 }
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
                 f->props->comm = props->comm;
 #endif
                 f->props->flags = props->flags;

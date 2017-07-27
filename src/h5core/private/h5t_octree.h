@@ -14,7 +14,7 @@
 #include "h5core/h5_types.h"
 #include "h5core/h5t_octree.h"
 
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
 #include <mpi.h>
 #endif
 

@@ -31,7 +31,7 @@
 #include "private/h5_mpi.h"
 #include "private/h5_hdf5.h"
 
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 static inline h5_err_t
 h5priv_start_throttle (
 	const h5_file_p f
@@ -98,7 +98,7 @@ h5priv_end_throttle (
 	}
 	H5_RETURN (H5_SUCCESS);
 }
-#else // PARALLEL_IO
+#else // H5_HAVE_PARALLEL
 static inline h5_err_t
 h5priv_start_throttle (const h5_file_p f) {
 	UNUSED_ARGUMENT (f);
@@ -111,7 +111,7 @@ h5priv_end_throttle (const h5_file_p f) {
 	return H5_SUCCESS;
 }
 
-#endif // PARALLEL_IO
+#endif // H5_HAVE_PARALLEL
 
 
 h5_err_t

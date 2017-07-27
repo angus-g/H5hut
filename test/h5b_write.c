@@ -149,7 +149,7 @@ test_write_data32(h5_file_t file, int step)
 
 		if (val == 0) test_write_field_attribs(file, "e", t);
 
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
 		extern h5_size_t grid[3];
 
 		status = H5Block3dSetGrid(file, grid[0], grid[1], grid[2]);
@@ -181,7 +181,7 @@ void h5b_test_write1(void)
 
 	TEST("Opening file once, write-truncate");
         h5_prop_t props = H5CreateFileProp ();
-#if defined (PARALLEL_IO)
+#if defined (H5_HAVE_PARALLEL)
         MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOCollective (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");

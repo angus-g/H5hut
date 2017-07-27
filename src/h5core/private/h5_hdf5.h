@@ -1048,7 +1048,7 @@ hdf5_set_layout_property (
 	H5_RETURN (H5_SUCCESS);
 }
 
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 static inline h5_err_t
 hdf5_set_fapl_mpio_property (
         hid_t fapl_id,

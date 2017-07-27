@@ -671,7 +671,7 @@ h5priv_initialize (
 	h5_initialized = 1;
 	H5_CORE_API_ENTER (h5_err_t, "%s", "void");
 	ret_value = H5_SUCCESS;
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	int mpi_is_initialized;
 	MPI_Initialized (&mpi_is_initialized);
 	if (!mpi_is_initialized) {

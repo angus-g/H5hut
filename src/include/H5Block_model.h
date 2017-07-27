@@ -336,7 +336,6 @@ H5Block3dGetChunkSize (
 			i, j, k));
 }
 
-#ifdef PARALLEL_IO
 /**
   Define an underlying 3D Cartesian grid on the processors with dimensions
   (\c i,\c j,\c k). You can look up a processor's index into the grid
@@ -346,6 +345,9 @@ H5Block3dGetChunkSize (
   to setup the view for a regular grid.
 
   The product of the dimensions must equal the size of the MPI communicator.
+
+  \note This function is also available in a serial version of H5hut - even it
+  doesn't make much sense.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -372,6 +374,9 @@ H5Block3dSetGrid (
 /**
   Look up the index (\c i, \c j, \c k) in the grid belonging to MPI processor
   \c proc.
+
+  \note This function is also available in a serial version of H5hut - even it
+  doesn't make much sense.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -401,6 +406,9 @@ H5Block3dGetGridCoords (
   A grid must be already set with \ref H5Block3dSetGrid, and all processors
   must specify the same dimensions.
 
+  \note This function is also available in a serial version of H5hut - even it
+  doesn't make much sense.
+
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
 */
@@ -422,7 +430,6 @@ H5Block3dSetDims (
 			f,
 			i, j, k));
 }
-#endif
 
 /**
   Sets the additional cells (\c i, \c j, \c k) in each direction to use as

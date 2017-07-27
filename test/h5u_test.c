@@ -20,7 +20,7 @@ void h5u_test_read4(void);
 
 int main(int argc, char **argv)
 {
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	MPI_Init(&argc, &argv);
 	int procs;
 	MPI_Comm_size(MPI_COMM_WORLD, &procs);
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 	//if (GetTestCleanup() && !getenv("HDF5_NOCLEANUP"))
 	//    TestCleanup();
 
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	TestPrintf ("reached end\n");
 	fflush(stdout);
 	MPI_Finalize();

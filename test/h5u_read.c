@@ -106,7 +106,7 @@ test_read_data64(h5_file_t file, int nparticles, int step)
 
 	TEST("Verifying dataset info");
 
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 #else
@@ -479,7 +479,7 @@ void h5u_test_read3(void)
 
 	TEST("Opening file once, read-only, MPI-POSIX VFD");
 	h5_prop_t props = H5CreateFileProp ();
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
         MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOPosix (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOPosix");
@@ -508,7 +508,7 @@ void h5u_test_read4(void)
 
 	TEST("Opening file twice, read-only, MPI-IO Independent VFD");
         h5_prop_t props = H5CreateFileProp ();
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
         MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOIndependent (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOIndependent");

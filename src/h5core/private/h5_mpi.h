@@ -10,7 +10,7 @@
 #ifndef __PRIVATE_H5_MPI_H
 #define __PRIVATE_H5_MPI_H
 
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 
 #include "h5core/h5_types.h"
 #include "h5core/h5_err.h"

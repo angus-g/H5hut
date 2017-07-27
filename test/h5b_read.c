@@ -82,7 +82,7 @@ test_read_data64(h5_file_t file, int step)
 
 	TEST("Verifying dataset info");
 
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
 	int rank, nprocs;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -202,7 +202,7 @@ test_read_data32(h5_file_t file, int step)
 		RETURN(status, H5_SUCCESS, "H5SetStep");
 
 		test_read_field_attribs(file, "e", t);
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
 		status = H5Block3dSetGrid(file, grid[0], grid[1], grid[2]);
 		RETURN(status, H5_SUCCESS, "H5Block3dSetGrid");
 
@@ -239,7 +239,7 @@ void h5b_test_read1(void)
 
 	TEST("Opening file once, read-only");
         h5_prop_t props = H5CreateFileProp ();
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
         MPI_Comm comm = MPI_COMM_WORLD;
         status = H5SetPropFileMPIOCollective (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOCollective");

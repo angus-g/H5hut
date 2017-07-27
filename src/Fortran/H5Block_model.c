@@ -188,7 +188,7 @@ h5bl_3d_getchunk (
 }
 
 
-#ifdef PARALLEL_IO
+#if defined(H5_HAVE_PARALLEL)
 #define h5bl_3d_setgrid FC_MANGLING (		\
 		h5bl_3d_setgrid,		\
 		h5bl_3d_setgrid)

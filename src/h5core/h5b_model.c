@@ -74,7 +74,7 @@ _normalize_partition (
 	}
 }
 
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 /* MLH: this could be improved with an MPI_Reduce and MAX operator...
  * but the user_layout array-of-structs would need to be a struct-of-arrays */
 static void
@@ -571,7 +571,7 @@ h5b_3d_set_view (
 	b->user_layout[0].k_end =   k_end;
 	_normalize_partition(&b->user_layout[0]);
 
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	h5b_partition_t *user_layout;
 	h5b_partition_t *write_layout;
 
@@ -762,7 +762,6 @@ h5b_3d_get_chunk (
 	H5_RETURN (H5_SUCCESS);
 }
 
-#ifdef PARALLEL_IO
 h5_err_t
 h5b_3d_set_grid (
 	const h5_file_t fh,		/*!< IN: File handle */
@@ -796,11 +795,13 @@ h5b_3d_set_grid (
 
 	int dims[3] = { k, j, i };
 	int period[3] = { 0, 0, 0 };
+#ifdef H5_HAVE_PARALLEL
 	TRY( h5priv_mpi_cart_create(
 	             f->props->comm, 3, dims, period, 0, &f->b->cart_comm) );
-
+#else
+	h5_warn ("Defining a grid in serial case doesn't make much sense!");
+#endif
 	f->b->have_grid = 1;
-
 	H5_RETURN (H5_SUCCESS);
 }
 
@@ -824,11 +825,16 @@ h5b_3d_get_grid_coords (
 			"%s",
 			"Grid dimensions have not been set!");
 
+#ifdef H5_HAVE_PARALLEL
 	int coords[3];
 	TRY( h5priv_mpi_cart_coords(f->b->cart_comm, proc, 3, coords) );
 	*k = coords[0];
 	*j = coords[1];
 	*i = coords[2];
+#else
+	*k = *j = *i = 1;
+	h5_warn ("Defining grid in serial case doesn't make much sense!");
+#endif
 	H5_RETURN (H5_SUCCESS);
 }
 
@@ -855,11 +861,14 @@ h5b_3d_set_dims (
 			"Grid dimensions have not been set!");
 
 	h5_size_t dims[3] = { k, j, i };
+#ifdef H5_HAVE_PARALLEL
 	h5_size_t check_dims[3] = { k, j, i };
-
 	TRY( h5priv_mpi_bcast(
 	             check_dims, 3, MPI_LONG_LONG, 0, f->props->comm) );
-
+#else
+	h5_size_t check_dims[3] = { 1, 1, 1 };
+	h5_warn ("Defining grid in serial case doesn't make much sense!");
+#endif
 	if (    dims[0] != check_dims[0] ||
 	        dims[1] != check_dims[1] ||
 	        dims[2] != check_dims[2]
@@ -899,7 +908,6 @@ h5b_3d_set_dims (
 
 	H5_RETURN (H5_SUCCESS);
 }
-#endif
 
 h5_err_t
 h5b_3d_set_halo (

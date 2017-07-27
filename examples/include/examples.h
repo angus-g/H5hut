@@ -1,7 +1,7 @@
 #ifndef __EXAMPLES_H
 #define __EXAMPLES_H
 
-#if !defined (PARALLEL_IO)
+#if !defined (H5_HAVE_PARALLEL)
 
 #define MPI_COMM_WORLD (0)
 #define MPI_Init(argc, argv)

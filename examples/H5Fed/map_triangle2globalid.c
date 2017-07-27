@@ -3,7 +3,7 @@
 
 #include "H5hut.h"
 
-#ifndef PARALLEL_IO
+#ifndef H5_HAVE_PARALLEL
 #ifndef MPI_COMM_WORLD
 #define MPI_COMM_WORLD 0
 #endif

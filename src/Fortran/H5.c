@@ -25,7 +25,7 @@ h5_createprop_file (
         H5_API_RETURN ((h5_int64_t)h5_create_prop (H5_PROP_FILE));
 }
 
-#if defined(PARALLEL_IO)
+#if defined(H5_HAVE_PARALLEL)
 #define h5_setprop_file_mpio FC_MANGLING( \
                 h5_setprop_file_mpio,	  \
                 H5_SETPROP_FILE_MPIO)

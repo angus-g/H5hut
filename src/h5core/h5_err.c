@@ -145,7 +145,7 @@ h5_abort_errorhandler (
 	if (h5_log_level > 0) {
 		h5_verror (fmt, ap);
 	}
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	MPI_Abort(MPI_COMM_WORLD, -(int)h5_errno);
 #else
 	exit (-(int)h5_errno);

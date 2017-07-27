@@ -18,7 +18,7 @@ void h5b_test_write2(void);
 void h5b_test_read1(void);
 void h5b_test_read2(void);
 
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 static int
 _nth_root_int_divisor (const int m, const int n)
 {
@@ -39,7 +39,7 @@ _nth_root_int_divisor (const int m, const int n)
 int main(int argc, char **argv)
 {
 	extern h5_size_t layout[6];
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	MPI_Init(&argc, &argv);
 
 	int procs, rank;
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 	layout[3] = (j+1)*NBLOCKY - 1;
 	layout[4] = k*NBLOCKZ;
 	layout[5] = (k+1)*NBLOCKZ - 1;
-#else // PARALLEL_IO
+#else // H5_HAVE_PARALLEL
 	grid[0] = 1;
 	grid[1] = 1;
 	grid[2] = 1;
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 	/* Tests are generally arranged from least to most complexity... */
 	AddTest("write1", h5b_test_write1, NULL, "Write 64-bit data", NULL);
 	AddTest("read1", h5b_test_read1, NULL, "Read 64-bit data", NULL);
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	AddTest("write2", h5b_test_write2, NULL, "Write 32-bit data", NULL);
 	AddTest("read2", h5b_test_read2, NULL, "Read 32-bit data", NULL);
 #endif
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 	//if (GetTestCleanup() && !getenv("HDF5_NOCLEANUP"))
 	//    TestCleanup();
 
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	TestPrintf ("reached end\n");
 	fflush(stdout);
 	MPI_Finalize();

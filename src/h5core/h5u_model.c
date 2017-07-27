@@ -136,7 +136,7 @@ h5u_set_num_points (
 			"Invalid number of particles: %lld!\n",
 			(long long)nparticles);
 
-#ifndef PARALLEL_IO
+#ifndef H5_HAVE_PARALLEL
 	/*
 	   if we are not using parallel-IO, there is enough information
 	   to know that we can short circuit this routine.  However,
@@ -174,12 +174,12 @@ h5u_set_num_points (
                              NULL));
 	}
 
-#ifndef PARALLEL_IO
+#ifndef H5_HAVE_PARALLEL
 	count = u->nparticles;
 	TRY( u->shape = hdf5_create_dataspace (1, &count, NULL));
 	u->viewstart = 0;
 	u->viewend   = nparticles - 1; // view range is *inclusive*
-#else /* PARALLEL_IO */
+#else /* H5_HAVE_PARALLEL */
 	/*
 	 The Gameplan here is to declare the overall size of the on-disk
 	 data structure the same way we do for the serial case.  But
@@ -317,7 +317,7 @@ h5u_set_view (
 				(long long)end,
 				(long long)start);
 		}
-#if PARALLEL_IO
+#if H5_HAVE_PARALLEL
 		TRY (
 			h5priv_mpi_allreduce_max (
 			     &end, &total, 1, MPI_LONG_LONG, f->props->comm)
@@ -575,7 +575,7 @@ h5u_set_canonical_view (
 
 	u->nparticles = total / f->nprocs;
 
-#ifdef PARALLEL_IO
+#ifdef H5_HAVE_PARALLEL
 	h5_int64_t remainder = 0;
 	remainder = total % f->nprocs;
 	start = f->myproc * u->nparticles;
@@ -588,7 +588,7 @@ h5u_set_canonical_view (
 		start += f->myproc;
 	else
 		start += remainder;
-#endif // PARALLEL_IO
+#endif // H5_HAVE_PARALLEL
 
 	h5_int64_t length = u->nparticles;
 	TRY (h5u_set_view_length (fh, start, length));

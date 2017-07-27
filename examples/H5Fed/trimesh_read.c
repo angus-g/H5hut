@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "H5hut.h"
-#if defined (PARALLEL_IO)
+#if defined (H5_HAVE_PARALLEL)
 #include <mpi.h>
 #endif
 
@@ -253,7 +253,7 @@ main (
 
 	/* done */
 	H5CloseFile (f);
-#if defined (PARALLEL_IO)
+#if defined (H5_HAVE_PARALLEL)
 	MPI_Finalize ();
 #endif
 
