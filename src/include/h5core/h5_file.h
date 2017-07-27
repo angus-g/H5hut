@@ -10,11 +10,6 @@
 #ifndef __H5CORE_H5_FILE_H
 #define __H5CORE_H5_FILE_H
 
-#if defined(PARALLEL_IO)
-#include <mpi.h>
-#endif
-
-#include <hdf5.h>
 
 #include "h5core/h5_types.h"
 
