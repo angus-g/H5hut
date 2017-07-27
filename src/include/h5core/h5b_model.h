@@ -78,7 +78,6 @@ h5b_3d_get_chunk (
 	const char*,
 	h5_size_t* const, h5_size_t* const, h5_size_t* const);
 
-#if defined(PARALLEL_IO)
 h5_err_t
 h5b_3d_set_grid (
 	const h5_file_t,
@@ -94,7 +93,6 @@ h5_err_t
 h5b_3d_set_dims (
 	const h5_file_t,
 	const h5_size_t, const h5_size_t, const h5_size_t);
-#endif
 
 h5_err_t
 h5b_3d_set_halo (
