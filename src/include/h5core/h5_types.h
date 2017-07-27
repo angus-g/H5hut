@@ -13,6 +13,21 @@
 #include <stdarg.h>
 #include <stdint.h>
 
+#include <hdf5.h>
+
+#ifndef H5_HAVE_PARALLEL
+/*
+  If someone want's to use serial H5hut with MPI, he must include 
+  the header file "mpi.h" before including H5hut's header file. According
+  to the MPI standard the macro MPI_VERSION must be defined after reading
+  "mpi.h".
+ */
+#ifndef MPI_VERSION
+typedef int MPI_Comm;
+typedef int MPI_Datatype;
+#endif
+#endif
+
 typedef enum  {
 	H5_STRING_T,
 	H5_INT16_T,
@@ -106,11 +121,6 @@ typedef h5t_mesh_t* h5t_mesh_p;
 typedef h5_err_t (*h5_errorhandler_t)(
         const char*,
         va_list ap );
-
-#ifndef PARALLEL_IO
-typedef int MPI_Comm;
-typedef int MPI_Datatype;
-#endif
 
 typedef struct h5_loc_idlist {
 	int32_t size;                   /* allocated space in number of items */
