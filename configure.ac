@@ -6,7 +6,7 @@
 #
 #  License: see file COPYING in top level of source distribution.
 #
-AC_INIT([H5hut], [2.0.0rc3], [h5part@lists.psi.ch], H5hut)
+AC_INIT([H5hut], [2.0.0rc4], [h5part@lists.psi.ch], H5hut)
 AC_PREREQ(2.60)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR([m4])
@@ -263,6 +263,69 @@ AC_DEFINE_UNQUOTED(MY_UNAME, "$uname", "")
 ###############################################################################
 # PROCESS ARGUMENTS
 
+###############################################################################
+# check libraries
+
+AC_CHECK_LIB([z], [compress2])
+
+# hdf5
+if test -z "${HDF5_PREFIX}"; then
+	# alternatives to HDF5_PREFIX
+	if test -n "${HDF5_DIR}"; then
+		HDF5_PREFIX=${HDF5_DIR}
+	fi
+fi
+if test -n "${HDF5_PREFIX}"; then
+        CPPFLAGS="$CPPFLAGS -I$HDF5_PREFIX/include"
+        LDFLAGS="$LDFLAGS -L$HDF5_PREFIX/lib"
+fi
+AC_CHECK_LIB([hdf5], [H5open])
+AS_IF([test "x$ac_cv_lib_hdf5_H5open" != xyes], 
+        [AC_MSG_ERROR([Cannot compile and link a HDF5 program]); 
+        exit 1])
+AC_MSG_CHECKING([checking whether hdf5 lib supports parallel IO])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include "hdf5.h"
+#ifndef H5_HAVE_PARALLEL
+# error macro not defined
+#endif
+]])], [H5_HAVE_PARALLEL="yes"], [H5_HAVE_PARALLEL="no"])
+AC_MSG_RESULT([$H5_HAVE_PARALLEL])
+
+# lustre
+AC_MSG_CHECKING([for lustre API ])
+AC_MSG_RESULT([])
+if test -n "${LUSTREPATH}"; then
+	P=${LUSTREPATH}
+elif test -n "${LUSTREROOT}" ; then
+	P=${LUSTREROOT}
+elif test -n "${LUSTREHOME}" ; then
+	P=${LUSTREHOME}
+elif test -n "${LUSTRE_DIR}" ; then
+	P=${LUSTRE_DIR}
+else
+	P=''
+	P="$P /usr"
+	P="$P /usr/local"
+	P="$P /usr/local/lustre"
+	P="$P /opt/lustre"
+fi
+PATH_Search LUSTREROOT "$P" usr/include/lustre/liblustreapi.h
+if test -z "$LUSTREROOT"; then
+	AC_MSG_WARN([Couldn't locate the lustre API... building without support for lustre striping!])
+else
+        CFLAGS="$CFLAGS -DH5_USE_LUSTRE"
+        CPPFLAGS="$CPPFLAGS -I$LUSTREROOT/usr/include"
+        LDFLAGS="$LDFLAGS -L$LUSTREROOT/usr/lib"
+        LIBS="$LIBS -llustreapi"
+fi
+
+LIBS="$LIBS -lm"
+
+
+
+############################ enabled bindings ###############################
+
 # C enabled?
 AC_MSG_CHECKING([if C interface enabled])
 if test "X$ENABLE_C" = "Xyes"; then
@@ -364,6 +427,11 @@ fi
 AC_MSG_CHECKING([if parallel interface enabled])
 if test "X$ENABLE_PARALLEL" = "Xyes"; then
 	AC_MSG_RESULT([yes])
+
+	AS_IF([test "x$H5_HAVE_PARALLEL" = "xno"],
+	        [AC_MSG_ERROR([hdf5 does not support parallel IO!]);
+        	exit 1])
+
 	if test "X$ENABLE_VTKCONVERTER" = "Xyes"; then
 	   	AC_MSG_ERROR([VTK to H5hut grid converter cannot be compiled parallel!])
 		exit 1
@@ -390,55 +458,10 @@ if test "X$ENABLE_PARALLEL" = "Xyes"; then
         fi
 else  # --enable-parallel=no
 	AC_MSG_RESULT([no])
+	AS_IF([test "x$H5_HAVE_PARALLEL" = "xyes"],
+	        [AC_MSG_ERROR([hdf5 with support for parallel IO cannot be used for non-parallel H5hut!]);
+        	exit 1])
 fi
-
-###############################################################################
-# LIBRARY PATHS
-if test -z "${HDF5_PREFIX}"; then
-	# alternatives to HDF5_PREFIX
-	if test -n "${HDF5_DIR}"; then
-		HDF5_PREFIX=${HDF5_DIR}
-	fi
-fi
-if test -n "${HDF5_PREFIX}"; then
-        CPPFLAGS="$CPPFLAGS -I$HDF5_PREFIX/include"
-        LDFLAGS="$LDFLAGS -L$HDF5_PREFIX/lib"
-fi
-AC_CHECK_LIB([z], [compress2])
-AC_CHECK_LIB([hdf5], [H5open])
-AS_IF([test "x$ac_cv_lib_hdf5_H5open" != xyes], 
-        [AC_MSG_ERROR([Cannot compile and link a HDF5 program]); 
-        exit 1])
-
-
-AC_MSG_CHECKING([for lustre API ])
-AC_MSG_RESULT([])
-if test -n "${LUSTREPATH}"; then
-	P=${LUSTREPATH}
-elif test -n "${LUSTREROOT}" ; then
-	P=${LUSTREROOT}
-elif test -n "${LUSTREHOME}" ; then
-	P=${LUSTREHOME}
-elif test -n "${LUSTRE_DIR}" ; then
-	P=${LUSTRE_DIR}
-else
-	P=''
-	P="$P /usr"
-	P="$P /usr/local"
-	P="$P /usr/local/lustre"
-	P="$P /opt/lustre"
-fi
-PATH_Search LUSTREROOT "$P" usr/include/lustre/liblustreapi.h
-if test -z "$LUSTREROOT"; then
-	AC_MSG_WARN([Couldn't locate the lustre API... building without support for lustre striping!])
-else
-        CFLAGS="$CFLAGS -DH5_USE_LUSTRE"
-        CPPFLAGS="$CPPFLAGS -I$LUSTREROOT/usr/include"
-        LDFLAGS="$LDFLAGS -L$LUSTREROOT/usr/lib"
-        LIBS="$LIBS -llustreapi"
-fi
-
-LIBS="$LIBS -lm"
 
 ###############################################################################
 # TOOLS
