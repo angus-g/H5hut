@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006-2015, The Regents of the University of California,
+  Copyright (c) 2006-2018, The Regents of the University of California,
   through Lawrence Berkeley National Laboratory (subject to receipt of any
   required approvals from the U.S. Dept. of Energy) and the Paul Scherrer
   Institut (Switzerland).  All rights reserved.
@@ -11,6 +11,14 @@
 
 #include "examples.h"
 
+/*
+  Use H5_DEBUG_ALL to get full debug output
+*/
+#if !defined(VERBOSITY)
+#define VERBOSITY       H5_VERBOSE_ERROR
+/* #undef VERBOSITY	H5_DEBUG_ALL */
+#endif
+
 int
 main (
 	int argc,
@@ -19,7 +27,7 @@ main (
 	MPI_Comm comm = MPI_COMM_WORLD;
 
 	MPI_Init (&argc, &argv);
-
+	H5SetVerbosityLevel (VERBOSITY);
         h5_prop_t prop = H5CreateFileProp ();
         H5SetPropFileMPIOCollective (prop, &comm);
         h5_file_t f = H5OpenFile ("testfile.h5", H5_O_WRONLY, prop);
