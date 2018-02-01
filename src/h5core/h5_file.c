@@ -510,7 +510,6 @@ h5_open_file2 (
 	TRY (f = h5_calloc (1, sizeof (*f)));
 	
         TRY (f->props = (h5_prop_file_t*)h5_create_prop (H5_PROP_FILE));
-        TRY (set_default_file_props (f->props));
                 
         if (props != H5_PROP_DEFAULT) {
                 if (props->class != H5_PROP_FILE) {
