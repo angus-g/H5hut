@@ -110,6 +110,7 @@ typedef struct h5_loc_elem {
 /*** type ids' for compound types ***/
 typedef struct h5_dta_types {
 	hid_t h5_glb_idx_t;                     /* ID's */
+	hid_t h5_int32_t;
 	hid_t h5_int64_t;                       /* 64 bit signed integer */
 	hid_t h5_float64_t;                     /* 64 bit floating point */
 	hid_t h5_coord3d_t;                     /* 3-tuple of 64-bit float */
@@ -120,16 +121,17 @@ typedef struct h5_dta_types {
 	hid_t h5_vertex_t;                      /* vertex structure */
 	hid_t h5_triangle_t;                    /* triangle structure */
 	hid_t h5_tet_t;                         /* tetrahedron structure */
+	hid_t h5t_glb_tag_idx_t;
+#if defined(WITH_PARALLEL_H5GRID)
 	hid_t h5_chunk_t;			// chunk structure
 	hid_t h5_octree_t;			// octree structure
 	hid_t h5_userdata_t;			// userdata structure
-	hid_t h5t_glb_tag_idx_t;
-	hid_t h5_int32_t;
 	MPI_Datatype mpi_glb_triangle;
 	MPI_Datatype mpi_glb_tet;
 	MPI_Datatype mpi_glb_vtx;
 	MPI_Datatype mpi_chunk;
 	MPI_Datatype mpi_edge_list_elem;
+#endif
 } h5_dta_types_t;
 
 typedef struct h5t_adjacencies {
