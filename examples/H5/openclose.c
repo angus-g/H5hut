@@ -38,7 +38,8 @@ main (
         h5_file_t f = H5OpenFile ("testfile.h5", H5_O_WRONLY, prop);
         H5CloseProp (prop);
 	H5CloseFile (f);
-
+	H5Finalize ();
 	MPI_Finalize ();
+	
 	return 0;
 }
