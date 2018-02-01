@@ -102,6 +102,7 @@ H5GetVerbosityLevel (
 /**
   Set debug mask. The debug mask is an or'ed value of
 
+  - \c H5_DEBUG_NONE:	    debug output disabled
   - \c H5_DEBUG_API:	    C-API calls
   - \c H5_DEBUG_CORE_API:   core API calls.
   - \c H5_DEBUG_PRIV_API:   private API calls
