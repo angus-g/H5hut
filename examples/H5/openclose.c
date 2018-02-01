@@ -11,12 +11,16 @@
 
 #include "examples.h"
 
+#if !defined(VERBOSITY)
+#define VERBOSITY       H5_VERBOSE_ERROR
+#endif
+
 /*
   Use H5_DEBUG_ALL to get full debug output
 */
-#if !defined(VERBOSITY)
-#define VERBOSITY       H5_VERBOSE_ERROR
-/* #undef VERBOSITY	H5_DEBUG_ALL */
+#if !defined(DEBUGMASK)
+#define DEBUGMASK	H5_DEBUG_NONE
+//#define DEBUGMASK	H5_DEBUG_ALL
 #endif
 
 int
@@ -28,6 +32,7 @@ main (
 
 	MPI_Init (&argc, &argv);
 	H5SetVerbosityLevel (VERBOSITY);
+	H5SetDebugMask (DEBUGMASK);
         h5_prop_t prop = H5CreateFileProp ();
         H5SetPropFileMPIOCollective (prop, &comm);
         h5_file_t f = H5OpenFile ("testfile.h5", H5_O_WRONLY, prop);
