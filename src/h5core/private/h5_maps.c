@@ -62,7 +62,7 @@ grow_strlist (
 ssize_t
 h5priv_insert_strlist (
         h5_strlist_t** list,
-        const char const* item,
+        const char *const item,
         size_t idx
         ) {
 	H5_PRIV_API_ENTER (ssize_t,

@@ -163,12 +163,12 @@ hdf5_create_group (
 h5_err_t
 h5priv_link_exists_ (
         const hid_t loc_id,
-        const char const* path[],
+        const char *const path[],
         size_t size
         );
 #define h5priv_link_exists(loc_id, ...)					\
         (h5priv_link_exists_ (loc_id,					\
-			      (const char const*[]){__VA_ARGS__},	\
+			      (const char *const[]){__VA_ARGS__},	\
 			      PP_NARG(__VA_ARGS__)))
 
 
@@ -195,7 +195,7 @@ hdf5_close_group (
 static inline hid_t
 h5priv_create_group (
         const hid_t loc_id,
-        const char const* group_name
+        const char *const group_name
         ) {
 	H5_PRIV_FUNC_ENTER (hid_t,
 	                    "loc_id=%lld, (%s), group_name=%s",
@@ -214,7 +214,7 @@ h5priv_create_group (
 static inline hid_t
 h5priv_open_group (
         const hid_t loc_id,
-        const char const* group_name
+        const char *const group_name
         ) {
 	H5_PRIV_FUNC_ENTER (hid_t,
 	                    "loc_id=%lld, (%s), group_name=%s",
@@ -809,17 +809,17 @@ get_class_type_name (
         const hid_t class_id
         ) {
 	const char* const map[] = {
-		[H5T_INTEGER]   "H5T_INTEGER",
-		[H5T_FLOAT]     "H5T_FLOAT",
-		[H5T_TIME]      "H5T_TIME",
-		[H5T_STRING]    "H5T_STRING",
-		[H5T_BITFIELD]  "H5T_BITFIELD",
-		[H5T_OPAQUE]    "H5T_OPAQUE",
-		[H5T_COMPOUND]  "H5T_COMPOUND",
-		[H5T_REFERENCE] "H5T_REFERENCE",
-		[H5T_ENUM]      "H5T_ENUM",
-		[H5T_VLEN]      "H5T_VLEN",
-		[H5T_ARRAY]     "H5T_ARRAY"
+		[H5T_INTEGER]   = "H5T_INTEGER",
+		[H5T_FLOAT]     = "H5T_FLOAT",
+		[H5T_TIME]      = "H5T_TIME",
+		[H5T_STRING]    = "H5T_STRING",
+		[H5T_BITFIELD]  = "H5T_BITFIELD",
+		[H5T_OPAQUE]    = "H5T_OPAQUE",
+		[H5T_COMPOUND]  = "H5T_COMPOUND",
+		[H5T_REFERENCE] = "H5T_REFERENCE",
+		[H5T_ENUM]      = "H5T_ENUM",
+		[H5T_VLEN]      = "H5T_VLEN",
+		[H5T_ARRAY]     = "H5T_ARRAY"
 	};
 	if (class_id < 0 || class_id >= H5T_NCLASSES) {
 		return ("[unknown]");

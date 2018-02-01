@@ -23,7 +23,7 @@
 h5_err_t
 h5priv_link_exists_ (
         const hid_t loc_id,
-        const char const* path[],
+        const char *const path[],
         size_t size
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t,

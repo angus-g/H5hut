@@ -136,7 +136,6 @@ h5tpriv_traverse_tv (
         unsigned int* i
         ) {
 	assert (i != NULL);
-	if (*i < 0) i = 0;
 	if (*i >= m->num_loc_vertices[m->num_loaded_levels-1]) {
 		return NULL;
 	}
@@ -166,7 +165,6 @@ h5tpriv_traverse_td (
         unsigned int* i
         ) {
 	assert (i != NULL);
-	if (*i < 0) i = 0;
 	h5t_td_entry_t* entry = h5priv_htraverse (&m->adjacencies.td_hash, i);
 	h5_loc_idlist_t* result = NULL;
 	if (entry) {

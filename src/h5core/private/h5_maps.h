@@ -160,7 +160,7 @@ h5_err_t
 h5priv_free_strlist (h5_strlist_t**);
 
 ssize_t
-h5priv_insert_strlist (h5_strlist_t**, const char const*, size_t);
+h5priv_insert_strlist (h5_strlist_t**, const char *const, size_t);
 
 ssize_t
 h5priv_find_strlist (h5_strlist_t*, const char* const item);

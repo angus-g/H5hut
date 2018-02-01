@@ -130,13 +130,7 @@ h5u_set_num_points (
 	hsize_t start;
 	hsize_t dmax = H5S_UNLIMITED;
 
-	if (nparticles < 0)
-		H5_RETURN_ERROR (
-			H5_ERR_INVAL,
-			"Invalid number of particles: %lld!\n",
-			(long long)nparticles);
-
-#ifndef H5_HAVE_PARALLEL
+ #ifndef H5_HAVE_PARALLEL
 	/*
 	   if we are not using parallel-IO, there is enough information
 	   to know that we can short circuit this routine.  However,
@@ -231,7 +225,7 @@ h5u_set_num_points (
 
 h5_err_t
 h5u_has_view (
-	const const h5_file_t fh
+	const h5_file_t fh
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
