@@ -233,7 +233,7 @@ h5_finalize (
 	void
 	) {
 	H5_API_ENTER (h5_int64_t, "%s", "");
-	H5_API_RETURN (h5_close_hdf5());
+	H5_API_RETURN (h5_close_h5hut ());
 }
 
 

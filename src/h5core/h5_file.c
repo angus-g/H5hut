@@ -613,12 +613,13 @@ h5_close_file (
 }
 
 h5_err_t
-h5_close_hdf5 (
+h5_close_h5hut (
         void
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "%s", "");
-	TRY (ret_value = hdf5_close ());
-	H5_RETURN (ret_value);
+	TRY (h5priv_finalize ());
+	TRY (hdf5_close ());
+	H5_RETURN (H5_SUCCESS);
 }
 
 h5_err_t

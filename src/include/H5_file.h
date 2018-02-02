@@ -399,7 +399,7 @@ H5Finalize (
         void
         ) {
         H5_API_ENTER (h5_err_t, "%s", "");
-	H5_API_RETURN (h5_close_hdf5 ());
+	H5_API_RETURN (h5_close_h5hut ());
 }
 
 #ifdef __cplusplus

@@ -22,6 +22,9 @@ extern "C" {
 h5_err_t
 h5priv_initialize (void);
 
+h5_err_t
+h5priv_finalize (void);
+
 extern int h5_initialized;
 extern h5_dta_types_t h5_dta_types;
 extern int h5_myproc;

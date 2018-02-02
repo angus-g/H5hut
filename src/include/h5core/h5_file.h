@@ -66,7 +66,7 @@ h5_close_file (
 	const h5_file_t);
 
 h5_err_t
-h5_close_hdf5 (
+h5_close_h5hut (
 	void);
 
 h5_err_t

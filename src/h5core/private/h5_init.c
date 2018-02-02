@@ -70,6 +70,19 @@ create_array_types (
 }
 
 static inline h5_err_t
+close_array_types (
+	void
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
+	TRY (hdf5_close_type (h5_dta_types.h5_coord3d_t));
+	TRY (hdf5_close_type (h5_dta_types.h5_3glb_idx_t));
+	TRY (hdf5_close_type (h5_dta_types.h5_4glb_idx_t));
+	TRY (hdf5_close_type (h5_dta_types.h5_4chk_idx_t));
+	TRY (hdf5_close_type (h5_dta_types.h5_coord6d_t));
+	H5_RETURN (H5_SUCCESS);
+}
+
+static inline h5_err_t
 create_vertex_type (
         void
         ) {
@@ -94,6 +107,16 @@ create_vertex_type (
 
 	H5_RETURN (H5_SUCCESS);
 }
+
+static inline h5_err_t
+close_vertex_type (
+	void
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
+	TRY (hdf5_close_type (h5_dta_types.h5_vertex_t));
+	H5_RETURN (H5_SUCCESS);
+}
+
 
 static inline h5_err_t
 create_triangle_type (
@@ -158,7 +181,16 @@ create_triangle_type (
 }
 
 static inline h5_err_t
-create_tag_types (
+close_triangle_type (
+	void
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
+	TRY (hdf5_close_type (h5_dta_types.h5_triangle_t));
+	H5_RETURN (H5_SUCCESS);
+}
+
+static inline h5_err_t
+create_tag_type (
         void
         ) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
@@ -180,6 +212,15 @@ create_tag_types (
 	                HOFFSET (h5t_glb_tag_idx_t, idx),
 	                H5_ID) );
 
+	H5_RETURN (H5_SUCCESS);
+}
+
+static inline h5_err_t
+close_tag_type (
+	void
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
+	TRY (hdf5_close_type (h5_dta_types.h5t_glb_tag_idx_t));
 	H5_RETURN (H5_SUCCESS);
 }
 
@@ -245,6 +286,15 @@ create_tet_type (
 	H5_RETURN (H5_SUCCESS);
 }
 
+static inline h5_err_t
+close_tet_type (
+	void
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
+	TRY (hdf5_close_type (h5_dta_types.h5_tet_t));
+	H5_RETURN (H5_SUCCESS);
+}
+
 #if defined(WITH_PARALLEL_H5GRID)
 
 static inline h5_err_t
@@ -302,6 +352,16 @@ create_chunk_type (
 }
 
 static inline h5_err_t
+close_chunk_type (
+	void
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
+	TRY (hdf5_close_type (h5_dta_types.h5_chunk_t));
+	H5_RETURN (H5_SUCCESS);
+}
+
+
+static inline h5_err_t
 create_octree_type (
 		void
 		) {
@@ -351,6 +411,15 @@ create_octree_type (
 }
 
 static inline h5_err_t
+close_octree_type (
+	void
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
+	TRY (hdf5_close_type (h5_dta_types.h5_octree_t));
+	H5_RETURN (H5_SUCCESS);
+}
+
+static inline h5_err_t
 create_userdata_type (
 		void
 		) {
@@ -366,6 +435,15 @@ create_userdata_type (
 	                HOFFSET (h5t_oct_userdata_t, idx),
 	                h5_dta_types.h5_4chk_idx_t) );
 
+	H5_RETURN (H5_SUCCESS);
+}
+
+static inline h5_err_t
+close_userdata_type (
+	void
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
+	TRY (hdf5_close_type (h5_dta_types.h5_userdata_t));
 	H5_RETURN (H5_SUCCESS);
 }
 
@@ -669,7 +747,7 @@ h5priv_initialize (
 	memset (&h5_call_stack, 0, sizeof (h5_call_stack));
 	// must be set here, otherwise next statement will fail!
 	h5_initialized = 1;
-	H5_CORE_API_ENTER (h5_err_t, "%s", "void");
+	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
 	ret_value = H5_SUCCESS;
 #ifdef H5_HAVE_PARALLEL
 	int mpi_is_initialized;
@@ -690,7 +768,7 @@ h5priv_initialize (
 	TRY (create_vertex_type ());
 	TRY (create_triangle_type ());
 	TRY (create_tet_type ());
-	TRY (create_tag_types ());
+	TRY (create_tag_type ());
 
 #if defined(WITH_PARALLEL_H5GRID)
 	TRY (create_chunk_type ());
@@ -704,4 +782,22 @@ h5priv_initialize (
 	TRY (create_mpi_type_edge_list_elem());
 #endif
 	H5_RETURN ((ret_value != H5_SUCCESS) ? _h5_exit (42) : H5_SUCCESS);
+}
+
+h5_err_t
+h5priv_finalize (
+	void
+	) {
+	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
+	TRY (close_array_types ());
+	TRY (close_vertex_type ());
+	TRY (close_triangle_type ());
+	TRY (close_tag_type ());
+	TRY (close_tet_type ());
+#if defined(WITH_PARALLEL_H5GRID)
+	TRY (close_chunk_type ());
+	TRY (close_octree_type ());
+	TRY (close_userdata_type ());
+#endif
+	H5_RETURN (H5_SUCCESS);
 }
