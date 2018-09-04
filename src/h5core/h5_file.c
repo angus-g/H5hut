@@ -617,7 +617,7 @@ h5_close_h5hut (
         void
         ) {
 	H5_CORE_API_ENTER (h5_err_t, "%s", "");
-	TRY (h5priv_finalize ());
+	TRY (h5_finalize ());
 	TRY (hdf5_close ());
 	H5_RETURN (H5_SUCCESS);
 }

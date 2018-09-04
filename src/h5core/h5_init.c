@@ -741,9 +741,10 @@ _h5_exit (int status) {
 }
 
 h5_err_t
-h5priv_initialize (
+h5_initialize (
         void
         ) {
+	if (h5_initialized) return 0;
 	memset (&h5_call_stack, 0, sizeof (h5_call_stack));
 	// must be set here, otherwise next statement will fail!
 	h5_initialized = 1;
@@ -785,7 +786,7 @@ h5priv_initialize (
 }
 
 h5_err_t
-h5priv_finalize (
+h5_finalize (
 	void
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "%s", "void");
