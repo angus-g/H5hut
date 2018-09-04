@@ -793,9 +793,9 @@ h5b_3d_set_grid (
 	f->b->j_grid = j;
 	f->b->i_grid = k;
 
+#ifdef H5_HAVE_PARALLEL
 	int dims[3] = { k, j, i };
 	int period[3] = { 0, 0, 0 };
-#ifdef H5_HAVE_PARALLEL
 	TRY( h5priv_mpi_cart_create(
 	             f->props->comm, 3, dims, period, 0, &f->b->cart_comm) );
 #else
