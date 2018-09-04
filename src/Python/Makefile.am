@@ -28,6 +28,8 @@ H5hut_wrap.c : $(SWIG_SOURCES)
 
 endif
 
+else
+$(info Python is disabled)
 endif
 
 clean: clean-am
