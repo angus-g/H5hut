@@ -22,6 +22,7 @@ extern const char* H5_VER_STRING;
 #define H5_VERBOSE_ERROR   	(1)
 #define H5_VERBOSE_WARN    	(2)
 #define H5_VERBOSE_INFO    	(3)
+#define H5_VERBOSE_DEBUG    	(4)
 
 #define H5_VERBOSE_DEFAULT      H5_VERBOSE_ERROR
 
@@ -45,7 +46,10 @@ enum h5_rtypes {
 	e_char_p,
 	e_void_p,
 	e_h5_err_t,
+	e_h5_int32_t,
+	e_h5_uint32_t,
 	e_h5_int64_t,
+	e_h5_uint64_t,
 	e_h5_id_t,
 	e_h5_ssize_t,
 	e_h5_errorhandler_t,
@@ -75,8 +79,14 @@ struct call_stack {
 	struct call_stack_entry entry[1024];
 };
 
-extern h5_int32_t h5_log_level;
+extern h5_int64_t h5_log_level;
+extern h5_int64_t h5_debug_mask;
 extern struct call_stack h5_call_stack;
+
+// :FIXME: Should go to another header file
+h5_err_t
+h5_initialize (void);
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -182,9 +192,13 @@ __attribute__ ((format (printf, 1, 2)))
 
 h5_err_t
 h5_set_loglevel (
-	const h5_id_t);
+	const h5_int64_t);
 
 h5_err_t
+h5_set_debug_mask (
+	const h5_int64_t);
+
+h5_int64_t
 h5_get_loglevel (
 	void);
 
@@ -198,15 +212,19 @@ h5_get_loglevel (
 
 #define H5_API_ENTER(type, fmt, ...)		\
 	type ret_value = (type)H5_ERR;
+	h5_initialize();
+	h5_call_stack_reset ();						\
+	h5_call_stack_push (__func__,e_##type);				\
 
 #else   // NDEBUG not defined
 
 #define H5_API_ENTER(type, fmt, ...)					\
-	h5_call_stack_reset ();						\
 	type ret_value = (type)H5_ERR;					\
-	int __log__ = h5_log_level & H5_DEBUG_API;			\
+	h5_initialize();						\
+	h5_call_stack_reset ();						\
+	h5_call_stack_push (__func__,e_##type);				\
+	int __log__ = h5_debug_mask & H5_DEBUG_API;			\
 	if (__log__) {							\
-		h5_call_stack_push (__func__,e_##type);			\
 		h5_debug ("(" fmt ")", __VA_ARGS__);			\
 	}
 
@@ -220,7 +238,7 @@ h5_get_loglevel (
 	}
 
 #define H5_RETURN_ERROR(errno, fmt, ...) {				\
-		ret_value = h5_error (errno, "(" fmt ")", __VA_ARGS__);	\
+		ret_value = h5_error (errno, fmt, __VA_ARGS__);		\
 		goto done;						\
 	}
 

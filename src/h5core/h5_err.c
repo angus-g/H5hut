@@ -9,7 +9,9 @@
 
 #include "h5core/h5_log.h"
 #include "h5core/h5_err.h"
-#include "private/h5_init.h"
+
+extern int h5_myproc;
+
 
 #include <stdlib.h>
 

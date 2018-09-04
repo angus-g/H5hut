@@ -9,9 +9,13 @@
 
 #include "h5core/h5_log.h"
 #include "h5core/h5_err.h"
-#include "private/h5_init.h"
 
-h5_int32_t			h5_log_level = H5_VERBOSE_ERROR;
+extern int h5_myproc;
+
+
+h5_int64_t			h5_log_level = H5_VERBOSE_ERROR;
+h5_int64_t			h5_debug_mask = 0;
+
 struct call_stack		h5_call_stack;
 
 char *h5_rfmts[] = {
@@ -20,7 +24,10 @@ char *h5_rfmts[] = {
 	[e_char_p]		= "%s",
 	[e_void_p]		= "%p",
 	[e_h5_err_t]		= "%lld",
+	[e_h5_int32_t]		= "%ld",
+	[e_h5_uint32_t]		= "%lu",
 	[e_h5_int64_t]		= "%lld",
+	[e_h5_uint64_t]		= "%llu",
 	[e_h5_id_t]		= "%lld",
 	[e_h5_ssize_t]		= "%lld",
 	[e_h5_errorhandler_t]	= "%p",
@@ -56,12 +63,18 @@ char *h5_rfmts[] = {
  */
 h5_err_t
 h5_set_loglevel (
-        const h5_id_t level     /*!< debug level */
+        const h5_int64_t level     /*!< log level */
         ) {
-	if (level < 0)
-		h5_log_level = ((1 << 20) - 1) & ~0x7;
-	else
-		h5_log_level = level;
+	h5_log_level = level & 0x7;
+	return H5_SUCCESS;
+}
+
+h5_err_t
+h5_set_debug_mask (
+        const h5_int64_t mask     /*!< debug level */
+        ) {
+	h5_log_level = H5_VERBOSE_DEBUG;
+	h5_debug_mask = mask;
 	return H5_SUCCESS;
 }
 
@@ -72,7 +85,7 @@ h5_set_loglevel (
 
    \return current debug level
  */
-h5_err_t
+h5_int64_t
 h5_get_loglevel (
         void
         ) {

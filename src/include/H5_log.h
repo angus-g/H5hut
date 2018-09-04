@@ -50,7 +50,7 @@ extern "C" {
 */
 static inline h5_err_t
 H5SetVerbosityLevel2 (
-	const h5_id_t level     ///< [in] verbosity level.
+	const h5_int32_t level     ///< [in] verbosity level.
 	) {
 	return h5_set_loglevel (level & 0x03);
 }
@@ -72,7 +72,7 @@ H5SetVerbosityLevel2 (
 */
 static inline h5_err_t
 H5SetVerbosityLevel1 (
-	const h5_id_t level     ///< [in] verbosity level.
+	const h5_int64_t level     ///< [in] verbosity level.
 	) {
 	return h5_set_loglevel (level);
 }
@@ -84,7 +84,7 @@ H5SetVerbosityLevel1 (
 
   \see H5SetVerbosityLevel()
 */
-static inline h5_id_t
+static inline h5_int64_t
 H5GetVerbosityLevel (
 	void
 	) {
@@ -123,9 +123,9 @@ H5GetVerbosityLevel (
 */
 static inline h5_err_t
 H5SetDebugMask (
-	const h5_id_t mask     ///< [in] debug mask
+	const h5_int64_t mask     ///< [in] debug mask
 	) {
-	return h5_set_loglevel (mask & ~0x03);
+	return h5_set_debug_mask (mask);
 }
 
 /**
@@ -140,7 +140,7 @@ H5SetDebugMask (
   | :------    | :-----			  	      |
   | \c 1.99.15 | Function introduced in this release. |
 */
-static inline h5_id_t
+static inline h5_int32_t
 H5GetDebugMask (
 	void
 	) {

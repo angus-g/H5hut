@@ -23,8 +23,8 @@
 
 #define __FUNC_ENTER(type, mask, fmt, ...)				\
 	type ret_value = (type)H5_ERR;					\
-	int __log__ = h5_log_level & mask;				\
-	if (__log__ ) {							\
+	int __log__ = h5_debug_mask & mask;				\
+	if (__log__) {							\
 		h5_call_stack_push (__func__,e_##type);			\
 		h5_debug ("(" fmt ")", __VA_ARGS__);			\
 	}
@@ -33,7 +33,7 @@
 
 #define H5_CORE_API_ENTER(type, fmt, ...)				\
 	if (!h5_initialized) {						\
-		h5priv_initialize();					\
+		h5_initialize();					\
 	}								\
 	__FUNC_ENTER(type, H5_DEBUG_CORE_API, fmt, __VA_ARGS__)
 
