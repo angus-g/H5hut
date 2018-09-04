@@ -12,7 +12,6 @@
 
 #include "private/h5_file.h"
 #include "private/h5_types.h"
-#include "private/h5_init.h"
 #include "private/h5t_types.h"
 #include "private/h5t_model.h"
 #include "private/h5t_access.h"

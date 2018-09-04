@@ -21,7 +21,6 @@
 #include "private/h5t_store.h"
 
 #include "private/h5_file.h"
-#include "private/h5_init.h"
 #include "private/h5t_core.h"
 
 static struct h5t_methods tet_funcs = {

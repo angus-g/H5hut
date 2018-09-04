@@ -21,8 +21,6 @@
 #include "private/h5t_model.h"
 #include "private/h5t_tags.h"
 
-#include "private/h5_init.h"
-
 #include <assert.h>
 
 static h5_err_t

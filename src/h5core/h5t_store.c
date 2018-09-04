@@ -17,7 +17,6 @@
 #include "private/h5t_store.h"
 #include "private/h5t_core.h"
 #include "private/h5t_io.h"
-#include "private/h5_init.h"
 #include "private/h5_file.h"
 #include "private/h5_mpi.h"
 
@@ -687,6 +686,7 @@ rebuild_map_elem_g2l (
 	h5priv_sort_idxmap (map);
 	H5_RETURN (H5_SUCCESS);
 }
+
 /*
    Rebuild mapping of global element indices to their local indices.
  */

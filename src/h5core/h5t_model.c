@@ -23,8 +23,6 @@
 #include "private/h5t_io.h"
 #include "private/h5t_tags.h"
 
-#include "private/h5_init.h"
-
 #include "h5core/h5_model.h"
 #include "private/h5t_core.h"
 #include "private/h5t_store.h"
