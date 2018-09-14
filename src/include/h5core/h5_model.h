@@ -19,29 +19,29 @@ extern "C" {
 #define H5_MAX_NAME_LEN          64
 
 h5_err_t
-h5_set_stepname_fmt (
+h5_set_iteration_name_fmt (
 	const h5_file_t, const char*, const int);
 
 h5_err_t
-h5_get_stepname_fmt (
+h5_get_iteration_name_fmt (
 	const h5_file_t, char* const, const int, int* const);
 
 
 h5_int64_t
-h5_set_step (
+h5_set_iteration (
 	const h5_file_t, const h5_int64_t);
 
 
 h5_int64_t
-h5_get_step (
+h5_get_iteration (
 	const h5_file_t);
 
 h5_ssize_t
-h5_get_num_steps (
+h5_get_num_iterations (
 	const h5_file_t);
 
 h5_int64_t
-h5_has_step (
+h5_has_iteration (
 	const h5_file_t, const h5_int64_t);
 
 int

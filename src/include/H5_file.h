@@ -234,6 +234,26 @@ H5SetPropFileThrottle (
 }
 
 /**
+   Flush data after each write.
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+
+  \note 
+  | Release     | Change                               |
+  | :------     | :-----			       |
+  | \c 2.0.0rc5 | Function introduced in this release. |
+ */
+static inline h5_err_t
+H5SetPropFileFlush (
+        h5_prop_t prop			///< [in,out] identifier for file property list
+	) {
+	H5_API_ENTER (h5_err_t, "prop=%p",
+		      (void*)prop);
+        H5_API_RETURN (h5_set_prop_file_flush_after_write (prop));
+}
+
+/**
   Close file property list.
 
   \note 
@@ -357,7 +377,7 @@ H5CheckFile (
 }
 
 /**
-  Flush step data to disk.
+  Flush step/iteration data to disk.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -369,7 +389,7 @@ H5FlushStep (
 	H5_API_ENTER (h5_err_t, 
                       "f=%p",
                       (h5_file_p)f);
-	H5_API_RETURN (h5_flush_step (f));
+	H5_API_RETURN (h5_flush_iteration (f));
 }
 
 /**

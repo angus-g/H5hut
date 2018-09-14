@@ -33,10 +33,10 @@ extern "C" {
 */
 
 /**
-  Checks whether the current time-step has field data or not.
+  Checks whether the current step/iteration has field data or not.
 
-  \return      true (value \c >0) if step exists
-  \return      false (\c 0) if step does not exist
+  \return      true (value \c >0) if step/iteration exists
+  \return      false (\c 0) if step/iteration does not exist
   \return      \c H5_FAILURE on error
 */
 static inline h5_err_t
@@ -51,7 +51,7 @@ H5BlockHasFieldData (
 
 
 /**
-  Query number of fields in current time step.
+  Query number of fields in current step/iteration.
 
   \return \c number of fields
   \return H5_FAILURE on error
@@ -74,8 +74,8 @@ H5BlockGetNumFields (
   (e.g. scalar or vector).
 
   This function can be used to retrieve all fields bound to the
-  current time-step by looping from \c 0 to the number of fields
-  minus one.  The number of fields bound to the current time-step
+  current step/iteration by looping from \c 0 to the number of fields
+  minus one.  The number of fields bound to the current step/iteration
   can be queried by calling the function \ref H5BlockGetNumFields.
 
   \return \c H5_SUCCESS on success
@@ -171,8 +171,8 @@ H5BlockGetFieldInfoByName (
   Tests whether a view has been set, either directly with
   \ref H5Block3dSetView or indirectly with \ref H5Block3dSetGrid.
 
-  \return      true (value \c >0) if step exists
-  \return      false (\c 0) if step does not exist
+  \return      true (value \c >0) if step/iteration exists
+  \return      false (\c 0) if step/iteration does not exist
   \return      \c H5_FAILURE on error
 */
 static inline h5_int64_t
@@ -190,9 +190,9 @@ H5Block3dHasView (
   Fortran ordering: the fastest moving index is \c i.
 
   This routine uses an MPI_Allgather, so at large concurrency it should
-  be called as infrequently as possible. For instance, if several timesteps
-  use the same field dimensions, set the layout only once before the
-  first timestep.
+  be called as infrequently as possible. For instance, if several
+  steps/iteration use the same field dimensions, set the layout only
+  once.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error

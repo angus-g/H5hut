@@ -148,7 +148,7 @@ typedef struct h5_glb_idxlist {
 } h5_glb_idxlist_t;
 
 enum h5_iterators {
-	step_iterator
+	iteration_iterator
 };
 
 struct h5_iterator;

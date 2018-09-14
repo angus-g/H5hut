@@ -58,8 +58,7 @@ h5priv_read_dataset (
 
 h5_err_t
 h5priv_normalize_dataset_name (
-	const char *name,
-	char *name2
+	char* const name
 	);
 
 #endif

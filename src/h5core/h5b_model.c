@@ -41,9 +41,8 @@ h5b_has_field_data (
         ) {
         h5_file_p f = (h5_file_p)fh;
         H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
-        CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
-        TRY (ret_value = hdf5_link_exists (f->step_gid, H5BLOCK_GROUPNAME_BLOCK));
+	check_iteration_handle_is_valid (f);
+        TRY (ret_value = hdf5_link_exists (f->iteration_gid, H5BLOCK_GROUPNAME_BLOCK));
         H5_RETURN (ret_value);
 }
 
@@ -453,12 +452,12 @@ h5bpriv_open_block_group (
 	h5b_fdata_t *b = f->b;
 
 	TRY (hdf5_close_group (b->block_gid));
-	b->block_gid = hdf5_open_group (f->step_gid, H5BLOCK_GROUPNAME_BLOCK);
+	b->block_gid = hdf5_open_group (f->iteration_gid, H5BLOCK_GROUPNAME_BLOCK);
 	if (f->b->block_gid < 0)
 		H5_RETURN_ERROR (
 			H5_ERR_INVAL,
 			"%s",
-			"Time step does not contain H5Block data!");
+			"step/iteration does not contain H5Block data!");
 
 	H5_RETURN (H5_SUCCESS);
 }
@@ -469,14 +468,14 @@ _create_block_group (
 	) {
 	H5_PRIV_FUNC_ENTER (h5_err_t, "f=%p", f);
 	h5_err_t exists;
-	TRY (exists = hdf5_link_exists (f->step_gid, H5BLOCK_GROUPNAME_BLOCK));
+	TRY (exists = hdf5_link_exists (f->iteration_gid, H5BLOCK_GROUPNAME_BLOCK));
 
 	if (exists > 0) {
 		TRY (h5bpriv_open_block_group(f));
 	} else {
 		TRY (hdf5_close_group(f->b->block_gid) );
 		TRY (f->b->block_gid = hdf5_create_group(
-			     f->step_gid, H5BLOCK_GROUPNAME_BLOCK) );
+			     f->iteration_gid, H5BLOCK_GROUPNAME_BLOCK) );
 	}
 	H5_RETURN (H5_SUCCESS);
 }
@@ -484,19 +483,18 @@ _create_block_group (
 h5_err_t
 h5bpriv_open_field_group (
 	const h5_file_p f,			/*!< IN: file handle */
-	const char *name
+	char* const name
 	) {
 	H5_PRIV_API_ENTER (h5_err_t, "f=%p, name='%s'", f, name);
-	char name2[H5_DATANAME_LEN];
-	h5priv_normalize_dataset_name (name, name2);
+	h5priv_normalize_dataset_name (name);
 
 	TRY (hdf5_close_group (f->b->field_gid));
 	TRY (h5bpriv_open_block_group (f));
-	f->b->field_gid = hdf5_open_group (f->b->block_gid, name2);
+	f->b->field_gid = hdf5_open_group (f->b->block_gid, name);
 	if (f->b->field_gid < 0)
 		return h5_error(
 		               H5_ERR_INVAL,
-		               "Field '%s' does not exist!", name2);
+		               "Field '%s' does not exist!", name);
 
 	H5_RETURN (H5_SUCCESS);
 }
@@ -504,24 +502,23 @@ h5bpriv_open_field_group (
 h5_err_t
 h5bpriv_create_field_group (
 	const h5_file_p f,		/*!< IN: file handle */
-	const char *name		/*!< IN: name of field group to create */
+	char* const name		/*!< IN: name of field group to create */
 	) {
 	H5_PRIV_API_ENTER (h5_err_t, "f=%p, name='%s'", f, name);
 	h5b_fdata_t *b = f->b;
 
 	TRY( _create_block_group(f) );
 
-	char name2[H5_DATANAME_LEN];
-	h5priv_normalize_dataset_name (name, name2);
+	h5priv_normalize_dataset_name (name);
 
 	h5_err_t exists;
-	TRY (exists = hdf5_link_exists ( b->block_gid, name2));
+	TRY (exists = hdf5_link_exists ( b->block_gid, name));
 
 	if (exists > 0) {
-		TRY (h5bpriv_open_field_group (f, name2));
+		TRY (h5bpriv_open_field_group (f, name));
 	} else {
 		TRY (hdf5_close_group (f->b->field_gid) );
-		TRY (b->field_gid = hdf5_create_group (b->block_gid, name2));
+		TRY (b->field_gid = hdf5_create_group (b->block_gid, name));
 	}
 
 	H5_RETURN (H5_SUCCESS);
@@ -535,8 +532,7 @@ h5b_3d_has_view (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, ",
 	                   f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	H5_RETURN (((h5_file_p)fh)->b->have_layout > 0);
 }
 
@@ -560,8 +556,7 @@ h5b_3d_set_view (
 	                   (long long unsigned)i_start, (long long unsigned)i_end,
 	                   (long long unsigned)j_start, (long long unsigned)j_end,
 	                   (long long unsigned)k_start, (long long unsigned)k_end);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	h5b_fdata_t *b = f->b;
 	b->user_layout[0].i_start = i_start;
 	b->user_layout[0].i_end =   i_end;
@@ -642,8 +637,7 @@ h5b_3d_get_view (
 	                   i_start, i_end,
 	                   j_start, j_end,
 	                   k_start, k_end);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	h5b_partition_t *p = f->b->user_layout;
 
 	*i_start = p->i_start;
@@ -676,8 +670,7 @@ h5b_3d_get_reduced_view (
 	                   i_start, i_end,
 	                   j_start, j_end,
 	                   k_start, k_end);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	h5b_partition_t *p = f->b->write_layout;
 
 	*i_start = p->i_start;
@@ -704,8 +697,7 @@ h5b_3d_set_chunk (
 	                   (long long unsigned)i,
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	if ( i == 0 || j == 0 || k == 0 )
 	{
 		h5_info ("Disabling chunking" );
@@ -724,21 +716,20 @@ h5b_3d_set_chunk (
 h5_err_t
 h5b_3d_get_chunk (
 	const h5_file_t fh,		/*!< IN: File handle */
-	const char *field_name, 	/*!< IN: name of dataset */
-	h5_size_t *const i,		/*!< OUT: size of \c i */ 
-	h5_size_t *const j,		/*!< OUT: size of \c j */  
-	h5_size_t *const k		/*!< OUT: size of \c k */ 
+	char* const field_name, 	/*!< IN: name of dataset */
+	h5_size_t* const i,		/*!< OUT: size of \c i */ 
+	h5_size_t* const j,		/*!< OUT: size of \c j */  
+	h5_size_t* const k		/*!< OUT: size of \c k */ 
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, i=%p, j=%p, k=%p",
 	                   f, i, j, k);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 
 	h5b_fdata_t *b = f->b;
 
-	TRY( h5bpriv_open_field_group ( f, field_name ) );
+	TRY (h5bpriv_open_field_group (f, field_name));
 
 	hid_t dataset_id;
 	hid_t plist_id;
@@ -776,8 +767,7 @@ h5b_3d_set_grid (
 	                   (long long unsigned)i,
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	if (i*j*k != f->nprocs) {
 		H5_RETURN_ERROR (
 		        H5_ERR_INVAL,
@@ -817,8 +807,7 @@ h5b_3d_get_grid_coords (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, proc=%d, i=%p, j=%p, k=%p",
 	                   f, proc, i, j, k);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	if ( !f->b->have_grid )
 		H5_RETURN_ERROR (
 		        H5_ERR_INVAL,
@@ -852,8 +841,7 @@ h5b_3d_set_dims (
 	                   (long long unsigned)i,
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	if ( !f->b->have_grid )
 		H5_RETURN_ERROR (
 		        H5_ERR_INVAL,
@@ -924,8 +912,7 @@ h5b_3d_set_halo (
 	                   (long long unsigned)j,
 	                   (long long unsigned)k);
 
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	if ( !f->b->have_grid ) {
 		H5_RETURN_ERROR (
 		        H5_ERR_INVAL,
@@ -955,8 +942,7 @@ h5b_get_num_fields (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 
 	TRY (h5bpriv_open_block_group(f));
 	TRY (ret_value = hdf5_get_num_objs_in_group (f->b->block_gid));
@@ -972,35 +958,33 @@ h5b_has_field (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, name='%s'",
 	                   f, name);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 
 	const char* path[] = { H5BLOCK_GROUPNAME_BLOCK, name };
-	TRY (ret_value = h5priv_link_exists_(f->step_gid, path, 2));
+	TRY (ret_value = h5priv_link_exists_(f->iteration_gid, path, 2));
 	H5_RETURN (ret_value);
 }
 
 h5_err_t
 h5b_get_field_info_by_name (
 	const h5_file_t fh,			/*!< IN:  file handle */
-	const char *name,			/*!< IN:  field name */
-	h5_size_t *field_rank,			/*!< OUT: field rank */
-	h5_size_t *field_dims,			/*!< OUT: field dimensions */
-	h5_size_t *elem_rank,			/*!< OUT: element rank */
-	h5_int64_t *type			/*!< OUT: datatype */
+	char* const name,			/*!< IN:  field name */
+	h5_size_t* field_rank,			/*!< OUT: field rank */
+	h5_size_t* field_dims,			/*!< OUT: field dimensions */
+	h5_size_t* elem_rank,			/*!< OUT: element rank */
+	h5_int64_t* type			/*!< OUT: datatype */
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, name='%s', "
 	                   "field_rank=%p, field_dims=%p, elem_rank=%p, type=%p",
 	                   f, name, field_rank, field_dims, elem_rank, type);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 
 	/* give it plenty of space even though we don't expect rank > 3 */
 	hsize_t dims[16];
 
-	TRY( h5bpriv_open_field_group(f, name) );
+	TRY (h5bpriv_open_field_group (f, name));
 
 	hid_t dataset_id;
 	hid_t dataspace_id;
@@ -1054,8 +1038,7 @@ h5b_get_field_info (
 	                   (long long unsigned)idx,
 	                   name, (long long unsigned)len_name,
 	                   field_rank, field_dims, elem_rank, type);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 
 	TRY (h5bpriv_open_block_group(f));
 	TRY (hdf5_get_objname_by_idx(

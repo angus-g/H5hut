@@ -28,7 +28,7 @@ h5pt_writedata_r8 (
                       "fh=%p, name='%s', data=%p, l_name=%d",
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_int64_t herr = h5u_write_data (
+	h5_int64_t herr = h5u_write_dataset (
 		f, name2, (void*)data, H5_FLOAT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
@@ -49,7 +49,7 @@ h5pt_writedata_r4 (
                       "fh=%p, name='%s', data=%p, l_name=%d",
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_int64_t herr = h5u_write_data (
+	h5_int64_t herr = h5u_write_dataset (
 		f, name2, (void*)data, H5_FLOAT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
@@ -70,7 +70,7 @@ h5pt_writedata_i8 (
                       "fh=%p, name='%s', data=%p, l_name=%d",
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_int64_t herr = h5u_write_data (
+	h5_int64_t herr = h5u_write_dataset (
 		f, name2, (void*)data, H5_INT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
@@ -91,7 +91,7 @@ h5pt_writedata_i4 (
                       "fh=%p, name='%s', data=%p, l_name=%d",
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_int64_t herr = h5u_write_data (
+	h5_int64_t herr = h5u_write_dataset (
 		f, name2, (void*)data, H5_INT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
@@ -114,7 +114,7 @@ h5pt_readdata_r8 (
                       "fh=%p, name='%s', data=%p, l_name=%d",
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_int64_t herr = h5u_read_data (
+	h5_int64_t herr = h5u_read_dataset (
 		f, name2, data, H5_FLOAT64_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
@@ -135,7 +135,7 @@ h5pt_readdata_r4 (
                       "fh=%p, name='%s', data=%p, l_name=%d",
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_int64_t herr = h5u_read_data (
+	h5_int64_t herr = h5u_read_dataset (
 		f, name2, data, H5_FLOAT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);
@@ -156,7 +156,7 @@ h5pt_readdata_i8 (
                       "fh=%p, name='%s', data=%p, l_name=%d",
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_int64_t herr = h5u_read_data (
+	h5_int64_t herr = h5u_read_dataset (
 		f, name2, data, H5_INT64_T );
 
 	free ( name2 );
@@ -178,7 +178,7 @@ h5pt_readdata_i4 (
                       "hf=%p, name='%s', data=%p, l_name=%d",
                       (h5_file_p)f, name, data, l_name);
 	char *name2 = h5_strdupfor2c ( name, l_name );
-	h5_int64_t herr = h5u_read_data (
+	h5_int64_t herr = h5u_read_dataset (
 		f, name2, data, H5_INT32_T );
 	free ( name2 );
 	H5_API_RETURN(herr);

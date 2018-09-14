@@ -22,13 +22,13 @@
 h5_int64_t
 h5pt_setnpoints (
 	const h5_int64_t* const fh,
-	const h5_int64_t* const npoints
+	const h5_int64_t* const num_items
 	) {
 	h5_file_t f = h5_filehandlefor2c (fh);
 	H5_API_ENTER (h5_int64_t,
                       "fh=%p, npoints=%lld",
-                      (h5_file_p)f, (long long)*npoints);
-	H5_API_RETURN (h5u_set_num_points (f, *npoints, 1));
+                      (h5_file_p)f, (long long)*num_items);
+	H5_API_RETURN (h5u_set_num_items (f, *num_items, 1));
 }
                 
 #define h5pt_setnpoints_strided FC_MANGLING (				\
@@ -37,14 +37,14 @@ h5pt_setnpoints (
 h5_int64_t
 h5pt_setnpoints_strided (
 	const h5_int64_t* const fh,
-	const h5_int64_t* const npoints,
+	const h5_int64_t* const num_items,
         const h5_int64_t* const stride
 	) {
 	h5_file_t f = h5_filehandlefor2c (fh);
 	H5_API_ENTER (h5_int64_t,
                       "fh=%p, npoints=%lld, stride=%lld",
-                      (h5_file_p)f, (long long)*npoints, (long long)*stride);
-	H5_API_RETURN (h5u_set_num_points (f, *npoints, *stride));
+                      (h5_file_p)f, (long long)*num_items, (long long)*stride);
+	H5_API_RETURN (h5u_set_num_items (f, *num_items, *stride));
 }
 
 
@@ -172,7 +172,7 @@ h5pt_getnpoints (
 	) {
 	h5_file_t f = h5_filehandlefor2c (fh);
 	H5_API_ENTER (h5_int64_t, "fh=%p", (h5_file_p)f);
-	H5_API_RETURN (h5u_get_num_points (f));
+	H5_API_RETURN (h5u_get_num_items (f));
 }
 
 #define h5pt_getdatasetname FC_MANGLING (				\

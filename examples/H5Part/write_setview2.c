@@ -93,7 +93,7 @@ main (
 		file,
 		offset,
 		offset + num_blocks*num_particles_per_block -1);
-
+	dataset_id = H5PartCreateDataSet (file, "data");
         // write multiple consecutive blocks
         for (int i = 0; i < num_blocks; i++) {
 		// create fake data
@@ -105,14 +105,14 @@ main (
 		}
 		
                 // set the "view" to select a subset of the dataset
-                H5PartSetView (
+                H5PartSetViewOnDataset (
                         file,
                         offset + i*num_particles_per_block,
                         offset + (i+1)*num_particles_per_block - 1);
                 // write data
-                H5PartWriteDataInt64 (file, "data", data);
+                H5PartWriteDatasetInt64 (dataset_id, data);
         }
-
+	H5CloseDataset (dataset_id);
         // done
         H5CloseFile(file);
 	MPI_Finalize();

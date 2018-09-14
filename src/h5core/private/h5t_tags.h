@@ -21,11 +21,11 @@
  * Complex numbers can be stored as array of float64 with even dimension
  * Tags are addressed via a name and the entity id.
  * Tags with the same name are called a "tagset"
- * Tagsets can be used to store time/step-constant data. These tagsets are
+ * Tagsets can be used to store iteration-constant data. These tagsets are
     called "m-tagsets" and are assigned directly to a mesh.
- * Tagsets can be used to store data which may change from step to step.
-    These tagsets are called "s-tagsets" and are assigned to a mesh and a
-    (time-)step.
+ * Tagsets can be used to store data which may change from iteration to
+    iteration. These tagsets are called "s-tagsets" and are assigned to
+    a mesh and a step/iteration.
 
    ToDo
  * Scalar values

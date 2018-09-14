@@ -23,7 +23,7 @@
 
 #define __FUNC_ENTER(type, mask, fmt, ...)				\
 	type ret_value = (type)H5_ERR;					\
-	int __log__ = h5_debug_mask & mask;				\
+	int __log__ = __h5_debug_mask & mask;				\
 	if (__log__) {							\
 		h5_call_stack_push (__func__,e_##type);			\
 		h5_debug ("(" fmt ")", __VA_ARGS__);			\

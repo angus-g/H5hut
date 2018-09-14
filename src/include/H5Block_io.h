@@ -56,9 +56,10 @@ extern "C" {
 	const h5_int32_t* buffer
 	)
 
-  Write a 3-dimensional field with scalar values to the current step
-  using the previously defined field view.  Ensure that the size of
-  the buffer matches the number of elements in the view.
+  Write a 3-dimensional field with scalar values to the current
+  step/iteration using the previously defined field view.  Ensure
+  that the size of the buffer matches the number of elements in
+  the view.
 
   Supported data types are
 
@@ -176,8 +177,8 @@ H5Block3dWriteScalarFieldInt32 (
 	h5_int32_t* buffer
 	)
 
-  Read a 3-dimensional field with scalar values from the current step
-  using the previously defined field layout.
+  Read a 3-dimensional field with scalar values from the current
+  step/iteration using the previously defined field layout.
 
   Ensure that the size of the buffer matches the number of elements in
   the view.
@@ -295,9 +296,9 @@ H5Block3dReadScalarFieldInt32 (
 	)
 
   Write a 3-dimensional field with 3-dimensional vectors as values to
-  the current step using the previously defined field view.  Ensure
-  that the size of the buffer matches the number of elements in the
-  view.
+  the current step/iteration using the previously defined field view.
+  Ensure that the size of the buffer matches the number of elements in
+  the view.
 
   Supported data types are
 
@@ -439,7 +440,7 @@ H5Block3dWriteVector3dFieldInt32 (
 	)
 
   Read a 3-dimensional field with 3-dimensional vectors as values from
-  the current step using the previously defined field layout.
+  the current step/iteration using the previously defined field layout.
 
   Ensure that the size of the buffer matches the number of elements in
   the view.

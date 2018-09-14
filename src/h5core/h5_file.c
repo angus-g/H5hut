@@ -42,12 +42,7 @@ h5_check_filehandle (
 	const h5_file_t f_               /*!< filehandle  to check validity of */
 	) {
         h5_file_p f = (h5_file_p)f_;
-	if (f == NULL || f_ == H5_FAILURE || f->file < 0 || f->u == NULL || f->b == NULL) {
-		return h5_error (
-			H5_ERR_BADF,
-			"Called with bad filehandle.");
-	}
-	return H5_SUCCESS;
+	return is_valid_file_handle (f) ? H5_SUCCESS : H5_ERR;
 }
 
 hid_t
@@ -56,7 +51,7 @@ h5_get_hdf5_file(
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (hid_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
+	check_file_handle_is_valid (f);
 	H5_RETURN (f->file);
 }
 
@@ -69,7 +64,7 @@ hdf5_error_handler (
 	void*  __f
 	) {
 	UNUSED_ARGUMENT (__f);
-	if (h5_get_loglevel() >= 5) {
+	if (h5_get_loglevel() >= 4) {
 		H5Eprint (estack_id, stderr);
 	}
 	return 0;
@@ -175,12 +170,12 @@ set_default_file_props (
         h5_prop_file_t* props = (h5_prop_file_t*)_props;
         bzero (props, sizeof (*props));
         props->class = H5_PROP_FILE;
-        TRY (props->prefix_step_name = h5_calloc (1, H5_STEPNAME_LEN));
+        TRY (props->prefix_iteration_name = h5_calloc (1, H5_ITERATION_NAME_LEN));
         strncpy (
-                props->prefix_step_name,
-                H5_STEPNAME,
-                H5_STEPNAME_LEN - 1);
-        props->width_step_idx = H5_STEPWIDTH;
+                props->prefix_iteration_name,
+                H5_ITERATION_NAME,
+                H5_ITERATION_NAME_LEN - 1);
+        props->width_iteration_idx = H5_ITERATION_NUM_WIDTH;
 #ifdef H5_HAVE_PARALLEL
         props->comm = MPI_COMM_WORLD;
 #endif
@@ -271,7 +266,8 @@ h5_set_prop_file_core_vfd (
 	const h5_int64_t increment
         ) {
         h5_prop_file_t* props = (h5_prop_file_t*)_props;
-        H5_CORE_API_ENTER (h5_err_t, "props=%p, increment=%lld", props, (long long int)increment);
+        H5_CORE_API_ENTER (h5_err_t, "props=%p, increment=%lld",
+			   props, (long long int)increment);
         
         if (props->class != H5_PROP_FILE) {
                 H5_RETURN_ERROR (
@@ -280,7 +276,9 @@ h5_set_prop_file_core_vfd (
 			(long long int)props->class);
         }
 #ifdef H5_HAVE_PARALLEL
-        props->flags &= ~(H5_VFD_MPIO_COLLECTIVE | H5_VFD_MPIO_INDEPENDENT | H5_VFD_MPIO_POSIX);
+        props->flags &= ~(H5_VFD_MPIO_COLLECTIVE |
+			  H5_VFD_MPIO_INDEPENDENT |
+			  H5_VFD_MPIO_POSIX);
         props->flags |= H5_VFD_MPIO_INDEPENDENT;
         props->comm = MPI_COMM_SELF;
 	props->increment = increment;
@@ -315,26 +313,24 @@ h5_set_prop_file_align (
         H5_RETURN (H5_SUCCESS);
 }
 
-#if 0
 h5_err_t
-h5_set_prop_file_flush_step (
+h5_set_prop_file_flush_after_write (
         h5_prop_t _props
         ) {
         h5_prop_file_t* props = (h5_prop_file_t*)_props;
         H5_CORE_API_ENTER (
 		h5_err_t,
-		"props=%p, align=%lld",
-		props, (long long int)align);
+		"props=%p",
+		props);
         if (props->class != H5_PROP_FILE) {
                 H5_RETURN_ERROR (
 			H5_ERR_INVAL,
 			"Invalid property class: %lld",
 			(long long int)props->class);
         }
-        props-> = align;
+        props->flush = 1;
         H5_RETURN (H5_SUCCESS);
 }
-#endif
 
 h5_err_t
 h5_set_prop_file_throttle (
@@ -411,7 +407,7 @@ h5_close_prop (
         switch (prop->class) {
         case H5_PROP_FILE: {
                 h5_prop_file_t* file_prop = (h5_prop_file_t*)prop;
-                TRY (h5_free (file_prop->prefix_step_name));
+                TRY (h5_free (file_prop->prefix_iteration_name));
                 break;
         }
         default:
@@ -436,14 +432,14 @@ open_file (
 
         f->nprocs = 1; // queried later
         f->myproc = 0; // queried later
-        f->step_gid = -1;
+        f->iteration_gid = -1;
 
-        TRY (f->step_name = h5_calloc (2, H5_STEPNAME_LEN));
+        TRY (f->iteration_name = h5_calloc (2, H5_ITERATION_NAME_LEN));
         sprintf (
-                f->step_name,
+                f->iteration_name,
                 "%s#%0*lld",
-                f->props->prefix_step_name,
-                f->props->width_step_idx, (long long)f->step_idx);
+                f->props->prefix_iteration_name,
+                f->props->width_iteration_idx, (long long)f->iteration_idx);
 
         TRY (hdf5_set_errorhandler (H5E_DEFAULT, hdf5_error_handler, NULL));
         
@@ -526,15 +522,17 @@ h5_open_file2 (
                 f->props->align = props->align;
 
                 strncpy (
-                        f->props->prefix_step_name,
-                        props->prefix_step_name,
-                        H5_STEPNAME_LEN - 1);
-                f->props->width_step_idx = props->width_step_idx;
+                        f->props->prefix_iteration_name,
+                        props->prefix_iteration_name,
+                        H5_ITERATION_NAME_LEN - 1);
+                f->props->width_iteration_idx = props->width_iteration_idx;
         }
 
 	TRY (open_file (f, filename, mode));
 
-        TRY (h5_set_stepname_fmt ((uintptr_t)f, H5_STEPNAME, H5_STEPWIDTH));
+        TRY (h5_set_iteration_name_fmt ((uintptr_t)f,
+					H5_ITERATION_NAME,
+					H5_ITERATION_NUM_WIDTH));
 
 	H5_RETURN ((h5_file_t)f);
 }
@@ -595,9 +593,9 @@ h5_close_file (
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
 	h5_errno = H5_SUCCESS;
 
-	CHECK_FILEHANDLE (f);
+	check_file_handle_is_valid (f);
 
-	TRY (h5priv_close_step (f));
+	TRY (h5priv_close_iteration (f));
 	TRY (h5upriv_close_file (f));
 	TRY (h5bpriv_close_file (f));
 	TRY (hdf5_close_property (f->props->xfer_prop));
@@ -607,7 +605,7 @@ h5_close_file (
         TRY (hdf5_flush (f->file, H5F_SCOPE_GLOBAL));
         TRY (h5_close_prop ((h5_prop_t)f->props));
 	TRY (hdf5_close_file (f->file));
-        TRY (h5_free (f->step_name));
+        TRY (h5_free (f->iteration_name));
  	TRY (h5_free (f));
 	H5_RETURN (H5_SUCCESS);
 }
@@ -623,16 +621,15 @@ h5_close_h5hut (
 }
 
 h5_err_t
-h5_flush_step (
+h5_flush_iteration (
 	const h5_file_t f_
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_is_writable (f);
 	ret_value = H5_SUCCESS;
-	if (f->step_gid >= 0) {
-		TRY (ret_value = hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
+	if (f->iteration_gid >= 0) {
+		TRY (ret_value = hdf5_flush (f->iteration_gid, H5F_SCOPE_LOCAL));
 	}
 	H5_RETURN (ret_value);
 }
@@ -643,7 +640,7 @@ h5_flush_file (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
+	check_file_is_writable (f);
 	TRY (ret_value = hdf5_flush (f->file, H5F_SCOPE_GLOBAL));
 	H5_RETURN (ret_value);
 }
@@ -652,15 +649,15 @@ h5_flush_file (
 /*!
   \ingroup h5_core_filehandling
 
-  Define format of the step names.
+  Define format of the iteration names.
 
-  Example: ==H5FedDefineStepNameFormat( f, "Step", 6 )== defines step names 
-  like ==Step#000042==.
+  Example: ==h5_set_iteration_name_fmt (f, "Step", 6)==
+  defines iteration names like ==Step#000042==.
 
   \return \c H5_SUCCESS or error code
 */
 h5_err_t
-h5_set_stepname_fmt (
+h5_set_iteration_name_fmt (
 	const h5_file_t f_,
 	const char* name,
 	int width
@@ -669,14 +666,14 @@ h5_set_stepname_fmt (
 	H5_CORE_API_ENTER (h5_err_t,
                            "f=%p, name='%s', width=%d",
                            f, name, width);
-	CHECK_FILEHANDLE (f);
+	check_file_handle_is_valid (f);
 	if (width < 0) width = 0;
-	else if (width > H5_STEPNAME_LEN - 1) width = H5_STEPNAME_LEN - 1;
+	else if (width > H5_ITERATION_NAME_LEN - 1) width = H5_ITERATION_NAME_LEN - 1;
 	strncpy (
-		f->props->prefix_step_name,
+		f->props->prefix_iteration_name,
 		name,
-		H5_STEPNAME_LEN - 1);
-	f->props->width_step_idx = width;
+		H5_ITERATION_NAME_LEN - 1);
+	f->props->width_iteration_idx = width;
 
 	H5_RETURN (H5_SUCCESS);
 }
@@ -684,16 +681,16 @@ h5_set_stepname_fmt (
 /*!
   \ingroup h5_core_filehandling
 
-  Get format of the step names.
+  Get format of the iteration names.
 
   \return \c H5_SUCCESS or error code
 */
 h5_err_t
-h5_get_stepname_fmt (
+h5_get_iteration_name_fmt (
 	const h5_file_t f_,		/*!< Handle to file		*/
-	char* const name,			/*!< OUT: Prefix		*/
-	const int l_name,			/*!< length of buffer name	*/
-	int* const width			/*!< OUT: Width of the number	*/
+	char* const name,		/*!< OUT: Prefix		*/
+	const int l_name,		/*!< length of buffer name	*/
+	int* const width		/*!< OUT: Width of the number	*/
 	) {
         h5_file_p f = (h5_file_p)f_;
 	UNUSED_ARGUMENT (f);
@@ -706,19 +703,18 @@ h5_get_stepname_fmt (
 /*!
   \ingroup h5_core_filehandling
 
-  Get current step number.
+  Get current iteration number.
 
-  \return Current step number or error code
+  \return Current iteration number or error code
 */
 h5_id_t
-h5_get_step (
+h5_get_iteration (
 	const h5_file_t f_		/*!< file handle		*/
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_id_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
-	H5_RETURN (f->step_idx);
+	check_iteration_is_readable (f);
+	H5_RETURN (f->iteration_idx);
 }
 
 /*!
@@ -734,39 +730,39 @@ h5_get_num_procs (
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (int, "f=%p", f);
-	CHECK_FILEHANDLE (f);
+	check_file_handle_is_valid (f);
 	H5_RETURN (f->nprocs);
 }
 
 /*!
   \ingroup h5_core_filehandling
 
-  Get number of steps.
+  Get number of iterations.
 
-  \return Number of steps or error code
+  \return Number of iterations or error code
 */
 h5_ssize_t
-h5_get_num_steps(
+h5_get_num_iterations (
 	const h5_file_t f_		/*!< file handle		*/
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (int, "f=%p", f);
-	CHECK_FILEHANDLE (f);
+	check_file_handle_is_valid (f);
 	TRY (ret_value = hdf5_get_num_groups_matching_prefix (
 		     f->root_gid,
-		     f->props->prefix_step_name));
+		     f->props->prefix_iteration_name));
 	H5_RETURN (ret_value);
 }
 
 /*!
   \ingroup h5_core_filehandling
 
-  Start traversing steps. 
+  Start traversing iterations.
 
   \return \c H5_SUCCESS or error code 
 */
 h5_err_t
-h5_start_traverse_steps (
+h5_start_traverse_iterations (
 	const h5_file_t f_		/*!< file handle		*/
 	) {
         h5_file_p f = (h5_file_p)f_;
@@ -784,12 +780,12 @@ h5_start_traverse_steps (
 /*!
   \ingroup h5_core_filehandling
 
-  Go to next step.
+  Go to next iteration.
 
   \return \c H5_SUCCESS or error code 
 */
 h5_err_t
-h5_traverse_steps (
+h5_traverse_iterations (
 	const h5_file_t f_		/*!< file handle		*/
 	) {
         h5_file_p f = (h5_file_p)f_;

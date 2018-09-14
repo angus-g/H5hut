@@ -79,8 +79,8 @@ struct call_stack {
 	struct call_stack_entry entry[1024];
 };
 
-extern h5_int64_t h5_log_level;
-extern h5_int64_t h5_debug_mask;
+extern h5_int64_t __h5_log_level;
+extern h5_int64_t __h5_debug_mask;
 extern struct call_stack h5_call_stack;
 
 // :FIXME: Should go to another header file
@@ -223,7 +223,7 @@ h5_get_loglevel (
 	h5_initialize();						\
 	h5_call_stack_reset ();						\
 	h5_call_stack_push (__func__,e_##type);				\
-	int __log__ = h5_debug_mask & H5_DEBUG_API;			\
+	int __log__ = __h5_debug_mask & H5_DEBUG_API;			\
 	if (__log__) {							\
 		h5_debug ("(" fmt ")", __VA_ARGS__);			\
 	}

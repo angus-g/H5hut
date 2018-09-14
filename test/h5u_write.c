@@ -266,7 +266,7 @@ test_write_data32(h5_file_t file, int nparticles, int step)
 		status = H5PartWriteDataFloat32(file, "pz", pz);
 		RETURN(status, H5_SUCCESS, "H5PartWriteDataFloat32");
 
-		status = H5PartWriteDataInt32(file, LONGNAME2, id);
+		status = H5PartWriteDataInt32(file, "id", id);
 		RETURN(status, H5_SUCCESS, "H5PartWriteDataInt32");
 
 		/* the second write phase... */
@@ -293,7 +293,7 @@ test_write_data32(h5_file_t file, int nparticles, int step)
 		status = H5PartWriteDataFloat32(file, "pz", pz+32);
 		RETURN(status, H5_SUCCESS, "H5PartWriteDataFloat32");
 
-		status = H5PartWriteDataInt32(file, LONGNAME, id+32);
+		status = H5PartWriteDataInt32(file, "id", id+32);
 		RETURN(status, H5_SUCCESS, "H5PartWriteDataInt32");
 	}
 }
@@ -435,7 +435,7 @@ void h5u_test_write3(void)
 	RETURN(status, H5_SUCCESS, "H5CloseProp");
 
 	TEST("Redefining step name");
-	status = H5SetStepNameFormat(file1, LONGNAME, 16);
+	status = H5SetStepNameFormat(file1, "data", 16);
 	RETURN(status, H5_SUCCESS, "H5SetStepNameFormat");
 
 	test_write_strided_data64(file1, NPARTICLES, 0);
@@ -474,10 +474,10 @@ void h5u_test_write4(void)
 	RETURN(status, H5_SUCCESS, "H5CloseProp");
 
 	TEST("Redefining step name");
-	status = H5SetStepNameFormat(file1, LONGNAME, 16);
+	status = H5SetStepNameFormat(file1, "data", 16);
 	RETURN(status, H5_SUCCESS, "H5SetStepNameFormat");
 
-	status = H5SetStepNameFormat(file2, LONGNAME, 16);
+	status = H5SetStepNameFormat(file2, "data", 16);
 	RETURN(status, H5_SUCCESS, "H5SetStepNameFormat");
 
 	status = H5PartSetChunkSize(file1, NPARTICLES);

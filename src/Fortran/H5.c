@@ -222,7 +222,7 @@ h5_flushstep (
 	) {
 	h5_file_t fh = h5_filehandlefor2c(f);
 	H5_API_ENTER (h5_int64_t, "f=%p", (h5_file_p)fh);
-	H5_API_RETURN (h5_flush_step (fh));
+	H5_API_RETURN (h5_flush_iteration (fh));
 }
 
 #define h5_finalize FC_MANGLING(		   \

@@ -29,7 +29,7 @@
   \ingroup h5block_model
 
   \note
-  Different field sizes are allowed in the same time-step.
+  Different field sizes are allowed in the same step/iteration.
 
   \note
   The same layout can be used, if the size of the field matches the

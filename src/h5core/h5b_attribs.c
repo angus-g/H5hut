@@ -33,9 +33,7 @@ h5b_write_field_attrib (
 	                   (long long int)attrib_type,
 	                   attrib_value,
 	                   (long long)attrib_nelem);
-	CHECK_FILEHANDLE (f);
-	CHECK_WRITABLE_MODE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_is_writable (f);
 
 	TRY( h5bpriv_create_field_group(f, field_name) );
 	if (is_appendonly (f)) {
@@ -74,8 +72,7 @@ h5b_read_field_attrib (
 	                   attrib_name,
 	                   (long long)attrib_type,
 	                   buffer);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_is_readable (f);
 
 	TRY (h5bpriv_open_field_group(f, field_name));
 
@@ -102,8 +99,7 @@ h5b_has_field_attrib (
 	                   f,
 	                   field_name,
 	                   attrib_name);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 
 	TRY (h5bpriv_open_field_group(f, field_name));
 
@@ -120,8 +116,7 @@ h5b_get_num_field_attribs (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t, "f=%p field_name='%s'", f, field_name);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 
 	TRY (h5bpriv_open_field_group(f, field_name));
 
@@ -151,8 +146,7 @@ h5b_get_field_attrib_info_by_idx (
 	                   (long long unsigned)attrib_idx,
 	                   attrib_name, (long long unsigned)len_attrib_name,
 	                   attrib_type, attrib_nelem);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	TRY (h5bpriv_open_field_group(f, field_name));
 	TRY (ret_value = h5priv_get_attrib_info_by_idx (
 		     f->b->field_gid,
@@ -180,8 +174,7 @@ h5b_get_field_attrib_info_by_name (
 	                   field_name,
 	                   attrib_name,
 	                   attrib_type, attrib_nelem);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	TRY (h5bpriv_open_field_group(f, field_name));
 	TRY (ret_value = h5priv_get_attrib_info_by_name (
 		     f->b->field_gid,
@@ -248,8 +241,7 @@ h5b_set_3d_field_coords (
 			   field_name,
                            attrib_name,
 			   coords, (long long unsigned)n_coords);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_is_writable (f);
 
         TRY (check_coords (f, rank, n_coords));
 	TRY (h5b_write_field_attrib (
@@ -284,8 +276,8 @@ h5b_get_3d_field_coords (
 			   field_name,
                            attrib_name,
 			   coords, (long long unsigned)n_coords);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+
+	check_iteration_is_readable (f);
 
         TRY (check_coords (f, rank, n_coords));
 	TRY (h5b_read_field_attrib (
