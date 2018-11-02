@@ -210,11 +210,11 @@ h5_get_loglevel (
 // function enter macro
 #if defined(NDEBUG)
 
-#define H5_API_ENTER(type, fmt, ...)		\
-	type ret_value = (type)H5_ERR;
-	h5_initialize();
+#define H5_API_ENTER(type, fmt, ...)					\
+	type ret_value = (type)H5_ERR;					\
+	h5_initialize();						\
 	h5_call_stack_reset ();						\
-	h5_call_stack_push (__func__,e_##type);				\
+	h5_call_stack_push (__func__,e_##type);
 
 #else   // NDEBUG not defined
 
