@@ -19,8 +19,8 @@
   Use H5_DEBUG_ALL to get full debug output
 */
 #if !defined(DEBUGMASK)
-#define DEBUGMASK	H5_DEBUG_NONE
-//#define DEBUGMASK	H5_DEBUG_ALL
+//#define DEBUGMASK	H5_DEBUG_NONE
+#define DEBUGMASK	H5_DEBUG_ALL
 #endif
 
 int
