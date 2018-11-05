@@ -83,6 +83,17 @@ h5u_get_totalnum_particles_by_name (
 	H5_RETURN (nparticles);
 }
 
+/*
+  Query number of items in dataset in current timestep. Dataset is
+  given by index.
+
+  returns:
+    H5_NOK if dataset does not exist
+    H5_ERROR on error
+    else number of items
+
+*/
+
 h5_ssize_t
 h5u_get_totalnum_particles_by_idx (
 	const h5_file_t fh,     ///< [in] Handle to open file
@@ -272,8 +283,6 @@ h5u_set_view (
 	                   f, (long long)start, (long long)end);
 	CHECK_FILEHANDLE (f);
 	CHECK_TIMEGROUP (f);
-	hsize_t total = 0;
-	hsize_t dmax = H5S_UNLIMITED;
 	struct h5u_fdata *u = f->u;
 
 	TRY (h5u_reset_view (fh));
@@ -281,6 +290,7 @@ h5u_set_view (
 	if (start == -1 && end == -1)   // we are already done
 		H5_LEAVE (H5_SUCCESS);
 
+	hsize_t total = 0;
 	if (f->u->shape > 0) {
 		TRY (total = hdf5_get_npoints_of_dataspace (f->u->shape) );
         } else {
@@ -292,7 +302,20 @@ h5u_set_view (
 		  No datasets have been created yet and no views are set.
 		  We have to leave the view empty because we don't know how
 		  many particles there should be!
+		*/
+#if H5_HAVE_PARALLEL
+		TRY (
+			h5priv_mpi_allreduce_max (
+			     &end, &total, 1, MPI_LONG_LONG, f->props->comm)
+			);
+#else
+		total = end - start;
+#endif
+		total++;
 
+		TRY (hdf5_close_dataspace (u->shape));
+		TRY (u->shape = hdf5_create_dataspace(1, &total, NULL) );
+		/*
 		  :FIXME: Should 'total == 0' be considered valid or not?
 		  :FIXME: why not gather total size?
 		*/
@@ -311,19 +334,7 @@ h5u_set_view (
 				(long long)end,
 				(long long)start);
 		}
-#if H5_HAVE_PARALLEL
-		TRY (
-			h5priv_mpi_allreduce_max (
-			     &end, &total, 1, MPI_LONG_LONG, f->props->comm)
-			);
-#else
-		total = end - start;
-#endif
-		total++;
-		TRY (h5u_reset_view(fh));
 
-		TRY (hdf5_close_dataspace (u->shape));
-		TRY (u->shape = hdf5_create_dataspace(1, &total, NULL) );
 	} else {
 		if (end < 0) {
 			end = total+end;
@@ -375,6 +386,7 @@ h5u_set_view (
 	             NULL));
 
 	/* declare local memory datasize */
+	hsize_t dmax = H5S_UNLIMITED;
 	TRY (u->memshape = hdf5_create_dataspace (1, &hcount, &dmax));
 	H5_RETURN (H5_SUCCESS);
 }
