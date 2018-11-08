@@ -43,9 +43,15 @@
 #define H5_PRIV_FUNC_ENTER(type, fmt, ...)				\
 	__FUNC_ENTER(type, H5_DEBUG_PRIV_FUNC, fmt, __VA_ARGS__ )
 
+#ifdef NDEBUG
+#define H5_INLINE_FUNC_ENTER(type)			\
+	type ret_value = (type)H5_ERR;
+
+#else
 #define H5_INLINE_FUNC_ENTER(type)			\
 	type ret_value = (type)H5_ERR; int __log__ = 0;
-
+#endif
+	
 #define HDF5_WRAPPER_ENTER(type, fmt, ...)			\
 	__FUNC_ENTER(type, H5_DEBUG_HDF5, fmt, __VA_ARGS__ )
 

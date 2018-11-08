@@ -165,10 +165,9 @@ h5_openfile (
         h5_int64_t* _props,
 	const int _len_fname
         ) {
-        int len_fname = strlenf (_fname, _len_fname);
         H5_API_ENTER (h5_int64_t,
                       "fname = %*s, mode=%lld, props=%lld",
-                      len_fname, _fname, (long long int)*_mode, (long long int)*_props);
+                      _len_fname, _fname, (long long int)*_mode, (long long int)*_props);
         char* fname = h5_strdupfor2c (_fname, _len_fname);
         h5_int64_t mode = *_mode;
         h5_prop_t props = (h5_prop_t)*_props;
