@@ -8,7 +8,6 @@
 */
 
 #include <stdlib.h>
-#include <mpi.h>
 
 #include "H5hut.h"
 #include "examples.h"
