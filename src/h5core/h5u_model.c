@@ -286,6 +286,8 @@ h5u_set_view (
 	if (f->u->shape > 0) {
 		TRY (total = hdf5_get_npoints_of_dataspace (f->u->shape) );
         } else {
+		// if iteration does not contain a dataset, next function
+		// returns -1
                 TRY (total = h5u_get_totalnum_particles_by_idx (fh, 0));
         }
 	h5_debug ("Total = %lld", (long long) total);
@@ -293,11 +295,8 @@ h5u_set_view (
 		/*
 		  iteration does not contain a dataset yet! 
 		*/
-		TRY (hdf5_close_dataspace (u->shape));
-		TRY (u->shape = hdf5_create_dataspace(1, &total, NULL) );
 		/*
 		  :FIXME: Should 'total == 0' be considered valid or not?
-		  :FIXME: why not gather total size?
 		*/
 #if H5_HAVE_PARALLEL
 		TRY (
