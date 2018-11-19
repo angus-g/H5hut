@@ -56,12 +56,13 @@ extern "C" {
 	const h5_int32_t* data
 	)
 
-  Write a dataset to the current step.
+  Write a dataset to the current step/iteration.
 
-  After the current (time-)step and view, you can start writing datasets
-  into the file. Each dataset has a name associated with it (chosen by the
-  user) in order to facilitate later retrieval. The name of the dataset is
-  specified in the parameter \c name, which must be a null-terminated string.
+  After setting the current (time-)step/iteration and view, you can start
+  writing datasets into the file. Each dataset has a name associated with
+  it (chosen by the user) in order to facilitate later retrieval. The name
+  of the dataset is specified in the parameter \c name, which must be a
+  null-terminated string.
 
   There are no restrictions on naming of datasets, but it is useful to arrive
   at some common naming convention when sharing data with other groups.
@@ -70,9 +71,10 @@ extern "C" {
   the array can be reconstructed properly on other systems with incompatible
   type representations.
 
-  All data that is written after setting the timestep is associated with that
-  timestep. While the number of elements can change for each timestep, you
-  cannot change the number of elements in the middle of a given timestep.
+  All data that is written after setting the (time-)step/iteration is
+  associated with that (time-)step/iteratiion. While the number of
+  elements can change for each timestep, you cannot change the number
+  of elements in the middle of a given (time-)step/iteration.
 
   The data is committed to disk before the routine returns.
   \param f	[in]  file handle.
@@ -97,7 +99,7 @@ H5PartWriteDataFloat64 (
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
 	H5_API_RETURN (
-		h5u_write_data (
+		h5u_write_dataset (
 			f, name, (void*)data,
 			H5_FLOAT64_T));
 }
@@ -112,7 +114,7 @@ H5PartWriteDataFloat32 (
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
 	H5_API_RETURN (
-		h5u_write_data(
+		h5u_write_dataset (
 			f, name, (void*)data,
 			H5_FLOAT32_T));
 }
@@ -127,7 +129,7 @@ H5PartWriteDataInt64 (
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
 	H5_API_RETURN (
-		h5u_write_data (
+		h5u_write_dataset (
 			f, name, (void*)data,
 			H5_INT64_T));
 }
@@ -142,7 +144,7 @@ H5PartWriteDataInt32 (
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
 	H5_API_RETURN (
-		h5u_write_data (
+		h5u_write_dataset (
 			f, name, (void*)data,
 			H5_INT32_T));
 }
@@ -198,7 +200,7 @@ H5PartReadDataFloat64 (
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
 	H5_API_RETURN (
-		h5u_read_data (
+		h5u_read_dataset (
 			f, name, data, H5_FLOAT64_T));
 }
 
@@ -212,7 +214,7 @@ H5PartReadDataFloat32 (
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
 	H5_API_RETURN (
-		h5u_read_data (
+		h5u_read_dataset (
 			f, name, data, H5_FLOAT32_T));
 }
 
@@ -226,7 +228,7 @@ H5PartReadDataInt64 (
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
 	H5_API_RETURN (
-		h5u_read_data (
+		h5u_read_dataset (
 			f, name, data,
 			H5_INT64_T));
 }
@@ -241,7 +243,7 @@ H5PartReadDataInt32 (
                       "f=%p, name='%s', date=%p",
                       (h5_file_p)f, name, data);
 	H5_API_RETURN (
-		h5u_read_data (
+		h5u_read_dataset (
 			f, name, data,
 			H5_INT32_T));
 }

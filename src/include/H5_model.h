@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 /**
-  Define format of the step names.
+  Define format of the step/iteration names.
 
   Example: ==H5SetStepNameFormat( f, "Step", 6 )== defines step names 
   like ==Step#000042==.
@@ -35,16 +35,16 @@ static inline h5_err_t
 H5SetStepNameFormat (
 	const h5_file_t f,	///< [in] file handle
 	const char* name,	///< [in] prefix, defaults to \c Step
-	const h5_int64_t width	///< [in] width of step number
+	const h5_int64_t width	///< [in] width of step/iteration number
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, name='%s', width=%lld",
 		      (h5_file_p)f, name, (long long) width);
-	H5_API_RETURN (h5_set_stepname_fmt (f, name, width));
+	H5_API_RETURN (h5_set_iteration_name_fmt (f, name, width));
 }
 
 /**
-  Get format of the step names.
+  Get format of the step/iteration names.
 
   \return   \c H5_SUCCESS on success
   \return   \c H5_FAILURE on error
@@ -54,16 +54,16 @@ H5GetStepNameFormat (
 	const h5_file_t f,	///< [in]  file handle
 	char* name,		///< [out] prefix
 	const h5_size_t l_name,	///< [in]  length of buffer name
-	int* width		///< [out] width of step number
+	int* width		///< [out] width of step/iteration number
 	) {
 	H5_API_ENTER (h5_err_t,
 		      "f=%p, name=%p, l_name=%llu, width=%p",
 		      (h5_file_p)f, name, (unsigned long long)l_name, width);
-	H5_API_RETURN (h5_get_stepname_fmt (f, name, l_name, width));
+	H5_API_RETURN (h5_get_iteration_name_fmt (f, name, l_name, width));
 }
 
 /**
-  Set the current step.
+  Set the current step/iteration.
 
   \return   \c H5_SUCCESS on success
   \return   \c H5_FAILURE on error
@@ -71,18 +71,18 @@ H5GetStepNameFormat (
 static inline h5_err_t
 H5SetStep (
 	const h5_file_t f,	///< [in]  file handle.
-	const h5_id_t step	///< [in]  step to set.
+	const h5_id_t step	///< [in]  step/iteration to set.
 	) {
 	H5_API_ENTER (h5_err_t,
                       "f=%p, step=%lld",
                       (h5_file_p)f, (long long)step);
-	H5_API_RETURN (h5_set_step (f, step));
+	H5_API_RETURN (h5_set_iteration (f, step));
 }
 
 /**
-  Get current step.
+  Get current step/iteration.
 
-  \return   Step number
+  \return   Step/iteration number
   \return   \c H5_FAILURE on error
 */
 static inline h5_id_t
@@ -92,17 +92,17 @@ H5GetStep (
 	H5_API_ENTER (h5_err_t,
                       "f=%p",
                       (h5_file_p)f);
-	H5_API_RETURN (h5_get_step (f));
+	H5_API_RETURN (h5_get_iteration (f));
 }
 
 /**
-  Get the number of time-steps that are currently stored in the file
-  \c f.
+  Get the number of steps/iterations that are currently stored
+  in the file \c f.
 
   It works for both reading and writing of files, but is probably
   only typically used when you are reading.
 
-  \return	Number of time-steps
+  \return	Number of steps/iterations
   \return       \c H5_FAILURE on error.
 */
 static inline h5_ssize_t
@@ -112,14 +112,14 @@ H5GetNumSteps (
 	H5_API_ENTER (h5_err_t,
                       "f=%p",
                       (h5_file_p)f);
-	H5_API_RETURN (h5_get_num_steps(f));
+	H5_API_RETURN (h5_get_num_iterations(f));
 }
 
 /**
-  Query whether a particular step already exists in the file.
+  Query whether a particular step/iteration already exists in the file.
 
-  \return      true (value \c >0) if step exists
-  \return      false (\c 0) if step does not exist
+  \return      true (value \c >0) if step/iteration exists
+  \return      false (\c 0) if step/iteration does not exist
   \return      \c H5_FAILURE on error
 */
 static inline h5_err_t
@@ -130,7 +130,7 @@ H5HasStep (
 	H5_API_ENTER (h5_err_t, 
 		      "f=%p, stepno=%lld",
 		      (h5_file_p)f, (long long)stepno);
-	H5_API_RETURN (h5_has_step (f, stepno));
+	H5_API_RETURN (h5_has_iteration (f, stepno));
 }
 
 /**

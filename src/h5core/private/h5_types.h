@@ -41,8 +41,9 @@ struct h5_prop_file {                   // file property
 	hid_t	xfer_prop;		// dataset transfer properties
 	hid_t	access_prop;		// file access properties
 	hid_t	create_prop;		// file create properties
-	char*	prefix_step_name;	// Prefix of step name
-	int	width_step_idx;		// pad step index with 0 up to this
+	char*	prefix_iteration_name;	// Prefix of step name
+	int	width_iteration_idx;	// pad iteration index with 0 up to this
+	int     flush;                  // flush iteration after writing dataset
 };
 typedef struct h5_prop_file h5_prop_file_t;
 typedef h5_prop_file_t* h5_prop_file_p;
@@ -66,12 +67,12 @@ struct h5_file {
 
 	/* HDF5 */
 	hid_t           root_gid;	// HDF5 group id of root
-	hid_t           step_gid;	// HDF5 group id of current step
+	hid_t           iteration_gid;	// HDF5 group id of current iteration
 
-	/* step internal data						*/
-	char*           step_name;      // full current step name
-	h5_int64_t      step_idx;	// current step index
-	int             is_new_step;    // :FIXME: ?
+	/* iteration internal data					*/
+	char*           iteration_name; // full current iteration name
+	h5_int64_t      iteration_idx;	// current iteration index
+	int             is_new_iteration;// :FIXME: ?
 
 	struct h5u_fdata *u;            // pointer to unstructured data
 	struct h5b_fdata *b;            // pointer to block data

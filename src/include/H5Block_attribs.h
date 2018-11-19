@@ -233,7 +233,8 @@ H5Block3dGetFieldOrigin (
 }
 
 /**
-  Set field spacing for field \c field_name in the current step.
+  Set field spacing for field \c field_name in the current
+  step/iteration.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -263,7 +264,8 @@ H5Block3dSetFieldSpacing (
 }
 
 /**
-  Get field spacing for field \c field_name in the current time step.
+  Get field spacing for field \c field_name in the current
+  step/iteration.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error
@@ -316,7 +318,7 @@ H5Block3dGetFieldSpacing (
 	)
 
   Set an explicit list of X,Y respective Z coordinates for field \c
-  field_name in the current time step. The coordinates are a 1D array
+  field_name in the current step/iteration. The coordinates are a 1D array
   of floating point values with dimension \c n_coords.
 
   By convention, the \c coords array should have the same length as
@@ -414,8 +416,8 @@ H5Block3dSetFieldZCoords (
 	)
 
   Get the explicit list of X, Y respective Z coordinates for field \c
-  field_name in the current step. The coordinates are read into the 1D
-  array \c coords which has length \c n_coords.
+  field_name in the current step/iteration. The coordinates are read
+  into the 1D array \c coords which has length \c n_coords.
 
   By convention, the \c coords array should have the same length as
   the X, Y respective Z dimension of the field. A warning will be

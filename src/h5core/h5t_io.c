@@ -2002,7 +2002,7 @@ distribute_octree_parmetis (
 	TRY (vtxdist = h5_calloc (m->f->nprocs+1, sizeof (*vtxdist)));
 	vtxdist[0] = 0;
 #if !defined(NDEBUG)
-	if (h5_debug_mask & (1<<5) ) {
+	if (__h5_debug_mask & (1<<5) ) {
 		h5_debug ("vtxdist[%d]: %d", 0, 0);
 	}
 #endif
@@ -2014,7 +2014,7 @@ distribute_octree_parmetis (
 			vtxdist[i] = vtxdist[i-1] + n;
 		}
 #if !defined(NDEBUG)
-		if (h5_debug_mask & (1<<5) ) {
+		if (__h5_debug_mask & (1<<5) ) {
 			h5_debug ("vtxdist[%d]: %d", i, vtxdist[i]);
 		}
 #endif
@@ -2060,7 +2060,7 @@ distribute_octree_parmetis (
 			}
 			xadj[i+1] = xadj[i] + num_neigh;
 #if !defined(NDEBUG)
-			if (h5_debug_mask & (1<<5) ) {
+			if (__h5_debug_mask & (1<<5) ) {
 				h5_debug ("xadj[%d]: %d", i+1, xadj[i+1]);
 			}
 #endif
@@ -2070,7 +2070,7 @@ distribute_octree_parmetis (
 					if (new_numbering[j] == neighbors[k]) {
 						adjncy[counter] = j;
 #if !defined(NDEBUG)
-						if (h5_debug_mask & (1<<5) ) {
+						if (__h5_debug_mask & (1<<5) ) {
 							h5_debug ("adjncy[%d]: %d", counter, adjncy[counter]);
 						}
 #endif
@@ -2139,7 +2139,7 @@ distribute_octree_parmetis (
 		TRY (h5_free (ubvec));
 
 #if !defined(NDEBUG)
-		if (h5_debug_mask & (1<<5) ) {
+		if (__h5_debug_mask & (1<<5) ) {
 			for (i = 0; i < num_interior_oct; i++) {
 				h5_debug ("part[%d]: %llu", i, (unsigned long long)part[i]);
 			}
@@ -2498,7 +2498,7 @@ read_chunked_elements (
 
 
 #if NDEBUG == 0
-	if (h5_debug_mask & (1<<6) ) {
+	if (__h5_debug_mask & (1<<6) ) {
 		sleep (m->f->myproc*2);
 		for (int i = 0; i < num_interior_elems;i++) {
 			h5_debug ("\n"

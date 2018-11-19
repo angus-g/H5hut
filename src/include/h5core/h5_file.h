@@ -46,6 +46,10 @@ h5_set_prop_file_core_vfd (
         h5_prop_t, h5_int64_t);
 
 h5_err_t
+h5_set_prop_file_flush_after_write (
+        h5_prop_t _props);
+
+h5_err_t
 h5_close_prop (
         h5_prop_t);
 
@@ -70,7 +74,7 @@ h5_close_h5hut (
 	void);
 
 h5_err_t
-h5_flush_step (
+h5_flush_iteration (
 	const h5_file_t);
 
 h5_err_t

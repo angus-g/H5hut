@@ -380,7 +380,7 @@ h5_getnstepattribs (
 	H5_API_ENTER (h5_int64_t,
                       "fh=%p",
                       (h5_file_p)f);
-        H5_API_RETURN (h5_get_num_step_attribs (f));
+        H5_API_RETURN (h5_get_num_iteration_attribs (f));
 }
 
 #define h5_getstepattribinfo FC_MANGLING(	 \
@@ -405,7 +405,7 @@ h5_getstepattribinfo (
 		      (h5_file_p)f,
 		      (long long)*attrib_idx,
 		      attrib_name, attrib_type, attrib_nelem);
-        h5_int64_t h5err = h5_get_step_attrib_info_by_idx (
+        h5_int64_t h5err = h5_get_iteration_attrib_info_by_idx (
                 f,
                 *attrib_idx - 1,
                 attrib_name, l_attrib_name,
@@ -435,7 +435,7 @@ h5_getstepattribinfo_by_name (
 		      (h5_file_p)fh,
 		      l_name, _name, _type, _nelem);
 	char* name = h5_strdupfor2c (_name, l_name);
-        h5_int64_t h5err = h5_get_step_attrib_info_by_name (
+        h5_int64_t h5err = h5_get_iteration_attrib_info_by_name (
                 f,
                 name,
                 _type,
@@ -459,7 +459,7 @@ h5_getstepattribinfo_by_name (
 */
 
 static inline h5_int64_t
-write_step_attrib (
+write_iteration_attrib (
         const h5_file_t fh,
 	const char* name,
 	const int l_name,
@@ -468,13 +468,14 @@ write_step_attrib (
 	const hsize_t l_buffer
         ) {
 	char *name2 = h5_strdupfor2c (name, l_name);
-	h5_int64_t herr = h5_write_step_attrib (fh, name2, type, buffer, l_buffer );
+	h5_int64_t herr = h5_write_iteration_attrib (
+		fh, name2, type, buffer, l_buffer );
 	free (name2);
         return herr;
 }
 
 static inline h5_int64_t
-read_step_attrib (
+read_iteration_attrib (
 	const h5_file_t fh,
 	const char* name,
 	const int l_name,
@@ -482,7 +483,7 @@ read_step_attrib (
 	void* const buffer
 	) {
 	char* name2 = h5_strdupfor2c ( name, l_name );
-	h5_int64_t herr = h5_read_step_attrib (fh, name2, type, buffer);
+	h5_int64_t herr = h5_read_iteration_attrib (fh, name2, type, buffer);
 	free (name2);
 	return herr;
 }
@@ -503,7 +504,7 @@ h5_writestepattrib_string (
 		      "f=%p, name='%.*s', buffer='%.*s'",
 		      (h5_file_p)f, l_name, name, l_buffer, buffer);
 	char *buffer2 = h5_strdupfor2c (buffer, l_buffer);
-	h5_int64_t herr = write_step_attrib (
+	h5_int64_t herr = write_iteration_attrib (
 		f, name, l_name, H5_STRING_T, buffer2, strlen(buffer2)+1 );
 	free (buffer2);
 	H5_API_RETURN (herr);
@@ -524,7 +525,8 @@ h5_readstepattrib_string (
 	H5_API_ENTER (h5_int64_t,
 		      "f=%p, name='%.*s', buffer='%.*s'",
 		      (h5_file_p)f, l_name, name, l_buffer, buffer);
-	h5_int64_t herr = read_step_attrib (f, name, l_name, H5_STRING_T, buffer);
+	h5_int64_t herr = read_iteration_attrib (
+		f, name, l_name, H5_STRING_T, buffer);
 	h5_strc2for (buffer, l_buffer);
 	H5_API_RETURN (herr);
 }
@@ -544,7 +546,7 @@ h5_writestepattrib_r8 (
 	H5_API_ENTER (h5_int64_t,
 		      "f=%p, name='%.*s', buffer=%p, nelem=%lld",
 		      (h5_file_p)f, l_name, name, buffer, (long long)*nelem);
-        H5_API_RETURN (write_step_attrib(
+        H5_API_RETURN (write_iteration_attrib(
                                f,
                                name, l_name,
                                H5_FLOAT64_T,
@@ -565,7 +567,7 @@ h5_readstepattrib_r8 (
 	H5_API_ENTER (h5_int64_t,
 		      "f=%p, name='%.*s', buffer=%p",
 		      (h5_file_p)f, l_name, name, buffer);
-        H5_API_RETURN (read_step_attrib(
+        H5_API_RETURN (read_iteration_attrib(
 		f,
                 name, l_name, 
                 H5_FLOAT64_T,
@@ -587,7 +589,7 @@ h5_writestepattrib_r4 (
 	H5_API_ENTER (h5_int64_t,
 		      "f=%p, name='%.*s', buffer=%p, nelem=%lld",
 		      (h5_file_p)f, l_name, name, buffer, (long long)*nelem);
-        H5_API_RETURN (write_step_attrib(
+        H5_API_RETURN (write_iteration_attrib(
                                f,
                                name, l_name,
                                H5_FLOAT32_T,
@@ -608,7 +610,7 @@ h5_readstepattrib_r4 (
 	H5_API_ENTER (h5_int64_t,
 		      "f=%p, name='%.*s', buffer=%p",
 		      (h5_file_p)f, l_name, name, buffer);
-        H5_API_RETURN (read_step_attrib(
+        H5_API_RETURN (read_iteration_attrib(
 		f,
                 name, l_name, 
                 H5_FLOAT32_T,
@@ -630,7 +632,7 @@ h5_writestepattrib_i8 (
 	H5_API_ENTER (h5_int64_t,
 		      "f=%p, name='%.*s', buffer=%p, nelem=%lld",
 		      (h5_file_p)f, l_name, name, buffer, (long long)*nelem);
-        H5_API_RETURN (write_step_attrib(
+        H5_API_RETURN (write_iteration_attrib(
                                f,
                                name, l_name,
                                H5_INT64_T,
@@ -651,7 +653,7 @@ h5_readstepattrib_i8 (
 	H5_API_ENTER (h5_int64_t,
 		      "f=%p, name='%.*s', buffer=%p",
 		      (h5_file_p)f, l_name, name, buffer);
-        H5_API_RETURN (read_step_attrib(
+        H5_API_RETURN (read_iteration_attrib(
 		f,
                 name, l_name, 
                 H5_INT64_T,
@@ -673,7 +675,7 @@ h5_writestepattrib_i4 (
 	H5_API_ENTER (h5_int64_t,
 		      "f=%p, name='%.*s', buffer=%p, nelem=%lld",
 		      (h5_file_p)f, l_name, name, buffer, (long long)*nelem);
-        H5_API_RETURN (write_step_attrib(
+        H5_API_RETURN (write_iteration_attrib(
                                f,
                                name, l_name,
                                H5_INT32_T,
@@ -694,7 +696,7 @@ h5_readstepattrib_i4 (
 	H5_API_ENTER (h5_int64_t,
 		      "f=%p, name='%.*s', buffer=%p",
 		      (h5_file_p)f, l_name, name, buffer);
-        H5_API_RETURN (read_step_attrib(
+        H5_API_RETURN (read_iteration_attrib(
 		f,
                 name, l_name, 
                 H5_INT32_T,

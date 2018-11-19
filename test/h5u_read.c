@@ -360,7 +360,7 @@ test_read_data32(h5_file_t file, int nparticles, int step)
 		status = H5PartReadDataFloat32(file, "pz", pz);
 		RETURN(status, H5_SUCCESS, "H5PartReadDataFloat32");
 
-		status = H5PartReadDataInt32(file, LONGNAME2, id);
+		status = H5PartReadDataInt32(file, "id", id);
 		RETURN(status, H5_SUCCESS, "H5PartReadDataInt32");
 
 		for (i=0; i<nparticles; i++)
@@ -489,7 +489,7 @@ void h5u_test_read3(void)
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
 
 	TEST("Redefining step name");
-	status = H5SetStepNameFormat(file1, LONGNAME, 16);
+	status = H5SetStepNameFormat(file1, "data", 16);
 	RETURN(status, H5_SUCCESS, "H5SetStepNameFormat");
 
 	test_read_strided_data64(file1, NPARTICLES, 0);
@@ -525,10 +525,10 @@ void h5u_test_read4(void)
 	RETURN(status, H5_SUCCESS, "H5CloseProp");
 
 	TEST("Redefining step name");
-	status = H5SetStepNameFormat(file1, LONGNAME, 16);
+	status = H5SetStepNameFormat(file1, "data", 16);
 	RETURN(status, H5_SUCCESS, "H5SetStepNameFormat");
 
-	status = H5SetStepNameFormat(file2, LONGNAME, 16);
+	status = H5SetStepNameFormat(file2, "data", 16);
 	RETURN(status, H5_SUCCESS, "H5SetStepNameFormat");
 
 	test_read_file_attribs(file1, 1);

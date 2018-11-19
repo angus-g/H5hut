@@ -76,9 +76,9 @@ h5upriv_close_file (
 }
 
 h5_err_t
-h5u_read_data (
+h5u_read_dataset (
 	const h5_file_t fh,	/*!< [in] Handle to open file */
-	const char* name,	/*!< [in] Name to associate dataset with */
+	char* const name,	/*!< [in] Name to associate dataset with */
 	void* data,		/*!< [out] Array of data */
 	const h5_types_t type
 	) {
@@ -86,36 +86,30 @@ h5u_read_data (
 	H5_CORE_API_ENTER (h5_err_t,
 			   "f=%p, name='%s', data=%p, type=%lld",
 	                   f, name, data, (long long int)type);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_is_readable (f);
 
+	TRY (h5priv_normalize_dataset_name (name));
 	hid_t hdf5_type;
 	TRY (hdf5_type = h5priv_map_enum_to_normalized_type (type));
-	
-	struct h5u_fdata *u = f->u;
-	hid_t dataset_id;
-	hid_t space_id;
-	hid_t memspace_id;
-	hsize_t ndisk, nread, nmem;
-
-	if ( f->step_gid < 0 ) {
-		TRY (h5_set_step ((h5_file_t)f, f->step_idx));
+	if ( f->iteration_gid < 0 ) {
+		TRY (h5_set_iteration ((h5_file_t)f, f->iteration_idx));
 	}
 
-	char name2[H5_DATANAME_LEN];
-	TRY (h5priv_normalize_dataset_name (name, name2));
+	hid_t dataset_id;
+	TRY (dataset_id = hdf5_open_dataset_by_name (f->iteration_gid, name));
 
-	TRY (dataset_id = hdf5_open_dataset_by_name (f->step_gid, name2));
-
+	
 	/* default spaces, if not using a view selection */
-	memspace_id = H5S_ALL;
+	hid_t memspace_id = H5S_ALL;
+	hid_t space_id;
 	TRY (space_id = hdf5_get_dataset_space (dataset_id));
 
 	/* get the number of elements on disk for the datset */
+	hsize_t ndisk;
 	TRY (ndisk = hdf5_get_npoints_of_dataspace (space_id));
-
-	if (u->diskshape != H5S_ALL) {
-		TRY (nread = hdf5_get_selected_npoints_of_dataspace (u->diskshape));
+	hsize_t nread;
+	if (f->u->diskshape != H5S_ALL) {
+		TRY (nread = hdf5_get_selected_npoints_of_dataspace (f->u->diskshape));
 
 		/* make sure the disk space selected by the view doesn't
 		 * exceed the size of the dataset */
@@ -131,7 +125,7 @@ h5u_read_data (
 			        "Ignoring view: dataset[%s] has fewer "
 			        "elements on disk (%lld) than are selected "
 			        "(%lld).",
-			        name2, (long long)ndisk, (long long)nread );
+			        name, (long long)ndisk, (long long)nread );
 			nread = ndisk;
 		}
 	} else {
@@ -140,8 +134,9 @@ h5u_read_data (
 		nread = ndisk;
 	}
 
-	if (u->memshape != H5S_ALL) {
-		TRY (nmem = hdf5_get_npoints_of_dataspace (u->memshape));
+	if (f->u->memshape != H5S_ALL) {
+		hid_t nmem;
+		TRY (nmem = hdf5_get_npoints_of_dataspace (f->u->memshape));
 
 		/* make sure the memory space selected by the view has
 		 * enough capacity for the read */
@@ -154,7 +149,7 @@ h5u_read_data (
 			        "Ignoring view: dataset[%s] has more "
 			        "elements selected (%lld) than are available "
 			        "in memory (%lld).",
-			        name2, (long long)nread, (long long)nmem );
+			        name, (long long)nread, (long long)nmem );
 			memspace_id = H5S_ALL;
 		}
 	}
@@ -177,63 +172,88 @@ h5u_read_data (
 }
 
 h5_err_t
-h5u_write_data (
+h5u_write (
 	const h5_file_t fh,	/*!< IN: Handle to open file */
-	const char *name,	/*!< IN: Name to associate array with */
-	const void *data,	/*!< IN: Array to commit to disk */
+	hid_t dset_id,
+	hid_t type,
+	const void* data
+	) {
+	h5_file_p f = (h5_file_p)fh;
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, dset_id=%lld, type=%lld, data=%p",
+	                   f, (long long)dset_id, (long long int)type, data);
+	TRY (h5priv_start_throttle (f));
+	hid_t hdf5_type;
+	TRY (hdf5_type = h5priv_map_enum_to_normalized_type (type));
+	TRY (hdf5_write_dataset (
+	             dset_id,
+	             hdf5_type,
+	             f->u->memshape,
+	             f->u->diskshape,
+	             f->props->xfer_prop,
+	             data));
+	TRY (h5priv_end_throttle (f));
+	f->empty = 0;
+	if (f->props->flush) {
+		TRY (hdf5_flush (f->iteration_gid, H5F_SCOPE_LOCAL));
+	}
+	H5_RETURN (H5_SUCCESS);
+}	
+
+hid_t
+h5u_open_dataset (
+	const h5_file_t fh,	/*!< IN: Handle to open file */
+	char* const name,	/*!< IN: Name to associate array with */
+	const h5_types_t type	/*!< IN: Type of data */
+	) {
+        h5_file_p f = (h5_file_p)fh;
+	H5_CORE_API_ENTER (h5_err_t,
+			   "f=%p, name='%s', type=%lld",
+	                   f, name, (long long int)type);
+	check_iteration_handle_is_valid (f);
+
+	TRY (h5priv_normalize_dataset_name (name));
+	hid_t hdf5_type;
+	TRY (hdf5_type = h5priv_map_enum_to_normalized_type (type));
+	if ( f->iteration_gid < 0 ) {
+		TRY (h5_set_iteration ((h5_file_t)f, f->iteration_idx));
+	}
+
+	if (f->u->shape == H5S_ALL )
+		h5_warn("The view is unset or invalid.");
+
+	hid_t dset_id;
+	H5E_BEGIN_TRY
+	        dset_id = H5Dopen(f->iteration_gid, name, H5P_DEFAULT);
+	H5E_END_TRY
+
+	if (dset_id > 0) {
+		h5_warn("Dataset %s/%s already exists",
+		        hdf5_get_objname (f->iteration_gid), name);
+	} else {
+		TRY (dset_id = hdf5_create_dataset (
+		             f->iteration_gid,
+		             name,
+		             hdf5_type,
+		             f->u->shape,
+		             H5P_DEFAULT));
+	}
+	H5_RETURN (dset_id);
+}
+
+h5_err_t
+h5u_write_dataset (
+	const h5_file_t fh,	/*!< IN: Handle to open file */
+	char* const name,	/*!< IN: Name to associate array with */
+	const void* data,	/*!< IN: Array to commit to disk */
 	const h5_types_t type	/*!< IN: Type of data */
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
 			   "f=%p, name='%s', data=%p, type=%lld",
 	                   f, name, data, (long long int)type);
-	CHECK_FILEHANDLE (f);
-	CHECK_WRITABLE_MODE (f);
-	CHECK_TIMEGROUP (f);
-	hid_t hdf5_type;
-	TRY (hdf5_type = h5priv_map_enum_to_normalized_type (type));
-	
-	struct h5u_fdata *u = f->u;
 	hid_t dset_id;
-
-	char name2[H5_DATANAME_LEN];
-	TRY (h5priv_normalize_dataset_name (name, name2));
-
-	if ( u->shape == H5S_ALL )
-		h5_warn("The view is unset or invalid.");
-
-	/* test for existing dataset */
-	H5E_BEGIN_TRY
-	        dset_id = H5Dopen(f->step_gid, name2, H5P_DEFAULT);
-	H5E_END_TRY
-
-	if (dset_id > 0) {
-		h5_warn("Dataset %s/%s already exists",
-		        hdf5_get_objname(f->step_gid), name2);
-	} else {
-		TRY (dset_id = hdf5_create_dataset (
-		             f->step_gid,
-		             name2,
-		             hdf5_type,
-		             u->shape,
-		             H5P_DEFAULT));
-	}
-
-	TRY (h5priv_start_throttle (f));
-	h5_info ("Writing dataset %s/%s.",
-	         hdf5_get_objname(f->step_gid), name2);
-	TRY (hdf5_write_dataset (
-	             dset_id,
-	             hdf5_type,
-	             u->memshape,
-	             u->diskshape,
-	             f->props->xfer_prop,
-	             data));
-	TRY (h5priv_end_throttle (f));
-	TRY (hdf5_close_dataset (dset_id));
-
-	f->empty = 0;
-	TRY (hdf5_flush (f->step_gid, H5F_SCOPE_LOCAL));
-
+	TRY (dset_id = h5u_open_dataset (fh, name, type));
+	TRY (h5u_write (fh, dset_id, type, data));
 	H5_RETURN (H5_SUCCESS);
 }

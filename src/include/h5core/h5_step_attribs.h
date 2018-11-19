@@ -18,30 +18,30 @@ extern "C" {
 #endif
 	
 h5_err_t
-h5_has_step_attrib (
+h5_has_iteration_attrib (
 	const h5_file_t, const char* const);
 
 h5_err_t
-h5_get_step_attrib_info_by_name (
+h5_get_iteration_attrib_info_by_name (
 	const h5_file_t, const char* const,
 	h5_int64_t* const, h5_size_t* const);
 
 h5_ssize_t
-h5_get_num_step_attribs (
+h5_get_num_iteration_attribs (
 	const h5_file_t f);
 
 h5_err_t
-h5_get_step_attrib_info_by_idx (
+h5_get_iteration_attrib_info_by_idx (
 	const h5_file_t, const h5_size_t, char* const, const h5_size_t,
 	h5_int64_t* const, h5_size_t* const);
 
 h5_err_t
-h5_read_step_attrib (
+h5_read_iteration_attrib (
 	const h5_file_t, const char* const, const h5_types_t,
 	void* const);
 
 h5_err_t
-h5_write_step_attrib (
+h5_write_iteration_attrib (
 	const h5_file_t, const char* const, const h5_types_t,
 	const void* const, const h5_size_t);
 

@@ -29,12 +29,13 @@ extern "C" {
    !
 */
 /**
-   \addtogroup h5_step_attribs
+   \addtogroup h5_iteration_attribs
    @{
 */
 
 /**
-  Query the number of attributes attached to the current step.
+  Query the number of attributes attached to the current
+  step/iteration.
 
   \return   number of attributes
   \return   \c H5_FAILURE on error
@@ -46,17 +47,17 @@ H5GetNumStepAttribs (
 	H5_API_ENTER (h5_int64_t,
                       "f=%p",
                       (h5_file_p)f);
-	H5_API_RETURN (h5_get_num_step_attribs (f));
+	H5_API_RETURN (h5_get_num_iteration_attribs (f));
 }
 
 /**
-  Gets the name, type and number of elements of the step attribute
+  Gets the name, type and number of elements of the iteration attribute
   given by its index.
 
   This function can be used to retrieve all attributes attached to the
-  current step by looping from \c 0 to the number of attribute
+  current step/iteration by looping from \c 0 to the number of attribute
   minus one.  The number of attributes attached to the current
-  step can be queried by calling \ref H5GetNumStepAttribs().
+  step/iteration can be queried by calling \ref H5GetNumStepAttribs().
 
   \return   \c H5_SUCCESS on success
   \return   \c H5_FAILURE on error
@@ -81,7 +82,7 @@ H5GetStepAttribInfo (
                       attrib_type,
                       nelems);
 	H5_API_RETURN (
-		h5_get_step_attrib_info_by_idx (
+		h5_get_iteration_attrib_info_by_idx (
 			f,
 			idx,
 			attrib_name,
@@ -105,7 +106,7 @@ H5GetStepAttribName (
                       attrib_name,
                       (long long unsigned)len_attrib_name);
 	H5_API_RETURN (
-		h5_get_step_attrib_info_by_idx (
+		h5_get_iteration_attrib_info_by_idx (
 			f,
 			idx,
 			attrib_name, len_attrib_name,
@@ -114,7 +115,8 @@ H5GetStepAttribName (
 }
 
 /**
-   Determines whether a step attribute with a given name exists in current step.
+   Determines whether a step attribute with a given name exists in
+   current step/iteration.
 
    \return      true (value \c >0) if atrribute exists
    \return      false (\c 0) if attribute does not exist
@@ -131,13 +133,14 @@ H5HasStepAttrib (
 		      (h5_file_p)f,
 		      attrib_name);
 	H5_API_RETURN (
-		h5_has_step_attrib (
+		h5_has_iteration_attrib (
 			f,
 			attrib_name));
 }
 
 /**
-  Gets the type and number of elements of a given step attribute.
+  Gets the type and number of elements of a given step/iteration
+  attribute.
 
   \return   \c H5_SUCCESS on success
   \return   \c H5_FAILURE on error
@@ -157,7 +160,7 @@ H5GetStepAttribInfoByName (
                       attrib_name,
                       attrib_type, nelems);
 	H5_API_RETURN (
-		h5_get_step_attrib_info_by_name (
+		h5_get_iteration_attrib_info_by_name (
 			f,
 			attrib_name,
 			attrib_type, nelems));
@@ -240,7 +243,7 @@ H5WriteStepAttribString (
                       "f=%p, attrib_name='%s', buffer='%s'",
                       (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (
-		h5_write_step_attrib (
+		h5_write_iteration_attrib (
 			f, 
 			attrib_name,
 			H5_STRING_T,
@@ -259,7 +262,7 @@ H5WriteStepAttribFloat64 (
                       "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
 		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
 	H5_API_RETURN (
-		h5_write_step_attrib (
+		h5_write_iteration_attrib (
 			f,
 			attrib_name,
 			H5_FLOAT64_T,
@@ -278,7 +281,7 @@ H5WriteStepAttribFloat32 (
                       "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
 		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
 	H5_API_RETURN (
-		h5_write_step_attrib (
+		h5_write_iteration_attrib (
 			f,
 			attrib_name,
 			H5_FLOAT32_T,
@@ -297,7 +300,7 @@ H5WriteStepAttribInt64 (
                       "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
 		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
 	H5_API_RETURN (
-		h5_write_step_attrib (
+		h5_write_iteration_attrib (
 			f,
 			attrib_name,
 			H5_INT64_T,
@@ -316,7 +319,7 @@ H5WriteStepAttribInt32 (
                       "f=%p, attrib_name='%s', buffer=%p, nelems=%llu",
 		      (h5_file_p)f, attrib_name, buffer, (long long unsigned)nelems);
 	H5_API_RETURN (
-		h5_write_step_attrib (
+		h5_write_iteration_attrib (
 			f,
 			attrib_name,
 			H5_INT32_T,
@@ -393,7 +396,7 @@ H5ReadStepAttribString (
                       "f=%p, attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (
-		h5_read_step_attrib (
+		h5_read_iteration_attrib (
 			f, 
 			attrib_name,
 			H5_STRING_T,
@@ -410,7 +413,7 @@ H5ReadStepAttribFloat64 (
                       "f=%p, attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (
-		h5_read_step_attrib (
+		h5_read_iteration_attrib (
 			f,
 			attrib_name,
 			H5_FLOAT64_T,
@@ -427,7 +430,7 @@ H5ReadStepAttribFloat32 (
                       "f=%p, attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (
-		h5_read_step_attrib (
+		h5_read_iteration_attrib (
 			f,
 			attrib_name,
 			H5_FLOAT32_T,
@@ -444,7 +447,7 @@ H5ReadStepAttribInt64 (
                       "f=%p, attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (
-		h5_read_step_attrib (
+		h5_read_iteration_attrib (
 			f,
 			attrib_name,
 			H5_INT64_T,
@@ -461,7 +464,7 @@ H5ReadStepAttribInt32 (
                       "f=%p, attrib_name='%s', buffer=%p",
 		      (h5_file_p)f, attrib_name, buffer);
 	H5_API_RETURN (
-		h5_read_step_attrib (
+		h5_read_iteration_attrib (
 			f,
 			attrib_name,
 			H5_INT32_T,

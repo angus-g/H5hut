@@ -219,7 +219,7 @@ update_internal_structs (
 	// create index sets
 
 
-#if (!defined(NDEBUG) && (h5_debug_mask & (1<<5)))
+#if (!defined(NDEBUG) && (__h5_debug_mask & (1<<5)))
 	if (!m->is_chunked) {
 	h5t_adjacencies_t* adj = &m->adjacencies;
 	h5_loc_idx_t idx = 0;

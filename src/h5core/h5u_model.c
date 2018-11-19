@@ -22,21 +22,20 @@
 #include <string.h>
 
 h5_ssize_t
-h5u_get_num_points (
+h5u_get_num_items (
 	const h5_file_t fh      /*!< [in]  Handle to open file */
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	h5_ssize_t nparticles;
 
 	if (h5u_has_view ((h5_file_t)f)) {
                 /* if a view exists, use its size as the number of particles */
-		TRY (nparticles = h5u_get_num_points_in_view (fh));
+		TRY (nparticles = h5u_get_num_items_in_view (fh));
 	} else {
 		/* otherwise, report all particles on disk in the first dataset
-                   for this timestep */
+                   for this iteration */
                 TRY (nparticles = h5u_get_totalnum_particles_by_idx (fh, 0));
 	}
 
@@ -44,13 +43,12 @@ h5u_get_num_points (
 }
 
 h5_ssize_t
-h5u_get_num_points_in_view (
+h5u_get_num_items_in_view (
 	const h5_file_t fh      /*!< [in]  Handle to open file */
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	h5_ssize_t nparticles;
 
 	if (!h5u_has_view (fh)) {
@@ -73,11 +71,10 @@ h5u_get_totalnum_particles_by_name (
 	H5_CORE_API_ENTER (h5_ssize_t,
 			   "f=%p, dataset_name=%s",
 			   f, dataset_name);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	h5_ssize_t nparticles;
         TRY (nparticles = hdf5_get_npoints_of_dataset_by_name (
-		     f->step_gid, dataset_name));
+		     f->iteration_gid, dataset_name));
         h5_debug ("Found %lld particles in dataset %s.",
 		  (long long)nparticles, dataset_name);
 	H5_RETURN (nparticles);
@@ -101,13 +98,12 @@ h5u_get_totalnum_particles_by_idx (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p, idx=%lld", f, (long long)idx);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
         char dataset_name[H5_DATANAME_LEN];
         dataset_name[0] = '\0';
 	h5_err_t h5err;
         TRY (h5err = hdf5_get_name_of_dataset_by_idx (
-                    f->step_gid,
+                    f->iteration_gid,
                     idx,
                     dataset_name,
                     H5_DATANAME_LEN));
@@ -115,14 +111,14 @@ h5u_get_totalnum_particles_by_idx (
 		H5_LEAVE (H5_NOK);
 	h5_ssize_t nparticles;
         TRY (nparticles = hdf5_get_npoints_of_dataset_by_name (
-		     f->step_gid, dataset_name));
+		     f->iteration_gid, dataset_name));
         h5_debug ("Found %lld particles in dataset %s.",
 		  (long long)nparticles, dataset_name);
 	H5_RETURN (nparticles);
 }
 
 h5_err_t
-h5u_set_num_points (
+h5u_set_num_items (
 	const h5_file_t fh,		/*!< [in] Handle to open file */
 	const h5_size_t nparticles,	/*!< [in] Number of particles */
 	const h5_size_t stride		/*!< [in] Stride of particles in memory */
@@ -133,10 +129,9 @@ h5u_set_num_points (
 	                   f, (long long unsigned)nparticles,
 	                   (long long unsigned)stride);
 	CHECK_FILEHANDLE (f);
-	if (f->step_gid < 0) {
-                TRY (h5_set_step (fh, 0));
+	if (f->iteration_gid < 0) {
+                TRY (h5_set_iteration (fh, 0));
         }
-	CHECK_TIMEGROUP (f);
 	struct h5u_fdata *u = f->u;
 	hsize_t start;
 	hsize_t dmax = H5S_UNLIMITED;
@@ -240,8 +235,7 @@ h5u_has_view (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	H5_RETURN (f->u->viewindexed || f->u->viewstart >= 0);
 }
 
@@ -251,8 +245,7 @@ h5u_reset_view (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	struct h5u_fdata *u = f->u;
 
 	u->viewstart = -1;
@@ -281,8 +274,7 @@ h5u_set_view (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, start=%lld, end=%lld",
 	                   f, (long long)start, (long long)end);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	struct h5u_fdata *u = f->u;
 
 	TRY (h5u_reset_view (fh));
@@ -290,18 +282,22 @@ h5u_set_view (
 	if (start == -1 && end == -1)   // we are already done
 		H5_LEAVE (H5_SUCCESS);
 
-	hsize_t total = 0;
+	hssize_t total = 0;
 	if (f->u->shape > 0) {
 		TRY (total = hdf5_get_npoints_of_dataspace (f->u->shape) );
         } else {
-                TRY (total = (hsize_t)h5u_get_totalnum_particles_by_idx (fh, 0));
+                TRY (total = h5u_get_totalnum_particles_by_idx (fh, 0));
         }
 	h5_debug ("Total = %lld", (long long) total);
-	if ((long long)total <= 0) {
+	if (total <= 0) {
 		/*
-		  No datasets have been created yet and no views are set.
-		  We have to leave the view empty because we don't know how
-		  many particles there should be!
+		  iteration does not contain a dataset yet! 
+		*/
+		TRY (hdf5_close_dataspace (u->shape));
+		TRY (u->shape = hdf5_create_dataspace(1, &total, NULL) );
+		/*
+		  :FIXME: Should 'total == 0' be considered valid or not?
+		  :FIXME: why not gather total size?
 		*/
 #if H5_HAVE_PARALLEL
 		TRY (
@@ -309,55 +305,27 @@ h5u_set_view (
 			     &end, &total, 1, MPI_LONG_LONG, f->props->comm)
 			);
 #else
-		total = end - start;
+		total = end;
 #endif
 		total++;
-
 		TRY (hdf5_close_dataspace (u->shape));
-		TRY (u->shape = hdf5_create_dataspace(1, &total, NULL) );
-		/*
-		  :FIXME: Should 'total == 0' be considered valid or not?
-		  :FIXME: why not gather total size?
-		*/
-		if (start < 0) {
-			H5_RETURN_ERROR (
-				H5_ERR_INVAL,
-				"Start of selection '%lld' out of range: "
-				"must be >= 0",
-				(long long)start);
-		}
-		if (end < start) {
-			H5_RETURN_ERROR (
-				H5_ERR_INVAL,
-				"End of selection '%lld' out of range: "
-				"must be >= %lld",
-				(long long)end,
-				(long long)start);
-		}
-
+		hsize_t htotal = (hsize_t)total;
+		TRY (u->shape = hdf5_create_dataspace(1, &htotal, NULL) );
 	} else {
 		if (end < 0) {
-			end = total+end;
+			end = total + end;
 		}
-	
-		if (start < 0 || start >= total) {
-			H5_RETURN_ERROR (
-				H5_ERR_INVAL,
-				"Start of selection '%lld' out of range: "
-				"must be in [0..%lld]",
-				(long long)start, (long long)total-1);
-		} else if (end < 0 || end >= total) {
-			H5_RETURN_ERROR (
-				H5_ERR_INVAL,
-				"End of selection '%lld' out of range: "
-				"must be in [0..%lld]",
-				(long long)end, (long long)total-1);
-		} else if (end+1 < start) {
-			H5_RETURN_ERROR (
-				H5_ERR_INVAL,
-				"Invalid selection: start=%lld > end=%lld!\n",
-				(long long)start, (long long)end);
-		}
+	}	
+	if ((start < 0)      ||
+	    (start >= total) ||
+	    (end >= total)   ||
+	    (end+1 < start)) {
+		H5_RETURN_ERROR (
+			H5_ERR_INVAL,
+			"Invalid view: start=%lld, end=%lld, total=%lld!",
+			(long long)start,
+			(long long)end,
+			(long long)total);
 	}
 	
 	/* setting up the new view */
@@ -372,8 +340,9 @@ h5u_set_view (
 	        "This view includes %lld particles.",
 	        (long long)u->nparticles );
 
+	hsize_t htotal = (hsize_t)total;
 	/* declare overall data size  but then will select a subset */
-	TRY (u->diskshape = hdf5_create_dataspace ( 1, &total, NULL ));
+	TRY (u->diskshape = hdf5_create_dataspace (1, &htotal, NULL));
 
 	hsize_t hstart = (hsize_t)start;
 	hsize_t hstride = 1;
@@ -401,8 +370,7 @@ h5u_set_view_length (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, start=%lld, length=%lld",
 	                   f, (long long)start, (long long)length);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	struct h5u_fdata *u = f->u;
 
 	TRY (h5u_reset_view (fh));
@@ -472,10 +440,9 @@ h5u_set_view_indices (
 	                   "f=%p, indices=%p, nelems=%llu",
 	                   f, indices, (long long unsigned)nelems);
         CHECK_FILEHANDLE (f);
-        if (f->step_gid < 0) {
-                TRY (h5_set_step (fh, 0));
+        if (f->iteration_gid < 0) {
+                TRY (h5_set_iteration (fh, 0));
         }
-	CHECK_TIMEGROUP (f);
 	hsize_t total = 0;
 	hsize_t dmax = H5S_UNLIMITED;
 	struct h5u_fdata *u = f->u;
@@ -532,8 +499,7 @@ h5u_get_view (
 	H5_CORE_API_ENTER (h5_err_t,
 	                   "f=%p, start=%p, end=%p",
 	                   f, start, end);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	struct h5u_fdata *u = f->u;
 
 	if ( u->viewindexed ) {
@@ -554,7 +520,7 @@ h5u_get_view (
 		viewend = u->viewend;
 	}
 	else {
-		TRY (viewend = h5u_get_num_points (fh));
+		TRY (viewend = h5u_get_num_items (fh));
 	}
 
 	if ( start ) *start = viewstart;
@@ -569,15 +535,14 @@ h5u_set_canonical_view (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_int64_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	h5u_fdata_t* u = f->u;
 	TRY( h5u_reset_view (fh) );
 
 	h5_int64_t start = 0;
 	h5_int64_t total = 0;
 
-	TRY (total = h5u_get_num_points (fh));
+	TRY (total = h5u_get_num_items (fh));
 
 	u->nparticles = total / f->nprocs;
 
@@ -607,9 +572,8 @@ h5u_get_num_datasets (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
-	TRY (ret_value = hdf5_get_num_datasets (f->step_gid));
+	check_iteration_handle_is_valid (f);
+	TRY (ret_value = hdf5_get_num_datasets (f->iteration_gid));
 	H5_RETURN (ret_value);
 }
 
@@ -622,9 +586,8 @@ h5u_has_dataset (
 	H5_CORE_API_ENTER (h5_err_t, 
 			   "f=%p, name='%s'",
 			   f, name);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
-        TRY (ret_value = hdf5_link_exists (f->step_gid, name));
+	check_iteration_handle_is_valid (f);
+        TRY (ret_value = hdf5_link_exists (f->iteration_gid, name));
 	H5_RETURN (ret_value);
 }
 
@@ -705,10 +668,9 @@ h5u_get_dataset_info_by_idx (
 			   dataset_name,
 			   (long long unsigned)len_dataset_name,
 			   dataset_type, dataset_nelem);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	TRY (h5priv_get_dataset_info_by_idx (
-	             f->step_gid,
+	             f->iteration_gid,
 	             idx,
 	             dataset_name, len_dataset_name,
 		     dataset_type, dataset_nelem));
@@ -754,10 +716,9 @@ h5u_get_dataset_info_by_name (
 	                   f,
 	                   dataset_name,
 	                   dataset_type, dataset_nelem);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	TRY (h5priv_get_dataset_info_by_name (
-	             f->step_gid,
+	             f->iteration_gid,
 		     dataset_name,
 		     dataset_type, dataset_nelem));
 	H5_RETURN (H5_SUCCESS);
@@ -794,13 +755,12 @@ h5u_get_chunk (
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_int64_t, "f=%p, name='%s', size=%p", f,name,size);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	hid_t dataset_id;
 	hid_t plist_id;
 	hsize_t hsize;
 
-	TRY (dataset_id = hdf5_open_dataset_by_name (f->step_gid, name) );
+	TRY (dataset_id = hdf5_open_dataset_by_name (f->iteration_gid, name) );
 	TRY (plist_id = hdf5_get_dataset_create_plist (dataset_id) );
 	TRY (hdf5_get_chunk_property (plist_id, 1, &hsize) );
 	TRY (hdf5_close_property ( plist_id) );

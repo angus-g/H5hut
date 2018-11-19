@@ -33,9 +33,10 @@ extern "C" {
 */
 
 /**
-  Get the number of datasets that are stored at the current step.
+  Get the number of datasets that are stored at the current
+  step/iteration.
 
-  \return   number of datasets in current timestep
+  \return   number of datasets in current step/iteration
   \return   \c H5_FAILURE on error
 */
 static inline h5_ssize_t
@@ -49,7 +50,8 @@ H5PartGetNumDatasets (
 }
 
 /**
-  Query the name of a dataset given by it's index in the current step.
+  Query the name of a dataset given by it's index in the current
+  step/iteration.
 
   If the number of datasets is \c n, the range of \c _index is \c 0 to \c n-1.
 
@@ -80,7 +82,7 @@ H5PartGetDatasetName (
 
 /**
   Gets the name, type and number of elements of a dataset based on its
-  index in the current timestep.
+  index in the current step/iteration.
 
   Type is one of the following values:
 
@@ -121,10 +123,11 @@ H5PartGetDatasetInfo (
 			type, nelems));
 }
 /**
-  Determines whether a dataset with given name exists in current step.
+  Determines whether a dataset with given name exists in current
+  step/iteration.
 
-  \return      true (value \c >0) if step exists
-  \return      false (\c 0) if step does not exist
+  \return      true (value \c >0) if step/iteration exists
+  \return      false (\c 0) if step/iteration does not exist
   \return      \c H5_FAILURE on error
 */
 static inline h5_err_t
@@ -140,7 +143,7 @@ H5PartHasDataset (
 
 /**
   Gets the type and number of elements of a dataset based on its
-  name in the current timestep.
+  name in the current step/iteration.
 
   Type is one of the following values:
 
@@ -177,7 +180,7 @@ H5PartGetDatasetInfoByName (
 }
 
 /**
-  Set the number of points/particles for the current time-step.
+  Set the number of items/particles for the current step/iteration.
   After you call this subroutine, all subsequent 
   operations will assume this number of particles will be written.
 
@@ -203,19 +206,19 @@ H5PartGetDatasetInfoByName (
   \return \c H5_FAILURE on error
  */
 static inline h5_err_t
-H5PartSetNumPoints (
+H5PartSetNumItems (
 	const h5_file_t f,		///< [in]  file handle.
-	h5_size_t npoints               ///< [in]  Number of elements.
+	h5_size_t num_items               ///< [in]  Number of elements.
 	) {
 	H5_API_ENTER (h5_err_t,
-		      "f=%p, npoints=%llu",
-		      (h5_file_p)f, (long long unsigned)npoints);
+		      "f=%p, num_items=%llu",
+		      (h5_file_p)f, (long long unsigned)num_items);
 	h5_size_t stride = 1;
-	H5_API_RETURN (h5u_set_num_points (f, npoints, stride));
+	H5_API_RETURN (h5u_set_num_items (f, num_items, stride));
 }
 
 /**
-  \see H5PartSetNumPoints()
+  \see H5PartSetNumItems()
 */
 static inline h5_err_t
 H5PartSetNumParticles (
@@ -226,7 +229,7 @@ H5PartSetNumParticles (
 		      "f=%p, nparticles=%llu",
 		      (h5_file_p)f, (long long unsigned)nparticles);
 	h5_size_t stride = 1;
-	H5_API_RETURN (h5u_set_num_points (f, nparticles, stride));
+	H5_API_RETURN (h5u_set_num_items (f, nparticles, stride));
 }
 
 /**
@@ -238,28 +241,28 @@ H5PartSetNumParticles (
 
   If you have neither set the number of particles
   nor set a view, then this returns the total number of
-  particles in the first data set of the current time step.
-  Note that H5Part assumes that all data sets within a given time step
+  particles in the first data set of the current step/iteration.
+  Note that H5Part assumes that all data sets within a given step/iteration
   have the same number of particles (although the number particles can
-  vary across time steps).
+  vary across steps/iteration).
   
   If none of these conditions are met, an error is thrown.
 
-  \return	number of elements in datasets in current step.
+  \return	number of elements in datasets in current step/iteration.
   \return       \c H5_FAILURE on error.
  */
 	static inline h5_ssize_t
-H5PartGetNumPoints (
+H5PartGetNumItems (
 	const h5_file_t f		///< [in]  file handle.
 	) {
 	H5_API_ENTER (h5_ssize_t,
                       "f=%p",
                       (h5_file_p)f);
-	H5_API_RETURN (h5u_get_num_points (f));
+	H5_API_RETURN (h5u_get_num_items (f));
 }
 
 /**
-  \see H5PartGetNumPoints()
+  \see H5PartGetNumItems()
 */
 static inline h5_ssize_t
 H5PartGetNumParticles (
@@ -268,12 +271,12 @@ H5PartGetNumParticles (
 	H5_API_ENTER (h5_ssize_t,
                       "f=%p",
                       (h5_file_p)f);
-	H5_API_RETURN (h5u_get_num_points (f));
+	H5_API_RETURN (h5u_get_num_items (f));
 }
 
 
 /**
-  Set the number of particles for the current time-step.
+  Set the number of particles for the current step/iteration.
   After you call this subroutine, all subsequent 
   operations will assume this number of particles will be written.
 
@@ -301,15 +304,15 @@ H5PartGetNumParticles (
 static inline h5_err_t
 H5PartSetNumParticlesStrided (
 	const h5_file_t f,              ///< [in]  file handle.
-	h5_size_t npoints,              ///< [in]  number of elements.
+	h5_size_t num_items,            ///< [in]  number of elements.
 	h5_size_t stride                ///< [in]  stride value (e.g. number
                                         ///<       of fields in the particle array).
 	) {
 	H5_API_ENTER (h5_err_t,
-		      "f=%p, npoints=%llu, stride=%llu",
-		      (h5_file_p)f, (long long unsigned)npoints,
+		      "f=%p, num_items=%llu, stride=%llu",
+		      (h5_file_p)f, (long long unsigned)num_items,
 		      (long long unsigned)stride);
-	H5_API_RETURN (h5u_set_num_points (f, npoints, stride));
+	H5_API_RETURN (h5u_set_num_items (f, num_items, stride));
 }
 
 /**
@@ -361,8 +364,8 @@ H5PartResetView (
   \ref H5PartSetNumParticles() or manually with \ref H5PartSetView
   or \ref H5PartSetViewIndices.
 
-  \return      true (value \c >0) if step exists
-  \return      false (\c 0) if step does not exist
+  \return      true (value \c >0) if step/iteration exists
+  \return      false (\c 0) if step/iteration does not exist
   \return      \c H5_FAILURE on error
 */
 static inline h5_err_t
@@ -384,10 +387,10 @@ H5PartHasView (
   is set, or the number of particles in a dataset changes, or the view is
   "unset" by calling \c H5PartSetView(file,-1,-1);
 
-  Before you set a view, \ref H5PartGetNumPoints will return the
-  total number of particles in the current time-step (even for the parallel
-  reads).  However, after you set a view, it will return the number of
-  particles contained in the view.
+  Before you set a view, \ref H5PartGetNumItems will return the
+  total number of particles in the current step/iteration (even for
+  the parallel reads).  However, after you set a view, it will
+  return the number of particles contained in the view.
 
   The range is \e inclusive: the end value is the last index of the
   data.
@@ -421,10 +424,10 @@ H5PartSetView (
   for all the intermediate values (which will not be touched by the read
   or write).
 
-  Before you set a view, the \c H5PartGetNumPoints() will return the
-  total number of particles in the current time-step (even for the parallel
-  reads).  However, after you set a view, it will return the number of
-  particles contained in the view.
+  Before you set a view, the \c H5PartGetNumItems() will return the
+  total number of particles in the current step/iteration (even for
+  the parallel reads).  However, after you set a view, it will return
+  the number of particles contained in the view.
 
   \return \c H5_SUCCESS on success
   \return \c H5_FAILURE on error

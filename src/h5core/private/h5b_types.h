@@ -11,7 +11,7 @@ struct h5b_partition {
 };
 
 struct h5b_fdata {
-	h5_id_t step_idx;
+	h5_id_t iteration_idx;
 	h5_size_t i_max;
 	h5_size_t j_max;
 	h5_size_t k_max;

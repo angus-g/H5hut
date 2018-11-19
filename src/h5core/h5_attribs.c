@@ -31,7 +31,7 @@ h5_has_file_attrib (
 }
 	
 h5_err_t
-h5_has_step_attrib (
+h5_has_iteration_attrib (
 	const h5_file_t f_,
 	const char* const attrib_name
 	) {
@@ -41,9 +41,8 @@ h5_has_step_attrib (
 			   "attrib_name='%s'",
 			   f,
 			   attrib_name);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
-	TRY (ret_value = hdf5_attribute_exists (f->step_gid, attrib_name));
+	check_iteration_handle_is_valid (f);
+	TRY (ret_value = hdf5_attribute_exists (f->iteration_gid, attrib_name));
 	H5_RETURN (ret_value);
 }
 
@@ -59,14 +58,13 @@ h5_get_num_file_attribs (
 }
 
 h5_ssize_t
-h5_get_num_step_attribs (
+h5_get_num_iteration_attribs (
 	const h5_file_t f_                     	/*!< handle to open file */
 	) {
         h5_file_p f = (h5_file_p)f_;
 	H5_CORE_API_ENTER (h5_ssize_t, "f=%p", f);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
-	TRY (ret_value = hdf5_get_num_attribute (f->step_gid));
+	check_iteration_handle_is_valid (f);
+	TRY (ret_value = hdf5_get_num_attribute (f->iteration_gid));
 	H5_RETURN (ret_value);
 }
 
@@ -122,7 +120,7 @@ h5_get_file_attrib_info_by_name (
 }
 
 h5_err_t
-h5_get_step_attrib_info_by_idx (
+h5_get_iteration_attrib_info_by_idx (
 	const h5_file_t f_,			/*!< handle to open file */
 	const h5_size_t attrib_idx,		/*!< index of attribute */
 	char* attrib_name,			/*!< OUT: name of attribute */
@@ -140,10 +138,9 @@ h5_get_step_attrib_info_by_idx (
 			   (long long unsigned)attrib_idx,
 			   attrib_name, (long long unsigned)len_attrib_name,
 			   attrib_type, attrib_nelem);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	TRY (ret_value = h5priv_get_attrib_info_by_idx (
-		     f->step_gid,
+		     f->iteration_gid,
 		     attrib_idx,
 		     attrib_name, len_attrib_name,
 		     attrib_type, attrib_nelem));
@@ -151,7 +148,7 @@ h5_get_step_attrib_info_by_idx (
 }
 
 h5_err_t
-h5_get_step_attrib_info_by_name (
+h5_get_iteration_attrib_info_by_name (
 	const h5_file_t f_,			/*!< handle to open file */
 	const char* const attrib_name,		/*!< OUT: name of attribute */
 	h5_int64_t* const attrib_type,		/*!< OUT: H5 type of attribute */
@@ -165,10 +162,9 @@ h5_get_step_attrib_info_by_name (
 			   f,
 			   attrib_name,
 			   attrib_type, attrib_nelem);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
+	check_iteration_handle_is_valid (f);
 	TRY (ret_value = h5priv_get_attrib_info_by_name (
-		     f->step_gid,
+		     f->iteration_gid,
 		     attrib_name,
 		     attrib_type, attrib_nelem));
 	H5_RETURN (ret_value);
@@ -199,7 +195,7 @@ h5_read_file_attrib (
 }
 
 h5_err_t
-h5_read_step_attrib (
+h5_read_iteration_attrib (
 	const h5_file_t f_,
 	const char* const attrib_name,
 	const h5_types_t attrib_type,
@@ -213,12 +209,10 @@ h5_read_step_attrib (
 			   attrib_name,
 			   (long long int)attrib_type,
 			   attrib_value);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
-	CHECK_READABLE_MODE (f);
+	check_iteration_is_readable (f);
 	
 	TRY (ret_value = h5priv_read_attrib (
-		     f->step_gid,
+		     f->iteration_gid,
 		     attrib_name,
 		     attrib_type,
 		     attrib_value));
@@ -263,7 +257,7 @@ h5_write_file_attrib (
 }
 
 h5_err_t
-h5_write_step_attrib (
+h5_write_iteration_attrib (
 	const h5_file_t f_,
 	const char* const attrib_name,
 	const h5_types_t attrib_type,
@@ -279,19 +273,17 @@ h5_write_step_attrib (
 			   (long long int)attrib_type,
 			   attrib_value,
 			   (long long)attrib_nelem);
-	CHECK_FILEHANDLE (f);
-	CHECK_TIMEGROUP (f);
-	CHECK_WRITABLE_MODE (f);
+	check_iteration_is_writable (f);
 	if (is_appendonly (f)) {
 		TRY (h5priv_append_attrib (
-			     f->step_gid,
+			     f->iteration_gid,
 			     attrib_name,
 			     attrib_type,
 			     attrib_value,
 			     attrib_nelem));
 	} else {
 		TRY (h5priv_write_attrib (
-			     f->step_gid,
+			     f->iteration_gid,
 			     attrib_name,
 			     attrib_type,
 			     attrib_value,

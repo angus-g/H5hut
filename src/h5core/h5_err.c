@@ -103,7 +103,7 @@ h5_verror (
         const char* const fmt,
         va_list ap
         ) {
-	if (h5_log_level == 0) return;
+	if (__h5_log_level == 0) return;
 	char fmt2[2048];
 	snprintf (fmt2,
 		  sizeof(fmt2), "[proc %d] E: %s: %s\n",
@@ -127,7 +127,7 @@ h5_report_errorhandler (
         const char* const fmt,
         va_list ap
         ) {
-	if (h5_log_level > 0) {
+	if (__h5_log_level > 0) {
 		h5_verror (fmt, ap);
 	}
 	return h5_errno;
@@ -144,7 +144,7 @@ h5_abort_errorhandler (
         const char* const fmt,
         va_list ap
         ) {
-	if (h5_log_level > 0) {
+	if (__h5_log_level > 0) {
 		h5_verror (fmt, ap);
 	}
 #ifdef H5_HAVE_PARALLEL

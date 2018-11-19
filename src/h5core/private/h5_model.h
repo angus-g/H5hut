@@ -15,9 +15,9 @@
  * file incompatibilities with previous versions. */
 
 #define H5_DATANAME_LEN		H5_MAX_NAME_LEN
-#define H5_STEPNAME_LEN		H5_MAX_NAME_LEN
-#define H5_STEPNAME		"Step"
-#define H5_STEPWIDTH		1
+#define H5_ITERATION_NAME_LEN	H5_MAX_NAME_LEN
+#define H5_ITERATION_NAME	"Step"
+#define H5_ITERATION_NUM_WIDTH	1
 #define H5BLOCK_GROUPNAME_BLOCK	"Block"
 #define H5_BLOCKNAME_X		"0"
 #define H5_BLOCKNAME_Y		"1"
@@ -115,7 +115,7 @@ h5priv_end_throttle (const h5_file_p f) {
 
 
 h5_err_t
-h5priv_close_step (
+h5priv_close_iteration (
 	const h5_file_p f
 	);
 
@@ -123,6 +123,7 @@ h5priv_close_step (
   Map given enumeration type to corresponding HDF5 type. We use this HDF5
   type for reading and writing datasets and attributes.
  */
+
 static inline hid_t
 h5priv_map_enum_to_normalized_type (
 	h5_types_t type

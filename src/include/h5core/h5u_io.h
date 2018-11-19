@@ -18,12 +18,12 @@ extern "C" {
 #endif
 
 h5_int64_t
-h5u_read_data (
+h5u_read_dataset (
 	const h5_file_t,
 	const char* const, void* const, const h5_types_t);
 
 h5_int64_t
-h5u_write_data (
+h5u_write_dataset (
 	const h5_file_t,
 	const char* const, const void* const, const h5_types_t);
 

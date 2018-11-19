@@ -13,8 +13,8 @@
 extern int h5_myproc;
 
 
-h5_int64_t			h5_log_level = H5_VERBOSE_ERROR;
-h5_int64_t			h5_debug_mask = 0;
+h5_int64_t			__h5_log_level = H5_VERBOSE_ERROR;
+h5_int64_t			__h5_debug_mask = 0;
 
 struct call_stack		h5_call_stack;
 
@@ -65,7 +65,7 @@ h5_err_t
 h5_set_loglevel (
         const h5_int64_t level     /*!< log level */
         ) {
-	h5_log_level = level & 0x7;
+	__h5_log_level = level & 0x7;
 	return H5_SUCCESS;
 }
 
@@ -73,8 +73,7 @@ h5_err_t
 h5_set_debug_mask (
         const h5_int64_t mask     /*!< debug level */
         ) {
-	h5_log_level = H5_VERBOSE_DEBUG;
-	h5_debug_mask = mask;
+	__h5_debug_mask = mask;
 	return H5_SUCCESS;
 }
 
@@ -89,7 +88,7 @@ h5_int64_t
 h5_get_loglevel (
         void
         ) {
-	return h5_log_level;
+	return __h5_log_level;
 }
 
 void
@@ -111,7 +110,7 @@ h5_warn (
         const char* fmt,
         ...
         ) {
-	if (h5_log_level >= 2) {
+	if (__h5_log_level >= 2) {
 		va_list ap;
 		va_start (ap, fmt);
 		h5priv_vprintf (stderr, "W", h5_get_funcname(), fmt, ap);
@@ -125,7 +124,7 @@ h5_info (
         const char* fmt,
         ...
         ) {
-	if (h5_log_level >= 3) {
+	if (__h5_log_level >= 3) {
 		va_list ap;
 		va_start (ap, fmt);
 		h5priv_vprintf (stdout, "I", h5_get_funcname(), fmt, ap);
@@ -138,7 +137,7 @@ h5_debug (
         const char* const fmt,
         ...
         ) {
-	if (h5_log_level >= 4) {
+	if (__h5_log_level >= 4) {
 		char prefix[1024];
 		snprintf (prefix, sizeof(prefix), "%*s %s",
 		          h5_call_stack_get_level(), "",

@@ -29,11 +29,13 @@ h5priv_fcmp (
 	assert (sizeof (long long) == sizeof (h5_int64_t) );
 
 	// Make [ab]Int lexicographically ordered as a twos-complement int
-	h5_int64_t aInt = *(h5_int64_t*)&A;
+	void* p = (void*)&A;
+	h5_int64_t aInt = *(h5_int64_t*)p;
 	if (aInt < 0)
 		aInt = 0x8000000000000000LL - aInt;
 
-	h5_int64_t bInt = *(h5_int64_t*)&B;
+	p = (void*)&B;
+	h5_int64_t bInt = *(h5_int64_t*)p;
 	if (bInt < 0)
 		bInt = 0x8000000000000000LL - bInt;
 
