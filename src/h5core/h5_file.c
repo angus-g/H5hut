@@ -765,8 +765,7 @@ h5_err_t
 h5_start_traverse_iterations (
 	const h5_file_t f_		/*!< file handle		*/
 	) {
-        h5_file_p f = (h5_file_p)f_;
-	H5_CORE_API_ENTER (int, "f=%p", f);
+	H5_CORE_API_ENTER (int, "f=%p", (void*)f_);
 
 	/*
 	  fast test: Does Step#0 or Step#1 exist?

@@ -248,10 +248,9 @@ h5u_write_dataset (
 	const void* data,	/*!< IN: Array to commit to disk */
 	const h5_types_t type	/*!< IN: Type of data */
 	) {
-        h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
 			   "f=%p, name='%s', data=%p, type=%lld",
-	                   f, name, data, (long long int)type);
+	                   (void*)fh, name, data, (long long int)type);
 	hid_t dset_id;
 	TRY (dset_id = h5u_open_dataset (fh, name, type));
 	TRY (h5u_write (fh, dset_id, type, data));

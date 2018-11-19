@@ -687,6 +687,7 @@ rebuild_map_elem_g2l (
 	H5_RETURN (H5_SUCCESS);
 }
 
+#if defined(WITH_PARALLEL_H5GRID)
 /*
    Rebuild mapping of global element indices to their local indices.
  */
@@ -716,6 +717,7 @@ rebuild_map_elem_g2l_partial (
 	h5priv_sort_idxmap (map);
 	H5_RETURN (H5_SUCCESS);
 }
+#endif
 
 h5_err_t
 h5t_end_store_elems (

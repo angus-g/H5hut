@@ -209,9 +209,9 @@ h5t_add_chunked_triangle_mesh(
         const h5_weight_t num_weights,
         h5t_mesh_t** mesh
         ) {
-        h5_file_p f = (h5_file_p)fh;
-	H5_CORE_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", f, name, mesh);
+	H5_CORE_API_ENTER (h5_err_t, "f=%p, name=%s, mesh=%p", (void*)fh, name, mesh);
 #ifdef WITH_PARALLEL_H5GRID
+        h5_file_p f = (h5_file_p)fh;
 	int size = -1;
 	TRY (h5priv_mpi_comm_size (f->props->comm, &size));
 	if (size != 1) {
