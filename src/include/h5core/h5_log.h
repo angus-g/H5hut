@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stddef.h>
 
+
 extern const char* H5_VER_STRING;
 
 #include "h5core/h5_types.h"
@@ -83,14 +84,13 @@ extern h5_int64_t __h5_log_level;
 extern h5_int64_t __h5_debug_mask;
 extern struct call_stack h5_call_stack;
 
-// :FIXME: Should go to another header file
-h5_err_t
-h5_initialize (void);
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// :FIXME: Should go to another header file
+h5_err_t
+h5_initialize (void);
 
 static inline void
 h5_call_stack_push (
