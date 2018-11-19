@@ -471,19 +471,31 @@ void h5u_test_read2(void)
 	RETURN(status, H5_SUCCESS, "H5CloseFile");
 }
 
-#if H5_VERSION_LE(1,8,12)
 void h5u_test_read3(void)
 {
 	h5_file_t file1;
 	h5_int64_t status;
 
+#if H5_VERSION_LE(1,8,12)
 	TEST("Opening file once, read-only, MPI-POSIX VFD");
+#else
+	TEST("Opening file once, read-only, MPI-IO Independent VFD");
+#endif
+
 	h5_prop_t props = H5CreateFileProp ();
+
 #if defined(H5_HAVE_PARALLEL)
         MPI_Comm comm = MPI_COMM_WORLD;
+
+#if H5_VERSION_LE(1,8,12)
         status = H5SetPropFileMPIOPosix (props, &comm);
 	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOPosix");
+#else
+        status = H5SetPropFileMPIOIndependent (props, &comm);
+	RETURN(status, H5_SUCCESS, "H5SetPropFileMPIOIndependent");
 #endif
+
+#endif // H5_HAVE_PARALLEL
 	file1 = H5OpenFile(FILENAME, H5_O_RDONLY, props);
 	status = H5CheckFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CheckFile");
@@ -498,7 +510,6 @@ void h5u_test_read3(void)
 	status = H5CloseFile(file1);
 	RETURN(status, H5_SUCCESS, "H5CloseFile");
 }
-#endif
 
 void h5u_test_read4(void)
 {
