@@ -121,7 +121,7 @@ extern h5_err_t H5PartGetDatasetName (
 import_array();
 %}
 
-#if defined (PARALLEL_IO)
+#ifdef (PARALLEL_IO)
 %include mpi4py/mpi4py.i
 %mpi4py_typemap(Comm, MPI_Comm);
 %typemap(in) MPI_Comm* {
