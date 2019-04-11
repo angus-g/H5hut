@@ -12,8 +12,6 @@
 #include <string.h>
 #include <assert.h>
 
-#include "config.h"
-
 #include "private/h5_hdf5.h"
 
 #include "private/h5_mpi.h"
@@ -23,7 +21,6 @@
 int h5_initialized = 0;
 h5_dta_types_t h5_dta_types;            // type ids' for base & compound data types
 int h5_myproc = 0;                      // proc id
-const char* H5_VER_STRING = PACKAGE_VERSION;
 /*
    create several HDF5 types
  */

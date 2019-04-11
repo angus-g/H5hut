@@ -7,13 +7,14 @@
   License: see file COPYING in top level of source distribution.
 */
 
+#include "FC.h"
 #include "h5_private.h"
 #include "h5core/h5_log.h"
 
 #include "h5core/h5u_io.h"
 
 /*==================Writing data ============*/
-#define h5pt_writedata_r8 FC_MANGLING (					\
+#define h5pt_writedata_r8 FC_GLOBAL (					\
                 h5pt_writedata_r8,                                      \
                 H5PT_WRITEDATA_R8 )
 h5_int64_t
@@ -34,7 +35,7 @@ h5pt_writedata_r8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_writedata_r4 FC_MANGLING (					\
+#define h5pt_writedata_r4 FC_GLOBAL (					\
                 h5pt_writedata_r4,                                      \
                 H5PT_WRITEDATA_R4 )
 h5_int64_t
@@ -55,7 +56,7 @@ h5pt_writedata_r4 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_writedata_i8 FC_MANGLING (					\
+#define h5pt_writedata_i8 FC_GLOBAL (					\
                 h5pt_writedata_i8,                                      \
                 H5PT_WRITEDATA_I8 )
 h5_int64_t
@@ -76,7 +77,7 @@ h5pt_writedata_i8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_writedata_i4 FC_MANGLING (					\
+#define h5pt_writedata_i4 FC_GLOBAL (					\
                 h5pt_writedata_i4,                                      \
                 H5PT_WRITEDATA_I4 )
 h5_int64_t
@@ -99,7 +100,7 @@ h5pt_writedata_i4 (
 
 
 /*==================Reading data ============*/
-#define h5pt_readdata_r8 FC_MANGLING (					\
+#define h5pt_readdata_r8 FC_GLOBAL (					\
                 h5pt_readdata_r8,                                       \
                 H5PT_READDATA_R8 )
 h5_int64_t
@@ -120,7 +121,7 @@ h5pt_readdata_r8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_readdata_r4 FC_MANGLING (					\
+#define h5pt_readdata_r4 FC_GLOBAL (					\
                 h5pt_readdata_r4,                                       \
                 H5PT_READDATA_R4 )
 h5_int64_t
@@ -141,7 +142,7 @@ h5pt_readdata_r4 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_readdata_i8 FC_MANGLING (					\
+#define h5pt_readdata_i8 FC_GLOBAL (					\
                 h5pt_readdata_i8,                                       \
                 H5PT_READDATA_I8 )
 h5_int64_t
@@ -163,7 +164,7 @@ h5pt_readdata_i8 (
 	H5_API_RETURN(herr);
 }
 
-#define h5pt_readdata_i4 FC_MANGLING (					\
+#define h5pt_readdata_i4 FC_GLOBAL (					\
                 h5pt_readdata_i4,                                       \
                 H5PT_READDATA_I4 )
 h5_int64_t

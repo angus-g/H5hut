@@ -14,8 +14,6 @@
 #include <stddef.h>
 
 
-extern const char* H5_VER_STRING;
-
 #include "h5core/h5_types.h"
 #include "h5core/h5_err.h"
 

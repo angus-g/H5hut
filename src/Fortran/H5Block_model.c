@@ -7,12 +7,13 @@
   License: see file COPYING in top level of source distribution.
 */
 
+#include "FC.h"
 #include "h5_private.h"
 #include "h5core/h5_log.h"
 #include "h5core/h5b_model.h"
 #include "h5core/h5b_io.h"
 
-#define h5bl_hasfielddata FC_MANGLING (				  \
+#define h5bl_hasfielddata FC_GLOBAL (				  \
                 h5bl_hasfielddata,				  \
                 H5BL_HASFIELDDATA )
 h5_int64_t
@@ -27,7 +28,7 @@ h5bl_hasfielddata (
 }
 
 
-#define h5bl_3d_hasview FC_MANGLING (				\
+#define h5bl_3d_hasview FC_GLOBAL (				\
                 h5bl_hasview,                                   \
                 H5BL_HASVIEW )
 h5_int64_t
@@ -42,7 +43,7 @@ h5bl_3d_hasview (
 }
 
 
-#define h5bl_3d_setview FC_MANGLING (					\
+#define h5bl_3d_setview FC_GLOBAL (					\
                 h5bl_3d_setview,                                        \
                 H5BL_3D_SETVIEW )
 h5_int64_t
@@ -72,7 +73,7 @@ h5bl_3d_setview (
 		*k_start-1, *k_end-1 ));
 }
 
-#define h5bl_3d_getview FC_MANGLING (					\
+#define h5bl_3d_getview FC_GLOBAL (					\
                 h5bl_3d_getview,                                        \
                 H5BL_3D_GETVIEW )
 h5_int64_t
@@ -111,7 +112,7 @@ h5bl_3d_getview (
 
 
 
-#define h5bl_3d_getreducedview FC_MANGLING (				\
+#define h5bl_3d_getreducedview FC_GLOBAL (				\
                 h5bl_3d_getreducedview,                                 \
                 H5BL_3D_GETREDUCEDVIEW )
 h5_int64_t
@@ -148,7 +149,7 @@ h5bl_3d_getreducedview (
         H5_API_RETURN (H5_SUCCESS);
 }
 
-#define h5bl_3d_setchunk FC_MANGLING (				\
+#define h5bl_3d_setchunk FC_GLOBAL (				\
                 h5bl_3d_setchunk,                               \
                 H5BL_3D_SETCHUNK )
 h5_int64_t
@@ -165,7 +166,7 @@ h5bl_3d_setchunk (
 	H5_API_RETURN(h5b_3d_set_chunk (f, *i, *j, *k));
 }
 
-#define h5bl_3d_getchunk FC_MANGLING (				\
+#define h5bl_3d_getchunk FC_GLOBAL (				\
                 h5bl_3d_getchunk,                               \
                 H5BL_3D_GETCHUNK )
 h5_int64_t
@@ -189,7 +190,7 @@ h5bl_3d_getchunk (
 
 
 #if defined(H5_HAVE_PARALLEL)
-#define h5bl_3d_setgrid FC_MANGLING (		\
+#define h5bl_3d_setgrid FC_GLOBAL (		\
 		h5bl_3d_setgrid,		\
 		h5bl_3d_setgrid)
 h5_int64_t
@@ -206,7 +207,7 @@ h5bl_3d_setgrid (
 	H5_API_RETURN(h5b_3d_set_grid (f, *i, *j, *k));
 }
 
-#define h5bl_3d_getgrid FC_MANGLING (	        \
+#define h5bl_3d_getgrid FC_GLOBAL (	        \
 		h5bl_3d_getgrid,		\
 		H5BL_3D_GETGRID)
 h5_int64_t
@@ -224,7 +225,7 @@ h5bl_3d_getgrid (
 	H5_API_RETURN(h5b_3d_get_grid_coords (f, (int)*proc, i, j, k));
 }
 
-#define h5bl_3d_setdims FC_MANGLING (		\
+#define h5bl_3d_setdims FC_GLOBAL (		\
 		h5bl_3d_setdims,                \
 		H5BL_3D_SETDIMS)
 h5_int64_t
@@ -243,7 +244,7 @@ h5bl_3d_setdims (
 
 #endif
 
-#define h5bl_3d_sethalo FC_MANGLING (		\
+#define h5bl_3d_sethalo FC_GLOBAL (		\
          	h5bl_3d_sethalo,                \
 		H5BL_3D_SETHALO)
 h5_int64_t
@@ -260,7 +261,7 @@ h5bl_3d_sethalo (
 	H5_API_RETURN(h5b_3d_set_halo (f, *i, *j, *k));
 }
 
-#define h5bl_getnumfields FC_MANGLING (					\
+#define h5bl_getnumfields FC_GLOBAL (					\
                 h5bl_getnumfields,                                      \
                 H5BL_GETNUMFIELDS )
 h5_int64_t
@@ -274,7 +275,7 @@ h5bl_getnumfields (
 	H5_API_RETURN (h5b_get_num_fields (f));
 }
 
-#define h5bl_getfieldinfo FC_MANGLING (					\
+#define h5bl_getfieldinfo FC_GLOBAL (					\
                 h5bl_getfieldinfo,                                      \
                 H5BL_GETFIELDINFO )
 h5_int64_t
@@ -302,7 +303,7 @@ h5bl_getfieldinfo (
 	H5_API_RETURN(herr);
 }
 
-#define h5bl_getfieldinfobyname FC_MANGLING (	\
+#define h5bl_getfieldinfobyname FC_GLOBAL (	\
 		h5bl_getfieldinfobyname,        \
 		H5BL_GETFIELDINFOBYNAME)
 h5_int64_t

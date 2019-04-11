@@ -4,6 +4,7 @@
 *.dSYM
 *~
 *.h5
+build
 CMakeFiles
 attach_field_attributes
 dump_field_attributes

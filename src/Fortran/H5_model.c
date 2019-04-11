@@ -7,6 +7,7 @@
   License: see file COPYING in top level of source distribution.
 */
 
+#include "FC.h"
 #include "h5_private.h"
 
 #include "h5core/h5_log.h"
@@ -14,7 +15,7 @@
 
 /* H5hut data model */
 
-#define h5_hasstep FC_MANGLING(		      \
+#define h5_hasstep FC_GLOBAL(		      \
                 h5_hasstep,                   \
                 H5_HASSTEP)
 int
@@ -31,7 +32,7 @@ h5_hasstep (
 	H5_API_RETURN (h5_has_iteration (fh, (*step)-1));
 }
 
-#define h5_setstep FC_MANGLING(			\
+#define h5_setstep FC_GLOBAL(			\
                 h5_setstep,                     \
                 H5_SETSTEP)
 h5_int64_t
@@ -44,7 +45,7 @@ h5_setstep (
 	H5_API_RETURN (h5_set_iteration (fh, (*step)-1));
 }
 
-#define h5_getstep FC_MANGLING(			\
+#define h5_getstep FC_GLOBAL(			\
                 h5_getstep,                     \
                 H5_GETSTEP)
 h5_int64_t
@@ -57,7 +58,7 @@ h5_getstep (
 	H5_API_RETURN (h5_get_iteration (fh) + 1);
 }
 
-#define h5_getnsteps FC_MANGLING(		\
+#define h5_getnsteps FC_GLOBAL(		\
                 h5_getnsteps,                   \
                 H5_GETNSTEPS)
 h5_int64_t

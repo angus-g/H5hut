@@ -7,6 +7,7 @@
   License: see file COPYING in top level of source distribution.
 */
 
+#include "FC.h"
 #include "h5_private.h"
 #include "h5core/h5_log.h"
 #include "h5core/h5b_attribs.h"
@@ -19,7 +20,7 @@
      |_|                |___/
 */
 
-#define h5bl_getnfieldattribs FC_MANGLING (				\
+#define h5bl_getnfieldattribs FC_GLOBAL (				\
                 h5bl_getnfieldattribs,                                  \
                 H5BL_GETNFIELDATTRIBS)
 h5_int64_t
@@ -38,7 +39,7 @@ h5bl_getnfieldattribs (
 	H5_API_RETURN (herr);
 }
 
-#define h5bl_getfieldattribinfo FC_MANGLING (				\
+#define h5bl_getfieldattribinfo FC_GLOBAL (				\
                 h5bl_getfieldattribinfo,                                \
                 h5bl_getfieldattribinfo)
 h5_int64_t
@@ -132,7 +133,7 @@ read_field_attrib (
  |___/\__|_|  |_|_| |_|\__, |
                        |___/ 
 */
-#define h5bl_writefieldattrib_string FC_MANGLING (			\
+#define h5bl_writefieldattrib_string FC_GLOBAL (			\
                 h5bl_writefieldattrib_string,                           \
                 H5BL_WRITEFIELDATTRIB_STRING)
 h5_int64_t
@@ -164,7 +165,7 @@ h5bl_writefieldattrib_string (
 	H5_API_RETURN (h5err);
 }
 
-#define h5bl_readfieldattrib_string FC_MANGLING (			\
+#define h5bl_readfieldattrib_string FC_GLOBAL (			\
                 h5bl_readfieldattrib_string,                            \
                 H5BL_READFIELDATTRIB_STRING)
 h5_err_t
@@ -201,7 +202,7 @@ h5bl_readfieldattrib_string (
  | | |  __/ (_| | |
  |_|  \___|\__,_|_|
 */
-#define h5bl_writefieldattrib_r8 FC_MANGLING (			    \
+#define h5bl_writefieldattrib_r8 FC_GLOBAL (			    \
                 h5bl_writefieldattrib_r8,                           \
                 H5BL_WRITEFIELDATTRIB_R8)
 h5_int64_t
@@ -230,7 +231,7 @@ h5bl_writefieldattrib_r8 (
                                attrib_value, *attrib_nelems));
 }
 
-#define h5bl_readfieldattrib_r8 FC_MANGLING (			    \
+#define h5bl_readfieldattrib_r8 FC_GLOBAL (			    \
                 h5bl_readfieldattrib_r8,                            \
                 H5BL_READFIELDATTRIB_R8)
 h5_err_t
@@ -258,7 +259,7 @@ h5bl_readfieldattrib_r8 (
                                attrib_value));
 }
 
-#define h5bl_writefieldattrib_r4 FC_MANGLING (			    \
+#define h5bl_writefieldattrib_r4 FC_GLOBAL (			    \
                 h5bl_writefieldattrib_r4,                           \
                 H5BL_WRITEFIELDATTRIB_R4)
 h5_int64_t
@@ -287,7 +288,7 @@ h5bl_writefieldattrib_r4 (
                                attrib_value, *attrib_nelems));
 }
 
-#define h5bl_readfieldattrib_r4 FC_MANGLING (			    \
+#define h5bl_readfieldattrib_r4 FC_GLOBAL (			    \
                 h5bl_readfieldattrib_r4,                            \
                 H5BL_READFIELDATTRIB_R4)
 h5_err_t
@@ -323,7 +324,7 @@ h5bl_readfieldattrib_r4 (
  |_|_| |_|\__\___|\__, |\___|_|   
                   |___/
 */
-#define h5bl_writefieldattrib_i8 FC_MANGLING (			    \
+#define h5bl_writefieldattrib_i8 FC_GLOBAL (			    \
                 h5bl_writefieldattrib_i8,                           \
                 H5BL_WRITEFIELDATTRIB_I8)
 h5_int64_t
@@ -352,7 +353,7 @@ h5bl_writefieldattrib_i8 (
                                attrib_value, *attrib_nelems));
 }
 
-#define h5bl_readfieldattrib_i8 FC_MANGLING (			    \
+#define h5bl_readfieldattrib_i8 FC_GLOBAL (			    \
                 h5bl_readfieldattrib_i8,                            \
                 H5BL_READFIELDATTRIB_I8)
 h5_err_t
@@ -381,7 +382,7 @@ h5bl_readfieldattrib_i8 (
                                attrib_value));
 }
 
-#define h5bl_writefieldattrib_i4 FC_MANGLING (			    \
+#define h5bl_writefieldattrib_i4 FC_GLOBAL (			    \
                 h5bl_writefieldattrib_i4,                           \
                 H5BL_WRITEFIELDATTRIB_I4 )
 h5_int64_t
@@ -410,7 +411,7 @@ h5bl_writefieldattrib_i4 (
                                attrib_value, *attrib_nelems));
 }
 
-#define h5bl_readfieldattrib_i4 FC_MANGLING (			    \
+#define h5bl_readfieldattrib_i4 FC_GLOBAL (			    \
                 h5bl_readfieldattrib_i4,                            \
                 H5BL_READFIELDATTRIB_I4)
 h5_err_t
@@ -438,7 +439,7 @@ h5bl_readfieldattrib_i4 (
                                attrib_value));
 }
 
-#define h5bl_get_fieldorigin FC_MANGLING (	\
+#define h5bl_get_fieldorigin FC_GLOBAL (	\
 		h5bl_get_fieldorigin,		\
 		H5BL_GET_FIELDORIGIN)
 
@@ -474,7 +475,7 @@ h5bl_get_fieldorigin (
 	H5_API_RETURN (H5_SUCCESS);
 }
 
-#define h5bl_set_fieldorigin FC_MANGLING (	\
+#define h5bl_set_fieldorigin FC_GLOBAL (	\
 		h5bl_set_fieldorigin,		\
 		H5BL_SET_FIELDORIGIN)
 
@@ -507,7 +508,7 @@ h5bl_set_fieldorigin (
 	H5_API_RETURN (H5_SUCCESS);
 }
 
-#define h5bl_get_fieldspacing FC_MANGLING (		\
+#define h5bl_get_fieldspacing FC_GLOBAL (		\
 		h5bl_get_fieldspacing,			\
 		H5BL_GET_FIELDSPACING)
 
@@ -543,7 +544,7 @@ h5bl_get_fieldspacing (
 	H5_API_RETURN (H5_SUCCESS);
 }
 
-#define h5bl_set_fieldspacing FC_MANGLING (		\
+#define h5bl_set_fieldspacing FC_GLOBAL (		\
 		h5bl_set_fieldspacing,			\
 		H5BL_SET_FIELDSPACING)
 
@@ -627,7 +628,7 @@ get_field_coords (
 	return (h5err);
 }
 
-#define h5bl_set_fieldxcoords FC_MANGLING (	 \
+#define h5bl_set_fieldxcoords FC_GLOBAL (	 \
 		h5bl_set_fieldxcoords,		 \
 		H5BL_SET_FIELDXCOORDS)
 h5_int64_t
@@ -652,7 +653,7 @@ h5bl_set_fieldxcoords (
                                coords, *n_coords));
 }
 
-#define h5bl_get_fieldxcoords FC_MANGLING (	 \
+#define h5bl_get_fieldxcoords FC_GLOBAL (	 \
 		h5bl_get_fieldxcoords,		 \
 		H5BL_GET_FIELDXCOORDS)
 h5_int64_t
@@ -678,7 +679,7 @@ h5bl_get_fieldxcoords (
                                coords, *n_coords));
 }
 
-#define h5bl_set_fieldycoords FC_MANGLING (	 \
+#define h5bl_set_fieldycoords FC_GLOBAL (	 \
 		h5bl_set_fieldycoords,		 \
 		H5BL_SET_FIELDYCOORDS)
 h5_int64_t
@@ -704,7 +705,7 @@ h5bl_set_fieldycoords (
                                coords, *n_coords));
 }
 
-#define h5bl_get_fieldycoords FC_MANGLING (	 \
+#define h5bl_get_fieldycoords FC_GLOBAL (	 \
 		h5bl_get_fieldycoords,		 \
 		H5BL_GET_FIELDyCOORDS)
 h5_int64_t
@@ -731,7 +732,7 @@ h5bl_get_fieldycoords (
 }
 
 
-#define h5bl_set_fieldzcoords FC_MANGLING (	 \
+#define h5bl_set_fieldzcoords FC_GLOBAL (	 \
 		h5bl_set_fieldzcoords,		 \
 		H5BL_SET_FIELDZCOORDS)
 h5_int64_t
@@ -757,7 +758,7 @@ h5bl_set_fieldzcoords (
                                coords, *n_coords));
 }
 
-#define h5bl_get_fieldzcoords FC_MANGLING (	 \
+#define h5bl_get_fieldzcoords FC_GLOBAL (	 \
 		h5bl_get_fieldzcoords,		 \
 		H5BL_GET_FIELDZCOORDS)
 h5_int64_t

@@ -7,6 +7,7 @@
   License: see file COPYING in top level of source distribution.
 */
 
+#include "FC.h"
 #include "h5_private.h"
 
 #include "h5core/h5_log.h"
@@ -14,7 +15,7 @@
 
 #include <hdf5.h>
 
-#define h5_createprop_file FC_MANGLING(    \
+#define h5_createprop_file FC_GLOBAL(    \
                 h5_createprop_file,	   \
                 H5_CREATEPROP_FILE)
 h5_int64_t
@@ -26,7 +27,7 @@ h5_createprop_file (
 }
 
 #if defined(H5_HAVE_PARALLEL)
-#define h5_setprop_file_mpio FC_MANGLING( \
+#define h5_setprop_file_mpio FC_GLOBAL( \
                 h5_setprop_file_mpio,	  \
                 H5_SETPROP_FILE_MPIO)
 h5_int64_t
@@ -42,7 +43,7 @@ h5_setprop_file_mpio (
         H5_API_RETURN ((h5_int64_t)h5_set_prop_file_mpio_collective (prop, &comm));
 }
 
-#define h5_setprop_file_mpio_collective FC_MANGLING( \
+#define h5_setprop_file_mpio_collective FC_GLOBAL( \
                 h5_setprop_file_mpio_collective,     \
                 H5_SETPROP_FILE_MPIO_COLLECTIVE)
 h5_int64_t
@@ -58,7 +59,7 @@ h5_setprop_file_mpio_collective (
         H5_API_RETURN ((h5_int64_t)h5_set_prop_file_mpio_collective (prop, &comm));
 }
 
-#define h5_setprop_file_mpio_independent FC_MANGLING( \
+#define h5_setprop_file_mpio_independent FC_GLOBAL( \
                 h5_setprop_file_mpio_independent,     \
                 H5_SETPROP_FILE_MPIO_INDEPENDENT)
 h5_int64_t
@@ -75,7 +76,7 @@ h5_setprop_file_mpio_independent (
 }
 
 #if H5_VERSION_LE(1,8,12)
-#define h5_setprop_file_mpio_posix FC_MANGLING( \
+#define h5_setprop_file_mpio_posix FC_GLOBAL( \
                 h5_setprop_file_mpio_posix,  \
                 H5_SETPROP_FILE_MPIO_POSIX)
 h5_int64_t
@@ -94,7 +95,7 @@ h5_setprop_file_mpio_posix (
 
 #endif
 
-#define h5_setprop_file_corevfd FC_MANGLING( \
+#define h5_setprop_file_corevfd FC_GLOBAL( \
                 h5_setprop_file_corevfd,     \
                 H5_SETPROP_FILE_COREVFD)
 h5_int64_t
@@ -109,7 +110,7 @@ h5_setprop_file_corevfd (
         H5_API_RETURN ((h5_int64_t)h5_set_prop_file_core_vfd (prop, *increment));
 }
 
-#define h5_setprop_file_align FC_MANGLING (  \
+#define h5_setprop_file_align FC_GLOBAL (  \
                 h5_setprop_file_align,	     \
                 H5_SETPROP_FILE_ALIGN)
 h5_int64_t
@@ -124,7 +125,7 @@ h5_setprop_file_align (
         H5_API_RETURN (h5_set_prop_file_align (prop, *align));
 }
 
-#define h5_setprop_file_throttle FC_MANGLING (		  \
+#define h5_setprop_file_throttle FC_GLOBAL (		  \
                 h5_setprop_file_throttle,                 \
                 H5_SETPROP_FILE_THROTTLE)
 
@@ -141,7 +142,7 @@ h5_setprop_file_throttle (
         H5_API_RETURN (h5_set_prop_file_throttle (prop, *throttle));
 }
 
-#define h5_closeprop FC_MANGLING (		\
+#define h5_closeprop FC_GLOBAL (		\
                 h5_closeprop,                   \
                 H5_CLOSEPROP)
 h5_int64_t
@@ -155,7 +156,7 @@ h5_closeprop (
         H5_API_RETURN (h5_close_prop (prop));
 }
 
-#define h5_openfile FC_MANGLING( \
+#define h5_openfile FC_GLOBAL( \
                 h5_openfile,  \
                 H5_OPENFILE)
 h5_int64_t
@@ -176,7 +177,7 @@ h5_openfile (
         H5_API_RETURN ((h5_int64_t)f);
 }
 
-#define h5_closefile FC_MANGLING(                  \
+#define h5_closefile FC_GLOBAL(                  \
                 h5_closefile,			   \
                 H5_CLOSEFILE)
 h5_int64_t
@@ -188,7 +189,7 @@ h5_closefile (
 	H5_API_RETURN (h5_close_file (fh));
 }
 
-#define h5_checkfile FC_MANGLING(                  \
+#define h5_checkfile FC_GLOBAL(                  \
                 h5_checkfile,			   \
                 H5_CHECKFILE)
 h5_int64_t
@@ -200,7 +201,7 @@ h5_checkfile (
 	H5_API_RETURN (h5_check_filehandle (fh));
 }
 
-#define h5_flushfile FC_MANGLING(                      \
+#define h5_flushfile FC_GLOBAL(                      \
                 h5_flushfile,			       \
                 H5_FLUSHFILE)
 h5_int64_t
@@ -212,7 +213,7 @@ h5_flushfile (
 	H5_API_RETURN (h5_flush_file (fh));
 }
 
-#define h5_flushstep FC_MANGLING(		    \
+#define h5_flushstep FC_GLOBAL(		    \
                 h5_flushstep,                       \
                 H5_FLUSHSTEP)
 h5_int64_t
@@ -224,7 +225,7 @@ h5_flushstep (
 	H5_API_RETURN (h5_flush_iteration (fh));
 }
 
-#define h5_finalize FC_MANGLING(		   \
+#define h5_finalize FC_GLOBAL(		   \
                 h5_finalize,                       \
                 H5_FINALIZE)
 h5_int64_t
@@ -238,7 +239,7 @@ h5_finalize (
 
 
 /* debug output */
-#define h5_set_verbosity_level FC_MANGLING(	\
+#define h5_set_verbosity_level FC_GLOBAL(	\
                 h5_set_verbosity_level,         \
                 H5_SET_VERBOSITY_LEVEL)
 h5_int64_t
@@ -250,7 +251,7 @@ h5_set_verbosity_level (
 	H5_API_RETURN(h5_set_loglevel (*level));
 }
 
-#define h5_abort_on_error FC_MANGLING( \
+#define h5_abort_on_error FC_GLOBAL( \
                 h5_abort_on_error,     \
                 H5_ABORT_ON_ERROR)
 h5_int64_t
@@ -262,7 +263,7 @@ h5_abort_on_error (
         H5_API_RETURN (h5_set_errorhandler (h5_abort_errorhandler));
 }
 
-#define h5_get_error_number FC_MANGLING(	\
+#define h5_get_error_number FC_GLOBAL(	\
                 h5_get_error_number,		\
                 H5_GET_ERROR_NUMBER)
 h5_int64_t
