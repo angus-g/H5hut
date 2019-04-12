@@ -1,4 +1,4 @@
-%module H5hut
+%module H5hutpy
 %{
 #define SWIG_FILE_WITH_INIT
 #if defined(PARALLEL_IO)
