@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 set(h5hutf_SOURCES
   H5_const.f90 H5_file.f90 H5_model.f90 H5_file_attribs.f90 H5_step_attribs.f90
   H5_log.f90 H5_err.f90 H5Part_model.f90 H5Part_io.f90
@@ -31,6 +33,8 @@ target_link_libraries(H5hutf H5hut)
 # make sure we create the interface file
 add_dependencies(H5hutf H5hutf_interface)
 
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-  FILES_MATCHING PATTERN "h5hut.mod" PATTERN "h5hut.f")
+install(TARGETS H5hutf
+  ARCHIVE DESTINATION lib)
+
+install(FILES ${INTERFACE_FILE} "${CMAKE_CURRENT_BINARY_DIR}/h5hut.mod"
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

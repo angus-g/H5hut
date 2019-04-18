@@ -20,3 +20,6 @@ target_link_libraries(H5hut ${HDF5_LIBRARIES})
 
 # look for headers under current directory
 target_include_directories(H5hut PRIVATE ".")
+
+install(TARGETS H5hut
+  ARCHIVE DESTINATION lib)
