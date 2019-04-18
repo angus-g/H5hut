@@ -19,7 +19,7 @@ set(CMAKE_Fortran_FORMAT FREE)
 include(FortranCInterface)
 FortranCInterface_HEADER(FC.h MACRO_NAMESPACE "FC_")
 
-add_library(H5hutf SHARED
+add_library(H5hutf
   H5.c H5_attribs.c H5_model.c H5Part_model.c H5Part_io.c
   H5Block_model.c H5Block_attribs.c H5Block_io.c
   H5hut.f90)

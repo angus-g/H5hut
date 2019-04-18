@@ -1,4 +1,4 @@
-add_library(H5hut SHARED
+add_library(H5hut
   h5_attachments.c h5_attribs.c h5_err.c h5_log.c h5_file.c h5_model.c h5_syscall.c
   h5u_io.c h5b_io.c h5u_model.c h5b_model.c h5b_attribs.c
   private/h5_hdf5.c h5_init.c

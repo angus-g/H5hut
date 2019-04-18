@@ -6,6 +6,8 @@ option(USE_PYTHON "Build Python interface" OFF)
 
 find_package(HDF5 REQUIRED)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 include_directories("${PROJECT_SOURCE_DIR}/src/include")
 add_subdirectory(src/h5core)
 
