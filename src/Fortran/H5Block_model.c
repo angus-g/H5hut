@@ -69,7 +69,8 @@ h5bl_3d_setview (
 		f,
 		*i_start-1, *i_end-1,
 		*j_start-1, *j_end-1,
-		*k_start-1, *k_end-1 ));
+		*k_start-1, *k_end-1,
+                0));
 }
 
 #define h5bl_3d_getview FC_MANGLING (					\
