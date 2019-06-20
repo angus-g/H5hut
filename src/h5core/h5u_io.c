@@ -254,5 +254,6 @@ h5u_write_dataset (
 	hid_t dset_id;
 	TRY (dset_id = h5u_open_dataset (fh, name, type));
 	TRY (h5u_write (fh, dset_id, type, data));
+        TRY (hdf5_close_dataset(dset_id));
 	H5_RETURN (H5_SUCCESS);
 }

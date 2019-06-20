@@ -152,6 +152,8 @@ h5u_set_num_items (
 
 	TRY (hdf5_close_dataspace (u->shape));
 	u->shape = H5S_ALL;
+        TRY (hdf5_close_dataspace (u->memshape));
+        u->memshape = H5S_ALL;
 
 	u->nparticles = (hsize_t)nparticles;
 
@@ -212,7 +214,8 @@ h5u_set_num_items (
 	TRY( u->shape = hdf5_create_dataspace(1, &count, NULL) );
 
 	/* declare overall data size  but then will select a subset */
-	TRY( u->diskshape = hdf5_create_dataspace(1, &count, NULL) );
+        TRY (hdf5_close_dataspace (u->diskshape));
+        TRY (u->diskshape = hdf5_create_dataspace(1, &count, NULL));
 
 	count = nparticles;
 	if (count > 0) {
