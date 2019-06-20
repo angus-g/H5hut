@@ -417,7 +417,6 @@ _dissolve_ghostzones (
 				p_el = p_save;
 			}
 		}
-
 	}
 	h5_free (p_begin);
 	H5_RETURN (H5_SUCCESS);
@@ -544,7 +543,8 @@ h5b_3d_set_view (
 	const h5_size_t j_start,	/*!< IN: start index of \c j	*/ 
 	const h5_size_t j_end,		/*!< IN: end index of \c j	*/ 
 	const h5_size_t k_start,	/*!< IN: start index of \c k	*/ 
-	const h5_size_t k_end		/*!< IN: end index of \c k	*/
+	const h5_size_t k_end,		/*!< IN: end index of \c k	*/
+        const h5_int64_t dissolve_ghostzones /*!< IN: bool: dissolve ghost-zones */ 
 	) {
         h5_file_p f = (h5_file_p)fh;
 	H5_CORE_API_ENTER (h5_err_t,
@@ -571,7 +571,6 @@ h5b_3d_set_view (
 	h5b_partition_t *write_layout;
 
 	TRY (user_layout =  h5_calloc (f->nprocs, sizeof (*user_layout)));
-	TRY (write_layout = h5_calloc (f->nprocs, sizeof (*write_layout)));
 
         user_layout[f->myproc] = b->user_layout[0];
 
@@ -580,11 +579,7 @@ h5b_3d_set_view (
                      user_layout, 1, f->b->partition_mpi_t, f->props->comm));
 
 	_get_max_dimensions(f, user_layout);
-
-	TRY (_dissolve_ghostzones (f, user_layout, write_layout));
-	b->user_layout[0] = user_layout[f->myproc];
-	b->write_layout[0] = write_layout[f->myproc];
-
+	//b->user_layout[0] = user_layout[f->myproc];
 	h5_debug (
 		"User layout: %lld:%lld, %lld:%lld, %lld:%lld",
 		(long long)b->user_layout[0].i_start,
@@ -594,17 +589,25 @@ h5b_3d_set_view (
 		(long long)b->user_layout[0].k_start,
                 (long long)b->user_layout[0].k_end );
 
-	h5_debug (
-		"Ghost-zone layout: %lld:%lld, %lld:%lld, %lld:%lld",
-		(long long)b->write_layout[0].i_start,
-                (long long)b->write_layout[0].i_end,
-		(long long)b->write_layout[0].j_start,
-                (long long)b->write_layout[0].j_end,
-		(long long)b->write_layout[0].k_start,
-                (long long)b->write_layout[0].k_end );
+        if (dissolve_ghostzones) {
+                TRY (write_layout = h5_calloc (f->nprocs, sizeof (*write_layout)));
+                TRY (_dissolve_ghostzones (f, user_layout, write_layout));
+                b->write_layout[0] = write_layout[f->myproc];
+
+                h5_debug (
+                        "Ghost-zone layout: %lld:%lld, %lld:%lld, %lld:%lld",
+                        (long long)b->write_layout[0].i_start,
+                        (long long)b->write_layout[0].i_end,
+                        (long long)b->write_layout[0].j_start,
+                        (long long)b->write_layout[0].j_end,
+                        (long long)b->write_layout[0].k_start,
+                        (long long)b->write_layout[0].k_end );
+                h5_free(write_layout);
+        } else {
+                b->write_layout[0] = b->user_layout[0];
+        }
 
 	h5_free(user_layout);
-	h5_free(write_layout);
 #else
 	b->write_layout[0] = b->user_layout[0];
 	b->i_max = b->user_layout->i_end;

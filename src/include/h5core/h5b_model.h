@@ -51,7 +51,8 @@ h5b_3d_set_view (
         const h5_file_t,
         const h5_size_t, const h5_size_t,
         const h5_size_t, const h5_size_t,
-        const h5_size_t, const h5_size_t);
+        const h5_size_t, const h5_size_t,
+        const h5_int64_t);
 
 h5_err_t
 h5b_3d_get_view (

@@ -220,7 +220,51 @@ H5Block3dSetView (
 		h5b_3d_set_view (f,
 				 i_start, i_end,
 				 j_start, j_end,
-				 k_start, k_end));
+				 k_start, k_end,
+                                 0
+                        ));
+}
+
+/**
+  Defines the partition of the field that this processor owns, using
+  Fortran ordering: the fastest moving index is \c i.
+
+  For writing ghost-zone are dissolved.
+
+  This routine uses an MPI_Allgather, so at large concurrency it should
+  be called as infrequently as possible. For instance, if several
+  steps/iteration use the same field dimensions, set the layout only
+  once.
+
+  \return \c H5_SUCCESS on success
+  \return \c H5_FAILURE on error
+*/
+static inline h5_err_t
+H5Block3dSetViewDissolveGhostZones (
+	const h5_file_t f,		///< [in]  File handle.
+	const h5_int64_t i_start,	///< [in]  start index of \c i
+	const h5_int64_t i_end,         ///< [in]  end index of \c i
+	const h5_int64_t j_start,	///< [in]  start index of \c j
+	const h5_int64_t j_end,	        ///< [in]  end index of \c j
+	const h5_int64_t k_start,	///< [in]  start index of \c k
+	const h5_int64_t k_end	        ///< [in]  end index of \c k
+	) {
+	H5_API_ENTER (h5_err_t,
+		      "f=%p, "
+		      "i_start=%lld, i_end=%lld, "
+		      "j_start=%lld, j_end=%lld, "
+		      "k_start=%lld, k_end=%lld",
+		      (h5_file_p)f,
+		      (long long)i_start, (long long)i_end,
+		      (long long)j_start, (long long)j_end,
+		      (long long)k_start, (long long)k_end);
+	H5_API_RETURN (
+		h5b_3d_set_view (f,
+				 i_start, i_end,
+				 j_start, j_end,
+				 k_start, k_end,
+                                 1
+                        ));
 }
 
 /**
