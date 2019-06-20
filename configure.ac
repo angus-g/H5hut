@@ -138,7 +138,6 @@ fi
 AC_PROG_CC($c_compilers)
 if test "x$ac_cv_prog_cc_c89" = "xno"; then
 	AC_MSG_ERROR([C compiler not found!])
-	exit 1
 fi
 
 AC_PROG_CXX($cxx_compilers)
@@ -147,7 +146,6 @@ if test "X$ENABLE_FORTRAN" = "Xyes"; then
    	AC_PROG_FC($fc_compiler)
 	if test "x$FC" = "x"; then
 	   	AC_MSG_ERROR([Fortran compiler not found!])
-		exit 1
 	fi
 fi
 
@@ -159,7 +157,6 @@ AX_CXX_COMPILE_STDCXX_11
 AC_PROG_CC_C99
 if test "x$ac_cv_prog_cc_c99" = "xno"; then
 	AC_MSG_ERROR([Cannot set C compiler to use C99 standard!])
-	exit 1
 fi
 
 
@@ -281,8 +278,7 @@ if test -n "${HDF5_PREFIX}"; then
 fi
 AC_CHECK_LIB([hdf5], [H5open])
 AS_IF([test "x$ac_cv_lib_hdf5_H5open" != xyes], 
-        [AC_MSG_ERROR([Cannot compile and link a HDF5 program]); 
-        exit 1])
+        [AC_MSG_ERROR([Cannot compile and link a HDF5 program])])
 AC_MSG_CHECKING([checking whether hdf5 lib supports parallel IO])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 #include "hdf5.h"
@@ -429,12 +425,10 @@ if test "X$ENABLE_PARALLEL" = "Xyes"; then
 	AC_MSG_RESULT([yes])
 
 	AS_IF([test "x$H5_HAVE_PARALLEL" = "xno"],
-	        [AC_MSG_ERROR([hdf5 does not support parallel IO!]);
-        	exit 1])
+	        [AC_MSG_ERROR([hdf5 does not support parallel IO!])])
 
 	if test "X$ENABLE_VTKCONVERTER" = "Xyes"; then
 	   	AC_MSG_ERROR([VTK to H5hut grid converter cannot be compiled parallel!])
-		exit 1
 	fi
 	CPPFLAGS="${CPPFLAGS} -DPARALLEL_IO -DMPICH_IGNORE_CXX_SEEK"
 
@@ -453,14 +447,12 @@ if test "X$ENABLE_PARALLEL" = "Xyes"; then
 
 	        if test "X$r" = "Xno"; then
 		        AC_MSG_ERROR([ParMETIS])
-		        exit 1
 	        fi
         fi
 else  # --enable-parallel=no
 	AC_MSG_RESULT([no])
 	AS_IF([test "x$H5_HAVE_PARALLEL" = "xyes"],
-	        [AC_MSG_ERROR([hdf5 with support for parallel IO cannot be used for non-parallel H5hut!]);
-        	exit 1])
+	        [AC_MSG_ERROR([hdf5 with support for parallel IO cannot be used for non-parallel H5hut!])])
 fi
 
 ###############################################################################
@@ -481,7 +473,6 @@ if test "X$ENABLE_VTKCONVERTER" = "Xyes"; then
 	if test "X$?" != "X0"; then
 		AC_MSG_RESULT([no])
 	        AC_MSG_ERROR([Cannot compile VTK to H5hut converter])
-        	exit 1
 	else
 		AC_MSG_RESULT([yes])
 	fi
@@ -490,7 +481,6 @@ if test "X$ENABLE_VTKCONVERTER" = "Xyes"; then
 	if test "X$?" != "X0"; then
 		AC_MSG_RESULT([no])
 	        AC_MSG_ERROR([Cannot compile VTK to H5hut converter]); 
-        	exit 1
 	else
 		AC_MSG_RESULT([yes])
 	fi
